@@ -12,9 +12,7 @@ class Submissions extends React.Component {
       .database()
       .ref("test")
       .on("value", (records) => {
-        // console.log(records);
         this.setState({ records: records.toJSON() });
-        console.log(records.toJSON());
       });
   }
 
