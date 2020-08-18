@@ -3,7 +3,7 @@ import "firebase/database";
 import "firebase/auth";
 
 const config = {
-  apiKey: "",
+  apiKey: "AIzaSyAdlELZS5Lbea5NquotMT8amwO-Lc_7ogc",
   authDomain: "cioos-metadata-form.firebaseapp.com",
   databaseURL: "https://cioos-metadata-form.firebaseio.com",
   projectId: "cioos-metadata-form",

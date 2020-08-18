@@ -9,3 +9,7 @@ CIOOS Metadata entry form
 ## Running development mode
 
 `npm start`
+
+## Deploy to testing site at GitHub pages
+
+`npm run deploy`
