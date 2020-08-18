@@ -17,7 +17,7 @@ const CheckBoxList = ({
 }) => {
   const [checkedValues, setChecked] = useState([]);
 
-  function toggleArrayElement(ele, arr: []) {
+  function toggleArrayElement(ele, arr) {
     if (arr.includes(ele)) return arr.filter((v) => v !== ele);
     else return arr.concat(ele);
   }
