@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Route, BrowserRouter as Router } from "react-router-dom";
+import { Route, HashRouter as Router } from "react-router-dom";
 import "./index.css";
 import Home from "./components/Home";
 import Success from "./components/Success";
@@ -9,7 +9,7 @@ import Submissions from "./components/Submissions";
 import * as serviceWorker from "./serviceWorker";
 
 const router = (
-  <Router>
+  <Router basename="/">
     <div>
       <Route exact path="/" component={Home} />
       <Route path="/new" component={MetadataForm} />
