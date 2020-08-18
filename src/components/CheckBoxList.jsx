@@ -27,9 +27,6 @@ const CheckBoxList = ({
       {options.map((v, i) => {
         return (
           <FormControlLabel
-            onChange={(event) => {
-              console.log(event.target);
-            }}
             key={v}
             control={
               <Checkbox
