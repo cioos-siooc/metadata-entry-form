@@ -17,9 +17,22 @@
     "react-scripts": "3.4.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.0",
+    "cross-env": "^7.0.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.3",
-    "gh-pages": "^3.1.0"
+    "gh-pages": "^3.1.0",
+    "react-hot-loader": "^4.12.21",
+    "regenerator-runtime": "^0.13.7"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -28,7 +41,8 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "test:coverage": "npx jest --config=jest.config.js --coverage"
+    "test:coverage": "npx jest --config=jest.config.js --coverage",
+    "test:coverFile": "cross-env npx jest --config=jest.config.js --coverage --collectCoverageFrom=src/**/${FILE}.jsx $FILE"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -7,13 +7,14 @@ class Submissions extends React.Component {
     super(props);
     this.state = { records: {} };
   }
+  
+  databaseCallback = records => this.setState({ records: records.toJSON() });
+
   async componentDidMount() {
     firebase
       .database()
       .ref("test")
-      .on("value", (records) => {
-        this.setState({ records: records.toJSON() });
-      });
+      .on("value", this.databaseCallback);
   }
 
   render() {
