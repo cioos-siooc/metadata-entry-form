@@ -1,6 +1,14 @@
 import React from "react";
 import firebase from "../firebase";
-import { Typography } from "@material-ui/core";
+import {
+  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from "@material-ui/core";
+import NavDrawer from "./NavDrawer";
+import { Delete, Edit } from "@material-ui/icons";
 
 class Submissions extends React.Component {
   constructor(props) {
@@ -16,21 +24,31 @@ class Submissions extends React.Component {
       .ref("test")
       .on("value", this.databaseCallback);
   }
-
+  editRecord(key) {
+    this.props.history.push(`/edit/${key}`);
+  }
+  deleteRecord(key) {
+    firebase.database().ref(`test/${key}`).remove();
+  }
   render() {
     return (
-      <div>
+      <NavDrawer>
         <h1>Submission list</h1>
         <Typography>These are the submissions we have received:</Typography>
-
-        <table>
+        <List>
           {Object.entries(this.state.records).map(([key, val]) => (
-            <tr>
-              <td>{val.title.en}</td>
-            </tr>
+            <ListItem button key={key}>
+              <ListItemText primary={val.title.en} />
+              <ListItemIcon onClick={() => this.editRecord(key)}>
+                <Edit />
+              </ListItemIcon>
+              <ListItemIcon onClick={() => this.deleteRecord(key)}>
+                <Delete />
+              </ListItemIcon>
+            </ListItem>
           ))}
-        </table>
-      </div>
+        </List>
+      </NavDrawer>
     );
   }
 }
