@@ -98,7 +98,7 @@ class MetadataForm extends Component {
             label="Select a role"
             name="role"
             value={this.state.role}
-            onChange={this.handleInputChange}
+            onChange={e => this.handleInputChange(e)}
             options={roleCodes}
             optionLabels={roleCodes.map(camelToSentenceCase)}
           />
@@ -119,7 +119,7 @@ class MetadataForm extends Component {
             label="Select a role"
             name="progress"
             value={this.state.progress}
-            onChange={this.handleInputChange}
+            onChange={e => this.handleInputChange(e)}
             options={progressCodes}
             optionLabels={progressCodes.map(camelToSentenceCase)}
           />
