@@ -8,6 +8,7 @@ const BilingualTextInput = ({ onChange, value, name, label, multiline }) => {
     setBilingualText(newData);
     onChange({ target: { name, value: newData } });
   }
+  
   return (
     <div>
       <h5>{label}</h5>

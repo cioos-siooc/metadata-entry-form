@@ -10,11 +10,6 @@ import DateInput from "./DateInput";
 import firebase from "../firebase";
 
 const styles = {
-  root: {
-    flexGrow: 1,
-    overflow: "hidden",
-    padding: "10px",
-  },
   paper: {
     padding: "10px",
     margin: "20px",
@@ -41,11 +36,12 @@ class MetadataForm extends Component {
     };
   }
 
-  async handleSubmitClick() {
+  handleSubmitClick = async () => {
     await firebase.database().ref("test").push(this.state);
     this.props.history.push("/success");
   }
-  handleInputChange(event, parentName = false) {
+
+  handleInputChange = (event, parentName = false) => {
     const { name, value } = event.target;
 
     if (parentName) {
@@ -79,7 +75,7 @@ class MetadataForm extends Component {
             label="Enter a title"
             name="title"
             value={this.state.title}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={this.handleInputChange}
           />
         </Paper>
 
@@ -90,7 +86,7 @@ class MetadataForm extends Component {
             label="Your Answer"
             name="id"
             value={this.state.id}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={this.handleInputChange}
             fullWidth
             required
           />
@@ -102,7 +98,7 @@ class MetadataForm extends Component {
             label="Select a role"
             name="role"
             value={this.state.role}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={e => this.handleInputChange(e)}
             options={roleCodes}
             optionLabels={roleCodes.map(camelToSentenceCase)}
           />
@@ -112,7 +108,7 @@ class MetadataForm extends Component {
           <CheckBoxList
             name="eov"
             value={this.state.eov}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={this.handleInputChange}
             options={eovList}
             optionLabels={eovList.map(camelToSentenceCase)}
           />
@@ -123,7 +119,7 @@ class MetadataForm extends Component {
             label="Select a role"
             name="progress"
             value={this.state.progress}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={e => this.handleInputChange(e)}
             options={progressCodes}
             optionLabels={progressCodes.map(camelToSentenceCase)}
           />
@@ -135,7 +131,7 @@ class MetadataForm extends Component {
             label="Enter an abstract"
             name="abstract"
             value={this.state.abstract}
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={this.handleInputChange}
             multiline
           />
         </Paper>
@@ -146,14 +142,14 @@ class MetadataForm extends Component {
           </Typography>
           <DateInput
             name="dateStart"
-            onChange={(e) => this.handleInputChange(e)}
+            onChange={this.handleInputChange}
           />
         </Paper>
 
         <Button
           variant="contained"
           color="primary"
-          onClick={(e) => this.handleSubmitClick(e)}
+          onClick={this.handleSubmitClick}
         >
           Submit
         </Button>
