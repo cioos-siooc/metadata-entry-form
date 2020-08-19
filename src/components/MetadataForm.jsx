@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
+import { withRouter } from "react-router-dom";
 import { eovList, progressCodes, roleCodes } from "../isoCodeLists";
 import { TextField, Grid, Typography, Button, Paper } from "@material-ui/core";
 
@@ -36,11 +37,6 @@ class MetadataForm extends Component {
     };
   }
 
-  handleSubmitClick = async () => {
-    await firebase.database().ref("test").push(this.state);
-    this.props.history.push("/success");
-  }
-
   handleInputChange = (event, parentName = false) => {
     const { name, value } = event.target;
 
@@ -50,8 +46,11 @@ class MetadataForm extends Component {
         [parentName]: { ...state[parentName], [name]: value },
       }));
     } else this.setState((state) => ({ ...state, [name]: value }));
+  };
+  async handleSubmitClick() {
+    await firebase.database().ref("test").push(this.state);
+    this.props.history.push("/success");
   }
-
   render() {
     return (
       <Grid
@@ -142,6 +141,7 @@ class MetadataForm extends Component {
           </Typography>
           <DateInput
             name="dateStart"
+            value={this.state.dateStart}
             onChange={this.handleInputChange}
           />
         </Paper>
@@ -149,7 +149,7 @@ class MetadataForm extends Component {
         <Button
           variant="contained"
           color="primary"
-          onClick={this.handleSubmitClick}
+          onClick={() => this.handleSubmitClick()}
         >
           Submit
         </Button>
@@ -159,4 +159,4 @@ class MetadataForm extends Component {
   }
 }
 
-export default withStyles(styles)(MetadataForm);
+export default withRouter(withStyles(styles)(MetadataForm));

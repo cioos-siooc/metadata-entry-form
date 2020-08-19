@@ -1,16 +1,13 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-
-import { Typography, Button } from "@material-ui/core";
+import NavDrawer from "./NavDrawer";
+import { Typography } from "@material-ui/core";
 
 const Submissions = () => {
-  const history = useHistory();
   return (
-    <div>
+    <NavDrawer>
       <h1>Submission received!</h1>
       <Typography>Thank you for your submission!</Typography>
-      <Button onClick={() => history.push("/new")}>Make another!</Button>
-    </div>
+    </NavDrawer>
   );
 };
 
