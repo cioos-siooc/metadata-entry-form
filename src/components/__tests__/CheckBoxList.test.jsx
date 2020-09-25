@@ -5,7 +5,7 @@ import Adapter from 'enzyme-adapter-react-16';
 
 import { Checkbox } from '@material-ui/core';
 
-import CheckBoxList from '../CheckBoxList';
+import CheckBoxList from '../FormComponents/CheckBoxList';
 
 configure({ adapter: new Adapter() });
 
