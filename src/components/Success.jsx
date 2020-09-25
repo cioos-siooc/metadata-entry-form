@@ -1,13 +1,21 @@
 import React from "react";
-import NavDrawer from "./NavDrawer";
+
 import { Typography } from "@material-ui/core";
+import { Fr, En } from "./I18n";
 
 const Submissions = () => {
   return (
-    <NavDrawer>
-      <h1>Submission received!</h1>
-      <Typography>Thank you for your submission!</Typography>
-    </NavDrawer>
+    <div>
+      <Typography variant="h3">
+        <En>Submission received!</En>
+        <Fr>Soumission reçue!</Fr>
+      </Typography>
+
+      <Typography>
+        <En>Thank you for your submission!</En>
+        <Fr>Merci pour votre soumission!</Fr>
+      </Typography>
+    </div>
   );
 };
 

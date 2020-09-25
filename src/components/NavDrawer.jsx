@@ -1,18 +1,28 @@
 import React, { useContext, Fragment } from "react";
-import { useHistory } from "react-router-dom";
+
+import cioosLogoEN from "../static/cioos-banner-en-v2.png";
+import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
+
+import { useParams, useLocation, useHistory } from "react-router-dom";
+
 import { auth, signInWithGoogle } from "../auth";
 
+import { En, Fr, I18n } from "./I18n";
+
 import clsx from "clsx";
+
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   Home,
   ExitToApp,
-  Mail,
+  Contacts,
   ListAlt,
   AddBox,
   AccountCircle,
   ChevronLeft,
   ChevronRight,
+  RateReview,
+  SupervisorAccount,
   Menu,
 } from "@material-ui/icons";
 
@@ -29,14 +39,22 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Select,
+  CircularProgress,
+  Tooltip,
+  MenuItem,
 } from "@material-ui/core";
 
 import { UserContext } from "../providers/UserProvider";
+
+const cioosLogo = { en: cioosLogoEN, fr: cioosLogoFR };
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    flexGrow: 1,
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -55,6 +73,17 @@ const useStyles = makeStyles((theme) => ({
   },
   menuButton: {
     marginRight: 36,
+  },
+  languageSelector: {
+    "&:before": {
+      borderColor: "white",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderColor: "white",
+    },
+    color: "white",
+    borderColor: "white",
+    marginRight: theme.spacing(2),
   },
   hide: {
     display: "none",
@@ -101,9 +130,21 @@ export default function MiniDrawer(props) {
 
   const classes = useStyles();
   const theme = useTheme();
-  const user = useContext(UserContext);
 
-  const [open, setOpen] = React.useState(false);
+  const {
+    user,
+    authIsLoading,
+    isReviewer: userIsReviewer,
+    isAdmin: userIsAdmin,
+  } = useContext(UserContext);
+
+  const { language } = useParams();
+  const { pathname } = useLocation();
+  const pathWithoutLang = pathname.split("/").pop();
+
+  const baseURL = "/" + language;
+
+  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -111,6 +152,17 @@ export default function MiniDrawer(props) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const translations = {
+    home: <I18n en="Home" fr="Accueil" />,
+    new: <I18n en="New Record" fr="Nouvel Enregistrement" />,
+    contacts: <I18n en="Contacts" fr="Contacts" />,
+    saved: <I18n en="Saved Records" fr="Enregistrements" />,
+    review: <I18n en="Review submissions" fr="Examen des soumissions" />,
+    admin: <I18n en="Admin" fr="Admin" />,
+    signIn: <I18n en="Sign in" fr="Se Connecter" />,
+    logout: <I18n en="Logout" fr="Déconnexion" />,
   };
 
   return (
@@ -122,9 +174,9 @@ export default function MiniDrawer(props) {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Toolbar style={{ backgroundColor: "#52a79b" }}>
           <IconButton
-            color="inherit"
+            color="primary"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
@@ -134,9 +186,29 @@ export default function MiniDrawer(props) {
           >
             <Menu />
           </IconButton>
-          <Typography variant="h6" noWrap>
-            CIOOS Metadata Tool
+
+          <img src={cioosLogo[language]} alt="CIOOS/SIOOC" />
+          <Typography
+            variant="h4"
+            noWrap
+            style={{ marginLeft: "10px", flex: 1 }}
+          >
+            <En>Metadata Entry Tool</En>
+            <Fr>Outil de saisie de métadonnées</Fr>
           </Typography>
+          {/* <Button color="inherit">Login</Button> */}
+          <Select
+            disableUnderline
+            color="primary"
+            className={classes.languageSelector}
+            value={language}
+            onChange={(e) =>
+              history.push("/" + e.target.value + "/" + pathWithoutLang)
+            }
+          >
+            <MenuItem value="en">EN</MenuItem>
+            <MenuItem value="fr">FR</MenuItem>
+          </Select>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -157,8 +229,10 @@ export default function MiniDrawer(props) {
             {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
+        <div>{authIsLoading && <CircularProgress />}</div>
+
         {user && (
-          <ListItem button key={"New Record"}>
+          <ListItem key={"New Record"}>
             <ListItemIcon>
               <Avatar src={user.photoURL} />
             </ListItemIcon>
@@ -167,55 +241,138 @@ export default function MiniDrawer(props) {
         )}
         <Divider />
         <List>
-          <ListItem button key={"Home"}>
-            <ListItemIcon onClick={() => history.push("/")}>
-              <Home />
-            </ListItemIcon>
-            <ListItemText primary={"Home"} />
-          </ListItem>
+          <Tooltip
+            placement="right-start"
+            title={open ? "" : translations.home}
+          >
+            <ListItem
+              button
+              key={"Home"}
+              onClick={() => history.push(baseURL + "/")}
+            >
+              <ListItemIcon>
+                <Home />
+              </ListItemIcon>
+              <ListItemText primary={translations.home} />
+            </ListItem>
+          </Tooltip>
 
           {!user && (
-            <ListItem button key={"Sign in"}>
-              <ListItemIcon
-                onClick={() => signInWithGoogle().then(() => history.push("/"))}
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.signIn}
+            >
+              <ListItem
+                button
+                key={"Sign in"}
+                onClick={() =>
+                  signInWithGoogle().then(() => history.push(baseURL + "/"))
+                }
               >
-                <AccountCircle />
-              </ListItemIcon>
-              <ListItemText primary={"Sign in"} />
-            </ListItem>
+                <ListItemIcon>
+                  <AccountCircle />
+                </ListItemIcon>
+                <ListItemText primary={translations.signIn} />
+              </ListItem>
+            </Tooltip>
           )}
 
           {user && (
             <Fragment>
-              <ListItem button key={"New Record"}>
-                <ListItemIcon onClick={() => history.push("/new")}>
-                  <AddBox />
-                </ListItemIcon>
-                <ListItemText primary={"New Record"} />
-              </ListItem>
-              <ListItem button key={"Contacts"}>
-                <ListItemIcon
-                  onClick={() => history.push("/contacts")}
-                  disabled
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : translations.new}
+              >
+                <ListItem
+                  button
+                  key={"New Record"}
+                  onClick={() => history.push(baseURL + "/new")}
                 >
-                  <Mail />
-                </ListItemIcon>
-                <ListItemText primary={"Contacts"} />
-              </ListItem>
-              <ListItem button key={"Saved Records"}>
-                <ListItemIcon onClick={() => history.push("/submissions")}>
-                  <ListAlt />
-                </ListItemIcon>
-                <ListItemText primary={"Saved Records"} />
-              </ListItem>
-              <ListItem button key={"Logout"}>
-                <ListItemIcon
+                  <ListItemIcon>
+                    <AddBox />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.new} />
+                </ListItem>
+              </Tooltip>
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : translations.contacts}
+              >
+                <ListItem
+                  button
+                  key={"Contacts"}
+                  onClick={() => history.push(baseURL + "/contacts")}
+                >
+                  <ListItemIcon disabled>
+                    <Contacts />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.contacts} />
+                </ListItem>
+              </Tooltip>
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : translations.saved}
+              >
+                <ListItem
+                  button
+                  key={"Saved Records"}
+                  onClick={() => history.push(baseURL + "/submissions")}
+                >
+                  <ListItemIcon>
+                    <ListAlt />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.saved} />
+                </ListItem>
+              </Tooltip>
+              {userIsReviewer && (
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.review}
+                >
+                  <ListItem
+                    button
+                    key={"Review"}
+                    onClick={() => history.push(baseURL + "/reviewer")}
+                  >
+                    <ListItemIcon>
+                      <RateReview />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.review} />
+                  </ListItem>
+                </Tooltip>
+              )}
+              {userIsAdmin && (
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.admin}
+                >
+                  <ListItem
+                    button
+                    key={"Admin"}
+                    onClick={() => history.push(baseURL + "/admin")}
+                  >
+                    <ListItemIcon>
+                      <SupervisorAccount />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.admin} />
+                  </ListItem>
+                </Tooltip>
+              )}
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : translations.logout}
+              >
+                <ListItem
+                  button
+                  key={"Logout"}
                   onClick={() => auth.signOut().then(() => history.push(""))}
                 >
-                  <ExitToApp />
-                </ListItemIcon>
-                <ListItemText primary={"Logout"} />
-              </ListItem>
+                  <ListItemIcon>
+                    <ExitToApp />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.logout} />
+                </ListItem>
+              </Tooltip>
             </Fragment>
           )}
         </List>
