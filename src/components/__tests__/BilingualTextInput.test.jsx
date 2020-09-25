@@ -5,7 +5,7 @@ import Adapter from 'enzyme-adapter-react-16';
 
 import { TextField } from "@material-ui/core";
 
-import BilingualTextInput from '../BilingualTextInput';
+import BilingualTextInput from '../FormComponents/BilingualTextInput';
 
 configure({ adapter: new Adapter() });
 
