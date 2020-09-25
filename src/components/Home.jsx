@@ -1,13 +1,19 @@
 import React from "react";
-import NavDrawer from "./NavDrawer";
 import { Typography } from "@material-ui/core";
+import { En, Fr } from "./I18n";
 
 const Home = () => {
   return (
-    <NavDrawer>
-      <h1>Home</h1>
-      <Typography>Welcome home</Typography>
-    </NavDrawer>
+    <div>
+      <Typography variant="h3">
+        <En>Home</En>
+        <Fr>Accueil</Fr>
+      </Typography>
+      <Typography>
+        <En>Welcome to the CIOOS Metadata intake tool.</En>
+        <Fr>Bienvenue à la maison</Fr>
+      </Typography>
+    </div>
   );
 };
 
