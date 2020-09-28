@@ -1,20 +1,18 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-import { Button } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import { En, Fr } from "./I18n";
 
 const Home = () => {
-  const history = useHistory();
-
   return (
     <div>
-      <h1>Metadata Site</h1>
-      <Button
-        onClick={() => {
-          history.push("/new");
-        }}
-      >
-        New Metadata record
-      </Button>
+      <Typography variant="h3">
+        <En>Home</En>
+        <Fr>Accueil</Fr>
+      </Typography>
+      <Typography>
+        <En>Welcome to the CIOOS Metadata intake tool.</En>
+        <Fr>Bienvenue à la maison</Fr>
+      </Typography>
     </div>
   );
 };

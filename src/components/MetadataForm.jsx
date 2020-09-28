@@ -1,13 +1,29 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import { eovList, progressCodes, roleCodes } from "../isoCodeLists";
-import { TextField, Grid, Typography, Button, Paper } from "@material-ui/core";
+import { withRouter } from "react-router-dom";
+import {
+  Grid,
+  Typography,
+  Button,
+  Paper,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Box,
+  Tooltip,
+} from "@material-ui/core";
+import { Save } from "@material-ui/icons";
 
-import BilingualTextInput from "./BilingualTextInput";
-import CheckBoxList from "./CheckBoxList";
-import SelectInput from "./SelectInput";
-import DateInput from "./DateInput";
+import IdentificationTab from "./FormComponents/IdentificationTab";
+import MetadataTab from "./FormComponents/MetadataTab";
+import SpatialTab from "./FormComponents/SpatialTab";
+import ContactTab from "./FormComponents/ContactTab";
+import DistributionTab from "./FormComponents/DistributionTab";
+import PlatformTab from "./FormComponents/PlatformTab";
+
 import firebase from "../firebase";
+import { auth } from "../auth";
+import { En, Fr, I18n } from "./I18n";
 
 const styles = {
   paper: {
@@ -15,11 +31,20 @@ const styles = {
     margin: "20px",
   },
 };
-function camelToSentenceCase(text) {
-  var result = text.replace(/([A-Z])/g, " $1");
-  return result.charAt(0).toUpperCase() + result.slice(1);
-}
 
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
 class MetadataForm extends Component {
   constructor(props) {
     super(props);
@@ -27,33 +52,116 @@ class MetadataForm extends Component {
     this.state = {
       title: { en: "", fr: "" },
       abstract: { en: "", fr: "" },
+      map: { north: "", south: "", east: "", west: "" },
       id: "",
       eov: [],
       role: "",
       progress: "",
+      distribution: [],
       dateStart: new Date(),
-      records: {},
+      // datePublished: new Date(),
+      // dateRevised: new Date(),
+      recordID: "",
+      instruments: [],
+      platformName: "",
+      platformID: "",
+      platformRole: "",
+      platformDescription: "",
+      language: "",
+      license: "",
+      contacts: [],
+      status: "",
+      comment: "",
+      history: "",
+      limitations: "",
+      maintenance: "",
+      created: new Date(),
+
+      // contacts saved by user
+      userContacts: {},
+
+      // UI state:
+      loading: false,
+      tabIndex: "identification",
+      // whether the 'save' icon button is greyed out or not
+      saveDisabled: true,
     };
   }
-
-  handleSubmitClick = async () => {
-    await firebase.database().ref("test").push(this.state);
-    this.props.history.push("/success");
-  }
-
-  handleInputChange = (event, parentName = false) => {
+  // genereric handler for updating state, used by most form components
+  handleInputChange = (event) => {
     const { name, value } = event.target;
+    const changes = { [name]: value, saveDisabled: false };
 
-    if (parentName) {
-      this.setState((state) => ({
-        ...state,
-        [parentName]: { ...state[parentName], [name]: value },
-      }));
-    } else this.setState((state) => ({ ...state, [name]: value }));
+    this.setState(changes);
+  };
+  async handleSubmitClick() {
+    const rootRef = firebase
+      .database()
+      .ref(`test/users`)
+      .child(auth.currentUser.uid)
+      .child("records");
+
+    // remove userContacts since they get saved elsewhere
+    const { userContacts, ...record } = this.state;
+    if (record.recordID) {
+      await rootRef.child(record.recordID).update(record);
+    } else {
+      const newNode = await rootRef.push(record);
+      const recordID = newNode.key;
+      this.setState({ recordID });
+    }
+
+    this.setState({ saveDisabled: true });
+  }
+  // converts firebase style arrays (key as index) to arrays. work on arrays nested in objects
+  firebaseToJSObject(json) {
+    Object.keys(json).forEach((key) => {
+      if (typeof json[key] === "object" && Object.keys(json[key])[0] === "0") {
+        json[key] = Object.entries(json[key]).map(([k, v]) => v);
+      }
+    });
+  }
+  componentDidMount() {
+    this.setState({ loading: true });
+
+    auth.onAuthStateChanged((user) => {
+      const userDataRef = firebase.database().ref(`test/users`).child(user.uid);
+
+      // get contacts
+      userDataRef.child("contacts").on("value", (contacts) => {
+        this.setState({ userContacts: contacts.toJSON() });
+      });
+
+      const { recordID } = this.props.match.params;
+
+      // if recordID is set then the user is editing an existing record
+      if (recordID) {
+        userDataRef.child("records").on("value", (records) => {
+          const recordsObj = records.toJSON();
+          if (recordsObj && recordID && recordsObj[recordID]) {
+            const thisRecord = recordsObj[recordID];
+            this.firebaseToJSObject(thisRecord);
+            this.setState({ recordID, ...thisRecord, loading: false });
+          }
+        });
+      } else this.setState({ loading: false });
+    });
   }
 
   render() {
-    return (
+    const disabled =
+      this.state.status === "submitted" || this.state.status === "published";
+
+    const tabProps = {
+      disabled,
+      record: this.state,
+      handleInputChange: this.handleInputChange,
+      paperClass: this.props.classes.paper,
+    };
+
+    return this.state.loading ? (
+      <CircularProgress />
+    ) : (
       <Grid
         container
         direction="column"
@@ -61,102 +169,97 @@ class MetadataForm extends Component {
         alignItems="stretch"
       >
         <Paper className={this.props.classes.paper}>
-          <h1>CIOOS Metadata Profile Intake Form</h1>
+          <Typography variant="h3">
+            <En>CIOOS Metadata Profile Intake Form</En>
+            <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
+          </Typography>
+          {disabled && (
+            <Typography>
+              <En>
+                <b>
+                  This form is locked because it has already been submitted.
+                </b>
+              </En>
+              <Fr>
+                <b>Ce formulaire est verrouillé car il a déjà été soumis.</b>
+              </Fr>
+            </Typography>
+          )}
           <Typography>
-            Welcome to the CIOOS metadata profile generation form! Please fill
-            out each field with as much detail as you can. Using this
-            information we will create your metadata profile for the given
-            dataset.
+            <En>
+              Welcome to the CIOOS metadata profile generation form! Please fill
+              out each field with as much detail as you can. Using this
+              information we will create your metadata profile for the given
+              dataset.
+            </En>
+            <Fr>
+              Bienvenue sur le formulaire de génération de profils de
+              métadonnées CIOOS ! Veuillez remplir sur chaque champ avec autant
+              de détails que vous pouvez. Utilisation de cette informations que
+              nous allons créer votre profil de métadonnées pour le jeu de
+              données.
+            </Fr>
           </Typography>
         </Paper>
-        <Paper className={this.props.classes.paper}>
-          <Typography>What is the title of the dataset?</Typography>
-          <BilingualTextInput
-            label="Enter a title"
-            name="title"
-            value={this.state.title}
-            onChange={this.handleInputChange}
-          />
-        </Paper>
 
-        <Paper className={this.props.classes.paper}>
-          <Typography>What is the ID for your dataset?</Typography>
-          <TextField
-            type="text"
-            label="Your Answer"
-            name="id"
-            value={this.state.id}
-            onChange={this.handleInputChange}
-            fullWidth
-            required
-          />
-        </Paper>
-
-        <Paper className={this.props.classes.paper}>
-          <Typography>Select a role for your datase</Typography>
-          <SelectInput
-            label="Select a role"
-            name="role"
-            value={this.state.role}
-            onChange={e => this.handleInputChange(e)}
-            options={roleCodes}
-            optionLabels={roleCodes.map(camelToSentenceCase)}
-          />
-        </Paper>
-        <Paper className={this.props.classes.paper}>
-          <Typography>Select EOVs that apply to your dataset</Typography>
-          <CheckBoxList
-            name="eov"
-            value={this.state.eov}
-            onChange={this.handleInputChange}
-            options={eovList}
-            optionLabels={eovList.map(camelToSentenceCase)}
-          />
-        </Paper>
-        <Paper className={this.props.classes.paper}>
-          <Typography>What is the progress?</Typography>
-          <SelectInput
-            label="Select a role"
-            name="progress"
-            value={this.state.progress}
-            onChange={e => this.handleInputChange(e)}
-            options={progressCodes}
-            optionLabels={progressCodes.map(camelToSentenceCase)}
-          />
-        </Paper>
-
-        <Paper className={this.props.classes.paper}>
-          <Typography>What is the abstract for the dataset?</Typography>
-          <BilingualTextInput
-            label="Enter an abstract"
-            name="abstract"
-            value={this.state.abstract}
-            onChange={this.handleInputChange}
-            multiline
-          />
-        </Paper>
-
-        <Paper className={this.props.classes.paper}>
-          <Typography>
-            What is the start date that data was collected?
-          </Typography>
-          <DateInput
-            name="dateStart"
-            onChange={this.handleInputChange}
-          />
-        </Paper>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={this.handleSubmitClick}
+        <Tabs
+          value={this.state.tabIndex}
+          onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
+          aria-label="simple tabs example"
         >
-          Submit
-        </Button>
-        {/* </Box> */}
+          <Tab label="Identification" value={"identification"} />
+          <Tab
+            label={<I18n en="Metadata" fr="Métadonnées" />}
+            value={"metadata"}
+          />
+          identification
+          <Tab label="Spatial" value={"spatial"} />
+          <Tab label="Contact" value={"contact"} />
+          <Tab label="Distribution" value={"distribution"} />
+          <Tab
+            label={<I18n en="Platform" fr="Plateforme" />}
+            value={"platform"}
+          />
+        </Tabs>
+        <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+          <span>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => this.handleSubmitClick()}
+              style={{ width: "100px" }}
+              startIcon={<Save />}
+              disabled={
+                this.state.saveDisabled ||
+                !(this.state.title.en || this.state.title.fr)
+              }
+            >
+              <I18n en="Save" fr="Enregistrer" />
+            </Button>
+          </span>
+        </Tooltip>
+        <TabPanel value={this.state.tabIndex} index={"identification"}>
+          <IdentificationTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"metadata"}>
+          <MetadataTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"spatial"}>
+          <SpatialTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"platform"}>
+          <PlatformTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"distribution"}>
+          <DistributionTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"contact"}>
+          <ContactTab userContacts={this.state.userContacts} {...tabProps} />
+        </TabPanel>
       </Grid>
     );
   }
 }
 
-export default withStyles(styles)(MetadataForm);
+export default withRouter(withStyles(styles)(MetadataForm));

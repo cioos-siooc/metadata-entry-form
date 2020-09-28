@@ -1,15 +1,20 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 
-import { Typography, Button } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import { Fr, En } from "./I18n";
 
 const Submissions = () => {
-  const history = useHistory();
   return (
     <div>
-      <h1>Submission received!</h1>
-      <Typography>Thank you for your submission!</Typography>
-      <Button onClick={() => history.push("/new")}>Make another!</Button>
+      <Typography variant="h3">
+        <En>Submission received!</En>
+        <Fr>Soumission reçue!</Fr>
+      </Typography>
+
+      <Typography>
+        <En>Thank you for your submission!</En>
+        <Fr>Merci pour votre soumission!</Fr>
+      </Typography>
     </div>
   );
 };
