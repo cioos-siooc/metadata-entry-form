@@ -2,6 +2,8 @@ import React from "react";
 
 import { Typography, Paper, TextField } from "@material-ui/core";
 import Instruments from "./Instruments";
+import ContactPicker from "./ContactPicker";
+
 
 import BilingualTextInput from "./BilingualTextInput";
 import SelectInput from "./SelectInput";
@@ -71,6 +73,18 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
         />
       </div>
       <div>
+        <Typography>
+          <En>Who is charge of the platform?</En>
+          <Fr>Qui est le responsable de la plate-forme?</Fr>
+        </Typography>
+        <ContactPicker
+          contactList={record.userContacts}
+          value={record.platformAuthority}
+          name="platformAuthority"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div>
         <Instruments
           value={record.instruments}
           onChange={handleInputChange}
@@ -79,7 +93,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
         />
       </div>
     </Paper>
-  </div>
+  </div >
 );
 
 export default PlatformTab;
