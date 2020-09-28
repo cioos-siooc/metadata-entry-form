@@ -25,6 +25,8 @@ import firebase from "../firebase";
 import { auth } from "../auth";
 import { En, Fr, I18n } from "./I18n";
 
+import { v4 as uuidv4 } from "uuid";
+
 const styles = {
   paper: {
     padding: "10px",
@@ -53,6 +55,7 @@ class MetadataForm extends Component {
       title: { en: "", fr: "" },
       abstract: { en: "", fr: "" },
       map: { north: "", south: "", east: "", west: "" },
+      identifier: uuidv4(),
       id: "",
       eov: [],
       keywords: [],
@@ -164,103 +167,103 @@ class MetadataForm extends Component {
     return this.state.loading ? (
       <CircularProgress />
     ) : (
-        <Grid
-          container
-          direction="column"
-          justify="space-between"
-          alignItems="stretch"
-        >
-          <Paper className={this.props.classes.paper}>
-            <Typography variant="h3">
-              <En>CIOOS Metadata Profile Intake Form</En>
-              <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
-            </Typography>
-            {disabled && (
-              <Typography>
-                <En>
-                  <b>
-                    This form is locked because it has already been submitted.
-                </b>
-                </En>
-                <Fr>
-                  <b>Ce formulaire est verrouillé car il a déjà été soumis.</b>
-                </Fr>
-              </Typography>
-            )}
+      <Grid
+        container
+        direction="column"
+        justify="space-between"
+        alignItems="stretch"
+      >
+        <Paper className={this.props.classes.paper}>
+          <Typography variant="h3">
+            <En>CIOOS Metadata Profile Intake Form</En>
+            <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
+          </Typography>
+          {disabled && (
             <Typography>
               <En>
-                Welcome to the CIOOS metadata profile generation form! Please fill
-                out each field with as much detail as you can. Using this
-                information we will create your metadata profile for the given
-                dataset.
-            </En>
+                <b>
+                  This form is locked because it has already been submitted.
+                </b>
+              </En>
               <Fr>
-                Bienvenue sur le formulaire de génération de profils de
-                métadonnées CIOOS ! Veuillez remplir sur chaque champ avec autant
-                de détails que vous pouvez. Utilisation de cette informations que
-                nous allons créer votre profil de métadonnées pour le jeu de
-                données.
-            </Fr>
+                <b>Ce formulaire est verrouillé car il a déjà été soumis.</b>
+              </Fr>
             </Typography>
-          </Paper>
+          )}
+          <Typography>
+            <En>
+              Welcome to the CIOOS metadata profile generation form! Please fill
+              out each field with as much detail as you can. Using this
+              information we will create your metadata profile for the given
+              dataset.
+            </En>
+            <Fr>
+              Bienvenue sur le formulaire de génération de profils de
+              métadonnées CIOOS ! Veuillez remplir sur chaque champ avec autant
+              de détails que vous pouvez. Utilisation de cette informations que
+              nous allons créer votre profil de métadonnées pour le jeu de
+              données.
+            </Fr>
+          </Typography>
+        </Paper>
 
-          <Tabs
-            value={this.state.tabIndex}
-            onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
-            aria-label="simple tabs example"
-          >
-            <Tab label="Identification" value={"identification"} />
-            <Tab
-              label={<I18n en="Metadata" fr="Métadonnées" />}
-              value={"metadata"}
-            />
+        <Tabs
+          value={this.state.tabIndex}
+          onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
+          aria-label="simple tabs example"
+        >
+          <Tab label="Identification" value={"identification"} />
+          <Tab
+            label={<I18n en="Metadata" fr="Métadonnées" />}
+            value={"metadata"}
+          />
           identification
           <Tab label="Spatial" value={"spatial"} />
-            <Tab label="Contact" value={"contact"} />
-            <Tab label="Distribution" value={"distribution"} />
-            <Tab
-              label={<I18n en="Platform" fr="Plateforme" />}
-              value={"platform"}
-            />
-          </Tabs>
-          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-            <span>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => this.handleSubmitClick()}
-                style={{ width: "100px" }}
-                startIcon={<Save />}
-                disabled={
-                  this.state.saveDisabled ||
-                  !(this.state.title.en || this.state.title.fr)
-                }
-              >
-                <I18n en="Save" fr="Enregistrer" />
-              </Button>
-            </span>
-          </Tooltip>
-          <TabPanel value={this.state.tabIndex} index={"identification"}>
-            <IdentificationTab {...tabProps} />
-          </TabPanel>
-          <TabPanel value={this.state.tabIndex} index={"metadata"}>
-            <MetadataTab {...tabProps} />
-          </TabPanel>
-          <TabPanel value={this.state.tabIndex} index={"spatial"}>
-            <SpatialTab {...tabProps} />
-          </TabPanel>
-          <TabPanel value={this.state.tabIndex} index={"platform"}>
-            <PlatformTab {...tabProps} />
-          </TabPanel>
-          <TabPanel value={this.state.tabIndex} index={"distribution"}>
-            <DistributionTab {...tabProps} />
-          </TabPanel>
-          <TabPanel value={this.state.tabIndex} index={"contact"}>
-            <ContactTab userContacts={this.state.userContacts} {...tabProps} />
-          </TabPanel>
-        </Grid>
-      );
+          <Tab label="Contact" value={"contact"} />
+          <Tab label="Distribution" value={"distribution"} />
+          <Tab
+            label={<I18n en="Platform" fr="Plateforme" />}
+            value={"platform"}
+          />
+        </Tabs>
+        <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+          <span>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => this.handleSubmitClick()}
+              style={{ width: "100px" }}
+              startIcon={<Save />}
+              disabled={
+                this.state.saveDisabled ||
+                !(this.state.title.en || this.state.title.fr)
+              }
+            >
+              <I18n en="Save" fr="Enregistrer" />
+            </Button>
+          </span>
+        </Tooltip>
+        <TabPanel value={this.state.tabIndex} index={"identification"}>
+          <IdentificationTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"metadata"}>
+          <MetadataTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"spatial"}>
+          <SpatialTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"platform"}>
+          <PlatformTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"distribution"}>
+          <DistributionTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={this.state.tabIndex} index={"contact"}>
+          <ContactTab userContacts={this.state.userContacts} {...tabProps} />
+        </TabPanel>
+      </Grid>
+    );
   }
 }
 
