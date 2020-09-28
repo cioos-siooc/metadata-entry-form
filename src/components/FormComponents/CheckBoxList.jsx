@@ -6,6 +6,7 @@ import {
   FormControl,
   InputLabel,
 } from "@material-ui/core";
+import memoize from "../../utils/memoize";
 
 const CheckBoxList = ({
   onChange,
@@ -14,6 +15,7 @@ const CheckBoxList = ({
   label,
   options,
   optionLabels,
+  disabled,
 }) => {
   const [checkedValues, setChecked] = useState([]);
 
@@ -28,6 +30,7 @@ const CheckBoxList = ({
         return (
           <FormControlLabel
             key={v}
+            disabled={disabled}
             control={
               <Checkbox
                 key={v}
@@ -56,6 +59,4 @@ const CheckBoxList = ({
   );
 };
 
-const areEqual = (prevProps, nextProps) => prevProps.value === nextProps.value;
-
-export default React.memo(CheckBoxList, areEqual);
+export default memoize(CheckBoxList);

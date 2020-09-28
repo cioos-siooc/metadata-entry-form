@@ -1,17 +1,21 @@
 import React from "react";
 import { Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
+import { I18n } from "../I18n";
+import memoize from "../../utils/memoize";
 
 const SelectInput = ({
   value,
   name,
-  label,
   options,
   optionLabels,
   onChange,
+  disabled,
 }) => {
   return (
-    <FormControl style={{ minWidth: 120 }}>
-      <InputLabel id="demo-simple-select-label">{label}</InputLabel>
+    <FormControl disabled={disabled} style={{ minWidth: 120 }}>
+      <InputLabel id="demo-simple-select-label">
+        {<I18n en="Choose" fr="Choisir" />}
+      </InputLabel>
       <Select name={name} fullWidth value={value} onChange={onChange}>
         {options.map((v, i) => (
           <MenuItem key={v} value={v}>
@@ -22,5 +26,4 @@ const SelectInput = ({
     </FormControl>
   );
 };
-const areEqual = (prevProps, nextProps) => prevProps.value === nextProps.value;
-export default React.memo(SelectInput, areEqual);
+export default memoize(SelectInput);

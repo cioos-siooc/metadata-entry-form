@@ -2,7 +2,7 @@ import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-import SelectInput from '../SelectInput';
+import SelectInput from '../FormComponents/SelectInput';
 
 configure({ adapter: new Adapter() });
 

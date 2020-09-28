@@ -4,7 +4,7 @@ import Adapter from 'enzyme-adapter-react-16';
 
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
-import DateInput from '../DateInput';
+import DateInput from '../FormComponents/DateInput';
 
 configure({ adapter: new Adapter() });
 

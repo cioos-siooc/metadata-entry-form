@@ -5,11 +5,13 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
+import memoize from "../../utils/memoize";
 
-const DateInput = ({ onChange, value, name }) => {
+const DateInput = ({ onChange, value, name, disabled }) => {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
+        disabled={disabled}
         margin="normal"
         id="date-picker-dialog"
         label="Date picker dialog"
@@ -23,4 +25,5 @@ const DateInput = ({ onChange, value, name }) => {
     </MuiPickersUtilsProvider>
   );
 };
-export default DateInput;
+
+export default memoize(DateInput);
