@@ -118,6 +118,4 @@ class EditContact extends React.Component {
   }
 }
 
-const areEqual = (prevProps, nextProps) => prevProps.value === nextProps.value;
-
-export default React.memo(withRouter(EditContact), areEqual);
+export default withRouter(EditContact);

@@ -2,7 +2,6 @@ import React from "react";
 import { Add, Delete } from "@material-ui/icons";
 import { Grid, IconButton } from "@material-ui/core";
 import Contact from "./Contact";
-// import memoize from "../../utils/memoize";
 import { deepCopy } from "../../utils/misc";
 
 const initial = {
@@ -22,7 +21,7 @@ const Contacts = ({ onChange, value, name, disabled }) => {
     const changes = {
       target: {
         name,
-        value: value.concat([deepCopy(initial)]),
+        value: value.concat(deepCopy(initial)),
       },
     };
 
@@ -70,14 +69,5 @@ const Contacts = ({ onChange, value, name, disabled }) => {
     </Grid>
   );
 };
-
-// const areEqual = (
-//   { onChange: a, ...prevProps },
-//   { onChange: b, ...nextProps }
-// ) => {
-//   return JSON.stringify(prevProps.value) === JSON.stringify(nextProps.value);
-// };
-
-// const memoize2 = (fn) => React.memo(fn, areEqual);
 
 export default Contacts;

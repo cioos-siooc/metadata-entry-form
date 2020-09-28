@@ -4,7 +4,6 @@ import { Typography, Paper, TextField } from "@material-ui/core";
 import Instruments from "./Instruments";
 
 import BilingualTextInput from "./BilingualTextInput";
-// import memoize from "../../utils/memoize";
 import SelectInput from "./SelectInput";
 import { roleCodes } from "../../isoCodeLists";
 

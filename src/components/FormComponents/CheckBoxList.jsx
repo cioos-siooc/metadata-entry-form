@@ -6,7 +6,6 @@ import {
   FormControl,
   InputLabel,
 } from "@material-ui/core";
-import memoize from "../../utils/memoize";
 
 const CheckBoxList = ({
   onChange,
@@ -59,4 +58,4 @@ const CheckBoxList = ({
   );
 };
 
-export default memoize(CheckBoxList);
+export default CheckBoxList;

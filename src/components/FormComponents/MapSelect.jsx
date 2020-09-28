@@ -139,6 +139,5 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
     </div>
   );
 };
-const areEqual = (prevProps, nextProps) => prevProps.value === nextProps.value;
 
-export default React.memo(withLeaflet(MapSelect), areEqual);
+export default withLeaflet(MapSelect);

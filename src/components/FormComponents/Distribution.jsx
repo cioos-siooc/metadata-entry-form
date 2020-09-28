@@ -81,8 +81,5 @@ const Distribution = ({ onChange, value, name, disabled }) => {
     </Grid>
   );
 };
-// const areEqual = (prevProps, nextProps) =>
-//   prevProps.value === nextProps.value &&
-//   prevProps.disabled === nextProps.disabled;
 
 export default Distribution;

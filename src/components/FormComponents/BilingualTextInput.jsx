@@ -1,7 +1,6 @@
 import React from "react";
 import { TextField, InputAdornment } from "@material-ui/core";
 import { useParams } from "react-router-dom";
-import memoize from "../../utils/memoize";
 
 const BilingualTextInput = ({
   onChange,
@@ -47,5 +46,4 @@ const BilingualTextInput = ({
   );
 };
 
-export default memoize(BilingualTextInput);
-// export default BilingualTextInput;
+export default BilingualTextInput;

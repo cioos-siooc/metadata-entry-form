@@ -3,7 +3,6 @@ import { En, Fr, I18n } from "../I18n";
 import { Add, Delete } from "@material-ui/icons";
 import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
 import BilingualTextInput from "./BilingualTextInput";
-import memoize from "../../utils/memoize";
 import { deepCopy } from "../../utils/misc";
 
 const initial = {
@@ -105,4 +104,4 @@ const Instruments = ({ onChange, value, name, disabled }) => {
     </Grid>
   );
 };
-export default memoize(Instruments);
+export default Instruments;
