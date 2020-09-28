@@ -5,7 +5,6 @@ import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
 import SelectInput from "./SelectInput";
-// import memoize from "../../utils/memoize";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   return (
@@ -113,15 +112,5 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
     </div>
   );
 };
-
-// const areEqual = (
-//   { onChange: a, ...prevProps },
-//   { onChange: b, ...nextProps }
-// ) => {
-// // return false
-//   return JSON.stringify(prevProps.value) === JSON.stringify(nextProps.value);
-// };
-
-// const memoize2 = (fn) => React.memo(fn, areEqual);
 
 export default Contact;

@@ -1,7 +1,6 @@
 import React from "react";
 import { Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { I18n } from "../I18n";
-import memoize from "../../utils/memoize";
 
 const SelectInput = ({
   value,
@@ -26,4 +25,4 @@ const SelectInput = ({
     </FormControl>
   );
 };
-export default memoize(SelectInput);
+export default SelectInput;

@@ -5,7 +5,6 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
-import memoize from "../../utils/memoize";
 
 const DateInput = ({ onChange, value, name, disabled }) => {
   return (
@@ -26,4 +25,4 @@ const DateInput = ({ onChange, value, name, disabled }) => {
   );
 };
 
-export default memoize(DateInput);
+export default DateInput;
