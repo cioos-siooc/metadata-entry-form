@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Typography, Paper } from "@material-ui/core";
+import { Typography, Paper, TextField } from "@material-ui/core";
 
 import BilingualTextInput from "./BilingualTextInput";
 import CheckBoxList from "./CheckBoxList";
@@ -25,10 +25,10 @@ const IdentificationTab = ({
           <En>Give an identifier to this dataset</En>
           <Fr>Donnez un identifiant unique à ce jeu de données</Fr>
         </Typography>
-        <BilingualTextInput
+        <TextField
           name="identifier"
           value={record.identifier}
-          onChange={handleInputChange}
+          onChange={(e) => handleInputChange(e)}
           required="either"
           disabled={disabled}
         />
