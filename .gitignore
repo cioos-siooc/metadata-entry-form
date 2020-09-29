@@ -22,4 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-TODO
+firebase_to_xml/keys/*
+firebase_to_xml/venv
