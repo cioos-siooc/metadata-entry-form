@@ -10,25 +10,16 @@ import { Grid, Button } from "@material-ui/core";
 import Contact from "./FormComponents/Contact";
 
 class EditContact extends React.Component {
-  constructor(props) {
-    super(props);
-    const initial = {
-      orgName: "",
-      orgEmail: "",
-      orgURL: "",
-      orgAdress: "",
-      orgCity: "",
-      orgCountry: "",
-      indName: "",
-      indPosition: "",
-      indEmail: "",
-    };
-    this.dbRef = undefined;
-    this.state = { ...initial };
-  }
-
-  databaseCallback = (record) => {
-    return this.setState({ ...record.toJSON() });
+  state = {
+    orgName: "",
+    orgEmail: "",
+    orgURL: "",
+    orgAdress: "",
+    orgCity: "",
+    orgCountry: "",
+    indName: "",
+    indPosition: "",
+    indEmail: "",
   };
 
   async componentDidMount() {
@@ -44,7 +35,9 @@ class EditContact extends React.Component {
       this.setState({ recordID });
 
       if (auth.currentUser) {
-        this.dbRef.on("value", this.databaseCallback);
+        this.dbRef.on("value", (record) =>
+          this.setState({ ...record.toJSON() })
+        );
       }
     }
   }
@@ -91,6 +84,7 @@ class EditContact extends React.Component {
   }
   // orgName, orgURL, orgAdress, orgCity, orgCountry
   render() {
+    const isFilledEnoughToSave = this.state.orgName || this.state.indName;
     return (
       <Grid container>
         Edit contacts
@@ -99,6 +93,7 @@ class EditContact extends React.Component {
           variant="contained"
           color="primary"
           onClick={() => this.handleSubmitClick()}
+          disabled={!isFilledEnoughToSave}
         >
           {this.state.recordID ? (
             <I18n en="Update" fr="Mise à jour" />

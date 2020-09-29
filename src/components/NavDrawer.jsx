@@ -140,7 +140,12 @@ export default function MiniDrawer(props) {
 
   const { language } = useParams();
   const { pathname } = useLocation();
-  const pathWithoutLang = pathname.split("/").pop();
+
+  const pathWithoutLang = pathname
+    .split("/")
+    .map((e) => e)
+    .slice(2)
+    .join("/");
 
   const baseURL = "/" + language;
 

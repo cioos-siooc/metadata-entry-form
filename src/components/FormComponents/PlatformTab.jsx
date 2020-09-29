@@ -72,7 +72,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
       </div>
       <div>
         <Instruments
-          value={record.instruments}
+          value={record.instruments || []}
           onChange={handleInputChange}
           name="instruments"
           disabled={disabled}
