@@ -5,7 +5,7 @@ import { Typography, Paper } from "@material-ui/core";
 import MapSelect from "./MapSelect";
 import { En, Fr } from "../I18n";
 
-const IdentificationTab = ({
+const SpatialTab = ({
   disabled,
   record,
   handleInputChange,
@@ -31,4 +31,4 @@ const IdentificationTab = ({
   </div>
 );
 
-export default IdentificationTab;
+export default SpatialTab;

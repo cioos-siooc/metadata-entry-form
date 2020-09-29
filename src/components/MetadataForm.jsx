@@ -52,7 +52,7 @@ class MetadataForm extends Component {
     this.state = {
       title: { en: "", fr: "" },
       abstract: { en: "", fr: "" },
-      map: { north: "", south: "", east: "", west: "" },
+      map: { north: "", south: "", east: "", west: "", polygon: "" },
       id: "",
       eov: [],
       role: "",
