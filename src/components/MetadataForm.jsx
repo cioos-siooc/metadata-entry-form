@@ -25,6 +25,8 @@ import firebase from "../firebase";
 import { auth } from "../auth";
 import { En, Fr, I18n } from "./I18n";
 
+import { firebaseToJSObject } from "../utils/misc";
+
 const styles = {
   paper: {
     padding: "10px",
@@ -46,16 +48,14 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 class MetadataForm extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
+  state = {
+    record: {
       title: { en: "", fr: "" },
       abstract: { en: "", fr: "" },
       map: { north: "", south: "", east: "", west: "" },
       id: "",
-      eov: [],
       role: "",
+      eov: [],
       progress: "",
       distribution: [],
       dateStart: new Date(),
@@ -76,85 +76,96 @@ class MetadataForm extends Component {
       limitations: "",
       maintenance: "",
       created: new Date(),
+    },
 
-      // contacts saved by user
-      userContacts: {},
+    // contacts saved by user (not the ones saved in the record)
+    // kept in firebase object format instead of array
+    userContacts: {},
 
-      // UI state:
-      loading: false,
-      tabIndex: "identification",
-      // whether the 'save' icon button is greyed out or not
-      saveDisabled: true,
-    };
-  }
+    // UI state:
+    loading: false,
+    tabIndex: "identification",
+
+    // whether the 'save' icon button is greyed out or not
+    saveDisabled: true,
+  };
+
   // genereric handler for updating state, used by most form components
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    const changes = { [name]: value, saveDisabled: false };
+    const changes = { [name]: value };
 
-    this.setState(changes);
+    this.setState(({ record }) => ({
+      record: { ...record, ...changes },
+      saveDisabled: false,
+    }));
   };
+
   async handleSubmitClick() {
-    const rootRef = firebase
+    const recordsRef = firebase
       .database()
       .ref(`test/users`)
       .child(auth.currentUser.uid)
       .child("records");
 
     // remove userContacts since they get saved elsewhere
-    const { userContacts, ...record } = this.state;
+    const { record } = this.state;
+
     if (record.recordID) {
-      await rootRef.child(record.recordID).update(record);
+      await recordsRef.child(record.recordID).update(record);
     } else {
-      const newNode = await rootRef.push(record);
+      const newNode = await recordsRef.push(record);
       const recordID = newNode.key;
-      this.setState({ recordID });
+      this.setState(({ record }) => ({ record: { ...record, recordID } }));
     }
 
     this.setState({ saveDisabled: true });
   }
-  // converts firebase style arrays (key as index) to arrays. work on arrays nested in objects
-  firebaseToJSObject(json) {
-    Object.keys(json).forEach((key) => {
-      if (typeof json[key] === "object" && Object.keys(json[key])[0] === "0") {
-        json[key] = Object.entries(json[key]).map(([k, v]) => v);
-      }
-    });
+  componentWillUnmount() {
+    // fixes error Can't perform a React state update on an unmounted component
+    this.unsubscribe();
   }
   componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
-      const userDataRef = firebase.database().ref(`test/users`).child(user.uid);
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
+      const { recordID } = this.props.match.params;
+
+      // either from the URL if its a record in review or from auth
+      const userID = this.props.match.params.userID || user.uid;
+
+      const userDataRef = firebase.database().ref(`test/users`).child(userID);
 
       // get contacts
       userDataRef.child("contacts").on("value", (contacts) => {
         this.setState({ userContacts: contacts.toJSON() });
       });
 
-      const { recordID } = this.props.match.params;
-
       // if recordID is set then the user is editing an existing record
-      if (recordID) {
-        userDataRef.child("records").on("value", (records) => {
-          const recordsObj = records.toJSON();
-          if (recordsObj && recordID && recordsObj[recordID]) {
-            const thisRecord = recordsObj[recordID];
-            this.firebaseToJSObject(thisRecord);
-            this.setState({ recordID, ...thisRecord, loading: false });
-          }
-        });
+      if (userID && recordID) {
+        userDataRef
+          .child("records")
+          .child(recordID)
+          .on("value", (recordFireBase) => {
+            const record = firebaseToJSObject(recordFireBase.toJSON());
+
+            this.setState({
+              record: { ...record, recordID },
+              loading: false,
+            });
+          });
       } else this.setState({ loading: false });
     });
   }
 
   render() {
     const disabled =
-      this.state.status === "submitted" || this.state.status === "published";
+      this.state.record.status === "submitted" ||
+      this.state.record.status === "published";
 
     const tabProps = {
       disabled,
-      record: this.state,
+      record: this.state.record,
       handleInputChange: this.handleInputChange,
       paperClass: this.props.classes.paper,
     };
@@ -221,7 +232,7 @@ class MetadataForm extends Component {
             value={"platform"}
           />
         </Tabs>
-        <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+        <Tooltip title={<I18n en="Save" fr="Enregistrer" />}>
           <span>
             <Button
               variant="contained"
@@ -232,7 +243,8 @@ class MetadataForm extends Component {
               startIcon={<Save />}
               disabled={
                 this.state.saveDisabled ||
-                !(this.state.title.en || this.state.title.fr)
+                !(this.state.record.title.en || this.state.record.title.fr) ||
+                disabled
               }
             >
               <I18n en="Save" fr="Enregistrer" />
@@ -255,6 +267,7 @@ class MetadataForm extends Component {
           <DistributionTab {...tabProps} />
         </TabPanel>
         <TabPanel value={this.state.tabIndex} index={"contact"}>
+          {/* userContacts are the ones the user has saved, not necessarily part of the record */}
           <ContactTab userContacts={this.state.userContacts} {...tabProps} />
         </TabPanel>
       </Grid>

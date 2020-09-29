@@ -41,7 +41,7 @@ const MetadataRecordListItem = ({
         <span>
           <IconButton onClick={onViewClick} edge="end" aria-label="delete">
             <Visibility />
-          </IconButton>{" "}
+          </IconButton>
         </span>
       </Tooltip>
 
@@ -65,65 +65,74 @@ const MetadataRecordListItem = ({
   </ListItem>
 );
 class Submissions extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      users: {},
-      deleteModalOpen: false,
-      publishModalOpen: false,
-      modalKey: "",
-      loading: false,
-    };
-  }
+  state = {
+    users: {},
+    deleteModalOpen: false,
+    publishModalOpen: false,
+    modalKey: "",
+    modalUserID: "",
+    loading: false,
+  };
 
-  databaseCallback = (users) =>
-    this.setState({ users: users.toJSON(), loading: false });
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   async componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
           .ref(`test/users`)
-          .on("value", this.databaseCallback);
+          .on("value", (users) =>
+            this.setState({ users: users.toJSON(), loading: false })
+          );
       }
     });
   }
 
-  editRecord(key) {
+  editRecord(key, userID) {
     this.props.history.push(
-      "/" + this.props.match.params.language + `/new/${key}`
+      "/" + this.props.match.params.language + `/review/${userID}/${key}`
     );
   }
 
-  submitRecord(key) {
-    if (auth.currentUser && key) {
-      firebase
+  async submitRecord(key, userID) {
+    if (key && userID) {
+      this.setState({ loading: true });
+
+      await firebase
         .database()
         .ref(`test/users`)
-        .child(auth.currentUser.uid)
+        .child(userID)
         .child("records")
         .child(key)
         .child("status")
         .set("published");
+      this.setState({ loading: false });
     }
   }
 
-  deleteRecord(key) {
-    if (auth.currentUser) {
-      firebase
+  async deleteRecord(key, userID) {
+    if (key && userID) {
+      this.setState({ loading: true });
+
+      await firebase
         .database()
         .ref(`test/users`)
-        .child(auth.currentUser.uid)
-        .child("users")
+        // this can be any user id
+        .child(userID)
+        .child("records")
         .child(key)
         .remove();
+
+      this.setState({ loading: false });
     }
   }
-  toggleModal(modalName, state, key = "") {
-    this.setState({ modalKey: key, [modalName]: state });
+  toggleModal(modalName, state, key = "", userID) {
+    this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
   }
   shorten(txt) {
     const maxLen = 100;
@@ -134,10 +143,14 @@ class Submissions extends React.Component {
     const { language } = this.props.match.params;
     const records = [];
 
-    Object.values(this.state.users).forEach((user) => {
+    Object.entries(this.state.users).forEach(([userID, user]) => {
       if (user.records) {
         Object.entries(user.records).forEach(([k, record]) => {
-          records.push({ ...record, userinfo: user.userinfo, key: k });
+          records.push({
+            ...record,
+            userinfo: { ...user.userinfo, userID },
+            key: k,
+          });
         });
       }
     });
@@ -153,14 +166,18 @@ class Submissions extends React.Component {
         <SimpleModal
           open={this.state.deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
-          onAccept={() => this.deleteRecord(this.state.modalKey)}
+          onAccept={() =>
+            this.deleteRecord(this.state.modalKey, this.state.modalUserID)
+          }
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
           open={this.state.publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() => this.submitRecord(this.state.modalKey)}
+          onAccept={() =>
+            this.submitRecord(this.state.modalKey, this.state.modalUserID)
+          }
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -190,12 +207,15 @@ class Submissions extends React.Component {
                           record={record}
                           key={record.key}
                           language={language}
-                          onViewClick={() => this.editRecord(record.key)}
+                          onViewClick={() =>
+                            this.editRecord(record.key, record.userinfo.userID)
+                          }
                           onDeleteClick={() =>
                             this.toggleModal(
                               "deleteModalOpen",
                               true,
-                              record.key
+                              record.key,
+                              record.userinfo.userID
                             )
                           }
                           onSubmitClick={() =>
@@ -232,12 +252,15 @@ class Submissions extends React.Component {
                           record={record}
                           key={key}
                           language={language}
-                          onViewClick={() => this.editRecord(record.key)}
+                          onViewClick={() =>
+                            this.editRecord(record.key, record.userinfo.userID)
+                          }
                           onDeleteClick={() =>
                             this.toggleModal(
                               "deleteModalOpen",
                               true,
-                              record.key
+                              record.key,
+                              record.userinfo.userID
                             )
                           }
                         />
