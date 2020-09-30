@@ -26,21 +26,21 @@ import { Fr, En, I18n } from "./I18n";
 import SimpleModal from "./SimpleModal";
 
 class Submissions extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      records: {},
-      deleteModalOpen: false,
-      publishModalOpen: false,
-      modalKey: "",
-      loading: false,
-    };
-  }
+  state = {
+    records: {},
+    deleteModalOpen: false,
+    publishModalOpen: false,
+    modalKey: "",
+    loading: false,
+  };
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
   async componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
@@ -153,7 +153,7 @@ class Submissions extends React.Component {
                                   aria-label="delete"
                                 >
                                   <Visibility />
-                                </IconButton>{" "}
+                                </IconButton>
                               </span>
                             </Tooltip>
                           ) : (
