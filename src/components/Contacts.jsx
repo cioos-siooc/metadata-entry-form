@@ -18,30 +18,30 @@ import { I18n, En, Fr } from "./I18n";
 import { Add, Edit, Delete, PermContactCalendar } from "@material-ui/icons";
 import SimpleModal from "./SimpleModal";
 class Contacts1 extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      contacts: {},
-      modalOpen: false,
-      modalKey: "",
-      loading: false,
-    };
-  }
+  state = {
+    contacts: {},
+    modalOpen: false,
+    modalKey: "",
+    loading: false,
+  };
 
-  databaseCallback = (records) =>
-    this.setState({ contacts: records.toJSON(), loading: false });
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   async componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
           .ref(`test/users`)
           .child(user.uid)
           .child("contacts")
-          .on("value", this.databaseCallback);
+          .on("value", (records) =>
+            this.setState({ contacts: records.toJSON(), loading: false })
+          );
       }
     });
   }

@@ -10,9 +10,13 @@ class UserProvider extends Component {
     authIsLoading: false,
   };
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   componentDidMount = () => {
     this.setState({ authIsLoading: true });
-    auth.onAuthStateChanged((userAuth) => {
+    this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
         const { email } = userAuth;
         firebase

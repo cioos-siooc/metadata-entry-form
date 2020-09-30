@@ -19,6 +19,10 @@ const BaseLayout = ({ match }) => {
         <Route path={`${match.path}/new/:recordID`} component={MetadataForm} />
         <Route path={`${match.path}/new`} component={MetadataForm} />
         <Route
+          path={`${match.path}/review/:userID/:recordID`}
+          component={MetadataForm}
+        />
+        <Route
           path={`${match.path}/contacts/new/:recordID`}
           component={EditContact}
         />
