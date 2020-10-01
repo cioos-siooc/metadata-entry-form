@@ -56,7 +56,7 @@ class MetadataForm extends Component {
       identifier: uuidv4(),
       id: "",
       eov: [],
-      keywords: { en: "", fr: "" },
+      keywords: { en: [], fr: [] },
       role: "",
       progress: "",
       distribution: [],
