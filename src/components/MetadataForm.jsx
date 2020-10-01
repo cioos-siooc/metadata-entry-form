@@ -63,6 +63,8 @@ class MetadataForm extends Component {
       dateStart: new Date(),
       // datePublished: new Date(),
       // dateRevised: new Date(),
+      verticalExtentMin: null,
+      verticalExtentMax: null,
       recordID: "",
       instruments: [],
       platformName: "",
