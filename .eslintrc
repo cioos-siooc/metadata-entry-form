@@ -1,0 +1,7 @@
+{
+  "extends": ["airbnb", "prettier", "prettier/react"],
+  "env": { "browser": true },
+  "rules": {
+    "react/prop-types": 0
+  }
+}

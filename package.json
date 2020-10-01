@@ -22,6 +22,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "uuid": "^8.3.0"
+    "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
@@ -36,9 +37,14 @@
     "cross-env": "^7.0.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.3",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "gh-pages": "^3.1.0",
-    "react-hot-loader": "^4.12.21",
-    "regenerator-runtime": "^0.13.7"
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
+    "react-hot-loader": "^4.12.21"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -47,8 +53,12 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
+    "build:local": "react-scripts build && rm -rf metadata-entry-form && cp -rf build metadata-entry-form && serve -s ./",
     "test:coverage": "npx jest --config=jest.config.js --coverage",
-    "test:coverFile": "cross-env npx jest --config=jest.config.js --coverage --collectCoverageFrom=src/**/${FILE}.jsx $FILE"
+    "test:coverFile": "cross-env npx jest --config=jest.config.js --coverage --collectCoverageFrom=src/**/${FILE}.jsx $FILE",
+    "lint": "eslint . --ignore-path .gitignore  --ignore-pattern 'src/**/__tests__/*' --ignore-pattern 'src/serviceWorker.js'",
+    "lint:fix": "eslint --fix . --ignore-path .gitignore",
+    "format": "prettier --write \"**/*.+(js|jsx|json|css|md)\" --ignore-path .gitignore"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -64,5 +74,22 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run format"
+    }
+  },
+  "lint-staged": {
+    "lint-staged": {
+      "*.+(js|jsx)": [
+        "eslint --fix",
+        "git add"
+      ],
+      "*.+(json|css|md)": [
+        "prettier --write",
+        "git add"
+      ]
+    }
   }
 }
