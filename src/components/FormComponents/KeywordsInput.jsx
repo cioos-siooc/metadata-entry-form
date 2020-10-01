@@ -11,22 +11,28 @@ import { useParams } from "react-router-dom";
 const KeywordsInput = ({ onChange, value, name }) => {
   const { language } = useParams();
 
+  function cleanList(list) {
+    return list
+      .map((item) => item.trim())
+      .filter((item, i) => item && list.indexOf(item) === i);
+  }
+
   function handleHelperChange(event, selectedValue) {
-    if (selectedValue && selectedValue.trim()) {
-      let newValue = { en: "", fr: "" };
+    if (selectedValue) {
+      let newValue = { en: [], fr: [] };
 
       let selectedIndex = keywordLists[language].includes(selectedValue)
         ? keywordLists[language].indexOf(selectedValue)
         : -1;
 
       ["en", "fr"].forEach((l) => {
-        let keywordList = value[l].split(",").filter((item) => item);
+        let keywordList = value[l];
         if (selectedIndex >= 0) {
           keywordList.push(keywordLists[l][selectedIndex]);
         } else {
           keywordList.push(selectedValue);
         }
-        newValue[l] = keywordList.join(",");
+        newValue[l] = cleanList(keywordList);
       });
 
       onChange({
@@ -41,7 +47,6 @@ const KeywordsInput = ({ onChange, value, name }) => {
   return (
     <div>
       <Autocomplete
-        language={useParams().language}
         onChange={handleHelperChange}
         filterOptions={(options, params) => {
           const filtered = createFilterOptions()(options, params);
@@ -57,7 +62,6 @@ const KeywordsInput = ({ onChange, value, name }) => {
         freeSolo
         handleHomeEndKeys
         renderOption={(option) => option}
-        id="keyword-autocomplete"
         options={keywordLists[language]}
         getOptionLabel={(option) => option}
         style={{ width: 400 }}
@@ -71,9 +75,20 @@ const KeywordsInput = ({ onChange, value, name }) => {
       />
       <BilingualTextInput
         name="keywords"
-        value={value}
+        value={{
+          en: value.en.join(","),
+          fr: value.fr.join(","),
+        }}
         onChange={(e) => {
-          onChange(e);
+          onChange({
+            target: {
+              name: name,
+              value: {
+                en: cleanList(e.target.value.en.split(",")),
+                fr: cleanList(e.target.value.fr.split(",")),
+              },
+            },
+          });
         }}
         required="either"
       />
