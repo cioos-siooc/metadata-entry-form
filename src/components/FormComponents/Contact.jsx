@@ -17,7 +17,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           </Typography>
           <SelectInput
             name="role"
-            value={value.role}
+            value={value.role || ""}
             onChange={(e) => onChange(e)}
             options={roleCodes}
             optionLabels={roleCodes.map(camelToSentenceCase)}
