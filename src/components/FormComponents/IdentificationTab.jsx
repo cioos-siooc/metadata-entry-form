@@ -1,16 +1,14 @@
-import React from "react";
-
-import { Typography, Paper, TextField } from "@material-ui/core";
+import { En, Fr } from "../I18n";
+import { Paper, TextField, Typography } from "@material-ui/core";
+import { eovList, progressCodes } from "../../isoCodeLists";
 
 import BilingualTextInput from "./BilingualTextInput";
 import CheckBoxList from "./CheckBoxList";
-import SelectInput from "./SelectInput";
 import DateInput from "./DateInput";
-
-import { En, Fr } from "../I18n";
-import { eovList, progressCodes } from "../../isoCodeLists";
+import KeywordsInput from "./KeywordsInput";
+import React from "react";
+import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
-import { keywordList } from "../../keywordList";
 import { categoryList } from "../../categoryList";
 
 const IdentificationTab = ({
@@ -85,16 +83,20 @@ const IdentificationTab = ({
     </Paper>
     <Paper className={paperClass}>
       <Typography>
-        <En>What are the keywords that describe the dataset?</En>
-        <Fr>Quels sont les mots clefs qui décrivent votre jeu de données?</Fr>
+        <En>
+          What are the keywords that describe the dataset? (use "," as
+          separator)
+        </En>
+        <Fr>
+          Quels sont les mots clefs qui décrivent votre jeu de données?
+          (utilisez "," comme séparateur)
+        </Fr>
       </Typography>
-      <CheckBoxList
+      <KeywordsInput
         name="keywords"
         value={record.keywords}
         onChange={handleInputChange}
-        options={keywordList}
-        optionLabels={keywordList}
-        disabled={disabled}
+        required="either"
       />
     </Paper>
     <Paper className={paperClass}>
