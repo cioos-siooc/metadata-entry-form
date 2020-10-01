@@ -7,7 +7,7 @@ import sys
 import getopt
 import pathlib
 import pprint
-import metadata_xml.__main__ as metadata_xml
+from metadata_xml.template_functions import metadata_to_xml
 from jinja2 import Environment, FileSystemLoader
 
 from dotenv import load_dotenv
@@ -78,21 +78,6 @@ def main(argv):
             # if v2.get('RA') != RA:
             #     continue
             record_list.append(v2)
-
-    # Load template from metadata-xml
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    this_directory = pathlib.Path(__file__).parent.absolute()
-    schema_path = str(this_directory) + \
-        '/modules/metadata-xml/metadata_xml/iso19115-cioos-template'
-
-    template_loader = FileSystemLoader(searchpath=schema_path)
-    template_env = Environment(loader=template_loader,
-                               trim_blocks=True, lstrip_blocks=True)
-
-    template_env.globals.update(
-        list_all_languages_in_record=metadata_xml.list_all_languages_in_record)
-    template_env.filters['normalize_datestring'] = metadata_xml.normalize_datestring
-    template = template_env.get_template('main.j2')
 
     for r in record_list:
         try:
@@ -202,7 +187,7 @@ def main(argv):
                     'at least one entry in identification.dates is required')
 
             # render xml template and write to file
-            xml = template.render({"record": yDict})
+            xml = metadata_to_xml(yDict)
             id = r.get('recordID')
             name = r.get('title', {}).get(r.get('language'))
             if name:
