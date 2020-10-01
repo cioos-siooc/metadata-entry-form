@@ -28,8 +28,6 @@ deactivate
 ```
 
 
-TODO add commandline arguments to:
-- define where key files are located
+TODO add commandline arguments or enviroment varibles to:
 - set which RA to request data from
 - limit to specific users?
-- define output location

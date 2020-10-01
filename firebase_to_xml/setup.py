@@ -12,5 +12,5 @@ setup(name='firebase_to_xml',
         'metadata_xml': 'modules/metadata-xml'
       },
       include_package_data=True,
-      install_requires=['google-auth', 'google-oauth', 'jinja2', 'pathlib']
+      install_requires=['google-auth', 'google-oauth', 'jinja2', 'pathlib', 'python-dotenv']
       )
