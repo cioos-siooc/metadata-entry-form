@@ -184,19 +184,18 @@ def main(argv):
 
             # output yaml
             if args['yaml']:
-                filename = f'{args["out"]}/{name or id}.yaml'
+                filename = f'{args["out"]}/{name}.yaml'
                 file = open(filename, "w")
                 file.write(yaml.dump(yDict))
 
             # render xml template and write to file
             xml = template.render({"record": yDict})
-            id = r.get('recordID')
-            name = r.get('title', {}).get(r.get('language'))
+            name = r['title'][r['language']]
             if name:
                 char_list = [character if character.isalnum() else '_' for character in name.strip().lower()]
                 name = "".join(char_list)
 
-            filename = f'{args["out"]}/{name or id}.xml'
+            filename = f'{args["out"]}/{name}.xml'
             file = open(filename, "w")
             file.write(xml)
             print("Wrote " + file.name)
