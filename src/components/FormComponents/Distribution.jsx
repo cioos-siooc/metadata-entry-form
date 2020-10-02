@@ -5,9 +5,9 @@ import { Add, Delete } from "@material-ui/icons";
 import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
 import BilingualTextInput from "./BilingualTextInput";
 
-const initial = { url: "", name: "", description: { en: "", fr: "" } };
-
 const Distribution = ({ onChange, value, name, disabled }) => {
+  const initial = { url: "", name: "", description: { en: "", fr: "" } };
+
   function addDistribution() {
     onChange({
       target: {
@@ -23,6 +23,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
     const parentEvent = { target: { name, value: newValue } };
     onChange(parentEvent);
   }
+  // removes the distribution section from the list at index i
   function removeDistribution(i) {
     onChange({
       target: { name, value: value.filter((e, index) => index !== i) },
@@ -65,10 +66,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
               />
             </Grid>
             <Grid item xs={2}>
-              <IconButton
-                disabled={disabled}
-                onClick={() => removeDistribution(i)}
-              >
+              <IconButton disabled={disabled} onClick={removeDistribution}>
                 <Delete />
               </IconButton>
             </Grid>

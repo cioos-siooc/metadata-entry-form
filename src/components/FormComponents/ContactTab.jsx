@@ -15,7 +15,7 @@ const ContactTab = ({
 }) => {
   const contactList = Object.values(userContacts || {});
 
-  const [selectedIndex, setContact] = useState(0);
+  const [selectedIndex, setContact] = useState("");
 
   function handleAddContact() {
     const value = record.contacts;
@@ -47,17 +47,20 @@ const ContactTab = ({
               (contact) => `${contact.indName} ${contact.orgName}`
             )}
             options={contactList.map((v, i) => i)}
-            disabled={!contactList.length}
+            disabled={!contactList.length || disabled}
           />
 
-          <Button disabled={!contactList.length} onClick={handleAddContact}>
+          <Button
+            disabled={!contactList.length || selectedIndex === "" || disabled}
+            onClick={handleAddContact}
+          >
             <En>Add Contact</En>
             <Fr>Ajouter un contact</Fr>
           </Button>
         </div>
         <Contacts
           name="contacts"
-          value={record.contacts}
+          value={record.contacts || []}
           onChange={(e) => handleInputChange(e)}
           disabled={disabled}
         />
