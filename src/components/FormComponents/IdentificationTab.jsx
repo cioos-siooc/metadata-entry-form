@@ -74,7 +74,7 @@ const IdentificationTab = ({
       </Typography>
       <CheckBoxList
         name="eov"
-        value={record.eov}
+        value={record.eov || []}
         onChange={handleInputChange}
         options={eovList}
         optionLabels={eovList.map(camelToSentenceCase)}

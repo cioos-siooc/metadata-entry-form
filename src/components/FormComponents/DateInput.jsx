@@ -16,7 +16,9 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         label="Date picker dialog"
         format="MM/dd/yyyy"
         value={value}
-        onChange={(d) => onChange({ target: { name, value: d } })}
+        onChange={(dateSelected) =>
+          onChange({ target: { name, value: dateSelected } })
+        }
         KeyboardButtonProps={{
           "aria-label": "change date",
         }}

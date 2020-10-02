@@ -12,20 +12,20 @@ import { Fr, En } from "./I18n";
 const unique = (arr) => [...new Set(arr)];
 
 class Admin extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      // array of strings which are email addresses or reviewers, admins
-      admins: [],
-      reviewers: [],
-      loading: false,
-    };
+  state = {
+    // array of strings which are email addresses or reviewers, admins
+    admins: [],
+    reviewers: [],
+    loading: false,
+  };
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   async componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()

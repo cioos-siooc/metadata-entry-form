@@ -5,6 +5,7 @@ import Contact from "./Contact";
 import { deepCopy } from "../../utils/misc";
 
 const initial = {
+  role: "",
   orgName: "",
   orgEmail: "",
   orgURL: "",
@@ -52,6 +53,7 @@ const Contacts = ({ onChange, value, name, disabled }) => {
                 name={"contact_" + i}
                 value={contact}
                 onChange={handleChange(i)}
+                disabled={disabled}
               />
             </Grid>
 
