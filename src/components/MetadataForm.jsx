@@ -1,31 +1,30 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/core/styles";
-import { withRouter } from "react-router-dom";
 import {
-  Grid,
-  Typography,
-  Button,
-  Paper,
-  Tabs,
-  Tab,
-  CircularProgress,
   Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Paper,
+  Tab,
+  Tabs,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
-import { Save } from "@material-ui/icons";
+import { En, Fr, I18n } from "./I18n";
+import React, { Component } from "react";
 
-import IdentificationTab from "./FormComponents/IdentificationTab";
-import MetadataTab from "./FormComponents/MetadataTab";
-import SpatialTab from "./FormComponents/SpatialTab";
 import ContactTab from "./FormComponents/ContactTab";
 import DistributionTab from "./FormComponents/DistributionTab";
+import IdentificationTab from "./FormComponents/IdentificationTab";
+import MetadataTab from "./FormComponents/MetadataTab";
 import PlatformTab from "./FormComponents/PlatformTab";
-
-import firebase from "../firebase";
+import { Save } from "@material-ui/icons";
+import SpatialTab from "./FormComponents/SpatialTab";
 import { auth } from "../auth";
-import { En, Fr, I18n } from "./I18n";
-
+import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
+import { v4 as uuidv4 } from "uuid";
+import { withRouter } from "react-router-dom";
+import { withStyles } from "@material-ui/core/styles";
 
 const styles = {
   paper: {
@@ -53,12 +52,17 @@ class MetadataForm extends Component {
       title: { en: "", fr: "" },
       abstract: { en: "", fr: "" },
       map: { north: "", south: "", east: "", west: "" },
+      identifier: uuidv4(),
       id: "",
+      keywords: { en: [], fr: [] },
       role: "",
       eov: [],
       progress: "",
       distribution: [],
       dateStart: new Date(),
+
+      verticalExtentMin: null,
+      verticalExtentMax: null,
       datePublished: new Date(),
       dateRevised: new Date(),
       recordID: "",
@@ -67,6 +71,7 @@ class MetadataForm extends Component {
       platformID: "",
       platformRole: "",
       platformDescription: "",
+      platformAuthority: "",
       language: "",
       license: "",
       contacts: [],

@@ -1,15 +1,15 @@
-import React from "react";
-
-import { Typography, Paper } from "@material-ui/core";
+import { En, Fr } from "../I18n";
+import { Paper, TextField, Typography } from "@material-ui/core";
+import { eovList, progressCodes } from "../../isoCodeLists";
 
 import BilingualTextInput from "./BilingualTextInput";
 import CheckBoxList from "./CheckBoxList";
-import SelectInput from "./SelectInput";
 import DateInput from "./DateInput";
-
-import { En, Fr } from "../I18n";
-import { eovList, progressCodes } from "../../isoCodeLists";
+import KeywordsInput from "./KeywordsInput";
+import React from "react";
+import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
+import { categoryList } from "../../categoryList";
 
 const IdentificationTab = ({
   disabled,
@@ -18,6 +18,20 @@ const IdentificationTab = ({
   paperClass,
 }) => (
   <div>
+    <Paper className={paperClass}>
+      <Typography>
+        <En>Dataset unique ID</En>
+        <Fr>Identifiant unique de ce jeu de données</Fr>
+      </Typography>
+      <TextField
+        name="identifier"
+        value={record.identifier}
+        onChange={(e) => handleInputChange(e)}
+        disabled
+        fullWidth
+      />
+    </Paper>
+
     <Paper className={paperClass}>
       <Typography>
         <En>What is the dataset title?</En>
@@ -29,6 +43,21 @@ const IdentificationTab = ({
         onChange={handleInputChange}
         required="either"
         disabled={disabled}
+      />
+    </Paper>
+
+    <Paper className={paperClass}>
+      <Typography>
+        <En>What is the dataset abstract?</En>
+        <Fr>Quelle est la description de ce jeu de données?</Fr>
+      </Typography>
+      <BilingualTextInput
+        name="abstract"
+        value={record.abstract}
+        onChange={handleInputChange}
+        required="either"
+        disabled={disabled}
+        multiline
       />
     </Paper>
 
@@ -54,6 +83,24 @@ const IdentificationTab = ({
     </Paper>
     <Paper className={paperClass}>
       <Typography>
+        <En>
+          What are the keywords that describe the dataset? (use "," as
+          separator)
+        </En>
+        <Fr>
+          Quels sont les mots clefs qui décrivent votre jeu de données?
+          (utilisez "," comme séparateur)
+        </Fr>
+      </Typography>
+      <KeywordsInput
+        name="keywords"
+        value={record.keywords}
+        onChange={handleInputChange}
+        required="either"
+      />
+    </Paper>
+    <Paper className={paperClass}>
+      <Typography>
         <En>What is the status of this dataset?</En>
         <Fr>Quel est l'état de ce jeu de données ?</Fr>
       </Typography>
@@ -66,17 +113,17 @@ const IdentificationTab = ({
         disabled={disabled}
       />
     </Paper>
-
     <Paper className={paperClass}>
       <Typography>
-        <En>What is the dataset abstract?</En>
-        <Fr>Qu'est-ce que le résumé du jeu de données?</Fr>
+        <En>In which category does this dataset best fit in?</En>
+        <Fr>Quelle catégorie convient le mieux à ce dataset?</Fr>
       </Typography>
-      <BilingualTextInput
-        name="abstract"
-        value={record.abstract}
-        onChange={handleInputChange}
-        multiline
+      <SelectInput
+        name="category"
+        value={record.category}
+        onChange={(e) => handleInputChange(e)}
+        options={categoryList}
+        optionLabels={categoryList.map(camelToSentenceCase)}
         disabled={disabled}
       />
     </Paper>

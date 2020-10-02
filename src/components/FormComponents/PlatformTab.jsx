@@ -71,6 +71,19 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
         />
       </div>
       <div>
+        <Typography>
+          <En>Who is charge of the platform?</En>
+          <Fr>Qui est le responsable de la plate-forme?</Fr>
+        </Typography>
+        <TextField
+          value={record.platformAuthority}
+          name="platformAuthority"
+          onChange={(e) => handleInputChange(e)}
+          fullWidth
+        />
+      </div>
+      <div>
+        <Typography>Instruments</Typography>
         <Instruments
           value={record.instruments || []}
           onChange={handleInputChange}

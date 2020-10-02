@@ -1,11 +1,9 @@
-import React from "react";
-
-import { Typography, Paper } from "@material-ui/core";
+import { En, Fr } from "../I18n";
+import { Paper, Typography } from "@material-ui/core";
 
 import BilingualTextInput from "./BilingualTextInput";
+import React from "react";
 import SelectInput from "./SelectInput";
-
-import { En, Fr } from "../I18n";
 
 const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
   <div>
@@ -88,9 +86,10 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
         onChange={(e) => handleInputChange(e)}
         optionLabels={[
           "Creative Commons Attribution 4.0",
-          "Some other license option",
+          "Creative Commons 0",
+          "Government Open License - Canada",
         ]}
-        options={["CC-BY-4.0", "other"]}
+        options={["CC-BY-4.0", "CC0", "government-open-license-canada"]}
         disabled={disabled}
       />
     </Paper>
