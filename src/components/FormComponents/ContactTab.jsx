@@ -51,7 +51,7 @@ const ContactTab = ({
           />
 
           <Button
-            disabled={!contactList.length || disabled}
+            disabled={!contactList.length || selectedIndex === "" || disabled}
             onClick={handleAddContact}
           >
             <En>Add Contact</En>

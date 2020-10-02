@@ -59,8 +59,8 @@ class MetadataForm extends Component {
       progress: "",
       distribution: [],
       dateStart: new Date(),
-      // datePublished: new Date(),
-      // dateRevised: new Date(),
+      datePublished: new Date(),
+      dateRevised: new Date(),
       recordID: "",
       instruments: [],
       platformName: "",
@@ -115,6 +115,9 @@ class MetadataForm extends Component {
       await recordsRef.child(record.recordID).update(record);
     } else {
       const newNode = await recordsRef.push(record);
+
+      // cheesy workaround to the issue of push() not saving dates
+      await newNode.update(record);
       const recordID = newNode.key;
       this.setState(({ record }) => ({ record: { ...record, recordID } }));
     }
