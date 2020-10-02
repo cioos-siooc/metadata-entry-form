@@ -14,7 +14,7 @@ const KeywordsInput = ({ onChange, value, name }) => {
   function cleanList(list) {
     return list
       .map((item) => item.trim())
-      .filter((item, i) => item && list.indexOf(item) === i);
+      .filter((item, i, arr) => item && arr.indexOf(item) === i);
   }
 
   function handleHelperChange(event, selectedValue) {
@@ -80,6 +80,17 @@ const KeywordsInput = ({ onChange, value, name }) => {
           fr: value.fr.join(","),
         }}
         onChange={(e) => {
+          onChange({
+            target: {
+              name: name,
+              value: {
+                en: e.target.value.en.split(","),
+                fr: e.target.value.fr.split(","),
+              },
+            },
+          });
+        }}
+        onBlur={(e) => {
           onChange({
             target: {
               name: name,
