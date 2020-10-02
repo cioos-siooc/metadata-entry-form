@@ -156,7 +156,7 @@ def main(argv):
                     # authority: platform_authority
                     'id': r.get('platformID'),
                     'description': r.get('platformDescription'),
-                    'instruments': r.get('instruments')
+                    'instruments': r.get('instruments',[])
                     # - id: 123
                     #   manufacturer: manufacturer en 1
                     #   version: A1.53
@@ -169,13 +169,13 @@ def main(argv):
                 }
             }
 
-            if r.get('created') is not None:
-                yDict['identification']['dates']['creation'] = r.get('created')
-            if r.get('published') is not None:
+            if r.get('dateStart') is not None:
+                yDict['identification']['dates']['creation'] = r.get('dateStart')
+            if r.get('datePublished') is not None:
                 yDict['identification']['dates']['publication'] = r.get(
-                    'published')
-            if r.get('revised') is not None:
-                yDict['identification']['dates']['revision'] = r.get('revised')
+                    'datePublished')
+            if r.get('dateRevised') is not None:
+                yDict['identification']['dates']['revision'] = r.get('dateRevised')
 
             # check at least one date has been added otherwise skip this record
             if not yDict.get('identification') or not yDict.get('identification').get('dates'):
