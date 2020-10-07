@@ -1,7 +1,23 @@
 {
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
   "extends": ["airbnb", "prettier", "prettier/react"],
   "env": { "browser": true },
   "rules": {
+    "react/no-unescaped-entities": [
+      "error",
+      {
+        "forbid": [">", "}"]
+      }
+    ],
     "react/prop-types": 0
   },
   "ignorePatterns": "*.test.js"

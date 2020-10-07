@@ -1,6 +1,4 @@
 import React from "react";
-import firebase from "../firebase";
-import { auth } from "../auth";
 import {
   Typography,
   List,
@@ -13,11 +11,14 @@ import {
   IconButton,
   CircularProgress,
 } from "@material-ui/core";
-
 import { Delete, Publish, Description, Visibility } from "@material-ui/icons";
+import { v4 as uuidv4 } from "uuid";
+import firebase from "../firebase";
+import { auth } from "../auth";
 import { Fr, En, I18n } from "./I18n";
 
 import SimpleModal from "./SimpleModal";
+
 const MetadataRecordListItem = ({
   record,
   language,
@@ -65,17 +66,16 @@ const MetadataRecordListItem = ({
   </ListItem>
 );
 class Submissions extends React.Component {
-  state = {
-    users: {},
-    deleteModalOpen: false,
-    publishModalOpen: false,
-    modalKey: "",
-    modalUserID: "",
-    loading: false,
-  };
-
-  componentWillUnmount() {
-    this.unsubscribe();
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: {},
+      deleteModalOpen: false,
+      publishModalOpen: false,
+      modalKey: "",
+      modalUserID: "",
+      loading: false,
+    };
   }
 
   async componentDidMount() {
@@ -93,10 +93,14 @@ class Submissions extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   editRecord(key, userID) {
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/review/${userID}/${key}`
-    );
+    const { history } = this.props;
+    const { match } = this.props;
+    history.push(`/${match.params.language}/review/${userID}/${key}`);
   }
 
   async submitRecord(key, userID) {
@@ -131,19 +135,20 @@ class Submissions extends React.Component {
       this.setState({ loading: false });
     }
   }
+
   toggleModal(modalName, state, key = "", userID) {
     this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
   }
-  shorten(txt) {
-    const maxLen = 100;
-    if (txt.length > maxLen) return txt.substr(0, maxLen) + "...";
-    else return txt;
-  }
+
   render() {
-    const { language } = this.props.match.params;
+    const { users } = this.state;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { match } = this.props;
+    const { language } = match.params;
+
     const records = [];
 
-    Object.entries(this.state.users).forEach(([userID, user]) => {
+    Object.entries(users).forEach(([userID, user]) => {
       if (user.records) {
         Object.entries(user.records).forEach(([k, record]) => {
           records.push({
@@ -161,23 +166,26 @@ class Submissions extends React.Component {
     const recordsPublished = records.filter(
       (record) => record.status === "published"
     );
+    const {
+      deleteModalOpen,
+      modalKey,
+      modalUserID,
+      publishModalOpen,
+      loading,
+    } = this.state;
     return (
       <div>
         <SimpleModal
-          open={this.state.deleteModalOpen}
+          open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
-          onAccept={() =>
-            this.deleteRecord(this.state.modalKey, this.state.modalUserID)
-          }
+          onAccept={() => this.deleteRecord(modalKey, modalUserID)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
-          open={this.state.publishModalOpen}
+          open={publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() =>
-            this.submitRecord(this.state.modalKey, this.state.modalUserID)
-          }
+          onAccept={() => this.submitRecord(modalKey, modalUserID)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -186,7 +194,7 @@ class Submissions extends React.Component {
           <En>Review submissions</En>
           <Fr>Examen des soumissions</Fr>
         </Typography>
-        {this.state.loading ? (
+        {loading ? (
           <CircularProgress />
         ) : (
           <span>
@@ -246,11 +254,11 @@ class Submissions extends React.Component {
                     <Fr>Documents publiés:</Fr>
                   </Typography>
                   <List>
-                    {recordsPublished.map((record, key) => {
+                    {recordsPublished.map((record) => {
                       return (
                         <MetadataRecordListItem
                           record={record}
-                          key={key}
+                          key={uuidv4()}
                           language={language}
                           onViewClick={() =>
                             this.editRecord(record.key, record.userinfo.userID)

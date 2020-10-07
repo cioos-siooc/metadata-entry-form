@@ -1,29 +1,32 @@
 import React from "react";
+import { withRouter } from "react-router-dom";
+import { Grid, Button } from "@material-ui/core";
 import firebase from "../firebase";
 import { auth } from "../auth";
 
-import { withRouter } from "react-router-dom";
-
 import { I18n } from "./I18n";
 
-import { Grid, Button } from "@material-ui/core";
 import Contact from "./FormComponents/Contact";
 
 class EditContact extends React.Component {
-  state = {
-    orgName: "",
-    orgEmail: "",
-    orgURL: "",
-    orgAdress: "",
-    orgCity: "",
-    orgCountry: "",
-    indName: "",
-    indPosition: "",
-    indEmail: "",
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      orgName: "",
+      orgEmail: "",
+      orgURL: "",
+      orgAdress: "",
+      orgCity: "",
+      orgCountry: "",
+      indName: "",
+      indPosition: "",
+      indEmail: "",
+    };
+  }
 
   async componentDidMount() {
-    const { recordID } = this.props.match.params;
+    const { match } = this.props;
+    const { recordID } = match.params;
     if (auth.currentUser && recordID) {
       this.dbRef = firebase
         .database()
@@ -42,7 +45,11 @@ class EditContact extends React.Component {
     }
   }
 
-  deleteRecord(key) {
+  componentWillUnmount() {
+    if (this.dbRef) this.dbRef.off("value");
+  }
+
+  deleteRecord() {
     const { recordID } = this.state;
 
     if (auth.currentUser) {
@@ -55,11 +62,15 @@ class EditContact extends React.Component {
 
     this.setState({ [name]: value });
   }
+
   handleCancelClick() {
+    const { history } = this.props;
     const baseURL = "/en";
-    this.props.history.push(baseURL + "/contacts");
+    history.push(`${baseURL}/contacts`);
   }
+
   async handleSubmitClick() {
+    const { history } = this.props;
     if (this.dbRef) this.dbRef.off("value");
     const baseURL = "/en";
 
@@ -75,16 +86,15 @@ class EditContact extends React.Component {
       await rootRef.child(recordID).update(record);
     } else {
       await rootRef.push(record);
-      this.props.history.push(baseURL + "/contacts");
+      history.push(`${baseURL}/contacts`);
     }
-    this.props.history.push(baseURL + "/contacts");
+    history.push(`${baseURL}/contacts`);
   }
-  componentWillUnmount() {
-    if (this.dbRef) this.dbRef.off("value");
-  }
+
   // orgName, orgURL, orgAdress, orgCity, orgCountry
   render() {
-    const isFilledEnoughToSave = this.state.orgName || this.state.indName;
+    const { orgName, indName, recordID } = this.state;
+    const isFilledEnoughToSave = orgName || indName;
     return (
       <Grid container>
         Edit contacts
@@ -95,7 +105,7 @@ class EditContact extends React.Component {
           onClick={() => this.handleSubmitClick()}
           disabled={!isFilledEnoughToSave}
         >
-          {this.state.recordID ? (
+          {recordID ? (
             <I18n en="Update" fr="Mise à jour" />
           ) : (
             <I18n en="Submit" fr="Soumettre" />

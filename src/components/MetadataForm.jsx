@@ -9,22 +9,22 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import { En, Fr, I18n } from "./I18n";
 import React, { Component } from "react";
+import { Save } from "@material-ui/icons";
+import { v4 as uuidv4 } from "uuid";
+import { withRouter } from "react-router-dom";
+import { withStyles } from "@material-ui/core/styles";
+import { En, Fr, I18n } from "./I18n";
 
 import ContactTab from "./FormComponents/ContactTab";
 import DistributionTab from "./FormComponents/DistributionTab";
 import IdentificationTab from "./FormComponents/IdentificationTab";
 import MetadataTab from "./FormComponents/MetadataTab";
 import PlatformTab from "./FormComponents/PlatformTab";
-import { Save } from "@material-ui/icons";
 import SpatialTab from "./FormComponents/SpatialTab";
 import { auth } from "../auth";
 import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
-import { v4 as uuidv4 } from "uuid";
-import { withRouter } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
 
 const styles = {
   paper: {
@@ -47,53 +47,96 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 class MetadataForm extends Component {
-  state = {
-    record: {
-      title: { en: "", fr: "" },
-      abstract: { en: "", fr: "" },
-      map: { north: "", south: "", east: "", west: "" },
-      identifier: uuidv4(),
-      id: "",
-      keywords: { en: [], fr: [] },
-      role: "",
-      eov: [],
-      progress: "",
-      distribution: [],
-      dateStart: new Date(),
+  constructor(props) {
+    super(props);
 
-      verticalExtentMin: null,
-      verticalExtentMax: null,
-      datePublished: new Date(),
-      dateRevised: new Date(),
-      recordID: "",
-      instruments: [],
-      platformName: "",
-      platformID: "",
-      platformRole: "",
-      platformDescription: "",
-      platformAuthority: "",
-      language: "",
-      license: "",
-      contacts: [],
-      status: "",
-      comment: "",
-      history: "",
-      limitations: "",
-      maintenance: "",
-      created: new Date(),
-    },
+    this.state = {
+      record: {
+        title: { en: "", fr: "" },
+        abstract: { en: "", fr: "" },
+        map: { north: "", south: "", east: "", west: "" },
+        identifier: uuidv4(),
+        id: "",
+        keywords: { en: [], fr: [] },
+        role: "",
+        eov: [],
+        progress: "",
+        distribution: [],
+        dateStart: new Date(),
 
-    // contacts saved by user (not the ones saved in the record)
-    // kept in firebase object format instead of array
-    userContacts: {},
+        verticalExtentMin: null,
+        verticalExtentMax: null,
+        datePublished: new Date(),
+        dateRevised: new Date(),
+        recordID: "",
+        instruments: [],
+        platformName: "",
+        platformID: "",
+        platformRole: "",
+        platformDescription: "",
+        platformAuthority: "",
+        language: "",
+        license: "",
+        contacts: [],
+        status: "",
+        comment: "",
+        history: "",
+        limitations: "",
+        maintenance: "",
+        created: new Date(),
+      },
 
-    // UI state:
-    loading: false,
-    tabIndex: "identification",
+      // contacts saved by user (not the ones saved in the record)
+      // kept in firebase object format instead of array
+      userContacts: {},
 
-    // whether the 'save' icon button is greyed out or not
-    saveDisabled: true,
-  };
+      // UI state:
+      loading: false,
+      tabIndex: "identification",
+
+      // whether the 'save' icon button is greyed out or not
+      saveDisabled: true,
+    };
+  }
+
+  componentDidMount() {
+    const { match } = this.props;
+    this.setState({ loading: true });
+
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
+      const { recordID } = match.params;
+
+      // either from the URL if its a record in review or from auth
+      const userID = match.params.userID || user.uid;
+
+      const userDataRef = firebase.database().ref(`test/users`).child(userID);
+
+      // get contacts
+      userDataRef.child("contacts").on("value", (contacts) => {
+        this.setState({ userContacts: contacts.toJSON() });
+      });
+
+      // if recordID is set then the user is editing an existing record
+      if (userID && recordID) {
+        userDataRef
+          .child("records")
+          .child(recordID)
+          .on("value", (recordFireBase) => {
+            const record = firebaseToJSObject(recordFireBase.toJSON());
+
+            this.setState({
+              record: { ...record, recordID },
+              loading: false,
+            });
+          });
+      } else this.setState({ loading: false });
+    });
+  }
+
+  componentWillUnmount() {
+    // fixes error Can't perform a React state update on an unmounted component
+    this.unsubscribe();
+  }
 
   // genereric handler for updating state, used by most form components
   handleInputChange = (event) => {
@@ -129,56 +172,26 @@ class MetadataForm extends Component {
 
     this.setState({ saveDisabled: true });
   }
-  componentWillUnmount() {
-    // fixes error Can't perform a React state update on an unmounted component
-    this.unsubscribe();
-  }
-  componentDidMount() {
-    this.setState({ loading: true });
-
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      const { recordID } = this.props.match.params;
-
-      // either from the URL if its a record in review or from auth
-      const userID = this.props.match.params.userID || user.uid;
-
-      const userDataRef = firebase.database().ref(`test/users`).child(userID);
-
-      // get contacts
-      userDataRef.child("contacts").on("value", (contacts) => {
-        this.setState({ userContacts: contacts.toJSON() });
-      });
-
-      // if recordID is set then the user is editing an existing record
-      if (userID && recordID) {
-        userDataRef
-          .child("records")
-          .child(recordID)
-          .on("value", (recordFireBase) => {
-            const record = firebaseToJSObject(recordFireBase.toJSON());
-
-            this.setState({
-              record: { ...record, recordID },
-              loading: false,
-            });
-          });
-      } else this.setState({ loading: false });
-    });
-  }
 
   render() {
+    const {
+      userContacts,
+      tabIndex,
+      record,
+      saveDisabled,
+      loading,
+    } = this.state;
     const disabled =
-      this.state.record.status === "submitted" ||
-      this.state.record.status === "published";
+      record.status === "submitted" || record.status === "published";
 
+    const { classes } = this.props;
     const tabProps = {
       disabled,
-      record: this.state.record,
+      record,
       handleInputChange: this.handleInputChange,
-      paperClass: this.props.classes.paper,
+      paperClass: classes.paper,
     };
-
-    return this.state.loading ? (
+    return loading ? (
       <CircularProgress />
     ) : (
       <Grid
@@ -187,7 +200,7 @@ class MetadataForm extends Component {
         justify="space-between"
         alignItems="stretch"
       >
-        <Paper className={this.props.classes.paper}>
+        <Paper className={classes.paper}>
           <Typography variant="h3">
             <En>CIOOS Metadata Profile Intake Form</En>
             <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
@@ -222,22 +235,22 @@ class MetadataForm extends Component {
         </Paper>
 
         <Tabs
-          value={this.state.tabIndex}
+          value={tabIndex}
           onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
           aria-label="simple tabs example"
         >
-          <Tab label="Identification" value={"identification"} />
+          <Tab label="Identification" value="identification" />
           <Tab
             label={<I18n en="Metadata" fr="Métadonnées" />}
-            value={"metadata"}
+            value="metadata"
           />
           identification
-          <Tab label="Spatial" value={"spatial"} />
-          <Tab label="Contact" value={"contact"} />
-          <Tab label="Distribution" value={"distribution"} />
+          <Tab label="Spatial" value="spatial" />
+          <Tab label="Contact" value="contact" />
+          <Tab label="Distribution" value="distribution" />
           <Tab
             label={<I18n en="Platform" fr="Plateforme" />}
-            value={"platform"}
+            value="platform"
           />
         </Tabs>
         <Tooltip title={<I18n en="Save" fr="Enregistrer" />}>
@@ -250,8 +263,8 @@ class MetadataForm extends Component {
               style={{ width: "100px" }}
               startIcon={<Save />}
               disabled={
-                this.state.saveDisabled ||
-                !(this.state.record.title.en || this.state.record.title.fr) ||
+                saveDisabled ||
+                !(record.title.en || record.title.fr) ||
                 disabled
               }
             >
@@ -259,24 +272,24 @@ class MetadataForm extends Component {
             </Button>
           </span>
         </Tooltip>
-        <TabPanel value={this.state.tabIndex} index={"identification"}>
+        <TabPanel value={tabIndex} index="identification">
           <IdentificationTab {...tabProps} />
         </TabPanel>
-        <TabPanel value={this.state.tabIndex} index={"metadata"}>
+        <TabPanel value={tabIndex} index="metadata">
           <MetadataTab {...tabProps} />
         </TabPanel>
-        <TabPanel value={this.state.tabIndex} index={"spatial"}>
+        <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />
         </TabPanel>
-        <TabPanel value={this.state.tabIndex} index={"platform"}>
+        <TabPanel value={tabIndex} index="platform">
           <PlatformTab {...tabProps} />
         </TabPanel>
-        <TabPanel value={this.state.tabIndex} index={"distribution"}>
+        <TabPanel value={tabIndex} index="distribution">
           <DistributionTab {...tabProps} />
         </TabPanel>
-        <TabPanel value={this.state.tabIndex} index={"contact"}>
+        <TabPanel value={tabIndex} index="contact">
           {/* userContacts are the ones the user has saved, not necessarily part of the record */}
-          <ContactTab userContacts={this.state.userContacts} {...tabProps} />
+          <ContactTab userContacts={userContacts} {...tabProps} />
         </TabPanel>
       </Grid>
     );
