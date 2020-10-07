@@ -1,8 +1,9 @@
 import React from "react";
-import { I18n } from "../I18n";
-import { deepCopy } from "../../utils/misc";
 import { Add, Delete } from "@material-ui/icons";
 import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
+import { v4 as uuidv4 } from "uuid";
+import { I18n } from "../I18n";
+import { deepCopy } from "../../utils/misc";
 import BilingualTextInput from "./BilingualTextInput";
 
 const Distribution = ({ onChange, value, name, disabled }) => {
@@ -17,7 +18,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
     });
   }
   function handleChange(e, i) {
-    let newValue = [...value];
+    const newValue = [...value];
     const propName = e.target.name;
     newValue[i][propName] = e.target.value;
     const parentEvent = { target: { name, value: newValue } };
@@ -37,7 +38,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
       {value.map((dist = deepCopy(initial), i) => {
         const handler = (e) => handleChange(e, i);
         return (
-          <Grid key={i} container>
+          <Grid key={uuidv4()} container>
             <Grid item xs={9} style={{ marginLeft: "10px" }}>
               <TextField
                 label="URL"
@@ -58,7 +59,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
 
               <Typography>Description</Typography>
               <BilingualTextInput
-                name={"description"}
+                name="description"
                 label={descriptionLabel}
                 value={dist.description}
                 onChange={handler}

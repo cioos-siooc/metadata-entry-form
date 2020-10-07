@@ -1,8 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
 
-import "leaflet/dist/leaflet.css";
 import { TextField } from "@material-ui/core";
-
 import {
   Map,
   TileLayer,
@@ -11,28 +10,24 @@ import {
   withLeaflet,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
+import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
 const MapSelect = ({ onChange, value = {}, name, disabled }) => {
-  function onEditPath(e) {
-    console.log(e);
-  }
-  function onDeleted(e) {
-    console.log(e);
-  }
+  function onEditPath() {}
+  function onDeleted() {}
 
   const [editableFG, setEditableFG] = useState(null);
 
   function handleChange(e) {
     const newData = { ...value, [e.target.name]: e.target.value };
     onChange({ target: { name, value: newData } });
-    console.log(name, newData);
   }
 
   function limitDecimals(x) {
     return Number.parseFloat(x).toPrecision(4);
   }
-  const onCreated = (e) => {
+  const onCreated = () => {
     // here you have all the stored layers
     const drawnItems = editableFG.leafletElement._layers;
 
@@ -104,7 +99,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
       </Map>
       <div style={{ margin: "10px" }}>
         <TextField
-          name={"north"}
+          name="north"
           label="North"
           value={value.north}
           onChange={handleChange}
@@ -112,7 +107,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           disabled={disabled}
         />
         <TextField
-          name={"south"}
+          name="south"
           label="South"
           value={value.south}
           onChange={handleChange}
@@ -120,7 +115,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           disabled={disabled}
         />
         <TextField
-          name={"east"}
+          name="east"
           label="East"
           value={value.east}
           onChange={handleChange}
@@ -128,7 +123,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           disabled={disabled}
         />
         <TextField
-          name={"west"}
+          name="west"
           value={value.west}
           label="West"
           onChange={handleChange}

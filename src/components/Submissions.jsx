@@ -1,6 +1,4 @@
 import React from "react";
-import firebase from "../firebase";
-import { auth } from "../auth";
 import {
   Typography,
   List,
@@ -13,7 +11,6 @@ import {
   IconButton,
   CircularProgress,
 } from "@material-ui/core";
-
 import {
   Delete,
   Edit,
@@ -21,22 +18,25 @@ import {
   Description,
   Visibility,
 } from "@material-ui/icons";
+import firebase from "../firebase";
+import { auth } from "../auth";
+
 import { Fr, En, I18n } from "./I18n";
 
 import SimpleModal from "./SimpleModal";
 
 class Submissions extends React.Component {
-  state = {
-    records: {},
-    deleteModalOpen: false,
-    publishModalOpen: false,
-    modalKey: "",
-    loading: false,
-  };
-
-  componentWillUnmount() {
-    this.unsubscribe();
+  constructor(props) {
+    super(props);
+    this.state = {
+      records: {},
+      deleteModalOpen: false,
+      publishModalOpen: false,
+      modalKey: "",
+      loading: false,
+    };
   }
+
   async componentDidMount() {
     this.setState({ loading: true });
 
@@ -54,10 +54,13 @@ class Submissions extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   editRecord(key) {
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/new/${key}`
-    );
+    const { match, history } = this.props;
+    history.push(`/${match.params.language}/new/${key}`);
   }
 
   submitRecord(key) {
@@ -84,30 +87,34 @@ class Submissions extends React.Component {
         .remove();
     }
   }
+
   toggleModal(modalName, state, key = "") {
     this.setState({ modalKey: key, [modalName]: state });
   }
-  shorten(txt) {
-    const maxLen = 100;
-    if (txt.length > maxLen) return txt.substr(0, maxLen) + "...";
-    else return txt;
-  }
-  render() {
-    const { language } = this.props.match.params;
 
+  render() {
+    const { match } = this.props;
+    const { language } = match.params;
+    const {
+      deleteModalOpen,
+      modalKey,
+      publishModalOpen,
+      records,
+      loading,
+    } = this.state;
     return (
       <div>
         <SimpleModal
-          open={this.state.deleteModalOpen}
+          open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
-          onAccept={() => this.deleteRecord(this.state.modalKey)}
+          onAccept={() => this.deleteRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
-          open={this.state.publishModalOpen}
+          open={publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() => this.submitRecord(this.state.modalKey)}
+          onAccept={() => this.submitRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -116,19 +123,18 @@ class Submissions extends React.Component {
           <En>Submission list</En>
           <Fr>Liste des soumissions</Fr>
         </Typography>
-        {this.state.loading ? (
+        {loading ? (
           <CircularProgress />
         ) : (
           <span>
-            {this.state.records &&
-            Object.keys(this.state.records).length > 0 ? (
+            {records && Object.keys(records).length > 0 ? (
               <div>
                 <Typography>
                   <En>These are the submissions we have received:</En>
                   <Fr>Ce sont les soumissions que nous avons reçues</Fr>
                 </Typography>
                 <List>
-                  {Object.entries(this.state.records).map(([key, val]) => {
+                  {Object.entries(records).map(([key, val]) => {
                     const disabled = val.status === "submitted";
                     return (
                       <ListItem key={key}>

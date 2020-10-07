@@ -1,15 +1,15 @@
-import { En, Fr } from "../I18n";
+import React from "react";
 import { Paper, TextField, Typography } from "@material-ui/core";
+import { En, Fr } from "../I18n";
 import { eovList, progressCodes } from "../../isoCodeLists";
 
 import BilingualTextInput from "./BilingualTextInput";
 import CheckBoxList from "./CheckBoxList";
 import DateInput from "./DateInput";
 import KeywordsInput from "./KeywordsInput";
-import React from "react";
 import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
-import { categoryList } from "../../categoryList";
+import categoryList from "../../categoryList";
 
 const IdentificationTab = ({
   disabled,
