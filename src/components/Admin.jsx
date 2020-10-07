@@ -1,25 +1,26 @@
 import React from "react";
-import firebase from "../firebase";
-import { auth } from "../auth";
 import {
   Typography,
   Button,
   CircularProgress,
   TextField,
 } from "@material-ui/core";
+import firebase from "../firebase";
+import { auth } from "../auth";
 
 import { Fr, En } from "./I18n";
+
 const unique = (arr) => [...new Set(arr)];
 
 class Admin extends React.Component {
-  state = {
-    // array of strings which are email addresses or reviewers, admins
-    admins: [],
-    reviewers: [],
-    loading: false,
-  };
-  componentWillUnmount() {
-    this.unsubscribe();
+  constructor(props) {
+    super(props);
+    this.state = {
+      // array of strings which are email addresses or reviewers, admins
+      admins: [],
+      reviewers: [],
+      loading: false,
+    };
   }
 
   async componentDidMount() {
@@ -46,23 +47,29 @@ class Admin extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   updatePermissions() {
+    const { reviewers, admins } = this.state;
     if (auth.currentUser) {
       const dbRef = firebase.database().ref(`test/permissions`);
 
-      dbRef.child("admins").set(unique(this.state.admins));
-      dbRef.child("reviewers").set(unique(this.state.reviewers));
+      dbRef.child("admins").set(unique(admins));
+      dbRef.child("reviewers").set(unique(reviewers));
     }
   }
 
   render() {
+    const { loading, reviewers, admins } = this.state;
     return (
       <div>
         <Typography variant="h3">
           <En>Admin</En>
           <Fr>Admin</Fr>
         </Typography>
-        {this.state.loading ? (
+        {loading ? (
           <CircularProgress />
         ) : (
           <div>
@@ -74,7 +81,7 @@ class Admin extends React.Component {
               <TextField
                 multiline
                 fullWidth
-                value={this.state.admins.join("\n")}
+                value={admins.join("\n")}
                 onChange={(e) =>
                   this.setState({ admins: e.target.value.split("\n") })
                 }
@@ -88,7 +95,7 @@ class Admin extends React.Component {
               <TextField
                 multiline
                 fullWidth
-                value={this.state.reviewers.join("\n")}
+                value={reviewers.join("\n")}
                 onChange={(e) =>
                   this.setState({ reviewers: e.target.value.split("\n") })
                 }

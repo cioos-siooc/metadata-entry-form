@@ -4,9 +4,9 @@ CIOOS Metadata entry form
 
 ## Installation
 
-1) Install [Node](https://nodejs.org/en/download/)
+1. Install [Node](https://nodejs.org/en/download/)
 
-2) In this directory, run `npm install`
+2. In this directory, run `npm install`
 
 ## Running development mode
 

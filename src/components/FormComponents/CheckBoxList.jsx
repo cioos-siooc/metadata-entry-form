@@ -18,7 +18,7 @@ const CheckBoxList = ({
 }) => {
   function toggleArrayElement(ele, arr) {
     if (arr.includes(ele)) return arr.filter((v) => v !== ele);
-    else return arr.concat(ele);
+    return arr.concat(ele);
   }
 
   return (

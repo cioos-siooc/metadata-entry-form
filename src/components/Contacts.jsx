@@ -1,7 +1,4 @@
 import React from "react";
-import firebase from "../firebase";
-import { auth } from "../auth";
-
 import {
   Typography,
   IconButton,
@@ -14,19 +11,29 @@ import {
   CircularProgress,
   Tooltip,
 } from "@material-ui/core";
-import { I18n, En, Fr } from "./I18n";
 import { Add, Edit, Delete, PermContactCalendar } from "@material-ui/icons";
-import SimpleModal from "./SimpleModal";
-class Contacts1 extends React.Component {
-  state = {
-    contacts: {},
-    modalOpen: false,
-    modalKey: "",
-    loading: false,
-  };
+import firebase from "../firebase";
+import { auth } from "../auth";
 
-  componentWillUnmount() {
-    this.unsubscribe();
+import { I18n, En, Fr } from "./I18n";
+import SimpleModal from "./SimpleModal";
+
+function getTitle(value) {
+  const titleParts = [];
+  titleParts.push(value.orgName);
+  titleParts.push(value.indName);
+  return titleParts.map((e) => e).join("/");
+}
+
+class Contacts1 extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      contacts: {},
+      modalOpen: false,
+      modalKey: "",
+      loading: false,
+    };
   }
 
   async componentDidMount() {
@@ -46,6 +53,11 @@ class Contacts1 extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
     if (auth.currentUser) {
       firebase
@@ -57,24 +69,18 @@ class Contacts1 extends React.Component {
         .remove();
     }
   }
-  getTitle(value) {
-    let titleParts = [];
-    titleParts.push(value.orgName);
-    titleParts.push(value.indName);
-    return titleParts.map((e) => e).join("/");
-  }
 
   addItem() {
+    const { history, match } = this.props;
     // render different page with 'save' button?
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/contacts/new`
-    );
+    history.push(`/${match.params.language}/contacts/new`);
   }
+
   editRecord(key) {
+    const { history, match } = this.props;
+
     // render different page with 'save' button?
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/contacts/new/` + key
-    );
+    history.push(`/${match.params.language}/contacts/new/${key}`);
   }
 
   toggleModal(state, key = "") {
@@ -82,12 +88,13 @@ class Contacts1 extends React.Component {
   }
 
   render() {
+    const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <div>
         <SimpleModal
-          open={this.state.modalOpen}
+          open={modalOpen}
           onClose={() => this.toggleModal(false)}
-          onAccept={() => this.deleteRecord(this.state.modalKey)}
+          onAccept={() => this.deleteRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -96,19 +103,18 @@ class Contacts1 extends React.Component {
           <En>Contacts</En>
           <Fr>Contacts</Fr>
         </Typography>
-        {this.state.loading ? (
+        {loading ? (
           <CircularProgress />
         ) : (
           <span>
-            {this.state.contacts &&
-            Object.keys(this.state.contacts).length > 0 ? (
+            {contacts && Object.keys(contacts).length > 0 ? (
               <div>
                 <Typography>
                   <En>These are your contacts</En>
                   <Fr>Ce sont vos contacts</Fr>
                 </Typography>
                 <List>
-                  {Object.entries(this.state.contacts).map(([key, val]) => (
+                  {Object.entries(contacts).map(([key, val]) => (
                     <ListItem key={key}>
                       <ListItemAvatar>
                         <Avatar>
@@ -116,7 +122,7 @@ class Contacts1 extends React.Component {
                         </Avatar>
                       </ListItemAvatar>
 
-                      <ListItemText primary={this.getTitle(val)} />
+                      <ListItemText primary={getTitle(val)} />
                       <ListItemSecondaryAction>
                         <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                           <span>

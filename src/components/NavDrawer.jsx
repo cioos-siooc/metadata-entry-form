@@ -1,15 +1,6 @@
-import React, { useContext, Fragment } from "react";
-
-import cioosLogoEN from "../static/cioos-banner-en-v2.png";
-import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
+import React, { useContext } from "react";
 
 import { useParams, useLocation, useHistory } from "react-router-dom";
-
-import { auth, signInWithGoogle } from "../auth";
-
-import { En, Fr, I18n } from "./I18n";
-
-import clsx from "clsx";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
@@ -44,6 +35,11 @@ import {
   Tooltip,
   MenuItem,
 } from "@material-ui/core";
+import clsx from "clsx";
+import { En, Fr, I18n } from "./I18n";
+import { auth, signInWithGoogle } from "../auth";
+import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
+import cioosLogoEN from "../static/cioos-banner-en-v2.png";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -125,7 +121,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function MiniDrawer(props) {
+export default function MiniDrawer({ children }) {
   const history = useHistory();
 
   const classes = useStyles();
@@ -147,7 +143,7 @@ export default function MiniDrawer(props) {
     .slice(2)
     .join("/");
 
-  const baseURL = "/" + language;
+  const baseURL = `/${language}`;
 
   const [open, setOpen] = React.useState(true);
 
@@ -208,7 +204,7 @@ export default function MiniDrawer(props) {
             className={classes.languageSelector}
             value={language}
             onChange={(e) =>
-              history.push("/" + e.target.value + "/" + pathWithoutLang)
+              history.push(`/${e.target.value}/${pathWithoutLang}`)
             }
           >
             <MenuItem value="en">EN</MenuItem>
@@ -237,7 +233,7 @@ export default function MiniDrawer(props) {
         <div>{authIsLoading && <CircularProgress />}</div>
 
         {user && (
-          <ListItem key={"New Record"}>
+          <ListItem key="New Record">
             <ListItemIcon>
               <Avatar src={user.photoURL} />
             </ListItemIcon>
@@ -252,8 +248,8 @@ export default function MiniDrawer(props) {
           >
             <ListItem
               button
-              key={"Home"}
-              onClick={() => history.push(baseURL + "/")}
+              key="Home"
+              onClick={() => history.push(`${baseURL}/`)}
             >
               <ListItemIcon>
                 <Home />
@@ -269,9 +265,9 @@ export default function MiniDrawer(props) {
             >
               <ListItem
                 button
-                key={"Sign in"}
+                key="Sign in"
                 onClick={() =>
-                  signInWithGoogle().then(() => history.push(baseURL + "/"))
+                  signInWithGoogle().then(() => history.push(`${baseURL}/`))
                 }
               >
                 <ListItemIcon>
@@ -283,15 +279,15 @@ export default function MiniDrawer(props) {
           )}
 
           {user && (
-            <Fragment>
+            <>
               <Tooltip
                 placement="right-start"
                 title={open ? "" : translations.new}
               >
                 <ListItem
                   button
-                  key={"New Record"}
-                  onClick={() => history.push(baseURL + "/new")}
+                  key="New Record"
+                  onClick={() => history.push(`${baseURL}/new`)}
                 >
                   <ListItemIcon>
                     <AddBox />
@@ -305,8 +301,8 @@ export default function MiniDrawer(props) {
               >
                 <ListItem
                   button
-                  key={"Contacts"}
-                  onClick={() => history.push(baseURL + "/contacts")}
+                  key="Contacts"
+                  onClick={() => history.push(`${baseURL}/contacts`)}
                 >
                   <ListItemIcon disabled>
                     <Contacts />
@@ -320,8 +316,8 @@ export default function MiniDrawer(props) {
               >
                 <ListItem
                   button
-                  key={"Saved Records"}
-                  onClick={() => history.push(baseURL + "/submissions")}
+                  key="Saved Records"
+                  onClick={() => history.push(`${baseURL}/submissions`)}
                 >
                   <ListItemIcon>
                     <ListAlt />
@@ -336,8 +332,8 @@ export default function MiniDrawer(props) {
                 >
                   <ListItem
                     button
-                    key={"Review"}
-                    onClick={() => history.push(baseURL + "/reviewer")}
+                    key="Review"
+                    onClick={() => history.push(`${baseURL}/reviewer`)}
                   >
                     <ListItemIcon>
                       <RateReview />
@@ -353,8 +349,8 @@ export default function MiniDrawer(props) {
                 >
                   <ListItem
                     button
-                    key={"Admin"}
-                    onClick={() => history.push(baseURL + "/admin")}
+                    key="Admin"
+                    onClick={() => history.push(`${baseURL}/admin`)}
                   >
                     <ListItemIcon>
                       <SupervisorAccount />
@@ -369,7 +365,7 @@ export default function MiniDrawer(props) {
               >
                 <ListItem
                   button
-                  key={"Logout"}
+                  key="Logout"
                   onClick={() => auth.signOut().then(() => history.push(""))}
                 >
                   <ListItemIcon>
@@ -378,14 +374,14 @@ export default function MiniDrawer(props) {
                   <ListItemText primary={translations.logout} />
                 </ListItem>
               </Tooltip>
-            </Fragment>
+            </>
           )}
         </List>
         <Divider />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {props.children}
+        {children}
       </main>
     </div>
   );

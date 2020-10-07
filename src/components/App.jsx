@@ -4,6 +4,7 @@ import { Route, HashRouter as Router, Redirect } from "react-router-dom";
 import BaseLayout from "./BaseLayout";
 
 import UserProvider from "../providers/UserProvider";
+
 const App = () => (
   <UserProvider>
     <Router basename="/">

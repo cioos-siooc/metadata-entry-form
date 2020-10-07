@@ -1,4 +1,4 @@
-export const keywordList_fr = [
+export const keywordListFr = [
   "abondance et biomasse",
   "accès à la mer",
   "aide à la décision",
@@ -90,7 +90,7 @@ export const keywordList_fr = [
   "zone côtière",
 ];
 
-export const keywordList_en = [
+export const keywordListEn = [
   "abundance and biomass",
   "sea access",
   "decision making",
@@ -182,4 +182,4 @@ export const keywordList_en = [
   "coastal zone",
 ];
 
-export const keywordLists = { 'fr': keywordList_fr, 'en': keywordList_en }
+export const keywordLists = { fr: keywordListFr, en: keywordListEn };

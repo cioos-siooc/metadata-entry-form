@@ -5,10 +5,16 @@ import firebase from "../firebase";
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
 class UserProvider extends Component {
-  state = {
-    user: null,
-    authIsLoading: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null,
+      authIsLoading: false,
+      admins: [],
+      reviewers: [],
+      isReviewer: false,
+    };
+  }
 
   componentWillUnmount() {
     this.unsubscribe();
@@ -46,9 +52,10 @@ class UserProvider extends Component {
   };
 
   render() {
+    const { children } = this.props;
     return (
-      <UserContext.Provider value={this.state}>
-        {this.props.children}
+      <UserContext.Provider value={{ ...this.state }}>
+        {children}
       </UserContext.Provider>
     );
   }
