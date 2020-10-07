@@ -1,12 +1,13 @@
+import React from "react";
+
 import Autocomplete, {
   createFilterOptions,
 } from "@material-ui/lab/Autocomplete";
 
-import BilingualTextInput from "./BilingualTextInput";
-import React from "react";
 import { TextField } from "@material-ui/core";
-import { keywordLists } from "../../keywordLists";
 import { useParams } from "react-router-dom";
+import { keywordLists } from "../../keywordLists";
+import BilingualTextInput from "./BilingualTextInput";
 
 const KeywordsInput = ({ onChange, value, name }) => {
   const { language } = useParams();
@@ -19,14 +20,14 @@ const KeywordsInput = ({ onChange, value, name }) => {
 
   function handleHelperChange(event, selectedValue) {
     if (selectedValue) {
-      let newValue = { en: [], fr: [] };
+      const newValue = { en: [], fr: [] };
 
-      let selectedIndex = keywordLists[language].includes(selectedValue)
+      const selectedIndex = keywordLists[language].includes(selectedValue)
         ? keywordLists[language].indexOf(selectedValue)
         : -1;
 
       ["en", "fr"].forEach((l) => {
-        let keywordList = value[l];
+        const keywordList = value[l];
         if (selectedIndex >= 0) {
           keywordList.push(keywordLists[l][selectedIndex]);
         } else {
@@ -37,7 +38,7 @@ const KeywordsInput = ({ onChange, value, name }) => {
 
       onChange({
         target: {
-          name: name,
+          name,
           value: newValue,
         },
       });
@@ -67,6 +68,7 @@ const KeywordsInput = ({ onChange, value, name }) => {
         style={{ width: 400 }}
         renderInput={(params) => (
           <TextField
+            // eslint-disable-next-line react/jsx-props-no-spreading
             {...params}
             label="keyword entry helper"
             variant="outlined"
@@ -82,7 +84,7 @@ const KeywordsInput = ({ onChange, value, name }) => {
         onChange={(e) => {
           onChange({
             target: {
-              name: name,
+              name,
               value: {
                 en: e.target.value.en.split(","),
                 fr: e.target.value.fr.split(","),
@@ -93,7 +95,7 @@ const KeywordsInput = ({ onChange, value, name }) => {
         onBlur={(e) => {
           onChange({
             target: {
-              name: name,
+              name,
               value: {
                 en: cleanList(e.target.value.en.split(",")),
                 fr: cleanList(e.target.value.fr.split(",")),

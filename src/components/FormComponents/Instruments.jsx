@@ -1,7 +1,8 @@
 import React from "react";
-import { En, Fr, I18n } from "../I18n";
 import { Add, Delete } from "@material-ui/icons";
 import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
+import { v4 as uuidv4 } from "uuid";
+import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import { deepCopy } from "../../utils/misc";
 
@@ -23,7 +24,7 @@ const Instruments = ({ onChange, value, name, disabled }) => {
     });
   }
   function handleChange(e, i) {
-    let newValue = [...value];
+    const newValue = [...value];
     const propName = e.target.name;
     newValue[i][propName] = e.target.value;
     const parentEvent = { target: { name, value: newValue } };
@@ -43,7 +44,7 @@ const Instruments = ({ onChange, value, name, disabled }) => {
   return (
     <Grid container>
       {value.map((inst, i) => (
-        <Grid key={i} container>
+        <Grid key={uuidv4()} container>
           <Grid item xs={9} style={{ marginLeft: "10px" }}>
             <TextField
               label="ID"
@@ -75,7 +76,7 @@ const Instruments = ({ onChange, value, name, disabled }) => {
               <Fr>Type d'instrument</Fr>
             </Typography>
             <BilingualTextInput
-              name={"type"}
+              name="type"
               label={typeLabel}
               value={inst.type}
               onChange={(e) => handleChange(e, i)}
@@ -84,7 +85,7 @@ const Instruments = ({ onChange, value, name, disabled }) => {
 
             <Typography>Description</Typography>
             <BilingualTextInput
-              name={"description"}
+              name="description"
               label={descriptionLabel}
               value={inst.description}
               onChange={(e) => handleChange(e, i)}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
 import { Grid, IconButton } from "@material-ui/core";
+import { v4 as uuidv4 } from "uuid";
 import Contact from "./Contact";
 import { deepCopy } from "../../utils/misc";
 
@@ -30,7 +31,7 @@ const Contacts = ({ onChange, value, name, disabled }) => {
   }
   function handleChange(i) {
     return (e) => {
-      let newValue = [...value];
+      const newValue = [...value];
       const propName = e.target.name;
       newValue[i][propName] = e.target.value;
       const parentEvent = { target: { name, value: newValue } };
@@ -46,11 +47,11 @@ const Contacts = ({ onChange, value, name, disabled }) => {
     <Grid container>
       {value.map((contact, i) => {
         return (
-          <Grid key={i} container>
+          <Grid key={uuidv4()} container>
             <Grid item xs={9} style={{ marginLeft: "10px" }}>
               <Contact
                 showRolePicker
-                name={"contact_" + i}
+                name={`contact_${i}`}
                 value={contact}
                 onChange={handleChange(i)}
                 disabled={disabled}

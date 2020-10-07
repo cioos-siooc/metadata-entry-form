@@ -1,8 +1,8 @@
-import { En, Fr } from "../I18n";
 import { Paper, TextField, Typography } from "@material-ui/core";
+import React from "react";
+import { En, Fr } from "../I18n";
 
 import MapSelect from "./MapSelect";
-import React from "react";
 
 const SpatialTab = ({ disabled, record, handleInputChange, paperClass }) => (
   <div>

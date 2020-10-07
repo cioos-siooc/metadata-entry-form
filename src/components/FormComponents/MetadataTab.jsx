@@ -1,8 +1,8 @@
-import { En, Fr } from "../I18n";
+import React from "react";
 import { Paper, Typography } from "@material-ui/core";
+import { En, Fr } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
-import React from "react";
 import SelectInput from "./SelectInput";
 
 const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
