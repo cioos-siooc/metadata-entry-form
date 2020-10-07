@@ -21,7 +21,7 @@
     "react-leaflet-draw": "^0.19.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.0",
     "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {

@@ -9,7 +9,7 @@ import KeywordsInput from "./KeywordsInput";
 import React from "react";
 import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
-import { categoryList } from "../../categoryList";
+import categoryList from "../../categoryList";
 
 const IdentificationTab = ({
   disabled,
