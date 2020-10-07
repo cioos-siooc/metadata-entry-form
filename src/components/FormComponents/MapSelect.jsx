@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
 
-import { EditControl } from "react-leaflet-draw";
 import { TextField } from "@material-ui/core";
 import {
   Map,
@@ -10,6 +9,7 @@ import {
   Circle,
   withLeaflet,
 } from "react-leaflet";
+import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
