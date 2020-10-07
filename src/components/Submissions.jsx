@@ -63,6 +63,7 @@ class Submissions extends React.Component {
     history.push(`/${match.params.language}/new/${key}`);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   submitRecord(key) {
     if (auth.currentUser && key) {
       firebase
@@ -76,6 +77,7 @@ class Submissions extends React.Component {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
     if (auth.currentUser) {
       firebase
