@@ -1,4 +1,5 @@
 import React, { Component, createContext } from "react";
+import { withRouter } from "react-router-dom";
 import { auth } from "../auth";
 import firebase from "../firebase";
 
@@ -21,18 +22,30 @@ class UserProvider extends Component {
   }
 
   componentDidMount = () => {
-    this.setState({ authIsLoading: true });
+    const { match } = this.props;
+
+    const { region } = match.params;
+
     this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
-        const { email } = userAuth;
+        const { displayName, email, uid } = userAuth;
         firebase
           .database()
-          .ref(`test/permissions`)
+          .ref(region)
+          .child(`users`)
+          .child(uid)
+          .child("userinfo")
+          .update({ displayName, email });
+
+        firebase
+          .database()
+          .ref(region)
+          .child(`permissions`)
           .on("value", (permissionsFB) => {
             const permissions = permissionsFB.toJSON();
 
-            const admins = Object.values(permissions.admins);
-            const reviewers = Object.values(permissions.reviewers);
+            const admins = Object.values(permissions.admins || {});
+            const reviewers = Object.values(permissions.reviewers || {});
 
             const isAdmin = admins.includes(email);
             const isReviewer = reviewers.includes(email);
@@ -42,7 +55,6 @@ class UserProvider extends Component {
               reviewers,
               isAdmin,
               isReviewer,
-              authIsLoading: false,
             });
           });
       }
@@ -61,4 +73,4 @@ class UserProvider extends Component {
   }
 }
 
-export default UserProvider;
+export default withRouter(UserProvider);

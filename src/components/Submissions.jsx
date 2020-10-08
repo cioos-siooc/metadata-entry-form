@@ -39,12 +39,15 @@ class Submissions extends React.Component {
 
   async componentDidMount() {
     this.setState({ loading: true });
+    const { match } = this.props;
+    const { region } = match.params;
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
-          .ref(`test/users`)
+          .ref(region)
+          .child("users")
           .child(user.uid)
           .child("records")
           .on("value", (records) =>
@@ -60,15 +63,21 @@ class Submissions extends React.Component {
 
   editRecord(key) {
     const { match, history } = this.props;
-    history.push(`/${match.params.language}/new/${key}`);
+    const { language, region } = match.params;
+
+    history.push(`/${language}/${region}/new/${key}`);
   }
 
   // eslint-disable-next-line class-methods-use-this
   submitRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (auth.currentUser && key) {
       firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("records")
         .child(key)
@@ -79,10 +88,14 @@ class Submissions extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (auth.currentUser) {
       firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("records")
         .child(key)

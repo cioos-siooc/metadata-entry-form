@@ -10,31 +10,38 @@ import MetadataForm from "./MetadataForm";
 import EditContact from "./EditContact";
 import Reviewer from "./Reviewer";
 import Admin from "./Admin";
+import NotFound from "./NotFound";
+import UserProvider from "../providers/UserProvider";
 
 const BaseLayout = ({ match }) => {
   return (
-    <NavDrawer>
-      <Switch>
-        <Route path={`${match.path}/`} exact component={Home} />
-        <Route path={`${match.path}/new/:recordID`} component={MetadataForm} />
-        <Route path={`${match.path}/new`} component={MetadataForm} />
-        <Route
-          path={`${match.path}/review/:userID/:recordID`}
-          component={MetadataForm}
-        />
-        <Route
-          path={`${match.path}/contacts/new/:recordID`}
-          component={EditContact}
-        />
-        <Route path={`${match.path}/contacts/new`} component={EditContact} />
-        <Route path={`${match.path}/contacts`} component={Contacts} />
-        <Route path={`${match.path}/success`} component={Success} />
-        <Route path={`${match.path}/submissions`} component={Submissions} />
-        <Route path={`${match.path}/reviewer`} component={Reviewer} />
-        <Route path={`${match.path}/admin`} component={Admin} />
-        <Route path="*" component={() => <div>Page not found</div>} />
-      </Switch>
-    </NavDrawer>
+    <UserProvider>
+      <NavDrawer>
+        <Switch>
+          <Route path={`${match.path}/`} exact component={Home} />
+          <Route
+            path={`${match.path}/new/:recordID`}
+            component={MetadataForm}
+          />
+          <Route path={`${match.path}/new`} component={MetadataForm} />
+          <Route
+            path={`${match.path}/review/:userID/:recordID`}
+            component={MetadataForm}
+          />
+          <Route
+            path={`${match.path}/contacts/new/:recordID`}
+            component={EditContact}
+          />
+          <Route path={`${match.path}/contacts/new`} component={EditContact} />
+          <Route path={`${match.path}/contacts`} component={Contacts} />
+          <Route path={`${match.path}/success`} component={Success} />
+          <Route path={`${match.path}/submissions`} component={Submissions} />
+          <Route path={`${match.path}/reviewer`} component={Reviewer} />
+          <Route path={`${match.path}/admin`} component={Admin} />
+          <Route path="*" component={NotFound} />
+        </Switch>
+      </NavDrawer>
+    </UserProvider>
   );
 };
 
