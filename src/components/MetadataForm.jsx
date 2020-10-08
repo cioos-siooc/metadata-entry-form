@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
   Button,
@@ -167,7 +168,9 @@ class MetadataForm extends Component {
       // cheesy workaround to the issue of push() not saving dates
       await newNode.update(record);
       const recordID = newNode.key;
-      this.setState(({ record }) => ({ record: { ...record, recordID } }));
+      this.setState({
+        record: { ...record, recordID },
+      });
     }
 
     this.setState({ saveDisabled: true });
