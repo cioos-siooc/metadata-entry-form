@@ -120,7 +120,7 @@ const IdentificationTab = ({
       </Typography>
       <SelectInput
         name="category"
-        value={record.category}
+        value={record.category || ""}
         onChange={(e) => handleInputChange(e)}
         options={categoryList}
         optionLabels={categoryList.map(camelToSentenceCase)}
