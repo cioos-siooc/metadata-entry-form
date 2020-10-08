@@ -8,9 +8,13 @@ setup(name='firebase_to_xml',
       + 'CIOOS ISO profile',
       url='https://github.com/cioos-siooc/metadata-xml',
       packages=setuptools.find_packages(),
-      package_dir={
-        'metadata_xml': 'modules/metadata-xml'
-      },
       include_package_data=True,
-      install_requires=['google-auth', 'google-oauth', 'jinja2', 'pathlib', 'python-dotenv']
+      install_requires=[
+          'google-auth',
+          'google-oauth',
+          'Jinja2==2.10.3',
+          'pathlib',
+          'python-dotenv',
+          'metadata_xml@git+git://github.com/cioos-siooc/metadata-xml.git'
+      ]
       )

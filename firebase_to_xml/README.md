@@ -8,7 +8,6 @@ source venv/bin/activate
 
 Install
 ```bash
-pip install ./modules/metadata-xml
 pip install .
 ```
 
