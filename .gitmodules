@@ -1,3 +1,0 @@
-[submodule "firebase_to_xml/modules/metadata-xml"]
-	path = firebase_to_xml/modules/metadata-xml
-	url = https://github.com/cioos-siooc/metadata-xml.git
