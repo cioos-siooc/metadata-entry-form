@@ -15,6 +15,6 @@ export const Fr = ({ children }) => {
 
 // Just returns text "en" or "fr"
 export const I18n = ({ en, fr }) => {
-  const { language } = useParams();
+  const { language = "en" } = useParams();
   return language === "en" ? en : fr;
 };

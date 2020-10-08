@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 
 import { useParams, useLocation, useHistory } from "react-router-dom";
 
+import clsx from "clsx";
+
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   Home,
@@ -31,13 +33,13 @@ import {
   ListItemIcon,
   ListItemText,
   Select,
-  CircularProgress,
   Tooltip,
   MenuItem,
 } from "@material-ui/core";
-import clsx from "clsx";
-import { En, Fr, I18n } from "./I18n";
+import regions from "../regions";
 import { auth, signInWithGoogle } from "../auth";
+
+import { En, Fr, I18n } from "./I18n";
 import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
 import cioosLogoEN from "../static/cioos-banner-en-v2.png";
 
@@ -127,14 +129,15 @@ export default function MiniDrawer({ children }) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const {
-    user,
-    authIsLoading,
-    isReviewer: userIsReviewer,
-    isAdmin: userIsAdmin,
-  } = useContext(UserContext);
+  const { user, isReviewer: userIsReviewer, isAdmin: userIsAdmin } = useContext(
+    UserContext
+  );
 
-  const { language } = useParams();
+  let { language = "en", region = "region-select" } = useParams();
+
+  if (!["en", "fr"].includes(language)) language = "en";
+  if (!["pacific", "atlantic", "stlaurent"].includes(region)) region = "";
+
   const { pathname } = useLocation();
 
   const pathWithoutLang = pathname
@@ -143,9 +146,10 @@ export default function MiniDrawer({ children }) {
     .slice(2)
     .join("/");
 
-  const baseURL = `/${language}`;
+  const baseURL = `/${language}/${region}`;
 
-  const [open, setOpen] = React.useState(true);
+  // if region not set, keep drawer closed
+  const [open, setOpen] = React.useState(Boolean(region));
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -165,6 +169,8 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
   };
+
+  const regionText = region ? regions[region][language] : "";
 
   return (
     <div className={classes.root}>
@@ -194,8 +200,8 @@ export default function MiniDrawer({ children }) {
             noWrap
             style={{ marginLeft: "10px", flex: 1 }}
           >
-            <En>Metadata Entry Tool</En>
-            <Fr>Outil de saisie de métadonnées</Fr>
+            <En>{regionText} Metadata Entry Tool</En>
+            <Fr>Outil de saisie de métadonnées {regionText}</Fr>
           </Typography>
           {/* <Button color="inherit">Login</Button> */}
           <Select
@@ -230,10 +236,9 @@ export default function MiniDrawer({ children }) {
             {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
-        <div>{authIsLoading && <CircularProgress />}</div>
 
         {user && (
-          <ListItem key="New Record">
+          <ListItem key="userInfo">
             <ListItemIcon>
               <Avatar src={user.photoURL} />
             </ListItemIcon>
@@ -242,23 +247,24 @@ export default function MiniDrawer({ children }) {
         )}
         <Divider />
         <List>
-          <Tooltip
-            placement="right-start"
-            title={open ? "" : translations.home}
-          >
-            <ListItem
-              button
-              key="Home"
-              onClick={() => history.push(`${baseURL}/`)}
+          {region && (
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.home}
             >
-              <ListItemIcon>
-                <Home />
-              </ListItemIcon>
-              <ListItemText primary={translations.home} />
-            </ListItem>
-          </Tooltip>
-
-          {!user && (
+              <ListItem
+                button
+                key="Home"
+                onClick={() => history.push(`${baseURL}/`)}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary={translations.home} />
+              </ListItem>
+            </Tooltip>
+          )}
+          {!user && region && (
             <Tooltip
               placement="right-start"
               title={open ? "" : translations.signIn}
@@ -277,8 +283,7 @@ export default function MiniDrawer({ children }) {
               </ListItem>
             </Tooltip>
           )}
-
-          {user && (
+          {user && region && (
             <>
               <Tooltip
                 placement="right-start"
@@ -295,86 +300,94 @@ export default function MiniDrawer({ children }) {
                   <ListItemText primary={translations.new} />
                 </ListItem>
               </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.contacts}
-              >
-                <ListItem
-                  button
-                  key="Contacts"
-                  onClick={() => history.push(`${baseURL}/contacts`)}
-                >
-                  <ListItemIcon disabled>
-                    <Contacts />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.contacts} />
-                </ListItem>
-              </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.saved}
-              >
-                <ListItem
-                  button
-                  key="Saved Records"
-                  onClick={() => history.push(`${baseURL}/submissions`)}
-                >
-                  <ListItemIcon>
-                    <ListAlt />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.saved} />
-                </ListItem>
-              </Tooltip>
-              {userIsReviewer && (
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.review}
-                >
-                  <ListItem
-                    button
-                    key="Review"
-                    onClick={() => history.push(`${baseURL}/reviewer`)}
+              {region && (
+                <>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.contacts}
                   >
-                    <ListItemIcon>
-                      <RateReview />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.review} />
-                  </ListItem>
-                </Tooltip>
-              )}
-              {userIsAdmin && (
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.admin}
-                >
-                  <ListItem
-                    button
-                    key="Admin"
-                    onClick={() => history.push(`${baseURL}/admin`)}
+                    <ListItem
+                      button
+                      key="Contacts"
+                      onClick={() => history.push(`${baseURL}/contacts`)}
+                    >
+                      <ListItemIcon disabled>
+                        <Contacts />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.contacts} />
+                    </ListItem>
+                  </Tooltip>
+
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.saved}
                   >
-                    <ListItemIcon>
-                      <SupervisorAccount />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.admin} />
-                  </ListItem>
-                </Tooltip>
+                    <ListItem
+                      button
+                      key="Saved Records"
+                      onClick={() => history.push(`${baseURL}/submissions`)}
+                    >
+                      <ListItemIcon>
+                        <ListAlt />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.saved} />
+                    </ListItem>
+                  </Tooltip>
+
+                  {userIsReviewer && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
+                    >
+                      <ListItem
+                        button
+                        key="Review"
+                        onClick={() => history.push(`${baseURL}/reviewer`)}
+                      >
+                        <ListItemIcon>
+                          <RateReview />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.review} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                  {userIsAdmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.admin}
+                    >
+                      <ListItem
+                        button
+                        key="Admin"
+                        onClick={() => history.push(`${baseURL}/admin`)}
+                      >
+                        <ListItemIcon>
+                          <SupervisorAccount />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.admin} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                </>
               )}
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.logout}
-              >
-                <ListItem
-                  button
-                  key="Logout"
-                  onClick={() => auth.signOut().then(() => history.push(""))}
-                >
-                  <ListItemIcon>
-                    <ExitToApp />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.logout} />
-                </ListItem>
-              </Tooltip>
             </>
+          )}
+          {user && (
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.logout}
+            >
+              <ListItem
+                button
+                key="Logout"
+                onClick={() => auth.signOut().then(() => history.push(baseURL))}
+              >
+                <ListItemIcon>
+                  <ExitToApp />
+                </ListItemIcon>
+                <ListItemText primary={translations.logout} />
+              </ListItem>
+            </Tooltip>
           )}
         </List>
         <Divider />

@@ -80,12 +80,15 @@ class Submissions extends React.Component {
 
   async componentDidMount() {
     this.setState({ loading: true });
+    const { match } = this.props;
+    const { region } = match.params;
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
-          .ref(`test/users`)
+          .ref(region)
+          .child("users")
           .on("value", (users) =>
             this.setState({ users: users.toJSON(), loading: false })
           );
@@ -98,18 +101,22 @@ class Submissions extends React.Component {
   }
 
   editRecord(key, userID) {
-    const { history } = this.props;
-    const { match } = this.props;
-    history.push(`/${match.params.language}/review/${userID}/${key}`);
+    const { match, history } = this.props;
+    const { language, region } = match.params;
+    history.push(`/${language}/${region}/review/${userID}/${key}`);
   }
 
   async submitRecord(key, userID) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (key && userID) {
       this.setState({ loading: true });
 
       await firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(userID)
         .child("records")
         .child(key)
@@ -120,12 +127,16 @@ class Submissions extends React.Component {
   }
 
   async deleteRecord(key, userID) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (key && userID) {
       this.setState({ loading: true });
 
       await firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         // this can be any user id
         .child(userID)
         .child("records")
