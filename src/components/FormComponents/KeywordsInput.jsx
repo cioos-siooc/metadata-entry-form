@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 import { keywordLists } from "../../keywordLists";
 import BilingualTextInput from "./BilingualTextInput";
 
-const KeywordsInput = ({ onChange, value, name }) => {
+const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
   const { language } = useParams();
 
   function cleanList(list) {

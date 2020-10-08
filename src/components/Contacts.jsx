@@ -39,11 +39,15 @@ class Contacts1 extends React.Component {
   async componentDidMount() {
     this.setState({ loading: true });
 
+    const { match } = this.props;
+    const { region } = match.params;
+
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
-          .ref(`test/users`)
+          .ref(region)
+          .child("users")
           .child(user.uid)
           .child("contacts")
           .on("value", (records) =>
@@ -59,10 +63,14 @@ class Contacts1 extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (auth.currentUser) {
       firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("contacts")
         .child(key)
@@ -72,15 +80,17 @@ class Contacts1 extends React.Component {
 
   addItem() {
     const { history, match } = this.props;
+    const { language, region } = match.params;
     // render different page with 'save' button?
-    history.push(`/${match.params.language}/contacts/new`);
+    history.push(`/${language}/${region}/contacts/new`);
   }
 
   editRecord(key) {
     const { history, match } = this.props;
+    const { language, region } = match.params;
 
     // render different page with 'save' button?
-    history.push(`/${match.params.language}/contacts/new/${key}`);
+    history.push(`/${language}/${region}/contacts/new/${key}`);
   }
 
   toggleModal(state, key = "") {

@@ -65,8 +65,8 @@ class MetadataForm extends Component {
         distribution: [],
         dateStart: new Date(),
 
-        verticalExtentMin: null,
-        verticalExtentMax: null,
+        verticalExtentMin: "",
+        verticalExtentMax: "",
         datePublished: new Date(),
         dateRevised: new Date(),
         recordID: "",
@@ -85,6 +85,7 @@ class MetadataForm extends Component {
         limitations: "",
         maintenance: "",
         created: new Date(),
+        category: "",
       },
 
       // contacts saved by user (not the ones saved in the record)
@@ -105,12 +106,16 @@ class MetadataForm extends Component {
     this.setState({ loading: true });
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
-      const { recordID } = match.params;
+      const { region, recordID } = match.params;
 
       // either from the URL if its a record in review or from auth
       const userID = match.params.userID || user.uid;
 
-      const userDataRef = firebase.database().ref(`test/users`).child(userID);
+      const userDataRef = firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(userID);
 
       // get contacts
       userDataRef.child("contacts").on("value", (contacts) => {
@@ -151,9 +156,13 @@ class MetadataForm extends Component {
   };
 
   async handleSubmitClick() {
+    const { match } = this.props;
+    const { region } = match.params;
+
     const recordsRef = firebase
       .database()
-      .ref(`test/users`)
+      .ref(region)
+      .child("users")
       .child(auth.currentUser.uid)
       .child("records");
 

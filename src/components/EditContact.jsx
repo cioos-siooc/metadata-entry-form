@@ -26,11 +26,14 @@ class EditContact extends React.Component {
 
   async componentDidMount() {
     const { match } = this.props;
-    const { recordID } = match.params;
+
+    const { recordID, region } = match.params;
+
     if (auth.currentUser && recordID) {
       this.dbRef = firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("contacts")
         .child(recordID);
@@ -64,19 +67,24 @@ class EditContact extends React.Component {
   }
 
   handleCancelClick() {
-    const { history } = this.props;
-    const baseURL = "/en";
-    history.push(`${baseURL}/contacts`);
+    const { match, history } = this.props;
+    const { language, region } = match.params;
+
+    history.push(`/${language}/${region}/contacts`);
   }
 
   async handleSubmitClick() {
-    const { history } = this.props;
+    const { history, match } = this.props;
+
+    const { region, language } = match.params;
+
     if (this.dbRef) this.dbRef.off("value");
-    const baseURL = "/en";
+    const baseURL = `/${language}/${region}`;
 
     const rootRef = firebase
       .database()
-      .ref(`test/users`)
+      .ref(region)
+      .child("users")
       .child(auth.currentUser.uid)
       .child("contacts");
 

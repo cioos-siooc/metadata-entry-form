@@ -5,9 +5,9 @@ import {
   CircularProgress,
   TextField,
 } from "@material-ui/core";
+
 import firebase from "../firebase";
 import { auth } from "../auth";
-
 import { Fr, En } from "./I18n";
 
 const unique = (arr) => [...new Set(arr)];
@@ -24,13 +24,17 @@ class Admin extends React.Component {
   }
 
   async componentDidMount() {
+    const { match } = this.props;
+    const { region } = match.params;
+
     this.setState({ loading: true });
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
-          .ref(`test/permissions`)
+          .ref(region)
+          .child(`permissions`)
           .on("value", (permissionsFirebase) => {
             const permissions = permissionsFirebase.toJSON();
 
@@ -52,9 +56,12 @@ class Admin extends React.Component {
   }
 
   updatePermissions() {
+    const { match } = this.props;
+    const { region } = match.params;
+
     const { reviewers, admins } = this.state;
     if (auth.currentUser) {
-      const dbRef = firebase.database().ref(`test/permissions`);
+      const dbRef = firebase.database().ref(region).child("permissions");
 
       dbRef.child("admins").set(unique(admins));
       dbRef.child("reviewers").set(unique(reviewers));
