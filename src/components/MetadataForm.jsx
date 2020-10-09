@@ -55,7 +55,6 @@ class MetadataForm extends Component {
       record: {
         title: { en: "", fr: "" },
         abstract: { en: "", fr: "" },
-        map: { north: "", south: "", east: "", west: "" },
         identifier: uuidv4(),
         id: "",
         keywords: { en: [], fr: [] },
@@ -64,6 +63,7 @@ class MetadataForm extends Component {
         progress: "",
         distribution: [],
         dateStart: new Date(),
+      map: { north: "", south: "", east: "", west: "", polygon: "" },
 
         verticalExtentMin: "",
         verticalExtentMax: "",

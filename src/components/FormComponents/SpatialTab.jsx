@@ -4,7 +4,12 @@ import { En, Fr } from "../I18n";
 
 import MapSelect from "./MapSelect";
 
-const SpatialTab = ({ disabled, record, handleInputChange, paperClass }) => (
+const SpatialTab = ({
+  disabled,
+  record,
+  handleInputChange,
+  paperClass,
+}) => (
   <div>
     <Paper className={paperClass}>
       <Typography>
