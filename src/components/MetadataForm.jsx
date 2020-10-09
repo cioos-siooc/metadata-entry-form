@@ -63,7 +63,7 @@ class MetadataForm extends Component {
         progress: "",
         distribution: [],
         dateStart: new Date(),
-      map: { north: "", south: "", east: "", west: "", polygon: "" },
+        map: { north: "", south: "", east: "", west: "", polygon: "" },
 
         verticalExtentMin: "",
         verticalExtentMax: "",
