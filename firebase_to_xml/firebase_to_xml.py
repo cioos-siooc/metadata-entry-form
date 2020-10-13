@@ -25,6 +25,8 @@ def main(argv):
                         help='folder to output the created xml files to')
     parser.add_argument('-y', '--yaml', action='store_true', default=os.getenv("FIREBASE_OUTPUT_YAML") or False,
                         help='output yaml file as well as xml')
+    parser.add_argument('-ra', '--RA', nargs='?', default=os.getenv("FIREBASE_RA") or 'test',
+                        help='Set the RA forms will be converted for (atlantic, pacific, stlaurent)')
     args = vars(parser.parse_args())
 
     # Authenticate with Firebase
@@ -43,10 +45,15 @@ def main(argv):
     authed_session = AuthorizedSession(credentials)
     # request data
     response = authed_session.get(
-        "https://cioos-metadata-form.firebaseio.com/test/users.json")
+        f'https://cioos-metadata-form.firebaseio.com/{args["RA"]}/users.json')
 
     # Parse response
     body = json.loads(response.text)
+    if body is None:
+        pprint.pprint(json.loads(response))
+        print('response body not found. Exiting...')
+        sys.exit()
+
     record_list = []
     for k, v in body.items():
         # if v.get('userinfo',{}).get('email') not in user_list:
@@ -56,8 +63,6 @@ def main(argv):
             continue
 
         for k2, v2 in records.items():
-            # if v2.get('RA') != RA:
-            #     continue
             record_list.append(v2)
 
     for r in record_list:
@@ -162,10 +167,19 @@ def main(argv):
             if r.get('dateRevised') is not None:
                 yDict['identification']['dates']['revision'] = r.get('dateRevised')
 
+            # TODO: the following checks would be better done by validation module of some sort
+
             # check at least one date has been added otherwise skip this record
             if not yDict.get('identification') or not yDict.get('identification').get('dates'):
                 raise Exception(
                     'at least one entry in identification.dates is required')
+
+            # check keywords exists
+            if not yDict['identification'] \
+                    or not yDict['identification']['keywords'] \
+                    or not yDict['identification']['keywords']['eov']:
+                raise Exception(
+                    'at least one entry in identification.keywords.eov is required')
 
             # output yaml
             if args['yaml']:
