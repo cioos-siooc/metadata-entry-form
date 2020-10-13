@@ -11,6 +11,11 @@ Install
 pip install .
 ```
 
+Update
+```bash
+pip install --upgrade .
+```
+
 Generate firebase private key
 if you have not already done so, you will need a access token to authenticate with firebase
 go to https://console.firebase.google.com/u/0/project/cioos-metadata-form/settings/serviceaccounts/adminsdk
