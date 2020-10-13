@@ -70,7 +70,6 @@ def main(argv):
             # Generate dictinary expected by metadata-xml
             yDict = {
                 'metadata': {
-                    # {'en':'','fr':''}
                     'naming_authority': r.get('namingAuthority'),
                     'identifier': r.get('recordID'),
                     'language': r.get('language'),
@@ -90,17 +89,15 @@ def main(argv):
                              r.get('map', {}).get('south'),
                              r.get('map', {}).get('east'),
                              r.get('map', {}).get('north')],
-                    # 'polygon': '',
-                    # vertical: [0, 10]
+                    'polygon': r.get('map' {}).get('polygon'),
+                    'vertical': [r.get('verticalExtentMin'), r.get('verticalExtentMax')],
                 },
                 'identification': {
                     'title': r.get('title'),  # {'en':'','fr':''}
                     'abstract': r.get('abstract'),  # {'en':'','fr':''}
                     'dates': {},  # filled out later
                     'keywords': {
-                        'default': {
-                            'en': [],
-                            'fr': []},
+                        'default': r.get('keywords', {'en': [], 'fr': []}),
                         'eov': r.get('eov')
                     },
                     'temporal_begin': r.get('dateStart'),
@@ -135,32 +132,26 @@ def main(argv):
                     {
                         'url': [x.get('url')],
                         'name': x.get('name'),
-                        'description': x.get('description'),
-                        #   en: pdf description in English
-                        #   fr: pdf description in French
+                        'description': x.get('description'),  # {'en':'','fr':''}
                     } for x in r.get('distribution', [])
                 ],
                 'platform': {
                     'name': r.get('platformName'),
                     'role': r.get('platformRole'),
-                    # authority: platform_authority
+                    'authority': r.get('platformAuthority'),
                     'id': r.get('platformID'),
                     'description': r.get('platformDescription'),
-                    'instruments': r.get('instruments',[])
-                    # - id: 123
-                    #   manufacturer: manufacturer en 1
-                    #   version: A1.53
-                    #   type:
-                    #     en: type en 1
-                    #     fr: type fr 1
-                    #   description:
-                    #     en: instrument description en 1
-                    #     fr: instrument description fr 1
+                    'instruments': r.get('instruments',[]),
+                    # [{'id': '123'
+                    #   'manufacturer': 'manufacturer en 1'
+                    #   'version': 'A1.53'
+                    #   'type': {'en':'','fr':''}
+                    #   'description': {'en':'','fr':''}}]
                 }
             }
 
             if r.get('dateStart') is not None:
-                yDict['identification']['dates']['creation'] = r.get('dateStart')
+                yDict['identification']['dates']['creation'] = r.get('dateStart') or r.get('created')
             if r.get('datePublished') is not None:
                 yDict['identification']['dates']['publication'] = r.get(
                     'datePublished')
