@@ -67,11 +67,14 @@ def main(argv):
 
     for r in record_list:
         try:
+            print(f'Processing {r.get("identifier", r.get("recordID"))} - ',
+                  f'{r.get("title",{}).get(r.get("language"))}...')
+
             # Generate dictinary expected by metadata-xml
             yDict = {
                 'metadata': {
                     'naming_authority': r.get('namingAuthority'),
-                    'identifier': r.get('recordID'),
+                    'identifier': r.get('identifier'),
                     'language': r.get('language'),
                     'maintenance_note': r.get('maintenance'),
                     'use_constraints': {
@@ -172,6 +175,11 @@ def main(argv):
                 raise Exception(
                     'at least one entry in identification.keywords.eov is required')
 
+            name = r['title'][r['language']]
+            if name:
+                char_list = [character if character.isalnum() else '_' for character in name.strip().lower()]
+                name = "".join(char_list)
+
             # output yaml
             if args['yaml']:
                 filename = f'{args["out"]}/{name}.yaml'
@@ -180,11 +188,6 @@ def main(argv):
 
             # render xml template and write to file
             xml = metadata_to_xml(yDict)
-            name = r['title'][r['language']]
-            if name:
-                char_list = [character if character.isalnum() else '_' for character in name.strip().lower()]
-                name = "".join(char_list)
-
             filename = f'{args["out"]}/{name}.xml'
             file = open(filename, "w")
             file.write(xml)
