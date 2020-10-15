@@ -89,7 +89,7 @@ def main(argv):
                              r.get('map', {}).get('south'),
                              r.get('map', {}).get('east'),
                              r.get('map', {}).get('north')],
-                    'polygon': r.get('map' {}).get('polygon'),
+                    'polygon': r.get('map', {}).get('polygon'),
                     'vertical': [r.get('verticalExtentMin'), r.get('verticalExtentMax')],
                 },
                 'identification': {
