@@ -63,12 +63,14 @@ def main(argv):
             continue
 
         for k2, v2 in records.items():
+            if v2['status'] == 'published':
             record_list.append(v2)
 
     for r in record_list:
         try:
-            print(f'Processing {r.get("identifier", r.get("recordID"))} - ',
-                  f'{r.get("title",{}).get(r.get("language"))}...')
+
+            print('Processing', r['title']['en'],
+                  r['title']['fr'], r['identifier'], r['recordID'], "\n")
 
             # Generate dictinary expected by metadata-xml
             yDict = {
