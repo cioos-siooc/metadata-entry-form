@@ -20,6 +20,7 @@ import {
 } from "@material-ui/icons";
 import firebase from "../firebase";
 import { auth } from "../auth";
+import { percentValid } from "./validate";
 
 import { Fr, En, I18n } from "./I18n";
 
@@ -135,22 +136,34 @@ class Submissions extends React.Component {
         />
 
         <Typography variant="h3">
-          <En>Submission list</En>
-          <Fr>Liste des soumissions</Fr>
+          <En>Saved Records</En>
+          <Fr>Enregistrements enregistrés</Fr>
         </Typography>
         {loading ? (
           <CircularProgress />
         ) : (
           <span>
-            {records && Object.keys(records).length > 0 ? (
+            {records && Object.keys(records).length ? (
               <div>
                 <Typography>
-                  <En>These are the submissions we have received:</En>
-                  <Fr>Ce sont les soumissions que nous avons reçues</Fr>
+                  <En>
+                    These are the records you have submitted. To submit a record
+                    for review, click the "Submit for review" button. The record
+                    won't be published until the reviewer approves it.
+                  </En>
+                  <Fr>
+                    Ce sont les documents que vous avez soumis. Pour soumettre
+                    un enregistrement pour examen, cliquez sur le bouton «
+                    Soumettre pour révision ». L'enregistrement ne sera pas
+                    publié tant que le réviseur ne l'aura pas approuvé.
+                  </Fr>
                 </Typography>
                 <List>
-                  {Object.entries(records).map(([key, val]) => {
-                    const disabled = val.status === "submitted";
+                  {Object.entries(records).map(([key, record]) => {
+                    const disabled = record.status === "submitted";
+                    const percentValidInt = Math.round(
+                      percentValid(record) * 100
+                    );
                     return (
                       <ListItem key={key}>
                         <ListItemAvatar>
@@ -159,13 +172,14 @@ class Submissions extends React.Component {
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
-                          primary={val.title[language]}
+                          primary={record.title[language]}
                           secondary={
-                            val.created && `Created/Updated ${val.created} `
+                            record.created &&
+                            `Created/Updated ${record.created} ${percentValidInt}% complete`
                           }
                         />
                         <ListItemSecondaryAction>
-                          {val.status === "submitted" ? (
+                          {record.status === "submitted" ? (
                             <Tooltip title={<I18n en="View" fr="Vue" />}>
                               <span>
                                 <IconButton
@@ -237,8 +251,8 @@ class Submissions extends React.Component {
               </div>
             ) : (
               <Typography>
-                <En>No records submitted yet!</En>
-                <Fr>Aucun enregistrement n'a encore été soumis</Fr>
+                <En>You don't have any saved records.</En>
+                <Fr>Vous n'avez pas d'enregistrements enregistrés.</Fr>
               </Typography>
             )}
           </span>

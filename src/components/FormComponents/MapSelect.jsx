@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
 
-import { TextField } from "@material-ui/core";
+import { TextField, Grid } from "@material-ui/core";
 import {
   Map,
   TileLayer,
@@ -218,52 +218,59 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           )}
         </FeatureGroup>
       </Map>
-      <div style={{ margin: "10px" }}>
-        <TextField
-          name="north"
-          label="North"
-          value={value.north || ""}
-          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="south"
-          label="South"
-          value={value.south || ""}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="east"
-          label="East"
-          value={value.east || ""}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="west"
-          value={value.west || ""}
-          label="West"
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-      </div>
-      <div style={{ margin: "10px" }}>
-        <TextField
-          name="polygon"
-          label="Polygon"
-          value={value.polygon || ""}
-          onChange={handleChangePoly}
-          type="text"
-          fullWidth
-          disabled={disabled}
-        />
-      </div>
+      <Grid container direction="row" spacing={3}>
+        <Grid item xs={2}>
+          <TextField
+            name="north"
+            label="North"
+            value={value.north || ""}
+            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="south"
+            label="South"
+            value={value.south || ""}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="east"
+            label="East"
+            value={value.east || ""}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="west"
+            value={value.west || ""}
+            label="West"
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+      </Grid>
+
+      <TextField
+        name="polygon"
+        label="Polygon"
+        value={value.polygon || ""}
+        onChange={handleChangePoly}
+        type="text"
+        fullWidth
+        disabled={disabled}
+      />
     </div>
   );
 };

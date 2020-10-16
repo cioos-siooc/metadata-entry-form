@@ -1,7 +1,10 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-export const primaryLanguage = "en";
+export const GetLanguage = () => {
+  const { language } = useParams();
+  return language;
+};
 
 export const En = ({ children }) => {
   const { language } = useParams();

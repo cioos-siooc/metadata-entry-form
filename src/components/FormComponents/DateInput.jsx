@@ -13,7 +13,7 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         disabled={disabled}
         margin="normal"
         id="date-picker-dialog"
-        label="Date picker dialog"
+        label="Select date"
         format="MM/dd/yyyy"
         value={value}
         onChange={(dateSelected) =>

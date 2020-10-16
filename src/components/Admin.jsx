@@ -4,7 +4,9 @@ import {
   Button,
   CircularProgress,
   TextField,
+  Grid,
 } from "@material-ui/core";
+import { Save } from "@material-ui/icons";
 
 import firebase from "../firebase";
 import { auth } from "../auth";
@@ -71,20 +73,32 @@ class Admin extends React.Component {
   render() {
     const { loading, reviewers, admins } = this.state;
     return (
-      <div>
-        <Typography variant="h3">
-          <En>Admin</En>
-          <Fr>Admin</Fr>
-        </Typography>
+      <Grid container direction="column" spacing={3}>
+        <Grid item xs>
+          <Typography variant="h3">
+            <En>Admin</En>
+            <Fr>Admin</Fr>
+          </Typography>
+          <Typography>
+            <En>Add each admin or reviewer's email address on it's own line</En>
+            <Fr>
+              Ajouter l'adresse e-mail de chaque administrateur ou réviseur sur
+              sa propre ligne
+            </Fr>
+          </Typography>
+        </Grid>
+
         {loading ? (
           <CircularProgress />
         ) : (
-          <div>
-            <div>
+          <>
+            <Grid item xs>
               <Typography>
                 <En>Admins</En>
                 <Fr>Admins</Fr>
               </Typography>
+            </Grid>
+            <Grid item xs>
               <TextField
                 multiline
                 fullWidth
@@ -93,12 +107,14 @@ class Admin extends React.Component {
                   this.setState({ admins: e.target.value.split("\n") })
                 }
               />
-            </div>
-            <div>
+            </Grid>
+            <Grid item xs>
               <Typography>
                 <En>Reviewers</En>
                 <Fr>Reviewers</Fr>
               </Typography>
+            </Grid>
+            <Grid item xs>
               <TextField
                 multiline
                 fullWidth
@@ -107,17 +123,21 @@ class Admin extends React.Component {
                   this.setState({ reviewers: e.target.value.split("\n") })
                 }
               />
-            </div>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => this.updatePermissions()}
-            >
-              Update
-            </Button>
-          </div>
+            </Grid>
+            <Grid item xs>
+              <Button
+                startIcon={<Save />}
+                variant="contained"
+                color="primary"
+                onClick={() => this.updatePermissions()}
+              >
+                <En>Save</En>
+                <Fr>Enregistrer</Fr>
+              </Button>
+            </Grid>
+          </>
         )}
-      </div>
+      </Grid>
     );
   }
 }

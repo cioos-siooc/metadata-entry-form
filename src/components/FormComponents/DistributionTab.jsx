@@ -13,19 +13,19 @@ const DistributionTab = ({
 }) => {
   return (
     <div>
-      <Paper className={paperClass}>
+      <Paper style={paperClass}>
         <Typography>
-          <En>Distribution</En>
-          <Fr>Distribution</Fr>
+          <En>At least one resource is required.</En>
+          <Fr>Au moins une ressource est requise.</Fr>
         </Typography>
-
-        <Distribution
-          name="distribution"
-          value={record.distribution || []}
-          onChange={handleInputChange}
-          disabled={disabled}
-        />
       </Paper>
+      <Distribution
+        name="distribution"
+        paperClass={paperClass}
+        value={record.distribution || []}
+        onChange={handleInputChange}
+        disabled={disabled}
+      />
     </div>
   );
 };

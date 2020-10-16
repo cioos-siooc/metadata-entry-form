@@ -2,10 +2,12 @@ import React from "react";
 import {
   Typography,
   IconButton,
+  Button,
   List,
   ListItem,
   ListItemText,
   Avatar,
+  Grid,
   ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
@@ -25,7 +27,7 @@ function getTitle(value) {
   return titleParts.map((e) => e).join("/");
 }
 
-class Contacts1 extends React.Component {
+class Contacts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -100,78 +102,93 @@ class Contacts1 extends React.Component {
   render() {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
-      <div>
-        <SimpleModal
-          open={modalOpen}
-          onClose={() => this.toggleModal(false)}
-          onAccept={() => this.deleteRecord(modalKey)}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        />
+      <Grid container direction="column" spacing={3}>
+        <Grid item xs>
+          <SimpleModal
+            open={modalOpen}
+            onClose={() => this.toggleModal(false)}
+            onAccept={() => this.deleteRecord(modalKey)}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          />
 
-        <Typography variant="h3">
-          <En>Contacts</En>
-          <Fr>Contacts</Fr>
-        </Typography>
+          <Typography variant="h3">
+            <En>Contacts</En>
+            <Fr>Contacts</Fr>
+          </Typography>
+        </Grid>
+        <Grid item xs>
+          <Typography>
+            <En>
+              Create contacts here that you can reuse in multiple metadata
+              records.
+            </En>
+            <Fr>
+              Créez ici des contacts que vous pouvez réutiliser dans plusieurs
+              enregistrements de métadonnées
+            </Fr>
+          </Typography>
+        </Grid>
+
         {loading ? (
           <CircularProgress />
         ) : (
-          <span>
-            {contacts && Object.keys(contacts).length > 0 ? (
-              <div>
-                <Typography>
-                  <En>These are your contacts</En>
-                  <Fr>Ce sont vos contacts</Fr>
-                </Typography>
-                <List>
-                  {Object.entries(contacts).map(([key, val]) => (
-                    <ListItem key={key}>
-                      <ListItemAvatar>
-                        <Avatar>
-                          <PermContactCalendar />
-                        </Avatar>
-                      </ListItemAvatar>
+          <>
+            <Grid item xs>
+              {contacts && Object.keys(contacts).length ? (
+                <div>
+                  <Typography>
+                    <En>These are your contacts</En>
+                    <Fr>Ce sont vos contacts</Fr>
+                  </Typography>
+                  <List>
+                    {Object.entries(contacts).map(([key, val]) => (
+                      <ListItem key={key}>
+                        <ListItemAvatar>
+                          <Avatar>
+                            <PermContactCalendar />
+                          </Avatar>
+                        </ListItemAvatar>
 
-                      <ListItemText primary={getTitle(val)} />
-                      <ListItemSecondaryAction>
-                        <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                          <span>
-                            <IconButton onClick={() => this.editRecord(key)}>
-                              <Edit />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                          <span>
-                            <IconButton
-                              onClick={() => this.toggleModal(true, key)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
-                </List>
-              </div>
-            ) : (
-              <Typography>
-                <En>No contacts submitted yet!</En>
-                <Fr>Aucun contacts n'a encore été soumis</Fr>
-              </Typography>
-            )}
-            <Tooltip title={<I18n en="New contact" fr="Nouveau contact" />}>
-              <span>
-                <IconButton onClick={() => this.addItem()}>
-                  <Add />
-                </IconButton>
-              </span>
-            </Tooltip>
-          </span>
+                        <ListItemText primary={getTitle(val)} />
+                        <ListItemSecondaryAction>
+                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                            <span>
+                              <IconButton onClick={() => this.editRecord(key)}>
+                                <Edit />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <span>
+                              <IconButton
+                                onClick={() => this.toggleModal(true, key)}
+                              >
+                                <Delete />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    ))}
+                  </List>
+                </div>
+              ) : (
+                <Typography>
+                  <En>No contacts submitted yet</En>
+                  <Fr>Aucun contacts n'a encore été soumis</Fr>
+                </Typography>
+              )}
+            </Grid>
+            <Grid item xs>
+              <Button startIcon={<Add />} onClick={() => this.addItem()}>
+                Add contact
+              </Button>
+            </Grid>
+          </>
         )}
-      </div>
+      </Grid>
     );
   }
 }
-export default Contacts1;
+export default Contacts;

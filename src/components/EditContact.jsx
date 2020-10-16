@@ -1,10 +1,11 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
+import { Save } from "@material-ui/icons";
 import firebase from "../firebase";
 import { auth } from "../auth";
 
-import { I18n } from "./I18n";
+import { En, Fr } from "./I18n";
 
 import Contact from "./FormComponents/Contact";
 
@@ -101,31 +102,36 @@ class EditContact extends React.Component {
 
   // orgName, orgURL, orgAdress, orgCity, orgCountry
   render() {
-    const { orgName, indName, recordID } = this.state;
+    const { orgName, indName } = this.state;
     const isFilledEnoughToSave = orgName || indName;
     return (
-      <Grid container>
-        Edit contacts
-        <Contact value={this.state} onChange={(e) => this.handleChange(e)} />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => this.handleSubmitClick()}
-          disabled={!isFilledEnoughToSave}
-        >
-          {recordID ? (
-            <I18n en="Update" fr="Mise à jour" />
-          ) : (
-            <I18n en="Submit" fr="Soumettre" />
-          )}
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => this.handleCancelClick()}
-        >
-          <I18n en="Cancel" fr="Annuler" />
-        </Button>
+      <Grid container direction="column" spacing={2}>
+        <Grid item xs>
+          <Contact value={this.state} onChange={(e) => this.handleChange(e)} />
+        </Grid>
+
+        <Grid item xs>
+          <Button
+            startIcon={<Save />}
+            variant="contained"
+            color="primary"
+            onClick={() => this.handleSubmitClick()}
+            disabled={!isFilledEnoughToSave}
+          >
+            <En>Save</En>
+            <Fr>Enregistrer</Fr>
+          </Button>
+
+          <Button
+            style={{ marginLeft: "10px" }}
+            variant="contained"
+            color="secondary"
+            onClick={() => this.handleCancelClick()}
+          >
+            <En>Cancel</En>
+            <Fr>Annuler</Fr>
+          </Button>
+        </Grid>
       </Grid>
     );
   }

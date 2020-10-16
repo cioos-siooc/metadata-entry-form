@@ -1,9 +1,9 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
-import { Grid, IconButton } from "@material-ui/core";
-import { v4 as uuidv4 } from "uuid";
+import { Button, Grid, Paper } from "@material-ui/core";
 import Contact from "./Contact";
 import { deepCopy } from "../../utils/misc";
+import { En, Fr } from "../I18n";
 
 const initial = {
   role: "",
@@ -18,7 +18,7 @@ const initial = {
   indEmail: "",
 };
 
-const Contacts = ({ onChange, value, name, disabled }) => {
+const Contacts = ({ onChange, value, name, disabled, paperClass }) => {
   function addItem() {
     const changes = {
       target: {
@@ -44,33 +44,41 @@ const Contacts = ({ onChange, value, name, disabled }) => {
     });
   }
   return (
-    <Grid container>
+    <Grid container direction="column">
       {value.map((contact, i) => {
         return (
-          <Grid key={uuidv4()} container>
-            <Grid item xs={9} style={{ marginLeft: "10px" }}>
-              <Contact
-                showRolePicker
-                name={`contact_${i}`}
-                value={contact}
-                onChange={handleChange(i)}
-                disabled={disabled}
-              />
+          <Paper key={i} style={paperClass}>
+            <Grid container direction="column" spacing={3}>
+              <Grid item xs>
+                <Contact
+                  showRolePicker
+                  name={`contact_${i}`}
+                  value={contact}
+                  onChange={handleChange(i)}
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item xs>
+                <Button
+                  startIcon={<Delete />}
+                  disabled={disabled}
+                  onClick={() => removeItem(i)}
+                >
+                  <En>Remove item</En>
+                  <Fr>Supprimer l'article</Fr>
+                </Button>
+              </Grid>
             </Grid>
-
-            <Grid item xs={2}>
-              <IconButton disabled={disabled} onClick={() => removeItem(i)}>
-                <Delete />
-              </IconButton>
-            </Grid>
-          </Grid>
+          </Paper>
         );
       })}
-      <IconButton onClick={addItem} disabled={disabled}>
-        <Add />
-      </IconButton>
+      <Paper style={paperClass}>
+        <Button disabled={disabled} startIcon={<Add />} onClick={addItem}>
+          <En>Add contact</En>
+          <Fr>Ajouter un contact</Fr>
+        </Button>
+      </Paper>
     </Grid>
   );
 };
-
 export default Contacts;
