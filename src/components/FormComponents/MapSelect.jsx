@@ -14,6 +14,7 @@ import {
 import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import { I18n } from "../I18n";
 
 const MapSelect = ({ onChange, value = {}, name, disabled }) => {
   function onEditPath() {}
@@ -222,7 +223,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
         <Grid item xs={2}>
           <TextField
             name="north"
-            label="North"
+            label={<I18n en="North" fr="Nord" />}
             value={value.north || ""}
             inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
             onChange={handleChange}
@@ -233,7 +234,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
         <Grid item xs={2}>
           <TextField
             name="south"
-            label="South"
+            label={<I18n en="South" fr="Sud" />}
             value={value.south || ""}
             onChange={handleChange}
             type="number"
@@ -243,7 +244,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
         <Grid item xs={2}>
           <TextField
             name="east"
-            label="East"
+            label={<I18n en="East" fr="Est" />}
             value={value.east || ""}
             onChange={handleChange}
             type="number"
@@ -254,7 +255,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           <TextField
             name="west"
             value={value.west || ""}
-            label="West"
+            label={<I18n en="West" fr="Ouest" />}
             onChange={handleChange}
             type="number"
             disabled={disabled}
@@ -264,7 +265,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
 
       <TextField
         name="polygon"
-        label="Polygon"
+        label={<I18n en="Polygon" fr="Polygone" />}
         value={value.polygon || ""}
         onChange={handleChangePoly}
         type="text"

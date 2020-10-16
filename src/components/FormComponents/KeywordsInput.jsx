@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import { ArrowDownward } from "@material-ui/icons";
 import { keywordLists } from "../../keywordLists";
 import BilingualTextInput from "./BilingualTextInput";
+import { En, Fr } from "../I18n";
 
 const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
   const { language } = useParams();
@@ -90,7 +91,8 @@ const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
             startIcon={<ArrowDownward />}
             onClick={handleHelperChange}
           >
-            Add
+            <En>Add</En>
+            <Fr>Add</Fr>
           </Button>
         </Grid>
       </Grid>

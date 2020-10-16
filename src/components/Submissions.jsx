@@ -174,8 +174,16 @@ class Submissions extends React.Component {
                         <ListItemText
                           primary={record.title[language]}
                           secondary={
-                            record.created &&
-                            `Created/Updated ${record.created} ${percentValidInt}% complete`
+                            record.created && (
+                              <span>
+                                <En>
+                                  {`Created/Updated ${record.created} ${percentValidInt}% complete`}
+                                </En>
+                                <Fr>
+                                  {`Créé/mis à jour ${record.created} ${percentValidInt}% Achevée`}
+                                </Fr>
+                              </span>
+                            )
                           }
                         />
                         <ListItemSecondaryAction>
