@@ -9,7 +9,8 @@ export const validators = {
   dateStart: (val) => val,
   map: (val) => (val.north && val.south && val.east && val.west) || val.polygon,
   progress: (val) => val,
-  distribution: (val) => val.filter((dist) => dist.name).length,
+  distribution: (val) =>
+    Array.isArray(val) && val.filter((dist) => dist.name).length,
   verticalExtentMin: (val) => val,
   verticalExtentMax: (val) => val,
   datePublished: (val) => val,
@@ -33,14 +34,18 @@ export const validators = {
   history: () => true,
 };
 export const validateField = (record, fieldName) => {
-  return record[fieldName] && validators[fieldName](record[fieldName]);
+  const valueToValidate = record[fieldName];
+  const validationFunction = validators[fieldName];
+
+  return (
+    valueToValidate && validationFunction && validationFunction(valueToValidate)
+  );
 };
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
   const numTotal = fields.length;
-  const numValid = fields.filter(
-    (field) => record[field] && validators[field](record[field])
-  ).length;
+  const numValid = fields.filter((field) => validateField(record, field))
+    .length;
 
   return numValid / numTotal;
 };

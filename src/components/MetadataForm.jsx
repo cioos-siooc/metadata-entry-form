@@ -133,7 +133,6 @@ class MetadataForm extends Component {
           .child(recordID)
           .on("value", (recordFireBase) => {
             const record = firebaseToJSObject(recordFireBase.toJSON());
-
             this.setState({
               record: { ...record, recordID },
               loading: false,

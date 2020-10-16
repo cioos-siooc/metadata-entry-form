@@ -216,9 +216,15 @@ class Submissions extends React.Component {
                   <Typography>
                     <En>
                       These are the submissions we have received from all users
-                      that have not yet been reviewed:
+                      that have not yet been reviewed. To accept a record, click
+                      the 'Publish' button.
                     </En>
-                    <Fr>Ce sont les soumissions que nous avons reçues</Fr>
+                    <Fr>
+                      Ce sont les soumissions que nous avons reçues de tous les
+                      utilisateurs qui n'ont pas encore été examinées. Pour
+                      accepter un enregistrement, cliquez sur le bouton «
+                      Publier ».
+                    </Fr>
                   </Typography>
                 </Grid>
                 <Grid item xs>

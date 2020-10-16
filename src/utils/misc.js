@@ -5,7 +5,7 @@ export function camelToSentenceCase(text) {
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
-// converts firebase style arrays (key as index) to arrays. work on arrays nested in objects
+
 export function firebaseToJSObject(input) {
   if (!input) return null;
   const out = deepCopy(input);
@@ -13,6 +13,12 @@ export function firebaseToJSObject(input) {
     if (typeof out[key] === "object" && Object.keys(out[key])[0] === "0") {
       out[key] = Object.entries(out[key]).map(([, v]) => v);
     }
+
+    //  special case
+    out.keywords = {
+      en: Object.values(input.keywords.en),
+      fr: Object.values(input.keywords.fr),
+    };
   });
   return out;
 }
