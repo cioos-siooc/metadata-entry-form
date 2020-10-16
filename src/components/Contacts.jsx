@@ -1,7 +1,4 @@
 import React from "react";
-import firebase from "../firebase";
-import { auth } from "../auth";
-
 import {
   Typography,
   IconButton,
@@ -14,9 +11,20 @@ import {
   CircularProgress,
   Tooltip,
 } from "@material-ui/core";
-import { I18n, En, Fr } from "./I18n";
 import { Add, Edit, Delete, PermContactCalendar } from "@material-ui/icons";
+import firebase from "../firebase";
+import { auth } from "../auth";
+
+import { I18n, En, Fr } from "./I18n";
 import SimpleModal from "./SimpleModal";
+
+function getTitle(value) {
+  const titleParts = [];
+  titleParts.push(value.orgName);
+  titleParts.push(value.indName);
+  return titleParts.map((e) => e).join("/");
+}
+
 class Contacts1 extends React.Component {
   constructor(props) {
     super(props);
@@ -28,53 +36,61 @@ class Contacts1 extends React.Component {
     };
   }
 
-  databaseCallback = (records) =>
-    this.setState({ contacts: records.toJSON(), loading: false });
-
   async componentDidMount() {
     this.setState({ loading: true });
 
-    auth.onAuthStateChanged((user) => {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         firebase
           .database()
-          .ref(`test/users`)
+          .ref(region)
+          .child("users")
           .child(user.uid)
           .child("contacts")
-          .on("value", this.databaseCallback);
+          .on("value", (records) =>
+            this.setState({ contacts: records.toJSON(), loading: false })
+          );
       }
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
     if (auth.currentUser) {
       firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("contacts")
         .child(key)
         .remove();
     }
   }
-  getTitle(value) {
-    let titleParts = [];
-    titleParts.push(value.orgName);
-    titleParts.push(value.indName);
-    return titleParts.map((e) => e).join("/");
-  }
 
   addItem() {
+    const { history, match } = this.props;
+    const { language, region } = match.params;
     // render different page with 'save' button?
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/contacts/new`
-    );
+    history.push(`/${language}/${region}/contacts/new`);
   }
+
   editRecord(key) {
+    const { history, match } = this.props;
+    const { language, region } = match.params;
+
     // render different page with 'save' button?
-    this.props.history.push(
-      "/" + this.props.match.params.language + `/contacts/new/` + key
-    );
+    history.push(`/${language}/${region}/contacts/new/${key}`);
   }
 
   toggleModal(state, key = "") {
@@ -82,12 +98,13 @@ class Contacts1 extends React.Component {
   }
 
   render() {
+    const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <div>
         <SimpleModal
-          open={this.state.modalOpen}
+          open={modalOpen}
           onClose={() => this.toggleModal(false)}
-          onAccept={() => this.deleteRecord(this.state.modalKey)}
+          onAccept={() => this.deleteRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -96,19 +113,18 @@ class Contacts1 extends React.Component {
           <En>Contacts</En>
           <Fr>Contacts</Fr>
         </Typography>
-        {this.state.loading ? (
+        {loading ? (
           <CircularProgress />
         ) : (
           <span>
-            {this.state.contacts &&
-            Object.keys(this.state.contacts).length > 0 ? (
+            {contacts && Object.keys(contacts).length > 0 ? (
               <div>
                 <Typography>
                   <En>These are your contacts</En>
                   <Fr>Ce sont vos contacts</Fr>
                 </Typography>
                 <List>
-                  {Object.entries(this.state.contacts).map(([key, val]) => (
+                  {Object.entries(contacts).map(([key, val]) => (
                     <ListItem key={key}>
                       <ListItemAvatar>
                         <Avatar>
@@ -116,7 +132,7 @@ class Contacts1 extends React.Component {
                         </Avatar>
                       </ListItemAvatar>
 
-                      <ListItemText primary={this.getTitle(val)} />
+                      <ListItemText primary={getTitle(val)} />
                       <ListItemSecondaryAction>
                         <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                           <span>

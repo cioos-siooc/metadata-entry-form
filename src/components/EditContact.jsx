@@ -1,18 +1,17 @@
 import React from "react";
+import { withRouter } from "react-router-dom";
+import { Grid, Button } from "@material-ui/core";
 import firebase from "../firebase";
 import { auth } from "../auth";
 
-import { withRouter } from "react-router-dom";
-
 import { I18n } from "./I18n";
 
-import { Grid, Button } from "@material-ui/core";
 import Contact from "./FormComponents/Contact";
 
 class EditContact extends React.Component {
   constructor(props) {
     super(props);
-    const initial = {
+    this.state = {
       orgName: "",
       orgEmail: "",
       orgURL: "",
@@ -23,20 +22,18 @@ class EditContact extends React.Component {
       indPosition: "",
       indEmail: "",
     };
-    this.dbRef = undefined;
-    this.state = { ...initial };
   }
 
-  databaseCallback = (record) => {
-    return this.setState({ ...record.toJSON() });
-  };
-
   async componentDidMount() {
-    const { recordID } = this.props.match.params;
+    const { match } = this.props;
+
+    const { recordID, region } = match.params;
+
     if (auth.currentUser && recordID) {
       this.dbRef = firebase
         .database()
-        .ref(`test/users`)
+        .ref(region)
+        .child("users")
         .child(auth.currentUser.uid)
         .child("contacts")
         .child(recordID);
@@ -44,12 +41,18 @@ class EditContact extends React.Component {
       this.setState({ recordID });
 
       if (auth.currentUser) {
-        this.dbRef.on("value", this.databaseCallback);
+        this.dbRef.on("value", (record) =>
+          this.setState({ ...record.toJSON() })
+        );
       }
     }
   }
 
-  deleteRecord(key) {
+  componentWillUnmount() {
+    if (this.dbRef) this.dbRef.off("value");
+  }
+
+  deleteRecord() {
     const { recordID } = this.state;
 
     if (auth.currentUser) {
@@ -62,17 +65,26 @@ class EditContact extends React.Component {
 
     this.setState({ [name]: value });
   }
+
   handleCancelClick() {
-    const baseURL = "/en";
-    this.props.history.push(baseURL + "/contacts");
+    const { match, history } = this.props;
+    const { language, region } = match.params;
+
+    history.push(`/${language}/${region}/contacts`);
   }
+
   async handleSubmitClick() {
+    const { history, match } = this.props;
+
+    const { region, language } = match.params;
+
     if (this.dbRef) this.dbRef.off("value");
-    const baseURL = "/en";
+    const baseURL = `/${language}/${region}`;
 
     const rootRef = firebase
       .database()
-      .ref(`test/users`)
+      .ref(region)
+      .child("users")
       .child(auth.currentUser.uid)
       .child("contacts");
 
@@ -82,15 +94,15 @@ class EditContact extends React.Component {
       await rootRef.child(recordID).update(record);
     } else {
       await rootRef.push(record);
-      this.props.history.push(baseURL + "/contacts");
+      history.push(`${baseURL}/contacts`);
     }
-    this.props.history.push(baseURL + "/contacts");
+    history.push(`${baseURL}/contacts`);
   }
-  componentWillUnmount() {
-    if (this.dbRef) this.dbRef.off("value");
-  }
+
   // orgName, orgURL, orgAdress, orgCity, orgCountry
   render() {
+    const { orgName, indName, recordID } = this.state;
+    const isFilledEnoughToSave = orgName || indName;
     return (
       <Grid container>
         Edit contacts
@@ -99,8 +111,9 @@ class EditContact extends React.Component {
           variant="contained"
           color="primary"
           onClick={() => this.handleSubmitClick()}
+          disabled={!isFilledEnoughToSave}
         >
-          {this.state.recordID ? (
+          {recordID ? (
             <I18n en="Update" fr="Mise à jour" />
           ) : (
             <I18n en="Submit" fr="Soumettre" />

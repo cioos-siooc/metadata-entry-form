@@ -1,19 +1,24 @@
+import { InputAdornment, TextField } from "@material-ui/core";
+
 import React from "react";
-import { TextField, InputAdornment } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 
 const BilingualTextInput = ({
   onChange,
+  onBlur,
   value,
   name,
   multiline,
   disabled,
   error,
 }) => {
-  function handleChange(e) {
+  function handleEvent(e, callback) {
+    if (Boolean(callback) === false) {
+      return;
+    }
     const newData = { ...value, [e.target.name]: e.target.value };
     const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
+    callback(newDataEvent);
   }
   const { language } = useParams();
   let languages;
@@ -28,7 +33,8 @@ const BilingualTextInput = ({
             name={lang}
             fullWidth
             value={value && value[lang]}
-            onChange={handleChange}
+            onChange={(e) => handleEvent(e, onChange)}
+            onBlur={(e) => handleEvent(e, onBlur)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

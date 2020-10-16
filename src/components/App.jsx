@@ -1,18 +1,39 @@
 import React from "react";
-import { Route, HashRouter as Router, Redirect } from "react-router-dom";
+import {
+  Route,
+  HashRouter as Router,
+  Redirect,
+  Switch,
+} from "react-router-dom";
+import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
+import RegionSelect from "./RegionSelect";
 
-import UserProvider from "../providers/UserProvider";
+const languagePath = ":language(en|fr)";
+const regionPath = ":region(pacific|atlantic|stlaurent)";
+
 const App = () => (
-  <UserProvider>
-    <Router basename="/">
+  <Router basename="/">
+    <Switch>
       <Route exact path="/">
-        <Redirect to="/en/" />
+        <Redirect to="/en/region-select" />
       </Route>
-      <Route path="/:language" component={BaseLayout} />
-    </Router>
-  </UserProvider>
+      <Route
+        path={`/${languagePath}/region-select`}
+        exact
+        component={() => (
+          <NavDrawer>
+            <RegionSelect />
+          </NavDrawer>
+        )}
+      />
+      <Route path={`/${languagePath}/${regionPath}`} component={BaseLayout} />
+      <Route path="*">
+        <Redirect to="/en/region-select" />
+      </Route>
+    </Switch>
+  </Router>
 );
 
 export default App;

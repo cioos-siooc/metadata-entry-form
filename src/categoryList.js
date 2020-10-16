@@ -1,0 +1,25 @@
+const categoryList = [
+  "farming",
+  "biota",
+  "boundaries",
+  "climatologyMeteorologyAtmosphere",
+  "economy",
+  "elevation",
+  "environment",
+  "geoscientificInformation",
+  "health",
+  "imageryBaseMapsEarthCover",
+  "intelligenceMilitary",
+  "inlandWaters",
+  "location",
+  "oceans",
+  "planningCadastre",
+  "society",
+  "structure",
+  "transportation",
+  "utilitiesCommunication",
+  "extraTerrestrial",
+  "disaster",
+];
+
+export default categoryList;

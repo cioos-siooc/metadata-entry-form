@@ -1,13 +1,6 @@
-import React, { useContext, Fragment } from "react";
-
-import cioosLogoEN from "../static/cioos-banner-en-v2.png";
-import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
+import React, { useContext } from "react";
 
 import { useParams, useLocation, useHistory } from "react-router-dom";
-
-import { auth, signInWithGoogle } from "../auth";
-
-import { En, Fr, I18n } from "./I18n";
 
 import clsx from "clsx";
 
@@ -40,10 +33,15 @@ import {
   ListItemIcon,
   ListItemText,
   Select,
-  CircularProgress,
   Tooltip,
   MenuItem,
 } from "@material-ui/core";
+import regions from "../regions";
+import { auth, signInWithGoogle } from "../auth";
+
+import { En, Fr, I18n } from "./I18n";
+import cioosLogoFR from "../static/cioos-banner-fr-v2-1.png";
+import cioosLogoEN from "../static/cioos-banner-en-v2.png";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -125,26 +123,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function MiniDrawer(props) {
+export default function MiniDrawer({ children }) {
   const history = useHistory();
 
   const classes = useStyles();
   const theme = useTheme();
 
-  const {
-    user,
-    authIsLoading,
-    isReviewer: userIsReviewer,
-    isAdmin: userIsAdmin,
-  } = useContext(UserContext);
+  const { user, isReviewer: userIsReviewer, isAdmin: userIsAdmin } = useContext(
+    UserContext
+  );
 
-  const { language } = useParams();
+  let { language = "en", region = "region-select" } = useParams();
+
+  if (!["en", "fr"].includes(language)) language = "en";
+  if (!["pacific", "atlantic", "stlaurent"].includes(region)) region = "";
+
   const { pathname } = useLocation();
-  const pathWithoutLang = pathname.split("/").pop();
 
-  const baseURL = "/" + language;
+  const pathWithoutLang = pathname
+    .split("/")
+    .map((e) => e)
+    .slice(2)
+    .join("/");
 
-  const [open, setOpen] = React.useState(true);
+  const baseURL = `/${language}/${region}`;
+
+  // if region not set, keep drawer closed
+  const [open, setOpen] = React.useState(Boolean(region));
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -164,6 +169,8 @@ export default function MiniDrawer(props) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
   };
+
+  const regionText = region ? regions[region][language] : "";
 
   return (
     <div className={classes.root}>
@@ -193,8 +200,8 @@ export default function MiniDrawer(props) {
             noWrap
             style={{ marginLeft: "10px", flex: 1 }}
           >
-            <En>Metadata Entry Tool</En>
-            <Fr>Outil de saisie de métadonnées</Fr>
+            <En>{regionText} Metadata Entry Tool</En>
+            <Fr>Outil de saisie de métadonnées {regionText}</Fr>
           </Typography>
           {/* <Button color="inherit">Login</Button> */}
           <Select
@@ -203,7 +210,7 @@ export default function MiniDrawer(props) {
             className={classes.languageSelector}
             value={language}
             onChange={(e) =>
-              history.push("/" + e.target.value + "/" + pathWithoutLang)
+              history.push(`/${e.target.value}/${pathWithoutLang}`)
             }
           >
             <MenuItem value="en">EN</MenuItem>
@@ -229,10 +236,9 @@ export default function MiniDrawer(props) {
             {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
-        <div>{authIsLoading && <CircularProgress />}</div>
 
         {user && (
-          <ListItem key={"New Record"}>
+          <ListItem key="userInfo">
             <ListItemIcon>
               <Avatar src={user.photoURL} />
             </ListItemIcon>
@@ -241,32 +247,33 @@ export default function MiniDrawer(props) {
         )}
         <Divider />
         <List>
-          <Tooltip
-            placement="right-start"
-            title={open ? "" : translations.home}
-          >
-            <ListItem
-              button
-              key={"Home"}
-              onClick={() => history.push(baseURL + "/")}
+          {region && (
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.home}
             >
-              <ListItemIcon>
-                <Home />
-              </ListItemIcon>
-              <ListItemText primary={translations.home} />
-            </ListItem>
-          </Tooltip>
-
-          {!user && (
+              <ListItem
+                button
+                key="Home"
+                onClick={() => history.push(`${baseURL}/`)}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary={translations.home} />
+              </ListItem>
+            </Tooltip>
+          )}
+          {!user && region && (
             <Tooltip
               placement="right-start"
               title={open ? "" : translations.signIn}
             >
               <ListItem
                 button
-                key={"Sign in"}
+                key="Sign in"
                 onClick={() =>
-                  signInWithGoogle().then(() => history.push(baseURL + "/"))
+                  signInWithGoogle().then(() => history.push(`${baseURL}/`))
                 }
               >
                 <ListItemIcon>
@@ -276,17 +283,16 @@ export default function MiniDrawer(props) {
               </ListItem>
             </Tooltip>
           )}
-
-          {user && (
-            <Fragment>
+          {user && region && (
+            <>
               <Tooltip
                 placement="right-start"
                 title={open ? "" : translations.new}
               >
                 <ListItem
                   button
-                  key={"New Record"}
-                  onClick={() => history.push(baseURL + "/new")}
+                  key="New Record"
+                  onClick={() => history.push(`${baseURL}/new`)}
                 >
                   <ListItemIcon>
                     <AddBox />
@@ -294,93 +300,101 @@ export default function MiniDrawer(props) {
                   <ListItemText primary={translations.new} />
                 </ListItem>
               </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.contacts}
-              >
-                <ListItem
-                  button
-                  key={"Contacts"}
-                  onClick={() => history.push(baseURL + "/contacts")}
-                >
-                  <ListItemIcon disabled>
-                    <Contacts />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.contacts} />
-                </ListItem>
-              </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.saved}
-              >
-                <ListItem
-                  button
-                  key={"Saved Records"}
-                  onClick={() => history.push(baseURL + "/submissions")}
-                >
-                  <ListItemIcon>
-                    <ListAlt />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.saved} />
-                </ListItem>
-              </Tooltip>
-              {userIsReviewer && (
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.review}
-                >
-                  <ListItem
-                    button
-                    key={"Review"}
-                    onClick={() => history.push(baseURL + "/reviewer")}
+              {region && (
+                <>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.contacts}
                   >
-                    <ListItemIcon>
-                      <RateReview />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.review} />
-                  </ListItem>
-                </Tooltip>
-              )}
-              {userIsAdmin && (
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.admin}
-                >
-                  <ListItem
-                    button
-                    key={"Admin"}
-                    onClick={() => history.push(baseURL + "/admin")}
+                    <ListItem
+                      button
+                      key="Contacts"
+                      onClick={() => history.push(`${baseURL}/contacts`)}
+                    >
+                      <ListItemIcon disabled>
+                        <Contacts />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.contacts} />
+                    </ListItem>
+                  </Tooltip>
+
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.saved}
                   >
-                    <ListItemIcon>
-                      <SupervisorAccount />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.admin} />
-                  </ListItem>
-                </Tooltip>
+                    <ListItem
+                      button
+                      key="Saved Records"
+                      onClick={() => history.push(`${baseURL}/submissions`)}
+                    >
+                      <ListItemIcon>
+                        <ListAlt />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.saved} />
+                    </ListItem>
+                  </Tooltip>
+
+                  {userIsReviewer && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
+                    >
+                      <ListItem
+                        button
+                        key="Review"
+                        onClick={() => history.push(`${baseURL}/reviewer`)}
+                      >
+                        <ListItemIcon>
+                          <RateReview />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.review} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                  {userIsAdmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.admin}
+                    >
+                      <ListItem
+                        button
+                        key="Admin"
+                        onClick={() => history.push(`${baseURL}/admin`)}
+                      >
+                        <ListItemIcon>
+                          <SupervisorAccount />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.admin} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                </>
               )}
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.logout}
+            </>
+          )}
+          {user && (
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.logout}
+            >
+              <ListItem
+                button
+                key="Logout"
+                onClick={() => auth.signOut().then(() => history.push(baseURL))}
               >
-                <ListItem
-                  button
-                  key={"Logout"}
-                  onClick={() => auth.signOut().then(() => history.push(""))}
-                >
-                  <ListItemIcon>
-                    <ExitToApp />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.logout} />
-                </ListItem>
-              </Tooltip>
-            </Fragment>
+                <ListItemIcon>
+                  <ExitToApp />
+                </ListItemIcon>
+                <ListItemText primary={translations.logout} />
+              </ListItem>
+            </Tooltip>
           )}
         </List>
         <Divider />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {props.children}
+        {children}
       </main>
     </div>
   );
