@@ -26,6 +26,17 @@ Run
 python firebase_to_xml.py
 ```
 
+To see help
+```bash
+python firebase_to_xml.py -h
+```
+
+To set enviroment variables to be used by the script edit the .env file. Any
+command passed on the command line can also be set in the enviroment variable
+```bash
+nano .env
+```
+
 exit vertual enviroment
 ```bash
 deactivate
