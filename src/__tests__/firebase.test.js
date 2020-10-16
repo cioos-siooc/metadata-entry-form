@@ -1,8 +1,7 @@
-
-import firebase from '../firebase';
+import firebase from "../firebase";
 
 jest.mock("firebase/app");
 
-it('Initializes', () => {
+it("Initializes", () => {
   expect(firebase).toBeDefined();
 });

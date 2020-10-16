@@ -13,7 +13,7 @@ const SelectInput = ({
   return (
     <FormControl disabled={disabled} style={{ minWidth: 120 }}>
       <InputLabel id="demo-simple-select-label">
-        {<I18n en="Choose" fr="Choisir" />}
+        <I18n en="Choose" fr="Choisir" />
       </InputLabel>
       <Select name={name} fullWidth value={value} onChange={onChange}>
         {options.map((v, i) => (
