@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 
 const BilingualTextInput = ({
   onChange,
-  onBlur,
   value,
   name,
   multiline,
@@ -34,7 +33,6 @@ const BilingualTextInput = ({
             fullWidth
             value={value && value[lang]}
             onChange={(e) => handleEvent(e, onChange)}
-            onBlur={(e) => handleEvent(e, onBlur)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
 
-import { TextField } from "@material-ui/core";
+import { TextField, Grid } from "@material-ui/core";
 import {
   Map,
   TileLayer,
@@ -14,6 +14,7 @@ import {
 import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import { I18n } from "../I18n";
 
 const MapSelect = ({ onChange, value = {}, name, disabled }) => {
   function onEditPath() {}
@@ -218,52 +219,59 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           )}
         </FeatureGroup>
       </Map>
-      <div style={{ margin: "10px" }}>
-        <TextField
-          name="north"
-          label="North"
-          value={value.north || ""}
-          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="south"
-          label="South"
-          value={value.south || ""}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="east"
-          label="East"
-          value={value.east || ""}
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-        <TextField
-          name="west"
-          value={value.west || ""}
-          label="West"
-          onChange={handleChange}
-          type="number"
-          disabled={disabled}
-        />
-      </div>
-      <div style={{ margin: "10px" }}>
-        <TextField
-          name="polygon"
-          label="Polygon"
-          value={value.polygon || ""}
-          onChange={handleChangePoly}
-          type="text"
-          fullWidth
-          disabled={disabled}
-        />
-      </div>
+      <Grid container direction="row" spacing={3}>
+        <Grid item xs={2}>
+          <TextField
+            name="north"
+            label={<I18n en="North" fr="Nord" />}
+            value={value.north || ""}
+            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="south"
+            label={<I18n en="South" fr="Sud" />}
+            value={value.south || ""}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="east"
+            label={<I18n en="East" fr="Est" />}
+            value={value.east || ""}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            name="west"
+            value={value.west || ""}
+            label={<I18n en="West" fr="Ouest" />}
+            onChange={handleChange}
+            type="number"
+            disabled={disabled}
+          />
+        </Grid>
+      </Grid>
+
+      <TextField
+        name="polygon"
+        label={<I18n en="Polygon" fr="Polygone" />}
+        value={value.polygon || ""}
+        onChange={handleChangePoly}
+        type="text"
+        fullWidth
+        disabled={disabled}
+      />
     </div>
   );
 };
