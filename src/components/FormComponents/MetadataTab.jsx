@@ -4,13 +4,20 @@ import { En, Fr } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import SelectInput from "./SelectInput";
+import RequiredMark from "./RequiredMark";
 
-const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
+const MetadataTab = ({
+  disabled,
+  record,
+  handleInputChange,
+  paperClassValidate,
+}) => (
   <div>
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("language")}>
       <Typography>
         <En>What is primary language of the dataset?</En>
         <Fr>Quelle est la langue principale du jeu de données?</Fr>
+        <RequiredMark />
       </Typography>
       <SelectInput
         name="language"
@@ -22,7 +29,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
       />
     </Paper>
 
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("maintenance")}>
       <Typography>
         <En>
           Describe any information about the maintenance of the resource or
@@ -32,6 +39,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
           Décrire toute information sur la maintenance de la ressource ou des
           métadonnées
         </Fr>
+        <RequiredMark />
       </Typography>
       <BilingualTextInput
         name="maintenance"
@@ -42,7 +50,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
       />
     </Paper>
 
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("namingAuthority")}>
       <Typography>
         <En>What is the naming authority?</En>
         <Fr>Qu'est-ce que l'autorité de désignation?</Fr>
@@ -56,7 +64,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
       />
     </Paper>
 
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("limitations")}>
       <Typography>
         <En>
           What are the limitations affecting the fitness for use of the resource
@@ -66,6 +74,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
           Quelles sont les limites qui influent sur l'aptitude à l'utilisation
           de la ressource ou des métadonnées?
         </Fr>
+        <RequiredMark />
       </Typography>
       <BilingualTextInput
         name="limitations"
@@ -75,10 +84,11 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
         disabled={disabled}
       />
     </Paper>
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("license")}>
       <Typography>
         <En>How is the resource licensed?</En>
         <Fr>Comment la ressource est-elle sous licence?</Fr>
+        <RequiredMark />
       </Typography>
       <SelectInput
         name="license"
@@ -94,7 +104,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
       />
     </Paper>
 
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("comment")}>
       <Typography>
         <En>Are there any additional comments about this dataset?</En>
         <Fr>
@@ -111,7 +121,7 @@ const MetadataTab = ({ disabled, record, handleInputChange, paperClass }) => (
       />
     </Paper>
 
-    <Paper className={paperClass}>
+    <Paper style={paperClassValidate("history")}>
       <Typography>
         <En>Describe the history of this dataset.</En>
         <Fr>Décrivez l'historique de ce jeu de données.</Fr>

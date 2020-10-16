@@ -10,8 +10,17 @@ const Home = () => {
         <Fr>Accueil</Fr>
       </Typography>
       <Typography>
-        <En>Welcome to the CIOOS Metadata intake tool.</En>
-        <Fr>Bienvenue à la maison</Fr>
+        <En>
+          Welcome to the CIOOS Metadata intake tool. Start by clicking "New
+          Record" on the sidebar. You can also save contacts that you will use
+          often in the "Contacts" section.
+        </En>
+        <Fr>
+          Bienvenue dans l'outil de réception des métadonnées du CIOOS.
+          Commencez par cliquer sur « Nouveau » Enregistrer » sur la barre
+          latérale. Vous pouvez également enregistrer les contacts que vous
+          utiliserez souvent dans la section « Contacts ».
+        </Fr>
       </Typography>
     </div>
   );

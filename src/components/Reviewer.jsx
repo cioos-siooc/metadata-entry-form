@@ -9,10 +9,10 @@ import {
   Tooltip,
   ListItemSecondaryAction,
   IconButton,
+  Grid,
   CircularProgress,
 } from "@material-ui/core";
 import { Delete, Publish, Description, Visibility } from "@material-ui/icons";
-import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 import { auth } from "../auth";
 import { Fr, En, I18n } from "./I18n";
@@ -129,7 +129,6 @@ class Submissions extends React.Component {
   async deleteRecord(key, userID) {
     const { match } = this.props;
     const { region } = match.params;
-
     if (key && userID) {
       this.setState({ loading: true });
 
@@ -184,8 +183,9 @@ class Submissions extends React.Component {
       publishModalOpen,
       loading,
     } = this.state;
+
     return (
-      <div>
+      <Grid container direction="column" spacing={3}>
         <SimpleModal
           open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
@@ -200,18 +200,19 @@ class Submissions extends React.Component {
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
-
-        <Typography variant="h3">
-          <En>Review submissions</En>
-          <Fr>Examen des soumissions</Fr>
-        </Typography>
+        <Grid item xs>
+          <Typography variant="h3">
+            <En>Review submissions</En>
+            <Fr>Examen des soumissions</Fr>
+          </Typography>
+        </Grid>
         {loading ? (
           <CircularProgress />
         ) : (
-          <span>
-            <span>
-              {recordsForReview.length > 0 ? (
-                <div>
+          <>
+            {recordsForReview.length ? (
+              <>
+                <Grid item xs>
                   <Typography>
                     <En>
                       These are the submissions we have received from all users
@@ -219,6 +220,8 @@ class Submissions extends React.Component {
                     </En>
                     <Fr>Ce sont les soumissions que nous avons reçues</Fr>
                   </Typography>
+                </Grid>
+                <Grid item xs>
                   <List>
                     {recordsForReview.map((record) => {
                       return (
@@ -241,7 +244,8 @@ class Submissions extends React.Component {
                             this.toggleModal(
                               "publishModalOpen",
                               true,
-                              record.key
+                              record.key,
+                              record.userinfo.userID
                             )
                           }
                           showPublishAction={record.status !== "published"}
@@ -249,54 +253,57 @@ class Submissions extends React.Component {
                       );
                     })}
                   </List>
-                </div>
-              ) : (
+                </Grid>
+              </>
+            ) : (
+              <Grid item xs>
                 <Typography>
                   <En>There are no records waiting to be reviewed.</En>
                   <Fr>Aucun dossier n'attend d'être examiné.</Fr>
                 </Typography>
-              )}
-            </span>
-            <span>
-              {recordsPublished.length > 0 ? (
-                <div>
-                  <Typography>
-                    <En>Published records:</En>
-                    <Fr>Documents publiés:</Fr>
-                  </Typography>
-                  <List>
-                    {recordsPublished.map((record) => {
-                      return (
-                        <MetadataRecordListItem
-                          record={record}
-                          key={uuidv4()}
-                          language={language}
-                          onViewClick={() =>
-                            this.editRecord(record.key, record.userinfo.userID)
-                          }
-                          onDeleteClick={() =>
-                            this.toggleModal(
-                              "deleteModalOpen",
-                              true,
-                              record.key,
-                              record.userinfo.userID
-                            )
-                          }
-                        />
-                      );
-                    })}
-                  </List>
-                </div>
-              ) : (
+              </Grid>
+            )}
+
+            {recordsPublished.length ? (
+              <Grid item xs>
                 <Typography>
-                  <En>No users submitted yet!</En>
-                  <Fr>Aucun enregistrement n'a encore été soumis</Fr>
+                  <En>Published records:</En>
+                  <Fr>Documents publiés:</Fr>
                 </Typography>
-              )}
-            </span>
-          </span>
+                <List>
+                  {recordsPublished.map((record, i) => {
+                    return (
+                      <MetadataRecordListItem
+                        record={record}
+                        key={i}
+                        language={language}
+                        onViewClick={() =>
+                          this.editRecord(record.key, record.userinfo.userID)
+                        }
+                        onDeleteClick={() =>
+                          this.toggleModal(
+                            "deleteModalOpen",
+                            true,
+                            record.key,
+                            record.userinfo.userID
+                          )
+                        }
+                      />
+                    );
+                  })}
+                </List>
+              </Grid>
+            ) : (
+              <Grid item xs>
+                <Typography>
+                  <En>There are no published records.</En>
+                  <Fr>Il n'y a pas d'enregistrements publiés</Fr>
+                </Typography>
+              </Grid>
+            )}
+          </>
         )}
-      </div>
+      </Grid>
     );
   }
 }

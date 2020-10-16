@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { ButtonBase, Typography } from "@material-ui/core";
+import { ButtonBase, Typography, Grid } from "@material-ui/core";
 
 import { useParams, useHistory } from "react-router-dom";
 import regions from "../regions";
@@ -19,7 +19,7 @@ const images = [
   {
     url: "/metadata-entry-form/atlantic.jpg",
     title: "atlantic",
-    width: "40%",
+    width: "30%",
   },
 ];
 
@@ -109,38 +109,39 @@ export default function ButtonBases() {
   }
 
   return (
-    <div className={classes.root}>
+    <Grid container spacing={2}>
       {images.map((image) => (
-        <ButtonBase
-          focusRipple
-          key={image.title}
-          className={classes.image}
-          onClick={() => handleRegionClick(image.title)}
-          focusVisibleClassName={classes.focusVisible}
-          style={{
-            width: image.width,
-          }}
-        >
-          <span
-            className={classes.imageSrc}
+        <Grid item xs key={image.title}>
+          <ButtonBase
+            focusRipple
+            className={classes.image}
+            onClick={() => handleRegionClick(image.title)}
+            focusVisibleClassName={classes.focusVisible}
             style={{
-              backgroundImage: `url(${image.url})`,
+              width: "100%",
             }}
-          />
-          <span className={classes.imageBackdrop} />
-          <span className={classes.imageButton}>
-            <Typography
-              component="span"
-              variant="subtitle1"
-              color="inherit"
-              className={classes.imageTitle}
-            >
-              {regions[image.title][language]}
-              <span className={classes.imageMarked} />
-            </Typography>
-          </span>
-        </ButtonBase>
+          >
+            <span
+              className={classes.imageSrc}
+              style={{
+                backgroundImage: `url(${image.url})`,
+              }}
+            />
+            <span className={classes.imageBackdrop} />
+            <span className={classes.imageButton}>
+              <Typography
+                component="span"
+                variant="subtitle1"
+                color="inherit"
+                className={classes.imageTitle}
+              >
+                {regions[image.title][language]}
+                <span className={classes.imageMarked} />
+              </Typography>
+            </span>
+          </ButtonBase>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 }
