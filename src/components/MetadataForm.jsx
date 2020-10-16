@@ -1,22 +1,21 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
-  Button,
   CircularProgress,
   Grid,
-  Paper,
   Tab,
   Tabs,
-  Tooltip,
-  Typography,
+  Fab,
+  Checkbox,
+  FormControlLabel,
 } from "@material-ui/core";
 import React, { Component } from "react";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
-import { En, Fr, I18n } from "./I18n";
+import { I18n, En, Fr } from "./I18n";
 
+import StartTab from "./FormComponents/StartTab";
 import ContactTab from "./FormComponents/ContactTab";
 import DistributionTab from "./FormComponents/DistributionTab";
 import IdentificationTab from "./FormComponents/IdentificationTab";
@@ -26,12 +25,16 @@ import SpatialTab from "./FormComponents/SpatialTab";
 import { auth } from "../auth";
 import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
+import { validateField } from "./validate";
 
-const styles = {
-  paper: {
-    padding: "10px",
-    margin: "20px",
-  },
+const paperClass = {
+  padding: "10px",
+  margin: "20px",
+};
+const paperClassError = {
+  ...paperClass,
+  borderColor: "red",
+  borderStyle: "dotted",
 };
 
 function TabPanel({ children, value, index, ...other }) {
@@ -56,19 +59,18 @@ class MetadataForm extends Component {
         title: { en: "", fr: "" },
         abstract: { en: "", fr: "" },
         identifier: uuidv4(),
-        id: "",
         keywords: { en: [], fr: [] },
         role: "",
         eov: [],
         progress: "",
         distribution: [],
-        dateStart: new Date(),
+        dateStart: null,
         map: { north: "", south: "", east: "", west: "", polygon: "" },
 
         verticalExtentMin: "",
         verticalExtentMax: "",
-        datePublished: new Date(),
-        dateRevised: new Date(),
+        datePublished: null,
+        dateRevised: null,
         recordID: "",
         instruments: [],
         platformName: "",
@@ -94,10 +96,12 @@ class MetadataForm extends Component {
 
       // UI state:
       loading: false,
-      tabIndex: "identification",
+      tabIndex: "start",
 
       // whether the 'save' icon button is greyed out or not
       saveDisabled: true,
+
+      highlightMissingRequireFields: false,
     };
   }
 
@@ -129,7 +133,6 @@ class MetadataForm extends Component {
           .child(recordID)
           .on("value", (recordFireBase) => {
             const record = firebaseToJSObject(recordFireBase.toJSON());
-
             this.setState({
               record: { ...record, recordID },
               loading: false,
@@ -143,6 +146,14 @@ class MetadataForm extends Component {
     // fixes error Can't perform a React state update on an unmounted component
     this.unsubscribe();
   }
+
+  paperClassValidate = (fieldName) => {
+    const { record, highlightMissingRequireFields } = this.state;
+
+    if (!highlightMissingRequireFields) return paperClass;
+
+    return validateField(record, fieldName) ? paperClass : paperClassError;
+  };
 
   // genereric handler for updating state, used by most form components
   handleInputChange = (event) => {
@@ -192,16 +203,19 @@ class MetadataForm extends Component {
       record,
       saveDisabled,
       loading,
+      highlightMissingRequireFields,
     } = this.state;
+
     const disabled =
       record.status === "submitted" || record.status === "published";
 
-    const { classes } = this.props;
     const tabProps = {
+      highlightMissingRequireFields,
       disabled,
       record,
       handleInputChange: this.handleInputChange,
-      paperClass: classes.paper,
+      paperClassValidate: this.paperClassValidate,
+      paperClass,
     };
     return loading ? (
       <CircularProgress />
@@ -211,79 +225,81 @@ class MetadataForm extends Component {
         direction="column"
         justify="space-between"
         alignItems="stretch"
+        spacing={3}
       >
-        <Paper className={classes.paper}>
-          <Typography variant="h3">
-            <En>CIOOS Metadata Profile Intake Form</En>
-            <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
-          </Typography>
-          {disabled && (
-            <Typography>
-              <En>
-                <b>
-                  This form is locked because it has already been submitted.
-                </b>
-              </En>
-              <Fr>
-                <b>Ce formulaire est verrouillé car il a déjà été soumis.</b>
-              </Fr>
-            </Typography>
-          )}
-          <Typography>
-            <En>
-              Welcome to the CIOOS metadata profile generation form! Please fill
-              out each field with as much detail as you can. Using this
-              information we will create your metadata profile for the given
-              dataset.
-            </En>
-            <Fr>
-              Bienvenue sur le formulaire de génération de profils de
-              métadonnées CIOOS ! Veuillez remplir sur chaque champ avec autant
-              de détails que vous pouvez. Utilisation de cette informations que
-              nous allons créer votre profil de métadonnées pour le jeu de
-              données.
-            </Fr>
-          </Typography>
-        </Paper>
-
-        <Tabs
-          value={tabIndex}
-          onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
-          aria-label="simple tabs example"
+        <Fab
+          color="primary"
+          aria-label="add"
+          style={{
+            right: 20,
+            bottom: 20,
+            position: "fixed",
+          }}
+          disabled={
+            saveDisabled || !(record.title.en || record.title.fr) || disabled
+          }
+          onClick={() => this.handleSubmitClick()}
         >
-          <Tab label="Identification" value="identification" />
-          <Tab
-            label={<I18n en="Metadata" fr="Métadonnées" />}
-            value="metadata"
-          />
-          identification
-          <Tab label="Spatial" value="spatial" />
-          <Tab label="Contact" value="contact" />
-          <Tab label="Distribution" value="distribution" />
-          <Tab
-            label={<I18n en="Platform" fr="Plateforme" />}
-            value="platform"
-          />
-        </Tabs>
-        <Tooltip title={<I18n en="Save" fr="Enregistrer" />}>
-          <span>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => this.handleSubmitClick()}
-              style={{ width: "100px" }}
-              startIcon={<Save />}
-              disabled={
-                saveDisabled ||
-                !(record.title.en || record.title.fr) ||
-                disabled
-              }
+          <Save />
+        </Fab>
+
+        <Grid container spacing={2} direction="row" alignItems="center">
+          {/* <Grid item xs>
+            {formCompleteness * 100}
+            {formIsComplete && "FOrm is Complete"}
+          </Grid> */}
+          <Grid item xs>
+            <Tabs
+              value={tabIndex}
+              onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
+              aria-label="simple tabs example"
             >
-              <I18n en="Save" fr="Enregistrer" />
-            </Button>
-          </span>
-        </Tooltip>
+              <Tab label="Start" value="start" />
+              <Tab label="Identification" value="identification" />
+              <Tab
+                label={<I18n en="Metadata" fr="Métadonnées" />}
+                value="metadata"
+              />
+              identification
+              <Tab label="Spatial" value="spatial" />
+              <Tab label="Contact" value="contact" />
+              <Tab label="Distribution" value="distribution" />
+              <Tab
+                label={<I18n en="Platform" fr="Plateforme" />}
+                value="platform"
+              />
+            </Tabs>
+          </Grid>
+          <Grid item xs>
+            <FormControlLabel
+              disabled={disabled}
+              control={
+                <Checkbox
+                  checked={highlightMissingRequireFields}
+                  onChange={() => {
+                    this.setState({
+                      highlightMissingRequireFields: !highlightMissingRequireFields,
+                    });
+                  }}
+                />
+              }
+              label={
+                <>
+                  <En>
+                    Highlight missing or incomplete fields that are required.
+                  </En>
+                  <Fr>
+                    Mettez en surbrillance les champs manquants ou incomplets
+                    requis.
+                  </Fr>
+                </>
+              }
+            />
+          </Grid>
+        </Grid>
+        <TabPanel value={tabIndex} index="start">
+          <StartTab {...tabProps} />
+        </TabPanel>
         <TabPanel value={tabIndex} index="identification">
           <IdentificationTab {...tabProps} />
         </TabPanel>
@@ -308,4 +324,4 @@ class MetadataForm extends Component {
   }
 }
 
-export default withRouter(withStyles(styles)(MetadataForm));
+export default withRouter(MetadataForm);

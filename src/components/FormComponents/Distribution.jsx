@@ -1,12 +1,12 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
-import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
-import { v4 as uuidv4 } from "uuid";
-import { I18n } from "../I18n";
+import { TextField, Grid, Typography, Button, Paper } from "@material-ui/core";
+import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import BilingualTextInput from "./BilingualTextInput";
+import RequiredMark from "./RequiredMark";
 
-const Distribution = ({ onChange, value, name, disabled }) => {
+const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
   const initial = { url: "", name: "", description: { en: "", fr: "" } };
 
   function addDistribution() {
@@ -34,50 +34,82 @@ const Distribution = ({ onChange, value, name, disabled }) => {
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
   return (
-    <Grid container>
+    <div>
       {value.map((dist = deepCopy(initial), i) => {
         const handler = (e) => handleChange(e, i);
         return (
-          <Grid key={uuidv4()} container>
-            <Grid item xs={9} style={{ marginLeft: "10px" }}>
-              <TextField
-                label="URL"
-                name="url"
-                value={dist.url}
-                onChange={handler}
-                fullWidth
-                disabled={disabled}
-              />
-              <TextField
-                label={nameLabel}
-                name="name"
-                value={dist.name}
-                onChange={handler}
-                fullWidth
-                disabled={disabled}
-              />
+          <Paper key={i} style={paperClass}>
+            <Grid container direction="column" spacing={3}>
+              <Grid item xs>
+                <Typography>
+                  <En>Enter a name for the resource</En>
+                  <Fr>Entrez un nom pour la ressource</Fr>
+                  <RequiredMark />
+                </Typography>
+                <TextField
+                  label={nameLabel}
+                  name="name"
+                  value={dist.name}
+                  onChange={handler}
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography>
+                  <En>Enter the URL for the resource</En>
+                  <Fr>Entrez l'URL de la ressource</Fr>
+                  <RequiredMark />
+                </Typography>
 
-              <Typography>Description</Typography>
-              <BilingualTextInput
-                name="description"
-                label={descriptionLabel}
-                value={dist.description}
-                onChange={handler}
-                disabled={disabled}
-              />
+                <TextField
+                  label="URL"
+                  name="url"
+                  value={dist.url}
+                  onChange={handler}
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography>
+                  <En>Enter a description of the resource</En>
+                  <Fr>Entrez une description de la ressource</Fr>
+                </Typography>{" "}
+                <BilingualTextInput
+                  name="description"
+                  label={descriptionLabel}
+                  value={dist.description}
+                  onChange={handler}
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item xs>
+                <Button
+                  startIcon={<Delete />}
+                  disabled={disabled}
+                  onClick={() => removeDistribution(i)}
+                >
+                  <En>Remove item</En>
+                  <Fr>Supprimer l'article</Fr>
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={2}>
-              <IconButton disabled={disabled} onClick={removeDistribution}>
-                <Delete />
-              </IconButton>
-            </Grid>
-          </Grid>
+          </Paper>
         );
       })}
-      <IconButton disabled={disabled} onClick={addDistribution}>
-        <Add />
-      </IconButton>
-    </Grid>
+
+      <Paper style={paperClass}>
+        <Button
+          startIcon={<Add />}
+          disabled={disabled}
+          onClick={addDistribution}
+        >
+          <En>Add item</En>
+          <Fr>Ajouter un article</Fr>
+        </Button>
+      </Paper>
+    </div>
   );
 };
 

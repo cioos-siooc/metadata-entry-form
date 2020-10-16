@@ -1,7 +1,6 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
-import { TextField, Grid, Typography, IconButton } from "@material-ui/core";
-import { v4 as uuidv4 } from "uuid";
+import { TextField, Grid, Typography, Button, Paper } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import { deepCopy } from "../../utils/misc";
@@ -14,7 +13,7 @@ const initial = {
   description: { en: "", fr: "" },
 };
 
-const Instruments = ({ onChange, value, name, disabled }) => {
+const Instruments = ({ onChange, value, name, disabled, paperClass }) => {
   function addItem() {
     onChange({
       target: {
@@ -42,66 +41,82 @@ const Instruments = ({ onChange, value, name, disabled }) => {
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
   return (
-    <Grid container>
+    <Grid container direction="column">
       {value.map((inst, i) => (
-        <Grid key={uuidv4()} container>
-          <Grid item xs={9} style={{ marginLeft: "10px" }}>
-            <TextField
-              label="ID"
-              name="id"
-              value={inst.id}
-              onChange={(e) => handleChange(e, i)}
-              fullWidth
-              disabled={disabled}
-            />
-            <TextField
-              label={manufacturerLabel}
-              name="manufacturer"
-              value={inst.manufacturer}
-              onChange={(e) => handleChange(e, i)}
-              fullWidth
-              disabled={disabled}
-            />
-            <TextField
-              label={versionLabel}
-              value={inst.version}
-              name="version"
-              onChange={(e) => handleChange(e, i)}
-              fullWidth
-              disabled={disabled}
-            />
-
-            <Typography>
-              <En>Instrument Type</En>
-              <Fr>Type d'instrument</Fr>
-            </Typography>
-            <BilingualTextInput
-              name="type"
-              label={typeLabel}
-              value={inst.type}
-              onChange={(e) => handleChange(e, i)}
-              disabled={disabled}
-            />
-
-            <Typography>Description</Typography>
-            <BilingualTextInput
-              name="description"
-              label={descriptionLabel}
-              value={inst.description}
-              onChange={(e) => handleChange(e, i)}
-              disabled={disabled}
-            />
+        <Paper key={i} style={paperClass}>
+          <Grid container direction="column" spacing={2}>
+            <Grid item xs>
+              <TextField
+                label="ID"
+                name="id"
+                value={inst.id}
+                onChange={(e) => handleChange(e, i)}
+                fullWidth
+                disabled={disabled}
+              />
+            </Grid>
+            <Grid item xs>
+              <TextField
+                label={manufacturerLabel}
+                name="manufacturer"
+                value={inst.manufacturer}
+                onChange={(e) => handleChange(e, i)}
+                fullWidth
+                disabled={disabled}
+              />{" "}
+            </Grid>
+            <Grid item xs>
+              <TextField
+                label={versionLabel}
+                value={inst.version}
+                name="version"
+                onChange={(e) => handleChange(e, i)}
+                fullWidth
+                disabled={disabled}
+              />
+            </Grid>
+            <Grid item xs>
+              <Typography>
+                <En>Instrument Type</En>
+                <Fr>Type d'instrument</Fr>
+              </Typography>
+              <BilingualTextInput
+                name="type"
+                label={typeLabel}
+                value={inst.type}
+                onChange={(e) => handleChange(e, i)}
+                disabled={disabled}
+              />
+            </Grid>{" "}
+            <Grid item xs>
+              <Typography>Description</Typography>
+              <BilingualTextInput
+                name="description"
+                label={descriptionLabel}
+                value={inst.description}
+                onChange={(e) => handleChange(e, i)}
+                disabled={disabled}
+              />
+            </Grid>
+            <Grid item xs>
+              <Button
+                startIcon={<Delete />}
+                disabled={disabled}
+                onClick={() => removeItem(i)}
+              >
+                <En>Remove item</En>
+                <Fr>Supprimer l'article</Fr>
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={2}>
-            <IconButton onClick={() => removeItem(i)} disabled={disabled}>
-              <Delete />
-            </IconButton>
-          </Grid>
-        </Grid>
+        </Paper>
       ))}
-      <IconButton onClick={addItem} disabled={disabled}>
-        <Add />
-      </IconButton>
+      <Paper style={paperClass}>
+        <Button startIcon={<Add />} disabled={disabled} onClick={addItem}>
+          <En>Add item</En>
+          <Fr>Ajouter un article</Fr>
+        </Button>
+      </Paper>
     </Grid>
   );
 };
