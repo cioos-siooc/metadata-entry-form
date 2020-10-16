@@ -11,7 +11,12 @@ import { keywordLists } from "../../keywordLists";
 import BilingualTextInput from "./BilingualTextInput";
 import { En, Fr } from "../I18n";
 
-const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
+const KeywordsInput = ({
+  onChange,
+  value = { en: [], fr: [] },
+  name,
+  disabled,
+}) => {
   const { language } = useParams();
   const [selectedKeyword, setKeyword] = useState("");
 
@@ -55,6 +60,7 @@ const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
       <Grid container spacing={3} direction="row">
         <Grid item xs={6}>
           <Autocomplete
+            disabled={disabled}
             style={{ paddingLeft: "10px" }}
             onChange={(e, keyword) => setKeyword(keyword)}
             filterOptions={(options, params) => {
@@ -87,7 +93,7 @@ const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
         </Grid>
         <Grid item xs>
           <Button
-            disabled={Boolean(!selectedKeyword)}
+            disabled={disabled || Boolean(!selectedKeyword)}
             startIcon={<ArrowDownward />}
             onClick={handleHelperChange}
           >
@@ -129,7 +135,7 @@ const KeywordsInput = ({ onChange, value = { en: [], fr: [] }, name }) => {
               },
             });
           }}
-          required="either"
+          disabled={disabled}
         />
       </Grid>
     </Grid>

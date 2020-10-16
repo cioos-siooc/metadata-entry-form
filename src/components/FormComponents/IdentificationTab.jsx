@@ -47,7 +47,6 @@ const IdentificationTab = ({
           name="title"
           value={record.title}
           onChange={handleInputChange}
-          required="either"
           disabled={disabled}
         />
       </Paper>
@@ -65,7 +64,6 @@ const IdentificationTab = ({
           name="abstract"
           value={record.abstract}
           onChange={handleInputChange}
-          required="either"
           disabled={disabled}
           multiline
         />
@@ -112,7 +110,7 @@ const IdentificationTab = ({
               name="keywords"
               value={record.keywords}
               onChange={handleInputChange}
-              required="either"
+              disabled={disabled}
             />
           </Grid>
         </Grid>

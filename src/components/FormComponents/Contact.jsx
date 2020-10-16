@@ -52,6 +52,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               name="orgURL"
               value={value.orgURL}
               onChange={onChange}
+              disabled={disabled}
               fullWidth
             />
           </Grid>
@@ -71,6 +72,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               name="orgCity"
               value={value.orgCity}
               onChange={onChange}
+              disabled={disabled}
               fullWidth
             />
           </Grid>
@@ -91,6 +93,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               value={value.orgEmail}
               onChange={onChange}
               fullWidth
+              disabled={disabled}
             />{" "}
           </Grid>
         </Grid>
