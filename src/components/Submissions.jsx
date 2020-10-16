@@ -23,6 +23,7 @@ import { auth } from "../auth";
 import { percentValid } from "./validate";
 
 import { Fr, En, I18n } from "./I18n";
+import { firebaseToJSObject } from "../utils/misc";
 
 import SimpleModal from "./SimpleModal";
 
@@ -149,21 +150,30 @@ class Submissions extends React.Component {
                   <En>
                     These are the records you have submitted. To submit a record
                     for review, click the "Submit for review" button. The record
-                    won't be published until the reviewer approves it.
+                    won't be published until the reviewer approves it. You
+                    cannot submit a record until all the required fields are
+                    filled out.
                   </En>
                   <Fr>
                     Ce sont les documents que vous avez soumis. Pour soumettre
                     un enregistrement pour examen, cliquez sur le bouton «
                     Soumettre pour révision ». L'enregistrement ne sera pas
-                    publié tant que le réviseur ne l'aura pas approuvé.
+                    publié tant que le réviseur ne l'aura pas approuvé. Vous ne
+                    pouvez pas soumettre un enregistrement tant que tous les
+                    champs requis ne sont pas remplis.
                   </Fr>
                 </Typography>
                 <List>
-                  {Object.entries(records).map(([key, record]) => {
+                  {Object.entries(records).map(([key, recordFireBase]) => {
+                    console.log(recordFireBase);
+                    const record = firebaseToJSObject(recordFireBase);
+
                     const disabled = record.status === "submitted";
                     const percentValidInt = Math.round(
                       percentValid(record) * 100
                     );
+                    const recordIsComplete = percentValidInt === 100;
+                    console.log(recordIsComplete);
                     return (
                       <ListItem key={key}>
                         <ListItemAvatar>
@@ -229,14 +239,22 @@ class Submissions extends React.Component {
                           <Tooltip
                             title={
                               <I18n
-                                en="Submit for review"
-                                fr="Soumettre pour examen"
+                                en={
+                                  recordIsComplete
+                                    ? "Submit for review"
+                                    : "Can't submit incomplete record"
+                                }
+                                fr={
+                                  recordIsComplete
+                                    ? "Soumettre pour examen"
+                                    : "Impossible de soumettre un enregistrement incomplet"
+                                }
                               />
                             }
                           >
                             <span>
                               <IconButton
-                                disabled={disabled}
+                                disabled={disabled || !recordIsComplete}
                                 onClick={() =>
                                   this.toggleModal(
                                     "publishModalOpen",
