@@ -30,6 +30,21 @@ To see help
 ```bash
 python firebase_to_xml.py -h
 ```
+```
+usage: firebase_to_xml.py [-h] [-k [KEY]] [-o [OUT]] [-y] [-ra [RA]]
+
+Convert firebase metadata form to xml and optionaly yaml
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -k [KEY], --key [KEY]
+                        name and path of json google OAuth2 key file generated
+                        by a service account
+  -o [OUT], --out [OUT]
+                        folder to output the created xml files to
+  -y, --yaml            output yaml file as well as xml
+  -ra [RA], --RA [RA]   Set the RA forms will be converted for (atlantic,
+```
 
 To set enviroment variables to be used by the script edit the .env file. Any
 command passed on the command line can also be set in the enviroment variable
