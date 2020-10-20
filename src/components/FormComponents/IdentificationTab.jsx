@@ -9,7 +9,6 @@ import DateInput from "./DateInput";
 import KeywordsInput from "./KeywordsInput";
 import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
-import categoryList from "../../categoryList";
 import RequiredMark from "./RequiredMark";
 
 const IdentificationTab = ({
@@ -127,21 +126,6 @@ const IdentificationTab = ({
           onChange={(e) => handleInputChange(e)}
           options={progressCodes}
           optionLabels={progressCodes.map(camelToSentenceCase)}
-          disabled={disabled}
-        />
-      </Paper>
-      <Paper style={paperClassValidate("category")}>
-        <Typography>
-          <En>In which category does this dataset best fit in?</En>
-          <Fr>Quelle catégorie convient le mieux à ce dataset?</Fr>
-          <RequiredMark />
-        </Typography>
-        <SelectInput
-          name="category"
-          value={record.category || ""}
-          onChange={(e) => handleInputChange(e)}
-          options={categoryList}
-          optionLabels={categoryList.map(camelToSentenceCase)}
           disabled={disabled}
         />
       </Paper>
