@@ -17,8 +17,8 @@ export function firebaseToJSObject(input) {
     //  special case
     if (input.keywords)
       out.keywords = {
-        en: Object.values(input.keywords.en),
-        fr: Object.values(input.keywords.fr),
+        en: Object.values(input.keywords.en || {}),
+        fr: Object.values(input.keywords.fr || {}),
       };
   });
   return out;

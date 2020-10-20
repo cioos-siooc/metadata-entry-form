@@ -34,8 +34,8 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
   const [editableFG, setEditableFG] = useState(null);
   const [, setLayerError] = useState(null);
 
-  const coordTest = /-?\d+\.\d+/;
-  const polyTest = /-?\d+\.\d+,\s*-?\d+\.\d+\s*?/g;
+  const coordTest = /-?\d+\.?\d+/;
+  const polyTest = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
 
   function clearExtraLayers(drawnItems) {
     // From https://stackoverflow.com/questions/61073568/delete-layer-before-creating-a-new-one-with-react-leaflet-draw-in-leaflet
@@ -60,6 +60,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
     clearExtraLayers(drawnItems);
 
     const newData = { ...value, [e.target.name]: e.target.value };
+    console.log(newData);
     onChange({ target: { name, value: newData } });
   }
 
