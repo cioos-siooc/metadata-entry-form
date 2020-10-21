@@ -165,7 +165,6 @@ class Submissions extends React.Component {
                 </Typography>
                 <List>
                   {Object.entries(records).map(([key, recordFireBase]) => {
-                    console.log(recordFireBase);
                     const record = firebaseToJSObject(recordFireBase);
 
                     const disabled = record.status === "submitted";
@@ -173,7 +172,7 @@ class Submissions extends React.Component {
                       percentValid(record) * 100
                     );
                     const recordIsComplete = percentValidInt === 100;
-                    console.log(recordIsComplete);
+
                     return (
                       <ListItem key={key}>
                         <ListItemAvatar>
