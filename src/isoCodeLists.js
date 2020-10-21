@@ -19,6 +19,7 @@ export const eovList = [
   "subSurfaceSalinity",
   "subSurfaceTemperature",
   "surfaceCurrents",
+  "other",
 ];
 export const roleCodes = [
   "resourceProvider",

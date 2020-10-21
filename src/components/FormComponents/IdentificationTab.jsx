@@ -17,6 +17,7 @@ const IdentificationTab = ({
   record,
   handleInputChange,
   paperClassValidate,
+  paperClass,
 }) => {
   return (
     <div>
@@ -146,7 +147,7 @@ const IdentificationTab = ({
         />
       </Paper>
 
-      <Paper style={paperClassValidate("dateStart")}>
+      <Paper style={paperClass}>
         <Typography>
           <En>What is the start date when data was first collected?</En>
           <Fr>
@@ -156,7 +157,7 @@ const IdentificationTab = ({
         </Typography>
         <DateInput
           name="dateStart"
-          value={record.dateStart}
+          value={record.dateStart || null}
           onChange={handleInputChange}
           disabled={disabled}
         />
@@ -172,20 +173,20 @@ const IdentificationTab = ({
         </Typography>
         <DateInput
           name="datePublished"
-          value={record.datePublished}
+          value={record.datePublished || null}
           onChange={handleInputChange}
           disabled={disabled}
         />
       </Paper>
 
-      <Paper style={paperClassValidate("dateRevised")}>
+      <Paper style={paperClass}>
         <Typography>
           <En>What is the start date when data was revised?</En>
           <Fr>Quelle est la date de début de la révision des données?</Fr>
         </Typography>
         <DateInput
           name="dateRevised"
-          value={record.dateRevised}
+          value={record.dateRevised || null}
           onChange={handleInputChange}
           disabled={disabled}
         />

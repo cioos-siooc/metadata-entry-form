@@ -11,6 +11,7 @@ const MetadataTab = ({
   record,
   handleInputChange,
   paperClassValidate,
+  paperClass,
 }) => (
   <div>
     <Paper style={paperClassValidate("language")}>
@@ -50,7 +51,7 @@ const MetadataTab = ({
       />
     </Paper>
 
-    <Paper style={paperClassValidate("namingAuthority")}>
+    <Paper style={paperClass}>
       <Typography>
         <En>What is the naming authority?</En>
         <Fr>Qu'est-ce que l'autorité de désignation?</Fr>
@@ -98,13 +99,19 @@ const MetadataTab = ({
           "Creative Commons Attribution 4.0",
           "Creative Commons 0",
           "Government Open License - Canada",
+          "Apache License, Version 2.0",
         ]}
-        options={["CC-BY-4.0", "CC0", "government-open-license-canada"]}
+        options={[
+          "CC-BY-4.0",
+          "CC0",
+          "government-open-license-canada",
+          "Apache-2.0",
+        ]}
         disabled={disabled}
       />
     </Paper>
 
-    <Paper style={paperClassValidate("comment")}>
+    <Paper style={paperClass}>
       <Typography>
         <En>Are there any additional comments about this dataset?</En>
         <Fr>
@@ -121,7 +128,7 @@ const MetadataTab = ({
       />
     </Paper>
 
-    <Paper style={paperClassValidate("history")}>
+    <Paper style={paperClass}>
       <Typography>
         <En>Describe the history of this dataset.</En>
         <Fr>Décrivez l'historique de ce jeu de données.</Fr>
