@@ -1,4 +1,17 @@
-firebase_to_xml
+# firebase_to_xml
+
+## Firebase auth key
+
+To generate a new key:
+
+- Go to <https://console.firebase.google.com/u/0/project/cioos-metadata-form/settings/serviceaccounts/adminsdk>
+- Click 'Generate new privey key'. Save the file to the 'keys' folder
+
+- Keys can be managed at <https://console.cloud.google.com/iam-admin/serviceaccounts/details/108735728189650899572?authuser=0&project=cioos-metadata-form>
+
+- (optional) update .env with the path to your key. Otherwise you will have to supply this path at command line
+
+## Installation
 
 Create and activate virtual enviroment
 
@@ -19,16 +32,10 @@ Update
 pip install --upgrade .
 ```
 
-Generate firebase private key
-if you have not already done so, you will need a access token to authenticate with firebase
-go to https://console.firebase.google.com/u/0/project/cioos-metadata-form/settings/serviceaccounts/adminsdk
-and generate a new private key. Save the key into the keys folder and update the path in firebase_to_xml.py
+- To set enviroment variables to be used by the script edit the .env file.
+  Any command passed on the command line can also be set in the enviroment variable
 
-Run
-
-```bash
-python firebase_to_xml.py
-```
+## Running
 
 To see help
 
@@ -36,36 +43,12 @@ To see help
 python firebase_to_xml.py -h
 ```
 
-```
-usage: firebase_to_xml.py [-h] [-k [KEY]] [-o [OUT]] [-y] [-ra [RA]]
-
-Convert firebase metadata form to xml and optionaly yaml
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -k [KEY], --key [KEY]
-                        name and path of json google OAuth2 key file generated
-                        by a service account
-  -o [OUT], --out [OUT]
-                        folder to output the created xml files to
-  -y, --yaml            output yaml file as well as xml
-  -ra [RA], --RA [RA]   Set the RA forms will be converted for (atlantic,
-```
-
-To set enviroment variables to be used by the script edit the .env file. Any
-command passed on the command line can also be set in the enviroment variable
-
 ```bash
-nano .env
+python firebase_to_xml.py
 ```
 
-exit vertual enviroment
+exit virtual environment
 
 ```bash
 deactivate
 ```
-
-TODO add commandline arguments or enviroment varibles to:
-
-- set which RA to request data from
-- limit to specific users?
