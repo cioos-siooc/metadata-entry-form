@@ -1,19 +1,18 @@
-#!/usr/bin/env python
-import setuptools
+#!/usr/bin/env python3
+
 from distutils.core import setup
+import setuptools
 
 setup(name='firebase_to_xml',
       version='0.1',
-      description='Python module for converting ACDD style metadata into the '
-      + 'CIOOS ISO profile',
-      url='https://github.com/cioos-siooc/metadata-xml',
+      description='Python module translates metadata records from' +
+      'Firebase into XML',
+      url='https://github.com/cioos-siooc/metadata-entry-form',
       packages=setuptools.find_packages(),
       include_package_data=True,
       install_requires=[
           'google-auth',
           'google-oauth',
-          'Jinja2==2.10.3',
-          'pathlib',
           'python-dotenv',
           'metadata_xml@git+git://github.com/cioos-siooc/metadata-xml.git'
       ]
