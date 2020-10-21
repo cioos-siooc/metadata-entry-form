@@ -60,7 +60,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
     clearExtraLayers(drawnItems);
 
     const newData = { ...value, [e.target.name]: e.target.value };
-    console.log(newData);
+
     onChange({ target: { name, value: newData } });
   }
 
