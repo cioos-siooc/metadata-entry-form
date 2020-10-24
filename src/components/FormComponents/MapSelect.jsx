@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
 
-import { TextField, Grid } from "@material-ui/core";
+import { TextField, Grid, Typography } from "@material-ui/core";
 import {
   Map,
   TileLayer,
@@ -14,7 +14,7 @@ import {
 import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { I18n } from "../I18n";
+import { I18n, En, Fr } from "../I18n";
 
 const MapSelect = ({ onChange, value = {}, name, disabled }) => {
   function onEditPath() {}
@@ -263,7 +263,19 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           />
         </Grid>
       </Grid>
-
+      <br />
+      <Typography>
+        <En>
+          Polygon coordinates must start and end with the same point.
+          <br /> Eg,
+        </En>
+        <Fr>
+          Les coordonnées du polygone doivent commencer et se terminer par le
+          même point.
+          <br /> Par exemple,
+        </Fr>
+        48,-128 56,-133 56,-147 48,-128
+      </Typography>
       <TextField
         name="polygon"
         label={<I18n en="Polygon" fr="Polygone" />}

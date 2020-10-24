@@ -15,8 +15,15 @@ const DistributionTab = ({
     <div>
       <Paper style={paperClass}>
         <Typography>
-          <En>At least one resource is required.</En>
-          <Fr>Au moins une ressource est requise.</Fr>
+          <En>
+            Enter any URLs associated with this dataset. Eg ERDDAP datasets, or
+            CSV files. At least one resource is required.
+          </En>
+          <Fr>
+            Entrez les URL associées à ce jeux de données. Par exemple, des jeux
+            de données ERDDAP ou des fichiers CSV. Au moins une ressource est
+            requise.
+          </Fr>
         </Typography>
       </Paper>
       <Distribution
