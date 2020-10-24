@@ -1,4 +1,6 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
+
 import {
   Typography,
   List,
@@ -16,6 +18,7 @@ import {
   Edit,
   Publish,
   Description,
+  FileCopy,
   Visibility,
 } from "@material-ui/icons";
 import firebase from "../firebase";
@@ -85,6 +88,32 @@ class Submissions extends React.Component {
         .child(key)
         .child("status")
         .set("submitted");
+    }
+  }
+
+  cloneRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    if (auth.currentUser) {
+      const recordsRef = firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(auth.currentUser.uid)
+        .child("records");
+
+      recordsRef.child(key).once("value", (recordFirebase) => {
+        const record = recordFirebase.toJSON();
+
+        // reset record details
+        record.recordID = "";
+        record.status = "";
+        record.identifier = uuidv4();
+        record.created = new Date().toISOString();
+
+        recordsRef.push(record);
+      });
     }
   }
 
@@ -196,6 +225,17 @@ class Submissions extends React.Component {
                           }
                         />
                         <ListItemSecondaryAction>
+                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                            <span>
+                              <IconButton
+                                onClick={() => this.cloneRecord(key)}
+                                edge="end"
+                                aria-label="clone"
+                              >
+                                <FileCopy />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
                           {record.status === "submitted" ? (
                             <Tooltip title={<I18n en="View" fr="Vue" />}>
                               <span>
