@@ -16,12 +16,13 @@ const SpatialTab = ({
     <Paper style={paperClassValidate("map")}>
       <Typography style={{ paddingBottom: "15px" }}>
         <En>
-          Select or enter a bounding box for the dataset. Either bounding box or
-          Polygon is required.
+          You can draw a bounding box or polygon for the dataset, or enter using
+          the fields below. Either bounding box or Polygon is required.
         </En>
         <Fr>
-          Sélectionnez ou entrez une zone de délimitation pour l'ensemble de
-          données. Le cadre de sélection ou le polygone est requis..
+          Vous pouvez dessiner un cadre de sélection ou un polygone pour le jeu
+          de données, ou entrer à l'aide des champs ci-dessous. Le cadre de
+          sélection ou le polygone est requis.
         </Fr>
         <RequiredMark />
       </Typography>
@@ -35,8 +36,8 @@ const SpatialTab = ({
     </Paper>
     <Paper style={paperClass}>
       <Typography>
-        <En>Vertical extent (m)</En>
-        <Fr>Étendue verticale (m)</Fr>
+        <En>Vertical extent (m). Depth is positive</En>
+        <Fr>Étendue verticale (m). La profondeur est positive</Fr>
         <RequiredMark />
       </Typography>
       <div style={paperClassValidate("verticalExtentMin")}>
