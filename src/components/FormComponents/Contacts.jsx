@@ -6,7 +6,7 @@ import { deepCopy } from "../../utils/misc";
 import { En, Fr } from "../I18n";
 
 const initial = {
-  role: "",
+  role: [],
   orgName: "",
   orgEmail: "",
   orgURL: "",
