@@ -4,20 +4,20 @@ import { TextField, Typography, Grid } from "@material-ui/core";
 import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
-import SelectInput from "./SelectInput";
+import SelectMultipleInput from "./SelectMultipleInput";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   return (
-    <Grid container direction="column" spacing={3}>
+    <Grid container direction="column" spacing={1}>
       {showRolePicker && (
         <Grid item xs>
           <Typography>
             <En>What is their role?</En>
             <Fr>Quel est leur rôle ?</Fr>
           </Typography>
-          <SelectInput
+          <SelectMultipleInput
             name="role"
-            value={value.role || ""}
+            value={value.role || []}
             onChange={(e) => onChange(e)}
             options={roleCodes}
             optionLabels={roleCodes.map(camelToSentenceCase)}
