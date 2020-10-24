@@ -50,22 +50,7 @@ const MetadataTab = ({
         disabled={disabled}
       />
     </Paper>
-
     <Paper style={paperClass}>
-      <Typography>
-        <En>What is the naming authority?</En>
-        <Fr>Qu'est-ce que l'autorité de désignation?</Fr>
-      </Typography>
-      <BilingualTextInput
-        name="namingAuthority"
-        value={record.namingAuthority}
-        onChange={handleInputChange}
-        multiline
-        disabled={disabled}
-      />
-    </Paper>
-
-    <Paper style={paperClassValidate("limitations")}>
       <Typography>
         <En>
           What are the limitations affecting the fitness for use of the resource
@@ -75,7 +60,6 @@ const MetadataTab = ({
           Quelles sont les limites qui influent sur l'aptitude à l'utilisation
           de la ressource ou des métadonnées?
         </Fr>
-        <RequiredMark />
       </Typography>
       <BilingualTextInput
         name="limitations"
