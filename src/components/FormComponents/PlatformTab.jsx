@@ -16,8 +16,15 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
           <Typography>
-            <En>What is the name of the platform?</En>
-            <Fr>Quel est le nom de la plate-forme?</Fr>
+            <En>
+              What is the name of the platform? Eg this may be a glider, ship,
+              buoy, or satellites used in data collection.
+            </En>
+            <Fr>
+              Quel est le nom de la plate-forme? Par exemple, il peut s'agir
+              d'un planeur, d'un navire, d'une bouée ou de satellites utilisés
+              pour la collecte de données.
+            </Fr>
           </Typography>
           <TextField
             label={<I18n en="Name" fr="Nom" />}
@@ -31,8 +38,16 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
         <Grid item xs>
           {" "}
           <Typography>
-            <En>What is platform ID?</En>
-            <Fr>Qu'est-ce que l'ID de plateforme?</Fr>
+            <En>
+              What is platform ID? This is a unique identifcation of the
+              platform. If the platform is registered with ICES, use that
+              identifier
+            </En>
+            <Fr>
+              Qu'est-ce que l'ID de plate-forme ? Il s'agit d'une identification
+              unique de la plateforme. Si la plateforme est enregistrée auprès
+              du CIEM, utilisez cet identificateur
+            </Fr>
           </Typography>
           <TextField
             label={<I18n en="Platform ID" fr="ID de plateforme" />}
@@ -74,7 +89,6 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
           />
         </Grid>
         <Grid item xs>
-          {" "}
           <Typography>
             <En>What is the naming authority of the platform?</En>
             <Fr>Quelle est l'autorité de dénomination de la plateforme ?</Fr>
