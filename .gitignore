@@ -30,3 +30,5 @@ TODO
 .devcontainer
 .vscode
 
+node_modules
+notforrepo
