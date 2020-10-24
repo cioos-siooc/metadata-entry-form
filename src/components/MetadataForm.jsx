@@ -85,7 +85,7 @@ class MetadataForm extends Component {
         history: "",
         limitations: "",
         maintenance: "",
-        created: new Date(),
+        created: new Date().toISOString(),
         category: "",
       },
 
