@@ -65,8 +65,10 @@ class UserProvider extends Component {
 
   render() {
     const { children } = this.props;
+    const translate = firebase.functions().httpsCallable("translate");
+
     return (
-      <UserContext.Provider value={{ ...this.state }}>
+      <UserContext.Provider value={{ ...this.state, translate }}>
         {children}
       </UserContext.Provider>
     );
