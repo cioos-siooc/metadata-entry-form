@@ -93,7 +93,7 @@ def record_json_to_yaml(record):
 
     record_yaml = {
         'metadata': {
-            'naming_authority': record.get('namingAuthority'),
+            'naming_authority': 'ca.coos',
             'identifier': record.get('identifier'),
             'language': record.get('language'),
             'maintenance_note': record.get('maintenance'),
