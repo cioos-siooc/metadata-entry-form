@@ -38,6 +38,12 @@ const BaseLayout = ({ match }) => {
           <Route path={`${match.path}/submissions`} component={Submissions} />
           <Route path={`${match.path}/reviewer`} component={Reviewer} />
           <Route path={`${match.path}/admin`} component={Admin} />
+          <Route
+            path={`${match.path}/sentry-test`}
+            component={() => {
+              throw new Error("Testing sentry");
+            }}
+          />
           <Route path="*" component={NotFound} />
         </Switch>
       </NavDrawer>
