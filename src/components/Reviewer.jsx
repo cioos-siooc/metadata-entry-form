@@ -97,7 +97,7 @@ class Submissions extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 
   editRecord(key, userID) {

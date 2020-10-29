@@ -60,7 +60,7 @@ class Contacts extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -16,7 +16,8 @@ const SpatialTab = ({
     <Paper style={paperClassValidate("map")}>
       <Typography style={{ paddingBottom: "15px" }}>
         <En>
-          You can draw a bounding box or polygon for the dataset, or enter using
+          You can draw a bounding box or polygon for the dataset using the
+          Polygon or Box buttons at the right side of them form, or enter using
           the fields below. Either bounding box or Polygon is required.
         </En>
         <Fr>

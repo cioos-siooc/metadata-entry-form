@@ -143,7 +143,7 @@ class MetadataForm extends Component {
 
   componentWillUnmount() {
     // fixes error Can't perform a React state update on an unmounted component
-    this.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 
   paperClassValidate = (fieldName) => {

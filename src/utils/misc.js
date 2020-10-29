@@ -21,5 +21,13 @@ export function firebaseToJSObject(input) {
         fr: Object.values(input.keywords.fr || {}),
       };
   });
+
+  Object.values(out.contacts).forEach((contact) => {
+    if (contact.role) {
+      // eslint-disable-next-line no-param-reassign
+      contact.role = Object.values(contact.role);
+    }
+  });
+
   return out;
 }
