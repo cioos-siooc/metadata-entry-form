@@ -278,7 +278,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
       </Typography>
       <TextField
         name="polygon"
-        label={<I18n en="Polygon" fr="Polygone" />}
+        label={<I18n en="Polygon Coordinates" fr="Coordonnées du polygone" />}
         value={value.polygon || ""}
         onChange={handleChangePoly}
         type="text"
