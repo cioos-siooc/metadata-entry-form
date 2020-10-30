@@ -12,8 +12,22 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
       {showRolePicker && (
         <Grid item xs>
           <Typography>
-            <En>What is their role?</En>
-            <Fr>Quel est leur rôle ?</Fr>
+            <En>
+              What is their role? A list of roles with descriptions can be found{" "}
+            </En>
+            <Fr>
+              Quel est leur rôle ? Une liste de rôles avec des descriptions peut
+              être trouvée{" "}
+            </Fr>
+            <a
+              href="http://registry.it.csiro.au/def/isotc211/CI_RoleCode"
+              // eslint-disable-next-line react/jsx-no-target-blank
+              target="_blank"
+            >
+              <En>here</En>
+              <Fr>ici</Fr>
+            </a>
+            .
           </Typography>
           <SelectMultipleInput
             name="role"

@@ -220,6 +220,16 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           )}
         </FeatureGroup>
       </Map>
+      <Typography>
+        <En>
+          Please provide the coordinates in decimal degrees and not in decimal
+          minutes seconds.
+        </En>
+        <Fr>
+          Veuillez fournir les coordonnées en degrés décimaux et non en secondes
+          décimales.
+        </Fr>
+      </Typography>
       <Grid container direction="row" spacing={3}>
         <Grid item xs={2}>
           <TextField
@@ -266,12 +276,13 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
       <br />
       <Typography>
         <En>
-          Polygon coordinates must start and end with the same point.
+          Polygon coordinates, if provided, must start and end with the same
+          point.
           <br /> Eg,
         </En>
         <Fr>
-          Les coordonnées du polygone doivent commencer et se terminer par le
-          même point.
+          Les coordonnées des polygones, si elles sont fournies, doivent
+          commencer et se terminer par le même point..
           <br /> Par exemple,
         </Fr>
         48,-128 56,-133 56,-147 48,-128

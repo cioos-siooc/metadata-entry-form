@@ -38,9 +38,14 @@ const IdentificationTab = ({
 
       <Paper style={paperClassValidate("title")}>
         <Typography>
-          <En>What is the dataset title? Required in both languages</En>
+          <En>
+            What is the dataset title? Please refrain from using special
+            characters in the dataset title. Required in both languages.
+          </En>
           <Fr>
-            Quel est le titre du jeu de données? Requis dans les deux langues
+            Quel est le titre du jeu de données? Veuillez vous abstenir
+            d'utiliser des caractères spéciaux dans le titre du jeu de données.
+            Requis dans les deux langues.
           </Fr>
           <RequiredMark />
         </Typography>

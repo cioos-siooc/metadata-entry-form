@@ -19,7 +19,6 @@ export const validators = {
   platformName: (val) => val,
   platformID: (val) => val,
   platformRole: (val) => val,
-  platformDescription: (val) => val,
   platformAuthority: (val) => val,
   language: (val) => val,
   license: (val) => val,

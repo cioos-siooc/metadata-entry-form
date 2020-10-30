@@ -17,6 +17,7 @@ const BilingualTextInput = ({
   multiline,
   disabled,
   error,
+  translationButonDisabled = false,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
@@ -51,7 +52,7 @@ const BilingualTextInput = ({
             disabled={disabled}
             error={error}
           />
-          {i === 0 && (
+          {i === 0 && !translationButonDisabled && (
             <Button
               startIcon={
                 awaitingTranslation ? <CircularProgress size={20} /> : null

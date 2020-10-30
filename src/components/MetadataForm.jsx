@@ -8,6 +8,7 @@ import {
   Fab,
   Checkbox,
   FormControlLabel,
+  Tooltip,
 } from "@material-ui/core";
 import React, { Component } from "react";
 import { Save } from "@material-ui/icons";
@@ -226,22 +227,34 @@ class MetadataForm extends Component {
         alignItems="stretch"
         spacing={3}
       >
-        <Fab
-          color="primary"
-          aria-label="add"
-          style={{
-            right: 20,
-            bottom: 20,
-            position: "fixed",
-          }}
-          disabled={
-            saveDisabled || !(record.title.en || record.title.fr) || disabled
+        <Tooltip
+          placement="left-start"
+          title={
+            saveDisabled
+              ? "Dataset needs a title before it can be saved"
+              : "Save record."
           }
-          onClick={() => this.handleSubmitClick()}
         >
-          <Save />
-        </Fab>
-
+          <span>
+            <Fab
+              color="primary"
+              aria-label="add"
+              style={{
+                right: 20,
+                bottom: 20,
+                position: "fixed",
+              }}
+              disabled={
+                saveDisabled ||
+                !(record.title.en || record.title.fr) ||
+                disabled
+              }
+              onClick={() => this.handleSubmitClick()}
+            >
+              <Save />
+            </Fab>
+          </span>
+        </Tooltip>
         <Grid container spacing={2} direction="row" alignItems="center">
           {/* <Grid item xs>
             {formCompleteness * 100}

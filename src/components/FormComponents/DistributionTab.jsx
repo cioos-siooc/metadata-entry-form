@@ -5,6 +5,8 @@ import { Typography, Paper } from "@material-ui/core";
 import Distribution from "./Distribution";
 import { En, Fr } from "../I18n";
 
+import RequiredMark from "./RequiredMark";
+
 const DistributionTab = ({
   disabled,
   record,
@@ -24,6 +26,7 @@ const DistributionTab = ({
             de données ERDDAP ou des fichiers CSV. Au moins une ressource est
             requise.
           </Fr>
+          <RequiredMark />
         </Typography>
       </Paper>
       <Distribution
