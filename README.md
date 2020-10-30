@@ -16,4 +16,8 @@ This will start a hot-reloading dev server. Click on the link that it outputs to
 
 ## Deploy to testing site at GitHub pages
 
+Pushes to master automatically deploy to <https://cioos-siooc.github.io/metadata-entry-form/>
+
+Or manually deploy any branch with
+
 `npm run deploy`
