@@ -37,8 +37,15 @@ const SpatialTab = ({
     </Paper>
     <Paper style={paperClass}>
       <Typography>
-        <En>Vertical extent (m). Depth is positive</En>
-        <Fr>Étendue verticale (m). La profondeur est positive</Fr>
+        <En>
+          Vertical extent (m). Depth is recorded with positive values (i.e. a
+          maximum value of 150m implies 150m below the surface).
+        </En>
+        <Fr>
+          Étendue verticale (m). La profondeur est enregistrée avec des valeurs
+          positives (c'est-à-dire une valeur maximale de 150 m implique 150 m
+          au-dessous de la surface).
+        </Fr>
         <RequiredMark />
       </Typography>
       <div style={paperClassValidate("verticalExtentMin")}>

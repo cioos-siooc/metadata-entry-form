@@ -136,6 +136,7 @@ const KeywordsInput = ({
             });
           }}
           disabled={disabled}
+          translationButonDisabled
         />
       </Grid>
     </Grid>

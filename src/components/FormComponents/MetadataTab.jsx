@@ -34,7 +34,7 @@ const MetadataTab = ({
       <Typography>
         <En>
           Describe any information about the maintenance of the resource or
-          metadata.
+          associated metadata.
         </En>
         <Fr>
           Décrire toute information sur la maintenance de la ressource ou des

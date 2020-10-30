@@ -10,11 +10,17 @@ import { roleCodes } from "../../isoCodeLists";
 import { En, Fr, I18n } from "../I18n";
 import { camelToSentenceCase } from "../../utils/misc";
 
-const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
+const PlatformTab = ({
+  disabled,
+  record,
+  handleInputChange,
+  paperClass,
+  paperClassValidate,
+}) => (
   <>
     <Paper style={paperClass}>
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid item xs style={paperClassValidate("platformName")}>
           <Typography>
             <En>
               What is the name of the platform? Eg this may be a glider, ship,
@@ -35,8 +41,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
             disabled={disabled}
           />
         </Grid>
-        <Grid item xs>
-          {" "}
+        <Grid item xs style={paperClassValidate("platformID")}>
           <Typography>
             <En>
               What is platform ID? This is a unique identifcation of the
@@ -59,8 +64,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
           />
         </Grid>
 
-        <Grid item xs>
-          {" "}
+        <Grid item xs style={paperClassValidate("platformRole")}>
           <Typography>
             <En>What is the role of the platform?</En>
             <Fr>Quel est le rôle de la plateforme?</Fr>
@@ -74,8 +78,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
             disabled={disabled}
           />
         </Grid>
-        <Grid item xs>
-          {" "}
+        <Grid item xs style={paperClassValidate("platformDescription")}>
           <Typography>
             <En>Describe the platform</En>
             <Fr>Décrire la plateforme</Fr>
@@ -88,7 +91,7 @@ const PlatformTab = ({ disabled, record, handleInputChange, paperClass }) => (
             disabled={disabled}
           />
         </Grid>
-        <Grid item xs>
+        <Grid item xs style={paperClassValidate("platformAuthority")}>
           <Typography>
             <En>What is the naming authority of the platform?</En>
             <Fr>Quelle est l'autorité de dénomination de la plateforme ?</Fr>
