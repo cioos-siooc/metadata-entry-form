@@ -1,5 +1,6 @@
 import React, { Component, createContext } from "react";
 import { withRouter } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import { auth } from "../auth";
 import firebase from "../firebase";
 
@@ -29,6 +30,9 @@ class UserProvider extends Component {
     this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
+
+        Sentry.addBreadcrumb({ user: email });
+
         firebase
           .database()
           .ref(region)
@@ -58,7 +62,6 @@ class UserProvider extends Component {
             });
           });
       }
-
       this.setState({ user: userAuth });
     });
   };
