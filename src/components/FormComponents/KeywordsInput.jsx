@@ -7,9 +7,10 @@ import Autocomplete, {
 import { TextField, Button, Grid } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { ArrowDownward } from "@material-ui/icons";
-import { keywordLists } from "../../keywordLists";
+import keywordList from "../../keywordList";
 import BilingualTextInput from "./BilingualTextInput";
 import { En, Fr } from "../I18n";
+import translate from "../../utils/i18n";
 
 const KeywordsInput = ({
   onChange,
@@ -27,22 +28,14 @@ const KeywordsInput = ({
   }
 
   function handleHelperChange() {
-    const selectedValue = selectedKeyword;
-    if (selectedValue) {
+    if (selectedKeyword) {
       const newValue = { en: [], fr: [] };
 
-      const selectedIndex = keywordLists[language].includes(selectedValue)
-        ? keywordLists[language].indexOf(selectedValue)
-        : -1;
-
       ["en", "fr"].forEach((l) => {
-        const keywordList = value[l];
-        if (selectedIndex >= 0) {
-          keywordList.push(keywordLists[l][selectedIndex]);
-        } else {
-          keywordList.push(selectedValue);
-        }
-        newValue[l] = cleanList(keywordList);
+        const userKeywordList = value[l];
+        userKeywordList.push(translate(selectedKeyword, l));
+
+        newValue[l] = cleanList(userKeywordList);
       });
 
       onChange({
@@ -77,9 +70,9 @@ const KeywordsInput = ({
             clearOnBlur
             freeSolo
             handleHomeEndKeys
-            renderOption={(option) => option}
-            options={keywordLists[language]}
-            getOptionLabel={(option) => option}
+            renderOption={(option) => translate(option, language)}
+            options={keywordList}
+            getOptionLabel={(option) => translate(option, language)}
             fullWidth
             renderInput={(params) => (
               <TextField
@@ -98,7 +91,7 @@ const KeywordsInput = ({
             onClick={handleHelperChange}
           >
             <En>Add</En>
-            <Fr>Add</Fr>
+            <Fr>Ajouter</Fr>
           </Button>
         </Grid>
       </Grid>
