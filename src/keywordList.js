@@ -90,4 +90,4 @@ const keywordList = [
   "coastal zone",
 ];
 
-export default keywordList
+export default keywordList;
