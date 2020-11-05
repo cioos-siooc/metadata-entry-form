@@ -4,6 +4,9 @@ import { En, Fr } from "../I18n";
 import RequiredMark from "./RequiredMark";
 
 import MapSelect from "./MapSelect";
+import { camelToSentenceCase } from "../../utils/misc";
+import SelectInput from "./SelectInput";
+import { depthDirections } from "../../isoCodeLists";
 
 const SpatialTab = ({
   disabled,
@@ -38,36 +41,64 @@ const SpatialTab = ({
     <Paper style={paperClass}>
       <Typography>
         <En>
-          Vertical extent (m). Depth is recorded with positive values (i.e. a
-          maximum value of 150m implies 150m below the surface).
+          Vertical extent (m). <br />
+          Depth positive: Depth is recorded with positive values (i.e. a maximum
+          value of 150m implies 150m below the surface).
+          <br />
+          Heigth positive: Depth is recorded with negative values (i.e. a
+          maximum value of -150m implies -150m below the surface).
         </En>
         <Fr>
-          Étendue verticale (m). La profondeur est enregistrée avec des valeurs
+          Étendue verticale (m).
+          <br />
+          Profondeur positive: La profondeur est enregistrée avec des valeurs
           positives (c'est-à-dire une valeur maximale de 150 m implique 150 m
           au-dessous de la surface).
+          <br />
+          Hauteur positive: La profondeur est enregistrée avec des valeurs
+          négatives (c'est-à-dire une valeur maximale de -150 m implique 150 m
+          au-dessous de la surface)
         </Fr>
         <RequiredMark />
       </Typography>
-      <div style={paperClassValidate("verticalExtentMin")}>
-        <TextField
-          name="verticalExtentMin"
-          value={record.verticalExtentMin}
-          onChange={handleInputChange}
-          label="Min"
-          type="number"
-          disabled={disabled}
-        />
-      </div>
-      <div style={paperClassValidate("verticalExtentMax")}>
-        <TextField
-          name="verticalExtentMax"
-          value={record.verticalExtentMax}
-          onChange={handleInputChange}
-          label="Max"
-          type="number"
-          disabled={disabled}
-        />
-      </div>
+      <Grid container direction="row" spacing={3}>
+        <Grid item xs={2}>
+          <div style={paperClassValidate("verticalExtentDirection")}>
+            <SelectInput
+              name="verticalExtentDirection"
+              value={record.verticalExtentDirection}
+              onChange={(e) => handleInputChange(e)}
+              options={depthDirections}
+              optionLabels={depthDirections.map((e) => camelToSentenceCase(e))}
+              disabled={disabled}
+            />
+          </div>
+        </Grid>
+        <Grid item xs={2}>
+          <div style={paperClassValidate("verticalExtentMin")}>
+            <TextField
+              name="verticalExtentMin"
+              value={record.verticalExtentMin}
+              onChange={handleInputChange}
+              label="Min"
+              type="number"
+              disabled={disabled}
+            />
+          </div>
+        </Grid>
+        <Grid item xs={2}>
+          <div style={paperClassValidate("verticalExtentMax")}>
+            <TextField
+              name="verticalExtentMax"
+              value={record.verticalExtentMax}
+              onChange={handleInputChange}
+              label="Max"
+              type="number"
+              disabled={disabled}
+            />
+          </div>
+        </Grid>
+      </Grid>
     </Paper>
   </Grid>
 );
