@@ -59,7 +59,7 @@
     "build:local": "react-scripts build && rm -rf metadata-entry-form && cp -rf build metadata-entry-form && serve -s ./",
     "test:coverage": "npx jest --config=jest.config.js --coverage",
     "test:coverFile": "cross-env npx jest --config=jest.config.js --coverage --collectCoverageFrom=src/**/${FILE}.jsx $FILE",
-    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore  --ignore-pattern 'src/**/__tests__/*' --ignore-pattern 'src/serviceWorker.js'",
+    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore  --ignore-pattern 'src/**/__tests__/*' --ignore-pattern 'src/serviceWorker.js' --ignore-pattern firebase-functions",
     "lint:fix": "eslint --fix . --ext .js,.jsx --ignore-path .gitignore --ignore-pattern serviceWorker.js",
     "format": "prettier --write \"**/*.+(js|jsx|json|css|md)\" --ignore-path .gitignore"
   },
