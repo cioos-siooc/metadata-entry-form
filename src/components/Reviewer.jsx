@@ -154,7 +154,7 @@ class Submissions extends React.Component {
     const { users } = this.state;
     // eslint-disable-next-line react/destructuring-assignment
     const { match } = this.props;
-    const { language } = match.params;
+    const { language, region } = match.params;
 
     const records = [];
 
@@ -217,14 +217,25 @@ class Submissions extends React.Component {
                     <En>
                       These are the submissions we have received from all users
                       that have not yet been reviewed. To accept a record, click
-                      the 'Publish' button.
+                      the 'Publish' button. Once a record is published, you can
+                      download the xml or yaml
                     </En>
                     <Fr>
                       Ce sont les soumissions que nous avons reçues de tous les
                       utilisateurs qui n'ont pas encore été examinées. Pour
                       accepter un enregistrement, cliquez sur le bouton «
-                      Publier ».
-                    </Fr>
+                      Publier ». Une fois qu'un enregistrement est publié, vous
+                      pouvez télécharger le xml ou yaml
+                    </Fr>{" "}
+                    <a
+                      href={`https://pac-dev1.cioos.org/dev/metadata/${region}`}
+                      // eslint-disable-next-line react/jsx-no-target-blank
+                      target="_blank"
+                    >
+                      <En>here</En>
+                      <Fr>ici</Fr>
+                    </a>
+                    .
                   </Typography>
                 </Grid>
                 <Grid item xs>
