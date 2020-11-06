@@ -196,7 +196,9 @@ class Submissions extends React.Component {
                   {Object.entries(records).map(([key, recordFireBase]) => {
                     const record = firebaseToJSObject(recordFireBase);
 
-                    const disabled = record.status === "submitted";
+                    const disabled =
+                      record.status === "submitted" ||
+                      record.status === "published";
                     const percentValidInt = Math.round(
                       percentValid(record) * 100
                     );
@@ -236,7 +238,7 @@ class Submissions extends React.Component {
                               </IconButton>
                             </span>
                           </Tooltip>
-                          {record.status === "submitted" ? (
+                          {disabled ? (
                             <Tooltip title={<I18n en="View" fr="Vue" />}>
                               <span>
                                 <IconButton

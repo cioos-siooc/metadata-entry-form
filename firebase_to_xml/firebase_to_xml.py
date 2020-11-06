@@ -7,10 +7,10 @@ the metadata-xml module.
 
 
 import json
-import os
 import sys
 import pprint
 import argparse
+import traceback
 
 import yaml
 from dotenv import load_dotenv
@@ -29,16 +29,15 @@ def main():
         description='Convert firebase metadata form to xml and optionaly yaml')
 
     parser.add_argument('--key',
-                        default=os.getenv("FIREBASE_OAUTH2_KEY"),
-                        help='Path to firebase OAuth2 key')
+                        required=True,
+                        help='Path to firebase OAuth2 key file')
     parser.add_argument('--out',
-                        default=os.getenv("FIREBASE_OUTPUT_FOLDER") or '',
+                        default='.',
                         help='Folder to save xml')
     parser.add_argument('--yaml', action='store_true',
-                        default=os.getenv("FIREBASE_OUTPUT_YAML") or False,
                         help='Whether to output yaml file as well as xml')
     parser.add_argument('--region',
-                        default=os.getenv("FIREBASE_REGION"),
+                        required=True,
                         choices=['pacific', 'stlaurent', 'atlantic'])
 
     args = vars(parser.parse_args())
@@ -75,7 +74,7 @@ def main():
             if also_save_yaml:
                 filename = f'{xml_directory}/{name}.yaml'
                 file = open(filename, "w")
-                file.write(yaml.dump(record_yaml))
+                file.write(yaml.dump(record_yaml, allow_unicode=True))
 
             # render xml template and write to file
             xml = metadata_to_xml(record_yaml)
@@ -84,8 +83,8 @@ def main():
             file.write(xml)
             print("Wrote " + file.name)
 
-        except KeyError as key_error:
-            print(key_error)
+        except KeyError:
+            print(traceback.format_exc())
 
 
 def record_json_to_yaml(record):
@@ -109,7 +108,7 @@ def record_json_to_yaml(record):
                      record.get('map', {}).get('south'),
                      record.get('map', {}).get('east'),
                      record.get('map', {}).get('north')],
-            'polygon': record.get('map', {}).get('polygon'),
+            'polygon': record.get('map', {}).get('polygon', ''),
             'vertical': [record.get('verticalExtentMin'),
                          record.get('verticalExtentMax')],
         },
@@ -127,8 +126,8 @@ def record_json_to_yaml(record):
         },
         'contact': [
             {
-                'roles': [x.get('role')],
-                'organization':{
+                'roles': x.get('role'),
+                'organization': {
                     'name': x.get('orgName'),
                     'url': x.get('orgURL'),
                     'address': x.get('orgAdress'),
