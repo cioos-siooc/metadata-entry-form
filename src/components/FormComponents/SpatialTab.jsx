@@ -1,5 +1,7 @@
 import { Paper, TextField, Typography, Grid } from "@material-ui/core";
 import React from "react";
+import { useParams } from "react-router-dom";
+
 import { En, Fr } from "../I18n";
 import RequiredMark from "./RequiredMark";
 
@@ -7,6 +9,7 @@ import MapSelect from "./MapSelect";
 import { camelToSentenceCase } from "../../utils/misc";
 import SelectInput from "./SelectInput";
 import { depthDirections } from "../../isoCodeLists";
+import translate from "../../utils/i18n";
 
 const SpatialTab = ({
   disabled,
@@ -14,7 +17,10 @@ const SpatialTab = ({
   handleInputChange,
   paperClassValidate,
   paperClass,
-}) => (
+}) => {
+  const { language } = useParams();
+
+  return (
   <Grid>
     <Paper style={paperClassValidate("map")}>
       <Typography style={{ paddingBottom: "15px" }}>
@@ -45,8 +51,8 @@ const SpatialTab = ({
           Depth positive: Depth is recorded with positive values (i.e. a maximum
           value of 150m implies 150m below the surface).
           <br />
-          Heigth positive: Depth is recorded with negative values (i.e. a
-          maximum value of -150m implies -150m below the surface).
+          Heigth positive: Depth is the elevation from the sea floor (i.e. a
+          maximum value of 150m implies 150m above the sea floor).
         </En>
         <Fr>
           Étendue verticale (m).
@@ -55,9 +61,8 @@ const SpatialTab = ({
           positives (c'est-à-dire une valeur maximale de 150 m implique 150 m
           au-dessous de la surface).
           <br />
-          Hauteur positive: La profondeur est enregistrée avec des valeurs
-          négatives (c'est-à-dire une valeur maximale de -150 m implique 150 m
-          au-dessous de la surface)
+          Hauteur positive: La profondeur est l'élévation depuis le fond marin (c'est-à-dire une valeur maximale de 150 m implique 150 m
+          au-dessus du fond marin)
         </Fr>
         <RequiredMark />
       </Typography>
@@ -69,7 +74,7 @@ const SpatialTab = ({
               value={record.verticalExtentDirection}
               onChange={(e) => handleInputChange(e)}
               options={depthDirections}
-              optionLabels={depthDirections.map((e) => camelToSentenceCase(e))}
+              optionLabels={depthDirections.map((e) => camelToSentenceCase(translate(e, language)))}
               disabled={disabled}
             />
           </div>
@@ -101,6 +106,6 @@ const SpatialTab = ({
       </Grid>
     </Paper>
   </Grid>
-);
+)};
 
 export default SpatialTab;
