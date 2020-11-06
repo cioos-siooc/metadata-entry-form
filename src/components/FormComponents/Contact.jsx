@@ -1,12 +1,16 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
 import { TextField, Typography, Grid } from "@material-ui/core";
 import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
 import SelectMultipleInput from "./SelectMultipleInput";
+import translate from "../../utils/i18n";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
+  const { language } = useParams();
+
   return (
     <Grid container direction="column" spacing={1}>
       {showRolePicker && (
@@ -34,7 +38,9 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
             value={value.role || []}
             onChange={(e) => onChange(e)}
             options={roleCodes}
-            optionLabels={roleCodes.map(camelToSentenceCase)}
+            optionLabels={roleCodes.map((e) => {
+              return camelToSentenceCase(translate(e, language));
+            })}
             disabled={disabled}
           />
         </Grid>
