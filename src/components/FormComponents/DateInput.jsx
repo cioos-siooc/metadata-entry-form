@@ -1,10 +1,10 @@
-import React from "react";
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
 
 import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
+import React from "react";
 
 const DateInput = ({ onChange, value, name, disabled }) => {
   return (
@@ -14,7 +14,7 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         margin="normal"
         id="date-picker-dialog"
         label="Select date"
-        format="MM/dd/yyyy"
+        format="yyyy-MM-dd"
         value={value}
         onChange={(dateSelected) =>
           onChange({ target: { name, value: dateSelected } })
