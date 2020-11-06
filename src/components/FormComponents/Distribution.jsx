@@ -1,10 +1,11 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
-import { TextField, Grid, Typography, Button, Paper } from "@material-ui/core";
+import { Button, Grid, Paper, TextField, Typography } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
-import { deepCopy } from "../../utils/misc";
+
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
+import { deepCopy } from "../../utils/misc";
 
 const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
   const initial = { url: "", name: "", description: { en: "", fr: "" } };
@@ -81,6 +82,21 @@ const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
                   label={descriptionLabel}
                   value={dist.description}
                   onChange={handler}
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography>
+                  <En>Enter the type of the ressource</En>
+                  <Fr>Entrez le type de la ressource</Fr>
+                  <RequiredMark />
+                </Typography>
+                <TextField
+                  label="Type (csv, xls, erddap,...)"
+                  name="type"
+                  value={dist.type}
+                  onChange={handler}
+                  fullWidth
                   disabled={disabled}
                 />
               </Grid>

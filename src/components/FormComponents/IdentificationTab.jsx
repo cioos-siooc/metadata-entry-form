@@ -1,5 +1,6 @@
 import React from "react";
 import { Paper, TextField, Typography, Grid } from "@material-ui/core";
+import { useParams } from "react-router-dom";
 import { En, Fr } from "../I18n";
 import { eovList, progressCodes } from "../../isoCodeLists";
 
@@ -7,10 +8,11 @@ import BilingualTextInput from "./BilingualTextInput";
 import CheckBoxList from "./CheckBoxList";
 import DateInput from "./DateInput";
 import KeywordsInput from "./KeywordsInput";
+import RequiredMark from "./RequiredMark";
 import SelectInput from "./SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
 import categoryList from "../../categoryList";
-import RequiredMark from "./RequiredMark";
+import translate from "../../utils/i18n";
 
 const IdentificationTab = ({
   disabled,
@@ -19,6 +21,7 @@ const IdentificationTab = ({
   paperClassValidate,
   paperClass,
 }) => {
+  const { language } = useParams();
   return (
     <div>
       <Paper style={paperClassValidate("identifier")}>
@@ -33,6 +36,20 @@ const IdentificationTab = ({
           onChange={(e) => handleInputChange(e)}
           disabled
           fullWidth
+        />
+      </Paper>
+      <Paper style={paperClassValidate("identifier")}>
+        <Typography>
+          <En>Metadata Identifier</En>
+          <Fr>Identifiant des métadonnées</Fr>
+          <RequiredMark />
+        </Typography>
+        <TextField
+          name="metadataIdentifier"
+          value={record.metadataIdentifier}
+          onChange={(e) => handleInputChange(e)}
+          fullWidth
+          label="Ex: DOI"
         />
       </Paper>
 
@@ -92,7 +109,9 @@ const IdentificationTab = ({
           value={record.eov || []}
           onChange={handleInputChange}
           options={eovList}
-          optionLabels={eovList.map(camelToSentenceCase)}
+          optionLabels={eovList.map((e) => {
+            return camelToSentenceCase(translate(e, language));
+          })}
           disabled={disabled}
         />
       </Paper>
@@ -132,7 +151,9 @@ const IdentificationTab = ({
           value={record.progress}
           onChange={(e) => handleInputChange(e)}
           options={progressCodes}
-          optionLabels={progressCodes.map(camelToSentenceCase)}
+          optionLabels={progressCodes.map((e) => {
+            return camelToSentenceCase(translate(e, language));
+          })}
           disabled={disabled}
         />
       </Paper>
@@ -147,7 +168,9 @@ const IdentificationTab = ({
           value={record.category || ""}
           onChange={(e) => handleInputChange(e)}
           options={categoryList}
-          optionLabels={categoryList.map(camelToSentenceCase)}
+          optionLabels={categoryList.map((e) => {
+            return camelToSentenceCase(translate(e, language));
+          })}
           disabled={disabled}
         />
       </Paper>
@@ -163,6 +186,19 @@ const IdentificationTab = ({
         <DateInput
           name="dateStart"
           value={record.dateStart || null}
+          onChange={handleInputChange}
+          disabled={disabled}
+        />
+        <Typography>
+          <En>What is the end date when data was last collected?</En>
+          <Fr>
+            Quelle est la date de fin à laquelle les données ont été collectées
+            pour la dernière fois?
+          </Fr>
+        </Typography>
+        <DateInput
+          name="dateEnd"
+          value={record.dateEnd || null}
           onChange={handleInputChange}
           disabled={disabled}
         />
