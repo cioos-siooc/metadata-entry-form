@@ -168,6 +168,8 @@ const dictionary = {
   waves: "vagues",
   wind: "vents",
   "coastal zone": "zone côtière",
+  depthPositive: "Profondeur positive",
+  heigthPositive: "Hauteur positive",
 };
 
 export default dictionary;

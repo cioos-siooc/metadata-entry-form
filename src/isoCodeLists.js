@@ -64,3 +64,5 @@ export const progressCodes = [
   "historicalArchive",
   "completed",
 ];
+
+export const depthDirections = ["depthPositive", "heigthPositive"];
