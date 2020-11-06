@@ -10,6 +10,7 @@ import json
 import sys
 import pprint
 import argparse
+import traceback
 
 import yaml
 from dotenv import load_dotenv
@@ -82,8 +83,8 @@ def main():
             file.write(xml)
             print("Wrote " + file.name)
 
-        except KeyError as key_error:
-            print(key_error)
+        except KeyError:
+            print(traceback.format_exc())
 
 
 def record_json_to_yaml(record):
