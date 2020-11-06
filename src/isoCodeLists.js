@@ -65,7 +65,4 @@ export const progressCodes = [
   "completed",
 ];
 
-export const depthDirections = [
-  "depthPositive",
-  "heigthPositive",
-];
+export const depthDirections = ["depthPositive", "heigthPositive"];
