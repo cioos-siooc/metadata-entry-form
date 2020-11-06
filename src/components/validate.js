@@ -15,7 +15,6 @@ export const validators = {
   verticalExtentMax: (val) => val,
   datePublished: (val) => val,
   dateRevised: (val) => val,
-  instruments: (val) => val.length,
   platformName: (val) => val,
   platformID: (val) => val,
   platformRole: (val) => val,
