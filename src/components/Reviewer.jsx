@@ -1,5 +1,8 @@
 import React from "react";
 import {
+  Card,
+  CardHeader,
+  CardContent,
   Typography,
   List,
   ListItem,
@@ -19,6 +22,22 @@ import { Fr, En, I18n } from "./I18n";
 
 import SimpleModal from "./SimpleModal";
 
+/**
+ * This is probably a terrible way to do this and should be reworked
+ */
+function secondaryText(record) {
+  let text = "";
+
+  if(record.reviewFeedback){
+    text = <div>{record.userinfo.displayName}<Grid container xs={9}><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid></div>;
+  }
+  else{
+    text = <div>{record.userinfo.displayName}</div>;
+  }
+
+  return text;
+}
+
 const MetadataRecordListItem = ({
   record,
   language,
@@ -35,7 +54,7 @@ const MetadataRecordListItem = ({
     </ListItemAvatar>
     <ListItemText
       primary={record.title[language]}
-      secondary={record.userinfo.displayName}
+      secondary={secondaryText(record)}
     />
     <ListItemSecondaryAction>
       <Tooltip title={<I18n en="View" fr="Vue" />}>
@@ -65,6 +84,7 @@ const MetadataRecordListItem = ({
     </ListItemSecondaryAction>
   </ListItem>
 );
+
 class Submissions extends React.Component {
   constructor(props) {
     super(props);

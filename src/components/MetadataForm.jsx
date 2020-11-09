@@ -2,6 +2,9 @@
 import {
   Box,
   Button,
+  Card,
+  CardContent,
+  CardHeader,
   CircularProgress,
   Grid,
   Tab,
@@ -199,19 +202,33 @@ class MetadataForm extends Component {
 
     // console.log("Set status to PUBLISH");
 
-    // Update Firebase with published status and then redirect to reviewer page for other records.
-    await firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(userID)
-      .child("records")
-      .child(recordID)
-      .child("status")
-      .set(status, () => {
-        // onComplete calback
-        history.push(`/${language}/${region}/reviewer`);
-      });
+    const { record } = this.state;
+
+    // Update record status to published and remove reviewFeedback
+    record.status = status;
+    record.reviewFeedback = undefined;
+    delete record.reviewFeedback;
+
+    // Update state to reflect new status
+    this.setState(
+      {
+        record: { ...record },
+      },
+      () => {
+        // callback of setState when finished updating state
+        const recordsRef = firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(userID)
+          .child("records");
+
+        recordsRef.child(recordID).update(record, () => {
+          // onComplete calback
+          history.push(`/${language}/${region}/reviewer`);
+        });
+      }
+    );
   }
 
   /**
@@ -287,6 +304,7 @@ class MetadataForm extends Component {
   render() {
     // TODO: Add button for new record to clear values
     // TODO: Change "New Record button to Metadata Editor"
+    // TODO: Make component for feedback review
     // console.log("Running render...");
 
     const { isReviewer: userIsReviewer } = this.context;
@@ -305,6 +323,8 @@ class MetadataForm extends Component {
     const disabled =
       (record.status === "submitted" && !userIsReviewer) ||
       record.status === "published";
+                    
+    const reviewFeedback = (record.reviewFeedback && !userIsReviewer) ? <Grid container alignContent="center"><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid> : "";
 
     const tabProps = {
       highlightMissingRequireFields,
@@ -352,15 +372,12 @@ class MetadataForm extends Component {
             </Fab>
           </span>
         </Tooltip>
+
+        {reviewFeedback}
+
         {userIsReviewer && record.status === "submitted" && (
           <Paper style={paperClass}>
-            <Grid
-              container
-              xs
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            >
+            <Grid container xs spacing={2} direction="row" alignItems="center">
               <Grid item xs={12}>
                 <h3>Metadata Review</h3>
               </Grid>

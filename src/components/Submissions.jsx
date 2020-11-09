@@ -2,7 +2,11 @@ import React from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import {
+  Card,
+  CardHeader,
+  CardContent,
   Typography,
+  Grid,
   List,
   ListItem,
   ListItemText,
@@ -157,6 +161,11 @@ class Submissions extends React.Component {
   }
 
   render() {
+    // TODO: Differentiate records into distinct groups:
+    // - Draft, 
+    // - Submitted for Review,
+    // - Published,
+
     const { match } = this.props;
     const { language } = match.params;
     const {
@@ -219,6 +228,8 @@ class Submissions extends React.Component {
                       percentValid(record) * 100
                     );
                     const recordIsComplete = percentValidInt === 100;
+                    
+                    const reviewFeedback = (record.reviewFeedback) ? <Grid container xs={9}><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid> : "";
 
                     return (
                       <ListItem key={key}>
@@ -232,12 +243,15 @@ class Submissions extends React.Component {
                           secondary={
                             record.created && (
                               <span>
-                                <En>
-                                  {`Created/Updated ${record.created} ${percentValidInt}% complete`}
-                                </En>
-                                <Fr>
-                                  {`Créé/mis à jour ${record.created} ${percentValidInt}% Achevée`}
-                                </Fr>
+                                <span>
+                                  <En>
+                                    {`Created/Updated ${record.created} ${percentValidInt}% complete`}
+                                  </En>
+                                  <Fr>
+                                    {`Créé/mis à jour ${record.created} ${percentValidInt}% Achevée`}
+                                  </Fr>
+                                </span>
+                               {reviewFeedback}
                               </span>
                             )
                           }
@@ -256,28 +270,32 @@ class Submissions extends React.Component {
                           </Tooltip>
                           {record.status === "submitted" ? (
                             <span>
-                            <Tooltip title={<I18n en="Withdraw" fr="Retirer" />}>
-                              <span>
-                                <IconButton
-                                  onClick={() => this.withdrawSubmitRecord(key)}
-                                  edge="end"
-                                  aria-label="withdraw"
-                                >
-                                  <Undo />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                            <Tooltip title={<I18n en="View" fr="Vue" />}>
-                              <span>
-                                <IconButton
-                                  onClick={() => this.editRecord(key)}
-                                  edge="end"
-                                  aria-label="delete"
-                                >
-                                  <Visibility />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
+                              <Tooltip
+                                title={<I18n en="Withdraw" fr="Retirer" />}
+                              >
+                                <span>
+                                  <IconButton
+                                    onClick={() =>
+                                      this.withdrawSubmitRecord(key)
+                                    }
+                                    edge="end"
+                                    aria-label="withdraw"
+                                  >
+                                    <Undo />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip title={<I18n en="View" fr="Vue" />}>
+                                <span>
+                                  <IconButton
+                                    onClick={() => this.editRecord(key)}
+                                    edge="end"
+                                    aria-label="delete"
+                                  >
+                                    <Visibility />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
                             </span>
                           ) : (
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
