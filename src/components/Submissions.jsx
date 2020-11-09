@@ -20,6 +20,7 @@ import {
   Description,
   FileCopy,
   Visibility,
+  Undo,
 } from "@material-ui/icons";
 import firebase from "../firebase";
 import { auth } from "../auth";
@@ -71,6 +72,23 @@ class Submissions extends React.Component {
     const { language, region } = match.params;
 
     history.push(`/${language}/${region}/new/${key}`);
+  }
+
+  withdrawSubmitRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    if (auth.currentUser && key) {
+      firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(auth.currentUser.uid)
+        .child("records")
+        .child(key)
+        .child("status")
+        .set("");
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -237,6 +255,18 @@ class Submissions extends React.Component {
                             </span>
                           </Tooltip>
                           {record.status === "submitted" ? (
+                            <span>
+                            <Tooltip title={<I18n en="Withdraw" fr="Retirer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.withdrawSubmitRecord(key)}
+                                  edge="end"
+                                  aria-label="withdraw"
+                                >
+                                  <Undo />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
                             <Tooltip title={<I18n en="View" fr="Vue" />}>
                               <span>
                                 <IconButton
@@ -248,6 +278,7 @@ class Submissions extends React.Component {
                                 </IconButton>
                               </span>
                             </Tooltip>
+                            </span>
                           ) : (
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>

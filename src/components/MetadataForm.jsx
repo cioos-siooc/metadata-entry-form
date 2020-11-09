@@ -1,17 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
+  Button,
   CircularProgress,
   Grid,
   Tab,
   Tabs,
+  TextField,
   Fab,
   Checkbox,
+  Paper,
   FormControlLabel,
   Tooltip,
 } from "@material-ui/core";
 import React, { Component } from "react";
-import { Save } from "@material-ui/icons";
+import { Save, Publish, ReportProblem } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
 import { I18n, En, Fr } from "./I18n";
@@ -27,6 +30,7 @@ import { auth } from "../auth";
 import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
 import { validateField } from "./validate";
+import { UserContext } from "../providers/UserProvider";
 
 const paperClass = {
   padding: "10px",
@@ -36,6 +40,40 @@ const paperClassError = {
   ...paperClass,
   borderColor: "red",
   borderStyle: "dotted",
+};
+
+const blankRecord = {
+  title: { en: "", fr: "" },
+  abstract: { en: "", fr: "" },
+  identifier: uuidv4(),
+  keywords: { en: [], fr: [] },
+  eov: [],
+  progress: "",
+  distribution: [],
+  dateStart: null,
+  map: { north: "", south: "", east: "", west: "", polygon: "" },
+
+  verticalExtentMin: "",
+  verticalExtentMax: "",
+  datePublished: null,
+  dateRevised: null,
+  recordID: "",
+  instruments: [],
+  platformName: "",
+  platformID: "",
+  platformRole: "",
+  platformDescription: "",
+  platformAuthority: "",
+  language: "",
+  license: "",
+  contacts: [],
+  status: "",
+  comment: "",
+  history: "",
+  limitations: "",
+  maintenance: "",
+  created: new Date().toISOString(),
+  category: "",
 };
 
 function TabPanel({ children, value, index, ...other }) {
@@ -53,42 +91,11 @@ function TabPanel({ children, value, index, ...other }) {
 }
 class MetadataForm extends Component {
   constructor(props) {
+    // console.log("Running Constructor...");
     super(props);
 
     this.state = {
-      record: {
-        title: { en: "", fr: "" },
-        abstract: { en: "", fr: "" },
-        identifier: uuidv4(),
-        keywords: { en: [], fr: [] },
-        eov: [],
-        progress: "",
-        distribution: [],
-        dateStart: null,
-        map: { north: "", south: "", east: "", west: "", polygon: "" },
-
-        verticalExtentMin: "",
-        verticalExtentMax: "",
-        datePublished: null,
-        dateRevised: null,
-        recordID: "",
-        instruments: [],
-        platformName: "",
-        platformID: "",
-        platformRole: "",
-        platformDescription: "",
-        platformAuthority: "",
-        language: "",
-        license: "",
-        contacts: [],
-        status: "",
-        comment: "",
-        history: "",
-        limitations: "",
-        maintenance: "",
-        created: new Date().toISOString(),
-        category: "",
-      },
+      record: blankRecord,
 
       // contacts saved by user (not the ones saved in the record)
       // kept in firebase object format instead of array
@@ -106,6 +113,7 @@ class MetadataForm extends Component {
   }
 
   componentDidMount() {
+    // console.log("Running componentDidMount...");
     const { match } = this.props;
     this.setState({ loading: true });
 
@@ -138,16 +146,28 @@ class MetadataForm extends Component {
               loading: false,
             });
           });
-      } else this.setState({ loading: false });
+      } else this.setState({ record: blankRecord, loading: false });
     });
   }
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   console.debug("Running shouldComponentUpdate...");
+
+  //   return true;
+  // }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   console.debug("Running componentDidUpdate...");
+  // }
+
   componentWillUnmount() {
+    // console.log("Running componentWillUnmount...");
     // fixes error Can't perform a React state update on an unmounted component
     if (this.unsubscribe) this.unsubscribe();
   }
 
   paperClassValidate = (fieldName) => {
+    // console.log("Running paperClassValidate...");
     const { record, highlightMissingRequireFields } = this.state;
 
     if (!highlightMissingRequireFields) return paperClass;
@@ -157,6 +177,7 @@ class MetadataForm extends Component {
 
   // genereric handler for updating state, used by most form components
   handleInputChange = (event) => {
+    // console.log("Running handleInputChange...");
     const { name, value } = event.target;
     const changes = { [name]: value };
 
@@ -166,7 +187,74 @@ class MetadataForm extends Component {
     }));
   };
 
+  /**
+   * This sets the status of the current record to "published" and returns the
+   * reviewer to the Review submissions page to review other records.
+   */
+  async publishRecord() {
+    const { match, history } = this.props;
+    const { language, region, userID, recordID } = match.params;
+
+    const status = "published";
+
+    // console.log("Set status to PUBLISH");
+
+    // Update Firebase with published status and then redirect to reviewer page for other records.
+    await firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(userID)
+      .child("records")
+      .child(recordID)
+      .child("status")
+      .set(status, () => {
+        // onComplete calback
+        history.push(`/${language}/${region}/reviewer`);
+      });
+  }
+
+  /**
+   * Upon inspecting a metadata record the reviewer may note deficencies in the
+   * metadata and ask the data provider to make changes.  The reviewFeedback
+   * field is an area for notes to this effect and the records status will be
+   * set to blank to allow the provider to update the record.
+   */
+  async rejectRecord() {
+    const { match, history } = this.props;
+    const { language, region, userID, recordID } = match.params;
+
+    // console.log("REJECTION REVIEW!");
+
+    const { record } = this.state;
+
+    // Set status to blank to allow provider to upate record
+    record.status = "";
+
+    // Update state to reflect new status
+    this.setState(
+      {
+        record: { ...record },
+      },
+      () => {
+        // callback of setState when finished updating state
+        const recordsRef = firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(userID)
+          .child("records");
+
+        recordsRef.child(recordID).update(record, () => {
+          // onComplete calback
+          history.push(`/${language}/${region}/reviewer`);
+        });
+      }
+    );
+  }
+
   async handleSubmitClick() {
+    // console.log("Running handleSubmitClick...");
     const { match } = this.props;
     const { region } = match.params;
 
@@ -197,6 +285,12 @@ class MetadataForm extends Component {
   }
 
   render() {
+    // TODO: Add button for new record to clear values
+    // TODO: Change "New Record button to Metadata Editor"
+    // console.log("Running render...");
+
+    const { isReviewer: userIsReviewer } = this.context;
+
     const {
       userContacts,
       tabIndex,
@@ -206,8 +300,11 @@ class MetadataForm extends Component {
       highlightMissingRequireFields,
     } = this.state;
 
+    // Form fields should be disabled if the status is "submitted" or "published"
+    // unless the user is a reviewer, then submitted forms may be edited.
     const disabled =
-      record.status === "submitted" || record.status === "published";
+      (record.status === "submitted" && !userIsReviewer) ||
+      record.status === "published";
 
     const tabProps = {
       highlightMissingRequireFields,
@@ -255,6 +352,52 @@ class MetadataForm extends Component {
             </Fab>
           </span>
         </Tooltip>
+        {userIsReviewer && record.status === "submitted" && (
+          <Paper style={paperClass}>
+            <Grid
+              container
+              xs
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            >
+              <Grid item xs={12}>
+                <h3>Metadata Review</h3>
+              </Grid>
+              <Grid item xs={3}>
+                <Button
+                  variant="contained"
+                  color="default"
+                  startIcon={<Publish />}
+                  onClick={() => this.publishRecord()}
+                >
+                  Publish
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  name="reviewFeedback"
+                  value={record.reviewFeedback}
+                  onChange={(e) => this.handleInputChange(e)}
+                  fullWidth
+                  multiline
+                  placeholder="Feedback to the submitter about why this metadata record was rejected."
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<ReportProblem />}
+                  onClick={() => this.rejectRecord()}
+                >
+                  Reject
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        )}
+
         <Grid container spacing={2} direction="row" alignItems="center">
           {/* <Grid item xs>
             {formCompleteness * 100}
@@ -282,7 +425,7 @@ class MetadataForm extends Component {
               />
             </Tabs>
           </Grid>
-          <Grid item xs>
+          <Grid item xs={12}>
             <FormControlLabel
               disabled={disabled}
               control={
@@ -336,4 +479,5 @@ class MetadataForm extends Component {
   }
 }
 
+MetadataForm.contextType = UserContext;
 export default withRouter(MetadataForm);

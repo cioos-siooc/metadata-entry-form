@@ -40,7 +40,7 @@ const MetadataRecordListItem = ({
     <ListItemSecondaryAction>
       <Tooltip title={<I18n en="View" fr="Vue" />}>
         <span>
-          <IconButton onClick={onViewClick} edge="end" aria-label="delete">
+          <IconButton onClick={onViewClick} edge="end" aria-label="view">
             <Visibility />
           </IconButton>
         </span>
@@ -56,7 +56,7 @@ const MetadataRecordListItem = ({
       {showPublishAction && (
         <Tooltip title={<I18n en="Publish" fr="Publier" />}>
           <span>
-            <IconButton onClick={onSubmitClick} edge="end" aria-label="delete">
+            <IconButton onClick={onSubmitClick} edge="end" aria-label="publish">
               <Publish />
             </IconButton>
           </span>
