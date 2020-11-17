@@ -15,6 +15,7 @@ import {
   Paper,
   FormControlLabel,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
 import React, { Component } from "react";
 import { Save, Publish, ReportProblem } from "@material-ui/icons";
@@ -34,6 +35,8 @@ import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
 import { validateField } from "./validate";
 import { UserContext } from "../providers/UserProvider";
+
+import SimpleModal from "./SimpleModal";
 
 const paperClass = {
   padding: "10px",
@@ -112,6 +115,8 @@ class MetadataForm extends Component {
       saveDisabled: true,
 
       highlightMissingRequireFields: false,
+      rejectModalOpen: false,
+      publishModalOpen: false,
     };
   }
 
@@ -301,6 +306,10 @@ class MetadataForm extends Component {
     this.setState({ saveDisabled: true });
   }
 
+  toggleModal(modalName, state) {
+    this.setState({ [modalName]: state });
+  }
+
   render() {
     // TODO: Add button for new record to clear values
     // TODO: Change "New Record button to Metadata Editor"
@@ -310,10 +319,12 @@ class MetadataForm extends Component {
     const { isReviewer: userIsReviewer } = this.context;
 
     const {
+      rejectModalOpen,
       userContacts,
       tabIndex,
       record,
       saveDisabled,
+      publishModalOpen,
       loading,
       highlightMissingRequireFields,
     } = this.state;
@@ -323,8 +334,25 @@ class MetadataForm extends Component {
     const disabled =
       (record.status === "submitted" && !userIsReviewer) ||
       record.status === "published";
-                    
-    const reviewFeedback = (record.reviewFeedback && !userIsReviewer) ? <Grid container alignContent="center"><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid> : "";
+
+    const reviewFeedback =
+      record.reviewFeedback && !userIsReviewer ? (
+        <Grid container alignContent="center">
+          <Card variant="outlined">
+            <CardHeader
+              title={
+                <span>
+                  <En>Review Feedback:</En>
+                  <Fr>Commentaires d'examen</Fr>
+                </span>
+              }
+            />
+            <CardContent>{record.reviewFeedback}</CardContent>
+          </Card>
+        </Grid>
+      ) : (
+        ""
+      );
 
     const tabProps = {
       highlightMissingRequireFields,
@@ -344,6 +372,39 @@ class MetadataForm extends Component {
         alignItems="stretch"
         spacing={3}
       >
+        <SimpleModal
+          open={rejectModalOpen}
+          onClose={() => this.toggleModal("rejectModalOpen", false)}
+          onAccept={() => this.rejectRecord()}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          messageText={
+            <Typography>
+              <En>
+                This record will be rejected and returned to the user for
+                correction.
+              </En>
+              <Fr>
+                Cet enregistrement sera rejeté et retourné à l'utilisateur pour
+                correction.
+              </Fr>
+            </Typography>
+          }
+        />
+        <SimpleModal
+          open={publishModalOpen}
+          onClose={() => this.toggleModal("publishModalOpen", false)}
+          onAccept={() => this.publishRecord()}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          messageText={
+            <Typography>
+              <En>You are about to publish this record.</En>
+              <Fr>Vous êtes sur le point de publier cet enregistrement.</Fr>
+            </Typography>
+          }
+        />
+
         <Tooltip
           placement="left-start"
           title={
@@ -386,7 +447,7 @@ class MetadataForm extends Component {
                   variant="contained"
                   color="default"
                   startIcon={<Publish />}
-                  onClick={() => this.publishRecord()}
+                  onClick={() => this.toggleModal("publishModalOpen", true)}
                 >
                   Publish
                 </Button>
@@ -406,7 +467,7 @@ class MetadataForm extends Component {
                   variant="contained"
                   color="secondary"
                   startIcon={<ReportProblem />}
-                  onClick={() => this.rejectRecord()}
+                  onClick={() => this.toggleModal("rejectModalOpen", true)}
                 >
                   Reject
                 </Button>

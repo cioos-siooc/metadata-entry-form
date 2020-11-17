@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardContent,
   Typography,
+  Link,
   List,
   ListItem,
   ListItemText,
@@ -28,11 +29,27 @@ import SimpleModal from "./SimpleModal";
 function secondaryText(record) {
   let text = "";
 
-  if(record.reviewFeedback){
-    text = <div>{record.userinfo.displayName}<Grid container xs={9}><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid></div>;
-  }
-  else{
-    text = <div>{record.userinfo.displayName}</div>;
+  if (record.reviewFeedback) {
+    text = (
+      <div>
+        {record.userinfo.displayName}
+        <Grid container xs={9}>
+          <Card variant="outlined">
+            <CardHeader
+              title={
+                <span>
+                  <En>Review Feedback:</En>
+                  <Fr>Commentaires d'examen:</Fr>
+                </span>
+              }
+            />
+            <CardContent>{record.reviewFeedback}</CardContent>
+          </Card>
+        </Grid>
+      </div>
+    );
+  } else {
+    text = <div>Submitted by: <Link href={`mailto:${record.userinfo.email}`}>{record.userinfo.displayName}</Link></div>;
   }
 
   return text;
@@ -142,6 +159,17 @@ class Submissions extends React.Component {
         .child(key)
         .child("status")
         .set("published");
+
+      await firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(userID)
+        .child("records")
+        .child(key)
+        .child("reviewFeedback")
+        .remove();
+
       this.setState({ loading: false });
     }
   }
@@ -212,6 +240,7 @@ class Submissions extends React.Component {
           onAccept={() => this.deleteRecord(modalKey, modalUserID)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
+          messageText={<Typography><En>This record will be deleted.</En><Fr>Cet enregistrement sera supprimé.</Fr></Typography>}
         />
         <SimpleModal
           open={publishModalOpen}
@@ -219,11 +248,12 @@ class Submissions extends React.Component {
           onAccept={() => this.submitRecord(modalKey, modalUserID)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
+          messageText={<Typography><En>You are about to publish this record.</En><Fr>Vous êtes sur le point de publier cet enregistrement.</Fr></Typography>}
         />
         <Grid item xs>
           <Typography variant="h3">
-            <En>Review submissions</En>
-            <Fr>Examen des soumissions</Fr>
+            <En>Review submissions:</En>
+            <Fr>Examen des soumissions:</Fr>
           </Typography>
         </Grid>
         {loading ? (
@@ -292,7 +322,7 @@ class Submissions extends React.Component {
 
             {recordsPublished.length ? (
               <Grid item xs>
-                <Typography>
+                <Typography variant="h3">
                   <En>Published records:</En>
                   <Fr>Documents publiés:</Fr>
                 </Typography>

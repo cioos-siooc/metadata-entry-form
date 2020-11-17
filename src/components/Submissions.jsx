@@ -162,7 +162,7 @@ class Submissions extends React.Component {
 
   render() {
     // TODO: Differentiate records into distinct groups:
-    // - Draft, 
+    // - Draft,
     // - Submitted for Review,
     // - Published,
 
@@ -228,8 +228,24 @@ class Submissions extends React.Component {
                       percentValid(record) * 100
                     );
                     const recordIsComplete = percentValidInt === 100;
-                    
-                    const reviewFeedback = (record.reviewFeedback) ? <Grid container xs={9}><Card variant="outlined"><CardHeader title={<span><En>Review Feedback:</En><Fr>Commentaires d'examen</Fr></span>} /><CardContent>{record.reviewFeedback}</CardContent></Card></Grid> : "";
+
+                    const reviewFeedback = record.reviewFeedback ? (
+                      <Grid container xs={9}>
+                        <Card variant="outlined">
+                          <CardHeader
+                            title={
+                              <span>
+                                <En>Review Feedback:</En>
+                                <Fr>Commentaires d'examen</Fr>
+                              </span>
+                            }
+                          />
+                          <CardContent>{record.reviewFeedback}</CardContent>
+                        </Card>
+                      </Grid>
+                    ) : (
+                      ""
+                    );
 
                     return (
                       <ListItem key={key}>
@@ -251,7 +267,7 @@ class Submissions extends React.Component {
                                     {`Créé/mis à jour ${record.created} ${percentValidInt}% Achevée`}
                                   </Fr>
                                 </span>
-                               {reviewFeedback}
+                                {reviewFeedback}
                               </span>
                             )
                           }
@@ -290,7 +306,7 @@ class Submissions extends React.Component {
                                   <IconButton
                                     onClick={() => this.editRecord(key)}
                                     edge="end"
-                                    aria-label="delete"
+                                    aria-label="view"
                                   >
                                     <Visibility />
                                   </IconButton>
@@ -303,7 +319,7 @@ class Submissions extends React.Component {
                                 <IconButton
                                   onClick={() => this.editRecord(key)}
                                   edge="end"
-                                  aria-label="delete"
+                                  aria-label="edit"
                                 >
                                   <Edit />
                                 </IconButton>
