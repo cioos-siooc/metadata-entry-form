@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import Home from "./Home";
 import Success from "./Success";
@@ -41,7 +42,8 @@ const BaseLayout = ({ match }) => {
           <Route
             path={`${match.path}/sentry-test`}
             component={() => {
-              throw new Error("Testing sentry");
+              Sentry.captureException(new Error("Testing sentry"));
+              return <h1>Error notification sent</h1>;
             }}
           />
           <Route path="*" component={NotFound} />
