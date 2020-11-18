@@ -109,36 +109,39 @@ class MetadataForm extends Component {
     const { match } = this.props;
     this.setState({ loading: true });
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      const { region, recordID } = match.params;
+    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const { region, recordID } = match.params;
 
-      // either from the URL if its a record in review or from auth
-      const userID = match.params.userID || user.uid;
+        // either from the URL if its a record in review or from auth
+        const userID = match.params.userID || user.uid;
 
-      const userDataRef = firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(userID);
+        const userDataRef = firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(userID);
 
-      // get contacts
-      userDataRef.child("contacts").on("value", (contacts) => {
-        this.setState({ userContacts: contacts.toJSON() });
-      });
+        // get contacts
+        userDataRef.child("contacts").on("value", (contacts) => {
+          this.setState({ userContacts: contacts.toJSON() });
+        });
 
-      // if recordID is set then the user is editing an existing record
-      if (userID && recordID) {
-        userDataRef
-          .child("records")
-          .child(recordID)
-          .on("value", (recordFireBase) => {
-            const record = firebaseToJSObject(recordFireBase.toJSON());
-            this.setState({
-              record: { ...record, recordID },
-              loading: false,
-            });
+        // if recordID is set then the user is editing an existing record
+        if (userID && recordID) {
+          const record = await userDataRef
+            .child("records")
+            .child(recordID)
+            .on("value", (recordFireBase) =>
+              firebaseToJSObject(recordFireBase.toJSON())
+            );
+
+          this.setState({
+            record: { ...record, recordID },
           });
-      } else this.setState({ loading: false });
+        }
+      }
+      this.setState({ loading: false });
     });
   }
 
