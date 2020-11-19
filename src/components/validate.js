@@ -66,7 +66,6 @@ const validators = {
         contact.role.length &&
         (contact.orgName || contact.indName)
     ).length,
-  limitations: (val) => val,
   created: (val) => val,
   verticalExtentDirection: (val) => val,
 };

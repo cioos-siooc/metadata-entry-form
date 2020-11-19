@@ -79,7 +79,7 @@ class MetadataForm extends Component {
         status: "",
         comment: "",
         history: "",
-        limitations: "None",
+        limitations: "",
         created: new Date().toISOString(),
         category: "",
         verticalExtentDirection: "",

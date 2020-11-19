@@ -18,6 +18,7 @@ from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
 
 from metadata_xml.template_functions import metadata_to_xml
+from scrubbers import scrub_dict, scrub_keys
 
 
 def main():
@@ -92,8 +93,10 @@ def main():
 
 def strip_keywords(keywords):
     'Strips whitespace from each keyword in either language'
-    return {"en": [x.strip() for x in keywords.get('en', [])],
-            "fr": [x.strip() for x in keywords.get('fr', [])]}
+    stripped = {"en": [x.strip() for x in keywords.get('en', [])],
+                "fr": [x.strip() for x in keywords.get('fr', [])]}
+
+    return scrub_keys(stripped)
 
 
 def date_from_datetime_str(datetime_str):
@@ -131,6 +134,13 @@ def get_license_by_code(license_code):
     return codes.get(license_code)
 
 
+def float_or_none(val):
+    'return either a float represenatation of the string val, or None'
+    if val:
+        return float(val)
+    return None
+
+
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
@@ -143,20 +153,20 @@ def record_json_to_yaml(record):
                 'Generated from ' +
                 'https://cioos-siooc.github.io/metadata-entry-form',
             'use_constraints': {
-                'limitations': record.get('limitations'),
+                'limitations': record.get('limitations', 'None'),
                 'licence': get_license_by_code(record.get('license',))
             },
             'comment': record.get('comment'),
             'history': record.get('history'),  # {'en':'','fr':''}
         },
         'spatial': {
-            'bbox': [float(record.get('map', {}).get('west')),
-                     float(record.get('map', {}).get('south')),
-                     float(record.get('map', {}).get('east')),
-                     float(record.get('map', {}).get('north'))],
+            'bbox': [float_or_none(record['map'].get('west')),
+                     float_or_none(record['map'].get('south')),
+                     float_or_none(record['map'].get('east')),
+                     float_or_none(record['map'].get('north'))],
             'polygon': record.get('map', {}).get('polygon', ''),
-            'vertical': [float(record.get('verticalExtentMin')),
-                         float(record.get('verticalExtentMax'))],
+            'vertical': [float_or_none(record.get('verticalExtentMin')),
+                         float_or_none(record.get('verticalExtentMax'))],
         },
         'identification': {
             'title': record.get('title'),  # {'en':'','fr':''}
@@ -218,32 +228,6 @@ def record_json_to_yaml(record):
     }
 
     return scrub_dict(record_yaml)
-
-
-def scrub_dict(d):
-    '''
-    From:
-    https://stackoverflow.com/questions/12118695/efficient-way-to-remove-keys-with-empty-strings-from-a-dict
-    '''
-    new_dict = {}
-    for key, val in d.items():
-        if isinstance(val, dict):
-            val = scrub_dict(val)
-        if isinstance(val, list):
-            val = scrub_list(val)
-        if val not in (u'', None, {}):
-            new_dict[key] = val
-    return new_dict
-
-
-def scrub_list(d):
-    'remove empty lists'
-    scrubbed_list = []
-    for i in d:
-        if isinstance(i, dict):
-            i = scrub_dict(i)
-        scrubbed_list.append(i)
-    return scrubbed_list
 
 
 def get_records_from_firebase(region, firebase_auth_key_file):
