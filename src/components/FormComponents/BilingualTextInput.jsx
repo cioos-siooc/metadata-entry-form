@@ -5,7 +5,8 @@ import {
   TextField,
   CircularProgress,
 } from "@material-ui/core";
-
+import TranslateIcon from "@material-ui/icons/Translate";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
 import { En, Fr } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
@@ -54,10 +55,18 @@ const BilingualTextInput = ({
           />
           {i === 0 && !translationButonDisabled && (
             <Button
+              style={{ margin: "10px" }}
               startIcon={
-                awaitingTranslation ? <CircularProgress size={20} /> : null
+                awaitingTranslation ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <TranslateIcon />
+                )
               }
-              disabled={awaitingTranslation || !(value && value[lang])}
+              endIcon={awaitingTranslation ? null : <ArrowDownwardIcon />}
+              disabled={
+                disabled || awaitingTranslation || !(value && value[lang])
+              }
               onClick={() => {
                 const alternateLanguage = languages[1];
                 setAwaitingTranslation(true);

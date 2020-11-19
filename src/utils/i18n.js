@@ -1,21 +1,9 @@
-import fr from "./i18nDictionaryFr";
-import en from "./i18nDictionaryEn";
+import enToFr from "./i18nDictionaryFr";
 
-const translate = (textOrCode, locale = null, context = "") => {
-  const dictionary = locale === "fr" ? fr : en;
-  let key = textOrCode;
+const translate = (key, locale = "en") => {
+  if (locale === "en") return key;
 
-  if (context) key = `[${context}]${textOrCode}`;
-
-  if (dictionary[key]) {
-    return dictionary[key];
-  }
-
-  if (dictionary[textOrCode]) {
-    return dictionary[textOrCode];
-  }
-
-  return textOrCode;
+  return enToFr[key] || null;
 };
 
 export default translate;

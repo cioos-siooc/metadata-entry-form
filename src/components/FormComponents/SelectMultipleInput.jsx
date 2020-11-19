@@ -20,11 +20,12 @@ const SelectMultipleInput = ({
 }) => {
   return (
     <FormControl disabled={disabled} style={{ minWidth: 120 }}>
-      <InputLabel id="demo-simple-select-label">
+      <InputLabel id="demo-simple-select-label" style={{ marginLeft: "10px" }}>
         <I18n en="Choose" fr="Choisir" />
       </InputLabel>
       <Select
         multiple
+        inputProps={{ variant: "outlined" }}
         name={name}
         input={<Input />}
         fullWidth

@@ -19,6 +19,7 @@ const dictionary = {
   subSurfaceSalinity: "Salinité sous la surface",
   subSurfaceTemperature: "Température sous la surface",
   surfaceCurrents: "Courants de surface",
+  pressure: "Pression",
   other: "Autre",
   resourceProvider: "Fournisseur de données",
   custodian: "Dépositaire",
