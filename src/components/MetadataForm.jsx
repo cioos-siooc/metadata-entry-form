@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import React, { Component } from "react";
 import {
   Box,
   CircularProgress,
@@ -6,15 +7,13 @@ import {
   Tab,
   Tabs,
   Fab,
-  Checkbox,
-  FormControlLabel,
   Tooltip,
 } from "@material-ui/core";
-import React, { Component } from "react";
+import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
-import { I18n, En, Fr } from "./I18n";
+import { I18n } from "./I18n";
 
 import StartTab from "./FormComponents/StartTab";
 import ContactTab from "./FormComponents/ContactTab";
@@ -26,17 +25,7 @@ import SpatialTab from "./FormComponents/SpatialTab";
 import { auth } from "../auth";
 import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
-import { validateField } from "./validate";
-
-const paperClass = {
-  padding: "10px",
-  margin: "20px",
-};
-const paperClassError = {
-  ...paperClass,
-  borderColor: "red",
-  borderStyle: "dotted",
-};
+import { UserContext } from "../providers/UserProvider";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -51,6 +40,12 @@ function TabPanel({ children, value, index, ...other }) {
     </div>
   );
 }
+
+const styles = () => ({
+  tabRoot: {
+    minWidth: "115px",
+  },
+});
 class MetadataForm extends Component {
   constructor(props) {
     super(props);
@@ -84,10 +79,10 @@ class MetadataForm extends Component {
         status: "",
         comment: "",
         history: "",
-        limitations: "",
-        maintenance: "",
+        limitations: "None",
         created: new Date().toISOString(),
         category: "",
+        verticalExtentDirection: "",
       },
 
       // contacts saved by user (not the ones saved in the record)
@@ -109,36 +104,38 @@ class MetadataForm extends Component {
     const { match } = this.props;
     this.setState({ loading: true });
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      const { region, recordID } = match.params;
+    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const { region, recordID } = match.params;
 
-      // either from the URL if its a record in review or from auth
-      const userID = match.params.userID || user.uid;
+        // either from the URL if its a record in review or from auth
+        const userID = match.params.userID || user.uid;
 
-      const userDataRef = firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(userID);
+        const userDataRef = firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(userID);
 
-      // get contacts
-      userDataRef.child("contacts").on("value", (contacts) => {
-        this.setState({ userContacts: contacts.toJSON() });
-      });
+        // get contacts
+        userDataRef.child("contacts").on("value", (contacts) => {
+          this.setState({ userContacts: contacts.toJSON() });
+        });
 
-      // if recordID is set then the user is editing an existing record
-      if (userID && recordID) {
-        userDataRef
-          .child("records")
-          .child(recordID)
-          .on("value", (recordFireBase) => {
-            const record = firebaseToJSObject(recordFireBase.toJSON());
-            this.setState({
-              record: { ...record, recordID },
-              loading: false,
+        // if recordID is set then the user is editing an existing record
+        if (userID && recordID) {
+          userDataRef
+            .child("records")
+            .child(recordID)
+            .on("value", (recordFireBase) => {
+              const record = firebaseToJSObject(recordFireBase.toJSON());
+              this.setState({
+                record: { ...record, recordID },
+              });
             });
-          });
-      } else this.setState({ loading: false });
+        }
+      }
+      this.setState({ loading: false });
     });
   }
 
@@ -146,14 +143,6 @@ class MetadataForm extends Component {
     // fixes error Can't perform a React state update on an unmounted component
     if (this.unsubscribe) this.unsubscribe();
   }
-
-  paperClassValidate = (fieldName) => {
-    const { record, highlightMissingRequireFields } = this.state;
-
-    if (!highlightMissingRequireFields) return paperClass;
-
-    return validateField(record, fieldName) ? paperClass : paperClassError;
-  };
 
   // genereric handler for updating state, used by most form components
   handleInputChange = (event) => {
@@ -206,6 +195,8 @@ class MetadataForm extends Component {
       highlightMissingRequireFields,
     } = this.state;
 
+    const { classes } = this.props;
+
     const disabled =
       record.status === "submitted" || record.status === "published";
 
@@ -214,8 +205,6 @@ class MetadataForm extends Component {
       disabled,
       record,
       handleInputChange: this.handleInputChange,
-      paperClassValidate: this.paperClassValidate,
-      paperClass,
     };
     return loading ? (
       <CircularProgress />
@@ -262,51 +251,56 @@ class MetadataForm extends Component {
           </Grid> */}
           <Grid item xs>
             <Tabs
+              scrollButtons="auto"
+              variant="fullWidth"
               value={tabIndex}
               onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
               aria-label="simple tabs example"
             >
-              <Tab label="Start" value="start" />
-              <Tab label="Identification" value="identification" />
               <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label="Start"
+                value="start"
+              />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label="Identification"
+                value="identification"
+              />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
                 label={<I18n en="Metadata" fr="Métadonnées" />}
                 value="metadata"
               />
               identification
-              <Tab label="Spatial" value="spatial" />
-              <Tab label="Contact" value="contact" />
-              <Tab label="Distribution" value="distribution" />
               <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label="Spatial"
+                value="spatial"
+              />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label="Contact"
+                value="contact"
+              />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label="Distribution"
+                value="distribution"
+              />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
                 label={<I18n en="Platform" fr="Plateforme" />}
                 value="platform"
               />
             </Tabs>
-          </Grid>
-          <Grid item xs>
-            <FormControlLabel
-              disabled={disabled}
-              control={
-                <Checkbox
-                  checked={highlightMissingRequireFields}
-                  onChange={() => {
-                    this.setState({
-                      highlightMissingRequireFields: !highlightMissingRequireFields,
-                    });
-                  }}
-                />
-              }
-              label={
-                <>
-                  <En>
-                    Highlight missing or incomplete fields that are required.
-                  </En>
-                  <Fr>
-                    Mettez en surbrillance les champs manquants ou incomplets
-                    requis.
-                  </Fr>
-                </>
-              }
-            />
           </Grid>
         </Grid>
         <TabPanel value={tabIndex} index="start">
@@ -335,5 +329,5 @@ class MetadataForm extends Component {
     );
   }
 }
-
-export default withRouter(MetadataForm);
+MetadataForm.contextType = UserContext;
+export default withStyles(styles)(withRouter(MetadataForm));

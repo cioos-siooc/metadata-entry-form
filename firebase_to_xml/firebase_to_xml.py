@@ -63,7 +63,6 @@ def main():
 
         try:
             record_yaml = record_json_to_yaml(record)
-
             name = record['title'][record['language']]
 
             char_list = [character if character.isalnum(
@@ -74,7 +73,11 @@ def main():
             if also_save_yaml:
                 filename = f'{xml_directory}/{name}.yaml'
                 file = open(filename, "w")
-                file.write(yaml.dump(record_yaml, allow_unicode=True))
+                file.write(
+                    yaml.dump(record_yaml,
+                              allow_unicode=True,
+                              sort_keys=False)
+                )
 
             # render xml template and write to file
             xml = metadata_to_xml(record_yaml)
@@ -87,6 +90,47 @@ def main():
             print(traceback.format_exc())
 
 
+def strip_keywords(keywords):
+    'Strips whitespace from each keyword in either language'
+    return {"en": [x.strip() for x in keywords.get('en', [])],
+            "fr": [x.strip() for x in keywords.get('fr', [])]}
+
+
+def date_from_datetime_str(datetime_str):
+    'Returns date part of ISO datetime stored as string'
+    if not datetime_str:
+        return None
+    return (datetime_str or '')[:10]
+
+
+def get_license_by_code(license_code):
+    'Given a license code, returns an object with the mandatory fields'
+    codes = {
+        "CC-BY-4.0": {
+            "title": "Creative Commons Attribution 4.0",
+            "code": "CC-BY-4.0",
+            "url": "https://creativecommons.org/licenses/by/4.0"
+        },
+        "CC0": {
+            "title": "Creative Commons 0",
+            "code": "CC0",
+            "url":
+                "https://creativecommons.org/share-your-work/public-domain/cc0"
+        },
+        "government-open-license-canada": {
+            "title": "",
+            "code": "government-open-license-canada",
+            "url": ""
+        },
+        "Apache-2.0": {
+            "title": "Apache License, Version 2.0",
+            "code": "Apache-2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        }
+    }
+    return codes.get(license_code)
+
+
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
@@ -95,33 +139,36 @@ def record_json_to_yaml(record):
             'naming_authority': 'ca.coos',
             'identifier': record.get('identifier'),
             'language': record.get('language'),
-            'maintenance_note': record.get('maintenance'),
+            'maintenance_note':
+                'Generated from ' +
+                'https://cioos-siooc.github.io/metadata-entry-form',
             'use_constraints': {
                 'limitations': record.get('limitations'),
-                'license': record.get('license',)
+                'licence': get_license_by_code(record.get('license',))
             },
             'comment': record.get('comment'),
             'history': record.get('history'),  # {'en':'','fr':''}
         },
         'spatial': {
-            'bbox': [record.get('map', {}).get('west'),
-                     record.get('map', {}).get('south'),
-                     record.get('map', {}).get('east'),
-                     record.get('map', {}).get('north')],
+            'bbox': [float(record.get('map', {}).get('west')),
+                     float(record.get('map', {}).get('south')),
+                     float(record.get('map', {}).get('east')),
+                     float(record.get('map', {}).get('north'))],
             'polygon': record.get('map', {}).get('polygon', ''),
-            'vertical': [record.get('verticalExtentMin'),
-                         record.get('verticalExtentMax')],
+            'vertical': [float(record.get('verticalExtentMin')),
+                         float(record.get('verticalExtentMax'))],
         },
         'identification': {
             'title': record.get('title'),  # {'en':'','fr':''}
             'abstract': record.get('abstract'),  # {'en':'','fr':''}
             'dates': {},  # filled out later
             'keywords': {
-                'default': record.get('keywords', {'en': [], 'fr': []}),
+                'default': strip_keywords(record.get('keywords',
+                                                     {'en': [], 'fr': []})),
                 'eov': record.get('eov')
             },
             'temporal_begin': record.get('dateStart'),
-            'temporal_end': record.get('dateEnd', 'now'),
+            'temporal_end': record.get('dateEnd'),
             'status': record.get('status'),
         },
         'contact': [
@@ -145,7 +192,7 @@ def record_json_to_yaml(record):
 
         'distribution': [
             {
-                'url': [x.get('url')],
+                'url': x.get('url'),
                 'name': x.get('name'),
                 'description': x.get('description'),
             } for x in record.get('distribution', [])
@@ -161,16 +208,42 @@ def record_json_to_yaml(record):
         }
     }
 
-    if record.get('dateStart') is not None:
-        record_yaml['identification']['dates']['creation'] = record.get(
-            'dateStart') or record.get('created')
-    if record.get('datePublished') is not None:
-        record_yaml['identification']['dates']['publication'] = record.get(
-            'datePublished')
-    if record.get('dateRevised') is not None:
-        record_yaml['identification']['dates']['revision'] = record.get(
-            'dateRevised')
-    return record_yaml
+    record_yaml['identification']['dates'] = {
+        "creation":  date_from_datetime_str(
+            record.get('dateStart') or record.get('created')),
+        "publication": date_from_datetime_str(
+            record.get('datePublished')),
+        "dateRevised": date_from_datetime_str(
+            record.get('dateRevised'))
+    }
+
+    return scrub_dict(record_yaml)
+
+
+def scrub_dict(d):
+    '''
+    From:
+    https://stackoverflow.com/questions/12118695/efficient-way-to-remove-keys-with-empty-strings-from-a-dict
+    '''
+    new_dict = {}
+    for key, val in d.items():
+        if isinstance(val, dict):
+            val = scrub_dict(val)
+        if isinstance(val, list):
+            val = scrub_list(val)
+        if val not in (u'', None, {}):
+            new_dict[key] = val
+    return new_dict
+
+
+def scrub_list(d):
+    'remove empty lists'
+    scrubbed_list = []
+    for i in d:
+        if isinstance(i, dict):
+            i = scrub_dict(i)
+        scrubbed_list.append(i)
+    return scrubbed_list
 
 
 def get_records_from_firebase(region, firebase_auth_key_file):
@@ -197,6 +270,7 @@ def get_records_from_firebase(region, firebase_auth_key_file):
 
     # Parse response
     body = json.loads(response.text)
+
     if body is None:
         pprint.pprint(json.loads(response))
         print('response body not found. Exiting...')

@@ -165,7 +165,7 @@ class Submissions extends React.Component {
           aria-describedby="simple-modal-description"
         />
 
-        <Typography variant="h3">
+        <Typography variant="h5">
           <En>Saved Records</En>
           <Fr>Enregistrements enregistrés</Fr>
         </Typography>
@@ -212,7 +212,11 @@ class Submissions extends React.Component {
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
-                          primary={record.title[language]}
+                          primary={
+                            <div style={{ width: "80%" }}>
+                              {record.title[language]}
+                            </div>
+                          }
                           secondary={
                             record.created && (
                               <span>

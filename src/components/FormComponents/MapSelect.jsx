@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 
 import { TextField, Grid, Typography } from "@material-ui/core";
+import L from "leaflet";
 import {
   Map,
   TileLayer,
@@ -16,19 +17,23 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { I18n, En, Fr } from "../I18n";
 
-const MapSelect = ({ onChange, value = {}, name, disabled }) => {
+import { QuestionText, SupplementalText } from "./QuestionStyles";
+import { validateField } from "../validate";
+import RequiredMark from "./RequiredMark";
+
+const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
   function onEditPath() {}
-  function onDeleted(e) {
+
+  function onDeleted() {
     const newVal = {
-      north: undefined,
-      south: undefined,
-      east: undefined,
-      west: undefined,
-      polygon: undefined,
+      north: "",
+      south: "",
+      east: "",
+      west: "",
+      polygon: "",
     };
 
-    const newValue = { ...newVal, [e.target.name]: e.target.value };
-    onChange({ target: { name, value: newValue } });
+    onChange({ target: { name, value: newVal } });
   }
 
   const [editableFG, setEditableFG] = useState(null);
@@ -68,21 +73,13 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
     const drawnItems = editableFG.leafletElement._layers;
     clearExtraLayers(drawnItems);
 
-    const newData = { value, [e.target.name]: e.target.value };
+    const newData = { ...value, [e.target.name]: e.target.value };
     onChange({ target: { name, value: newData } });
   }
 
   function limitDecimals(x) {
     return Number.parseFloat(x).toPrecision(4);
   }
-
-  // function loadExistingExtent(e) {
-  //   if (value.polygon) {
-  //   }
-
-  //   if (value.north && value.south && value.east && value.west) {
-  //   }
-  // }
 
   function parsePolyString(polygonList) {
     let coordList = [...polygonList.matchAll(polyTest)].map((match) => {
@@ -169,6 +166,19 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
     // store the featureGroup ref for future access to content
     setEditableFG(reactFGref);
   };
+  L.EditToolbar.Delete.include({
+    enable() {
+      // eslint-disable-next-line react/no-this-in-sfc
+      this.options.featureGroup.clearLayers();
+      onDeleted();
+    },
+  });
+
+  const bboxIsDrawn = Boolean(
+    value.north || value.south || value.east || value.west
+  );
+
+  const fieldsAreEmpty = !bboxIsDrawn && !value.polygon;
 
   return (
     <div>
@@ -176,6 +186,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
         style={{ width: "100%", height: "55vh" }}
         center={[50, -100]}
         zoom={3}
+
         // whenReady={loadExistingExtent}
       >
         <TileLayer
@@ -189,7 +200,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
         >
           {disabled === false && (
             <EditControl
-              position="topright"
+              position="topleft"
               onEdited={onEditPath}
               onCreated={onCreated}
               onDeleted={onDeleted}
@@ -220,16 +231,27 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
           )}
         </FeatureGroup>
       </Map>
-      <Typography>
-        <En>
-          Please provide the coordinates in decimal degrees and not in decimal
-          minutes seconds.
-        </En>
+      <br />
+      <QuestionText>
+        <En>Bounding Box Coordinates</En>
         <Fr>
           Veuillez fournir les coordonnées en degrés décimaux et non en secondes
           décimales.
         </Fr>
-      </Typography>
+        {(bboxIsDrawn || fieldsAreEmpty) && (
+          <RequiredMark passes={validateField(record, "map")} />
+        )}
+        <SupplementalText>
+          <En>
+            If you are providing a bounding box, please provide the coordinates
+            in decimal degrees and not in decimal minutes seconds.
+          </En>
+          <Fr>
+            If you are providing a bounding box, please provide the coordinates
+            in decimal degrees and not in decimal minutes seconds.
+          </Fr>
+        </SupplementalText>
+      </QuestionText>
       <Grid container direction="row" spacing={3}>
         <Grid item xs={2}>
           <TextField
@@ -239,7 +261,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
             inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
             onChange={handleChange}
             type="number"
-            disabled={disabled}
+            disabled={disabled || Boolean(value.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
@@ -249,7 +271,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
             value={value.south || ""}
             onChange={handleChange}
             type="number"
-            disabled={disabled}
+            disabled={disabled || Boolean(value.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
@@ -259,7 +281,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
             value={value.east || ""}
             onChange={handleChange}
             type="number"
-            disabled={disabled}
+            disabled={disabled || Boolean(value.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
@@ -269,32 +291,39 @@ const MapSelect = ({ onChange, value = {}, name, disabled }) => {
             label={<I18n en="West" fr="Ouest" />}
             onChange={handleChange}
             type="number"
-            disabled={disabled}
+            disabled={disabled || Boolean(value.polygon)}
           />
         </Grid>
       </Grid>
-      <br />
-      <Typography>
-        <En>
-          Polygon coordinates, if provided, must start and end with the same
-          point.
-          <br /> Eg,
-        </En>
-        <Fr>
-          Les coordonnées des polygones, si elles sont fournies, doivent
-          commencer et se terminer par le même point..
-          <br /> Par exemple,
-        </Fr>
-        48,-128 56,-133 56,-147 48,-128
+
+      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
+        OR
       </Typography>
+
+      <QuestionText>
+        <En>Polygon coordinates</En>
+        <Fr>Les coordonnées des polygones</Fr>
+        {(!bboxIsDrawn || fieldsAreEmpty) && (
+          <RequiredMark passes={validateField(record, "map")} />
+        )}
+        <SupplementalText>
+          <En>
+            If you are providing polygon coordinates, they must start and end
+            with the same point. Eg,
+          </En>
+          <Fr>
+            Doivent commencer et se terminer par le même point. Par exemple,
+          </Fr>{" "}
+          48,-128 56,-133 56,-147 48,-128
+        </SupplementalText>
+      </QuestionText>
       <TextField
         name="polygon"
-        label={<I18n en="Polygon Coordinates" fr="Coordonnées du polygone" />}
         value={value.polygon || ""}
         onChange={handleChangePoly}
         type="text"
         fullWidth
-        disabled={disabled}
+        disabled={disabled || bboxIsDrawn}
       />
     </div>
   );

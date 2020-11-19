@@ -75,7 +75,7 @@ class Admin extends React.Component {
     return (
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
-          <Typography variant="h3">
+          <Typography variant="h5">
             <En>Admin</En>
             <Fr>Admin</Fr>
           </Typography>

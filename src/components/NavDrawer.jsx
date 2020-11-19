@@ -6,7 +6,6 @@ import clsx from "clsx";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
-  Home,
   ExitToApp,
   Contacts,
   ListAlt,
@@ -161,7 +160,7 @@ export default function MiniDrawer({ children }) {
 
   const translations = {
     home: <I18n en="Home" fr="Accueil" />,
-    new: <I18n en="New Record" fr="Nouvel Enregistrement" />,
+    new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
     saved: <I18n en="Saved Records" fr="Enregistrements" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
@@ -196,16 +195,15 @@ export default function MiniDrawer({ children }) {
 
           <img src={cioosLogo[language]} alt="CIOOS/SIOOC" />
           <Typography
-            variant="h4"
+            variant="h5"
             noWrap
             style={{ marginLeft: "10px", flex: 1 }}
           >
             <En>{regionText} Metadata Entry Tool</En>
             <Fr>Outil de saisie de métadonnées {regionText}</Fr>
           </Typography>
-          {/* <Button color="inherit">Login</Button> */}
+
           <Select
-            disableUnderline
             color="primary"
             className={classes.languageSelector}
             value={language}
@@ -247,23 +245,6 @@ export default function MiniDrawer({ children }) {
         )}
         <Divider />
         <List>
-          {region && (
-            <Tooltip
-              placement="right-start"
-              title={open ? "" : translations.home}
-            >
-              <ListItem
-                button
-                key="Home"
-                onClick={() => history.push(`${baseURL}/`)}
-              >
-                <ListItemIcon>
-                  <Home />
-                </ListItemIcon>
-                <ListItemText primary={translations.home} />
-              </ListItem>
-            </Tooltip>
-          )}
           {!user && region && (
             <Tooltip
               placement="right-start"
@@ -273,7 +254,7 @@ export default function MiniDrawer({ children }) {
                 button
                 key="Sign in"
                 onClick={() =>
-                  signInWithGoogle().then(() => history.push(`${baseURL}/`))
+                  signInWithGoogle().then(() => history.push(`${baseURL}/new`))
                 }
               >
                 <ListItemIcon>
@@ -291,7 +272,7 @@ export default function MiniDrawer({ children }) {
               >
                 <ListItem
                   button
-                  key="New Record"
+                  key="Metadata Editor"
                   onClick={() => history.push(`${baseURL}/new`)}
                 >
                   <ListItemIcon>
