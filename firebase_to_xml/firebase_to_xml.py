@@ -64,7 +64,8 @@ def main():
 
         try:
             record_yaml = record_json_to_yaml(record)
-            name = record['title'][record['language']]
+            name = record['title'][record['language']][0:30] + \
+                '_' + record['identifier'][0:5]
 
             char_list = [character if character.isalnum(
             ) else '_' for character in name.strip().lower()]
