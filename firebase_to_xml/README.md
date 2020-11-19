@@ -1,5 +1,7 @@
 # firebase_to_xml
 
+Python3 module to convert records in Firebase to XML/YAML files
+
 ## Firebase auth key
 
 To generate a new key:
@@ -24,26 +26,10 @@ Install
 pip install .
 ```
 
-Update
-
-```bash
-pip install --upgrade .
-```
-
 ## Running
 
 To see help
 
 ```bash
-python firebase_to_xml.py -h
-```
-
-```bash
-python firebase_to_xml.py
-```
-
-exit virtual environment
-
-```bash
-deactivate
+python -m firebase_to_xml -h
 ```
