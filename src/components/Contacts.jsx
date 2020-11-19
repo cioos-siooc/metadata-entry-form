@@ -21,10 +21,12 @@ import { I18n, En, Fr } from "./I18n";
 import SimpleModal from "./SimpleModal";
 
 function getTitle(value) {
-  const titleParts = [];
-  titleParts.push(value.orgName);
-  titleParts.push(value.indName);
-  return titleParts.map((e) => e).join("/");
+  const { orgName, indName } = value;
+  const titleParts = [orgName, indName];
+  return titleParts
+    .map((e) => e.trim())
+    .filter((e) => e)
+    .join("/");
 }
 
 class Contacts extends React.Component {
@@ -112,7 +114,7 @@ class Contacts extends React.Component {
             aria-describedby="simple-modal-description"
           />
 
-          <Typography variant="h3">
+          <Typography variant="h5">
             <En>Contacts</En>
             <Fr>Contacts</Fr>
           </Typography>

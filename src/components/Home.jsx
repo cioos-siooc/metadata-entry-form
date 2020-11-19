@@ -1,27 +1,32 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Typography } from "@material-ui/core";
+
 import { En, Fr } from "./I18n";
+import { UserContext } from "../providers/UserProvider";
 
 const Home = () => {
+  const { user } = useContext(UserContext);
+
   return (
     <div>
-      <Typography variant="h3">
-        <En>Home</En>
-        <Fr>Accueil</Fr>
+      <Typography variant="h5">
+        <En>Welcome to the CIOOS Metadata intake tool.</En>
+        <Fr>Bienvenue dans l'outil de réception des métadonnées du CIOOS.</Fr>
       </Typography>
-      <Typography>
-        <En>
-          Welcome to the CIOOS Metadata intake tool. Start by clicking "New
-          Record" on the sidebar. You can also save contacts that you will use
-          often in the "Contacts" section.
-        </En>
-        <Fr>
-          Bienvenue dans l'outil de réception des métadonnées du CIOOS.
-          Commencez par cliquer sur « Nouveau » Enregistrer » sur la barre
-          latérale. Vous pouvez également enregistrer les contacts que vous
-          utiliserez souvent dans la section « Contacts ».
-        </Fr>
-      </Typography>
+
+      {!user && (
+        <div>
+          <En>
+            Start by clicking 'Sign In' on the left. You will need to sign in
+            using one of the Google accounts listed in the pop up.
+          </En>
+          <Fr>
+            Commencez par cliquer sur « Se connecter » sur la gauche pour vous
+            connecter. Vous devrez vous connecter à l'aide de l'un des comptes
+            Google répertoriés dans la fenêtre contextuelle.
+          </Fr>
+        </div>
+      )}
     </div>
   );
 };

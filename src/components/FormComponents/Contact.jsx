@@ -7,32 +7,36 @@ import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
 import SelectMultipleInput from "./SelectMultipleInput";
 import translate from "../../utils/i18n";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   const { language } = useParams();
 
   return (
-    <Grid container direction="column" spacing={1}>
+    <Grid container direction="column" spacing={2}>
       {showRolePicker && (
         <Grid item xs>
-          <Typography>
-            <En>
-              What is their role? A list of roles with descriptions can be found{" "}
-            </En>
-            <Fr>
-              Quel est leur rôle ? Une liste de rôles avec des descriptions peut
-              être trouvée{" "}
-            </Fr>
-            <a
-              href="http://registry.it.csiro.au/def/isotc211/CI_RoleCode"
-              // eslint-disable-next-line react/jsx-no-target-blank
-              target="_blank"
-            >
-              <En>here</En>
-              <Fr>ici</Fr>
-            </a>
-            .
-          </Typography>
+          <QuestionText>
+            <En>What is the role of this contact?</En>
+            <Fr>Quel est leur rôle ?</Fr>.
+            <SupplementalText>
+              <En>
+                Multiple roles may be selected. A list of roles with
+                descriptions can be found{" "}
+              </En>
+              <Fr>
+                Une liste de rôles avec des descriptions peut être trouvée{" "}
+              </Fr>
+              <a
+                href="http://registry.it.csiro.au/def/isotc211/CI_RoleCode"
+                // eslint-disable-next-line react/jsx-no-target-blank
+                target="_blank"
+              >
+                <En>here</En>
+                <Fr>ici</Fr>
+              </a>
+            </SupplementalText>
+          </QuestionText>
           <SelectMultipleInput
             name="role"
             value={value.role || []}

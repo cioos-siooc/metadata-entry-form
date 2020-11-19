@@ -1,17 +1,11 @@
 import React from "react";
 
-import {
-  Checkbox,
-  FormControlLabel,
-  FormControl,
-  InputLabel,
-} from "@material-ui/core";
+import { Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 
 const CheckBoxList = ({
   onChange,
   value,
   name,
-  label,
   options,
   optionLabels,
   disabled,
@@ -22,34 +16,37 @@ const CheckBoxList = ({
   }
 
   return (
-    <FormControl style={{ minWidth: 120 }}>
-      <InputLabel id="demo-simple-select-label">{label}</InputLabel>
+    <Grid container direction="row">
       {options.map((v, i) => {
         return (
-          <FormControlLabel
-            key={v}
-            disabled={disabled}
-            control={
-              <Checkbox
-                key={v}
-                value={v || []}
-                name={name}
-                checked={value.includes(v)}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const newCheckedValuesArray = toggleArrayElement(val, value);
+          <Grid item xs={3} key={v}>
+            <FormControlLabel
+              disabled={disabled}
+              control={
+                <Checkbox
+                  key={v}
+                  value={v || []}
+                  name={name}
+                  checked={value.includes(v)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const newCheckedValuesArray = toggleArrayElement(
+                      val,
+                      value
+                    );
 
-                  onChange({
-                    target: { name, value: newCheckedValuesArray },
-                  });
-                }}
-              />
-            }
-            label={optionLabels[i]}
-          />
+                    onChange({
+                      target: { name, value: newCheckedValuesArray },
+                    });
+                  }}
+                />
+              }
+              label={optionLabels[i]}
+            />
+          </Grid>
         );
       })}
-    </FormControl>
+    </Grid>
   );
 };
 

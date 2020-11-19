@@ -1,13 +1,14 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
-import { Button, Grid, Paper, TextField, Typography } from "@material-ui/core";
+import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
+import { QuestionText, paperClass } from "./QuestionStyles";
 
-const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
+const Distribution = ({ onChange, value, name, disabled }) => {
   const initial = { url: "", name: "", description: { en: "", fr: "" } };
 
   function addDistribution() {
@@ -42,11 +43,11 @@ const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
           <Paper key={i} style={paperClass}>
             <Grid container direction="column" spacing={3}>
               <Grid item xs>
-                <Typography>
+                <QuestionText>
                   <En>Enter a name for the resource</En>
                   <Fr>Entrez un nom pour la ressource</Fr>
-                  <RequiredMark />
-                </Typography>
+                  <RequiredMark passes={dist.name} />
+                </QuestionText>
                 <TextField
                   label={nameLabel}
                   name="name"
@@ -57,11 +58,11 @@ const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
                 />
               </Grid>
               <Grid item xs>
-                <Typography>
+                <QuestionText>
                   <En>Enter the URL for the resource</En>
                   <Fr>Entrez l'URL de la ressource</Fr>
-                  <RequiredMark />
-                </Typography>
+                  <RequiredMark passes={dist.url} />
+                </QuestionText>
 
                 <TextField
                   label="URL"
@@ -73,30 +74,15 @@ const Distribution = ({ onChange, value, name, disabled, paperClass }) => {
                 />
               </Grid>
               <Grid item xs>
-                <Typography>
+                <QuestionText>
                   <En>Enter a description of the resource</En>
                   <Fr>Entrez une description de la ressource</Fr>
-                </Typography>{" "}
+                </QuestionText>{" "}
                 <BilingualTextInput
                   name="description"
                   label={descriptionLabel}
                   value={dist.description}
                   onChange={handler}
-                  disabled={disabled}
-                />
-              </Grid>
-              <Grid item xs>
-                <Typography>
-                  <En>Enter the type of the ressource</En>
-                  <Fr>Entrez le type de la ressource</Fr>
-                  <RequiredMark />
-                </Typography>
-                <TextField
-                  label="Type (csv, xls, erddap,...)"
-                  name="type"
-                  value={dist.type}
-                  onChange={handler}
-                  fullWidth
                   disabled={disabled}
                 />
               </Grid>
