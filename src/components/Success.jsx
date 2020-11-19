@@ -6,7 +6,7 @@ import { Fr, En } from "./I18n";
 const Submissions = () => {
   return (
     <div>
-      <Typography variant="h3">
+      <Typography variant="h5">
         <En>Submission received!</En>
         <Fr>Soumission reçue!</Fr>
       </Typography>

@@ -1,17 +1,17 @@
 import React from "react";
 
+import { Save } from "@material-ui/icons";
 import { Typography, Paper, Grid } from "@material-ui/core";
 
 import { En, Fr } from "../I18n";
 
-const StartTab = ({ disabled, paperClass }) => {
+import RequiredMark from "./RequiredMark";
+import { paperClass } from "./QuestionStyles";
+
+const StartTab = ({ disabled }) => {
   return (
     <Grid item xs>
       <Paper style={paperClass}>
-        <Typography variant="h3">
-          <En>CIOOS Metadata Profile Intake Form</En>
-          <Fr>Formulaire de réception des profils de métadonnées du CIOOS</Fr>
-        </Typography>
         {disabled && (
           <Typography>
             <En>
@@ -22,12 +22,11 @@ const StartTab = ({ disabled, paperClass }) => {
             </Fr>
           </Typography>
         )}
-        <Typography>
+        <Typography variant="body1">
           <En>
-            Welcome to the CIOOS metadata profile generation form! Please fill
-            out each field with as much detail as you can. Using this
-            information we will create your metadata profile for the given
-            dataset.
+            Welcome to the CIOOS metadata profile generation form. Please fill
+            out each field with as much detail as you can. This information will
+            be used to create a metadata profile for your dataset.
           </En>
           <Fr>
             Bienvenue sur le formulaire de génération de profils de métadonnées
@@ -36,17 +35,33 @@ const StartTab = ({ disabled, paperClass }) => {
             votre profil de métadonnées pour le jeu de données.
           </Fr>
         </Typography>
-        <br />
-        <Typography>
-          <En>
-            The form can be saved once you have filled in the dataset title in
-            the "Identification" section.
-          </En>
-          <Fr>
-            Le formulaire peut être enregistré une fois que vous avez rempli le
-            titre du jeu de données dans la section « Identification ».
-          </Fr>
-        </Typography>
+
+        <En>
+          <ul>
+            <li>
+              There are six tabs in this form, each with a series of questions.
+              All questions marked with a <RequiredMark /> are mandatory.
+            </li>
+            <li>
+              The form can be completed over time. If you need to stop, click
+              the <Save /> icon in the bottom right corner. This icon will be
+              greyed out until you have filled in the dataset title in the
+              "Identification" section.
+            </li>
+            <li>
+              Some fields can have text in both French and English, though this
+              is only required for title and abstract. There is a 'Translate'
+              button that will automatically generate text in the other
+              language. This translation is more accurate when there is more
+              text to translate.
+            </li>
+          </ul>
+        </En>
+        <Fr>
+          Commencez par cliquer sur « Nouveau » Enregistrer » sur la barre
+          latérale. Vous pouvez également enregistrer les contacts que vous
+          utiliserez souvent dans la section « Contacts ».
+        </Fr>
       </Paper>
     </Grid>
   );

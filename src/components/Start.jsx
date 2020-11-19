@@ -5,7 +5,7 @@ import { En, Fr } from "./I18n";
 const RegionSelect = () => {
   return (
     <div>
-      <Typography variant="h3">
+      <Typography variant="h5">
         <En>CIOOS Regions</En>
         <Fr>Régions CIOOS</Fr>
       </Typography>

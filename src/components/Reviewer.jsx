@@ -34,7 +34,7 @@ const MetadataRecordListItem = ({
       </Avatar>
     </ListItemAvatar>
     <ListItemText
-      primary={record.title[language]}
+      primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
       secondary={record.userinfo.displayName}
     />
     <ListItemSecondaryAction>
@@ -201,7 +201,7 @@ class Submissions extends React.Component {
           aria-describedby="simple-modal-description"
         />
         <Grid item xs>
-          <Typography variant="h3">
+          <Typography variant="h5">
             <En>Review submissions</En>
             <Fr>Examen des soumissions</Fr>
           </Typography>

@@ -1,4 +1,5 @@
-export function camelToSentenceCase(text) {
+export function camelToSentenceCase(text = "") {
+  if (!text) return "";
   const result = text.replace(/([A-Z])/g, " $1");
   return result.charAt(0).toUpperCase() + result.slice(1);
 }

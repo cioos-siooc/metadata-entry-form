@@ -4,11 +4,16 @@ import Autocomplete, {
   createFilterOptions,
 } from "@material-ui/lab/Autocomplete";
 
-import { TextField, Button, Grid } from "@material-ui/core";
+import {
+  TextField,
+  Button,
+  Grid,
+  Chip,
+  InputAdornment,
+} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { ArrowDownward } from "@material-ui/icons";
 import keywordList from "../../keywordList";
-import BilingualTextInput from "./BilingualTextInput";
 import { En, Fr } from "../I18n";
 import translate from "../../utils/i18n";
 
@@ -23,20 +28,35 @@ const KeywordsInput = ({
 
   function cleanList(list) {
     return list
-      .map((item) => item.trim())
+      .map((item) => (item || "").trim())
       .filter((item, i, arr) => item && arr.indexOf(item) === i);
   }
 
+  function handleDelete(chipText, deletedChipLang) {
+    return () => {
+      const newValue = {
+        en: value.en,
+        fr: value.fr,
+        [deletedChipLang]: value[deletedChipLang].filter(
+          (keyword) => keyword !== chipText
+        ),
+      };
+
+      onChange({
+        target: {
+          name,
+          value: newValue,
+        },
+      });
+    };
+  }
   function handleHelperChange() {
     if (selectedKeyword) {
-      const newValue = { en: [], fr: [] };
+      const newValue = { en: value.en, fr: value.fr };
 
-      ["en", "fr"].forEach((l) => {
-        const userKeywordList = value[l];
-        userKeywordList.push(translate(selectedKeyword, l));
+      const userKeywordList = [...value[language], selectedKeyword];
 
-        newValue[l] = cleanList(userKeywordList);
-      });
+      newValue[language] = cleanList(userKeywordList);
 
       onChange({
         target: {
@@ -48,14 +68,26 @@ const KeywordsInput = ({
     setKeyword("");
   }
 
+  const languages = ["en", "fr"];
+
+  if (language === "fr") languages.reverse();
+
+  const hasKeyWordsinBothLanguages =
+    Object.values(value).filter((kws) => kws.length).length > 1;
+
   return (
-    <Grid container spacing={3} direction="column">
+    <Grid
+      container
+      spacing={3}
+      direction="column"
+      style={{ marginBottom: "10px" }}
+    >
       <Grid container spacing={3} direction="row">
         <Grid item xs={6}>
           <Autocomplete
             disabled={disabled}
             style={{ paddingLeft: "10px" }}
-            onChange={(e, keyword) => setKeyword(keyword)}
+            onInputChange={(e, keyword) => setKeyword(keyword)}
             filterOptions={(options, params) => {
               const filtered = createFilterOptions()(options, params);
 
@@ -70,16 +102,15 @@ const KeywordsInput = ({
             clearOnBlur
             freeSolo
             handleHomeEndKeys
-            renderOption={(option) => translate(option, language)}
+            renderOption={(option) => translate(option, language) || option}
             options={keywordList}
-            getOptionLabel={(option) => translate(option, language)}
+            getOptionLabel={(option) => translate(option, language) || option}
             fullWidth
             renderInput={(params) => (
               <TextField
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...params}
                 label="keyword entry helper"
-                variant="outlined"
               />
             )}
           />
@@ -95,43 +126,31 @@ const KeywordsInput = ({
           </Button>
         </Grid>
       </Grid>
-      <Grid item xs>
-        <BilingualTextInput
-          name="keywords"
-          value={{
-            en: value.en.join(","),
-            fr: value.fr.join(","),
-          }}
-          onChange={(e) => {
-            onChange({
-              target: {
-                name,
-                value: {
-                  en: e.target.value.en.split(",").filter((ele) => ele),
-                  fr: e.target.value.fr.split(",").filter((ele) => ele),
-                },
-              },
-            });
-          }}
-          onBlur={(e) => {
-            onChange({
-              target: {
-                name,
-                value: {
-                  en: cleanList(e.target.value.en.split(",")).filter(
-                    (ele) => ele
-                  ),
-                  fr: cleanList(e.target.value.fr.split(",")).filter(
-                    (ele) => ele
-                  ),
-                },
-              },
-            });
-          }}
-          disabled={disabled}
-          translationButonDisabled
-        />
-      </Grid>
+      {languages
+        .filter((lang) => value[lang] && value[lang].length)
+        .map((lang) => (
+          <div style={{ margin: "15px" }} key={lang}>
+            {hasKeyWordsinBothLanguages && (
+              <InputAdornment style={{ margin: "10px" }}>
+                {lang.toUpperCase()}
+              </InputAdornment>
+            )}
+            <Grid container direction="row">
+              <Grid item xs>
+                {(value[lang] || []).map((keyword) => (
+                  <Chip
+                    key={keyword}
+                    disabled={disabled}
+                    label={keyword}
+                    onDelete={handleDelete(keyword, lang)}
+                    color="primary"
+                    style={{ marginRight: "5px" }}
+                  />
+                ))}
+              </Grid>
+            </Grid>
+          </div>
+        ))}
     </Grid>
   );
 };
