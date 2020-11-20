@@ -52,16 +52,9 @@ def get_license_by_code(license_code):
     return codes.get(license_code)
 
 
-def float_or_none(val):
-    'return either a float represenatation of the string val, or None'
-    if val:
-        return float(val)
-    return None
-
-
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
-
+    polygon = record.get('map', {}).get('polygon', '')
     record_yaml = {
         'metadata': {
             'naming_authority': 'ca.coos',
@@ -78,13 +71,13 @@ def record_json_to_yaml(record):
             'history': record.get('history'),  # {'en':'','fr':''}
         },
         'spatial': {
-            'bbox': [float_or_none(record['map'].get('west')),
-                     float_or_none(record['map'].get('south')),
-                     float_or_none(record['map'].get('east')),
-                     float_or_none(record['map'].get('north'))],
-            'polygon': record.get('map', {}).get('polygon', ''),
-            'vertical': [float_or_none(record.get('verticalExtentMin')),
-                         float_or_none(record.get('verticalExtentMax'))],
+            'bbox': [float(record['map'].get('west')),
+                     float(record['map'].get('south')),
+                     float(record['map'].get('east')),
+                     float(record['map'].get('north'))] if not polygon else '',
+            'polygon': polygon,
+            'vertical': [float(record.get('verticalExtentMin')),
+                         float(record.get('verticalExtentMax'))],
         },
         'identification': {
             'title': record.get('title'),  # {'en':'','fr':''}
