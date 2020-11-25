@@ -21,7 +21,7 @@ import { validateField } from "../validate";
 
 const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
   const name = "contacts";
-  const value = record.contacts;
+  const value = record.contacts || [];
 
   const initial = {
     role: [],
