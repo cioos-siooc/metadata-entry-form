@@ -44,7 +44,7 @@ exports.callWebhookPublished = functions.database
   .onUpdate(({ before, after }, context) => {
     if (
       after.val() === "published" ||
-      (before.status === "published" && after.status !== "published")
+      (before.val() === "published" && after.val() !== "published")
     )
       return callWebHooks();
     return false;
