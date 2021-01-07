@@ -53,14 +53,6 @@ class EditContact extends React.Component {
     if (this.dbRef) this.dbRef.off("value");
   }
 
-  deleteRecord() {
-    const { recordID } = this.state;
-
-    if (auth.currentUser) {
-      this.dbRef.remove(recordID);
-    }
-  }
-
   handleChange(event) {
     const { name, value } = event.target;
 
@@ -89,14 +81,7 @@ class EditContact extends React.Component {
       .child(auth.currentUser.uid)
       .child("contacts");
 
-    const { recordID, ...updateValues } = this.state;
-    const record = { ...updateValues, created: new Date() };
-    if (recordID) {
-      await rootRef.child(recordID).update(record);
-    } else {
-      await rootRef.push(record);
-      history.push(`${baseURL}/contacts`);
-    }
+    await rootRef.push(this.state);
     history.push(`${baseURL}/contacts`);
   }
 

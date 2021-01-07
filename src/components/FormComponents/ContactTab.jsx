@@ -1,16 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Paper,
   Button,
   Grid,
-  FormControl,
-  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  // CircularProgress,
 } from "@material-ui/core";
-// import Contacts from "./Contacts";
+
 import { Add, Delete } from "@material-ui/icons";
-import { deepCopy } from "../../utils/misc";
+// import { useParams } from "react-router-dom";
 import Contact from "./Contact";
+// import firebase from "../../firebase";
+// import { auth } from "../../auth";
 
 import SelectInput from "./SelectInput";
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
@@ -18,11 +23,16 @@ import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "./RequiredMark";
 import { validateField } from "../validate";
+import { deepCopy } from "../../utils/misc";
+import ContactTitle from "../ContactTitle";
 
 const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
   const name = "contacts";
+
   const value = record.contacts || [];
 
+  // const { region } = useParams();
+  // const [isSavingContact, setisSavingContact] = useState(false);
   const initial = {
     role: [],
     orgName: "",
@@ -35,6 +45,8 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
     indPosition: "",
     indEmail: "",
   };
+  const [activeContact, setActiveContact] = useState(0);
+
   const contactList = Object.values(userContacts || {});
 
   function handleAddContact(index) {
@@ -44,7 +56,23 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
         value: value.concat(contactList[index]),
       },
     });
+    setActiveContact(value.length);
   }
+  // async function saveContact(idx) {
+  //   if (value[idx]) {
+  //     setisSavingContact(true);
+
+  //     await firebase
+  //       .database()
+  //       .ref(region)
+  //       .child("users")
+  //       .child(auth.currentUser.uid)
+  //       .child("contacts")
+  //       .push(value[idx]);
+
+  //     setisSavingContact(false);
+  //   }
+  // }
 
   function addItem() {
     const changes = {
@@ -55,28 +83,34 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
     };
 
     handleInputChange(changes);
+    setActiveContact(value.length);
   }
-  function handleChange(i) {
-    return (e) => {
-      const newValue = [...value];
-      const propName = e.target.name;
-      newValue[i][propName] = e.target.value;
-      const parentEvent = { target: { name, value: newValue } };
-      handleInputChange(parentEvent);
-    };
+  function handleChange(e) {
+    const newValue = [...value];
+    const propName = e.target.name;
+    newValue[activeContact][propName] = e.target.value;
+    const parentEvent = { target: { name, value: newValue } };
+    handleInputChange(parentEvent);
   }
-  function removeItem(i) {
+  function removeItem() {
     handleInputChange({
-      target: { name, value: value.filter((e, index) => index !== i) },
+      target: {
+        name,
+        value: value.filter((e, index) => index !== activeContact),
+      },
     });
+    if (value.length) setActiveContact(value.length - 2);
   }
-
+  const contact = value[activeContact];
   return (
     <Grid container spacing={3}>
       <Paper style={paperClass}>
         <Grid item xs>
           <QuestionText>
-            <En>Please enter at least one contact related to this dataset.</En>
+            <En>
+              Please enter at least one <b>Metadata Contact</b> and one{" "}
+              <b>Data Contact</b> for this dataset.
+            </En>
             <Fr>
               Veuillez saisir au moins un contact lié à cet ensemble de données.
               Vous pouvez créer un nouveau contact ici.
@@ -95,75 +129,110 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
           </QuestionText>
         </Grid>
       </Paper>
-      <Grid container direction="column">
-        {value.map((contact, i) => {
-          return (
-            <Paper key={i} style={paperClass}>
-              <Grid container direction="column" spacing={3}>
-                <Grid item xs>
-                  <Contact
-                    showRolePicker
-                    name={`contact_${i}`}
-                    value={contact}
-                    onChange={handleChange(i)}
-                    disabled={disabled}
-                  />
-                </Grid>
-                <Grid item xs>
-                  <Button
-                    startIcon={<Delete />}
-                    disabled={disabled}
-                    onClick={() => removeItem(i)}
-                  >
-                    <En>Remove item</En>
-                    <Fr>Supprimer l'article</Fr>
-                  </Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          );
-        })}
-        <Paper style={paperClass}>
-          <Grid
-            container
-            direction="row"
-            justify="flex-start"
-            alignItems="center"
-          >
-            <Grid item xs={3}>
+      <Grid container direction="row" style={{ marginLeft: "5px" }}>
+        <Grid item xs={3}>
+          <Grid container direction="column" spacing={2}>
+            <Grid item xs>
+              Contacts:
+              <List>
+                {value.map((contactItem, i) => {
+                  return (
+                    <ListItem
+                      key={i}
+                      button
+                      onClick={() => setActiveContact(i)}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            style={{
+                              fontWeight: activeContact === i ? "bold" : "",
+                            }}
+                          >
+                            {i + 1}. <ContactTitle contact={contactItem} />
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Grid>
+
+            <Grid item xs>
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
                 onClick={addItem}
-                style={{ height: "56px" }}
+                style={{ height: "56px", marginLeft: "10px" }}
               >
                 <En>Add new contact</En>
                 <Fr>Ajouter un contact</Fr>
               </Button>
             </Grid>
-            <Grid item xs={3}>
-              <FormControl disabled={disabled} style={{ minWidth: "220px" }}>
-                <InputLabel id="add-existing" style={{ marginLeft: "10px" }}>
-                  <I18n en="Add existing contact" fr="Add existing contact" />
-                </InputLabel>
-
-                <SelectInput
-                  value=""
-                  labelId="add-existing"
-                  onChange={(e) => {
-                    handleAddContact(e.target.value);
-                  }}
-                  optionLabels={contactList.map(
-                    (contact) => `${contact.indName} ${contact.orgName}`
-                  )}
-                  options={contactList.map((v, i) => i)}
-                  disabled={!contactList.length || disabled}
-                  showDefaultLabel={false}
-                />
-              </FormControl>
+            <Grid item xs>
+              <SelectInput
+                style={{}}
+                value=""
+                labelId="add-existing"
+                onChange={(e) => handleAddContact(e.target.value)}
+                optionLabels={contactList.map((contactItem) => (
+                  <ContactTitle contact={contactItem} />
+                ))}
+                options={contactList.map((v, i) => i)}
+                disabled={!contactList.length || disabled}
+                label={<I18n en="Add saved contact" fr="Ajouter un contact" />}
+              />
             </Grid>
           </Grid>
-        </Paper>
+        </Grid>
+
+        {contact && (
+          <Grid item xs>
+            <Grid container direction="column">
+              <Paper style={paperClass}>
+                <Grid container direction="column" spacing={3}>
+                  <Grid item xs>
+                    <Contact
+                      showRolePicker
+                      value={contact}
+                      onChange={handleChange}
+                      disabled={disabled}
+                    />
+                  </Grid>
+                  <Grid item xs>
+                    <Grid container direction="row" spacing={3}>
+                      <Grid item xs>
+                        <Button
+                          startIcon={<Delete />}
+                          disabled={disabled}
+                          onClick={removeItem}
+                        >
+                          <En>Remove contact</En>
+                          <Fr>Supprimer contact</Fr>
+                        </Button>
+                      </Grid>
+                      {/* <Grid item xs>
+                      <Button
+                        startIcon={
+                          isSavingContact ? <CircularProgress /> : <Save />
+                        }
+                        disabled={
+                          disabled || (!contact.orgName && !contact.indName)
+                        }
+                        onClick={() => saveContact(i)}
+                      >
+                        <En>Save to stored contacts</En>
+                        <Fr>Supprimer contact</Fr>
+                      </Button>
+                    </Grid> */}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

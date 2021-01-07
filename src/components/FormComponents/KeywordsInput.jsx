@@ -144,7 +144,7 @@ const KeywordsInput = ({
                     label={keyword}
                     onDelete={handleDelete(keyword, lang)}
                     color="primary"
-                    style={{ marginRight: "5px" }}
+                    style={{ margin: "5px" }}
                   />
                 ))}
               </Grid>

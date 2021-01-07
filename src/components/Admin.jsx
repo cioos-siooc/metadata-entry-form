@@ -77,7 +77,7 @@ class Admin extends React.Component {
         <Grid item xs>
           <Typography variant="h5">
             <En>Admin</En>
-            <Fr>Admin</Fr>
+            <Fr>Administrateurs</Fr>
           </Typography>
           <Typography>
             <En>Add each admin or reviewer's email address on it's own line</En>
@@ -95,7 +95,7 @@ class Admin extends React.Component {
             <Grid item xs>
               <Typography>
                 <En>Admins</En>
-                <Fr>Admins</Fr>
+                <Fr>Administrateurs</Fr>
               </Typography>
             </Grid>
             <Grid item xs>
@@ -111,7 +111,7 @@ class Admin extends React.Component {
             <Grid item xs>
               <Typography>
                 <En>Reviewers</En>
-                <Fr>Reviewers</Fr>
+                <Fr>Réviseurs</Fr>
               </Typography>
             </Grid>
             <Grid item xs>

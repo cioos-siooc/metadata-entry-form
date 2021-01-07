@@ -16,18 +16,9 @@ import {
 import { Add, Edit, Delete, PermContactCalendar } from "@material-ui/icons";
 import firebase from "../firebase";
 import { auth } from "../auth";
-
+import ContactTitle from "./ContactTitle";
 import { I18n, En, Fr } from "./I18n";
 import SimpleModal from "./SimpleModal";
-
-function getTitle(value) {
-  const { orgName, indName } = value;
-  const titleParts = [orgName, indName];
-  return titleParts
-    .map((e) => e.trim())
-    .filter((e) => e)
-    .join("/");
-}
 
 class Contacts extends React.Component {
   constructor(props) {
@@ -132,6 +123,13 @@ class Contacts extends React.Component {
           </Typography>
         </Grid>
 
+        <Grid item xs>
+          <Button startIcon={<Add />} onClick={() => this.addItem()}>
+            <En>Add contact</En>
+            <Fr>ajouter un contact</Fr>
+          </Button>
+        </Grid>
+
         {loading ? (
           <CircularProgress />
         ) : (
@@ -145,14 +143,20 @@ class Contacts extends React.Component {
                   </Typography>
                   <List>
                     {Object.entries(contacts).map(([key, val]) => (
-                      <ListItem key={key}>
+                      <ListItem
+                        key={key}
+                        button
+                        onClick={() => this.editRecord(key)}
+                      >
                         <ListItemAvatar>
                           <Avatar>
                             <PermContactCalendar />
                           </Avatar>
                         </ListItemAvatar>
 
-                        <ListItemText primary={getTitle(val)} />
+                        <ListItemText
+                          primary={<ContactTitle contact={val} />}
+                        />
                         <ListItemSecondaryAction>
                           <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                             <span>
@@ -181,11 +185,6 @@ class Contacts extends React.Component {
                   <Fr>Aucun contacts n'a encore été soumis</Fr>
                 </Typography>
               )}
-            </Grid>
-            <Grid item xs>
-              <Button startIcon={<Add />} onClick={() => this.addItem()}>
-                Add contact
-              </Button>
             </Grid>
           </>
         )}
