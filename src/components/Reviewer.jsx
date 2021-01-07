@@ -192,7 +192,7 @@ class Submissions extends React.Component {
         });
       }
     });
-
+    console.log(records.filter((record) => record.status));
     const recordsForReview = records.filter(
       (record) => record.status === "submitted"
     );
@@ -220,7 +220,7 @@ class Submissions extends React.Component {
         <SimpleModal
           open={publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID, "pubished")}
+          onAccept={() => this.submitRecord(modalKey, modalUserID, "published")}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
