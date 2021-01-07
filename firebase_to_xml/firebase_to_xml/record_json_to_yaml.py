@@ -153,7 +153,7 @@ def record_json_to_yaml(record):
         ],
 
     }
-    if not record['noPlatform']:
+    if not record.get('noPlatform'):
         record['platform'] = {
             'authority': record.get('platformAuthority'),
             'id': record.get('platformID'),
