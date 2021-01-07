@@ -8,17 +8,22 @@ import { En, Fr } from "../I18n";
 import RequiredMark from "./RequiredMark";
 import { paperClass } from "./QuestionStyles";
 
-const StartTab = ({ disabled }) => {
+const StartTab = ({ disabled, record }) => {
   return (
     <Grid item xs>
       <Paper style={paperClass}>
         {disabled && (
           <Typography>
             <En>
-              <b>This form is locked because it has already been submitted.</b>
+              <b>
+                This form is locked because it has already been {record.status}.
+              </b>
             </En>
             <Fr>
-              <b>Ce formulaire est verrouillé car il a déjà été soumis.</b>
+              <b>
+                Ce formulaire est verrouillé car il a déjà été{" "}
+                {record.status === "submitted" ? "soumis" : "publié"} .
+              </b>
             </Fr>
           </Typography>
         )}
@@ -38,8 +43,8 @@ const StartTab = ({ disabled }) => {
 
         <En>
           <ul>
+            <li>You can save the form once you have filled out a title.</li>
             <li>
-              There are six tabs in this form, each with a series of questions.
               All questions marked with a <RequiredMark /> are mandatory.
             </li>
             <li>

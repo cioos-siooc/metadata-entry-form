@@ -1,4 +1,6 @@
 import React from "react";
+import { Tooltip } from "@material-ui/core";
+import { I18n } from "../I18n";
 
 function RequiredMark({ passes }) {
   if (passes)
@@ -16,15 +18,17 @@ function RequiredMark({ passes }) {
       </span>
     );
   return (
-    <span
-      style={{
-        color: "red",
-        fontSize: "large",
-      }}
-    >
-      {" "}
-      ✵{" "}
-    </span>
+    <Tooltip title={<I18n en="Required" fr="Obligatoire" />}>
+      <span
+        style={{
+          color: "red",
+          fontSize: "large",
+        }}
+      >
+        {" "}
+        ✵{" "}
+      </span>
+    </Tooltip>
   );
 }
 export default RequiredMark;

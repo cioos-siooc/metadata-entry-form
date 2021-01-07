@@ -104,26 +104,51 @@ const MetadataTab = ({ disabled, record, handleInputChange }) => (
     </Paper>
     <Paper style={paperClass}>
       <QuestionText>
-        <En>
-          What are the limitations affecting the fitness for use of the resource
-          or metadata?
-        </En>
-        <Fr>
-          Quelles sont les limites qui influent sur l'aptitude à l'utilisation
-          de la ressource ou des métadonnées?
-        </Fr>
+        <En>What are the limitations affecting the dataset?</En>
+        <Fr>Quelles sont les limitations affectant le jeu de données?</Fr>
         <SupplementalText>
           <En>
-            Eg: <i>Appropriate credit must be given to...</i>
+            For example:
+            <i>
+              <ul>
+                <li>Not to be used for navigational purposes.</li>
+                <li>Instrument was not calibrated on day..</li>
+                <li>Haven’t applied appropriate QC on the data yet.</li>
+              </ul>
+            </i>
           </En>
           <Fr>
-            Par exemple: <i> Un crédit approprié doit être accordé à...</i>
+            Par exemple:
+            <i>
+              <ul>
+                <li>Ne pas utiliser à des fins de navigation.</li>
+                <li>L' instrument n'a pas été étalonné le jour..</li>
+                <li>
+                  N' ont pas encore appliqué le contrôle de qualité approprié
+                  sur les données.
+                </li>
+              </ul>
+            </i>
           </Fr>
         </SupplementalText>
       </QuestionText>
       <BilingualTextInput
         name="limitations"
         value={record.limitations}
+        onChange={handleInputChange}
+        multiline
+        disabled={disabled}
+      />
+    </Paper>
+
+    <Paper style={paperClass}>
+      <QuestionText>
+        <En>Describe the history of this dataset.</En>
+        <Fr>Décrivez l'historique de ce jeu de données.</Fr>
+      </QuestionText>
+      <BilingualTextInput
+        name="history"
+        value={record.history}
         onChange={handleInputChange}
         multiline
         disabled={disabled}
@@ -141,20 +166,6 @@ const MetadataTab = ({ disabled, record, handleInputChange }) => (
       <BilingualTextInput
         name="comment"
         value={record.comment}
-        onChange={handleInputChange}
-        multiline
-        disabled={disabled}
-      />
-    </Paper>
-
-    <Paper style={paperClass}>
-      <QuestionText>
-        <En>Describe the history of this dataset.</En>
-        <Fr>Décrivez l'historique de ce jeu de données.</Fr>
-      </QuestionText>
-      <BilingualTextInput
-        name="history"
-        value={record.history}
         onChange={handleInputChange}
         multiline
         disabled={disabled}

@@ -85,44 +85,46 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
             </Fr>
           </SupplementalText>
         </QuestionText>
-        <Grid container direction="row" spacing={3}>
-          <Grid item xs={3}>
-            <div style={paperClass}>
-              <SelectInput
-                name="verticalExtentDirection"
-                value={record.verticalExtentDirection || ""}
-                onChange={(e) => handleInputChange(e)}
-                options={depthDirections}
-                optionLabels={depthDirections.map((e) =>
-                  camelToSentenceCase(translate(e, language))
-                )}
-                disabled={disabled}
-              />
-            </div>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="flex-start"
+          spacing={4}
+        >
+          <Grid item xs={5}>
+            <SelectInput
+              name="verticalExtentDirection"
+              value={record.verticalExtentDirection || ""}
+              onChange={(e) => handleInputChange(e)}
+              options={depthDirections}
+              optionLabels={depthDirections.map((e) =>
+                camelToSentenceCase(translate(e, language))
+              )}
+              disabled={disabled}
+            />
           </Grid>
           <Grid item xs={2}>
-            <div style={paperClass}>
-              <TextField
-                name="verticalExtentMin"
-                value={record.verticalExtentMin}
-                onChange={handleInputChange}
-                label="Min"
-                type="number"
-                disabled={disabled}
-              />
-            </div>
+            <TextField
+              name="verticalExtentMin"
+              value={record.verticalExtentMin}
+              onChange={handleInputChange}
+              label="Min"
+              fullWidth
+              type="number"
+              disabled={disabled}
+            />
           </Grid>
           <Grid item xs={2}>
-            <div style={paperClass}>
-              <TextField
-                name="verticalExtentMax"
-                value={record.verticalExtentMax}
-                onChange={handleInputChange}
-                label="Max"
-                type="number"
-                disabled={disabled}
-              />
-            </div>
+            <TextField
+              name="verticalExtentMax"
+              value={record.verticalExtentMax}
+              onChange={handleInputChange}
+              label="Max"
+              fullWidth
+              type="number"
+              disabled={disabled}
+            />
           </Grid>
         </Grid>
       </Paper>

@@ -12,10 +12,11 @@ import {
   Grid,
   CircularProgress,
 } from "@material-ui/core";
-import { Delete, Publish, Description, Visibility } from "@material-ui/icons";
+import { Delete, Publish, Description, Edit, Eject } from "@material-ui/icons";
 import firebase from "../firebase";
 import { auth } from "../auth";
 import { Fr, En, I18n } from "./I18n";
+import LastEdited from "./LastEdited";
 
 import SimpleModal from "./SimpleModal";
 
@@ -26,8 +27,10 @@ const MetadataRecordListItem = ({
   onDeleteClick,
   onSubmitClick,
   showPublishAction,
+  showUnPublishAction,
+  onUnPublishClick,
 }) => (
-  <ListItem key={record.key}>
+  <ListItem key={record.key} button onClick={onViewClick}>
     <ListItemAvatar>
       <Avatar>
         <Description />
@@ -35,13 +38,19 @@ const MetadataRecordListItem = ({
     </ListItemAvatar>
     <ListItemText
       primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
-      secondary={record.userinfo.displayName}
+      // secondary={`${record.userinfo.displayName} ${record.userinfo.email}`}
+      secondary={
+        <span>
+          {record.userinfo.displayName} {record.userinfo.email}{" "}
+          <LastEdited dateStr={record.created} />
+        </span>
+      }
     />
     <ListItemSecondaryAction>
       <Tooltip title={<I18n en="View" fr="Vue" />}>
         <span>
           <IconButton onClick={onViewClick} edge="end" aria-label="delete">
-            <Visibility />
+            <Edit />
           </IconButton>
         </span>
       </Tooltip>
@@ -62,6 +71,19 @@ const MetadataRecordListItem = ({
           </span>
         </Tooltip>
       )}
+      {showUnPublishAction && (
+        <Tooltip title={<I18n en="Un-publish" fr="De-Publier" />}>
+          <span>
+            <IconButton
+              onClick={onUnPublishClick}
+              edge="end"
+              aria-label="delete"
+            >
+              <Eject />
+            </IconButton>
+          </span>
+        </Tooltip>
+      )}
     </ListItemSecondaryAction>
   </ListItem>
 );
@@ -72,6 +94,7 @@ class Submissions extends React.Component {
       users: {},
       deleteModalOpen: false,
       publishModalOpen: false,
+      unPublishModalOpen: false,
       modalKey: "",
       modalUserID: "",
       loading: false,
@@ -106,7 +129,7 @@ class Submissions extends React.Component {
     history.push(`/${language}/${region}/review/${userID}/${key}`);
   }
 
-  async submitRecord(key, userID) {
+  async submitRecord(key, userID, status) {
     const { match } = this.props;
     const { region } = match.params;
 
@@ -121,7 +144,7 @@ class Submissions extends React.Component {
         .child("records")
         .child(key)
         .child("status")
-        .set("published");
+        .set(status);
       this.setState({ loading: false });
     }
   }
@@ -154,7 +177,7 @@ class Submissions extends React.Component {
     const { users } = this.state;
     // eslint-disable-next-line react/destructuring-assignment
     const { match } = this.props;
-    const { language, region } = match.params;
+    const { language } = match.params;
 
     const records = [];
 
@@ -180,6 +203,7 @@ class Submissions extends React.Component {
       deleteModalOpen,
       modalKey,
       modalUserID,
+      unPublishModalOpen,
       publishModalOpen,
       loading,
     } = this.state;
@@ -196,7 +220,14 @@ class Submissions extends React.Component {
         <SimpleModal
           open={publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID)}
+          onAccept={() => this.submitRecord(modalKey, modalUserID, "pubished")}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
+        <SimpleModal
+          open={unPublishModalOpen}
+          onClose={() => this.toggleModal("unPublishModalOpen", false)}
+          onAccept={() => this.submitRecord(modalKey, modalUserID, "submitted")}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -227,14 +258,6 @@ class Submissions extends React.Component {
                       Publier ». Une fois qu'un enregistrement est publié, vous
                       pouvez télécharger le xml ou yaml
                     </Fr>{" "}
-                    <a
-                      href={`https://pac-dev1.cioos.org/dev/metadata/${region}`}
-                      // eslint-disable-next-line react/jsx-no-target-blank
-                      target="_blank"
-                    >
-                      <En>here</En>
-                      <Fr>ici</Fr>
-                    </a>
                     .
                   </Typography>
                 </Grid>
@@ -265,7 +288,7 @@ class Submissions extends React.Component {
                               record.userinfo.userID
                             )
                           }
-                          showPublishAction={record.status !== "published"}
+                          showPublishAction
                         />
                       );
                     })}
@@ -305,6 +328,15 @@ class Submissions extends React.Component {
                             record.userinfo.userID
                           )
                         }
+                        onUnPublishClick={() =>
+                          this.toggleModal(
+                            "unPublishModalOpen",
+                            true,
+                            record.key,
+                            record.userinfo.userID
+                          )
+                        }
+                        showUnPublishAction
                       />
                     );
                   })}

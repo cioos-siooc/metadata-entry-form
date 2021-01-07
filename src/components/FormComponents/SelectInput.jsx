@@ -1,30 +1,61 @@
 import React from "react";
-import { Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+  Tooltip,
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+
 import { I18n } from "../I18n";
 
+const useStyles = makeStyles(() => ({
+  formControl: {
+    minWidth: 200,
+  },
+  selectEmpty: {},
+}));
+
 const SelectInput = ({
-  value,
+  value = "",
   name,
   options,
   optionLabels,
+  optionTooltips = [],
   onChange,
   disabled,
-  showDefaultLabel = true,
+  label,
 }) => {
+  const classes = useStyles();
+
   return (
-    <FormControl disabled={disabled} style={{ minWidth: 120 }}>
-      {showDefaultLabel && (
-        <InputLabel
-          id="demo-simple-select-label"
-          style={{ marginLeft: "10px" }}
-        >
-          <I18n en="Choose" fr="Choisir" />
-        </InputLabel>
-      )}
-      <Select name={name} fullWidth value={value} onChange={onChange}>
+    <FormControl fullWidth className={classes.formControl} disabled={disabled}>
+      <Select
+        className={classes.selectEmpty}
+        name={name}
+        fullWidth
+        value={value}
+        disabled={disabled}
+        displayEmpty
+        onChange={onChange}
+      >
+        <MenuItem value="">
+          <InputLabel id="demo-simple-select-label">
+            <Typography>
+              {label || <I18n en="Choose" fr="Choisir" />}
+            </Typography>
+          </InputLabel>
+        </MenuItem>
         {options.map((v, i) => (
           <MenuItem key={v} value={v}>
-            {optionLabels[i]}
+            <Tooltip
+              enterDelay={1}
+              title={optionTooltips[i] ? optionTooltips[i] : ""}
+            >
+              <div style={{ width: "100%" }}>{optionLabels[i]}</div>
+            </Tooltip>
           </MenuItem>
         ))}
       </Select>

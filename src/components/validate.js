@@ -20,14 +20,20 @@ const polygonIsValid = (polygon) => {
   );
 };
 
+const contactIsFilled = (contact) =>
+  Boolean(
+    contact.role && contact.role.length && (contact.orgName || contact.indName)
+  );
+
 // required fields and  a function to validate each
 const validators = {
-  title: (val) => val.en && val.fr,
-  abstract: (val) => val.en && val.fr,
+  title: (val) => val && val.en && val.fr,
+  abstract: (val) => val && val.en && val.fr,
   identifier: (val) => val,
-  keywords: (val) => val.en.length || val.fr.length,
-  eov: (val) => val.length,
+  keywords: (val) => val && (val.en.length || val.fr.length),
+  eov: (val) => val && val.length,
   map: (val) => {
+    if (!val) return false;
     const north = parseFloat(val.north);
     const south = parseFloat(val.south);
     const east = parseFloat(val.east);
@@ -39,8 +45,8 @@ const validators = {
         south &&
         east &&
         west &&
-        north > south &&
-        east > west &&
+        north >= south &&
+        east >= west &&
         validateLatitude(north) &&
         validateLatitude(south) &&
         validateLongitude(east) &&
@@ -53,19 +59,22 @@ const validators = {
     Array.isArray(val) && val.filter((dist) => dist.name && dist.url).length,
   verticalExtentMin: (val) => val,
   verticalExtentMax: (val) => val,
-  platformName: (val) => val,
-  platformID: (val) => val,
-  platformAuthority: (val) => val,
+  platformID: (val, record) => record.noPlatform || val,
+  platformDescription: (val, record) => record.noPlatform || val,
+  instruments: (val, record) =>
+    record.noPlatform ||
+    (val && val.filter((instrument) => instrument.id).length),
   language: (val) => val,
   license: (val) => val,
   // at least one contact has to have a role and a org or individual name
   contacts: (val) =>
-    val.filter(
-      (contact) =>
-        contact.role &&
-        contact.role.length &&
-        (contact.orgName || contact.indName)
-    ).length,
+    val &&
+    val
+      .filter(contactIsFilled)
+      .find((contact) => contact.role.includes("custodian")) &&
+    val
+      .filter(contactIsFilled)
+      .find((contact) => contact.role.includes("owner")),
   created: (val) => val,
   verticalExtentDirection: (val) => val,
 };
@@ -74,15 +83,17 @@ export const validateField = (record, fieldName) => {
   // if no validator funciton exists, then it is not a required field
   const validationFunction = validators[fieldName] || (() => true);
 
-  return (
-    valueToValidate && validationFunction && validationFunction(valueToValidate)
-  );
+  return validationFunction && validationFunction(valueToValidate, record);
 };
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
   const numTotal = fields.length;
   const validFields = fields.filter((field) => validateField(record, field));
-  // const invalidFields = fields.filter((field) => !validateField(record, field));
+
+  const invalidFields = fields.filter((field) => !validateField(record, field));
+
+  // eslint-disable-next-line no-console
+  console.log("Missing fields:", record.title, invalidFields);
 
   const numValid = validFields.length;
 

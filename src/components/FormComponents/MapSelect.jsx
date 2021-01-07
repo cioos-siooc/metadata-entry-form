@@ -117,40 +117,29 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
   };
 
   const onCreated = (e) => {
-    // here you have all the stored layers
-    const drawnItems = editableFG.leafletElement._layers;
+    const { layer, layerType } = e;
 
+    // remove any existing shapes
+    const drawnItems = editableFG.leafletElement._layers;
     clearExtraLayers(drawnItems);
 
-    const newShape = drawnItems[Object.keys(drawnItems)[0]];
-
-    switch (e.layerType) {
+    switch (layerType) {
       case "polygon":
-        let polygon = "";
-        let polyList = "";
-        let endPoint = "";
+        const points = layer.getLatLngs()[0];
+        const polygonStrings = points.map(
+          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+        );
+        const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
-        newShape._latlngs[0].forEach((polyPoint, index) => {
-          const point = `${limitDecimals(polyPoint.lat)},${limitDecimals(
-            polyPoint.lng
-          )}`;
-
-          if (index === 0) {
-            endPoint = point;
-          }
-          polyList = polyList.concat(" ", point);
-        });
-
-        polygon = polyList.concat(" ", endPoint).trim();
         onChange({ target: { name, value: { polygon } } });
         break;
 
       default: // Assume rectangle
       case "rectangle":
-        const bounds = newShape._bounds;
+        const bounds = layer.getBounds();
 
-        let { lat: north, lng: east } = bounds._northEast;
-        let { lat: south, lng: west } = bounds._southWest;
+        let { lat: north, lng: east } = bounds.getNorthEast().wrap();
+        let { lat: south, lng: west } = bounds.getSouthWest().wrap();
 
         north = limitDecimals(north);
         south = limitDecimals(south);

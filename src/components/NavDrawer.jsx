@@ -9,7 +9,6 @@ import {
   ExitToApp,
   Contacts,
   ListAlt,
-  AddBox,
   AccountCircle,
   ChevronLeft,
   ChevronRight,
@@ -162,7 +161,7 @@ export default function MiniDrawer({ children }) {
     home: <I18n en="Home" fr="Accueil" />,
     new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
-    saved: <I18n en="Saved Records" fr="Enregistrements" />,
+    saved: <I18n en="My Records" fr="Enregistrements" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
@@ -254,7 +253,9 @@ export default function MiniDrawer({ children }) {
                 button
                 key="Sign in"
                 onClick={() =>
-                  signInWithGoogle().then(() => history.push(`${baseURL}/new`))
+                  signInWithGoogle().then(() =>
+                    history.push(`${baseURL}/submissions`)
+                  )
                 }
               >
                 <ListItemIcon>
@@ -268,17 +269,17 @@ export default function MiniDrawer({ children }) {
             <>
               <Tooltip
                 placement="right-start"
-                title={open ? "" : translations.new}
+                title={open ? "" : translations.saved}
               >
                 <ListItem
                   button
-                  key="Metadata Editor"
-                  onClick={() => history.push(`${baseURL}/new`)}
+                  key="My Records"
+                  onClick={() => history.push(`${baseURL}/submissions`)}
                 >
                   <ListItemIcon>
-                    <AddBox />
+                    <ListAlt />
                   </ListItemIcon>
-                  <ListItemText primary={translations.new} />
+                  <ListItemText primary={translations.saved} />
                 </ListItem>
               </Tooltip>
               {region && (
@@ -296,22 +297,6 @@ export default function MiniDrawer({ children }) {
                         <Contacts />
                       </ListItemIcon>
                       <ListItemText primary={translations.contacts} />
-                    </ListItem>
-                  </Tooltip>
-
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.saved}
-                  >
-                    <ListItem
-                      button
-                      key="Saved Records"
-                      onClick={() => history.push(`${baseURL}/submissions`)}
-                    >
-                      <ListItemIcon>
-                        <ListAlt />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.saved} />
                     </ListItem>
                   </Tooltip>
 

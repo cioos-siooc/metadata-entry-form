@@ -9,6 +9,35 @@ the metadata-xml module.
 from firebase_to_xml.scrubbers import scrub_dict, scrub_keys
 
 
+def eovs_to_fr(eovs_en):
+    """ Translate a list of EOVs in english to a list in french"""
+    translation = {
+        "oxygen": "Oxygène",
+        "nutrients": "Nutriments",
+        "nitrate": "Nitrate",
+        "phosphate": "Phosphate",
+        "silicate": "Silicate",
+        "inorganicCarbon": "Carbone inoganique",
+        "dissolvedOrganicCarbon": "carbone inorganique dissous",
+        "seaSurfaceHeight": "Hauteur de la surface de la mer",
+        "seawaterDensity": "Densité d'eau de mer",
+        "potentialTemperature": "Température potentielle",
+        "potentialDensity": "Densité potentielle",
+        "speedOfSound": "Vitesse du son",
+        "seaIce": "Glace de mer",
+        "seaState": "État de la mer",
+        "seaSurfaceSalinity": "Salinité de surface",
+        "seaSurfaceTemperature": "Température de surface",
+        "subSurfaceCurrents": "Courants sous-marins",
+        "subSurfaceSalinity": "Salinité sous la surface",
+        "subSurfaceTemperature": "Température sous la surface",
+        "surfaceCurrents": "Courants de surface",
+        "pressure": "Pression",
+        "other": "Autre"}
+
+    return list(filter(None, [translation.get(eov) for eov in eovs_en]))
+
+
 def strip_keywords(keywords):
     'Strips whitespace from each keyword in either language'
     stripped = {"en": [x.strip() for x in keywords.get('en', [])],
@@ -69,6 +98,7 @@ def record_json_to_yaml(record):
             },
             'comment': record.get('comment'),
             'history': record.get('history'),  # {'en':'','fr':''}
+
         },
         'spatial': {
             'bbox': [float(record['map'].get('west')),
@@ -81,12 +111,15 @@ def record_json_to_yaml(record):
         },
         'identification': {
             'title': record.get('title'),  # {'en':'','fr':''}
+            'identifier': record.get('datasetIdentifier'),  # {'en':'','fr':''}
             'abstract': record.get('abstract'),  # {'en':'','fr':''}
             'dates': {},  # filled out later
             'keywords': {
                 'default': strip_keywords(record.get('keywords',
                                                      {'en': [], 'fr': []})),
-                'eov': record.get('eov')
+                'eov':
+                {"en": record.get('eov'),
+                 "fr": eovs_to_fr(record.get('eov'))}
             },
             'temporal_begin': record.get('dateStart'),
             'temporal_end': record.get('dateEnd'),
@@ -118,16 +151,25 @@ def record_json_to_yaml(record):
                 'description': x.get('description'),
             } for x in record.get('distribution', [])
         ],
-        'platform': {
-            'name': record.get('platformName'),
-            'role': record.get('platformRole'),
+
+    }
+    if not record['noPlatform']:
+        record['platform'] = {
             'authority': record.get('platformAuthority'),
             'id': record.get('platformID'),
             'description': record.get('platformDescription'),
-            'instruments': record.get('instruments', []),
-
         }
-    }
+        if record.get("instruments"):
+            record['platform']['instruments'] = record.get("instruments")
+
+    # If there's no distributor set, set it to the data contact (owner)
+    all_roles = [contact['role'] for contact in record['contacts']]
+    all_roles_flat = [j for sub in all_roles for j in sub]
+
+    if 'distributor' not in all_roles_flat:
+        for contact in record['contacts']:
+            if 'owner' in contact['role']:
+                contact['role'] += ['distributor']
 
     record_yaml['identification']['dates'] = {
         "creation":  date_from_datetime_str(

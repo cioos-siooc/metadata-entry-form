@@ -8,12 +8,16 @@ import {
   Tabs,
   Fab,
   Tooltip,
+  Typography,
+  LinearProgress,
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
 import { I18n } from "./I18n";
+import StatusChip from "./StatusChip";
+import LastEdited from "./LastEdited";
 
 import StartTab from "./FormComponents/StartTab";
 import ContactTab from "./FormComponents/ContactTab";
@@ -26,6 +30,29 @@ import { auth } from "../auth";
 import firebase from "../firebase";
 import { firebaseToJSObject } from "../utils/misc";
 import { UserContext } from "../providers/UserProvider";
+import { percentValid } from "./validate";
+
+const LinearProgressWithLabel = ({ value }) => (
+  <Tooltip
+    title={
+      <I18n
+        en="Percentage of required fields filled in"
+        fr="Pourcentage de champs obligatoires remplis"
+      />
+    }
+  >
+    <Box display="flex" width="90%" style={{ margin: "auto" }}>
+      <Box width="100%" mr={1}>
+        <LinearProgress variant="determinate" value={value} />
+      </Box>
+      <Box minWidth={35}>
+        <Typography variant="body2" color="textSecondary">{`${Math.round(
+          value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  </Tooltip>
+);
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -68,11 +95,8 @@ class MetadataForm extends Component {
         dateRevised: null,
         recordID: "",
         instruments: [],
-        platformName: "",
         platformID: "",
-        platformRole: "",
         platformDescription: "",
-        platformAuthority: "",
         language: "",
         license: "",
         contacts: [],
@@ -83,6 +107,9 @@ class MetadataForm extends Component {
         created: new Date().toISOString(),
         category: "",
         verticalExtentDirection: "",
+        instrumentsWithoutPlatform: [],
+        datasetIdentifier: "",
+        noPlatform: false,
       },
 
       // contacts saved by user (not the ones saved in the record)
@@ -159,15 +186,18 @@ class MetadataForm extends Component {
     const { match } = this.props;
     const { region } = match.params;
 
+    const userID = match.params.userID || auth.currentUser.uid;
+
     const recordsRef = firebase
       .database()
       .ref(region)
       .child("users")
-      .child(auth.currentUser.uid)
+      .child(userID)
       .child("records");
 
     // remove userContacts since they get saved elsewhere
     const { record } = this.state;
+    record.created = new Date().toISOString();
 
     if (record.recordID) {
       await recordsRef.child(record.recordID).update(record);
@@ -186,6 +216,10 @@ class MetadataForm extends Component {
   }
 
   render() {
+    const { match } = this.props;
+    const { language } = match.params;
+    const { isReviewer } = this.context;
+
     const {
       userContacts,
       tabIndex,
@@ -198,7 +232,8 @@ class MetadataForm extends Component {
     const { classes } = this.props;
 
     const disabled =
-      record.status === "submitted" || record.status === "published";
+      (!isReviewer && record.status === "submitted") ||
+      record.status === "published";
 
     const tabProps = {
       highlightMissingRequireFields,
@@ -206,6 +241,8 @@ class MetadataForm extends Component {
       record,
       handleInputChange: this.handleInputChange,
     };
+    const percentValidInt = Math.round(percentValid(record) * 100);
+
     return loading ? (
       <CircularProgress />
     ) : (
@@ -245,10 +282,6 @@ class MetadataForm extends Component {
           </span>
         </Tooltip>
         <Grid container spacing={2} direction="row" alignItems="center">
-          {/* <Grid item xs>
-            {formCompleteness * 100}
-            {formIsComplete && "FOrm is Complete"}
-          </Grid> */}
           <Grid item xs>
             <Tabs
               scrollButtons="auto"
@@ -301,6 +334,20 @@ class MetadataForm extends Component {
                 value="platform"
               />
             </Tabs>
+            <div style={{ marginTop: "10px", textAlign: "center" }}>
+              <Typography variant="h5">
+                {(language && record.title && record.title[language]) || (
+                  <I18n en="New Record" fr="Nouveau Record" />
+                )}{" "}
+                <StatusChip status={record.status} />
+              </Typography>
+              <Typography component="div">
+                <i>
+                  <LastEdited dateStr={record.created} />
+                </i>
+                <LinearProgressWithLabel value={percentValidInt} />
+              </Typography>
+            </div>
           </Grid>
         </Grid>
         <TabPanel value={tabIndex} index="start">

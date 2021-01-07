@@ -17,6 +17,7 @@ import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
 
 const IdentificationTab = ({ disabled, record, handleInputChange }) => {
   const { language } = useParams();
+
   return (
     <div>
       <Paper style={paperClass}>
@@ -68,10 +69,10 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
               <div>
                 <ul>
                   <li>
-                    <b>What</b>- Variables that were measured
+                    <b>What</b>- variables that were measured
                   </li>
                   <li>
-                    <b>When</b>- Temporal coverage of the data, frequency of the
+                    <b>When</b>- temporal coverage of the data, frequency of the
                     measurements/observations
                   </li>
                   <li>
@@ -183,12 +184,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
         </QuestionText>
         <SelectInput
           name="progress"
-          value={record.progress}
+          value={record.progress || ""}
           onChange={(e) => handleInputChange(e)}
-          options={progressCodes}
-          optionLabels={progressCodes.map((e) => {
-            return camelToSentenceCase(translate(e, language));
+          options={progressCodes.map(([code]) => code)}
+          optionLabels={progressCodes.map(([code]) => {
+            return camelToSentenceCase(translate(code, language));
           })}
+          optionTooltips={progressCodes.map(([, description]) => description)}
           disabled={disabled}
         />
       </Paper>
@@ -252,18 +254,16 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
 
       <Paper style={paperClass}>
         <QuestionText>
-          <En>
-            What is the dataset identifier, eg DOI or other unique ID or URL?
-          </En>
+          <En>What is the dataset identifier, eg DOI or other unique ID?</En>
           <Fr>
             Quel est l'identificateur du jeu de données, par exemple DOI ou
-            autre ID ou URL unique?
+            autre ID unique?
           </Fr>
         </QuestionText>
         <TextField
           style={{ marginTop: "10px" }}
-          name="metadataIdentifier"
-          value={record.metadataIdentifier}
+          name="datasetIdentifier"
+          value={record.datasetIdentifier}
           onChange={(e) => handleInputChange(e)}
           fullWidth
         />

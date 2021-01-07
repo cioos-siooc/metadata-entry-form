@@ -2,66 +2,84 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 import { TextField, Typography, Grid } from "@material-ui/core";
+import CheckBoxList from "./CheckBoxList";
+
 import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
-import SelectMultipleInput from "./SelectMultipleInput";
+import ContactTitle from "../ContactTitle";
 import translate from "../../utils/i18n";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   const { language } = useParams();
-
+  const options = roleCodes.map(([code]) => code);
+  const optionLabels = roleCodes.map(([code]) => {
+    if (code === "custodian") return "Metadata Contact";
+    if (code === "owner") return "Data Contact";
+    return camelToSentenceCase(translate(code, language));
+  });
   return (
     <Grid container direction="column" spacing={2}>
-      {showRolePicker && (
-        <Grid item xs>
-          <QuestionText>
-            <En>What is the role of this contact?</En>
-            <Fr>Quel est leur rôle ?</Fr>.
-            <SupplementalText>
-              <En>
-                Multiple roles may be selected. A list of roles with
-                descriptions can be found{" "}
-              </En>
-              <Fr>
-                Une liste de rôles avec des descriptions peut être trouvée{" "}
-              </Fr>
-              <a
-                href="http://registry.it.csiro.au/def/isotc211/CI_RoleCode"
-                // eslint-disable-next-line react/jsx-no-target-blank
-                target="_blank"
-              >
-                <En>here</En>
-                <Fr>ici</Fr>
-              </a>
-            </SupplementalText>
-          </QuestionText>
-          <SelectMultipleInput
-            name="role"
-            value={value.role || []}
-            onChange={(e) => onChange(e)}
-            options={roleCodes}
-            optionLabels={roleCodes.map((e) => {
-              return camelToSentenceCase(translate(e, language));
-            })}
-            disabled={disabled}
-          />
-        </Grid>
-      )}
-
       <Grid item xs>
-        <Grid container direction="column" spacing={1}>
+        <Typography variant="h6">
+          <ContactTitle contact={value} />
+        </Typography>
+      </Grid>
+      <Grid item xs>
+        {showRolePicker && (
+          <Grid item xs>
+            <QuestionText>
+              <En>What is the role of this contact?</En>
+              <Fr>Quel est leur rôle?</Fr>
+              <SupplementalText>
+                <En>
+                  At least one Metadata Contact and one Data Contact are
+                  required. Multiple roles may be selected for each contact.
+                </En>
+                <Fr>
+                  Au moins un contact de métadonnées et un contact de données
+                  sont requis.
+                </Fr>
+                <a
+                  href="http://registry.it.csiro.au/def/isotc211/CI_RoleCode"
+                  // eslint-disable-next-line react/jsx-no-target-blank
+                  target="_blank"
+                >
+                  <En>here</En>
+                  <Fr>ici</Fr>
+                </a>
+              </SupplementalText>
+            </QuestionText>
+
+            <CheckBoxList
+              name="role"
+              value={value.role || []}
+              onChange={onChange}
+              options={options}
+              optionLabels={optionLabels}
+              disabled={disabled}
+              optionTooltips={roleCodes.map(([, description]) => description)}
+            />
+          </Grid>
+        )}
+
+        <Grid
+          container
+          direction="column"
+          spacing={1}
+          style={{ marginTop: "10px" }}
+        >
           {/* Organization */}
           <Grid item xs>
-            <Typography>
-              <En>Organization</En>
-              <Fr>Organisation</Fr>
-            </Typography>
+            <QuestionText>
+              <En>Provide any information about the organization</En>
+              <Fr>Fournir toute information sur l'organisation ;</Fr>
+            </QuestionText>
           </Grid>
-          <Grid item xs>
+          <Grid item xs style={{ marginleft: "10px" }}>
             <TextField
-              label={<I18n en="Name" fr="Nom" />}
+              label={<I18n en="Organization name" fr="Nom de l'organisation" />}
               name="orgName"
               value={value.orgName}
               onChange={onChange}
@@ -112,7 +130,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           </Grid>
           <Grid item xs>
             <TextField
-              label={<I18n en="Email" fr="Email" />}
+              label={<I18n en="Email" fr="Courriel" />}
               name="orgEmail"
               value={value.orgEmail}
               onChange={onChange}
@@ -122,38 +140,50 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           </Grid>
         </Grid>
       </Grid>
-
       <Grid item xs>
         {/* Individual */}
         <Typography>
-          <En>Individual</En>
-          <Fr>Individuel</Fr>
+          <En>Provide any information about the individual</En>
+          <Fr>Fournir toute information sur l'individual</Fr>
         </Typography>
-        <TextField
-          label={<I18n en="Name" fr="Nom" />}
-          name="indName"
-          value={value.indName}
-          onChange={onChange}
-          disabled={disabled}
-          fullWidth
-        />
 
-        <TextField
-          label={<I18n en="Position" fr="Position" />}
-          name="indPosition"
-          value={value.indPosition}
-          onChange={onChange}
-          disabled={disabled}
-          fullWidth
-        />
-        <TextField
-          label={<I18n en="Email" fr="Email" />}
-          name="indEmail"
-          value={value.indEmail}
-          onChange={onChange}
-          disabled={disabled}
-          fullWidth
-        />
+        <Grid
+          container
+          direction="column"
+          spacing={1}
+          style={{ marginTop: "10px" }}
+        >
+          <Grid item xs>
+            <TextField
+              label={<I18n en="Individual Name" fr="Nom de l'individu" />}
+              name="indName"
+              value={value.indName}
+              onChange={onChange}
+              disabled={disabled}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs>
+            <TextField
+              label={<I18n en="Position" fr="Position" />}
+              name="indPosition"
+              value={value.indPosition}
+              onChange={onChange}
+              disabled={disabled}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs>
+            <TextField
+              label={<I18n en="Email" fr="Email" />}
+              name="indEmail"
+              value={value.indEmail}
+              onChange={onChange}
+              disabled={disabled}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );

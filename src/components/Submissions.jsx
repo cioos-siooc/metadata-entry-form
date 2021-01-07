@@ -12,7 +12,9 @@ import {
   ListItemSecondaryAction,
   IconButton,
   CircularProgress,
+  Button,
 } from "@material-ui/core";
+
 import {
   Delete,
   Edit,
@@ -20,14 +22,18 @@ import {
   Description,
   FileCopy,
   Visibility,
+  Add,
+  Eject,
 } from "@material-ui/icons";
+import StatusChip from "./StatusChip";
+
 import firebase from "../firebase";
 import { auth } from "../auth";
 import { percentValid } from "./validate";
 
 import { Fr, En, I18n } from "./I18n";
 import { firebaseToJSObject } from "../utils/misc";
-
+import LastEdited from "./LastEdited";
 import SimpleModal from "./SimpleModal";
 
 class Submissions extends React.Component {
@@ -37,6 +43,7 @@ class Submissions extends React.Component {
       records: {},
       deleteModalOpen: false,
       publishModalOpen: false,
+      rescindModalOpen: false,
       modalKey: "",
       loading: false,
     };
@@ -91,6 +98,25 @@ class Submissions extends React.Component {
     }
   }
 
+  // Make record a draft again
+  // eslint-disable-next-line class-methods-use-this
+  rescindRecord(key) {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    if (auth.currentUser && key) {
+      firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(auth.currentUser.uid)
+        .child("records")
+        .child(key)
+        .child("status")
+        .set("");
+    }
+  }
+
   cloneRecord(key) {
     const { match } = this.props;
     const { region } = match.params;
@@ -109,6 +135,8 @@ class Submissions extends React.Component {
         // reset record details
         record.recordID = "";
         record.status = "";
+        if (record.title.en) record.title.en = `${record.title.en} (Copy)`;
+        if (record.title.fr) record.title.fr = `${record.title.fr} (Copte)`;
         record.identifier = uuidv4();
         record.created = new Date().toISOString();
 
@@ -139,15 +167,22 @@ class Submissions extends React.Component {
   }
 
   render() {
-    const { match } = this.props;
-    const { language } = match.params;
+    const { match, history } = this.props;
+
+    const { language, region } = match.params;
+
     const {
       deleteModalOpen,
+      rescindModalOpen,
       modalKey,
       publishModalOpen,
       records,
       loading,
     } = this.state;
+
+    const recordDateSort = (a, b) =>
+      new Date(b[1].created) - new Date(a[1].created);
+
     return (
       <div>
         <SimpleModal
@@ -164,48 +199,96 @@ class Submissions extends React.Component {
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
+        <SimpleModal
+          open={rescindModalOpen}
+          onClose={() => this.toggleModal("rescindModalOpen", false)}
+          onAccept={() => this.rescindRecord(modalKey)}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
 
         <Typography variant="h5">
-          <En>Saved Records</En>
-          <Fr>Enregistrements enregistrés</Fr>
+          <En>My Records</En>
+          <Fr>Mes dossiers</Fr>
         </Typography>
+
         {loading ? (
           <CircularProgress />
         ) : (
           <span>
-            {records && Object.keys(records).length ? (
-              <div>
-                <Typography>
-                  <En>
-                    These are the records you have submitted. To submit a record
-                    for review, click the "Submit for review" button. The record
-                    won't be published until the reviewer approves it. You
-                    cannot submit a record until all the required fields are
-                    filled out.
-                  </En>
-                  <Fr>
-                    Ce sont les documents que vous avez soumis. Pour soumettre
-                    un enregistrement pour examen, cliquez sur le bouton «
-                    Soumettre pour révision ». L'enregistrement ne sera pas
-                    publié tant que le réviseur ne l'aura pas approuvé. Vous ne
-                    pouvez pas soumettre un enregistrement tant que tous les
-                    champs requis ne sont pas remplis.
-                  </Fr>
-                </Typography>
-                <List>
-                  {Object.entries(records).map(([key, recordFireBase]) => {
+            <div>
+              <Typography>
+                <En>
+                  These are the records you have submitted. To submit a record
+                  for review, click the "Submit for review" button. The record
+                  won't be published until the reviewer approves it. You cannot
+                  submit a record until all the required fields are filled out.
+                </En>
+                <Fr>
+                  Ce sont les documents que vous avez soumis. Pour soumettre un
+                  enregistrement pour examen, cliquez sur le bouton « Soumettre
+                  pour révision ». L'enregistrement ne sera pas publié tant que
+                  le réviseur ne l'aura pas approuvé. Vous ne pouvez pas
+                  soumettre un enregistrement tant que tous les champs requis ne
+                  sont pas remplis.
+                </Fr>
+              </Typography>
+
+              <div style={{ marginTop: "10px" }}>
+                <Button
+                  startIcon={<Add />}
+                  onClick={() => history.push(`/${language}/${region}/new`)}
+                >
+                  <I18n en="New Record" fr="Nouveau Record" />
+                </Button>
+              </div>
+
+              <List>
+                {Object.entries(records || {})
+                  .sort(recordDateSort)
+                  .map(([key, recordFireBase]) => {
                     const record = firebaseToJSObject(recordFireBase);
+                    const { status, title, created } = record;
+                    // const createdLocalTime = created
+                    //   ? new Date(created).toString()
+                    //   : null;
+
+                    if (!title || (!title.en && !title.fr)) return null;
 
                     const disabled =
-                      record.status === "submitted" ||
-                      record.status === "published";
+                      status === "submitted" || status === "published";
                     const percentValidInt = Math.round(
                       percentValid(record) * 100
                     );
                     const recordIsComplete = percentValidInt === 100;
+                    let submitTooltip = {
+                      en: "Submit for review",
+                      fr: "Soumettre pour examen",
+                    };
+                    const rescindTooltip = {
+                      en: "Return record to draft for editing",
+                      fr:
+                        "Retourner l'enregistrement au brouillon pour modification",
+                    };
+
+                    if (!recordIsComplete)
+                      submitTooltip = {
+                        en: "Can't submit incomplete record",
+                        fr:
+                          "Impossible de soumettre un enregistrement incomplet",
+                      };
+                    else if (status === "submitted" || status === "published")
+                      submitTooltip = {
+                        en: "Record has been submitted",
+                        fr: "L'enregistrement a été soumis",
+                      };
 
                     return (
-                      <ListItem key={key}>
+                      <ListItem
+                        key={key}
+                        button
+                        onClick={() => this.editRecord(key)}
+                      >
                         <ListItemAvatar>
                           <Avatar>
                             <Description />
@@ -214,18 +297,15 @@ class Submissions extends React.Component {
                         <ListItemText
                           primary={
                             <div style={{ width: "80%" }}>
-                              {record.title[language]}
+                              {title[language]} <StatusChip status={status} />
                             </div>
                           }
                           secondary={
-                            record.created && (
+                            created && (
                               <span>
-                                <En>
-                                  {`Created/Updated ${record.created} ${percentValidInt}% complete`}
-                                </En>
-                                <Fr>
-                                  {`Créé/mis à jour ${record.created} ${percentValidInt}% Achevée`}
-                                </Fr>
+                                <LastEdited dateStr={created} />
+                                <En>{percentValidInt}% complete</En>
+                                <Fr>{percentValidInt}% Achevée</Fr>
                               </span>
                             )
                           }
@@ -284,16 +364,8 @@ class Submissions extends React.Component {
                           <Tooltip
                             title={
                               <I18n
-                                en={
-                                  recordIsComplete
-                                    ? "Submit for review"
-                                    : "Can't submit incomplete record"
-                                }
-                                fr={
-                                  recordIsComplete
-                                    ? "Soumettre pour examen"
-                                    : "Impossible de soumettre un enregistrement incomplet"
-                                }
+                                en={submitTooltip.en}
+                                fr={submitTooltip.fr}
                               />
                             }
                           >
@@ -314,16 +386,42 @@ class Submissions extends React.Component {
                               </IconButton>
                             </span>
                           </Tooltip>
+                          <Tooltip
+                            title={
+                              <I18n
+                                en={rescindTooltip.en}
+                                fr={rescindTooltip.fr}
+                              />
+                            }
+                          >
+                            <span>
+                              <IconButton
+                                disabled={!status}
+                                onClick={() =>
+                                  this.toggleModal(
+                                    "rescindModalOpen",
+                                    true,
+                                    key
+                                  )
+                                }
+                                edge="end"
+                                aria-label="delete"
+                              >
+                                <Eject />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
                         </ListItemSecondaryAction>
                       </ListItem>
                     );
                   })}
-                </List>
-              </div>
-            ) : (
+              </List>
+            </div>
+
+            {!records && (
               <Typography>
-                <En>You don't have any saved records.</En>
-                <Fr>Vous n'avez pas d'enregistrements enregistrés.</Fr>
+                <En>You don't have any records.</En>
+                <Fr>Vous n'avez pas d'enregistrements.</Fr>
               </Typography>
             )}
           </span>

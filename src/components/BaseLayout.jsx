@@ -3,7 +3,6 @@ import { Route, Switch } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import Home from "./Home";
 import Success from "./Success";
 import Submissions from "./Submissions";
 import Contacts from "./Contacts";
@@ -35,7 +34,7 @@ const BaseLayout = ({ match }) => {
       <ThemeProvider theme={theme}>
         <NavDrawer>
           <Switch>
-            <Route path={`${match.path}/`} exact component={Home} />
+            <Route path={`${match.path}/`} exact component={Submissions} />
             <Route
               path={`${match.path}/new/:recordID`}
               component={MetadataForm}

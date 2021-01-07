@@ -21,3 +21,9 @@ export const I18n = ({ en, fr }) => {
   const { language = "en" } = useParams();
   return language === "en" ? en : fr;
 };
+
+export const getValueinFirstLanguage = (obj) => {
+  // obj is,eg,  {en:"sun",fr:"soleil"}
+  // return field in first language found
+  return Object.values(obj).find(() => true);
+};

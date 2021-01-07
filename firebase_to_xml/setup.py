@@ -19,6 +19,6 @@ setup(name='firebase_to_xml',
           'google-auth',
           'google-oauth',
           'python-dotenv',
-          'metadata_xml@git+git://github.com/cioos-siooc/metadata-xml.git'
+          'metadata_xml@git+git://github.com/cioos-siooc/metadata-xml.git@development'
       ]
       )

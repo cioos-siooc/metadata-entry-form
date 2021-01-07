@@ -46,6 +46,7 @@ const Instruments = ({ onChange, value, name, disabled, paperClass }) => {
         <Paper key={i} style={paperClass}>
           <Grid container direction="column" spacing={2}>
             <Grid item xs>
+              Instrument ID is required
               <TextField
                 label="ID"
                 name="id"
@@ -113,7 +114,7 @@ const Instruments = ({ onChange, value, name, disabled, paperClass }) => {
       ))}
       <Paper style={paperClass}>
         <Button startIcon={<Add />} disabled={disabled} onClick={addItem}>
-          <En>Add item</En>
+          <En>Add Instrument</En>
           <Fr>Ajouter un article</Fr>
         </Button>
       </Paper>
