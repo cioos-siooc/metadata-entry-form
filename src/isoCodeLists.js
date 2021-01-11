@@ -24,6 +24,12 @@ export const eovList = [
 ];
 
 export const roleCodes = [
+  [
+    "custodian",
+    "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
+  ],
+  ["owner", "Party that owns the resource 	"],
+  ["distributor", "Party who distributes the resource 	"],
   ["author", "Party who authored the resource 	"],
   ["coAuthor", "Party who jointly authors the resource 	"],
   [
@@ -31,11 +37,6 @@ export const roleCodes = [
     "Party who assists with the generation of the resource other than the principal investigator ",
   ],
   ["contributor", "Party contributing to the resource 	"],
-  [
-    "custodian",
-    "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
-  ],
-  ["distributor", "Party who distributes the resource 	"],
   [
     "editor",
     "Party who reviewed or modified the resource to improve the content 	",
@@ -46,7 +47,6 @@ export const roleCodes = [
     "A class of entity that mediates access to the resource and for whom the resource is intended or useful ",
   ],
   ["originator", "Party who created the resource 	"],
-  ["owner", "Party that owns the resource 	"],
   [
     "pointOfContact",
     "Party who can be contacted for acquiring knowledge about or acquisition of the resource",
@@ -71,48 +71,48 @@ export const roleCodes = [
 ];
 
 export const progressCodes = [
-  ["accepted", "Agreed to by sponsor"],
-  [
-    "completed",
-    "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
-  ],
-  [
-    "deprecated",
-    "Resource superseded and will become obsolete, use only for historical purposes 	",
-  ],
-  ["final", "Progress concluded and no changes will be accepted 	"],
-  [
-    "historicalArchive",
-    "Data has been stored in an offline storage facility. use to indicate data are archived",
-  ],
-  ["notAccepted", "Rejected by sponsor 	"],
-  ["obsolete", "Data is no longer relevant 	"],
   [
     "onGoing",
     "Data is continually being updated. 	e.g satellite dataset that continues to be augmented",
   ],
-  ["pending", "Committed to, but not yet addressed"],
   [
-    "planned",
-    "Fixed date has been established upon or by which the data will be created or updated. 	e.g.scheduled cruise",
-  ],
-  ["proposed", "Suggested that development needs to be undertaken 	"],
-  ["required", "Data needs to be generated or updated 	"],
-  [
-    "retired",
-    "Item is no longer recommended for use. It has not been superseded by another item 	",
-  ],
-  ["superseded", "Replaced by new 	"],
-  [
-    "tentative",
-    "Provisional changes likely before resource becomes final or complete 	",
+    "historicalArchive",
+    "Data has been stored in an offline storage facility. use to indicate data are archived",
   ],
   [
-    "underDevelopment",
-    "Data is currently in the process of being created 	a resource that is not in production yet",
+    "completed",
+    "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
   ],
-  ["valid", "Acceptable under specific conditions 	"],
-  ["withdrawn", "Removed from consideration"],
+  // ["accepted", "Agreed to by sponsor"],
+  // [
+  //   "deprecated",
+  //   "Resource superseded and will become obsolete, use only for historical purposes 	",
+  // ],
+  // ["final", "Progress concluded and no changes will be accepted 	"],
+  // ["notAccepted", "Rejected by sponsor 	"],
+  // ["obsolete", "Data is no longer relevant 	"],
+  // ["pending", "Committed to, but not yet addressed"],
+  // [
+  //   "planned",
+  //   "Fixed date has been established upon or by which the data will be created or updated. 	e.g.scheduled cruise",
+  // ],
+  // ["proposed", "Suggested that development needs to be undertaken 	"],
+  // ["required", "Data needs to be generated or updated 	"],
+  // [
+  //   "retired",
+  //   "Item is no longer recommended for use. It has not been superseded by another item 	",
+  // ],
+  // ["superseded", "Replaced by new 	"],
+  // [
+  //   "tentative",
+  //   "Provisional changes likely before resource becomes final or complete 	",
+  // ],
+  // [
+  //   "underDevelopment",
+  //   "Data is currently in the process of being created 	a resource that is not in production yet",
+  // ],
+  // ["valid", "Acceptable under specific conditions 	"],
+  // ["withdrawn", "Removed from consideration"],
 ];
 
 export const depthDirections = ["depthPositive", "heightPositive"];

@@ -29,7 +29,6 @@ const contactIsFilled = (contact) =>
 const validators = {
   title: (val) => val && val.en && val.fr,
   abstract: (val) => val && val.en && val.fr,
-  identifier: (val) => val,
   keywords: (val) => val && (val.en.length || val.fr.length),
   eov: (val) => val && val.length,
   map: (val) => {
@@ -75,7 +74,6 @@ const validators = {
     val
       .filter(contactIsFilled)
       .find((contact) => contact.role.includes("owner")),
-  created: (val) => val,
   verticalExtentDirection: (val) => val,
 };
 export const validateField = (record, fieldName) => {
@@ -94,6 +92,7 @@ export const percentValid = (record) => {
 
   // eslint-disable-next-line no-console
   console.log("Missing fields:", record.title, invalidFields);
+  console.log("validFields fields:", record.title, validFields);
 
   const numValid = validFields.length;
 

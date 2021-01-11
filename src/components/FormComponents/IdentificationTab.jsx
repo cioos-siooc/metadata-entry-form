@@ -51,6 +51,22 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
 
       <Paper style={paperClass}>
         <QuestionText>
+          <En>What is primary language of the dataset?</En>
+          <Fr>Quelle est la langue principale du jeu de données?</Fr>
+          <RequiredMark passes={validateField(record, "language")} />
+        </QuestionText>
+        <SelectInput
+          name="language"
+          value={record.language}
+          onChange={(e) => handleInputChange(e)}
+          options={["en", "fr"]}
+          optionLabels={["English", "Français"]}
+          disabled={disabled}
+        />
+      </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
           <En>
             Enter an abstract or summary for the dataset. Required in both
             languages.
@@ -192,6 +208,8 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           })}
           optionTooltips={progressCodes.map(([, description]) => description)}
           disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
         />
       </Paper>
 
@@ -210,10 +228,14 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           disabled={disabled}
         />
         <QuestionText>
-          <En>What is the end date when data was last collected?</En>
+          <En>
+            What is the end date when data was last collected? Leave blank if
+            data collection is ongoing.
+          </En>
           <Fr>
             Quelle est la date de fin à laquelle les données ont été collectées
-            pour la dernière fois?
+            pour la dernière fois? Laissez vide si la collecte des données est
+            en cours.
           </Fr>
         </QuestionText>
         <DateInput
@@ -225,10 +247,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
       </Paper>
       <Paper style={paperClass}>
         <QuestionText>
-          <En>What is the date when the data was published?</En>
+          <En>
+            What is the date when the data was published? Leave blank if dataset
+            hasn't been published.
+          </En>
           <Fr>
             Quelle est la date de début à laquelle les données ont été publiées
-            ?
+            ? Laissez vide si les données n'ont pas été publiées.
           </Fr>
         </QuestionText>
         <DateInput
@@ -241,8 +266,14 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
 
       <Paper style={paperClass}>
         <QuestionText>
-          <En>What is the date when data was revised?</En>
-          <Fr>Quelle est la date de début de la révision des données?</Fr>
+          <En>
+            What is the date when data was revised? Leave blank if dataset
+            hasn't been revised.
+          </En>
+          <Fr>
+            Quelle est la date à laquelle les données ont été révisées ? Laissez
+            vide si le jeu de données n'a pas a été révisé.
+          </Fr>
         </QuestionText>
         <DateInput
           name="dateRevised"
@@ -266,6 +297,118 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           value={record.datasetIdentifier}
           onChange={(e) => handleInputChange(e)}
           fullWidth
+        />
+      </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <En>How is the dataset licensed?</En>
+          <Fr>Comment le jeu de données est-il sous licence</Fr>
+          <RequiredMark passes={validateField(record, "license")} />
+          <SupplementalText>
+            <En>
+              <ul>
+                <li>
+                  <b>
+                    Creative Commons Attribution 4.0 International licence
+                    (CC-BY 4.0)
+                  </b>{" "}
+                  - CIOOS recommended. Allows for open sharing and adaptation of
+                  the data provided that the original creator is attributed.
+                </li>
+                <li>
+                  <b>Creative Commons 0</b> - imposes no restrictions of any
+                  kind.
+                </li>
+                <li>
+                  <b>Open Government Licence - Canada</b> - For datasets made
+                  available by Government of Canada departments and agencies, it
+                  is very similar to CC-BY as it allows for open sharing and
+                  adaptation of the data, provided that the original creator of
+                  the data is properly attributed.
+                </li>
+              </ul>
+            </En>
+            <Fr>
+              <ul>
+                <li>
+                  <b>
+                    Licence internationale Creative Commons Attribution 4.0
+                    (CC-BY 4.0){" "}
+                  </b>
+                  - CIOOS recommandé.permet le partage ouvert et l'adaptation de
+                  les données fournies que le créateur original est attribué.
+                </li>
+                <li>
+                  <b>Creative Commons 0</b> - n'impose aucune restriction
+                </li>
+                <li>
+                  <b>Licence pour gouvernement ouvert - Canada</b> - Pour les
+                  ensembles de données disponible par les ministères et
+                  organismes du gouvernement du Canada, très similaire à CC-BY
+                  car il permet le partage ouvert et adaptation des données à
+                  condition que le créateur initial du les données sont
+                  correctement attribuées.
+                </li>
+              </ul>
+            </Fr>
+          </SupplementalText>
+        </QuestionText>
+        <SelectInput
+          name="license"
+          value={record.license}
+          onChange={(e) => handleInputChange(e)}
+          optionLabels={[
+            "Creative Commons Attribution 4.0",
+            "Creative Commons 0",
+            "Open Government Licence - Canada",
+            "Apache License, Version 2.0",
+          ]}
+          options={[
+            "CC-BY-4.0",
+            "CC0",
+            "government-open-license-canada",
+            "Apache-2.0",
+          ]}
+          disabled={disabled}
+        />
+      </Paper>
+      <Paper style={paperClass}>
+        <QuestionText>
+          <En>What are the limitations affecting the dataset?</En>
+          <Fr>Quelles sont les limitations affectant le jeu de données?</Fr>
+          <SupplementalText>
+            <En>
+              For example:
+              <i>
+                <ul>
+                  <li>Not to be used for navigational purposes.</li>
+                  <li>Instrument was not calibrated on day..</li>
+                  <li>Haven’t applied appropriate QC on the data yet.</li>
+                </ul>
+              </i>
+            </En>
+            <Fr>
+              Par exemple:
+              <i>
+                <ul>
+                  <li>Ne pas utiliser à des fins de navigation.</li>
+                  <li>L' instrument n'a pas été étalonné le jour..</li>
+                  <li>
+                    N' ont pas encore appliqué le contrôle de qualité approprié
+                    sur les données.
+                  </li>
+                </ul>
+              </i>
+            </Fr>
+          </SupplementalText>
+        </QuestionText>
+        <BilingualTextInput
+          name="limitations"
+          value={record.limitations}
+          onChange={handleInputChange}
+          multiline
+          disabled={disabled}
         />
       </Paper>
     </div>
