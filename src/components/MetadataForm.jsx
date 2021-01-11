@@ -23,7 +23,6 @@ import StartTab from "./FormComponents/StartTab";
 import ContactTab from "./FormComponents/ContactTab";
 import DistributionTab from "./FormComponents/DistributionTab";
 import IdentificationTab from "./FormComponents/IdentificationTab";
-import MetadataTab from "./FormComponents/MetadataTab";
 import PlatformTab from "./FormComponents/PlatformTab";
 import SpatialTab from "./FormComponents/SpatialTab";
 import { auth } from "../auth";
@@ -43,7 +42,11 @@ const LinearProgressWithLabel = ({ value }) => (
   >
     <Box display="flex" width="90%" style={{ margin: "auto" }}>
       <Box width="100%" mr={1}>
-        <LinearProgress variant="determinate" value={value} />
+        <LinearProgress
+          variant="determinate"
+          value={value}
+          style={{ marginLeft: "-30px" }}
+        />
       </Box>
       <Box minWidth={35}>
         <Typography variant="body2" color="textSecondary">{`${Math.round(
@@ -299,16 +302,14 @@ class MetadataForm extends Component {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label="Identification"
+                label={
+                  <I18n
+                    en="Data Identification"
+                    fr="Identification des données"
+                  />
+                }
                 value="identification"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={<I18n en="Metadata" fr="Métadonnées" />}
-                value="metadata"
-              />
-              identification
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
@@ -324,7 +325,7 @@ class MetadataForm extends Component {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label="Distribution"
+                label={<I18n en="Resources" fr="Ressources" />}
                 value="distribution"
               />
               <Tab
@@ -355,9 +356,6 @@ class MetadataForm extends Component {
         </TabPanel>
         <TabPanel value={tabIndex} index="identification">
           <IdentificationTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="metadata">
-          <MetadataTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />

@@ -24,17 +24,37 @@ const PlatformTab = ({ disabled, record, handleInputChange }) => {
           <Grid item xs style={paperClass}>
             <QuestionText>
               <En>
-                A platform can be a a glider, ship, buoy, or satellite used in
-                data collection. It is strongly encouraged to fill out platform
-                information. If there is no platform, you can enter instruments
-                at the bottom of the page.
+                A platform is anything used in data collection that has
+                instrument(s) attached to it. Eg:
+                <ul>
+                  <li>Glider</li>
+                  <li>Ship</li>
+                  <li>Buoy</li>
+                  <li>Satellite</li>
+                  <li>Rossette</li>
+                  <li>ROV</li>
+                  <li>Mooring</li>
+                </ul>
+                It is strongly encouraged to fill out platform information. If
+                there is no platform, you can enter instruments at the bottom of
+                the page.
               </En>
               <Fr>
-                Une plate-forme peut être un planeur, un navire, une bouée ou un
-                satellite utilisé dans la collecte de données. Il est fortement
-                encouragé à renseigner les informations sur la plateforme. S'il
-                n'y a pas de plate-forme, vous pouvez entrer des instruments au
-                bas de la page.
+                Une plate-forme est tout ce qui est utilisé dans la collecte de
+                données auquel un ou plusieurs instruments sont attachés. Par
+                exemple :
+                <ul>
+                  <li>Planeur</li>
+                  <li>Navire</li>
+                  <li>Bouée</li>
+                  <li>Satellite</li>
+                  <li>Rossette</li>
+                  <li>ROV</li>
+                  <li>Amarrage</li>
+                </ul>
+                Il est fortement encouragé à renseigner les informations sur la
+                plateforme. Si il n'y a pas de plate-forme, vous pouvez entrer
+                des instruments au bas de la page.
               </Fr>
             </QuestionText>
 

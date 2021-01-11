@@ -27,15 +27,20 @@ const SelectInput = ({
   onChange,
   disabled,
   label,
+  fullWidth = true,
 }) => {
   const classes = useStyles();
 
   return (
-    <FormControl fullWidth className={classes.formControl} disabled={disabled}>
+    <FormControl
+      fullWidth={fullWidth}
+      className={classes.formControl}
+      disabled={disabled}
+    >
       <Select
         className={classes.selectEmpty}
         name={name}
-        fullWidth
+        fullWidth={fullWidth}
         value={value}
         disabled={disabled}
         displayEmpty

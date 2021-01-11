@@ -14,17 +14,34 @@ const DistributionTab = ({ disabled, record, handleInputChange }) => {
     <div>
       <Paper style={paperClass}>
         <QuestionText>
-          <En>Enter any URLs associated with this dataset.</En>
-          <Fr>Entrez les URL associées à ce jeux de données.</Fr>
+          <En>Enter any links to information associated with this dataset.</En>
+          <Fr>
+            Entrez les liens vers les informations associées à ce jeu de
+            données.
+          </Fr>
           <RequiredMark passes={validateField(record, "distribution")} />
           <SupplementalText>
             <En>
-              Eg ERDDAP datasets, supporting documentation in text or PDF
-              format, CSV dataset files. At least one resource is required.
+              Some examples of resources are:
+              <ul>
+                <li>supporting documentation (eg text or pdf files)</li>
+                <li>CSV files</li>
+                <li>ERDDAP datasets</li>
+                <li>images</li>
+              </ul>
+              At least one item is required.
             </En>
             <Fr>
-              Par exemple, des jeux de données ERDDAP ou des fichiers CSV. Au
-              moins une ressource est requise.
+              Voici quelques exemples de ressources :
+              <ul>
+                <li>
+                  documentation à l'appui (par exemple, fichiers texte ou pdf)
+                </li>
+                <li>Fichiers CSV</li>
+                <li>Jeux de données ERDDAP</li>
+                <li>images</li>
+              </ul>
+              Au moins un article est requis.
             </Fr>
           </SupplementalText>
         </QuestionText>

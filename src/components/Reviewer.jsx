@@ -30,20 +30,25 @@ const MetadataRecordListItem = ({
   showUnPublishAction,
   onUnPublishClick,
 }) => (
-  <ListItem key={record.key} button onClick={onViewClick}>
+  <ListItem key={record.key}>
     <ListItemAvatar>
       <Avatar>
         <Description />
       </Avatar>
     </ListItemAvatar>
     <ListItemText
+      onClick={onViewClick}
       primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
-      // secondary={`${record.userinfo.displayName} ${record.userinfo.email}`}
       secondary={
-        <span>
-          {record.userinfo.displayName} {record.userinfo.email}{" "}
-          <LastEdited dateStr={record.created} />
-        </span>
+        <li>
+          <ul>
+            Author: {record.userinfo.displayName} {record.userinfo.email}{" "}
+          </ul>
+          <ul>
+            <LastEdited dateStr={record.created} />
+          </ul>
+          <ul>UUID: {record.identifier}</ul>
+        </li>
       }
     />
     <ListItemSecondaryAction>
