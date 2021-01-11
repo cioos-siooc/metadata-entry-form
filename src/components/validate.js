@@ -92,7 +92,7 @@ export const percentValid = (record) => {
 
   // eslint-disable-next-line no-console
   console.log("Missing fields:", record.title, invalidFields);
-  console.log("validFields fields:", record.title, validFields);
+  // console.log("validFields fields:", record.title, validFields);
 
   const numValid = validFields.length;
 
