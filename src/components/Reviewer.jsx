@@ -40,15 +40,13 @@ const MetadataRecordListItem = ({
       onClick={onViewClick}
       primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
       secondary={
-        <li>
-          <ul>
-            Author: {record.userinfo.displayName} {record.userinfo.email}{" "}
-          </ul>
-          <ul>
-            <LastEdited dateStr={record.created} />
-          </ul>
-          <ul>UUID: {record.identifier}</ul>
-        </li>
+        <span>
+          Author: {record.userinfo.displayName} {record.userinfo.email} <br />
+          <LastEdited dateStr={record.created} />
+          <br />
+          UUID: {record.identifier}
+          <br />
+        </span>
       }
     />
     <ListItemSecondaryAction>
@@ -197,7 +195,7 @@ class Submissions extends React.Component {
         });
       }
     });
-    console.log(records.filter((record) => record.status));
+
     const recordsForReview = records.filter(
       (record) => record.status === "submitted"
     );
