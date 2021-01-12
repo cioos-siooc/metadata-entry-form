@@ -153,14 +153,13 @@ def record_json_to_yaml(record):
         ],
 
     }
-    if not record.get('noPlatform'):
-        record['platform'] = {
-            'authority': record.get('platformAuthority'),
+    if record.get('platformID') and record.get('platformDescription'):
+        record_yaml['platform'] = {
             'id': record.get('platformID'),
             'description': record.get('platformDescription'),
         }
         if record.get("instruments"):
-            record['platform']['instruments'] = record.get("instruments")
+            record_yaml['platform']['instruments'] = record.get("instruments")
 
     # If there's no distributor set, set it to the data contact (owner)
     all_roles = [contact['role'] for contact in record['contacts']]
