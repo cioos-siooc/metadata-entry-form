@@ -1,11 +1,8 @@
 const functions = require("firebase-functions");
 const AWS = require("aws-sdk");
+const { awsAuth } = require("./hooks-auth");
 
-AWS.config = new AWS.Config({
-  region: "",
-  accessKeyId: "",
-  secretAccessKey: "",
-});
+AWS.config = new AWS.Config(awsAuth);
 
 const translate = new AWS.Translate();
 
