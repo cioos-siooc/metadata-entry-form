@@ -3,16 +3,20 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 import { En, Fr } from "../I18n";
-import RequiredMark from "./RequiredMark";
+import RequiredMark from "../FormComponents/RequiredMark";
 
-import MapSelect from "./MapSelect";
+import MapSelect from "../FormComponents/MapSelect";
 import { camelToSentenceCase } from "../../utils/misc";
-import SelectInput from "./SelectInput";
+import SelectInput from "../FormComponents/SelectInput";
 import { depthDirections } from "../../isoCodeLists";
 import translate from "../../utils/i18n";
 
-import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
-import { validateField } from "../validate";
+import {
+  QuestionText,
+  SupplementalText,
+  paperClass,
+} from "../FormComponents/QuestionStyles";
+import { validateField } from "../../utils/validate";
 
 const SpatialTab = ({ disabled, record, handleInputChange }) => {
   const { language } = useParams();

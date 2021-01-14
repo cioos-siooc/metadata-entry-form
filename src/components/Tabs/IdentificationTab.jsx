@@ -4,16 +4,20 @@ import { useParams } from "react-router-dom";
 import { En, Fr } from "../I18n";
 import { eovList, progressCodes } from "../../isoCodeLists";
 
-import BilingualTextInput from "./BilingualTextInput";
-import CheckBoxList from "./CheckBoxList";
-import DateInput from "./DateInput";
-import KeywordsInput from "./KeywordsInput";
-import RequiredMark from "./RequiredMark";
-import SelectInput from "./SelectInput";
+import BilingualTextInput from "../FormComponents/BilingualTextInput";
+import CheckBoxList from "../FormComponents/CheckBoxList";
+import DateInput from "../FormComponents/DateInput";
+import KeywordsInput from "../FormComponents/KeywordsInput";
+import RequiredMark from "../FormComponents/RequiredMark";
+import SelectInput from "../FormComponents/SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
 import translate from "../../utils/i18n";
-import { validateField } from "../validate";
-import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
+import { validateField } from "../../utils/validate";
+import {
+  QuestionText,
+  SupplementalText,
+  paperClass,
+} from "../FormComponents/QuestionStyles";
 
 const IdentificationTab = ({ disabled, record, handleInputChange }) => {
   const { language } = useParams();

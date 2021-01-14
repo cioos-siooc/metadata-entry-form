@@ -1,6 +1,6 @@
 import React from "react";
 
-import { I18n } from "./I18n";
+import { I18n } from "../I18n";
 
 function getContactTitleFromNames(contact) {
   const { orgName, indName } = contact;

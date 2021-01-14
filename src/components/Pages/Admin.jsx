@@ -8,9 +8,9 @@ import {
 } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
 
-import firebase from "../firebase";
-import { auth } from "../auth";
-import { Fr, En } from "./I18n";
+import firebase from "../../firebase";
+import { auth } from "../../auth";
+import { Fr, En } from "../I18n";
 
 const unique = (arr) => [...new Set(arr)];
 

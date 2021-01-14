@@ -6,7 +6,7 @@ import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
 import RequiredMark from "./RequiredMark";
 import { En, Fr, I18n } from "../I18n";
-import { validateField } from "../validate";
+import { validateField } from "../../utils/validate";
 
 const Platform = ({ record, handleInputChange, disabled }) => (
   <>
