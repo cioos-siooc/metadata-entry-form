@@ -8,7 +8,7 @@ import {
 import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
-import RegionSelect from "./RegionSelect";
+import RegionSelect from "./Pages/RegionSelect";
 
 const languagePath = ":language(en|fr)";
 const regionPath = ":region(pacific|atlantic|stlaurent)";

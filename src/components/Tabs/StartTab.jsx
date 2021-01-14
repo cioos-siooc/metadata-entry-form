@@ -5,8 +5,8 @@ import { Typography, Paper, Grid } from "@material-ui/core";
 
 import { En, Fr } from "../I18n";
 
-import RequiredMark from "./RequiredMark";
-import { paperClass } from "./QuestionStyles";
+import RequiredMark from "../FormComponents/RequiredMark";
+import { paperClass } from "../FormComponents/QuestionStyles";
 
 const StartTab = ({ disabled, record }) => {
   return (

@@ -13,18 +13,22 @@ import {
 
 import { Add, Delete } from "@material-ui/icons";
 // import { useParams } from "react-router-dom";
-import Contact from "./Contact";
+import Contact from "../FormComponents/Contact";
 // import firebase from "../../firebase";
 // import { auth } from "../../auth";
 
-import SelectInput from "./SelectInput";
-import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
+import SelectInput from "../FormComponents/SelectInput";
+import {
+  QuestionText,
+  SupplementalText,
+  paperClass,
+} from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
-import RequiredMark from "./RequiredMark";
-import { validateField } from "../validate";
+import RequiredMark from "../FormComponents/RequiredMark";
+import { validateField } from "../../utils/validate";
 import { deepCopy } from "../../utils/misc";
-import ContactTitle from "../ContactTitle";
+import ContactTitle from "../FormComponents/ContactTitle";
 
 const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
   const name = "contacts";

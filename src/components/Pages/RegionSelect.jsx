@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { ButtonBase, Typography, Grid } from "@material-ui/core";
 
 import { useParams, useHistory } from "react-router-dom";
-import regions from "../regions";
+import regions from "../../regions";
 
 const images = [
   {

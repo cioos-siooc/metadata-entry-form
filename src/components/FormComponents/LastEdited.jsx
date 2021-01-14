@@ -4,7 +4,7 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import fr from "javascript-time-ago/locale/fr";
 
-import { Fr, En, GetLanguage } from "./I18n";
+import { Fr, En, GetLanguage } from "../I18n";
 
 const LastEdited = ({ dateStr }) => {
   let timeAgo;

@@ -18,7 +18,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { I18n, En, Fr } from "../I18n";
 
 import { QuestionText, SupplementalText } from "./QuestionStyles";
-import { validateField } from "../validate";
+import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 
 const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {

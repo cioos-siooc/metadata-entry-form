@@ -1,19 +1,13 @@
 import React from "react";
 
-import {
-  Typography,
-  Paper,
-  Grid,
-  FormControlLabel,
-  Checkbox,
-} from "@material-ui/core";
-import Instruments from "./Instruments";
+import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
+import Instruments from "../FormComponents/Instruments";
 
-import { QuestionText, paperClass } from "./QuestionStyles";
-import RequiredMark from "./RequiredMark";
-import Platform from "./Platform";
+import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";
+import RequiredMark from "../FormComponents/RequiredMark";
+import Platform from "../FormComponents/Platform";
 import { En, Fr } from "../I18n";
-import { validateField } from "../validate";
+import { validateField } from "../../utils/validate";
 
 const PlatformTab = ({ disabled, record, handleInputChange }) => {
   const { noPlatform = false } = record;
@@ -81,54 +75,48 @@ const PlatformTab = ({ disabled, record, handleInputChange }) => {
               }
             />
           </Grid>
-          {!noPlatform && (
-            <Grid item xs style={paperClass}>
-              <Platform
-                record={record}
-                handleInputChange={handleInputChange}
-                disabled={disabled}
-              />
+
+          <Grid item xs style={paperClass}>
+            {!noPlatform ? (
+              <>
+                <Platform
+                  record={record}
+                  handleInputChange={handleInputChange}
+                  disabled={disabled}
+                />
+
+                <QuestionText>
+                  <En>
+                    At least one instrument is required if there is a platform.
+                  </En>
+                  <Fr>
+                    Au moins un instrument est requis s'il y a une plate-forme.
+                  </Fr>
+
+                  <RequiredMark passes={validateField(record, "instruments")} />
+                </QuestionText>
+              </>
+            ) : (
               <QuestionText>
-                <En>
-                  At least one instrument is required if there is a platform.
-                </En>
+                <En>You can still enter an instrument without a platform</En>
                 <Fr>
-                  Au moins un instrument est requis s'il y a une plate-forme.
+                  Vous pouvez toujours entrer dans un instrument sans
+                  plate-forme
                 </Fr>
-
-                <RequiredMark passes={validateField(record, "instruments")} />
               </QuestionText>
+            )}
 
-              <Instruments
-                value={record.instruments || []}
-                onChange={handleInputChange}
-                name="instruments"
-                disabled={disabled}
-                paperClass={paperClass}
-              />
-            </Grid>
-          )}
+            <Instruments
+              value={record.instruments}
+              onChange={handleInputChange}
+              name="instruments"
+              disabled={disabled}
+              paperClass={paperClass}
+              noPlatform={noPlatform}
+            />
+          </Grid>
         </Grid>
       </Paper>
-
-      <Grid item xs>
-        <Paper style={paperClass}>
-          <Typography variant="h5">Instruments</Typography>
-          <Typography>
-            <En>Add instruments that are not associated with a platform.</En>
-            <Fr>
-              Ajout d'instruments qui ne sont pas associés à une plate-forme.
-            </Fr>
-          </Typography>
-        </Paper>
-        <Instruments
-          value={record.instrumentsWithoutPlatform || []}
-          onChange={handleInputChange}
-          name="instrumentsWithoutPlatform"
-          disabled={disabled}
-          paperClass={paperClass}
-        />
-      </Grid>
     </div>
   );
 };

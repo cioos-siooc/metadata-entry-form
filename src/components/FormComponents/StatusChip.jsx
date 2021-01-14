@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Chip } from "@material-ui/core";
-import { I18n } from "./I18n";
+import { I18n } from "../I18n";
 
 const StatusChip = ({ status }) => {
   const statusColors = {
