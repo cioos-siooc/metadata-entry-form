@@ -15,21 +15,23 @@ import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
-import { I18n } from "./I18n";
-import StatusChip from "./StatusChip";
-import LastEdited from "./LastEdited";
+import { I18n } from "../I18n";
+import StatusChip from "../FormComponents/StatusChip";
+import LastEdited from "../FormComponents/LastEdited";
 
-import StartTab from "./FormComponents/StartTab";
-import ContactTab from "./FormComponents/ContactTab";
-import DistributionTab from "./FormComponents/DistributionTab";
-import IdentificationTab from "./FormComponents/IdentificationTab";
-import PlatformTab from "./FormComponents/PlatformTab";
-import SpatialTab from "./FormComponents/SpatialTab";
-import { auth } from "../auth";
-import firebase from "../firebase";
-import { firebaseToJSObject } from "../utils/misc";
-import { UserContext } from "../providers/UserProvider";
-import { percentValid } from "./validate";
+import StartTab from "../Tabs/StartTab";
+import ContactTab from "../Tabs/ContactTab";
+import DistributionTab from "../Tabs/DistributionTab";
+import IdentificationTab from "../Tabs/IdentificationTab";
+import PlatformTab from "../Tabs/PlatformTab";
+import SpatialTab from "../Tabs/SpatialTab";
+import SubmitTab from "../Tabs/SubmitTab";
+
+import { auth } from "../../auth";
+import firebase from "../../firebase";
+import { firebaseToJSObject } from "../../utils/misc";
+import { UserContext } from "../../providers/UserProvider";
+import { percentValid } from "../../utils/validate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -110,7 +112,6 @@ class MetadataForm extends Component {
         created: new Date().toISOString(),
         category: "",
         verticalExtentDirection: "",
-        instrumentsWithoutPlatform: [],
         datasetIdentifier: "",
         noPlatform: false,
       },
@@ -162,10 +163,12 @@ class MetadataForm extends Component {
               this.setState({
                 record: { ...record, recordID },
               });
+              this.setState({ loading: false });
             });
+        } else {
+          this.setState({ loading: false });
         }
       }
-      this.setState({ loading: false });
     });
   }
 
@@ -184,6 +187,26 @@ class MetadataForm extends Component {
       saveDisabled: false,
     }));
   };
+
+  // eslint-disable-next-line class-methods-use-this
+  async submitRecord() {
+    const { match } = this.props;
+    const { region } = match.params;
+    const { record } = this.state;
+    const { recordID } = record;
+
+    if (auth.currentUser && recordID) {
+      firebase
+        .database()
+        .ref(region)
+        .child("users")
+        .child(auth.currentUser.uid)
+        .child("records")
+        .child(recordID)
+        .child("status")
+        .set("submitted");
+    }
+  }
 
   async handleSubmitClick() {
     const { match } = this.props;
@@ -334,6 +357,15 @@ class MetadataForm extends Component {
                 label={<I18n en="Platform" fr="Plateforme" />}
                 value="platform"
               />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label={<I18n en="Submit" fr="Soumettre" />}
+                value="submit"
+                disabled={
+                  record.status === "submitted" || record.status === "published"
+                }
+              />
             </Tabs>
             <div style={{ marginTop: "10px", textAlign: "center" }}>
               <Typography variant="h5">
@@ -365,6 +397,9 @@ class MetadataForm extends Component {
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <DistributionTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={tabIndex} index="submit">
+          <SubmitTab {...tabProps} submitRecord={() => this.submitRecord()} />
         </TabPanel>
         <TabPanel value={tabIndex} index="contact">
           {/* userContacts are the ones the user has saved, not necessarily part of the record */}

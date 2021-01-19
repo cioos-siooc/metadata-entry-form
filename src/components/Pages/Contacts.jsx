@@ -14,11 +14,11 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import { Add, Edit, Delete, PermContactCalendar } from "@material-ui/icons";
-import firebase from "../firebase";
-import { auth } from "../auth";
-import ContactTitle from "./ContactTitle";
-import { I18n, En, Fr } from "./I18n";
-import SimpleModal from "./SimpleModal";
+import firebase from "../../firebase";
+import { auth } from "../../auth";
+import ContactTitle from "../FormComponents/ContactTitle";
+import { I18n, En, Fr } from "../I18n";
+import SimpleModal from "../FormComponents/SimpleModal";
 
 class Contacts extends React.Component {
   constructor(props) {

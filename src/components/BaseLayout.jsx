@@ -3,15 +3,15 @@ import { Route, Switch } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import Success from "./Success";
-import Submissions from "./Submissions";
-import Contacts from "./Contacts";
+import Success from "./Pages/Success";
+import Submissions from "./Pages/Submissions";
+import Contacts from "./Pages/Contacts";
 import NavDrawer from "./NavDrawer";
-import MetadataForm from "./MetadataForm";
-import EditContact from "./EditContact";
-import Reviewer from "./Reviewer";
-import Admin from "./Admin";
-import NotFound from "./NotFound";
+import MetadataForm from "./Pages/MetadataForm";
+import EditContact from "./FormComponents/EditContact";
+import Reviewer from "./Pages/Reviewer";
+import Admin from "./Pages/Admin";
+import NotFound from "./Pages/NotFound";
 import UserProvider from "../providers/UserProvider";
 
 const theme = createMuiTheme({

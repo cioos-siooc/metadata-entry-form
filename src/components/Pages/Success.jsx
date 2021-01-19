@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Typography } from "@material-ui/core";
-import { Fr, En } from "./I18n";
+import { Fr, En } from "../I18n";
 
 const Submissions = () => {
   return (

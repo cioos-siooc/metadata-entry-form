@@ -13,12 +13,12 @@ import {
   CircularProgress,
 } from "@material-ui/core";
 import { Delete, Publish, Description, Edit, Eject } from "@material-ui/icons";
-import firebase from "../firebase";
-import { auth } from "../auth";
-import { Fr, En, I18n } from "./I18n";
-import LastEdited from "./LastEdited";
+import firebase from "../../firebase";
+import { auth } from "../../auth";
+import { Fr, En, I18n } from "../I18n";
+import LastEdited from "../FormComponents/LastEdited";
 
-import SimpleModal from "./SimpleModal";
+import SimpleModal from "../FormComponents/SimpleModal";
 
 const MetadataRecordListItem = ({
   record,
