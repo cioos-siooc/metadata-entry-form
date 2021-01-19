@@ -1,7 +1,7 @@
 import enToFr from "./i18nDictionaryFr";
 
-const translate = (key, locale = "en") => {
-  if (locale === "en") return key;
+const translate = (key, toLang = "en") => {
+  if (toLang === "en") return key;
 
   return enToFr[key] || null;
 };

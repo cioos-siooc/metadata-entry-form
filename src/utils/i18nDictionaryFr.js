@@ -84,7 +84,6 @@ const dictionary = {
   "sea access": "accès à la mer",
   "decision making": "aide à la décision",
   "protected areas": "aires protégées",
-  "maritime ressources": "ressources maritime",
   "knowledge improvement": "amélioration des connaissances",
   "land-use planning": "aménagement du territoire",
   "water purification": "assainissement des eaux",
