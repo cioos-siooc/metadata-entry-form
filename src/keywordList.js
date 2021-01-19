@@ -3,7 +3,7 @@ const keywordList = [
   "sea access",
   "decision making",
   "protected areas",
-  "maritime ressources",
+  "maritime resources",
   "knowledge improvement",
   "land-use planning",
   "water purification",
