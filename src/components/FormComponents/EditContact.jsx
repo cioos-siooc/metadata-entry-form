@@ -2,12 +2,12 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
-import firebase from "../firebase";
-import { auth } from "../auth";
+import firebase from "../../firebase";
+import { auth } from "../../auth";
 
-import { En, Fr } from "./I18n";
+import { En, Fr } from "../I18n";
 
-import Contact from "./FormComponents/Contact";
+import Contact from "./Contact";
 
 class EditContact extends React.Component {
   constructor(props) {

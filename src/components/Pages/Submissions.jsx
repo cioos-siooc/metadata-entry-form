@@ -25,16 +25,16 @@ import {
   Add,
   Eject,
 } from "@material-ui/icons";
-import StatusChip from "./StatusChip";
+import StatusChip from "../FormComponents/StatusChip";
 
-import firebase from "../firebase";
-import { auth } from "../auth";
-import { percentValid } from "./validate";
+import firebase from "../../firebase";
+import { auth } from "../../auth";
+import { percentValid } from "../../utils/validate";
 
-import { Fr, En, I18n } from "./I18n";
-import { firebaseToJSObject } from "../utils/misc";
-import LastEdited from "./LastEdited";
-import SimpleModal from "./SimpleModal";
+import { Fr, En, I18n } from "../I18n";
+import { firebaseToJSObject } from "../../utils/misc";
+import LastEdited from "../FormComponents/LastEdited";
+import SimpleModal from "../FormComponents/SimpleModal";
 
 class Submissions extends React.Component {
   constructor(props) {
@@ -42,8 +42,8 @@ class Submissions extends React.Component {
     this.state = {
       records: {},
       deleteModalOpen: false,
-      publishModalOpen: false,
-      rescindModalOpen: false,
+      submitModalOpen: false,
+      withdrawModalOpen: false,
       modalKey: "",
       loading: false,
     };
@@ -100,7 +100,7 @@ class Submissions extends React.Component {
 
   // Make record a draft again
   // eslint-disable-next-line class-methods-use-this
-  rescindRecord(key) {
+  withdrawRecord(key) {
     const { match } = this.props;
     const { region } = match.params;
 
@@ -173,9 +173,9 @@ class Submissions extends React.Component {
 
     const {
       deleteModalOpen,
-      rescindModalOpen,
+      withdrawModalOpen,
       modalKey,
-      publishModalOpen,
+      submitModalOpen,
       records,
       loading,
     } = this.state;
@@ -193,16 +193,16 @@ class Submissions extends React.Component {
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
-          open={publishModalOpen}
-          onClose={() => this.toggleModal("publishModalOpen", false)}
+          open={submitModalOpen}
+          onClose={() => this.toggleModal("submitModalOpen", false)}
           onAccept={() => this.submitRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
-          open={rescindModalOpen}
-          onClose={() => this.toggleModal("rescindModalOpen", false)}
-          onAccept={() => this.rescindRecord(modalKey)}
+          open={withdrawModalOpen}
+          onClose={() => this.toggleModal("withdrawModalOpen", false)}
+          onAccept={() => this.withdrawRecord(modalKey)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -265,7 +265,7 @@ class Submissions extends React.Component {
                       en: "Submit for review",
                       fr: "Soumettre pour examen",
                     };
-                    const rescindTooltip = {
+                    const withdrawTooltip = {
                       en: "Return record to draft for editing",
                       fr:
                         "Retourner l'enregistrement au brouillon pour modification",
@@ -350,7 +350,7 @@ class Submissions extends React.Component {
                           <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
                             <span>
                               <IconButton
-                                disabled={disabled}
+                                // disabled={disabled}
                                 onClick={() =>
                                   this.toggleModal("deleteModalOpen", true, key)
                                 }
@@ -373,11 +373,7 @@ class Submissions extends React.Component {
                               <IconButton
                                 disabled={disabled || !recordIsComplete}
                                 onClick={() =>
-                                  this.toggleModal(
-                                    "publishModalOpen",
-                                    true,
-                                    key
-                                  )
+                                  this.toggleModal("submitModalOpen", true, key)
                                 }
                                 edge="end"
                                 aria-label="delete"
@@ -389,8 +385,8 @@ class Submissions extends React.Component {
                           <Tooltip
                             title={
                               <I18n
-                                en={rescindTooltip.en}
-                                fr={rescindTooltip.fr}
+                                en={withdrawTooltip.en}
+                                fr={withdrawTooltip.fr}
                               />
                             }
                           >
@@ -399,7 +395,7 @@ class Submissions extends React.Component {
                                 disabled={!status}
                                 onClick={() =>
                                   this.toggleModal(
-                                    "rescindModalOpen",
+                                    "withdrawModalOpen",
                                     true,
                                     key
                                   )

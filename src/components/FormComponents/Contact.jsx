@@ -16,7 +16,7 @@ import CheckBoxList from "./CheckBoxList";
 import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 import { camelToSentenceCase } from "../../utils/misc";
-import ContactTitle from "../ContactTitle";
+import ContactTitle from "./ContactTitle";
 import translate from "../../utils/i18n";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 

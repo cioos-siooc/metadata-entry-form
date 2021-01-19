@@ -2,12 +2,16 @@ import React from "react";
 
 import { Paper } from "@material-ui/core";
 
-import Distribution from "./Distribution";
+import Distribution from "../FormComponents/Distribution";
 import { En, Fr } from "../I18n";
 
-import RequiredMark from "./RequiredMark";
-import { paperClass, QuestionText, SupplementalText } from "./QuestionStyles";
-import { validateField } from "../validate";
+import RequiredMark from "../FormComponents/RequiredMark";
+import {
+  paperClass,
+  QuestionText,
+  SupplementalText,
+} from "../FormComponents/QuestionStyles";
+import { validateField } from "../../utils/validate";
 
 const DistributionTab = ({ disabled, record, handleInputChange }) => {
   return (
