@@ -127,9 +127,12 @@ export default function MiniDrawer({ children }) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const { user, isReviewer: userIsReviewer, isAdmin: userIsAdmin } = useContext(
-    UserContext
-  );
+  const {
+    user,
+    isReviewer: userIsReviewer,
+    isAdmin: userIsAdmin,
+    authIsLoading,
+  } = useContext(UserContext);
 
   let { language = "en", region = "region-select" } = useParams();
 
@@ -250,6 +253,7 @@ export default function MiniDrawer({ children }) {
               title={open ? "" : translations.signIn}
             >
               <ListItem
+                disabled={authIsLoading}
                 button
                 key="Sign in"
                 onClick={() =>

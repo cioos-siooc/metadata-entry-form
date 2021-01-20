@@ -3,7 +3,7 @@
 """
 Command line interface to part of firebase_to_xml
 """
-
+from pathlib import Path
 import argparse
 import traceback
 from dotenv import load_dotenv
@@ -39,7 +39,6 @@ def main():
     region = args["region"]
     firebase_auth_key_file = args["key"]
     also_save_yaml = args["yaml"]
-    xml_directory = args["out"]
 
     print("Region: ", region)
 
@@ -64,6 +63,12 @@ def main():
             ) else '_' for character in name.strip().lower()]
             name = "".join(char_list)
 
+            xml_directory = args["out"]
+
+            if record['status'] != 'published':
+                xml_directory = xml_directory + '/unpublished'
+                Path(xml_directory).mkdir(parents=True, exist_ok=True)
+
             # output yaml
             if also_save_yaml:
                 filename = f'{xml_directory}/{name}.yaml'
@@ -81,8 +86,10 @@ def main():
             file.write(xml)
             print("Wrote " + file.name)
 
-        except KeyError:
+        except Exception:
             print(traceback.format_exc())
+
+        print("Done")
 
 
 if __name__ == "__main__":
