@@ -291,9 +291,12 @@ class Submissions extends React.Component {
                         en: "Record has been submitted",
                         fr: "L'enregistrement a été soumis",
                       };
-                    const recordTitleShortened =
-                      record.title[language].slice(0, 30) +
-                      record.identifier.slice(0, 5);
+                    const recordTitleShortened = `${record.title[
+                      language
+                    ].slice(0, 30)}_${record.identifier.slice(0, 5)}`
+                      .trim()
+                      .toLowerCase()
+                      .replace(/[^a-zA-Z0-9]/g, "_");
 
                     let wafPath = `${WAF_URL}/${region}/`;
                     if (status !== "published") wafPath += "unpublished";
