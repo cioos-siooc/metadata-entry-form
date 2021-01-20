@@ -6,12 +6,14 @@ const { notificationsGmailAuth } = require("./hooks-auth");
 /**
  * Here we're using Gmail to send
  */
-let transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: notificationsGmailAuth,
 });
-
-exports.notify = functions.database
+/*
+Email the reviewers for the region when a form is submitted for review
+*/
+exports.notifyReviewer = functions.database
   .ref("/{region}/users/{userID}/records/{recordID}/status")
   .onUpdate(async ({ after }, context) => {
     const db = admin.database();
@@ -34,16 +36,10 @@ exports.notify = functions.database
         .ref(`/${region}/users/${userID}/records/${recordID}`)
         .once("value");
 
-      const authorEmailFB = await db
-        .ref(`/${region}/users/${userID}/userinfo/email`)
-        .once("value");
-
-      const authorEmail = authorEmailFB.toJSON();
-
-      console.log("Emailing ", authorEmail, reviewers);
+      console.log("Emailing ", reviewers);
 
       const record = recordFB.toJSON();
-      const language = record.language;
+      const { language } = record;
       const title = record.title[language];
 
       if (!title) {
@@ -74,6 +70,48 @@ exports.notify = functions.database
                   </div>
             `, // email content in HTML
       };
+
+      // returning result
+
+      await transporter.sendMail(mailOptionsReviewer, (e, info) => {
+        console.log(info);
+        if (e) {
+          console.log(e);
+        }
+      });
+    }
+  });
+/*
+Email the user when a record is published
+*/
+exports.notifyUser = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}/status")
+  .onUpdate(async ({ after }, context) => {
+    const db = admin.database();
+    const { region, userID, recordID } = context.params;
+    if (after.val() === "published") {
+      const recordFB = await db
+        .ref(`/${region}/users/${userID}/records/${recordID}`)
+        .once("value");
+
+      const authorEmailFB = await db
+        .ref(`/${region}/users/${userID}/userinfo/email`)
+        .once("value");
+
+      const authorEmail = authorEmailFB.toJSON();
+
+      console.log("Emailing ", authorEmail);
+
+      const record = recordFB.toJSON();
+      const { language } = record;
+      const title = record.title[language];
+
+      if (!title) {
+        console.log(`No title found for record ${recordID}`);
+        return;
+      }
+      // getting dest email by query string
+
       const mailOptionsAuthor = {
         from:
           "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
@@ -106,12 +144,6 @@ exports.notify = functions.database
 
       // returning result
 
-      await transporter.sendMail(mailOptionsReviewer, (e, info) => {
-        console.log(info);
-        if (e) {
-          console.log(e);
-        }
-      });
       await transporter.sendMail(mailOptionsAuthor, (e, info) => {
         console.log(info);
         if (e) {

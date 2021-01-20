@@ -24,6 +24,8 @@ import {
   Visibility,
   Add,
   Eject,
+  CloudDownload,
+  Code,
 } from "@material-ui/icons";
 import StatusChip from "../FormComponents/StatusChip";
 
@@ -36,6 +38,11 @@ import { firebaseToJSObject } from "../../utils/misc";
 import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
+const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
+function openInNewTab(url) {
+  const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+  if (newWindow) newWindow.opener = null;
+}
 class Submissions extends React.Component {
   constructor(props) {
     super(props);
@@ -65,6 +72,8 @@ class Submissions extends React.Component {
           .on("value", (records) =>
             this.setState({ records: records.toJSON(), loading: false })
           );
+      } else {
+        this.setState({ loading: false });
       }
     });
   }
@@ -282,6 +291,14 @@ class Submissions extends React.Component {
                         en: "Record has been submitted",
                         fr: "L'enregistrement a été soumis",
                       };
+                    const recordTitleShortened =
+                      record.title[language].slice(0, 30) +
+                      record.identifier.slice(0, 5);
+
+                    let wafPath = `${WAF_URL}/${region}/`;
+                    if (status !== "published") wafPath += "unpublished";
+                    const recordURLXML = `${wafPath}/${recordTitleShortened}.xml`;
+                    const recordURLERDDAP = `${wafPath}/${recordTitleShortened}_erddap.txt`;
 
                     return (
                       <ListItem
@@ -296,7 +313,7 @@ class Submissions extends React.Component {
                         </ListItemAvatar>
                         <ListItemText
                           primary={
-                            <div style={{ width: "80%" }}>
+                            <div style={{ width: "60%" }}>
                               {title[language]} <StatusChip status={status} />
                             </div>
                           }
@@ -404,6 +421,41 @@ class Submissions extends React.Component {
                                 aria-label="delete"
                               >
                                 <Eject />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              <I18n en="Download XML" fr="Télécharger XML" />
+                            }
+                          >
+                            <span>
+                              <IconButton
+                                disabled={!recordIsComplete}
+                                onClick={() => openInNewTab(recordURLXML)}
+                                edge="end"
+                                aria-label="delete"
+                              >
+                                <CloudDownload />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              <I18n
+                                en="Download ERDDAP snippet"
+                                fr={"Télécharger l'extrait ERDDAP"}
+                              />
+                            }
+                          >
+                            <span>
+                              <IconButton
+                                disabled={!recordIsComplete}
+                                onClick={() => openInNewTab(recordURLERDDAP)}
+                                edge="end"
+                                aria-label="delete"
+                              >
+                                <Code />
                               </IconButton>
                             </span>
                           </Tooltip>

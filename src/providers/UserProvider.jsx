@@ -15,6 +15,7 @@ class UserProvider extends Component {
       admins: [],
       reviewers: [],
       isReviewer: false,
+      loggedIn: false,
     };
   }
 
@@ -26,7 +27,7 @@ class UserProvider extends Component {
     const { match } = this.props;
 
     const { region } = match.params;
-
+    this.setState({ authIsLoading: true });
     this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
@@ -48,21 +49,29 @@ class UserProvider extends Component {
           .on("value", (permissionsFB) => {
             const permissions = permissionsFB.toJSON();
 
-            const admins = Object.values(permissions.admins || {});
-            const reviewers = Object.values(permissions.reviewers || {});
+            const admins =
+              permissions && Object.values(permissions.admins || {});
+            const reviewers =
+              permissions && Object.values(permissions.reviewers || {});
 
-            const isAdmin = admins.includes(email);
-            const isReviewer = reviewers.includes(email);
+            const isAdmin = admins && admins.includes(email);
+            const isReviewer = reviewers && reviewers.includes(email);
 
             this.setState({
               admins,
               reviewers,
               isAdmin,
               isReviewer,
+              loggedIn: true,
             });
           });
+      } else {
+        this.setState({
+          loggedIn: false,
+          authIsLoading: false,
+        });
       }
-      this.setState({ user: userAuth });
+      this.setState({ user: userAuth, authIsLoading: false });
     });
   };
 

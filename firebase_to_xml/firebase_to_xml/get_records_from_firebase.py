@@ -43,20 +43,10 @@ def get_records_from_firebase(region, firebase_auth_key_file):
         sys.exit()
 
     records = []
-
-    num_unpublished_records = 0
-
     for users_tree in body.values():
         if 'records' in users_tree:
             records_tree = users_tree['records']
 
             for record in records_tree.values():
-
-                if record['status'] == 'published':
-                    records.append(record)
-                else:
-                    num_unpublished_records = num_unpublished_records + 1
-
-    print(f"Found {len(records)} published records")
-    print(f"Found {num_unpublished_records} unpublished records")
+                records.append(record)
     return records
