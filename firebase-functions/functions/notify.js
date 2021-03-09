@@ -15,10 +15,11 @@ Email the reviewers for the region when a form is submitted for review
 */
 exports.notifyReviewer = functions.database
   .ref("/{region}/users/{userID}/records/{recordID}/status")
-  .onUpdate(async ({ after }, context) => {
+  .onUpdate(async ({ after, before }, context) => {
     const db = admin.database();
     const { region, userID, recordID } = context.params;
-    if (after.val() === "submitted") {
+    // Don't notify if going from published to submitted
+    if (after.val() === "submitted" && !before.val()) {
       const reviewersFirebase = await db
         .ref(`/${region}/permissions/reviewers`)
         .once("value");

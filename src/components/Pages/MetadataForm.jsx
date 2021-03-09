@@ -15,7 +15,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
-import { I18n } from "../I18n";
+import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
 
@@ -110,10 +110,13 @@ class MetadataForm extends Component {
         history: "",
         limitations: "",
         created: new Date().toISOString(),
+        lastEditedBy: {},
         category: "",
         verticalExtentDirection: "",
         datasetIdentifier: "",
         noPlatform: false,
+        filename: "",
+        organization: "",
       },
 
       // contacts saved by user (not the ones saved in the record)
@@ -128,6 +131,9 @@ class MetadataForm extends Component {
       saveDisabled: true,
 
       highlightMissingRequireFields: false,
+
+      userinfo: { email: "", displayName: "" },
+      editorInfo: { email: "", displayName: "" },
     };
   }
 
@@ -139,14 +145,33 @@ class MetadataForm extends Component {
       if (user) {
         const { region, recordID } = match.params;
 
+        // get info of the person openeing the record
+        firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(user.uid)
+          .child("userinfo")
+          .on("value", (userinfo) => {
+            this.setState({ editorInfo: userinfo.toJSON() });
+          });
+
         // either from the URL if its a record in review or from auth
+        const recordLoadedFromURL = Boolean(match.params.userID);
+
         const userID = match.params.userID || user.uid;
 
+        // get info of the original author of record
         const userDataRef = firebase
           .database()
           .ref(region)
           .child("users")
           .child(userID);
+
+        if (recordLoadedFromURL)
+          userDataRef.child("userinfo").on("value", (userinfo) => {
+            this.setState({ userinfo: userinfo.toJSON() });
+          });
 
         // get contacts
         userDataRef.child("contacts").on("value", (contacts) => {
@@ -196,7 +221,7 @@ class MetadataForm extends Component {
     const { recordID } = record;
 
     if (auth.currentUser && recordID) {
-      firebase
+      await firebase
         .database()
         .ref(region)
         .child("users")
@@ -222,8 +247,11 @@ class MetadataForm extends Component {
       .child("records");
 
     // remove userContacts since they get saved elsewhere
-    const { record } = this.state;
+    const { record, editorInfo } = this.state;
     record.created = new Date().toISOString();
+    console.log("editorInfo", editorInfo);
+    // this.setState({ lastEditedBy: editorInfo });
+    record.lastEditedBy = editorInfo;
 
     if (record.recordID) {
       await recordsRef.child(record.recordID).update(record);
@@ -246,6 +274,8 @@ class MetadataForm extends Component {
     const { language } = match.params;
     const { isReviewer } = this.context;
 
+    const recordLoadedFromURL = Boolean(match.params.userID);
+
     const {
       userContacts,
       tabIndex,
@@ -254,7 +284,6 @@ class MetadataForm extends Component {
       loading,
       highlightMissingRequireFields,
     } = this.state;
-
     const { classes } = this.props;
 
     const disabled =
@@ -377,6 +406,14 @@ class MetadataForm extends Component {
               <Typography component="div">
                 <i>
                   <LastEdited dateStr={record.created} />
+                  {record.lastEditedBy && record.lastEditedBy.displayName && (
+                    <>
+                      <En>by </En>
+                      <Fr>par</Fr>
+                      {record.lastEditedBy.displayName}{" "}
+                      {isReviewer && record.lastEditedBy.email}
+                    </>
+                  )}
                 </i>
                 <LinearProgressWithLabel value={percentValidInt} />
               </Typography>

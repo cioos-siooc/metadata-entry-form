@@ -8,14 +8,10 @@ import {
   ListItem,
   ListItemText,
   Typography,
-  // CircularProgress,
 } from "@material-ui/core";
 
 import { Add, Delete } from "@material-ui/icons";
-// import { useParams } from "react-router-dom";
 import Contact from "../FormComponents/Contact";
-// import firebase from "../../firebase";
-// import { auth } from "../../auth";
 
 import SelectInput from "../FormComponents/SelectInput";
 import {
@@ -35,8 +31,6 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
 
   const value = record.contacts || [];
 
-  // const { region } = useParams();
-  // const [isSavingContact, setisSavingContact] = useState(false);
   const initial = {
     role: [],
     orgName: "",
@@ -62,21 +56,6 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
     });
     setActiveContact(value.length);
   }
-  // async function saveContact(idx) {
-  //   if (value[idx]) {
-  //     setisSavingContact(true);
-
-  //     await firebase
-  //       .database()
-  //       .ref(region)
-  //       .child("users")
-  //       .child(auth.currentUser.uid)
-  //       .child("contacts")
-  //       .push(value[idx]);
-
-  //     setisSavingContact(false);
-  //   }
-  // }
 
   function addItem() {
     const changes = {

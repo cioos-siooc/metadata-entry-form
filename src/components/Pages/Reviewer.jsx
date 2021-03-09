@@ -12,7 +12,14 @@ import {
   Grid,
   CircularProgress,
 } from "@material-ui/core";
-import { Delete, Publish, Description, Edit, Eject } from "@material-ui/icons";
+import {
+  Delete,
+  Publish,
+  Description,
+  Edit,
+  Eject,
+  Visibility,
+} from "@material-ui/icons";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
@@ -53,7 +60,7 @@ const MetadataRecordListItem = ({
       <Tooltip title={<I18n en="View" fr="Vue" />}>
         <span>
           <IconButton onClick={onViewClick} edge="end" aria-label="delete">
-            <Edit />
+            {showUnPublishAction ? <Visibility /> : <Edit />}
           </IconButton>
         </span>
       </Tooltip>
@@ -139,15 +146,17 @@ class Submissions extends React.Component {
     if (key && userID) {
       this.setState({ loading: true });
 
-      await firebase
+      const recordRef = firebase
         .database()
         .ref(region)
         .child("users")
         .child(userID)
         .child("records")
-        .child(key)
-        .child("status")
-        .set(status);
+        .child(key);
+
+      await recordRef.child("status").set(status);
+      await recordRef.child("timeFirstPublished").set(new Date().toISOString());
+
       this.setState({ loading: false });
     }
   }
@@ -178,7 +187,7 @@ class Submissions extends React.Component {
 
   render() {
     const { users } = this.state;
-    // eslint-disable-next-line react/destructuring-assignment
+
     const { match } = this.props;
     const { language } = match.params;
 

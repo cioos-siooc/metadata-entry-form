@@ -52,6 +52,7 @@ class Submissions extends React.Component {
       submitModalOpen: false,
       withdrawModalOpen: false,
       modalKey: "",
+      modalRecord: null,
       loading: false,
     };
   }
@@ -78,6 +79,16 @@ class Submissions extends React.Component {
     });
   }
 
+  static getRecordFilename(record) {
+    return `${record.title[record.language].slice(
+      0,
+      30
+    )}_${record.identifier.slice(0, 5)}`
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]/g, "_");
+  }
+
   componentWillUnmount() {
     if (this.unsubscribe) this.unsubscribe();
   }
@@ -89,21 +100,25 @@ class Submissions extends React.Component {
     history.push(`/${language}/${region}/new/${key}`);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  submitRecord(key) {
+  submitRecord(key, record) {
     const { match } = this.props;
     const { region } = match.params;
 
     if (auth.currentUser && key) {
-      firebase
+      const recordRef = firebase
         .database()
         .ref(region)
         .child("users")
         .child(auth.currentUser.uid)
         .child("records")
-        .child(key)
-        .child("status")
-        .set("submitted");
+        .child(key);
+
+      recordRef.child("status").set("submitted");
+
+      if (record && !record.filename) {
+        const filename = Submissions.getRecordFilename(record);
+        recordRef.child("filename").set(filename);
+      }
     }
   }
 
@@ -144,6 +159,10 @@ class Submissions extends React.Component {
         // reset record details
         record.recordID = "";
         record.status = "";
+        record.lastEditedBy = {};
+        record.created = new Date().toISOString();
+        record.filename = "";
+
         if (record.title.en) record.title.en = `${record.title.en} (Copy)`;
         if (record.title.fr) record.title.fr = `${record.title.fr} (Copte)`;
         record.identifier = uuidv4();
@@ -171,8 +190,8 @@ class Submissions extends React.Component {
     }
   }
 
-  toggleModal(modalName, state, key = "") {
-    this.setState({ modalKey: key, [modalName]: state });
+  toggleModal(modalName, state, key = "", record = null) {
+    this.setState({ modalKey: key, [modalName]: state, modalRecord: record });
   }
 
   render() {
@@ -184,6 +203,7 @@ class Submissions extends React.Component {
       deleteModalOpen,
       withdrawModalOpen,
       modalKey,
+      modalRecord,
       submitModalOpen,
       records,
       loading,
@@ -204,7 +224,7 @@ class Submissions extends React.Component {
         <SimpleModal
           open={submitModalOpen}
           onClose={() => this.toggleModal("submitModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey)}
+          onAccept={() => this.submitRecord(modalKey, modalRecord)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -258,14 +278,12 @@ class Submissions extends React.Component {
                   .map(([key, recordFireBase]) => {
                     const record = firebaseToJSObject(recordFireBase);
                     const { status, title, created } = record;
-                    // const createdLocalTime = created
-                    //   ? new Date(created).toString()
-                    //   : null;
 
                     if (!title || (!title.en && !title.fr)) return null;
 
-                    const disabled =
-                      status === "submitted" || status === "published";
+                    const submitted = status === "submitted";
+                    const published = status === "published";
+
                     const percentValidInt = Math.round(
                       percentValid(record) * 100
                     );
@@ -298,8 +316,8 @@ class Submissions extends React.Component {
                       .toLowerCase()
                       .replace(/[^a-zA-Z0-9]/g, "_");
 
-                    let wafPath = `${WAF_URL}/${region}/`;
-                    if (status !== "published") wafPath += "unpublished";
+                    let wafPath = `${WAF_URL}/${region}`;
+                    if (status !== "published") wafPath += "/unpublished";
                     const recordURLXML = `${wafPath}/${recordTitleShortened}.xml`;
                     const recordURLERDDAP = `${wafPath}/${recordTitleShortened}_erddap.txt`;
 
@@ -342,13 +360,12 @@ class Submissions extends React.Component {
                               </IconButton>
                             </span>
                           </Tooltip>
-                          {disabled ? (
+                          {published ? (
                             <Tooltip title={<I18n en="View" fr="Vue" />}>
                               <span>
                                 <IconButton
                                   onClick={() => this.editRecord(key)}
                                   edge="end"
-                                  aria-label="delete"
                                 >
                                   <Visibility />
                                 </IconButton>
@@ -360,7 +377,6 @@ class Submissions extends React.Component {
                                 <IconButton
                                   onClick={() => this.editRecord(key)}
                                   edge="end"
-                                  aria-label="delete"
                                 >
                                   <Edit />
                                 </IconButton>
@@ -370,7 +386,6 @@ class Submissions extends React.Component {
                           <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
                             <span>
                               <IconButton
-                                // disabled={disabled}
                                 onClick={() =>
                                   this.toggleModal("deleteModalOpen", true, key)
                                 }
@@ -391,9 +406,16 @@ class Submissions extends React.Component {
                           >
                             <span>
                               <IconButton
-                                disabled={disabled || !recordIsComplete}
+                                disabled={
+                                  submitted || published || !recordIsComplete
+                                }
                                 onClick={() =>
-                                  this.toggleModal("submitModalOpen", true, key)
+                                  this.toggleModal(
+                                    "submitModalOpen",
+                                    true,
+                                    key,
+                                    record
+                                  )
                                 }
                                 edge="end"
                                 aria-label="delete"
@@ -427,14 +449,14 @@ class Submissions extends React.Component {
                               </IconButton>
                             </span>
                           </Tooltip>
-                          <Tooltip
+                          {/* <Tooltip
                             title={
                               <I18n en="Download XML" fr="Télécharger XML" />
                             }
                           >
                             <span>
                               <IconButton
-                                disabled={!recordIsComplete}
+                                disabled={!status}
                                 onClick={() => openInNewTab(recordURLXML)}
                                 edge="end"
                                 aria-label="delete"
@@ -453,7 +475,7 @@ class Submissions extends React.Component {
                           >
                             <span>
                               <IconButton
-                                disabled={!recordIsComplete}
+                                disabled={!status}
                                 onClick={() => openInNewTab(recordURLERDDAP)}
                                 edge="end"
                                 aria-label="delete"
@@ -461,7 +483,7 @@ class Submissions extends React.Component {
                                 <Code />
                               </IconButton>
                             </span>
-                          </Tooltip>
+                          </Tooltip> */}
                         </ListItemSecondaryAction>
                       </ListItem>
                     );

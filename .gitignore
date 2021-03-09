@@ -33,3 +33,4 @@ TODO
 node_modules
 notforrepo
 __pycache__
+*.xml
