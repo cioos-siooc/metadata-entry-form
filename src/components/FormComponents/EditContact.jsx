@@ -85,7 +85,6 @@ class EditContact extends React.Component {
     history.push(`${baseURL}/contacts`);
   }
 
-  // orgName, orgURL, orgAdress, orgCity, orgCountry
   render() {
     const { orgName, indName } = this.state;
     const isFilledEnoughToSave = orgName || indName;

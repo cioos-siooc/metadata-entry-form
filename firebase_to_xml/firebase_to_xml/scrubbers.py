@@ -18,13 +18,13 @@ def scrub_dict(d_in):
             val = scrub_dict(val)
         if isinstance(val, list):
             val = scrub_list(val)
-        if val not in (u'', None, {}):
+        if val not in (u"", None, {}):
             new_dict[key] = val
     return new_dict
 
 
 def scrub_list(d_in):
-    'remove empty lists'
+    "remove empty lists"
     scrubbed_list = []
     for i in d_in:
         if isinstance(i, dict):
@@ -34,7 +34,7 @@ def scrub_list(d_in):
 
 
 def scrub_keys(d_in):
-    'remove empty lists that are properties of a dict'
+    "remove empty lists that are properties of a dict"
     scrubbed = {}
     for k in d_in:
         if d_in[k]:

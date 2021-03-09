@@ -30,8 +30,7 @@ const SubmitTab = ({ record, submitRecord }) => {
     submitRecord().then(() => setSubmitting(false));
   }
 
-  const percentValidInt = Math.round(percentValid(record) * 100);
-  const recordIsComplete = percentValidInt === 100;
+  const recordIsComplete = Math.round(percentValid(record) * 100) === 100;
 
   const validationErrors = getErrorsByTab(record);
   const submitted = record.status === "submitted";

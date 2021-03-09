@@ -1,7 +1,7 @@
 import React from "react";
 import { Paper, TextField, Grid } from "@material-ui/core";
 import { useParams } from "react-router-dom";
-import { En, Fr } from "../I18n";
+import { En, Fr, getAltLanguage } from "../I18n";
 import { eovList, progressCodes } from "../../isoCodeLists";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -12,6 +12,7 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
 import translate from "../../utils/i18n";
+import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
 import {
   QuestionText,
@@ -20,7 +21,7 @@ import {
 } from "../FormComponents/QuestionStyles";
 
 const IdentificationTab = ({ disabled, record, handleInputChange }) => {
-  const { language } = useParams();
+  const { language, region } = useParams();
 
   return (
     <div>
@@ -362,18 +363,8 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           name="license"
           value={record.license}
           onChange={(e) => handleInputChange(e)}
-          optionLabels={[
-            "Creative Commons Attribution 4.0",
-            "Creative Commons 0",
-            "Open Government Licence - Canada",
-            "Apache License, Version 2.0",
-          ]}
-          options={[
-            "CC-BY-4.0",
-            "CC0",
-            "government-open-license-canada",
-            "Apache-2.0",
-          ]}
+          optionLabels={Object.values(licenses)}
+          options={Object.keys(licenses)}
           disabled={disabled}
         />
       </Paper>

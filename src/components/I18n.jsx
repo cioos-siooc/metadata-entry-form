@@ -6,6 +6,10 @@ export const GetLanguage = () => {
   return language;
 };
 
+export const getAltLanguage = (language) => {
+  return language === "en" ? "fr" : "en";
+};
+
 export const En = ({ children }) => {
   const { language } = useParams();
   return language === "en" && <>{children}</>;
