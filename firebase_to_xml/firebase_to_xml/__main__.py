@@ -42,18 +42,27 @@ def main():
     parser.add_argument(
         "--region", required=True, choices=["pacific", "stlaurent", "atlantic"]
     )
+    parser.add_argument(
+        "--status",
+        default="published",
+        required=False,
+        choices=["published", "submitted"],
+    )
     parser.add_argument("--record_url", required=False)
 
     args = vars(parser.parse_args())
 
     region = args["region"]
+    record_status = args["status"]
     record_url = args["record_url"]
 
     firebase_auth_key_file = args["key"]
     also_save_yaml = args["yaml"]
 
     # get list of records from Firebase
-    record_list = get_records_from_firebase(region, firebase_auth_key_file, record_url)
+    record_list = get_records_from_firebase(
+        region, firebase_auth_key_file, record_url, record_status
+    )
 
     # translate each record to YAML and then to XML
     for record in record_list:
