@@ -12,7 +12,9 @@ from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 
 
-def get_records_from_firebase(region, firebase_auth_key_file, record_url):
+def get_records_from_firebase(
+    region, firebase_auth_key_file, record_url, record_status
+):
     """
     Returns list of records from firebase for this region,
     using keyfile to authenticate
@@ -61,6 +63,6 @@ def get_records_from_firebase(region, firebase_auth_key_file, record_url):
                 records_tree = users_tree["records"]
 
                 for record in records_tree.values():
-                    if record["status"] == "published":
+                    if record["status"] == record_status:
                         records.append(record)
         return records
