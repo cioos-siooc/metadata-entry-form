@@ -84,6 +84,7 @@ def get_license_by_code(license_code):
 
 
 def fix_lat_long_polygon(polygon):
+    """Change lat,long to long, lat, which is what is expected in the XML"""
     if not polygon:
         return ""
     fixed = []
@@ -98,9 +99,6 @@ def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
     polygon = record.get("map", {}).get("polygon", "")
-
-    print(polygon)
-    print(fix_lat_long_polygon(polygon))
 
     record_yaml = {
         "metadata": {
@@ -133,7 +131,7 @@ def record_json_to_yaml(record):
             ]
             if not polygon
             else "",
-            "polygon": polygon,
+            "polygon": fix_lat_long_polygon(polygon),
             "vertical": [
                 float(record.get("verticalExtentMin")),
                 float(record.get("verticalExtentMax")),
