@@ -63,6 +63,6 @@ def get_records_from_firebase(
                 records_tree = users_tree["records"]
 
                 for record in records_tree.values():
-                    if record["status"] == record_status:
+                    if record["status"] in record_status:
                         records.append(record)
         return records
