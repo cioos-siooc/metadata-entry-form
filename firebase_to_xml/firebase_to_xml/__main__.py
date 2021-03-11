@@ -15,6 +15,15 @@ from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 
 
+def parse_status(status: str):
+    """Return a list version fo their status selection"""
+
+    if "," in status:
+        return status.split(",")
+
+    return [status]
+
+
 def get_filename(record):
     """Creates a filename by combinig the title and UUID """
     name = record["title"][record["language"]][0:30] + "_" + record["identifier"][0:5]
@@ -46,14 +55,20 @@ def main():
         "--status",
         default="published",
         required=False,
-        choices=["published", "submitted"],
+        choices=[
+            "published",
+            "submitted",
+            "submitted,published",
+            "published,submitted",
+        ],
     )
     parser.add_argument("--record_url", required=False)
 
     args = vars(parser.parse_args())
 
     region = args["region"]
-    record_status = args["status"]
+    record_status = parse_status(args["status"])
+
     record_url = args["record_url"]
 
     firebase_auth_key_file = args["key"]
