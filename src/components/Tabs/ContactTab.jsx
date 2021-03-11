@@ -95,8 +95,8 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
               <b>Data Contact</b> for this dataset.
             </En>
             <Fr>
-              Veuillez saisir au moins un contact lié à cet ensemble de données.
-              Vous pouvez créer un nouveau contact ici.
+              Veuillez saisir au moins un <b>contact de métadonnées</b> et un
+              <b>contact de données</b> pour cet ensemble de données.
             </Fr>
             <RequiredMark passes={validateField(record, "contacts")} />
             <SupplementalText>
