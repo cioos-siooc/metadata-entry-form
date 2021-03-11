@@ -177,6 +177,8 @@ const validators = {
     tab: "contacts",
     validation: (val) =>
       val &&
+      // every contact must have a role and name
+      val.every(contactIsFilled) &&
       val
         .filter(contactIsFilled)
         .find((contact) => contact.role.includes("custodian")) &&
@@ -184,9 +186,10 @@ const validators = {
         .filter(contactIsFilled)
         .find((contact) => contact.role.includes("owner")),
     error: {
-      en: "Missing contact roles 'Data contact' or 'Metadata contact'",
+      en:
+        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact",
       fr:
-        "Rôles de contact manquants 'Contact données' ou 'Contact de métadonnées'",
+        "Chaque contact doit avoir au moins un rôle vérifié, et « Contact de données » ou « Contact de métadonnées » doit être ajouté à au moins un contact",
     },
   },
 };
