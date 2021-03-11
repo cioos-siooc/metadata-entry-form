@@ -97,7 +97,7 @@ def main():
 
             organization = record.get("organization", "")
 
-            name = record.get("filename", get_filename(record))
+            name = record.get("filename") or get_filename(record)
 
             xml_directory = args["out"]
 
@@ -119,7 +119,7 @@ def main():
                 filename = f"{xml_directory}/{name}.xml"
                 file = open(filename, "w")
                 file.write(xml)
-                # print("Wrote " + file.name)
+                print("Wrote " + file.name)
 
         except Exception:
             print(traceback.format_exc())
