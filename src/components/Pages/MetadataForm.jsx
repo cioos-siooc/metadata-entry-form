@@ -18,6 +18,7 @@ import { withRouter } from "react-router-dom";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
+import NotFound from "./NotFound";
 
 import StartTab from "../Tabs/StartTab";
 import ContactTab from "../Tabs/ContactTab";
@@ -182,7 +183,14 @@ class MetadataForm extends Component {
             .child("records")
             .child(recordID)
             .on("value", (recordFireBase) => {
-              const record = firebaseToJSObject(recordFireBase.toJSON());
+              // Record not found, eg a bad link
+              const recordFireBaseObj = recordFireBase.toJSON();
+              if (!recordFireBaseObj) {
+                this.setState({ loading: false, record: null });
+
+                return;
+              }
+              const record = firebaseToJSObject(recordFireBaseObj);
 
               const loggedInUserCanEditRecord =
                 (isReviewer || loggedInUserOwnsRecord) &&
@@ -289,6 +297,10 @@ class MetadataForm extends Component {
       highlightMissingRequireFields,
       loggedInUserCanEditRecord,
     } = this.state;
+
+    if (!record) {
+      return <NotFound />;
+    }
     const { classes } = this.props;
 
     const disabled = !loggedInUserCanEditRecord;
