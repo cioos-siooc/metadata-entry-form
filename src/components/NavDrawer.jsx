@@ -256,11 +256,10 @@ export default function MiniDrawer({ children }) {
                 disabled={authIsLoading}
                 button
                 key="Sign in"
-                onClick={() =>
-                  signInWithGoogle().then(() =>
-                    history.push(`${baseURL}/submissions`)
-                  )
-                }
+                onClick={async () => {
+                  await signInWithGoogle();
+                  history.push(pathname);
+                }}
               >
                 <ListItemIcon>
                   <AccountCircle />
