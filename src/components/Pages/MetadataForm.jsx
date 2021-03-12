@@ -132,8 +132,8 @@ class MetadataForm extends Component {
 
       highlightMissingRequireFields: false,
 
-      userinfo: { email: "", displayName: "" },
       editorInfo: { email: "", displayName: "" },
+      loggedInUserCanEditRecord: false,
     };
   }
 
@@ -144,34 +144,30 @@ class MetadataForm extends Component {
     this.unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const { region, recordID } = match.params;
+        const isNewRecord = match.url.endsWith("new");
+        // could be viewer or reviewer
+        const loggedInUserID = user.uid;
+        const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
+        const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
+        const { isReviewer } = this.context;
 
         // get info of the person openeing the record
         firebase
           .database()
           .ref(region)
           .child("users")
-          .child(user.uid)
+          .child(loggedInUserID)
           .child("userinfo")
           .on("value", (userinfo) => {
             this.setState({ editorInfo: userinfo.toJSON() });
           });
-
-        // either from the URL if its a record in review or from auth
-        const recordLoadedFromURL = Boolean(match.params.userID);
-
-        const userID = match.params.userID || user.uid;
 
         // get info of the original author of record
         const userDataRef = firebase
           .database()
           .ref(region)
           .child("users")
-          .child(userID);
-
-        if (recordLoadedFromURL)
-          userDataRef.child("userinfo").on("value", (userinfo) => {
-            this.setState({ userinfo: userinfo.toJSON() });
-          });
+          .child(recordUserID);
 
         // get contacts
         userDataRef.child("contacts").on("value", (contacts) => {
@@ -179,19 +175,25 @@ class MetadataForm extends Component {
         });
 
         // if recordID is set then the user is editing an existing record
-        if (userID && recordID) {
+        if (isNewRecord) {
+          this.setState({ loading: false, loggedInUserCanEditRecord: true });
+        } else {
           userDataRef
             .child("records")
             .child(recordID)
             .on("value", (recordFireBase) => {
               const record = firebaseToJSObject(recordFireBase.toJSON());
+
+              const loggedInUserCanEditRecord =
+                (isReviewer || loggedInUserOwnsRecord) &&
+                record.status !== "published";
+
               this.setState({
                 record: { ...record, recordID },
+                loggedInUserCanEditRecord,
               });
               this.setState({ loading: false });
             });
-        } else {
-          this.setState({ loading: false });
         }
       }
     });
@@ -233,9 +235,9 @@ class MetadataForm extends Component {
     }
   }
 
-  async handleSubmitClick() {
-    const { match } = this.props;
-    const { region } = match.params;
+  async handleSaveClick() {
+    const { match, history } = this.props;
+    const { language, region } = match.params;
 
     const userID = match.params.userID || auth.currentUser.uid;
 
@@ -249,13 +251,13 @@ class MetadataForm extends Component {
     // remove userContacts since they get saved elsewhere
     const { record, editorInfo } = this.state;
     record.created = new Date().toISOString();
-    console.log("editorInfo", editorInfo);
-    // this.setState({ lastEditedBy: editorInfo });
+
     record.lastEditedBy = editorInfo;
 
     if (record.recordID) {
       await recordsRef.child(record.recordID).update(record);
     } else {
+      // new record
       const newNode = await recordsRef.push(record);
 
       // cheesy workaround to the issue of push() not saving dates
@@ -264,17 +266,19 @@ class MetadataForm extends Component {
       this.setState({
         record: { ...record, recordID },
       });
+      history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
 
     this.setState({ saveDisabled: true });
+    // if (match.url.endsWith("new")) {
+    // set the URL so its shareable
+    // }
   }
 
   render() {
     const { match } = this.props;
     const { language } = match.params;
     const { isReviewer } = this.context;
-
-    const recordLoadedFromURL = Boolean(match.params.userID);
 
     const {
       userContacts,
@@ -283,12 +287,11 @@ class MetadataForm extends Component {
       saveDisabled,
       loading,
       highlightMissingRequireFields,
+      loggedInUserCanEditRecord,
     } = this.state;
     const { classes } = this.props;
 
-    const disabled =
-      (!isReviewer && record.status === "submitted") ||
-      record.status === "published";
+    const disabled = !loggedInUserCanEditRecord;
 
     const tabProps = {
       highlightMissingRequireFields,
@@ -330,7 +333,7 @@ class MetadataForm extends Component {
                 !(record.title.en || record.title.fr) ||
                 disabled
               }
-              onClick={() => this.handleSubmitClick()}
+              onClick={() => this.handleSaveClick()}
             >
               <Save />
             </Fab>
@@ -386,15 +389,18 @@ class MetadataForm extends Component {
                 label={<I18n en="Platform" fr="Plateforme" />}
                 value="platform"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={<I18n en="Submit" fr="Soumettre" />}
-                value="submit"
-                disabled={
-                  record.status === "submitted" || record.status === "published"
-                }
-              />
+              {loggedInUserCanEditRecord && (
+                <Tab
+                  fullWidth
+                  classes={{ root: classes.tabRoot }}
+                  label={<I18n en="Submit" fr="Soumettre" />}
+                  value="submit"
+                  disabled={
+                    record.status === "submitted" ||
+                    record.status === "published"
+                  }
+                />
+              )}
             </Tabs>
             <div style={{ marginTop: "10px", textAlign: "center" }}>
               <Typography variant="h5">
@@ -435,9 +441,11 @@ class MetadataForm extends Component {
         <TabPanel value={tabIndex} index="distribution">
           <DistributionTab {...tabProps} />
         </TabPanel>
+
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab {...tabProps} submitRecord={() => this.submitRecord()} />
         </TabPanel>
+
         <TabPanel value={tabIndex} index="contact">
           {/* userContacts are the ones the user has saved, not necessarily part of the record */}
           <ContactTab userContacts={userContacts} {...tabProps} />

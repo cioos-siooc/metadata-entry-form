@@ -96,8 +96,8 @@ class Submissions extends React.Component {
   editRecord(key) {
     const { match, history } = this.props;
     const { language, region } = match.params;
-
-    history.push(`/${language}/${region}/new/${key}`);
+    const { currentUser } = auth;
+    history.push(`/${language}/${region}/${currentUser.uid}/${key}`);
   }
 
   submitRecord(key, record) {
