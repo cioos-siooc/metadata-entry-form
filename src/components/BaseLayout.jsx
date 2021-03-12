@@ -40,17 +40,9 @@ const Pages = ({ match }) => {
           {loggedIn ? (
             <Switch>
               <Route path={`${match.path}/`} exact component={Submissions} />
-              <Route
-                path={`${match.path}/new/:recordID`}
-                component={MetadataForm}
-              />
               <Route path={`${match.path}/new`} component={MetadataForm} />
               <Route
-                path={`${match.path}/review/:userID/:recordID`}
-                component={MetadataForm}
-              />
-              <Route
-                path={`${match.path}/contacts/new/:recordID`}
+                path={`${match.path}/contacts/:contactID`}
                 component={EditContact}
               />
               <Route
@@ -58,6 +50,10 @@ const Pages = ({ match }) => {
                 component={EditContact}
               />
               <Route path={`${match.path}/contacts`} component={Contacts} />
+              <Route
+                path={`${match.path}/:userID/:recordID`}
+                component={MetadataForm}
+              />
               <Route
                 path={`${match.path}/submissions`}
                 component={Submissions}

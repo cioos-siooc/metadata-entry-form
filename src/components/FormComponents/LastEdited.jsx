@@ -7,6 +7,8 @@ import fr from "javascript-time-ago/locale/fr";
 import { Fr, En, GetLanguage } from "../I18n";
 
 const LastEdited = ({ dateStr }) => {
+  if (!dateStr) return null;
+
   let timeAgo;
   const language = GetLanguage();
   if (language === "en") {
