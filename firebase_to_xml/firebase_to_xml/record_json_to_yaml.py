@@ -118,7 +118,7 @@ def record_json_to_yaml(record):
             "comment": record.get("comment"),
             "history": record.get("history"),  # {'en':'','fr':''}
             "dates": {
-                "revision": date_from_datetime_str(record.get("created")),
+                "revision": record.get("created"),
                 "published": date_from_datetime_str(record.get("timeFirstPublished")),
             },
         },
