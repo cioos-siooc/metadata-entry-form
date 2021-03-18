@@ -119,7 +119,7 @@ def record_json_to_yaml(record):
             "history": record.get("history"),  # {'en':'','fr':''}
             "dates": {
                 "revision": record.get("created"),
-                "published": date_from_datetime_str(record.get("timeFirstPublished")),
+                "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
         },
         "spatial": {
