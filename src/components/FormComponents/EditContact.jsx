@@ -28,22 +28,22 @@ class EditContact extends React.Component {
   async componentDidMount() {
     const { match } = this.props;
 
-    const { recordID, region } = match.params;
+    const { contactID, region } = match.params;
 
-    if (auth.currentUser && recordID) {
+    if (auth.currentUser && contactID) {
       this.dbRef = firebase
         .database()
         .ref(region)
         .child("users")
         .child(auth.currentUser.uid)
         .child("contacts")
-        .child(recordID);
+        .child(contactID);
 
-      this.setState({ recordID });
+      this.setState({ contactID });
 
       if (auth.currentUser) {
-        this.dbRef.on("value", (record) =>
-          this.setState({ ...record.toJSON() })
+        this.dbRef.on("value", (contact) =>
+          this.setState({ ...contact.toJSON() })
         );
       }
     }

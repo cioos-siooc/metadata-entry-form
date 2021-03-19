@@ -85,7 +85,7 @@ class Contacts extends React.Component {
     const { language, region } = match.params;
 
     // render different page with 'save' button?
-    history.push(`/${language}/${region}/contacts/new/${key}`);
+    history.push(`/${language}/${region}/contacts/${key}`);
   }
 
   toggleModal(state, key = "") {
