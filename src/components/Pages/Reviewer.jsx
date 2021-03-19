@@ -136,7 +136,7 @@ class Submissions extends React.Component {
   editRecord(key, userID) {
     const { match, history } = this.props;
     const { language, region } = match.params;
-    history.push(`/${language}/${region}/review/${userID}/${key}`);
+    history.push(`/${language}/${region}/${userID}/${key}`);
   }
 
   async submitRecord(key, userID, status) {
