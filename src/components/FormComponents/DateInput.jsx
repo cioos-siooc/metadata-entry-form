@@ -7,10 +7,14 @@ import DateFnsUtils from "@date-io/date-fns";
 import React from "react";
 
 function formatDate(date) {
-  const d = date.getDate();
-  const m = date.getMonth();
-  const y = date.getFullYear();
-  return new Date(y, m, d, 12, 0, 0, 0);
+  try {
+    const d = date.getDate();
+    const m = date.getMonth();
+    const y = date.getFullYear();
+    return new Date(y, m, d, 12, 0, 0, 0);
+  } catch (e) {
+    return null;
+  }
 }
 const DateInput = ({ onChange, value, name, disabled }) => {
   return (
