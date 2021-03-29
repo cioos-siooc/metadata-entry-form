@@ -118,6 +118,7 @@ class MetadataForm extends Component {
         noPlatform: false,
         filename: "",
         organization: "",
+        timeFirstPublished: "",
       },
 
       // contacts saved by user (not the ones saved in the record)
