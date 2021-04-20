@@ -45,7 +45,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <En>Enter a name for the resource</En>
-                  <Fr>Entrez un nom pour la ressource</Fr>
+                  <Fr>Entrez un titre pour la ressource</Fr>
                   <RequiredMark passes={dist.name} />
                 </QuestionText>
                 <TextField
@@ -93,7 +93,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
                   onClick={() => removeDistribution(i)}
                 >
                   <En>Remove item</En>
-                  <Fr>Supprimer l'article</Fr>
+                  <Fr>Supprimer la ressource</Fr>
                 </Button>
               </Grid>
             </Grid>
@@ -108,7 +108,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
           onClick={addDistribution}
         >
           <En>Add item</En>
-          <Fr>Ajouter un article</Fr>
+          <Fr>Ajouter une ressource</Fr>
         </Button>
       </Paper>
     </div>

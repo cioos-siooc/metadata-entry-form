@@ -106,7 +106,8 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
-                  Instrument ID is required
+                  <En>Instrument ID is required</En>
+                  <Fr>L'ID de l'instrument est requis</Fr>
                   <TextField
                     label="ID"
                     name="id"
@@ -166,7 +167,7 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
                     onClick={removeItem}
                   >
                     <En>Remove item</En>
-                    <Fr>Supprimer l'article</Fr>
+                    <Fr>Supprimer l'instrument</Fr>
                   </Button>
                 </Grid>
               </Grid>

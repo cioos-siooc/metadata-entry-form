@@ -17,7 +17,7 @@ const Platform = ({ record, handleInputChange, disabled }) => (
         <Fr>Décrire la plateforme</Fr>
         <SupplementalText>
           <En>Eg, the name or type of platform</En>
-          <Fr>Par exemple, le nom ou le type de plate-forme.</Fr>
+          <Fr>Par exemple, le nom ou le type de plateforme.</Fr>
           <RequiredMark passes={validateField(record, "platformDescription")} />
         </SupplementalText>
       </QuestionText>
@@ -33,7 +33,7 @@ const Platform = ({ record, handleInputChange, disabled }) => (
     <Grid item xs style={paperClass}>
       <QuestionText>
         <En>What is the platform ID or code?</En>
-        <Fr>Qu'est-ce que l'ID de plate-forme ?</Fr>
+        <Fr>Quel est l'ID de la plateforme ?</Fr>
         <SupplementalText>
           <En>
             This is a unique identification of the platform. If the platform is
@@ -41,7 +41,7 @@ const Platform = ({ record, handleInputChange, disabled }) => (
           </En>
           <Fr>
             Il s'agit d'une identification unique de la plateforme. Si la
-            plateforme est enregistrée auprès du CIEM, utilisez cet
+            plateforme est enregistrée auprès du <a href="https://www.ices.dk/" target="_blank">CIEM</a>, utilisez cet
             identificateur
           </Fr>
           <RequiredMark passes={validateField(record, "platformID")} />

@@ -24,8 +24,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   const { language } = useParams();
   const options = roleCodes.map(([code]) => code);
   const optionLabels = roleCodes.map(([code]) => {
-    if (code === "custodian") return <b>Metadata Contact</b>;
-    if (code === "owner") return <b>Data Contact</b>;
+    if (code === "custodian") return <b><En>Metadata Contact</En><Fr>Personne-contact pour les métadonnées</Fr></b>;
+    if (code === "owner") return <b><En>Data Contact</En><Fr>Personne-contact pour les données</Fr></b>;
     return camelToSentenceCase(translate(code, language));
   });
 
@@ -55,10 +55,11 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
                   you need more specific role options you can expend the list.
                 </En>
                 <Fr>
-                  Au moins un contact de métadonnées et un contact de données
-                  sont requis. Plusieurs rôles peuvent être sélectionnés pour
-                  chaque contact. Si vous avez besoin d'options de rôle plus
-                  spécifiques, vous pouvez dépenser la liste.
+                  Au moins une personne-contact pour les métadonnées et une 
+                  personne-contact pour les données sont requises.
+                  Plusieurs rôles peuvent être sélectionnés pour
+                  chaque contact. Si vous avez besoin de rôles plus
+                  spécifiques, vous pouvez étendre la liste.
                 </Fr>
               </SupplementalText>
             </QuestionText>
@@ -88,7 +89,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               >
                 <span>
                   <En>Show/Hide more role options</En>
-                  <Fr>Afficher/masquer plus d'options de rôle</Fr>
+                  <Fr>Afficher/masquer les rôles</Fr>
                 </span>
               </AccordionSummary>
               <AccordionDetails>
@@ -118,7 +119,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <QuestionText>
               <En>Provide any information about the organization</En>
-              <Fr>Fournir toute information sur l'organisation ;</Fr>
+              <Fr>Identification de l'organisation</Fr>
             </QuestionText>
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
@@ -188,7 +189,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
         {/* Individual */}
         <Typography>
           <En>Provide any information about the individual</En>
-          <Fr>Fournir toute information sur l'individual</Fr>
+          <Fr>Identification de l'individual</Fr>
         </Typography>
 
         <Grid

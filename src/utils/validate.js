@@ -135,7 +135,7 @@ const validators = {
     validation: (val, record) => record.noPlatform || val,
     error: {
       en: "Missing platform ID",
-      fr: "ID de plate-forme manquant",
+      fr: "ID de plateforme manquant",
     },
   },
   platformDescription: {
@@ -143,7 +143,7 @@ const validators = {
     validation: (val, record) => record.noPlatform || val,
     error: {
       en: "Missing platform description",
-      fr: "Description de la plate-forme manquante",
+      fr: "Description de la plateforme manquante",
     },
   },
   instruments: {
@@ -153,7 +153,7 @@ const validators = {
       (val && val.filter((instrument) => instrument.id).length),
     error: {
       en: "At least one instrument is required if there is a platform",
-      fr: "Au moins un instrument est requis s'il y a une plate-forme",
+      fr: "Au moins un instrument est requis s'il y a une plateforme",
     },
   },
   language: {
@@ -189,7 +189,7 @@ const validators = {
       en:
         "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact",
       fr:
-        "Chaque contact doit avoir au moins un rôle vérifié, et « Contact de données » ou « Contact de métadonnées » doit être ajouté à au moins un contact",
+        "Chaque contact doit avoir au moins un rôle vérifié, et « Personne-contact pour les métadonnées » ou « Personne-contact pour les données » doit être ajouté à au moins un contact",
     },
   },
 };

@@ -46,7 +46,7 @@ const SubmitTab = ({ record, submitRecord }) => {
             </En>
             <Fr>
               Utilisez cette page pour soumettre votre enregistrement de
-              métadonnées, ainsi que les champs obligatoires sont manquants.
+              métadonnées, ainsi que pour voir quels champs obligatoires sont manquants.
             </Fr>
           </Typography>
         </Grid>
@@ -103,9 +103,8 @@ const SubmitTab = ({ record, submitRecord }) => {
                       need to address the list below before submitting.
                     </En>
                     <Fr>
-                      Vous n'avez pas rempli tous les champs obligatoires. Vous
-                      devrez vous adresser à la liste ci-dessous avant de
-                      soumettre votre demande.
+                      Vous n'avez pas rempli tous les champs obligatoires. 
+                      Veuillez renseigner les champs identifiés ci-dessous avant de soumettre votre demande.
                     </Fr>
                   </Typography>
                 </Grid>
