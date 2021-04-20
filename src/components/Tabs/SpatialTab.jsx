@@ -26,7 +26,7 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
       <Paper style={paperClass}>
         <QuestionText style={{ paddingBottom: "15px" }}>
           <En>What is the spatial extent of the dataset?</En>
-          <Fr>What is the spatial extent of the dataset?</Fr>{" "}
+          <Fr>Quelle est l'étendue spatiale du jeu de données?</Fr>{" "}
           <SupplementalText>
             <En>
               You can draw a bounding box or polygon for the dataset using the
@@ -35,9 +35,9 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
               bounding box or a Polygon is required.
             </En>
             <Fr>
-              Vous pouvez dessiner un cadre de sélection ou un polygone pour le
-              jeu de données, ou entrer à l'aide des champs ci-dessous. Le cadre
-              de sélection ou le polygone est requis.
+              Vous pouvez dessiner un cadre de sélection ou un polygone pour le jeu de données. 
+              Alternativement, vous pouvez renseigner les coordonnées à l'aide des champs ci-dessous.
+              Le cadre de sélection ou le polygone est requis.
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -52,7 +52,7 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
       <Paper style={paperClass}>
         <QuestionText>
           <En>What is the vertical extent of the dataset in meters?</En>
-          <Fr>What is the vertical extent of the dataset in meters?</Fr>
+          <Fr>Quelle est l'étendue verticale du jeu de données en mètres?</Fr>
           <RequiredMark
             passes={
               validateField(record, "verticalExtentDirection") &&
@@ -78,12 +78,12 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
             <Fr>
               <p>
                 Profondeur positive: La profondeur est enregistrée avec des
-                valeurs positives (c'est-à-dire une valeur maximale de 150 m
-                implique 150 m au-dessous de la surface).
+                valeurs positives (c'est-à-dire une valeur maximale de 150m
+                implique 150m au-dessous de la surface).
               </p>
               <p>
                 Hauteur positive: La profondeur est l'élévation depuis le fond
-                marin (c'est-à-dire une valeur maximale de 150 m implique 150 m
+                marin (c'est-à-dire une valeur maximale de 150m implique 150m
                 au-dessus du fond marin)
               </p>
             </Fr>

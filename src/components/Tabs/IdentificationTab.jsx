@@ -341,7 +341,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
                     Licence internationale Creative Commons Attribution 4.0
                     (CC-BY 4.0){" "}
                   </b>
-                  - CIOOS recommandé.permet le partage ouvert et l'adaptation de
+                  - Recommandé par SIOOC. Permet le partage ouvert et l'adaptation de
                   les données fournies que le créateur original est attribué.
                 </li>
                 <li>
@@ -388,7 +388,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
               <i>
                 <ul>
                   <li>Ne pas utiliser à des fins de navigation.</li>
-                  <li>L' instrument n'a pas été étalonné le jour..</li>
+                  <li>L' instrument n'a pas été étalonné le jour.</li>
                   <li>
                     N' ont pas encore appliqué le contrôle de qualité approprié
                     sur les données.

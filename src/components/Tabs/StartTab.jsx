@@ -34,10 +34,9 @@ const StartTab = ({ disabled, record }) => {
             be used to create a metadata profile for your dataset.
           </En>
           <Fr>
-            Bienvenue sur le formulaire de génération de profils de métadonnées
-            CIOOS ! Veuillez remplir sur chaque champ avec autant de détails que
-            vous pouvez. Utilisation de cette informations que nous allons créer
-            votre profil de métadonnées pour le jeu de données.
+          Bienvenue dans le formulaire de génération de profil de métadonnées SIOOC. 
+          Veuillez remplir chaque champ avec autant de détails que possible. 
+          Ces informations seront utilisées pour créer un profil de métadonnées pour votre jeu de données.
           </Fr>
         </Typography>
 
@@ -63,9 +62,25 @@ const StartTab = ({ disabled, record }) => {
           </ul>
         </En>
         <Fr>
-          Commencez par cliquer sur « Nouveau » Enregistrer » sur la barre
-          latérale. Vous pouvez également enregistrer les contacts que vous
-          utiliserez souvent dans la section « Contacts ».
+        <ul>
+            <li>
+              Vous pouvez enregistrer le formulaire une fois que vous avez rempli un titre.
+              </li>
+            <li>
+              Toutes les questions marquées d'un <RequiredMark /> sont obligatoires.
+            </li>
+            <li>
+              Le formulaire peut être complété au fil du temps. Si vous devez vous arrêter, 
+              cliquez sur l'icône <Save /> dans le coin inférieur droit. Cette icône sera grisée jusqu'à 
+              ce que vous ayez renseigné le titre du jeu de données dans la section «Identification».
+            </li>
+            <li>
+              Certains champs peuvent contenir du texte en français et en anglais, 
+              bien que cela ne soit requis que pour le titre et le résumé. 
+              Il existe un bouton «Traduire» qui générera automatiquement du texte dans l'autre langue. 
+              Cette traduction est plus précise lorsqu'il y a plus de texte à traduire.
+            </li>
+          </ul>
         </Fr>
       </Paper>
     </Grid>

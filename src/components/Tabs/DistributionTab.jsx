@@ -45,7 +45,7 @@ const DistributionTab = ({ disabled, record, handleInputChange }) => {
                 <li>Jeux de données ERDDAP</li>
                 <li>images</li>
               </ul>
-              Au moins un article est requis.
+              Au moins une ressource est requise.
             </Fr>
           </SupplementalText>
         </QuestionText>

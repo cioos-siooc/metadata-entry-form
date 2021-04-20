@@ -223,10 +223,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       <br />
       <QuestionText>
         <En>Bounding Box Coordinates</En>
-        <Fr>
-          Veuillez fournir les coordonnées en degrés décimaux et non en secondes
-          décimales.
-        </Fr>
+        <Fr>Coordonnées de la zone de délimitation minimale</Fr>
         {(bboxIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
@@ -236,8 +233,8 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
             in decimal degrees and not in decimal minutes seconds.
           </En>
           <Fr>
-            If you are providing a bounding box, please provide the coordinates
-            in decimal degrees and not in decimal minutes seconds.
+            Si vous fournissez une zone de délimitation minimale, 
+            veuillez fournir les coordonnées en degrés décimaux et non en degrés-minutes-secondes.
           </Fr>
         </SupplementalText>
       </QuestionText>
@@ -286,12 +283,17 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       </Grid>
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        OR
+        <En>
+          OR
+        </En>
+        <Fr>
+          Ou
+        </Fr>
       </Typography>
 
       <QuestionText>
         <En>Polygon coordinates</En>
-        <Fr>Les coordonnées des polygones</Fr>
+        <Fr>Coordonnées du/des polygone(s)</Fr>
         {(!bboxIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}

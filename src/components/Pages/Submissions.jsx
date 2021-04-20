@@ -269,7 +269,7 @@ class Submissions extends React.Component {
                   startIcon={<Add />}
                   onClick={() => history.push(`/${language}/${region}/new`)}
                 >
-                  <I18n en="New Record" fr="Nouveau Record" />
+                  <I18n en="New Record" fr="Nouvel enregistrement" />
                 </Button>
               </div>
 

@@ -95,8 +95,7 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
               <b>Data Contact</b> for this dataset.
             </En>
             <Fr>
-              Veuillez saisir au moins un <b>contact de métadonnées</b> et un
-              <b>contact de données</b> pour cet ensemble de données.
+              Veuillez saisir au moins une <b>personne-contact pour les métadonnées</b> et une <b>personne-contact contact pour les données</b> pour ce jeu de données.
             </Fr>
             <RequiredMark passes={validateField(record, "contacts")} />
             <SupplementalText>
@@ -116,7 +115,7 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
         <Grid item xs={3}>
           <Grid container direction="column" spacing={2}>
             <Grid item xs>
-              Contacts:
+              Contact(s):
               <List>
                 {value.map((contactItem, i) => {
                   return (

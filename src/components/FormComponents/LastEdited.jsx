@@ -22,7 +22,7 @@ const LastEdited = ({ dateStr }) => {
   return (
     <span>
       <En>Last edited</En>
-      <Fr>Dernière édition</Fr> {timeAgo.format(new Date(dateStr))}
+      <Fr>Dernière modification</Fr> {timeAgo.format(new Date(dateStr))}
       {". "}
     </span>
   );

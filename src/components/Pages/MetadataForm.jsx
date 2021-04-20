@@ -364,7 +364,12 @@ class MetadataForm extends Component {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label="Start"
+                label={
+                  <I18n
+                    en="Start"
+                    fr="Accueil"
+                  />
+                }
                 value="start"
               />
               <Tab
@@ -418,7 +423,7 @@ class MetadataForm extends Component {
             <div style={{ marginTop: "10px", textAlign: "center" }}>
               <Typography variant="h5">
                 {(language && record.title && record.title[language]) || (
-                  <I18n en="New Record" fr="Nouveau Record" />
+                  <I18n en="New Record" fr="Nouvel enregistrement" />
                 )}{" "}
                 <StatusChip status={record.status} />
               </Typography>
@@ -428,7 +433,7 @@ class MetadataForm extends Component {
                   {record.lastEditedBy && record.lastEditedBy.displayName && (
                     <>
                       <En>by </En>
-                      <Fr>par</Fr>
+                      <Fr>Par </Fr>
                       {record.lastEditedBy.displayName}{" "}
                       {isReviewer && record.lastEditedBy.email}
                     </>
