@@ -1,7 +1,7 @@
 import React from "react";
 import { Paper, TextField, Grid } from "@material-ui/core";
 import { useParams } from "react-router-dom";
-import { En, Fr, getAltLanguage } from "../I18n";
+import { En, Fr } from "../I18n";
 import { eovList, progressCodes } from "../../isoCodeLists";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -20,14 +20,21 @@ import {
   paperClass,
 } from "../FormComponents/QuestionStyles";
 
+import regions from "../../regions";
+
 const IdentificationTab = ({ disabled, record, handleInputChange }) => {
   const { language, region } = useParams();
-
+  const regionInfo = regions[region];
+  const catalogueLink = (
+    <a href={regionInfo.catalogueURL} target="_blank" rel="noopener noreferrer">
+      {regionInfo.catalogueURL}
+    </a>
+  );
   return (
     <div>
       <Paper style={paperClass}>
         <QuestionText>
-          <En>What is the dataset title? Required in both languages.</En>
+          <En>What is the dataset title? Required in English and French.</En>
           <Fr>
             Quel est le titre du jeu de données? Obligatoire dans les deux
             langues.
@@ -36,12 +43,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           <SupplementalText>
             <En>
               Please refrain from using special characters in the dataset title.
-              This will define the title that is shown for this dataset in CKAN.
+              This will appear as the title that is shown for this dataset in
+              the {regionInfo.catalogueTitle.en}.
             </En>
             <Fr>
-              S'il vous plaît ne pas utiliser caractères dans le titre du jeu de
-              données. Cela définira le titre qui est montré pour ce jeu de
-              données dans CKAN.
+              Veuillez ne pas utiliser de caractères spéciaux dans le titre du
+              jeu de données. Cela apparaîtra sous la forme du titre affiché
+              pour ce jeu de données dans la {regionInfo.catalogueTitle.fr}.
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -56,7 +64,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
 
       <Paper style={paperClass}>
         <QuestionText>
-          <En>What is primary language of the dataset?</En>
+          <En>What is the primary language of the dataset?</En>
           <Fr>Quelle est la langue principale du jeu de données?</Fr>
           <RequiredMark passes={validateField(record, "language")} />
         </QuestionText>
@@ -80,10 +88,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           <RequiredMark passes={validateField(record, "abstract")} />
           <SupplementalText>
             <En>
-              These will define the summary text that is shown for this dataset
-              in CKAN, so browsing some datasets at
-              https://cioosatlantic.ca/ckan can help give a sense of the type of
-              descriptions that are typically used for this.
+              This information will appear as the summary text that is shown for
+              this dataset in the {regionInfo.catalogueTitle.en}. Browsing
+              datasets at {catalogueLink} can help provide a sense of the type
+              of descriptions that are typically used for this section of the
+              profile. As a general rule, this section should be worded with as
+              little jargon as possible to give potential users an understanding
+              of your dataset.
               <br />
               <br />
               Suggested abstract points -
@@ -116,13 +127,14 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
             </En>
             <Fr>
               {" "}
-              Points abstraits suggérés - Résumé du jeu de données : Quoi-
-              Variables qui ont été mesurés ; Quan- Couverture temporelle des
-              données, fréquence de la mesures/observations ; Où - couverture
-              spatiale des données, les sites d'échantillonnage, les pistes de
-              capteurs, les locaux de laboratoire ; procédures, protocoles,
-              étalonnages, AQ/CQ ; personnel ; pourquoi - un énoncé de haut
-              niveau sur le résultat de ces données est censé pour informer.
+              Ces informations définiront le texte récapitulatif affiché pour
+              cet ensemble de données dans {regionInfo.catalogueTitle.fr}. La
+              navigation dans les jeux de données à {catalogueLink} peut aider à
+              donner une idée du type de descriptions qui sont généralement
+              utilisé pour cette section du profil. En règle générale, cette
+              section devrait être formulée avec le moins de jargon possible
+              pour permettent aux utilisateurs potentiels de comprendre votre
+              jeu de données.
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -171,12 +183,17 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           <Grid item xs>
             <QuestionText>
               <En>
-                What are the keywords that describe the dataset? Select from the
-                list or create your own.
+                Keywords are an important way to categorize your data that allow
+                people and other systems to search for datasets that share some
+                important characteristics. Choose the most specific keywords
+                that apply to your data, or create your own.
               </En>
               <Fr>
-                Quels sont les mots-clés qui décrivent le jeu de données ?
-                Sélectionnez dans la liste ou créez le vôtre.
+                Les mots-clés sont un moyen important de catégoriser vos données
+                qui permettent aux utilisateurs et aux autres systèmes de
+                rechercher des jeux de données qui partagent certaines
+                caractéristiques importantes. Choisissez les mots-clés les plus
+                spécifiques qui s'appliquent à vos données ou créez les vôtres.
               </Fr>
               <RequiredMark passes={validateField(record, "keywords")} />
               <SupplementalText>
@@ -207,11 +224,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           name="progress"
           value={record.progress || ""}
           onChange={(e) => handleInputChange(e)}
-          options={progressCodes.map(([code]) => code)}
-          optionLabels={progressCodes.map(([code]) => {
-            return camelToSentenceCase(translate(code, language));
-          })}
-          optionTooltips={progressCodes.map(([, description]) => description)}
+          options={Object.keys(progressCodes)}
+          optionLabels={Object.values(progressCodes).map(
+            ({ title }) => title[language]
+          )}
+          optionTooltips={Object.values(progressCodes).map(
+            ({ text }) => text[language]
+          )}
           disabled={disabled}
           fullWidth={false}
           style={{ width: "200px" }}
@@ -290,11 +309,8 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
 
       <Paper style={paperClass}>
         <QuestionText>
-          <En>What is the dataset identifier, eg DOI or other unique ID?</En>
-          <Fr>
-            Quel est l'identificateur du jeu de données, par exemple DOI ou
-            autre ID unique?
-          </Fr>
+          <En>What is the DOI for this dataset?</En>
+          <Fr>Quel est le DOI de ce jeu de données ?</Fr>
         </QuestionText>
         <TextField
           style={{ marginTop: "10px" }}
@@ -341,7 +357,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
                     Licence internationale Creative Commons Attribution 4.0
                     (CC-BY 4.0){" "}
                   </b>
-                  - Recommandé par SIOOC. Permet le partage ouvert et l'adaptation de
+                  - CIOOS recommandé.permet le partage ouvert et l'adaptation de
                   les données fournies que le créateur original est attribué.
                 </li>
                 <li>
@@ -388,7 +404,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
               <i>
                 <ul>
                   <li>Ne pas utiliser à des fins de navigation.</li>
-                  <li>L' instrument n'a pas été étalonné le jour.</li>
+                  <li>L' instrument n'a pas été étalonné le jour..</li>
                   <li>
                     N' ont pas encore appliqué le contrôle de qualité approprié
                     sur les données.

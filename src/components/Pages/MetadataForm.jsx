@@ -108,7 +108,6 @@ class MetadataForm extends Component {
         contacts: [],
         status: "",
         comment: "",
-        history: "",
         limitations: "",
         created: new Date().toISOString(),
         lastEditedBy: {},
@@ -364,12 +363,7 @@ class MetadataForm extends Component {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={
-                  <I18n
-                    en="Start"
-                    fr="Accueil"
-                  />
-                }
+                label={<I18n en="Start" fr="Accueil" />}
                 value="start"
               />
               <Tab

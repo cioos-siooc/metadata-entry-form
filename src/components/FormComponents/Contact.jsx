@@ -15,19 +15,16 @@ import CheckBoxList from "./CheckBoxList";
 
 import { I18n, En, Fr } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
-import { camelToSentenceCase } from "../../utils/misc";
+
 import ContactTitle from "./ContactTitle";
-import translate from "../../utils/i18n";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   const { language } = useParams();
-  const options = roleCodes.map(([code]) => code);
-  const optionLabels = roleCodes.map(([code]) => {
-    if (code === "custodian") return <b><En>Metadata Contact</En><Fr>Personne-contact pour les métadonnées</Fr></b>;
-    if (code === "owner") return <b><En>Data Contact</En><Fr>Personne-contact pour les données</Fr></b>;
-    return camelToSentenceCase(translate(code, language));
-  });
+  const options = Object.keys(roleCodes);
+  const optionLabels = Object.values(roleCodes).map(
+    ({ title }) => title[language]
+  );
 
   const [expanded, setExpanded] = React.useState(false);
 
@@ -51,15 +48,15 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               <SupplementalText>
                 <En>
                   At least one Metadata Contact and one Data Contact are
-                  required. Multiple roles may be selected for each contact. If
-                  you need more specific role options you can expend the list.
+                  required. Multiple roles can be selected for each contact.
+                  Expand the list below for additional role.
                 </En>
                 <Fr>
-                  Au moins une personne-contact pour les métadonnées et une 
-                  personne-contact pour les données sont requises.
-                  Plusieurs rôles peuvent être sélectionnés pour
-                  chaque contact. Si vous avez besoin de rôles plus
-                  spécifiques, vous pouvez étendre la liste.
+                  Au moins une personne-contact pour les métadonnées et une
+                  personne-contact pour les données sont requises. Plusieurs
+                  rôles peuvent être sélectionnés pour chaque contact. Si vous
+                  avez besoin de rôles plus spécifiques, vous pouvez étendre la
+                  liste.
                 </Fr>
               </SupplementalText>
             </QuestionText>
@@ -71,7 +68,9 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
               options={options.slice(0, 3)}
               optionLabels={optionLabels.slice(0, 3)}
               disabled={disabled}
-              optionTooltips={roleCodes.map(([, description]) => description)}
+              optionTooltips={Object.values(roleCodes)
+                .map(({ text }) => text[language])
+                .slice(0, 3)}
             />
 
             <Accordion
@@ -100,9 +99,9 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
                   options={options.slice(3)}
                   optionLabels={optionLabels.slice(3)}
                   disabled={disabled}
-                  optionTooltips={roleCodes.map(
-                    ([, description]) => description
-                  )}
+                  optionTooltips={Object.values(roleCodes)
+                    .map(({ text }) => text[language])
+                    .slice(3)}
                 />
               </AccordionDetails>
             </Accordion>
