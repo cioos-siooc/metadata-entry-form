@@ -16,6 +16,11 @@ const useStyles = makeStyles({
   },
   media: {
     height: 400,
+    "&:hover": {
+      filter:
+        "brightness( 100% ) contrast( 100% ) saturate( 200% ) blur( 0px ) hue-rotate( 197deg )",
+      /* … */
+    },
   },
 });
 
@@ -25,6 +30,7 @@ export default function MediaCard({ region, regionSummary }) {
   const classes = useStyles();
 
   const regionInfo = regions[region];
+  const imgPath = `/cioos-${region}-${language}.png`;
 
   return (
     <div>
@@ -40,9 +46,14 @@ export default function MediaCard({ region, regionSummary }) {
             title={regionInfo.title[language]}
           />
           <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              {regionInfo.title[language]}
-            </Typography>
+            <div>
+              <img
+                src={process.env.PUBLIC_URL + imgPath}
+                alt={region}
+                style={{ margin: "10px", maxWidth: "300px", maxHeight: "80px" }}
+              />
+            </div>
+
             <Typography variant="body2" color="textSecondary" component="p">
               {regionSummary}
             </Typography>

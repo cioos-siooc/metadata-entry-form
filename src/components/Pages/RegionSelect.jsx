@@ -42,28 +42,30 @@ const pacificText = (
 );
 export default function RegionSelect() {
   return (
-    <Grid container direction="column">
-      <Grid container>
+    <Grid container direction="column" spacing={2}>
+      <Grid item xs>
         <Typography variant="h6">
           Welcome to the CIOOS Metadata Entry Tool. To get started, please
           select the region where your data was collected.
         </Typography>
       </Grid>
-      <Grid
-        container
-        spacing={1}
-        direction="row"
-        justify="flex-start"
-        alignItems="stretch"
-      >
-        <Grid item xs>
-          <RegionCard region="pacific" regionSummary={pacificText} />
-        </Grid>
-        <Grid item xs>
-          <RegionCard region="stlaurent" regionSummary={stlaurentText} />
-        </Grid>
-        <Grid item xs>
-          <RegionCard region="atlantic" regionSummary={atlanticText} />
+      <Grid item xs>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justify="flex-start"
+          alignItems="stretch"
+        >
+          <Grid item xs>
+            <RegionCard region="pacific" regionSummary={pacificText} />
+          </Grid>
+          <Grid item xs>
+            <RegionCard region="stlaurent" regionSummary={stlaurentText} />
+          </Grid>
+          <Grid item xs>
+            <RegionCard region="atlantic" regionSummary={atlanticText} />
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
