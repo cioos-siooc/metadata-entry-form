@@ -128,7 +128,7 @@ class Admin extends React.Component {
               <Button
                 startIcon={<Save />}
                 variant="contained"
-                color="primary"
+                color="secondary"
                 onClick={() => this.updatePermissions()}
               >
                 <En>Save</En>
