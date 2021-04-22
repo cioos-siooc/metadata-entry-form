@@ -29,23 +29,23 @@ const contactIsFilled = (contact) =>
 const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
-    tab: "identification",
+    tab: "data identification",
     error: {
-      en: "Missing title in one or both languages",
-      fr: "Titre manquant dans une ou les deux langues",
+      en: "Missing title in French or English",
+      fr: "Titre manquant en français ou en anglais",
     },
   },
   abstract: {
     validation: (val) => val && val.en && val.fr,
-    tab: "identification",
+    tab: "data identification",
     error: {
-      en: "Missing abstract in one or both languages",
-      fr: "Abstrait manquant dans une ou les deux langues",
+      en: "Missing abstract in French or English",
+      fr: "Abrégé manquant en français ou en anglais",
     },
   },
   keywords: {
     validation: (val) => val && (val.en.length || val.fr.length),
-    tab: "identification",
+    tab: "data identification",
     error: {
       en: "At least one keyword is required",
       fr: "Au moins un mot clé est requis",
@@ -53,7 +53,7 @@ const validators = {
   },
   eov: {
     validation: (val) => val && val.length,
-    tab: "identification",
+    tab: "data identification",
     error: {
       en: "At least one EOV is required",
       fr: "Au moins un EOV est requis",
@@ -89,7 +89,7 @@ const validators = {
     },
   },
   progress: {
-    tab: "identification",
+    tab: "data identification",
     validation: (val) => val,
     error: {
       en: "Please select a dataset status",
@@ -97,7 +97,7 @@ const validators = {
     },
   },
   distribution: {
-    tab: "distribution",
+    tab: "resources",
     validation: (val) =>
       Array.isArray(val) && val.filter((dist) => dist.name && dist.url).length,
     error: {
@@ -147,7 +147,7 @@ const validators = {
     },
   },
   instruments: {
-    tab: "instruments",
+    tab: "platform - instruments",
     validation: (val, record) =>
       record.noPlatform ||
       (val && val.filter((instrument) => instrument.id).length),
@@ -157,7 +157,7 @@ const validators = {
     },
   },
   language: {
-    tab: "identification",
+    tab: "data identification",
     validation: (val) => val,
     error: {
       en: "Language field is missing",
@@ -165,7 +165,7 @@ const validators = {
     },
   },
   license: {
-    tab: "identification",
+    tab: "data identification",
     validation: (val) => val,
     error: {
       en: "Please select a license for the dataset",

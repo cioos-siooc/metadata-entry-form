@@ -41,8 +41,15 @@ const Platform = ({ record, handleInputChange, disabled }) => (
           </En>
           <Fr>
             Il s'agit d'une identification unique de la plateforme. Si la
-            plateforme est enregistrée auprès du <a href="https://www.ices.dk/" target="_blank">CIEM</a>, utilisez cet
-            identificateur
+            plateforme est enregistrée auprès du{" "}
+            <a
+              href="https://www.ices.dk/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              CIEM
+            </a>
+            , utilisez cet identificateur
           </Fr>
           <RequiredMark passes={validateField(record, "platformID")} />
         </SupplementalText>

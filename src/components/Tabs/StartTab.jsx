@@ -2,6 +2,9 @@ import React from "react";
 
 import { Save } from "@material-ui/icons";
 import { Typography, Paper, Grid } from "@material-ui/core";
+import { useParams } from "react-router-dom";
+
+import regions from "../../regions";
 
 import { En, Fr } from "../I18n";
 
@@ -9,6 +12,9 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
 const StartTab = ({ disabled, record }) => {
+  const { region } = useParams();
+  const regionInfo = regions[region];
+
   return (
     <Grid item xs>
       <Paper style={paperClass}>
@@ -29,59 +35,83 @@ const StartTab = ({ disabled, record }) => {
         )}
         <Typography variant="body1">
           <En>
-            Welcome to the CIOOS metadata profile generation form. Please fill
-            out each field with as much detail as you can. This information will
-            be used to create a metadata profile for your dataset.
+            Welcome to the {regionInfo.title.en} Metadata Entry Tool, the first
+            step in making your data discoverable and accessible through CIOOS.
+            This information will be used to create a metadata profile for your
+            dataset that will allow it to be searchable through the{" "}
+            {regionInfo.catalogueTitle.en} Data Catalogue. Please fill out each
+            field with as much detail as possible. The metadata profile will
+            help describe this dataset for others to determine if it is relevant
+            for their work and ensure it is interoperable with other databases
+            and systems.
+            <br />
+            <br /> Questions regarding the form can be directed to{" "}
           </En>
           <Fr>
-          Bienvenue dans le formulaire de génération de profil de métadonnées SIOOC. 
-          Veuillez remplir chaque champ avec autant de détails que possible. 
-          Ces informations seront utilisées pour créer un profil de métadonnées pour votre jeu de données.
+            Bienvenue à l'Outil de saisie des métadonnées de l'
+            {regionInfo.title.fr}, la première étape pour rendre vos données
+            accessibles et accessibles par l'intermédiaire du CIOOS. Ces
+            renseignements serviront à créer un profil de métadonnées pour votre
+            ensemble de données qui permettra de faire une recherche dans le
+            {regionInfo.catalogueTitle.fr}. Veuillez remplir chaque champ avec
+            le plus de détails possible. Le profil de métadonnées aidera à
+            décrire ce jeu de données pour d'autres personnes afin de déterminer
+            s'il est pertinent pour leur travail et de s'assurer qu'il est
+            interopérable avec d'autres bases de données et systèmes.
+            <br />
+            <br /> Les questions concernant le formulaire peuvent être adressées
+            à{" "}
           </Fr>
+          <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
         </Typography>
 
-        <En>
-          <ul>
-            <li>You can save the form once you have filled out a title.</li>
-            <li>
-              All questions marked with a <RequiredMark /> are mandatory.
-            </li>
-            <li>
-              The form can be completed over time. If you need to stop, click
-              the <Save /> icon in the bottom right corner. This icon will be
-              greyed out until you have filled in the dataset title in the
-              "Identification" section.
-            </li>
-            <li>
-              Some fields can have text in both French and English, though this
-              is only required for title and abstract. There is a 'Translate'
-              button that will automatically generate text in the other
-              language. This translation is more accurate when there is more
-              text to translate.
-            </li>
-          </ul>
-        </En>
-        <Fr>
         <ul>
-            <li>
-              Vous pouvez enregistrer le formulaire une fois que vous avez rempli un titre.
-              </li>
-            <li>
-              Toutes les questions marquées d'un <RequiredMark /> sont obligatoires.
-            </li>
-            <li>
-              Le formulaire peut être complété au fil du temps. Si vous devez vous arrêter, 
-              cliquez sur l'icône <Save /> dans le coin inférieur droit. Cette icône sera grisée jusqu'à 
-              ce que vous ayez renseigné le titre du jeu de données dans la section «Identification».
-            </li>
-            <li>
-              Certains champs peuvent contenir du texte en français et en anglais, 
-              bien que cela ne soit requis que pour le titre et le résumé. 
-              Il existe un bouton «Traduire» qui générera automatiquement du texte dans l'autre langue. 
-              Cette traduction est plus précise lorsqu'il y a plus de texte à traduire.
-            </li>
-          </ul>
-        </Fr>
+          <li>
+            <En>You can save the form once you have filled out a title.</En>
+            <Fr>
+              Vous pouvez enregistrer le formulaire une fois que vous avez
+              rempli un titre.
+            </Fr>
+          </li>
+          <li>
+            <En>
+              All fields marked with a <RequiredMark /> are mandatory.
+            </En>
+            <Fr>
+              Tous les champs marqués d'un <RequiredMark /> sont obligatoires.
+            </Fr>
+          </li>
+          <li>
+            <En>
+              The form can be saved and completed over time by clicking the{" "}
+              <Save /> icon in the bottom right corner. This icon will be greyed
+              out until you have filled in the dataset title in the
+              "Identification" section.
+            </En>
+            <Fr>
+              Le formulaire peut être sauvegardé et complété au fil du temps en
+              cliquant sur le bouton <Save /> dans le coin inférieur droit.
+              Cette icône sera grisée jusqu'à ce que vous ayez renseigné le
+              titre du jeu de données dans la Section « Identification ».
+            </Fr>
+          </li>
+          <li>
+            <En>
+              Some fields can have text in both French and English, though this
+              is only required for the title and the abstract. There is a
+              'Translate' button that will automatically generate text in the
+              other language. This translation is more accurate when there is
+              more text to translate.
+            </En>
+            <Fr>
+              Certains champs peuvent avoir du texte à la fois en français et en
+              anglais, bien que cette n'est requis que pour le titre et
+              l'abrégé. Il y a un Bouton « Traduire » qui générera
+              automatiquement du texte dans le autre langue. Cette traduction
+              est plus précise quand il y a plus de texte à traduire.
+            </Fr>
+          </li>
+        </ul>
       </Paper>
     </Grid>
   );

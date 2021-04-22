@@ -24,8 +24,8 @@ import {
   Visibility,
   Add,
   Eject,
-  CloudDownload,
-  Code,
+  // CloudDownload,
+  // Code,
 } from "@material-ui/icons";
 import StatusChip from "../FormComponents/StatusChip";
 
@@ -38,11 +38,11 @@ import { firebaseToJSObject } from "../../utils/misc";
 import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
-const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
-function openInNewTab(url) {
-  const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-  if (newWindow) newWindow.opener = null;
-}
+// const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
+// function openInNewTab(url) {
+//   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+//   if (newWindow) newWindow.opener = null;
+// }
 class Submissions extends React.Component {
   constructor(props) {
     super(props);
@@ -249,18 +249,25 @@ class Submissions extends React.Component {
             <div>
               <Typography>
                 <En>
-                  These are the records you have submitted. To submit a record
-                  for review, click the "Submit for review" button. The record
-                  won't be published until the reviewer approves it. You cannot
-                  submit a record until all the required fields are filled out.
+                  To start a new record, click on “New Record” and begin adding
+                  information. To continue working on a record, select it from
+                  the list below. Once your record is completed and information
+                  has been provided for all mandatory fields, you can submit
+                  your record for review by clicking the "Submit for review"
+                  icon to the right of your record title. The record will not be
+                  published until it is reviewed and approved by CIOOS staff.
                 </En>
                 <Fr>
-                  Ce sont les documents que vous avez soumis. Pour soumettre un
-                  enregistrement pour examen, cliquez sur le bouton « Soumettre
-                  pour révision ». L'enregistrement ne sera pas publié tant que
-                  le réviseur ne l'aura pas approuvé. Vous ne pouvez pas
-                  soumettre un enregistrement tant que tous les champs requis ne
-                  sont pas remplis.
+                  Pour démarrer un nouvel enregistrement, cliquez sur « New
+                  Record » et commencez à ajouter informations. Pour continuer à
+                  travailler sur un enregistrement, sélectionnez-le dans la
+                  liste ci-dessous. Une fois que votre dossier est rempli et que
+                  l'information a a été fourni pour tous les champs
+                  obligatoires, vous pouvez soumettre votre pour examen en
+                  cliquant sur l'icône « Soumettre pour examen » pour le droit
+                  de votre titre de disque. L'enregistrement ne sera pas publié
+                  jusqu'à ce qu'il soit examiné et approuvé par le personnel de
+                  la CIOOS.
                 </Fr>
               </Typography>
 
@@ -310,17 +317,17 @@ class Submissions extends React.Component {
                         en: "Record has been submitted",
                         fr: "L'enregistrement a été soumis",
                       };
-                    const recordTitleShortened = `${record.title[
-                      language
-                    ].slice(0, 30)}_${record.identifier.slice(0, 5)}`
-                      .trim()
-                      .toLowerCase()
-                      .replace(/[^a-zA-Z0-9]/g, "_");
+                    // const recordTitleShortened = `${record.title[
+                    //   language
+                    // ].slice(0, 30)}_${record.identifier.slice(0, 5)}`
+                    //   .trim()
+                    //   .toLowerCase()
+                    //   .replace(/[^a-zA-Z0-9]/g, "_");
 
-                    let wafPath = `${WAF_URL}/${region}`;
-                    if (status !== "published") wafPath += "/unpublished";
-                    const recordURLXML = `${wafPath}/${recordTitleShortened}.xml`;
-                    const recordURLERDDAP = `${wafPath}/${recordTitleShortened}_erddap.txt`;
+                    // let wafPath = `${WAF_URL}/${region}`;
+                    // if (status !== "published") wafPath += "/unpublished";
+                    // const recordURLXML = `${wafPath}/${recordTitleShortened}.xml`;
+                    // const recordURLERDDAP = `${wafPath}/${recordTitleShortened}_erddap.txt`;
 
                     return (
                       <ListItem

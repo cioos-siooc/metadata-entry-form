@@ -91,11 +91,22 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
         <Grid item xs>
           <QuestionText>
             <En>
-              Please enter at least one <b>Metadata Contact</b> and one{" "}
-              <b>Data Contact</b> for this dataset.
+              Please enter at least one Metadata Contact AND one Data Contact
+              for this dataset that can work with CIOOS Staff to finalize this
+              Metadata Record. It is important to include all individuals from
+              the chain of attribution to ensure all involved parties are
+              credited appropriately for their role in creating this dataset
+              Saved contacts can be selected from the list below
             </En>
             <Fr>
-              Veuillez saisir au moins une <b>personne-contact pour les métadonnées</b> et une <b>personne-contact contact pour les données</b> pour ce jeu de données.
+              Veuillez saisir au moins un contact pour les métadonnées ET un
+              contact de données pour cet ensemble de données qui peut
+              travailler avec le personnel de la DSIO pour finaliser cet
+              enregistrement de métadonnées. Il est important d'inclure toutes
+              les personnes de la chaîne d'attribution pour s'assurer que toutes
+              les parties concernées sont crédités de façon appropriée pour leur
+              rôle dans la création de cet ensemble de données. Les contacts
+              sauvegardés peuvent être sélectionnés dans la liste ci-dessous.
             </Fr>
             <RequiredMark passes={validateField(record, "contacts")} />
             <SupplementalText>

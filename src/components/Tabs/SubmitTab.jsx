@@ -20,6 +20,8 @@ import { En, Fr } from "../I18n";
 
 import { getErrorsByTab, percentValid } from "../../utils/validate";
 
+import GetRegionInfo from "../FormComponents/Regions";
+
 const SubmitTab = ({ record, submitRecord }) => {
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -34,6 +36,7 @@ const SubmitTab = ({ record, submitRecord }) => {
 
   const validationErrors = getErrorsByTab(record);
   const submitted = record.status === "submitted";
+  const regionInfo = GetRegionInfo();
 
   return (
     <Paper style={paperClass}>
@@ -41,13 +44,26 @@ const SubmitTab = ({ record, submitRecord }) => {
         <Grid item xs>
           <Typography>
             <En>
-              Use this page to submit your metadata record, as well as see which
-              required fields are missing.
+              Thank-you for completing this form. The information will be
+              reviewed and a {regionInfo.title.en} staff member will contact you
+              to request more information or provide an update on when your
+              dataset will be available through the{" "}
+              {regionInfo.catalogueTitle.en}. Your information will not be
+              published before you are contacted. If you have any questions or
+              would like to follow up on the status of your record, please
+              contact
             </En>
             <Fr>
-              Utilisez cette page pour soumettre votre enregistrement de
-              métadonnées, ainsi que pour voir quels champs obligatoires sont manquants.
-            </Fr>
+              Merci d'avoir rempli ce formulaire. L'information sera examiné et
+              un membre du personnel {regionInfo.title.fr}
+              vous contacter pour obtenir plus d'informations ou pour fournir
+              une mise à jour sur quand votre jeu de données sera disponible via
+              le
+              {regionInfo.catalogueTitle.fr}. Vos informations ne seront pas
+              publié avant d'être contacté. Si vous avez des questions ou
+              aimerait faire le suivi de l'état de votre dossier, contacter
+            </Fr>{" "}
+            <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
           </Typography>
         </Grid>
         {submitted ? (

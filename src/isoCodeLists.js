@@ -23,96 +23,192 @@ export const eovList = [
   "other",
 ];
 
-export const roleCodes = [
-  [
-    "custodian",
-    "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
-  ],
-  ["owner", "Party that owns the resource 	"],
-  ["distributor", "Party who distributes the resource 	"],
-  ["author", "Party who authored the resource 	"],
-  ["coAuthor", "Party who jointly authors the resource 	"],
-  [
-    "collaborator",
-    "Party who assists with the generation of the resource other than the principal investigator ",
-  ],
-  ["contributor", "Party contributing to the resource 	"],
-  [
-    "editor",
-    "Party who reviewed or modified the resource to improve the content 	",
-  ],
-  ["funder", "Party providing monetary support for the resource 	"],
-  [
-    "mediator",
-    "A class of entity that mediates access to the resource and for whom the resource is intended or useful ",
-  ],
-  ["originator", "Party who created the resource 	"],
-  [
-    "pointOfContact",
-    "Party who can be contacted for acquiring knowledge about or acquisition of the resource",
-  ],
-  [
-    "principalInvestigator",
-    "Key party responsible for gathering information and conducting research ",
-  ],
-  [
-    "processor",
-    "Party who has processed the data in a manner such that the resource has been modified ",
-  ],
-  ["publisher", "Party who published the resource 	"],
-  ["resourceProvider", "Party that supplies the resource 	"],
-  ["rightsHolder", "Party owning or managing rights over the resource 	"],
-  ["sponsor", "Party who speaks for the resource 	"],
-  [
-    "stakeholder",
-    "Party who has an interest in the resource or the use of the resource 	",
-  ],
-  ["user", "Party who uses the resource"],
-];
+export const roleCodes = {
+  custodian: {
+    title: {
+      en: "Metadata Contact",
+      fr: "Personne-contact pour les métadonnées",
+    },
+    text: {
+      en:
+        "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
+      fr:
+        "Partie qui accepte la reddition de comptes et la responsabilité de la ressource et assure le soin et l'entretien appropriés de la ressource ",
+    },
+  },
+  owner: {
+    title: { en: "Data Contact", fr: "Personne-contact pour les données" },
+    text: {
+      en: "Party that owns the resource",
+      fr: "Partie propriétaire de la ressource",
+    },
+  },
+  distributor: {
+    title: { en: "Distributor", fr: "Distributeur" },
+    text: {
+      en: "Party who distributes the resource",
+      fr: "Partie qui distribue la ressource",
+    },
+  },
+  author: {
+    title: { en: "Author", fr: "Auteur" },
+    text: { en: "Party who authored the resource" },
+  },
+  coAuthor: {
+    title: { en: "Coauthor", fr: "Co-auteur" },
+    text: { en: "Parti qui est l'auteur de la ressource" },
+  },
+  collaborator: {
+    title: { en: "Collaborator", fr: "Collaborateur" },
+    text: {
+      en:
+        "Party who assists with the generation of the resource other than the principal investigator",
+      fr:
+        "Partie qui aide à la production de la ressource autre que le chercheur principal",
+    },
+  },
+  contributor: {
+    title: { en: "Contributor", fr: "Contributeur" },
+    text: {
+      en: "Party contributing to the resource",
+      fr: "Partie contribuant à la ressource",
+    },
+  },
+  editor: {
+    title: { en: "Editor", fr: "Éditeur" },
+    text: {
+      en: "Party who reviewed or modified the resource to improve the content",
+      fr:
+        "Partie qui a examiné ou modifié la ressource pour améliorer le contenu",
+    },
+  },
+  funder: {
+    title: { en: "Funder", fr: "Fondateur" },
+    text: {
+      en: "Party providing monetary support for the resource",
+      fr: "Partie fournissant un soutien monétaire pour la ressource",
+    },
+  },
+  mediator: {
+    title: { en: "Mediator", fr: "Médiateur" },
+    text: {
+      en:
+        "A class of entity that mediates access to the resource and for whom the resource is intended or useful ",
+      fr:
+        "Classe d'entité qui sert de médiateur à l'accès à la ressource et pour laquelle la ressource est destinée ou utile",
+    },
+  },
+  originator: {
+    title: { en: "Originator", fr: "Initiateur" },
+    text: {
+      en: "Party who created the resource",
+      fr: "Partie qui a créé la ressource",
+    },
+  },
+  pointOfContact: {
+    title: { en: "Point Of Contact", fr: "Point de contact" },
+    text: {
+      en:
+        "Party who can be contacted for acquiring knowledge about or acquisition of the resource",
+      fr:
+        "Partie qui peut être contactée pour acquérir des connaissances sur la ressource ou l'acquisition de la ressource",
+    },
+  },
 
-export const progressCodes = [
-  [
-    "onGoing",
-    "Data is continually being updated. 	e.g satellite dataset that continues to be augmented",
-  ],
-  [
-    "historicalArchive",
-    "Data has been stored in an offline storage facility. use to indicate data are archived",
-  ],
-  [
-    "completed",
-    "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
-  ],
-  // ["accepted", "Agreed to by sponsor"],
-  // [
-  //   "deprecated",
-  //   "Resource superseded and will become obsolete, use only for historical purposes 	",
-  // ],
-  // ["final", "Progress concluded and no changes will be accepted 	"],
-  // ["notAccepted", "Rejected by sponsor 	"],
-  // ["obsolete", "Data is no longer relevant 	"],
-  // ["pending", "Committed to, but not yet addressed"],
-  // [
-  //   "planned",
-  //   "Fixed date has been established upon or by which the data will be created or updated. 	e.g.scheduled cruise",
-  // ],
-  // ["proposed", "Suggested that development needs to be undertaken 	"],
-  // ["required", "Data needs to be generated or updated 	"],
-  // [
-  //   "retired",
-  //   "Item is no longer recommended for use. It has not been superseded by another item 	",
-  // ],
-  // ["superseded", "Replaced by new 	"],
-  // [
-  //   "tentative",
-  //   "Provisional changes likely before resource becomes final or complete 	",
-  // ],
-  // [
-  //   "underDevelopment",
-  //   "Data is currently in the process of being created 	a resource that is not in production yet",
-  // ],
-  // ["valid", "Acceptable under specific conditions 	"],
-  // ["withdrawn", "Removed from consideration"],
-];
+  principalInvestigator: {
+    title: { en: "Principal Investigator", fr: "Responsable de recherche" },
+    text: {
+      en:
+        "Key party responsible for gathering information and conducting research",
+      fr:
+        "Partie clé responsable de la collecte de l'information et de la réalisation de la recherche",
+    },
+  },
+  processor: {
+    title: { en: "Processor", fr: "Transformateur" },
+    text: {
+      en:
+        "Party who has processed the data in a manner such that the resource has been modified",
+      fr:
+        "Partie qui a traité les données d'une manière telle que la ressource a été modifiée",
+    },
+  },
+  publisher: {
+    title: { en: "Publisher", fr: "Editeur" },
+    text: {
+      en: "Party who published the resource",
+      fr: "Partie qui a publié la ressource",
+    },
+  },
+  resourceProvider: {
+    title: { en: "Resource Provider", fr: "Fournisseur de ressources" },
+    text: {
+      en: "Party that supplies the resource",
+      fr: "Partie qui fournit la ressource ",
+    },
+  },
+  rightsHolder: {
+    title: { en: "Rights Holder", fr: "Ayant droit" },
+    text: {
+      en: "Party owning or managing rights over the resource ",
+      fr: "Partie détenant ou gérant des droits sur la ressource",
+    },
+  },
+  sponsor: {
+    title: { en: "Sponsor", fr: "Commanditaire" },
+    text: {
+      en: "Party who speaks for the resource ",
+      fr: "Parti qui parle pour la ressource",
+    },
+  },
+  stakeholder: {
+    title: { en: "Stakeholder", fr: "Actionnaire" },
+    text: {
+      en:
+        "Party who has an interest in the resource or the use of the resource ",
+      fr:
+        "Partie qui a un intérêt dans la ressource ou l'utilisation de la ressource",
+    },
+  },
+  user: {
+    title: { en: "User", fr: "Utilisateur" },
+    text: {
+      en: "Party who uses the resource",
+      fr: "Partie qui utilise la ressource",
+    },
+  },
+};
+
+export const progressCodes = {
+  onGoing: {
+    title: { en: "Ongoing", fr: "En cours" },
+    text: {
+      en:
+        "Data is continually being updated. e.g satellite dataset that continues to be augmented",
+      fr:
+        "Les données sont continuellement mises à jour, par exemple un ensemble de données satellite qui continue d'être augmenté",
+    },
+  },
+
+  historicalArchive: {
+    title: { en: "Historical Archive", fr: "Archives historiques" },
+    text: {
+      en:
+        "Data has been stored in an offline storage facility. use to indicate data are archived",
+      fr:
+        "Les données ont été stockées dans une installation de stockage hors connexion. Utilisez pour indiquer que les données sont archivées",
+    },
+  },
+
+  completed: {
+    title: { en: "Completed", fr: "Terminé" },
+    text: {
+      en:
+        "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
+      fr:
+        "La production des données a été terminée, p. ex. données brutes qui ne sont pas en cours, modèle terminé",
+    },
+  },
+};
 
 export const depthDirections = ["depthPositive", "heightPositive"];
