@@ -32,7 +32,11 @@ class UserProvider extends Component {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
 
-        Sentry.addBreadcrumb({ user: email });
+        Sentry.addBreadcrumb({
+          category: "auth",
+          message: `Authenticated user ${email}`,
+          level: Sentry.Severity.Info,
+        });
 
         firebase
           .database()

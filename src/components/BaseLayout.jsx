@@ -1,8 +1,7 @@
 import React, { useContext } from "react";
-import { Route, Switch } from "react-router-dom";
-import * as Sentry from "@sentry/react";
+import { Route, Switch, useParams } from "react-router-dom";
 
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Grid } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
 import Contacts from "./Pages/Contacts";
@@ -13,21 +12,24 @@ import EditContact from "./FormComponents/EditContact";
 import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
+import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
+import regions from "../regions";
 
-const theme = createMuiTheme({
-  props: {
-    MuiTextField: {
-      variant: "outlined",
-    },
-    MuiSelect: {
-      variant: "outlined",
-    },
-    MuiButton: {
-      variant: "outlined",
-    },
-  },
-});
+const RegionLogo = ({ children }) => {
+  const { language, region } = useParams();
+  const imgPath = `/cioos-${region}-${language}.png`;
+  return (
+    <Grid container direction="column" spacing={2}>
+      <Grid item xs>
+        <img src={process.env.PUBLIC_URL + imgPath} alt={region} />
+      </Grid>
+      <Grid item xs style={{ paddingLeft: "50px" }}>
+        {children}
+      </Grid>
+    </Grid>
+  );
+};
 const Pages = ({ match }) => {
   const { loggedIn, authIsLoading } = useContext(UserContext);
 
@@ -36,7 +38,7 @@ const Pages = ({ match }) => {
       {authIsLoading ? (
         <CircularProgress />
       ) : (
-        <>
+        <RegionLogo>
           {loggedIn ? (
             <Switch>
               <Route path={`${match.path}/`} exact component={Submissions} />
@@ -62,22 +64,43 @@ const Pages = ({ match }) => {
               <Route path={`${match.path}/admin`} component={Admin} />
               <Route
                 path={`${match.path}/sentry-test`}
-                component={() => {
-                  Sentry.captureException(new Error("Testing sentry"));
-                  return <h1>Error notification sent</h1>;
-                }}
+                component={SentryTest}
               />
               <Route path="*" component={NotFound} />
             </Switch>
           ) : (
             <Login />
           )}
-        </>
+        </RegionLogo>
       )}
     </>
   );
 };
 const BaseLayout = ({ match }) => {
+  const { region } = useParams();
+
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: regions[region].colors.primary,
+      },
+      secondary: {
+        main: regions[region].colors.secondary,
+      },
+    },
+    props: {
+      MuiTextField: {
+        variant: "outlined",
+      },
+      MuiSelect: {
+        variant: "outlined",
+      },
+      MuiButton: {
+        variant: "outlined",
+      },
+    },
+  });
+
   return (
     <UserProvider>
       <ThemeProvider theme={theme}>

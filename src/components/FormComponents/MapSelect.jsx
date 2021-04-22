@@ -230,7 +230,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
         <SupplementalText>
           <En>
             If you are providing a bounding box, please provide the coordinates
-            in decimal degrees and not in decimal minutes seconds.
+            in decimal degrees (eg 58.66) and not in decimal minutes seconds.
           </En>
           <Fr>
             Si vous fournissez une zone de délimitation minimale, 
