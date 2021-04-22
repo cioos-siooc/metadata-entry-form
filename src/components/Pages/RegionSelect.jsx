@@ -52,7 +52,6 @@ export default function RegionSelect() {
       <Grid item xs>
         <Grid
           container
-          spacing={2}
           direction="row"
           justify="flex-start"
           alignItems="stretch"
