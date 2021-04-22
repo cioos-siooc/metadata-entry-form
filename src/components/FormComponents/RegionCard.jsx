@@ -33,33 +33,31 @@ export default function MediaCard({ region, regionSummary }) {
   const imgPath = `/cioos-${region}-${language}.png`;
 
   return (
-    <div>
-      <Card
-        className={classes.root}
-        onClick={() => history.push(`/${language}/${region}`)}
-        style={{ minHeight: "500px", minWidth: "400px" }}
-      >
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
-            title={regionInfo.title[language]}
-          />
-          <CardContent>
-            <div>
-              <img
-                src={process.env.PUBLIC_URL + imgPath}
-                alt={region}
-                style={{ margin: "10px", maxWidth: "300px", maxHeight: "80px" }}
-              />
-            </div>
+    <Card
+      className={classes.root}
+      onClick={() => history.push(`/${language}/${region}`)}
+      style={{ minHeight: "500px", minWidth: "400px" }}
+    >
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
+          title={regionInfo.title[language]}
+        />
+        <CardContent>
+          <div>
+            <img
+              src={process.env.PUBLIC_URL + imgPath}
+              alt={region}
+              style={{ margin: "10px", maxWidth: "300px", maxHeight: "80px" }}
+            />
+          </div>
 
-            <Typography variant="body2" color="textSecondary" component="p">
-              {regionSummary}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </div>
+          <Typography variant="body2" color="textSecondary" component="p">
+            {regionSummary}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
