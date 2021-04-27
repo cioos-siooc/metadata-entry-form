@@ -6,6 +6,8 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import React from "react";
 
+import { I18n } from "../I18n";
+
 function formatDate(date) {
   try {
     const d = date.getDate();
@@ -23,7 +25,7 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         disabled={disabled}
         margin="normal"
         id="date-picker-dialog"
-        label="Select date"
+        label={<I18n en="Select date" fr="Sélectionner une date"/>}
         format="yyyy-MM-dd"
         value={value}
         onChange={(dateSelected) => {

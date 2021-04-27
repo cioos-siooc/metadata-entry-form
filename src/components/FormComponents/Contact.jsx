@@ -188,7 +188,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
         {/* Individual */}
         <Typography>
           <En>Provide any information about the individual</En>
-          <Fr>Identification de l'individual</Fr>
+          <Fr>Identification de l'individu</Fr>
         </Typography>
 
         <Grid
@@ -219,7 +219,7 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           </Grid>
           <Grid item xs>
             <TextField
-              label={<I18n en="Email" fr="Email" />}
+              label={<I18n en="Email" fr="Courriel" />}
               name="indEmail"
               value={value.indEmail}
               onChange={onChange}

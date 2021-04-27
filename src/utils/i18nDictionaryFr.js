@@ -170,6 +170,13 @@ const dictionary = {
   "coastal zone": "zone côtière",
   depthPositive: "Profondeur positive",
   heightPositive: "Hauteur positive",
+  // Submit section
+  "data identification": "Identification des données",
+  "resources": "Ressources",
+  "spatial": "Spatial",
+  "platform": "Platforme",
+  "platform - instruments": "Platforme - instruments",
+  "contacts": "Contacts",
 };
 
 export default dictionary;
