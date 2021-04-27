@@ -266,8 +266,8 @@ class Submissions extends React.Component {
                     <Fr>
                       Ce sont les soumissions que nous avons reçues de tous les
                       utilisateurs qui n'ont pas encore été examinées. Pour
-                      accepter un enregistrement, cliquez sur le bouton «
-                      Publier ». Une fois qu'un enregistrement est publié, vous
+                      accepter un enregistrement, cliquez sur le bouton « Publier ». 
+                      Une fois qu'un enregistrement est publié, vous
                       pouvez télécharger le xml ou yaml
                     </Fr>{" "}
                     .
