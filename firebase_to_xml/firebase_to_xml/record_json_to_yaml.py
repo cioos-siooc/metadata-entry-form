@@ -79,6 +79,16 @@ def get_license_by_code(license_code):
             "code": "Apache-2.0",
             "url": "https://www.apache.org/licenses/LICENSE-2.0",
         },
+        "government-open-license-nova-scotia": {
+            "title": "Open Government Licence - Nova Scotia",
+            "code": "government-open-license-nova-scotia",
+            "url": "https://novascotia.ca/opendata/licence.asp",
+        },
+        "government-open-license-newfoundland": {
+            "title": "Open Government Licence - Newfoundland and Labrador",
+            "code": "government-open-license-newfoundland",
+            "url": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence",
+        },
     }
     return codes.get(license_code)
 
