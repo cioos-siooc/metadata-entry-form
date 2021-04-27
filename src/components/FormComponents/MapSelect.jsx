@@ -234,7 +234,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
           </En>
           <Fr>
             Si vous fournissez une zone de délimitation minimale, 
-            veuillez fournir les coordonnées en degrés décimaux et non en degrés-minutes-secondes.
+            veuillez fournir les coordonnées en <b>degrés décimaux</b>.
           </Fr>
         </SupplementalText>
       </QuestionText>

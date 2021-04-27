@@ -48,16 +48,12 @@ const StartTab = ({ disabled, record }) => {
             <br /> Questions regarding the form can be directed to{" "}
           </En>
           <Fr>
-            Bienvenue à l'Outil de saisie des métadonnées de l'
-            {regionInfo.title.fr}, la première étape pour rendre vos données
-            accessibles et accessibles par l'intermédiaire du CIOOS. Ces
-            renseignements serviront à créer un profil de métadonnées pour votre
-            ensemble de données qui permettra de faire une recherche dans le
-            {regionInfo.catalogueTitle.fr}. Veuillez remplir chaque champ avec
-            le plus de détails possible. Le profil de métadonnées aidera à
-            décrire ce jeu de données pour d'autres personnes afin de déterminer
-            s'il est pertinent pour leur travail et de s'assurer qu'il est
-            interopérable avec d'autres bases de données et systèmes.
+            Bienvenue dans l’outil de saisie de métadonnées du {regionInfo.title.fr}, 
+            la première étape pour rendre vos données accessibles et découvrables via notre plateforme. 
+            Ces renseignements serviront à créer un profil de métadonnées pour votre jeu de données, 
+            facilitant ainsi sa découverte dans le {regionInfo.catalogueTitle.fr} et le rendant 
+            interopérable avec d’autres systèmes de diffusion. 
+            Veuillez remplir les champs requis de la façon la plus exhaustive possible. 
             <br />
             <br /> Les questions concernant le formulaire peuvent être adressées
             à{" "}
@@ -92,7 +88,7 @@ const StartTab = ({ disabled, record }) => {
               Le formulaire peut être sauvegardé et complété au fil du temps en
               cliquant sur le bouton <Save /> dans le coin inférieur droit.
               Cette icône sera grisée jusqu'à ce que vous ayez renseigné le
-              titre du jeu de données dans la Section « Identification ».
+              titre du jeu de données dans la Section « Identification des données ».
             </Fr>
           </li>
           <li>
@@ -107,7 +103,7 @@ const StartTab = ({ disabled, record }) => {
               Certains champs peuvent avoir du texte à la fois en français et en
               anglais, bien que cette n'est requis que pour le titre et
               l'abrégé. Il y a un Bouton « Traduire » qui générera
-              automatiquement du texte dans le autre langue. Cette traduction
+              automatiquement du texte dans l'autre langue. Cette traduction
               est plus précise quand il y a plus de texte à traduire.
             </Fr>
           </li>
