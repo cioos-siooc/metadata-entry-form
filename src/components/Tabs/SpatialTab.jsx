@@ -35,9 +35,11 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
               bounding box or a Polygon is required.
             </En>
             <Fr>
-              Vous pouvez dessiner un cadre de sélection ou un polygone pour le jeu de données. 
-              Alternativement, vous pouvez renseigner les coordonnées à l'aide des champs ci-dessous.
-              Le cadre de sélection ou le polygone est requis.
+              Vous pouvez tracer un cadre ou un polygone pour situer géographiquement 
+              votre jeu de données. Vous pouvez aussi localiser l’aire géographique 
+              couverte par votre jeu de données en inscrivant les coordonnées 
+              géographiques (degrés décimaux) dans les champs sous la carte. 
+              Cette section doit obligatoirement être complétée.
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -78,12 +80,12 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
             <Fr>
               <p>
                 Profondeur positive: La profondeur est enregistrée avec des
-                valeurs positives (c'est-à-dire une valeur maximale de 150m
-                implique 150m au-dessous de la surface).
+                valeurs positives (c'est-à-dire une valeur maximale de 150 m
+                implique 150 m au-dessous de la surface).
               </p>
               <p>
                 Hauteur positive: La profondeur est l'élévation depuis le fond
-                marin (c'est-à-dire une valeur maximale de 150m implique 150m
+                marin (c'est-à-dire une valeur maximale de 150 m implique 150 m
                 au-dessus du fond marin)
               </p>
             </Fr>
