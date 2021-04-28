@@ -13,6 +13,7 @@ import {
 
 import { useParams } from "react-router-dom";
 import { camelToSentenceCase } from "../../utils/misc";
+import translate from "../../utils/i18n";
 
 import { paperClass } from "../FormComponents/QuestionStyles";
 
@@ -54,14 +55,14 @@ const SubmitTab = ({ record, submitRecord }) => {
               contact
             </En>
             <Fr>
-              Merci d'avoir rempli ce formulaire. L'information sera examiné et
-              un membre du personnel {regionInfo.title.fr}
-              vous contacter pour obtenir plus d'informations ou pour fournir
-              une mise à jour sur quand votre jeu de données sera disponible via
-              le
+              Merci d'avoir rempli ce formulaire. L'information sera validée par
+              un membre du personnel du {regionInfo.title.fr}. Cette personne
+              pourrait vous contacter pour obtenir plus d'informations ou pour
+              vous indiquer quand votre jeu de données sera disponible dans le{" "}
               {regionInfo.catalogueTitle.fr}. Vos informations ne seront pas
-              publié avant d'être contacté. Si vous avez des questions ou
-              aimerait faire le suivi de l'état de votre dossier, contacter
+              publiées avant d'obtenir votre approbation. Si vous avez des
+              questions ou si vous désirez effectuer un suivi concernant l'état
+              de votre soumission, veuillez contacter
             </Fr>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
           </Typography>
@@ -119,8 +120,9 @@ const SubmitTab = ({ record, submitRecord }) => {
                       need to address the list below before submitting.
                     </En>
                     <Fr>
-                      Vous n'avez pas rempli tous les champs obligatoires. 
-                      Veuillez renseigner les champs identifiés ci-dessous avant de soumettre votre demande.
+                      Vous n'avez pas rempli tous les champs obligatoires.
+                      Veuillez renseigner les champs identifiés ci-dessous avant
+                      de soumettre votre demande.
                     </Fr>
                   </Typography>
                 </Grid>
@@ -129,7 +131,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                   {Object.keys(validationErrors).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
-                        {camelToSentenceCase(tab)}
+                        {camelToSentenceCase(translate(tab, language))}
                       </Typography>
                       <List>
                         {validationErrors[tab].map(

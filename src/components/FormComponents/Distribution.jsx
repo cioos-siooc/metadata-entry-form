@@ -32,7 +32,7 @@ const Distribution = ({ onChange, value, name, disabled }) => {
       target: { name, value: value.filter((e, index) => index !== i) },
     });
   }
-  const nameLabel = <I18n en="Name" fr="Nom" />;
+  const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
   return (

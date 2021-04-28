@@ -249,7 +249,7 @@ class Submissions extends React.Component {
             <div>
               <Typography>
                 <En>
-                  To start a new record, click on “New Record” and begin adding
+                  To start a new record, click on "New Record" and begin adding
                   information. To continue working on a record, select it from
                   the list below. Once your record is completed and information
                   has been provided for all mandatory fields, you can submit
@@ -258,16 +258,15 @@ class Submissions extends React.Component {
                   published until it is reviewed and approved by CIOOS staff.
                 </En>
                 <Fr>
-                  Pour démarrer un nouvel enregistrement, cliquez sur « New
-                  Record » et commencez à ajouter informations. Pour continuer à
-                  travailler sur un enregistrement, sélectionnez-le dans la
-                  liste ci-dessous. Une fois que votre dossier est rempli et que
-                  l'information a a été fourni pour tous les champs
-                  obligatoires, vous pouvez soumettre votre pour examen en
-                  cliquant sur l'icône « Soumettre pour examen » pour le droit
-                  de votre titre de disque. L'enregistrement ne sera pas publié
-                  jusqu'à ce qu'il soit examiné et approuvé par le personnel de
-                  la CIOOS.
+                  Afin de soumettre un nouvel enregistrement, cliquez sur «
+                  Nouvel enregistrement » et ajoutez-y les informations
+                  demandées. Si vous désirez reprendre la soumission d’un
+                  enregistrement entamé, sélectionnez-le dans la liste
+                  ci-dessous. Lorsque les informations sont saisies pour tous
+                  les champs obligatoires, vous pouvez soumettre votre
+                  enregistrement pour validation en cliquant sur l’icône «
+                  soumettre pour validation ». L’enregistrement sera publié
+                  lorsqu’il aura été validé et approuvé par un membre du SIOOC.
                 </Fr>
               </Typography>
 

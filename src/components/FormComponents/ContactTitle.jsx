@@ -16,7 +16,7 @@ function getContactTitleFromNames(contact) {
 function ContactTitle({ contact }) {
   return (
     getContactTitleFromNames(contact) || (
-      <I18n en="new contact" fr="nouveau contact" />
+      <I18n en="new contact" fr="Nouveau contact" />
     )
   );
 }
