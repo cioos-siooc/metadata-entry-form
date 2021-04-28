@@ -249,22 +249,24 @@ class Submissions extends React.Component {
             <div>
               <Typography>
                 <En>
-                  To start a new record, click on « New Record » and begin adding
+                  To start a new record, click on "New Record" and begin adding
                   information. To continue working on a record, select it from
                   the list below. Once your record is completed and information
                   has been provided for all mandatory fields, you can submit
-                  your record for review by clicking the « Submit for review »
+                  your record for review by clicking the "Submit for review"
                   icon to the right of your record title. The record will not be
                   published until it is reviewed and approved by CIOOS staff.
                 </En>
                 <Fr>
-                  Afin de soumettre un nouvel enregistrement, cliquez sur « Nouvel enregistrement » 
-                  et ajoutez-y les informations demandées. Si vous désirez reprendre la soumission 
-                  d’un enregistrement entamé, sélectionnez-le dans la liste ci-dessous. Lorsque 
-                  les informations sont saisies pour tous les champs obligatoires, vous pouvez 
-                  soumettre votre enregistrement pour validation en cliquant sur l’icône 
-                  « soumettre pour validation ». L’enregistrement sera publié lorsqu’il aura 
-                  été validé et approuvé par un membre du SIOOC.
+                  Afin de soumettre un nouvel enregistrement, cliquez sur «
+                  Nouvel enregistrement » et ajoutez-y les informations
+                  demandées. Si vous désirez reprendre la soumission d’un
+                  enregistrement entamé, sélectionnez-le dans la liste
+                  ci-dessous. Lorsque les informations sont saisies pour tous
+                  les champs obligatoires, vous pouvez soumettre votre
+                  enregistrement pour validation en cliquant sur l’icône «
+                  soumettre pour validation ». L’enregistrement sera publié
+                  lorsqu’il aura été validé et approuvé par un membre du SIOOC.
                 </Fr>
               </Typography>
 

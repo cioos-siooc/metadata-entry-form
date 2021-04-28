@@ -25,16 +25,17 @@ import regions from "../../regions";
 const IdentificationTab = ({ disabled, record, handleInputChange }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
-  const catalogueLinkEn = (
-    <a href={regionInfo.catalogueURL.en} target="_blank" rel="noopener noreferrer">
-      {regionInfo.catalogueURL.en}
+
+  const CatalogueLink = (lang) => (
+    <a
+      href={regionInfo.catalogueURL[lang]}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {regionInfo.catalogueURL[lang]}
     </a>
   );
-  const catalogueLinkFr = (
-    <a href={regionInfo.catalogueURL.fr} target="_blank" rel="noopener noreferrer">
-      {regionInfo.catalogueURL.fr}
-    </a>
-  );
+
   return (
     <div>
       <Paper style={paperClass}>
@@ -95,11 +96,11 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
             <En>
               This information will appear as the summary text that is shown for
               this dataset in the {regionInfo.catalogueTitle.en}. Browsing
-              datasets at {catalogueLinkEn} can help provide a sense of the type
-              of descriptions that are typically used for this section of the
-              profile. As a general rule, this section should be worded with as
-              little jargon as possible to give potential users an understanding
-              of your dataset.
+              datasets at <CatalogueLink lang="en" /> can help provide a sense
+              of the type of descriptions that are typically used for this
+              section of the profile. As a general rule, this section should be
+              worded with as little jargon as possible to give potential users
+              an understanding of your dataset.
               <br />
               <br />
               Suggested abstract points -
@@ -132,12 +133,13 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
             </En>
             <Fr>
               {" "}
-              Cette description constituera le texte récapitulatif du jeu de données 
-              lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}. 
-              Veuillez consulter d’autres jeux de données déjà publiés si vous 
-              désirez consulter un exemple : {catalogueLinkFr}. Si possible, veuillez remplir 
-              ce champ en utilisant un langage accessible pouvant être bien 
-              compris par d’autres utilisateurs.
+              Cette description constituera le texte récapitulatif du jeu de
+              données lorsqu’il sera publié dans le{" "}
+              {regionInfo.catalogueTitle.fr}. Veuillez consulter d’autres jeux
+              de données déjà publiés si vous désirez consulter un exemple :{" "}
+              <CatalogueLink lang="fr" />. Si possible, veuillez remplir ce
+              champ en utilisant un langage accessible pouvant être bien compris
+              par d’autres utilisateurs.
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -165,7 +167,8 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           <SupplementalText>
             <En>If none of these apply you can select Other.</En>
             <Fr>
-              Si aucun de ces éléments ne s'applique, vous pouvez sélectionner « Autre ».
+              Si aucun de ces éléments ne s'applique, vous pouvez sélectionner «
+              Autre ».
             </Fr>
           </SupplementalText>
         </QuestionText>
@@ -191,15 +194,17 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
                 that apply to your data, or create your own.
               </En>
               <Fr>
-                Les mots-clés permettent de catégoriser vos données et facilitent 
-                leur découvrabilité par d’autres utilisateurs. 
-                Choisissez des mots-clés spécifiques qui s’appliquent à vos données ou créez-en des nouveaux. 
+                Les mots-clés permettent de catégoriser vos données et
+                facilitent leur découvrabilité par d’autres utilisateurs.
+                Choisissez des mots-clés spécifiques qui s’appliquent à vos
+                données ou créez-en des nouveaux.
               </Fr>
               <RequiredMark passes={validateField(record, "keywords")} />
               <SupplementalText>
                 <En> Enter one at a time, clicking 'Add' after each.</En>
                 <Fr>
-                  Entrez un mot-clé à la fois. Cliquez sur « Ajouter » après chaque entrée.
+                  Entrez un mot-clé à la fois. Cliquez sur « Ajouter » après
+                  chaque entrée.
                 </Fr>
               </SupplementalText>
             </QuestionText>
@@ -254,8 +259,8 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
             data collection is ongoing.
           </En>
           <Fr>
-            Inscrivez la date de fin de votre collecte de données. L
-            aissez vide si la collecte des données est en cours.
+            Inscrivez la date de fin de votre collecte de données. L aissez vide
+            si la collecte des données est en cours.
           </Fr>
         </QuestionText>
         <DateInput
@@ -353,20 +358,22 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
                     Licence internationale Creative Commons Attribution 4.0
                     (CC-BY 4.0){" "}
                   </b>
-                  - Licence recommandée par le SIOOC. Les données sont ouvertes, 
-                  mais la licence exige que le jeu de données soit cité lorsqu’il 
-                  est utilisé par un autre utilisateur.
+                  - Licence recommandée par le SIOOC. Les données sont ouvertes,
+                  mais la licence exige que le jeu de données soit cité
+                  lorsqu’il est utilisé par un autre utilisateur.
                 </li>
                 <li>
-                  <b>Creative Commons 0</b> - N’impose aucune restriction particulière : 
-                  le jeu de données peut être utilisé sans être cité.
+                  <b>Creative Commons 0</b> - N’impose aucune restriction
+                  particulière : le jeu de données peut être utilisé sans être
+                  cité.
                 </li>
                 <li>
-                  <b>Licence pour gouvernement ouvert - Canada</b> - Pour les jeux de données 
-                  rendus disponibles par les organisation et ministères fédéraux. 
-                  Cette licence est similaire à CC-BY 4.0 : les données sont ouvertes 
-                  mais le jeu de données doit être cité lorsque utilisé par un autre utilisateur.
-                  correctement attribuées.
+                  <b>Licence pour gouvernement ouvert - Canada</b> - Pour les
+                  jeux de données rendus disponibles par les organisation et
+                  ministères fédéraux. Cette licence est similaire à CC-BY 4.0 :
+                  les données sont ouvertes mais le jeu de données doit être
+                  cité lorsque utilisé par un autre utilisateur. correctement
+                  attribuées.
                 </li>
               </ul>
             </Fr>
@@ -402,7 +409,9 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
                 <ul>
                   <li>Ne pas utiliser à des fins de navigation.</li>
                   <li>L' instrument n'a pas été étalonné.</li>
-                  <li>Un contrôle de qualité n’a pas été effectué sur les données.</li>
+                  <li>
+                    Un contrôle de qualité n’a pas été effectué sur les données.
+                  </li>
                 </ul>
               </i>
             </Fr>

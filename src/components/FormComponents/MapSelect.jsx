@@ -233,8 +233,8 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
             in decimal degrees (eg 58.66) and not in decimal minutes seconds.
           </En>
           <Fr>
-            Si vous fournissez une zone de délimitation minimale, 
-            veuillez fournir les coordonnées en <b>degrés décimaux</b>.
+            Si vous fournissez une zone de délimitation minimale, veuillez
+            fournir les coordonnées en <b>degrés décimaux</b>.
           </Fr>
         </SupplementalText>
       </QuestionText>
@@ -283,12 +283,8 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       </Grid>
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        <En>
-          OR
-        </En>
-        <Fr>
-          Ou
-        </Fr>
+        <En>OR</En>
+        <Fr>Ou</Fr>
       </Typography>
 
       <QuestionText>

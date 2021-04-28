@@ -38,7 +38,9 @@ const DistributionTab = ({ disabled, record, handleInputChange }) => {
             <Fr>
               Voici quelques exemples de ressources :
               <ul>
-                <li>Documentation à l'appui (par exemple, fichiers texte ou pdf)</li>
+                <li>
+                  Documentation à l'appui (par exemple, fichiers texte ou pdf)
+                </li>
                 <li>Fichiers CSV</li>
                 <li>Jeux de données ERDDAP</li>
                 <li>Images</li>

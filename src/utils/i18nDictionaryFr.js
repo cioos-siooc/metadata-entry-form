@@ -172,11 +172,11 @@ const dictionary = {
   heightPositive: "Hauteur positive",
   // Submit section
   "data identification": "Identification des données",
-  "resources": "Ressources",
-  "spatial": "Spatial",
-  "platform": "Platforme",
+  resources: "Ressources",
+  spatial: "Spatial",
+  platform: "Platforme",
   "platform - instruments": "Platforme - instruments",
-  "contacts": "Contacts",
+  contacts: "Contacts",
 };
 
 export default dictionary;

@@ -25,7 +25,7 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         disabled={disabled}
         margin="normal"
         id="date-picker-dialog"
-        label={<I18n en="Select date" fr="Sélectionner une date"/>}
+        label={<I18n en="Select date" fr="Sélectionner une date" />}
         format="yyyy-MM-dd"
         value={value}
         onChange={(dateSelected) => {

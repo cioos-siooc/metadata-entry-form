@@ -48,12 +48,14 @@ const StartTab = ({ disabled, record }) => {
             <br /> Questions regarding the form can be directed to{" "}
           </En>
           <Fr>
-            Bienvenue dans l’outil de saisie de métadonnées du {regionInfo.title.fr}, 
-            la première étape pour rendre vos données accessibles et découvrables via notre plateforme. 
-            Ces renseignements serviront à créer un profil de métadonnées pour votre jeu de données, 
-            facilitant ainsi sa découverte dans le {regionInfo.catalogueTitle.fr} et le rendant 
-            interopérable avec d’autres systèmes de diffusion. 
-            Veuillez remplir les champs requis de la façon la plus exhaustive possible. 
+            Bienvenue dans l’outil de saisie de métadonnées du{" "}
+            {regionInfo.title.fr}, la première étape pour rendre vos données
+            accessibles et découvrables via notre plateforme. Ces renseignements
+            serviront à créer un profil de métadonnées pour votre jeu de
+            données, facilitant ainsi sa découverte dans le{" "}
+            {regionInfo.catalogueTitle.fr} et le rendant interopérable avec
+            d’autres systèmes de diffusion. Veuillez remplir les champs requis
+            de la façon la plus exhaustive possible.
             <br />
             <br /> Les questions concernant le formulaire peuvent être adressées
             à{" "}
@@ -88,7 +90,8 @@ const StartTab = ({ disabled, record }) => {
               Le formulaire peut être sauvegardé et complété au fil du temps en
               cliquant sur le bouton <Save /> dans le coin inférieur droit.
               Cette icône sera grisée jusqu'à ce que vous ayez renseigné le
-              titre du jeu de données dans la Section « Identification des données ».
+              titre du jeu de données dans la Section « Identification des
+              données ».
             </Fr>
           </li>
           <li>
@@ -103,8 +106,8 @@ const StartTab = ({ disabled, record }) => {
               Certains champs peuvent avoir du texte à la fois en français et en
               anglais, bien que cette n'est requis que pour le titre et
               l'abrégé. Il y a un Bouton « Traduire » qui générera
-              automatiquement du texte dans l'autre langue. Cette traduction
-              est plus précise quand il y a plus de texte à traduire.
+              automatiquement du texte dans l'autre langue. Cette traduction est
+              plus précise quand il y a plus de texte à traduire.
             </Fr>
           </li>
         </ul>

@@ -35,11 +35,12 @@ const SpatialTab = ({ disabled, record, handleInputChange }) => {
               bounding box or a Polygon is required.
             </En>
             <Fr>
-              Vous pouvez tracer un cadre ou un polygone pour situer géographiquement 
-              votre jeu de données. Vous pouvez aussi localiser l’aire géographique 
-              couverte par votre jeu de données en inscrivant les coordonnées 
-              géographiques (degrés décimaux) dans les champs sous la carte. 
-              Cette section doit obligatoirement être complétée.
+              Vous pouvez tracer un cadre ou un polygone pour situer
+              géographiquement votre jeu de données. Vous pouvez aussi localiser
+              l’aire géographique couverte par votre jeu de données en
+              inscrivant les coordonnées géographiques (degrés décimaux) dans
+              les champs sous la carte. Cette section doit obligatoirement être
+              complétée.
             </Fr>
           </SupplementalText>
         </QuestionText>

@@ -12,7 +12,7 @@ const translateText = async (
   targetLanguageCode
 ) => {
   return new Promise((resolve, reject) => {
-    let params = {
+    const params = {
       Text: originalText,
       SourceLanguageCode: sourceLanguageCode,
       TargetLanguageCode: targetLanguageCode,
