@@ -38,7 +38,9 @@ const PlatformTab = ({ disabled, record, handleInputChange }) => {
                 données auquel un ou plusieurs instruments sont attachés. Par
                 exemple :
                 <ul>
-                  <li><i>Glider</i></li>
+                  <li>
+                    <i>Glider</i>
+                  </li>
                   <li>Navire</li>
                   <li>Bouée</li>
                   <li>Satellite</li>
@@ -46,8 +48,9 @@ const PlatformTab = ({ disabled, record, handleInputChange }) => {
                   <li>ROV</li>
                   <li>Amarrage</li>
                 </ul>
-                Il est fortement encouragé d'ajouter des informations sur une plateforme.
-                S'il n'y a pas de plateformes, vous pouvez entrer des informations sur des instruments au bas de la page.
+                Il est fortement encouragé d'ajouter des informations sur une
+                plateforme. S'il n'y a pas de plateformes, vous pouvez entrer
+                des informations sur des instruments au bas de la page.
               </Fr>
             </QuestionText>
 
@@ -98,7 +101,9 @@ const PlatformTab = ({ disabled, record, handleInputChange }) => {
             ) : (
               <QuestionText>
                 <En>You can still enter an instrument without a platform</En>
-                <Fr>Vous pouvez toujours entrer dans un instrument sans plateforme</Fr>
+                <Fr>
+                  Vous pouvez toujours entrer dans un instrument sans plateforme
+                </Fr>
               </QuestionText>
             )}
 

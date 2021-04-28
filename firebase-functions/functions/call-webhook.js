@@ -27,7 +27,7 @@ async function callPacDevWebHook() {
 
   return fetch(`https://pac-dev1.cioos.org/webhook/hooks/${hookID}`, {
     headers: {
-      Authorization: "Basic " + authString,
+      Authorization: `Basic ${  authString}`,
     },
   }).catch((e) => {
     console.log(e);
