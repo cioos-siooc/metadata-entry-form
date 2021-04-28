@@ -19,12 +19,14 @@ const atlanticText = (
 const stlaurentText = (
   <>
     <En>
-      The St. Lawrence Global Observatory integrates multidisciplinary data and 
-      information about the St. Lawrence’s global system, from the Great Lakes to the Gulf.
+      The St. Lawrence Global Observatory integrates multidisciplinary data and
+      information about the St. Lawrence’s global system, from the Great Lakes
+      to the Gulf.
     </En>
     <Fr>
-      L'Observatoire global du Saint-Laurent intégre des données et de l'information 
-      multidisciplinaires sur l'écosystème global du Saint-Laurent, des Grands Lacs au Golfe
+      L'Observatoire global du Saint-Laurent intégre des données et de
+      l'information multidisciplinaires sur l'écosystème global du
+      Saint-Laurent, des Grands Lacs au Golfe
     </Fr>
   </>
 );
@@ -48,7 +50,9 @@ export default function RegionSelect() {
             select the region where your data was collected.
           </En>
           <Fr>
-            Bienvenue dans l'outil de saisie de métadonnées CIOOS. Pour commencer, veuillez sélectionner la région dans laquelle vos données ont été collectées.
+            Bienvenue dans l'outil de saisie de métadonnées CIOOS. Pour
+            commencer, veuillez sélectionner la région dans laquelle vos données
+            ont été collectées.
           </Fr>
         </Typography>
       </Grid>

@@ -2,8 +2,8 @@ import React from "react";
 import { configure, mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 
-import MetadataForm from "../MetadataForm";
 import { Button } from "@material-ui/core";
+import MetadataForm from "../MetadataForm";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 
 configure({ adapter: new Adapter() });

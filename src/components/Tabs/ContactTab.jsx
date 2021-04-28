@@ -99,13 +99,15 @@ const ContactTab = ({ disabled, record, handleInputChange, userContacts }) => {
               Saved contacts can be selected from the list below
             </En>
             <Fr>
-              Veuillez saisir au moins un contact pour les métadonnées ET un contact 
-              de données pour ce jeu de données. Ces personnes pourraient être appelées 
-              à collaborer avec le personnel de la DSIO pour finaliser cet enregistrement. 
-              Il est important d'inclure toutes les personnes ayant travaillé sur le jeu 
-              de données afin de s'assurer que toutes les parties concernées soient 
-              créditées de façon appropriée pour leur rôle dans la création de ce jeu de données. 
-              Les contacts sauvegardés peuvent être sélectionnés dans la liste ci-dessous.
+              Veuillez saisir au moins un contact pour les métadonnées ET un
+              contact de données pour ce jeu de données. Ces personnes
+              pourraient être appelées à collaborer avec le personnel de la DSIO
+              pour finaliser cet enregistrement. Il est important d'inclure
+              toutes les personnes ayant travaillé sur le jeu de données afin de
+              s'assurer que toutes les parties concernées soient créditées de
+              façon appropriée pour leur rôle dans la création de ce jeu de
+              données. Les contacts sauvegardés peuvent être sélectionnés dans
+              la liste ci-dessous.
             </Fr>
             <RequiredMark passes={validateField(record, "contacts")} />
             <SupplementalText>

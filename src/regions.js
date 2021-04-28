@@ -12,7 +12,7 @@ const regions = {
     catalogueURL: {
       fr: "https://catalogue.ogsl.ca",
       en: "https://catalogue.ogsl.ca/en/",
-    }
+    },
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
@@ -25,7 +25,7 @@ const regions = {
     catalogueURL: {
       fr: "https://cioosatlantic.ca/ckan/fr/",
       en: "https://cioosatlantic.ca/ckan/",
-    }
+    },
   },
   pacific: {
     title: { en: "CIOOS Pacific", fr: "SIOOC Pacifique" },
@@ -38,7 +38,7 @@ const regions = {
     catalogueURL: {
       fr: "https://catalogue.cioospacific.ca/fr/",
       en: "https://catalogue.cioospacific.ca/",
-    }
+    },
   },
 };
 

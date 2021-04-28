@@ -55,13 +55,14 @@ const SubmitTab = ({ record, submitRecord }) => {
               contact
             </En>
             <Fr>
-              Merci d'avoir rempli ce formulaire. L'information sera validée 
-              par un membre du personnel du {regionInfo.title.fr}. Cette personne 
-              pourrait vous contacter pour obtenir plus d'informations ou pour 
-              vous indiquer quand votre jeu de données sera disponible dans le {regionInfo.catalogueTitle.fr}. 
-              Vos informations ne seront pas publiées avant d'obtenir votre approbation. 
-              Si vous avez des questions ou si vous désirez effectuer un suivi 
-              concernant l'état de votre soumission, veuillez contacter
+              Merci d'avoir rempli ce formulaire. L'information sera validée par
+              un membre du personnel du {regionInfo.title.fr}. Cette personne
+              pourrait vous contacter pour obtenir plus d'informations ou pour
+              vous indiquer quand votre jeu de données sera disponible dans le{" "}
+              {regionInfo.catalogueTitle.fr}. Vos informations ne seront pas
+              publiées avant d'obtenir votre approbation. Si vous avez des
+              questions ou si vous désirez effectuer un suivi concernant l'état
+              de votre soumission, veuillez contacter
             </Fr>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
           </Typography>
@@ -119,8 +120,9 @@ const SubmitTab = ({ record, submitRecord }) => {
                       need to address the list below before submitting.
                     </En>
                     <Fr>
-                      Vous n'avez pas rempli tous les champs obligatoires. 
-                      Veuillez renseigner les champs identifiés ci-dessous avant de soumettre votre demande.
+                      Vous n'avez pas rempli tous les champs obligatoires.
+                      Veuillez renseigner les champs identifiés ci-dessous avant
+                      de soumettre votre demande.
                     </Fr>
                   </Typography>
                 </Grid>
