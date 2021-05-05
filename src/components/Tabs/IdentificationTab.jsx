@@ -247,7 +247,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           value={record.dateStart || null}
           onChange={handleInputChange}
           disabled={disabled}
-          dateEnd={record.dateEnd || null}
+          dateEnd={record.dateEnd || undefined}
         />
         <QuestionText>
           <En>
@@ -264,7 +264,7 @@ const IdentificationTab = ({ disabled, record, handleInputChange }) => {
           value={record.dateEnd || null}
           onChange={handleInputChange}
           disabled={disabled}
-          dateStart={record.dateStart || null}
+          dateStart={record.dateStart || undefined}
         />
       </Paper>
       <Paper style={paperClass}>
