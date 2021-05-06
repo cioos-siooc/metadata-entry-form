@@ -18,8 +18,8 @@ function formatDate(date) {
     return null;
   }
 }
-const DateInput = ({ onChange, value, name, disabled }) => {
-  return (
+const DateInput = ({ onChange, value, name, disabled, dateStart, dateEnd }) => {
+    return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
         disabled={disabled}
@@ -28,6 +28,8 @@ const DateInput = ({ onChange, value, name, disabled }) => {
         label={<I18n en="Select date" fr="Sélectionner une date" />}
         format="yyyy-MM-dd"
         value={value}
+        minDate={dateStart}
+        maxDate={dateEnd}
         onChange={(dateSelected) => {
           return onChange({
             target: { name, value: formatDate(dateSelected) },
