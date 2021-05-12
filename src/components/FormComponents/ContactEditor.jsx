@@ -13,23 +13,34 @@ import {
 import { ExpandMore } from "@material-ui/icons";
 import CheckBoxList from "./CheckBoxList";
 
-import { I18n, En, Fr } from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
 
 import ContactTitle from "./ContactTitle";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 
-const Contact = ({ onChange, value, showRolePicker, disabled }) => {
+const EditContact = ({
+  value,
+  showRolePicker,
+  disabled,
+  updateContact,
+  updateContactEvent,
+}) => {
   const { language } = useParams();
   const options = Object.keys(roleCodes);
   const optionLabels = Object.values(roleCodes).map(
     ({ title }) => title[language]
   );
-
+  const numSpecialRoles = 4;
   const [expanded, setExpanded] = React.useState(false);
 
   const selectOptionIsInExpandedList =
-    (value.role || []).filter((role) => options.indexOf(role) > 2).length > 0;
+    (value.role || []).filter(
+      (role) => options.indexOf(role) > numSpecialRoles - 1
+    ).length > 0;
+
+  // function updateContact() {}
+  // function updateContactEvent() {}
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
@@ -41,36 +52,41 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
         {showRolePicker && (
           <Grid item xs>
             <QuestionText>
-              <En>
-                What is the role of this contact? {selectOptionIsInExpandedList}
-              </En>
-              <Fr>Quel est leur rôle?</Fr>
-              <SupplementalText>
+              <I18n>
                 <En>
-                  At least one Metadata Contact and one Data Contact are
-                  required. Multiple roles can be selected for each contact.
-                  Expand the list below for additional role.
+                  What is the role of this contact?{" "}
+                  {selectOptionIsInExpandedList}
                 </En>
-                <Fr>
-                  Au moins une personne-contact pour les métadonnées et une
-                  personne-contact pour les données sont requises. Plusieurs
-                  rôles peuvent être sélectionnés pour chaque contact. Si vous
-                  avez besoin de rôles plus spécifiques, vous pouvez étendre la
-                  liste.
-                </Fr>
+                <Fr>Quel est leur rôle?</Fr>
+              </I18n>
+              <SupplementalText>
+                {" "}
+                <I18n>
+                  <En>
+                    At least one Metadata Contact and one Data Contact are
+                    required. Multiple roles can be selected for each contact.
+                    Expand the list below for additional role.
+                  </En>
+                  <Fr>
+                    Au moins une personne-contact pour les métadonnées et une
+                    personne-contact pour les données sont requises. Plusieurs
+                    rôles peuvent être sélectionnés pour chaque contact. Si vous
+                    avez besoin de rôles plus spécifiques, vous pouvez étendre
+                    la liste.
+                  </Fr>
+                </I18n>
               </SupplementalText>
             </QuestionText>
 
             <CheckBoxList
-              name="role"
               value={value.role || []}
-              onChange={onChange}
-              options={options.slice(0, 3)}
-              optionLabels={optionLabels.slice(0, 3)}
+              onChange={updateContact("role")}
+              options={options.slice(0, numSpecialRoles)}
+              optionLabels={optionLabels.slice(0, numSpecialRoles)}
               disabled={disabled}
               optionTooltips={Object.values(roleCodes)
                 .map(({ text }) => text[language])
-                .slice(0, 3)}
+                .slice(0, numSpecialRoles)}
             />
 
             <Accordion
@@ -86,22 +102,21 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
                 aria-controls="panel1a-content"
                 id="panel1a-header"
               >
-                <span>
+                <I18n>
                   <En>Show/Hide more role options</En>
                   <Fr>Afficher/masquer les rôles</Fr>
-                </span>
+                </I18n>
               </AccordionSummary>
               <AccordionDetails>
                 <CheckBoxList
-                  name="role"
                   value={value.role || []}
-                  onChange={onChange}
-                  options={options.slice(3)}
-                  optionLabels={optionLabels.slice(3)}
+                  onChange={updateContact("role")}
+                  options={options.slice(numSpecialRoles)}
+                  optionLabels={optionLabels.slice(numSpecialRoles)}
                   disabled={disabled}
                   optionTooltips={Object.values(roleCodes)
                     .map(({ text }) => text[language])
-                    .slice(3)}
+                    .slice(numSpecialRoles)}
                 />
               </AccordionDetails>
             </Accordion>
@@ -117,17 +132,17 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           {/* Organization */}
           <Grid item xs>
             <QuestionText>
-              <En>Provide any information about the organization</En>
-              <Fr>Identification de l'organisation</Fr>
+              <I18n>
+                <En>Provide any information about the organization</En>
+                <Fr>Identification de l'organisation</Fr>
+              </I18n>
             </QuestionText>
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <TextField
               label={<I18n en="Organization name" fr="Nom de l'organisation" />}
-              name="orgName"
               value={value.orgName}
-              onChange={onChange}
-              onBlur={onChange}
+              onChange={updateContactEvent("orgName")}
               disabled={disabled}
               fullWidth
             />
@@ -135,9 +150,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="URL" fr="URL" />}
-              name="orgURL"
               value={value.orgURL}
-              onChange={onChange}
+              onChange={updateContactEvent("orgURL")}
               disabled={disabled}
               fullWidth
             />
@@ -145,9 +159,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Address" fr="Adresse" />}
-              name="orgAdress"
               value={value.orgAdress}
-              onChange={onChange}
+              onChange={updateContactEvent("orgAdress")}
               disabled={disabled}
               fullWidth
             />
@@ -155,9 +168,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="City" fr="Ville" />}
-              name="orgCity"
               value={value.orgCity}
-              onChange={onChange}
+              onChange={updateContactEvent("orgCity")}
               disabled={disabled}
               fullWidth
             />
@@ -165,9 +177,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Country" fr="Pays" />}
-              name="orgCountry"
               value={value.orgCountry}
-              onChange={onChange}
+              onChange={updateContactEvent("orgCountry")}
               disabled={disabled}
               fullWidth
             />
@@ -175,9 +186,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Email" fr="Courriel" />}
-              name="orgEmail"
               value={value.orgEmail}
-              onChange={onChange}
+              onChange={updateContactEvent("orgEmail")}
               fullWidth
               disabled={disabled}
             />{" "}
@@ -187,8 +197,10 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
       <Grid item xs>
         {/* Individual */}
         <Typography>
-          <En>Provide any information about the individual</En>
-          <Fr>Identification de l'individu</Fr>
+          <I18n>
+            <En>Provide any information about the individual</En>
+            <Fr>Identification de l'individu</Fr>
+          </I18n>
         </Typography>
 
         <Grid
@@ -200,9 +212,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Individual Name" fr="Nom de l'individu" />}
-              name="indName"
               value={value.indName}
-              onChange={onChange}
+              onChange={updateContactEvent("indName")}
               disabled={disabled}
               fullWidth
             />
@@ -210,9 +221,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Position" fr="Position" />}
-              name="indPosition"
               value={value.indPosition}
-              onChange={onChange}
+              onChange={updateContactEvent("indPosition")}
               disabled={disabled}
               fullWidth
             />
@@ -220,9 +230,8 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
           <Grid item xs>
             <TextField
               label={<I18n en="Email" fr="Courriel" />}
-              name="indEmail"
               value={value.indEmail}
-              onChange={onChange}
+              onChange={updateContactEvent("indEmail")}
               disabled={disabled}
               fullWidth
             />
@@ -233,4 +242,4 @@ const Contact = ({ onChange, value, showRolePicker, disabled }) => {
   );
 };
 
-export default Contact;
+export default EditContact;

@@ -6,6 +6,9 @@ export function camelToSentenceCase(text = "") {
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
+export function deepEquals(obj1, obj2) {
+  return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
 
 export function firebaseToJSObject(input) {
   if (!input) return null;

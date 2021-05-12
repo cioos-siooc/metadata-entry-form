@@ -21,11 +21,16 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 
-const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
-  function onEditPath() {}
-
-  function onDeleted() {
-    const newVal = {
+const MapSelect = ({
+  handleUpdateMap,
+  updateMap,
+  mapData = {},
+  disabled,
+  record,
+}) => {
+  // On map clear?
+  function onMapClear() {
+    const emptySpatial = {
       north: "",
       south: "",
       east: "",
@@ -33,7 +38,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       polygon: "",
     };
 
-    onChange({ target: { name, value: newVal } });
+    handleUpdateMap(emptySpatial);
   }
 
   const [editableFG, setEditableFG] = useState(null);
@@ -59,22 +64,24 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       });
     }
   }
+  // update a mapData property using an event
+  function handleChange(key) {
+    return (e) => {
+      const drawnItems = editableFG.leafletElement._layers;
+      clearExtraLayers(drawnItems);
 
-  function handleChange(e) {
-    const drawnItems = editableFG.leafletElement._layers;
-    clearExtraLayers(drawnItems);
+      const newData = { ...mapData, [key]: e.target.value };
 
-    const newData = { ...value, [e.target.name]: e.target.value };
-
-    onChange({ target: { name, value: newData } });
+      updateMap(newData);
+    };
   }
-
+  // update the polygon property using an event
   function handleChangePoly(e) {
     const drawnItems = editableFG.leafletElement._layers;
     clearExtraLayers(drawnItems);
 
-    const newData = { ...value, [e.target.name]: e.target.value };
-    onChange({ target: { name, value: newData } });
+    const newData = { ...mapData, polygon: e.target.value };
+    updateMap(newData);
   }
 
   function limitDecimals(x) {
@@ -98,10 +105,10 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
   }
 
   const hasBoundingBox = (
-    test_n = value.north,
-    test_s = value.south,
-    test_e = value.east,
-    test_w = value.west
+    test_n = mapData.north,
+    test_s = mapData.south,
+    test_e = mapData.east,
+    test_w = mapData.west
   ) => {
     const test =
       coordTest.test(test_n) &&
@@ -112,7 +119,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
     return test;
   };
 
-  const hasPolygon = (test_string = value.polygon) => {
+  const hasPolygon = (test_string = mapData.polygon) => {
     return polyTest.test(test_string);
   };
 
@@ -131,7 +138,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
         );
         const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
-        onChange({ target: { name, value: { polygon } } });
+        updateMap({ polygon });
         break;
 
       default: // Assume rectangle
@@ -147,7 +154,7 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
         west = limitDecimals(west);
 
         const newValue = { north, south, east, west };
-        onChange({ target: { name, value: newValue } });
+        updateMap(newValue);
     }
   };
 
@@ -159,15 +166,15 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
     enable() {
       // eslint-disable-next-line react/no-this-in-sfc
       this.options.featureGroup.clearLayers();
-      onDeleted();
+      onMapClear();
     },
   });
 
   const bboxIsDrawn = Boolean(
-    value.north || value.south || value.east || value.west
+    mapData.north || mapData.south || mapData.east || mapData.west
   );
 
-  const fieldsAreEmpty = !bboxIsDrawn && !value.polygon;
+  const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
 
   return (
     <div>
@@ -190,9 +197,9 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
           {disabled === false && (
             <EditControl
               position="topleft"
-              onEdited={onEditPath}
+              // onEdited={onEditPath}
               onCreated={onCreated}
-              onDeleted={onDeleted}
+              onMapClear={onMapClear}
               draw={{
                 marker: false,
                 circle: false,
@@ -207,14 +214,14 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
           )}
 
           {hasPolygon() && (
-            <LeafletPolygon positions={parsePolyString(value.polygon)} />
+            <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
 
           {hasBoundingBox() && (
             <LeafletRectangle
               bounds={[
-                [value.north, value.east],
-                [value.south, value.west],
+                [mapData.north, mapData.east],
+                [mapData.south, mapData.west],
               ]}
             />
           )}
@@ -222,91 +229,98 @@ const MapSelect = ({ onChange, value = {}, name, disabled, record }) => {
       </Map>
       <br />
       <QuestionText>
-        <En>Bounding Box Coordinates</En>
-        <Fr>Coordonnées de la zone de délimitation minimale</Fr>
+        <I18n>
+          <En>Bounding Box Coordinates</En>
+          <Fr>Coordonnées de la zone de délimitation minimale</Fr>
+        </I18n>
         {(bboxIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
+
         <SupplementalText>
-          <En>
-            If you are providing a bounding box, please provide the coordinates
-            in decimal degrees (eg 58.66) and not in decimal minutes seconds.
-          </En>
-          <Fr>
-            Si vous fournissez une zone de délimitation minimale, veuillez
-            fournir les coordonnées en <b>degrés décimaux</b>.
-          </Fr>
+          <I18n>
+            <En>
+              If you are providing a bounding box, please provide the
+              coordinates in decimal degrees (eg 58.66) and not in decimal
+              minutes seconds.
+            </En>
+            <Fr>
+              Si vous fournissez une zone de délimitation minimale, veuillez
+              fournir les coordonnées en <b>degrés décimaux</b>.
+            </Fr>
+          </I18n>
         </SupplementalText>
       </QuestionText>
       <Grid container direction="row" spacing={3}>
         <Grid item xs={2}>
           <TextField
-            name="north"
             label={<I18n en="North" fr="Nord" />}
-            value={value.north || ""}
+            value={mapData.north || ""}
             inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            onChange={handleChange}
+            onChange={handleChange("north")}
             type="number"
-            disabled={disabled || Boolean(value.polygon)}
+            disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
           <TextField
-            name="south"
             label={<I18n en="South" fr="Sud" />}
-            value={value.south || ""}
-            onChange={handleChange}
+            value={mapData.south || ""}
+            onChange={handleChange("south")}
             type="number"
-            disabled={disabled || Boolean(value.polygon)}
+            disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
           <TextField
-            name="east"
             label={<I18n en="East" fr="Est" />}
-            value={value.east || ""}
-            onChange={handleChange}
+            value={mapData.east || ""}
+            onChange={handleChange("east")}
             type="number"
-            disabled={disabled || Boolean(value.polygon)}
+            disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
         <Grid item xs={2}>
           <TextField
-            name="west"
-            value={value.west || ""}
+            value={mapData.west || ""}
             label={<I18n en="West" fr="Ouest" />}
-            onChange={handleChange}
+            onChange={handleChange("west")}
             type="number"
-            disabled={disabled || Boolean(value.polygon)}
+            disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
       </Grid>
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        <En>OR</En>
-        <Fr>Ou</Fr>
+        <I18n>
+          <En>OR</En>
+          <Fr>Ou</Fr>
+        </I18n>
       </Typography>
 
       <QuestionText>
-        <En>Polygon coordinates</En>
-        <Fr>Coordonnées du/des polygone(s)</Fr>
+        <I18n>
+          <En>Polygon coordinates</En>
+          <Fr>Coordonnées du/des polygone(s)</Fr>
+        </I18n>
         {(!bboxIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
         <SupplementalText>
-          <En>
-            If you are providing polygon coordinates, they must start and end
-            with the same point. Eg,
-          </En>
-          <Fr>
-            Doivent commencer et se terminer par le même point. Par exemple,
-          </Fr>{" "}
+          <I18n>
+            <En>
+              If you are providing polygon coordinates, they must start and end
+              with the same point. Eg,
+            </En>
+            <Fr>
+              Doivent commencer et se terminer par le même point. Par exemple,
+            </Fr>
+          </I18n>{" "}
           48,-128 56,-133 56,-147 48,-128
         </SupplementalText>
       </QuestionText>
       <TextField
-        name="polygon"
-        value={value.polygon || ""}
+        value={mapData.polygon || ""}
         onChange={handleChangePoly}
         type="text"
         fullWidth

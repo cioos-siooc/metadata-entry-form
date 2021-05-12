@@ -1,7 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
-import { En, Fr } from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 
 function rand() {
   return Math.round(Math.random() * 20) - 10;
@@ -44,8 +44,10 @@ export default function SimpleModal({ open, onClose, onAccept }) {
       >
         <div style={modalStyle} className={classes.paper}>
           <h2 id="simple-modal-title">
-            <En>Are you sure?</En>
-            <Fr>Vous êtes sûr ?</Fr>
+            <I18n>
+              <En>Are you sure?</En>
+              <Fr>Vous êtes sûr ?</Fr>
+            </I18n>
           </h2>
           <button
             type="button"
@@ -54,12 +56,16 @@ export default function SimpleModal({ open, onClose, onAccept }) {
               onAccept();
             }}
           >
-            <En>Yes</En>
-            <Fr>Oui</Fr>
+            <I18n>
+              <En>Yes</En>
+              <Fr>Oui</Fr>
+            </I18n>
           </button>
           <button type="button" onClick={onClose}>
-            <En>No</En>
-            <Fr>Non</Fr>
+            <I18n>
+              <En>No</En>
+              <Fr>Non</Fr>
+            </I18n>
           </button>
         </div>
       </Modal>

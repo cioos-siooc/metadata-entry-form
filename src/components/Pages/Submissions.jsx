@@ -123,7 +123,6 @@ class Submissions extends React.Component {
   }
 
   // Make record a draft again
-  // eslint-disable-next-line class-methods-use-this
   withdrawRecord(key) {
     const { match } = this.props;
     const { region } = match.params;
@@ -174,7 +173,6 @@ class Submissions extends React.Component {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   deleteRecord(key) {
     const { match } = this.props;
     const { region } = match.params;
@@ -238,8 +236,10 @@ class Submissions extends React.Component {
         />
 
         <Typography variant="h5">
-          <En>My Records</En>
-          <Fr>Mes dossiers</Fr>
+          <I18n>
+            <En>My Records</En>
+            <Fr>Mes dossiers</Fr>
+          </I18n>
         </Typography>
 
         {loading ? (
@@ -248,26 +248,30 @@ class Submissions extends React.Component {
           <span>
             <div>
               <Typography>
-                <En>
-                  To start a new record, click on "New Record" and begin adding
-                  information. To continue working on a record, select it from
-                  the list below. Once your record is completed and information
-                  has been provided for all mandatory fields, you can submit
-                  your record for review by clicking the "Submit for review"
-                  icon to the right of your record title. The record will not be
-                  published until it is reviewed and approved by CIOOS staff.
-                </En>
-                <Fr>
-                  Afin de soumettre un nouvel enregistrement, cliquez sur «
-                  Nouvel enregistrement » et ajoutez-y les informations
-                  demandées. Si vous désirez reprendre la soumission d’un
-                  enregistrement entamé, sélectionnez-le dans la liste
-                  ci-dessous. Lorsque les informations sont saisies pour tous
-                  les champs obligatoires, vous pouvez soumettre votre
-                  enregistrement pour validation en cliquant sur l’icône «
-                  soumettre pour validation ». L’enregistrement sera publié
-                  lorsqu’il aura été validé et approuvé par un membre du SIOOC.
-                </Fr>
+                <I18n>
+                  <En>
+                    To start a new record, click on "New Record" and begin
+                    adding information. To continue working on a record, select
+                    it from the list below. Once your record is completed and
+                    information has been provided for all mandatory fields, you
+                    can submit your record for review by clicking the "Submit
+                    for review" icon to the right of your record title. The
+                    record will not be published until it is reviewed and
+                    approved by CIOOS staff.
+                  </En>
+                  <Fr>
+                    Afin de soumettre un nouvel enregistrement, cliquez sur «
+                    Nouvel enregistrement » et ajoutez-y les informations
+                    demandées. Si vous désirez reprendre la soumission d’un
+                    enregistrement entamé, sélectionnez-le dans la liste
+                    ci-dessous. Lorsque les informations sont saisies pour tous
+                    les champs obligatoires, vous pouvez soumettre votre
+                    enregistrement pour validation en cliquant sur l’icône «
+                    soumettre pour validation ». L’enregistrement sera publié
+                    lorsqu’il aura été validé et approuvé par un membre du
+                    SIOOC.
+                  </Fr>
+                </I18n>
               </Typography>
 
               <div style={{ marginTop: "10px" }}>
@@ -349,8 +353,10 @@ class Submissions extends React.Component {
                             created && (
                               <span>
                                 <LastEdited dateStr={created} />
-                                <En>{percentValidInt}% complete</En>
-                                <Fr>{percentValidInt}% Achevée</Fr>
+                                <I18n>
+                                  <En>{percentValidInt}% complete</En>
+                                  <Fr>{percentValidInt}% Achevée</Fr>
+                                </I18n>
                               </span>
                             )
                           }
@@ -500,8 +506,10 @@ class Submissions extends React.Component {
 
             {!records && (
               <Typography>
-                <En>You don't have any records.</En>
-                <Fr>Vous n'avez pas d'enregistrements.</Fr>
+                <I18n>
+                  <En>You don't have any records.</En>
+                  <Fr>Vous n'avez pas d'enregistrements.</Fr>
+                </I18n>
               </Typography>
             )}
           </span>
