@@ -8,81 +8,78 @@ import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
 import { QuestionText, paperClass } from "./QuestionStyles";
 
-const Distribution = ({ onChange, value, name, disabled }) => {
-  const initial = { url: "", name: "", description: { en: "", fr: "" } };
+const Resources = ({ updateResources, resources, disabled }) => {
+  const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
-  function addDistribution() {
-    onChange({
-      target: {
-        name,
-        value: value.concat(deepCopy(initial)),
-      },
-    });
+  function addResource() {
+    updateResources(resources.concat(deepCopy(emptyResource)));
   }
-  function handleChange(e, i) {
-    const newValue = [...value];
-    const propName = e.target.name;
-    newValue[i][propName] = e.target.value;
-    const parentEvent = { target: { name, value: newValue } };
-    onChange(parentEvent);
-  }
-  // removes the distribution section from the list at index i
-  function removeDistribution(i) {
-    onChange({
-      target: { name, value: value.filter((e, index) => index !== i) },
-    });
+
+  // removes the resource section from the list at index i
+  function removeResource(i) {
+    updateResources(resources.filter((e, index) => index !== i));
   }
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
   return (
     <div>
-      {value.map((dist = deepCopy(initial), i) => {
-        const handler = (e) => handleChange(e, i);
+      {resources.map((dist = deepCopy(emptyResource), i) => {
+        function handleResourceChange(key) {
+          return (e) => {
+            const newValue = [...resources];
+            newValue[i][key] = e.target.value;
+            updateResources(newValue);
+          };
+        }
         return (
           <Paper key={i} style={paperClass}>
             <Grid container direction="column" spacing={3}>
               <Grid item xs>
                 <QuestionText>
-                  <En>Enter a name for the resource</En>
-                  <Fr>Entrez un titre pour la ressource</Fr>
+                  <I18n>
+                    <En>Enter a name for the resource</En>
+                    <Fr>Entrez un titre pour la ressource</Fr>
+                  </I18n>
                   <RequiredMark passes={dist.name} />
                 </QuestionText>
                 <TextField
                   label={nameLabel}
-                  name="name"
                   value={dist.name}
-                  onChange={handler}
+                  onChange={handleResourceChange("name")}
                   fullWidth
                   disabled={disabled}
                 />
               </Grid>
               <Grid item xs>
                 <QuestionText>
-                  <En>Enter the URL for the resource</En>
-                  <Fr>Entrez l'URL de la ressource</Fr>
+                  <I18n>
+                    <En>Enter the URL for the resource</En>
+                    <Fr>Entrez l'URL de la ressource</Fr>
+                  </I18n>
                   <RequiredMark passes={dist.url} />
                 </QuestionText>
 
                 <TextField
                   label="URL"
-                  name="url"
                   value={dist.url}
-                  onChange={handler}
+                  onChange={handleResourceChange("url")}
                   fullWidth
                   disabled={disabled}
                 />
               </Grid>
               <Grid item xs>
                 <QuestionText>
-                  <En>Enter a description of the resource</En>
-                  <Fr>Entrez une description de la ressource</Fr>
+                  <I18n>
+                    <En>Enter a description of the resource</En>
+                    <Fr>Entrez une description de la ressource</Fr>
+                  </I18n>
                 </QuestionText>{" "}
                 <BilingualTextInput
                   name="description"
                   label={descriptionLabel}
                   value={dist.description}
-                  onChange={handler}
+                  onChange={handleResourceChange("description")}
                   disabled={disabled}
                 />
               </Grid>
@@ -90,10 +87,12 @@ const Distribution = ({ onChange, value, name, disabled }) => {
                 <Button
                   startIcon={<Delete />}
                   disabled={disabled}
-                  onClick={() => removeDistribution(i)}
+                  onClick={() => removeResource(i)}
                 >
-                  <En>Remove item</En>
-                  <Fr>Supprimer la ressource</Fr>
+                  <I18n>
+                    <En>Remove item</En>
+                    <Fr>Supprimer la ressource</Fr>
+                  </I18n>
                 </Button>
               </Grid>
             </Grid>
@@ -102,17 +101,15 @@ const Distribution = ({ onChange, value, name, disabled }) => {
       })}
 
       <Paper style={paperClass}>
-        <Button
-          startIcon={<Add />}
-          disabled={disabled}
-          onClick={addDistribution}
-        >
-          <En>Add item</En>
-          <Fr>Ajouter une ressource</Fr>
+        <Button startIcon={<Add />} disabled={disabled} onClick={addResource}>
+          <I18n>
+            <En>Add item</En>
+            <Fr>Ajouter une ressource</Fr>
+          </I18n>
         </Button>
       </Paper>
     </div>
   );
 };
 
-export default Distribution;
+export default Resources;

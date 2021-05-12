@@ -51,13 +51,20 @@ export const roleCodes = {
     },
   },
   author: {
-    title: { en: "Author", fr: "Auteur" },
-    text: { en: "Party who authored the resource" },
+    title: { en: "Cited Author", fr: "Auteur Cité" },
+    text: {
+      en: "Party who authored the resource",
+      fr: "Parti qui est l'auteur de la ressource",
+    },
   },
-  coAuthor: {
-    title: { en: "Coauthor", fr: "Co-auteur" },
-    text: { en: "Parti qui est l'auteur de la ressource" },
-  },
+  // This option is confusing, why have both author and Coauthor
+  // coAuthor: {
+  //   title: { en: "Coauthor", fr: "Co-auteur" },
+  //   text: {
+  //     en: "Party who co-authored the resource",
+  //     fr: "Parti qui est l'auteur de la ressource",
+  //   },
+  // },
   collaborator: {
     title: { en: "Collaborator", fr: "Collaborateur" },
     text: {
@@ -170,13 +177,14 @@ export const roleCodes = {
         "Partie qui a un intérêt dans la ressource ou l'utilisation de la ressource",
     },
   },
-  user: {
-    title: { en: "User", fr: "Utilisateur" },
-    text: {
-      en: "Party who uses the resource",
-      fr: "Partie qui utilise la ressource",
-    },
-  },
+  // This option doesn't seem appropriate to the form
+  // user: {
+  //   title: { en: "User", fr: "Utilisateur" },
+  //   text: {
+  //     en: "Party who uses the resource",
+  //     fr: "Partie qui utilise la ressource",
+  //   },
+  // },
 };
 
 export const progressCodes = {

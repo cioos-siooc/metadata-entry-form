@@ -173,6 +173,10 @@ export default function MiniDrawer({ children }) {
 
   // const regionText = region ? regions[region].title[language] : "";
 
+  const usingDevDatabase =
+    process.env.REACT_APP_DEV_DEPLOYMENT ||
+    process.env.NODE_ENV === "development";
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -210,8 +214,10 @@ export default function MiniDrawer({ children }) {
               color: "white",
             }}
           >
-            <En>Metadata Entry Tool</En>
-            <Fr>Outil de saisie de métadonnées</Fr>
+            <I18n>
+              <En>Metadata Entry Tool</En>
+              <Fr>Outil de saisie de métadonnées</Fr>
+            </I18n>
           </Typography>
           <div style={{ marginLeft: "auto" }}>
             <img
@@ -380,6 +386,7 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
+          {usingDevDatabase && <h5>Connected to development database</h5>}
         </Drawer>
       )}
       <main className={classes.content}>
