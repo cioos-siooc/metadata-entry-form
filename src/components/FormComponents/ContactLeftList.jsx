@@ -92,16 +92,23 @@ const ContactListLeft = ({
 
   return (
     <Paper style={paperClass}>
-      <Grid container direction="column">
+      <Grid container direction="column" justify={"flex-start"}>
         <Grid item xs style={{ margin: "10px" }}>
           <Typography>
-            <I18n>
-              <En>Contacts in this record:</En>
-              <Fr>Contacts dans cet enregistrement:</Fr>
-            </I18n>
+            {contacts.length ? (
+              <I18n>
+                <En>Contacts in this record:</En>
+                <Fr>Contacts dans cet enregistrement:</Fr>
+              </I18n>
+            ) : (
+              <I18n>
+                <En>There are no contacts in this record.</En>
+                <Fr>Il n'y a aucun contact dans cet enregistrement.</Fr>
+              </I18n>
+            )}
           </Typography>
         </Grid>
-        <Grid>
+        <Grid item xs>
           <List>
             <Container
               dragHandleSelector=".drag-handle"
@@ -193,7 +200,6 @@ const ContactListLeft = ({
             </Container>
           </List>
         </Grid>
-
         <Grid item xs style={{ margin: "10px" }}>
           <Button
             disabled={disabled}

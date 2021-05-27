@@ -20,8 +20,10 @@ import { validateField } from "../../utils/validate";
 
 import ApaPreview from "../FormComponents/ApaPreview";
 
+import regions from "../../regions";
+
 const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
-  const { language } = useParams();
+  const { language, region } = useParams();
   const { contacts = [] } = record;
 
   const updateContacts = updateRecord("contacts");
@@ -46,11 +48,13 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
     };
   }
 
-  const showApaBox =
-    record.title[language] &&
-    contacts.length &&
-    // contacts.some((contact) => contact.role.includes("author")) &&
-    record.created;
+  // const showApaBox =
+  //   record.title[language] &&
+  //   contacts.length &&
+  //   // contacts.some((contact) => contact.role.includes("author")) &&
+  //   record.created;
+
+  const showApaBox = false;
 
   const contact = contacts[activeContact];
   return (
@@ -60,35 +64,37 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
           <QuestionText>
             <I18n>
               <En>
-                Please enter at least one Metadata Contact AND one Data Contact
-                for this dataset that can work with CIOOS Staff to finalize this
-                Metadata Record. It is important to include all individuals from
-                the chain of attribution to ensure all involved parties are
-                credited appropriately for their role in creating this dataset
-                Saved contacts can be selected from the list below
+                Please enter at least one Metadata Contact <b>and</b> one Data
+                Contact for this dataset that can work with{" "}
+                {regions[region]["title"][language]} Staff to finalize this
+                Metadata Record.
               </En>
               <Fr>
                 Veuillez saisir au moins un contact pour les métadonnées ET un
                 contact de données pour ce jeu de données. Ces personnes
-                pourraient être appelées à collaborer avec le personnel de la
-                DSIO pour finaliser cet enregistrement. Il est important
-                d'inclure toutes les personnes ayant travaillé sur le jeu de
-                données afin de s'assurer que toutes les parties concernées
-                soient créditées de façon appropriée pour leur rôle dans la
-                création de ce jeu de données. Les contacts sauvegardés peuvent
-                être sélectionnés dans la liste ci-dessous.
+                pourraient être appelées à collaborer avec le personnel de la{" "}
+                {regions[region]["title"][language]} pour finaliser cet
+                enregistrement.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
             <SupplementalText>
               <I18n>
                 <En>
-                  If you have any saved contacts you can select them from the
-                  list.
+                  It is important to include all individuals from the chain of
+                  attribution to ensure all involved parties are credited
+                  appropriately for their role in creating this dataset Saved
+                  contacts can be selected from the list below If you have any
+                  saved contacts you can select them from the list.
                 </En>
                 <Fr>
-                  Si vous avez des contacts enregistrés, vous pouvez les
-                  sélectionner dans la liste.
+                  Il est important d'inclure toutes les personnes ayant
+                  travaillé sur le jeu de données afin de s'assurer que toutes
+                  les parties concernées soient créditées de façon appropriée
+                  pour leur rôle dans la création de ce jeu de données. Les
+                  contacts sauvegardés peuvent être sélectionnés dans la liste
+                  ci-dessous. Si vous avez des contacts enregistrés, vous pouvez
+                  les sélectionner dans la liste.
                 </Fr>
               </I18n>
             </SupplementalText>

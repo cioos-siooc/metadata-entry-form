@@ -5,14 +5,15 @@ import {
   Redirect,
   Switch,
 } from "react-router-dom";
-
+import regions from "../regions";
 import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
 
 const languagePath = ":language(en|fr)";
-const regionPath = ":region(pacific|atlantic|stlaurent)";
+// eg :region(pacific|atlantic..)
+const regionPath = `:region(${Object.keys(regions).join("|")})`;
 
 const App = () => (
   <Router basename="/">
