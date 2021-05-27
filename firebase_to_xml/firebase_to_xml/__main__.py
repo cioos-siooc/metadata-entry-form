@@ -49,7 +49,7 @@ def main():
         "--yaml", action="store_true", help="Whether to output yaml file as well as xml"
     )
     parser.add_argument(
-        "--region", required=True, choices=["pacific", "stlaurent", "atlantic"]
+        "--region", required=True, help="Eg pacific/stlaurent/atlantic"
     )
     parser.add_argument(
         "--status",

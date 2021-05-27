@@ -34,3 +34,4 @@ node_modules
 notforrepo
 __pycache__
 *.xml
+firebase-debug.log

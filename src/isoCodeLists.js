@@ -51,20 +51,14 @@ export const roleCodes = {
     },
   },
   author: {
-    title: { en: "Cited Author", fr: "Auteur Cité" },
-    text: {
-      en: "Party who authored the resource",
-      fr: "Parti qui est l'auteur de la ressource",
-    },
+    title: { en: "Author", fr: "Auteur" },
+    text: { en: "Party who authored the resource" },
   },
-  // This option is confusing, why have both author and Coauthor
-  // coAuthor: {
-  //   title: { en: "Coauthor", fr: "Co-auteur" },
-  //   text: {
-  //     en: "Party who co-authored the resource",
-  //     fr: "Parti qui est l'auteur de la ressource",
-  //   },
-  // },
+  coAuthor: {
+    title: { en: "Coauthor", fr: "Co-auteur" },
+    text: { en: "Parti qui est l'auteur de la ressource" },
+  },
+
   collaborator: {
     title: { en: "Collaborator", fr: "Collaborateur" },
     text: {

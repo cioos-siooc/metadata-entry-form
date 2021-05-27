@@ -38,6 +38,8 @@ import { firebaseToJSObject } from "../../utils/misc";
 import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
+import regions from "../../regions";
+
 // const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
 // function openInNewTab(url) {
 //   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
@@ -257,7 +259,7 @@ class Submissions extends React.Component {
                     can submit your record for review by clicking the "Submit
                     for review" icon to the right of your record title. The
                     record will not be published until it is reviewed and
-                    approved by CIOOS staff.
+                    approved by {regions[region]["title"][language]} staff.
                   </En>
                   <Fr>
                     Afin de soumettre un nouvel enregistrement, cliquez sur «
@@ -268,8 +270,8 @@ class Submissions extends React.Component {
                     les champs obligatoires, vous pouvez soumettre votre
                     enregistrement pour validation en cliquant sur l’icône «
                     soumettre pour validation ». L’enregistrement sera publié
-                    lorsqu’il aura été validé et approuvé par un membre du
-                    SIOOC.
+                    lorsqu’il aura été validé et approuvé par un membre du{" "}
+                    {regions[region]["title"][language]}.
                   </Fr>
                 </I18n>
               </Typography>

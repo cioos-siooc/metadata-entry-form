@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import CheckBoxList from "./CheckBoxList";
+import RequiredMark from "../FormComponents/RequiredMark";
 
 import { En, Fr, I18n } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
@@ -31,7 +32,7 @@ const EditContact = ({
   const optionLabels = Object.values(roleCodes).map(
     ({ title }) => title[language]
   );
-  const numSpecialRoles = 4;
+  const numSpecialRoles = 3;
   const [expanded, setExpanded] = React.useState(false);
 
   const selectOptionIsInExpandedList =
@@ -59,6 +60,7 @@ const EditContact = ({
                 </En>
                 <Fr>Quel est leur rôle?</Fr>
               </I18n>
+              <RequiredMark passes={value.role && value.role.length} />
               <SupplementalText>
                 {" "}
                 <I18n>

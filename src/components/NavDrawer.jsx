@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import { useParams, useLocation, useHistory } from "react-router-dom";
 
 import clsx from "clsx";
-
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   ExitToApp,
@@ -133,7 +132,9 @@ export default function MiniDrawer({ children }) {
   let { language = "en", region = "region-select" } = useParams();
 
   if (!["en", "fr"].includes(language)) language = "en";
-  if (!["pacific", "atlantic", "stlaurent"].includes(region)) region = "";
+
+  // This component may be displayed before the region is selected
+  if (!Object.keys(regions).includes(region)) region = "";
 
   const { pathname } = useLocation();
 
