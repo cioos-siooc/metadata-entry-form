@@ -116,11 +116,6 @@ const ContactListLeft = ({
               onDrop={onDrop}
             >
               {contacts.map((contactItem, i) => {
-                let contactTitle;
-                if (contactItem.indName || contactItem.orgName)
-                  contactTitle = contactItem.indName || contactItem.orgName;
-                else
-                  contactTitle = <I18n en="New contact" fr="Nouveau contact" />;
                 return (
                   <Draggable key={i}>
                     <ListItem
@@ -136,7 +131,7 @@ const ContactListLeft = ({
                               width: "80%",
                             }}
                           >
-                            {contactTitle}
+                            <ContactTitle contact={contactItem} />
                           </Typography>
                         }
                       />
