@@ -10,7 +10,7 @@ import { Save } from "@material-ui/icons";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
-import { Fr, En } from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 
 const unique = (arr) => [...new Set(arr)];
 
@@ -76,15 +76,21 @@ class Admin extends React.Component {
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
           <Typography variant="h5">
-            <En>Admin</En>
-            <Fr>Administrateurs</Fr>
+            <I18n>
+              <En>Admin</En>
+              <Fr>Administrateurs</Fr>
+            </I18n>
           </Typography>
           <Typography>
-            <En>Add each admin or reviewer's email address on it's own line</En>
-            <Fr>
-              Ajouter l'adresse e-mail de chaque administrateur ou réviseur sur
-              sa propre ligne
-            </Fr>
+            <I18n>
+              <En>
+                Add each admin or reviewer's email address on it's own line
+              </En>
+              <Fr>
+                Ajouter l'adresse e-mail de chaque administrateur ou réviseur
+                sur sa propre ligne
+              </Fr>
+            </I18n>
           </Typography>
         </Grid>
 
@@ -94,8 +100,10 @@ class Admin extends React.Component {
           <>
             <Grid item xs>
               <Typography>
-                <En>Admins</En>
-                <Fr>Administrateurs</Fr>
+                <I18n>
+                  <En>Admins</En>
+                  <Fr>Administrateurs</Fr>
+                </I18n>
               </Typography>
             </Grid>
             <Grid item xs>
@@ -110,8 +118,10 @@ class Admin extends React.Component {
             </Grid>
             <Grid item xs>
               <Typography>
-                <En>Reviewers</En>
-                <Fr>Réviseurs</Fr>
+                <I18n>
+                  <En>Reviewers</En>
+                  <Fr>Réviseurs</Fr>
+                </I18n>
               </Typography>
             </Grid>
             <Grid item xs>
@@ -131,8 +141,10 @@ class Admin extends React.Component {
                 color="secondary"
                 onClick={() => this.updatePermissions()}
               >
-                <En>Save</En>
-                <Fr>Enregistrer</Fr>
+                <I18n>
+                  <En>Save</En>
+                  <Fr>Enregistrer</Fr>
+                </I18n>
               </Button>
             </Grid>
           </>

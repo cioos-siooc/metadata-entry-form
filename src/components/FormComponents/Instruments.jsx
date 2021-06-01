@@ -14,7 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import { deepCopy } from "../../utils/misc";
 
-const initial = {
+const emptyInstrument = {
   id: "",
   manufacturer: "",
   version: "",
@@ -22,35 +22,30 @@ const initial = {
   description: { en: "", fr: "" },
 };
 
-const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
-  const [activeContact, setActiveContact] = useState(0);
+const Instruments = ({
+  updateInstruments,
+  instruments = [],
+  disabled,
+  paperClass,
+}) => {
+  const [activeInstrument, setActiveInstrument] = useState(0);
 
-  function addItem() {
-    onChange({
-      target: {
-        name,
-        value: value.concat(deepCopy(initial)),
-      },
-    });
-
-    setActiveContact(value.length);
+  function addInstrument() {
+    updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
+    setActiveInstrument(instruments.length);
   }
-  function handleChange(e) {
-    const newValue = [...value];
-    const propName = e.target.name;
-    newValue[activeContact][propName] = e.target.value;
-    const parentEvent = { target: { name, value: newValue } };
-    onChange(parentEvent);
+  function updateInstrumentField(key) {
+    return (e) => {
+      const instrumentsCopy = [...instruments];
+      instrumentsCopy[activeInstrument][key] = e.target.value;
+      updateInstruments(instrumentsCopy);
+    };
   }
-  function removeItem() {
-    onChange({
-      target: {
-        name,
-        value: value.filter((e, index) => index !== activeContact),
-      },
-    });
-
-    if (value.length) setActiveContact(value.length - 2);
+  function removeInstrument() {
+    updateInstruments(
+      instruments.filter((e, index) => index !== activeInstrument)
+    );
+    if (instruments.length) setActiveInstrument(instruments.length - 2);
   }
 
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
@@ -58,7 +53,7 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
   const typeLabel = <I18n en="Type" fr="Type" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
-  const instrument = value.length > 0 && value[activeContact];
+  const instrument = instruments.length > 0 && instruments[activeInstrument];
 
   return (
     <Grid container direction="row" spacing={3}>
@@ -67,14 +62,18 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
           <Grid item xs>
             Instruments:
             <List>
-              {value.map((instrumentItem, i) => {
+              {instruments.map((instrumentItem, i) => {
                 return (
-                  <ListItem key={i} button onClick={() => setActiveContact(i)}>
+                  <ListItem
+                    key={i}
+                    button
+                    onClick={() => setActiveInstrument(i)}
+                  >
                     <ListItemText
                       primary={
                         <Typography
                           style={{
-                            fontWeight: activeContact === i ? "bold" : "",
+                            fontWeight: activeInstrument === i ? "bold" : "",
                           }}
                         >
                           {i + 1}. {instrumentItem.id}
@@ -91,11 +90,13 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addItem}
+              onClick={addInstrument}
               style={{ height: "56px", marginLeft: "10px" }}
             >
-              <En>Add instrument</En>
-              <Fr>Ajouter un instrument</Fr>
+              <I18n>
+                <En>Add instrument</En>
+                <Fr>Ajouter un instrument</Fr>
+              </I18n>
             </Button>
           </Grid>
         </Grid>
@@ -106,13 +107,14 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
-                  <En>Instrument ID is required</En>
-                  <Fr>L'ID de l'instrument est requis</Fr>
+                  <I18n>
+                    <En>Instrument ID is required</En>
+                    <Fr>L'ID de l'instrument est requis</Fr>
+                  </I18n>
                   <TextField
                     label="ID"
-                    name="id"
                     value={instrument.id}
-                    onChange={handleChange}
+                    onChange={updateInstrumentField("id")}
                     fullWidth
                     disabled={disabled}
                   />
@@ -122,7 +124,7 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
                     label={manufacturerLabel}
                     name="manufacturer"
                     value={instrument.manufacturer}
-                    onChange={handleChange}
+                    onChange={updateInstrumentField("manufacturer")}
                     fullWidth
                     disabled={disabled}
                   />{" "}
@@ -131,32 +133,31 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
-                    name="version"
-                    onChange={handleChange}
+                    onChange={updateInstrumentField("version")}
                     fullWidth
                     disabled={disabled}
                   />
                 </Grid>
                 <Grid item xs>
                   <Typography>
-                    <En>Instrument Type</En>
-                    <Fr>Type d'instrument</Fr>
+                    <I18n>
+                      <En>Instrument Type</En>
+                      <Fr>Type d'instrument</Fr>
+                    </I18n>
                   </Typography>
                   <BilingualTextInput
-                    name="type"
                     label={typeLabel}
                     value={instrument.type}
-                    onChange={handleChange}
+                    onChange={updateInstrumentField("type")}
                     disabled={disabled}
                   />
                 </Grid>{" "}
                 <Grid item xs>
                   <Typography>Description</Typography>
                   <BilingualTextInput
-                    name="description"
                     label={descriptionLabel}
                     value={instrument.description}
-                    onChange={handleChange}
+                    onChange={updateInstrumentField("description")}
                     disabled={disabled}
                   />
                 </Grid>
@@ -164,17 +165,19 @@ const Instruments = ({ onChange, value = [], name, disabled, paperClass }) => {
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeItem}
+                    onClick={removeInstrument}
                   >
-                    <En>Remove item</En>
-                    <Fr>Supprimer l'instrument</Fr>
+                    <I18n>
+                      <En>Remove item</En>
+                      <Fr>Supprimer l'instrument</Fr>
+                    </I18n>
                   </Button>
                 </Grid>
               </Grid>
             </Paper>
           )}
           {/* <Paper style={paperClass}>
-            <Button startIcon={<Add />} disabled={disabled} onClick={addItem}>
+            <Button startIcon={<Add />} disabled={disabled} onClick={addInstrument}>
               <En>Add Instrument</En>
               <Fr>Ajouter un article</Fr>
             </Button>

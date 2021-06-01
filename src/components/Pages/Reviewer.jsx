@@ -1,103 +1,14 @@
 import React from "react";
-import {
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Avatar,
-  ListItemAvatar,
-  Tooltip,
-  ListItemSecondaryAction,
-  IconButton,
-  Grid,
-  CircularProgress,
-} from "@material-ui/core";
-import {
-  Delete,
-  Publish,
-  Description,
-  Edit,
-  Eject,
-  Visibility,
-} from "@material-ui/icons";
+import { Typography, List, Grid, CircularProgress } from "@material-ui/core";
+
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
-import LastEdited from "../FormComponents/LastEdited";
 
 import SimpleModal from "../FormComponents/SimpleModal";
+import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
-const MetadataRecordListItem = ({
-  record,
-  language,
-  onViewClick,
-  onDeleteClick,
-  onSubmitClick,
-  showPublishAction,
-  showUnPublishAction,
-  onUnPublishClick,
-}) => (
-  <ListItem key={record.key}>
-    <ListItemAvatar>
-      <Avatar>
-        <Description />
-      </Avatar>
-    </ListItemAvatar>
-    <ListItemText
-      onClick={onViewClick}
-      primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
-      secondary={
-        <span>
-          Author: {record.userinfo.displayName} {record.userinfo.email} <br />
-          <LastEdited dateStr={record.created} />
-          <br />
-          UUID: {record.identifier}
-          <br />
-        </span>
-      }
-    />
-    <ListItemSecondaryAction>
-      <Tooltip title={<I18n en="View" fr="Vue" />}>
-        <span>
-          <IconButton onClick={onViewClick} edge="end" aria-label="delete">
-            {showUnPublishAction ? <Visibility /> : <Edit />}
-          </IconButton>
-        </span>
-      </Tooltip>
-
-      <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-        <span>
-          <IconButton onClick={onDeleteClick} edge="end" aria-label="delete">
-            <Delete />
-          </IconButton>
-        </span>
-      </Tooltip>
-      {showPublishAction && (
-        <Tooltip title={<I18n en="Publish" fr="Publier" />}>
-          <span>
-            <IconButton onClick={onSubmitClick} edge="end" aria-label="delete">
-              <Publish />
-            </IconButton>
-          </span>
-        </Tooltip>
-      )}
-      {showUnPublishAction && (
-        <Tooltip title={<I18n en="Un-publish" fr="De-Publier" />}>
-          <span>
-            <IconButton
-              onClick={onUnPublishClick}
-              edge="end"
-              aria-label="delete"
-            >
-              <Eject />
-            </IconButton>
-          </span>
-        </Tooltip>
-      )}
-    </ListItemSecondaryAction>
-  </ListItem>
-);
-class Submissions extends React.Component {
+class Reviewer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -105,6 +16,7 @@ class Submissions extends React.Component {
       deleteModalOpen: false,
       publishModalOpen: false,
       unPublishModalOpen: false,
+      unSubmitModalOpen: false,
       modalKey: "",
       modalUserID: "",
       loading: false,
@@ -195,11 +107,11 @@ class Submissions extends React.Component {
 
     Object.entries(users).forEach(([userID, user]) => {
       if (user.records) {
-        Object.entries(user.records).forEach(([k, record]) => {
+        Object.entries(user.records).forEach(([key, record]) => {
           records.push({
             ...record,
             userinfo: { ...user.userinfo, userID },
-            key: k,
+            key,
           });
         });
       }
@@ -217,6 +129,7 @@ class Submissions extends React.Component {
       modalUserID,
       unPublishModalOpen,
       publishModalOpen,
+      unSubmitModalOpen,
       loading,
     } = this.state;
 
@@ -243,10 +156,19 @@ class Submissions extends React.Component {
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
+        <SimpleModal
+          open={unSubmitModalOpen}
+          onClose={() => this.toggleModal("unSubmitModalOpen", false)}
+          onAccept={() => this.submitRecord(modalKey, modalUserID, "")}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
         <Grid item xs>
           <Typography variant="h5">
-            <En>Review submissions</En>
-            <Fr>Examen des soumissions</Fr>
+            <I18n>
+              <En>Review submissions</En>
+              <Fr>Examen des soumissions</Fr>
+            </I18n>
           </Typography>
         </Grid>
         {loading ? (
@@ -257,19 +179,21 @@ class Submissions extends React.Component {
               <>
                 <Grid item xs>
                   <Typography>
-                    <En>
-                      These are the submissions we have received from all users
-                      that have not yet been reviewed. To accept a record, click
-                      the 'Publish' button. Once a record is published, you can
-                      download the xml or yaml
-                    </En>
-                    <Fr>
-                      Ce sont les soumissions que nous avons reçues de tous les
-                      utilisateurs qui n'ont pas encore été examinées. Pour
-                      accepter un enregistrement, cliquez sur le bouton «
-                      Publier ». Une fois qu'un enregistrement est publié, vous
-                      pouvez télécharger le xml ou yaml
-                    </Fr>{" "}
+                    <I18n>
+                      <En>
+                        These are the submissions we have received from all
+                        users that have not yet been reviewed. To accept a
+                        record, click the 'Publish' button. Once a record is
+                        published, you can download the xml or yaml
+                      </En>
+                      <Fr>
+                        Ce sont les soumissions que nous avons reçues de tous
+                        les utilisateurs qui n'ont pas encore été examinées.
+                        Pour accepter un enregistrement, cliquez sur le bouton «
+                        Publier ». Une fois qu'un enregistrement est publié,
+                        vous pouvez télécharger le xml ou yaml
+                      </Fr>
+                    </I18n>{" "}
                     .
                   </Typography>
                 </Grid>
@@ -300,7 +224,16 @@ class Submissions extends React.Component {
                               record.userinfo.userID
                             )
                           }
+                          onUnSubmitClick={() =>
+                            this.toggleModal(
+                              "unSubmitModalOpen",
+                              true,
+                              record.key,
+                              record.userinfo.userID
+                            )
+                          }
                           showPublishAction
+                          showUnSubmitAction
                         />
                       );
                     })}
@@ -310,8 +243,10 @@ class Submissions extends React.Component {
             ) : (
               <Grid item xs>
                 <Typography>
-                  <En>There are no records waiting to be reviewed.</En>
-                  <Fr>Aucun dossier n'attend d'être examiné.</Fr>
+                  <I18n>
+                    <En>There are no records waiting to be reviewed.</En>
+                    <Fr>Aucun dossier n'attend d'être examiné.</Fr>
+                  </I18n>
                 </Typography>
               </Grid>
             )}
@@ -319,8 +254,10 @@ class Submissions extends React.Component {
             {recordsPublished.length ? (
               <Grid item xs>
                 <Typography>
-                  <En>Published records:</En>
-                  <Fr>Documents publiés:</Fr>
+                  <I18n>
+                    <En>Published records:</En>
+                    <Fr>Documents publiés:</Fr>
+                  </I18n>
                 </Typography>
                 <List>
                   {recordsPublished.map((record, i) => {
@@ -357,8 +294,10 @@ class Submissions extends React.Component {
             ) : (
               <Grid item xs>
                 <Typography>
-                  <En>There are no published records.</En>
-                  <Fr>Il n'y a pas d'enregistrements publiés</Fr>
+                  <I18n>
+                    <En>There are no published records.</En>
+                    <Fr>Il n'y a pas d'enregistrements publiés</Fr>
+                  </I18n>
                 </Typography>
               </Grid>
             )}
@@ -369,4 +308,4 @@ class Submissions extends React.Component {
   }
 }
 
-export default Submissions;
+export default Reviewer;

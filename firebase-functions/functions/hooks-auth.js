@@ -1,6 +1,6 @@
 module.exports = {
-  githubAuth: { token: "" },
   pacdev1Auth: {
+    url: "",
     username: "",
     password: "",
     hookID: "",

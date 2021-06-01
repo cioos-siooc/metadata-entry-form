@@ -1,0 +1,32 @@
+{
+  "CC-BY-4.0": {
+    "title": "Creative Commons Attribution 4.0",
+    "code": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0"
+  },
+  "CC0": {
+    "title": "Creative Commons 0",
+    "code": "CC0",
+    "url": "https://creativecommons.org/share-your-work/public-domain/cc0"
+  },
+  "government-open-license-canada": {
+    "title": "Open Government Licence - Canada",
+    "code": "government-open-license-canada",
+    "url": "https://open.canada.ca/en/open-government-licence-canada"
+  },
+  "Apache-2.0": {
+    "title": "Apache License, Version 2.0",
+    "code": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  },
+  "government-open-license-nova-scotia": {
+    "title": "Open Government Licence - Nova Scotia",
+    "code": "government-open-license-nova-scotia",
+    "url": "https://novascotia.ca/opendata/licence.asp"
+  },
+  "government-open-license-newfoundland": {
+    "title": "Open Government Licence - Newfoundland and Labrador",
+    "code": "government-open-license-newfoundland",
+    "url": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence"
+  }
+}

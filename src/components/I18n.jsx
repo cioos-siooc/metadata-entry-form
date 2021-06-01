@@ -1,33 +1,43 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-export const GetLanguage = () => {
+const spanInLanguage = (lang) => ({ children }) => {
   const { language } = useParams();
-  return language;
+  return language === lang && <>{children}</>;
 };
 
-export const getAltLanguage = (language) => {
-  return language === "en" ? "fr" : "en";
-};
+export const En = spanInLanguage("en");
+export const Fr = spanInLanguage("fr");
 
-export const En = ({ children }) => {
-  const { language } = useParams();
-  return language === "en" && <>{children}</>;
-};
+/* 
+  This component can be used with attributes only, eg
+  <I18n en="boat" fr="bateau"/>
 
-export const Fr = ({ children }) => {
-  const { language } = useParams();
-  return language === "fr" && <>{children}</>;
-};
+  Or as a container for the <En> and <Fr> tags
 
-// Just returns text "en" or "fr"
-export const I18n = ({ en, fr }) => {
+  Eg:
+
+  <I18n>
+    <En>rabbit</En>
+    <Fr>lapin</Fr>
+  </I18n>
+*/
+
+export const I18n = (props) => {
+  const { en, fr } = props;
   const { language = "en" } = useParams();
-  return language === "en" ? en : fr;
-};
 
-export const getValueinFirstLanguage = (obj) => {
-  // obj is,eg,  {en:"sun",fr:"soleil"}
-  // return field in first language found
-  return Object.values(obj).find(() => true);
+  // If this component used via attributes
+  if (en || fr) {
+    if (en && fr) return language === "en" ? en : fr;
+
+    console.error("Tag missing french or english!");
+    return null;
+  }
+
+  if (Array.isArray(props.children) && props.children.length !== 2) {
+    console.error(props, "Tag missing french or english!");
+  }
+
+  return props.children;
 };

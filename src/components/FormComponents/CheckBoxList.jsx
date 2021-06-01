@@ -11,6 +11,7 @@ const CheckBoxList = ({
   optionTooltips = [],
   disabled,
 }) => {
+  // remove array element from array, by value
   function toggleArrayElement(ele, arr) {
     if (arr.includes(ele)) return arr.filter((v) => v !== ele);
     return arr.concat(ele);
@@ -36,9 +37,7 @@ const CheckBoxList = ({
                         value
                       );
 
-                      onChange({
-                        target: { name, value: newCheckedValuesArray },
-                      });
+                      onChange(newCheckedValuesArray);
                     }}
                   />
                 }
