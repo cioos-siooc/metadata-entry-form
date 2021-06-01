@@ -22,7 +22,7 @@ import NotFound from "./NotFound";
 
 import StartTab from "../Tabs/StartTab";
 import ContactTab from "../Tabs/ContactTab";
-import DistributionTab from "../Tabs/DistributionTab";
+import ResourcesTab from "../Tabs/ResourcesTab";
 import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
@@ -93,8 +93,8 @@ class MetadataForm extends Component {
         progress: "",
         distribution: [],
         dateStart: null,
+        dateEnd: null,
         map: { north: "", south: "", east: "", west: "", polygon: "" },
-
         verticalExtentMin: "",
         verticalExtentMax: "",
         datePublished: null,
@@ -213,9 +213,10 @@ class MetadataForm extends Component {
   }
 
   // genereric handler for updating state, used by most form components
-  handleInputChange = (event) => {
-    const { name, value } = event.target;
-    const changes = { [name]: value };
+  // generic event handler
+  handleUpdateRecord = (key) => (event) => {
+    const { value } = event.target;
+    const changes = { [key]: value };
 
     this.setState(({ record }) => ({
       record: { ...record, ...changes },
@@ -223,7 +224,17 @@ class MetadataForm extends Component {
     }));
   };
 
-  // eslint-disable-next-line class-methods-use-this
+  // a second genereric handler components that dont use onChange
+  // generic state updater creator
+  updateRecord = (key) => (value) => {
+    const changes = { [key]: value };
+
+    this.setState(({ record }) => ({
+      record: { ...record, ...changes },
+      saveDisabled: false,
+    }));
+  };
+
   async submitRecord() {
     const { match } = this.props;
     const { region } = match.params;
@@ -309,7 +320,8 @@ class MetadataForm extends Component {
       highlightMissingRequireFields,
       disabled,
       record,
-      handleInputChange: this.handleInputChange,
+      handleUpdateRecord: this.handleUpdateRecord,
+      updateRecord: this.updateRecord,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
 
@@ -426,8 +438,10 @@ class MetadataForm extends Component {
                   <LastEdited dateStr={record.created} />
                   {record.lastEditedBy && record.lastEditedBy.displayName && (
                     <>
-                      <En>by </En>
-                      <Fr>Par </Fr>
+                      <I18n>
+                        <En>by </En>
+                        <Fr>Par </Fr>
+                      </I18n>
                       {record.lastEditedBy.displayName}{" "}
                       {isReviewer && record.lastEditedBy.email}
                     </>
@@ -451,7 +465,7 @@ class MetadataForm extends Component {
           <PlatformTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
-          <DistributionTab {...tabProps} />
+          <ResourcesTab {...tabProps} />
         </TabPanel>
 
         <TabPanel value={tabIndex} index="submit">

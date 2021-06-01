@@ -8,7 +8,7 @@ import {
 import TranslateIcon from "@material-ui/icons/Translate";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
-import { En, Fr } from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
 
 const BilingualTextInput = ({
@@ -41,7 +41,7 @@ const BilingualTextInput = ({
             name={lang}
             fullWidth
             value={value && value[lang]}
-            onChange={(e) => handleEvent(e)}
+            onChange={handleEvent}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -85,8 +85,10 @@ const BilingualTextInput = ({
                 );
               }}
             >
-              <En>Translate</En>
-              <Fr>Traduire</Fr>
+              <I18n>
+                <En>Translate</En>
+                <Fr>Traduire</Fr>
+              </I18n>
             </Button>
           )}
         </div>

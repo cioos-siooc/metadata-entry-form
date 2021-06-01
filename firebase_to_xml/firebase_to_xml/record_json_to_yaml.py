@@ -5,45 +5,33 @@ Pulls metadata records from Firebase and translate them into XML via
 the metadata-xml module.
 """
 
+import json
 
 from firebase_to_xml.scrubbers import scrub_dict, scrub_keys
+import os
+dir = os.path.dirname(os.path.realpath(__file__))
 
+def get_licenses():
+    with open(dir + '/resources/licenses.json') as f:
+        return json.load(f)
+
+def get_eov_translations():
+    with open(dir + '/resources/eov.json') as f:
+        return json.load(f)
+
+licenses=get_licenses()
+eov_translations=get_eov_translations()
 
 def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
-    translation = {
-        "oxygen": "Oxygène",
-        "nutrients": "Nutriments",
-        "nitrate": "Nitrate",
-        "phosphate": "Phosphate",
-        "silicate": "Silicate",
-        "inorganicCarbon": "Carbone inoganique",
-        "dissolvedOrganicCarbon": "carbone inorganique dissous",
-        "seaSurfaceHeight": "Hauteur de la surface de la mer",
-        "seawaterDensity": "Densité d'eau de mer",
-        "potentialTemperature": "Température potentielle",
-        "potentialDensity": "Densité potentielle",
-        "speedOfSound": "Vitesse du son",
-        "seaIce": "Glace de mer",
-        "seaState": "État de la mer",
-        "seaSurfaceSalinity": "Salinité de surface",
-        "seaSurfaceTemperature": "Température de surface",
-        "subSurfaceCurrents": "Courants sous-marins",
-        "subSurfaceSalinity": "Salinité sous la surface",
-        "subSurfaceTemperature": "Température sous la surface",
-        "surfaceCurrents": "Courants de surface",
-        "pressure": "Pression",
-        "other": "Autre",
-    }
-
-    return list(filter(None, [translation.get(eov) for eov in eovs_en]))
+    return list(filter(None, [eov_translations.get(eov) for eov in eovs_en]))
 
 
 def strip_keywords(keywords):
     """Strips whitespace from each keyword in either language"""
     stripped = {
-        "en": [x.strip() for x in keywords.get("en", [])],
-        "fr": [x.strip() for x in keywords.get("fr", [])],
+        "en": [keyword.strip() for keyword in keywords.get("en", [])],
+        "fr": [keyword.strip() for keyword in keywords.get("fr", [])],
     }
 
     return scrub_keys(stripped)
@@ -54,44 +42,6 @@ def date_from_datetime_str(datetime_str):
     if not datetime_str:
         return None
     return (datetime_str or "")[:10]
-
-
-def get_license_by_code(license_code):
-    "Given a license code, returns an object with the mandatory fields"
-    codes = {
-        "CC-BY-4.0": {
-            "title": "Creative Commons Attribution 4.0",
-            "code": "CC-BY-4.0",
-            "url": "https://creativecommons.org/licenses/by/4.0",
-        },
-        "CC0": {
-            "title": "Creative Commons 0",
-            "code": "CC0",
-            "url": "https://creativecommons.org/share-your-work/public-domain/cc0",
-        },
-        "government-open-license-canada": {
-            "title": "",
-            "code": "government-open-license-canada",
-            "url": "",
-        },
-        "Apache-2.0": {
-            "title": "Apache License, Version 2.0",
-            "code": "Apache-2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0",
-        },
-        "government-open-license-nova-scotia": {
-            "title": "Open Government Licence - Nova Scotia",
-            "code": "government-open-license-nova-scotia",
-            "url": "https://novascotia.ca/opendata/licence.asp",
-        },
-        "government-open-license-newfoundland": {
-            "title": "Open Government Licence - Newfoundland and Labrador",
-            "code": "government-open-license-newfoundland",
-            "url": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence",
-        },
-    }
-    return codes.get(license_code)
-
 
 def fix_lat_long_polygon(polygon):
     """Change lat,long to long, lat, which is what is expected in the XML"""
@@ -119,14 +69,14 @@ def record_json_to_yaml(record):
             + "https://cioos-siooc.github.io/metadata-entry-form",
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
-                "licence": get_license_by_code(
+                "licence": licenses.get(
                     record.get(
                         "license",
                     )
                 ),
             },
             "comment": record.get("comment"),
-            "history": record.get("history"),  # {'en':'','fr':''}
+            "history": record.get("history"),
             "dates": {
                 "revision": record.get("created"),
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
@@ -148,9 +98,9 @@ def record_json_to_yaml(record):
             ],
         },
         "identification": {
-            "title": record.get("title"),  # {'en':'','fr':''}
-            "identifier": record.get("datasetIdentifier"),  # {'en':'','fr':''}
-            "abstract": record.get("abstract"),  # {'en':'','fr':''}
+            "title": record.get("title"),
+            "identifier": record.get("datasetIdentifier"),
+            "abstract": record.get("abstract"),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
                 "publication": date_from_datetime_str(record.get("datePublished")),
@@ -167,30 +117,30 @@ def record_json_to_yaml(record):
         },
         "contact": [
             {
-                "roles": x.get("role"),
+                "roles": contact.get("role"),
                 "organization": {
-                    "name": x.get("orgName"),
-                    "url": x.get("orgURL"),
-                    "address": x.get("orgAdress"),
-                    "city": x.get("orgCity"),
-                    "country": x.get("orgCountry"),
-                    "email": x.get("orgEmail"),
+                    "name": contact.get("orgName"),
+                    "url": contact.get("orgURL"),
+                    "address": contact.get("orgAdress"),
+                    "city": contact.get("orgCity"),
+                    "country": contact.get("orgCountry"),
+                    "email": contact.get("orgEmail"),
                 },
                 "individual": {
-                    "name": x.get("indName"),
-                    "position": x.get("indPosition"),
-                    "email": x.get("indEmail"),
+                    "name": contact.get("indName"),
+                    "position": contact.get("indPosition"),
+                    "email": contact.get("indEmail"),
                 },
             }
-            for x in record.get("contacts", [])
+            for contact in record.get("contacts", [])
         ],
         "distribution": [
             {
-                "url": x.get("url"),
-                "name": x.get("name"),
-                "description": x.get("description"),
+                "url": distribution.get("url"),
+                "name": distribution.get("name"),
+                "description": distribution.get("description"),
             }
-            for x in record.get("distribution", [])
+            for distribution in record.get("distribution", [])
         ],
     }
     if record.get("noPlatform"):

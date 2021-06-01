@@ -50,12 +50,11 @@ def get_records_from_firebase(
             f"https://cioos-metadata-form.firebaseio.com/{region}/users.json"
         )
         body = json.loads(response.text)
-
+    
         # Parse response
-        # print(body)
-        if body is None:
-            pprint.pprint(json.loads(response))
-            print("response body not found. Exiting...")
+        if not body or type(body) != str :
+            print("Region",region,"not found?")
+            print(response.content)
             sys.exit()
 
         for users_tree in body.values():
