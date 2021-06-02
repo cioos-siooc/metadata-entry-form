@@ -62,8 +62,7 @@ const IdentificationTab = ({
               </En>
               <Fr>
                 Veuillez ne pas utiliser de caractères spéciaux dans le titre du
-                jeu de données. Cela apparaîtra sous la forme du titre affiché
-                pour ce jeu de données dans le {regionInfo.catalogueTitle.fr}.
+                jeu de données. Ceci apparaîtra comme titre de votre jeu de données dans le {regionInfo.catalogueTitle.fr}.
               </Fr>
             </I18n>
           </SupplementalText>
@@ -100,7 +99,7 @@ const IdentificationTab = ({
               Enter an abstract or summary for the dataset. Required in both
               languages.
             </En>
-            <Fr>Entrez un description pour le jeu de données.</Fr>
+            <Fr>Décrivez votre jeu de données.</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "abstract")} />
           <SupplementalText>
@@ -145,10 +144,10 @@ const IdentificationTab = ({
               </En>
               <Fr>
                 {" "}
-                Cette description constituera le texte récapitulatif du jeu de
+                Cette description sera le résumé de votre jeu de
                 données lorsqu’il sera publié dans le{" "}
                 {regionInfo.catalogueTitle.fr}. Veuillez consulter d’autres jeux
-                de données déjà publiés si vous désirez consulter un exemple :{" "}
+                de données déjà publiés :{" "}
                 <CatalogueLink lang="fr" />. Si possible, veuillez remplir ce
                 champ en utilisant un langage accessible pouvant être bien
                 compris par d’autres utilisateurs.
@@ -211,7 +210,7 @@ const IdentificationTab = ({
                 </En>
                 <Fr>
                   Les mots-clés permettent de catégoriser vos données et
-                  facilitent leur découvrabilité par d’autres utilisateurs.
+                  facilitent leur découverte par d’autres utilisateurs.
                   Choisissez des mots-clés spécifiques qui s’appliquent à vos
                   données ou créez-en des nouveaux.
                 </Fr>
@@ -221,9 +220,7 @@ const IdentificationTab = ({
                 <I18n>
                   <En> Enter one at a time, clicking 'Add' after each.</En>
                   <Fr>
-                    Entrez un mot-clé à la fois. Cliquez sur « Ajouter » après
-                    chaque entrée.
-                  </Fr>
+                    Entrez un mot-clé à la fois. Cliquez sur « Ajouter » chaque mot saisi.                  </Fr>
                 </I18n>
               </SupplementalText>
             </QuestionText>
@@ -281,8 +278,8 @@ const IdentificationTab = ({
               data collection is ongoing.
             </En>
             <Fr>
-              Inscrivez la date de fin de votre collecte de données. L aissez
-              vide si la collecte des données est en cours.
+              Inscrivez la date de fin de votre collecte de données. Laissez le champs
+              vide si la collecte des données toujours est en cours.
             </Fr>
           </I18n>
         </QuestionText>
@@ -302,7 +299,7 @@ const IdentificationTab = ({
             </En>
             <Fr>
               Quelle est la date de début à laquelle les données ont été
-              publiées ? Laissez vide si les données n'ont pas été publiées.
+              publiées ? Laissez le champs vide si les données n'ont pas été publiées.
             </Fr>
           </I18n>
         </QuestionText>
@@ -323,7 +320,7 @@ const IdentificationTab = ({
             </En>
             <Fr>
               Quelle est la date à laquelle les données ont été révisées ?
-              Laissez vide si le jeu de données n'a pas a été révisé.
+              Laissez le champs vide si le jeu de données n'a pas a été révisé.
             </Fr>
           </I18n>
         </QuestionText>
@@ -357,7 +354,7 @@ const IdentificationTab = ({
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
-            <Fr>Comment le jeu de données est-il sous licence</Fr>
+            <Fr>Quelle est la licence de ce jeu de données?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "license")} />
           <SupplementalText>
@@ -403,12 +400,11 @@ const IdentificationTab = ({
                     cité.
                   </li>
                   <li>
-                    <b>Licence pour gouvernement ouvert - Canada</b> - Pour les
-                    jeux de données rendus disponibles par les organisation et
+                    <b>Licence du gouvernement ouvert - Canada</b> - Pour les
+                    jeux de données rendus disponibles par les organisations et
                     ministères fédéraux. Cette licence est similaire à CC-BY 4.0
                     : les données sont ouvertes mais le jeu de données doit être
-                    cité lorsque utilisé par un autre utilisateur. correctement
-                    attribuées.
+                    cité lorsqu'il est utilisé par un autre utilisateur.
                   </li>
                 </ul>
               </Fr>

@@ -174,8 +174,8 @@ const dictionary = {
   "data identification": "Identification des données",
   resources: "Ressources",
   spatial: "Spatial",
-  platform: "Platforme",
-  "platform - instruments": "Platforme - instruments",
+  platform: "Plateforme",
+  "platform - instruments": "Plateforme - instruments",
   contacts: "Contacts",
 };
 

@@ -58,7 +58,7 @@ const EditContact = ({
                   What is the role of this contact?{" "}
                   {selectOptionIsInExpandedList}
                 </En>
-                <Fr>Quel est leur rôle?</Fr>
+                <Fr>Quel est son rôle?</Fr>
               </I18n>
               <RequiredMark passes={value.role && value.role.length} />
               <SupplementalText>
@@ -71,8 +71,8 @@ const EditContact = ({
                   </En>
                   <Fr>
                     Au moins une personne-contact pour les métadonnées et une
-                    personne-contact pour les données sont requises. Plusieurs
-                    rôles peuvent être sélectionnés pour chaque contact. Si vous
+                    personne ressource pour les données sont requises. Plusieurs
+                    rôles peuvent être sélectionnés par personne. Si vous
                     avez besoin de rôles plus spécifiques, vous pouvez étendre
                     la liste.
                   </Fr>
@@ -222,7 +222,7 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
-              label={<I18n en="Position" fr="Position" />}
+              label={<I18n en="Position" fr="Poste occupé" />}
               value={value.indPosition}
               onChange={updateContactEvent("indPosition")}
               disabled={disabled}

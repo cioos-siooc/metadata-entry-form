@@ -56,13 +56,13 @@ const validators = {
     tab: "data identification",
     error: {
       en: "At least one EOV is required",
-      fr: "Au moins un EOV est requis",
+      fr: "Au moins un variable essentielle océanique est requise",
     },
   },
   map: {
     error: {
       en: "Spatial information is missing",
-      fr: "L'information spatiale est manquante",
+      fr: "L'information géographique est manquante",
     },
     tab: "spatial",
     validation: (val) => {
@@ -135,7 +135,7 @@ const validators = {
     validation: (val, record) => record.noPlatform || val,
     error: {
       en: "Missing platform ID",
-      fr: "ID de plateforme manquant",
+      fr: "ID de la plateforme manquant",
     },
   },
   platformDescription: {
@@ -161,7 +161,7 @@ const validators = {
     validation: (val) => val,
     error: {
       en: "Language field is missing",
-      fr: "Le champ de langue est manquant",
+      fr: "Le champ de langue est vide",
     },
   },
   license: {
@@ -189,7 +189,7 @@ const validators = {
       en:
         "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact",
       fr:
-        "Chaque contact doit avoir au moins un rôle vérifié, et « Personne-contact pour les métadonnées » ou « Personne-contact pour les données » doit être ajouté à au moins un contact",
+        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données",
     },
   },
 };

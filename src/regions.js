@@ -15,7 +15,7 @@ const regions = {
     introPageText: {
       en: "CIOOS Pacific is focused on ocean data from Canada’s West Coast",
       fr:
-        "Le CIOOS Pacifique se concentre sur les données océaniques de la côte ouest du Canada",
+        "SIOOC Pacifique se concentre sur les données océaniques de la côte ouest du Canada",
     },
     showInRegionSelector: true,
   },
@@ -57,7 +57,7 @@ const regions = {
       en:
         "CIOOS Atlantic is focused on the integration of oceanographic data from the Atlantic seaboard, a region spanning from Labrador to the USA.",
       fr:
-        "CIOOS Atlantique se concentre sur l'intégration des données océanographiques depuis la côte atlantique, une région qui s'étend du Labrador au ÉTATS-UNIS.",
+        "SIOOC Atlantique intègre des données océanographiques de la côte atlantique, une région qui s’étend du Labrador aux États-Unis",
     },
     showInRegionSelector: true,
   },
