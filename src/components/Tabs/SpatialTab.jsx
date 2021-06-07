@@ -27,7 +27,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
         <QuestionText style={{ paddingBottom: "15px" }}>
           <I18n>
             <En>What is the spatial extent of the dataset?</En>
-            <Fr>Quelle est l'étendue spatiale du jeu de données?</Fr>
+            <Fr>Quelle est l'étendue géographique du jeu de données?</Fr>
           </I18n>{" "}
           <SupplementalText>
             <I18n>
@@ -42,7 +42,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 géographiquement votre jeu de données. Vous pouvez aussi
                 localiser l’aire géographique couverte par votre jeu de données
                 en inscrivant les coordonnées géographiques (degrés décimaux)
-                dans les champs sous la carte. Cette section doit
+                dans les champs apparaissant sous la carte. Cette section doit
                 obligatoirement être complétée.
               </Fr>
             </I18n>

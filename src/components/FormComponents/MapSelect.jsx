@@ -231,7 +231,7 @@ const MapSelect = ({
       <QuestionText>
         <I18n>
           <En>Bounding Box Coordinates</En>
-          <Fr>Coordonnées de la zone de délimitation minimale</Fr>
+          <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
         </I18n>
         {(bboxIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
@@ -245,8 +245,7 @@ const MapSelect = ({
               minutes seconds.
             </En>
             <Fr>
-              Si vous fournissez une zone de délimitation minimale, veuillez
-              fournir les coordonnées en <b>degrés décimaux</b>.
+              Si vous fournissez des coordonnées de délimitation, veuillez les fournir en <b>degrés décimaux</b>.
             </Fr>
           </I18n>
         </SupplementalText>

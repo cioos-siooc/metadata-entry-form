@@ -52,7 +52,7 @@ const StartTab = ({ disabled, record }) => {
             </En>
             <Fr>
               Bienvenue dans l’outil de saisie de métadonnées du{" "}
-              {regionInfo.title.fr}, la première étape pour rendre vos données
+              {regionInfo.title.fr}! Ceci constitue la première étape pour rendre vos données
               accessibles et découvrables via notre plateforme. Ces
               renseignements serviront à créer un profil de métadonnées pour
               votre jeu de données, facilitant ainsi sa découverte dans le{" "}
@@ -73,7 +73,7 @@ const StartTab = ({ disabled, record }) => {
               <En>You can save the form once you have filled out a title.</En>
               <Fr>
                 Vous pouvez enregistrer le formulaire une fois que vous avez
-                rempli un titre.
+                saisi un titre.
               </Fr>
             </I18n>
           </li>
@@ -82,7 +82,7 @@ const StartTab = ({ disabled, record }) => {
               All fields marked with a <RequiredMark /> are mandatory.
             </En>
             <Fr>
-              Tous les champs marqués d'un <RequiredMark /> sont obligatoires.
+              Tous les champs marqués d'une étoile <RequiredMark /> sont obligatoires.
             </Fr>
           </li>
           <li>
@@ -94,9 +94,9 @@ const StartTab = ({ disabled, record }) => {
                 "Identification" section.
               </En>
               <Fr>
-                Le formulaire peut être sauvegardé et complété au fil du temps
+                Le formulaire peut être sauvegardé et complété ultérieurement
                 en cliquant sur le bouton <Save /> dans le coin inférieur droit.
-                Cette icône sera grisée jusqu'à ce que vous ayez renseigné le
+                Cette icône sera grisée jusqu'à ce que vous ayez complété le
                 titre du jeu de données dans la Section « Identification des
                 données ».
               </Fr>
@@ -113,10 +113,10 @@ const StartTab = ({ disabled, record }) => {
               </En>
               <Fr>
                 Certains champs peuvent avoir du texte à la fois en français et
-                en anglais, bien que cette n'est requis que pour le titre et
-                l'abrégé. Il y a un Bouton « Traduire » qui générera
-                automatiquement du texte dans l'autre langue. Cette traduction
-                est plus précise quand il y a plus de texte à traduire.
+                en anglais, toutefois seules les traductions du titre et de
+                l'abrégé sont réellement requisent. Il y a un Bouton « Traduire » qui générera
+                automatiquement du texte dans l'autre langue. Veuillez noter que cette traduction
+                est plus précise quand il y a plus de texte que moins à traduire.
               </Fr>
             </I18n>
           </li>

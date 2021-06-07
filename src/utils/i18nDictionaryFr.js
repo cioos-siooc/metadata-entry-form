@@ -35,7 +35,7 @@ const dictionary = {
   sponsor: "Sponsor",
   coAuthor: "Co-auteur",
   collaborator: "Collaborateur",
-  editor: "Éditeur",
+  editor: "Réviseur",
   mediator: "Médiateur",
   rightsHolder: "Ayant droit",
   contributor: "Contributeur",
@@ -174,8 +174,8 @@ const dictionary = {
   "data identification": "Identification des données",
   resources: "Ressources",
   spatial: "Spatial",
-  platform: "Platforme",
-  "platform - instruments": "Platforme - instruments",
+  platform: "Plateforme",
+  "platform - instruments": "Plateforme - instruments",
   contacts: "Contacts",
 };
 

@@ -18,7 +18,7 @@ export default function RegionSelect() {
               select the region where your data was collected.
             </En>
             <Fr>
-              Bienvenue dans l'outil de saisie de métadonnées CIOOS. Pour
+              Bienvenue dans l'outil de saisie de métadonnées du SIOOC. Pour
               commencer, veuillez sélectionner la région dans laquelle vos
               données ont été collectées.
             </Fr>

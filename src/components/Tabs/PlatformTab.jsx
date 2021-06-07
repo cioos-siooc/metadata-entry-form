@@ -56,7 +56,7 @@ const PlatformTab = ({
                   </ul>
                   Il est fortement encouragé d'ajouter des informations sur une
                   plateforme. S'il n'y a pas de plateformes, vous pouvez entrer
-                  des informations sur des instruments au bas de la page.
+                  des informations sur les instruments au bas de la page.
                 </Fr>
               </I18n>
             </QuestionText>

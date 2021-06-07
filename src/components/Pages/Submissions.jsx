@@ -262,15 +262,15 @@ class Submissions extends React.Component {
                     approved by {regions[region]["title"][language]} staff.
                   </En>
                   <Fr>
-                    Afin de soumettre un nouvel enregistrement, cliquez sur «
+                    Afin de soumettre vos métadonnées, cliquez sur «
                     Nouvel enregistrement » et ajoutez-y les informations
-                    demandées. Si vous désirez reprendre la soumission d’un
-                    enregistrement entamé, sélectionnez-le dans la liste
+                    demandées. Si vous désirez reprendre la saisie d’un
+                    formulaire déjà entamé, sélectionnez-le dans la liste
                     ci-dessous. Lorsque les informations sont saisies pour tous
-                    les champs obligatoires, vous pouvez soumettre votre
-                    enregistrement pour validation en cliquant sur l’icône «
-                    soumettre pour validation ». L’enregistrement sera publié
-                    lorsqu’il aura été validé et approuvé par un membre du{" "}
+                    les champs obligatoires, vous pouvez soumettre vos
+                    métadonnées pour validation en cliquant sur l’icône «
+                    soumettre pour validation ». Vos métadonnées seront publiées
+                    lorsqu’elles auront été validées et approuvées par un professionel du{" "}
                     {regions[region]["title"][language]}.
                   </Fr>
                 </I18n>
@@ -510,7 +510,7 @@ class Submissions extends React.Component {
               <Typography>
                 <I18n>
                   <En>You don't have any records.</En>
-                  <Fr>Vous n'avez pas d'enregistrements.</Fr>
+                  <Fr>Vous n'avez pas d'historique de saisie.</Fr>
                 </I18n>
               </Typography>
             )}

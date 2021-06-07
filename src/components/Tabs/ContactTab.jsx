@@ -71,10 +71,9 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
               </En>
               <Fr>
                 Veuillez saisir au moins un contact pour les métadonnées ET un
-                contact de données pour ce jeu de données. Ces personnes
+                contact pour les données de ce jeu. Ces personnes
                 pourraient être appelées à collaborer avec le personnel de la{" "}
-                {regions[region]["title"][language]} pour finaliser cet
-                enregistrement.
+                {regions[region]["title"][language]} pour finaliser la saisie des informations.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
@@ -93,7 +92,7 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
                   les parties concernées soient créditées de façon appropriée
                   pour leur rôle dans la création de ce jeu de données. Les
                   contacts sauvegardés peuvent être sélectionnés dans la liste
-                  ci-dessous. Si vous avez des contacts enregistrés, vous pouvez
+                  ci-dessous. Si vous avez déjà des contacts enregistrés, vous pouvez
                   les sélectionner dans la liste.
                 </Fr>
               </I18n>
