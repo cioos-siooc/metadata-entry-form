@@ -35,7 +35,7 @@ const dictionary = {
   sponsor: "Sponsor",
   coAuthor: "Co-auteur",
   collaborator: "Collaborateur",
-  editor: "Éditeur",
+  editor: "Réviseur",
   mediator: "Médiateur",
   rightsHolder: "Ayant droit",
   contributor: "Contributeur",
