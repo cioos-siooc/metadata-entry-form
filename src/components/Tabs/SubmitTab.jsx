@@ -59,7 +59,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                 par un membre du personnel du {regionInfo.title.fr}. Cette
                 personne pourrait vous contacter pour obtenir plus
                 d'informations ou pour vous indiquer quand votre jeu de données
-                sera disponible dans le {regionInfo.catalogueTitle.fr}. Vos
+                sera disponible dans notre {regionInfo.catalogueTitle.fr}. Vos
                 informations ne seront pas publiées avant d'obtenir votre
                 approbation. Si vous avez des questions ou si vous désirez
                 effectuer un suivi concernant l'état de votre soumission,
@@ -100,8 +100,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                         record can be submitted now.
                       </En>
                       <Fr>
-                        Vous avez rempli tous les champs obligatoires, votre
-                        dossier peut être soumis maintenant.
+                        Vous avez rempli tous les champs obligatoires, vous pouvez maintenant soumettre votre formulaire.
                       </Fr>
                     </I18n>
                   </Typography>
@@ -130,7 +129,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                       </En>
                       <Fr>
                         Vous n'avez pas rempli tous les champs obligatoires.
-                        Veuillez renseigner les champs identifiés ci-dessous
+                        Veuillez compléter les champs identifiés ci-dessous
                         avant de soumettre votre demande.
                       </Fr>
                     </I18n>

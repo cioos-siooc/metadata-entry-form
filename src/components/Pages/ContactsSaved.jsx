@@ -158,8 +158,7 @@ class Contacts extends React.Component {
                 records.
               </En>
               <Fr>
-                Créez ici des contacts que vous pouvez réutiliser dans plusieurs
-                enregistrements de métadonnées
+                Ajoutez ici les personnes ressources que vous désirez réutiliser pour la saisie d’autres métadonnées.
               </Fr>
             </I18n>
           </Typography>
