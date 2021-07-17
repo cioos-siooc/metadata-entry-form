@@ -26,8 +26,8 @@ export const eovList = [
 export const roleCodes = {
   custodian: {
     title: {
-      en: "Metadata Contact",
-      fr: "Personne-contact pour les métadonnées",
+      en: "Metadata Custodian",
+      fr: "Dépositaire des métadonnées",
     },
     text: {
       en:
@@ -37,11 +37,12 @@ export const roleCodes = {
     },
   },
   owner: {
-    title: { en: "Data Contact", fr: "Personne-contact pour les données" },
+    title: { en: "Data Owner", fr: "Propriétaire des données" },
     text: {
       en: "Party that owns the resource",
       fr: "Partie propriétaire de la ressource",
     },
+    includeInCitation: true,
   },
   distributor: {
     title: { en: "Distributor", fr: "Distributeur" },
@@ -53,6 +54,7 @@ export const roleCodes = {
   author: {
     title: { en: "Author", fr: "Auteur" },
     text: { en: "Party who authored the resource" },
+    includeInCitation: true,
   },
   coAuthor: {
     title: { en: "Coauthor", fr: "Co-auteur" },
@@ -105,6 +107,7 @@ export const roleCodes = {
       en: "Party who created the resource",
       fr: "Partie qui a créé la ressource",
     },
+    includeInCitation: true,
   },
   pointOfContact: {
     title: { en: "Point Of Contact", fr: "Point de contact" },
@@ -124,6 +127,7 @@ export const roleCodes = {
       fr:
         "Partie clé responsable de la collecte de l'information et de la réalisation de la recherche",
     },
+    includeInCitation: true,
   },
   processor: {
     title: { en: "Processor", fr: "Transformateur" },

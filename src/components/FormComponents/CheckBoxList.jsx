@@ -1,15 +1,22 @@
 import React from "react";
 
-import { Checkbox, FormControlLabel, Grid, Tooltip } from "@material-ui/core";
+import {
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 
 const CheckBoxList = ({
   onChange,
   value = [],
   name,
   options,
-  optionLabels,
+  optionLabels = options,
   optionTooltips = [],
   disabled,
+  labelSize = 3,
 }) => {
   // remove array element from array, by value
   function toggleArrayElement(ele, arr) {
@@ -21,7 +28,7 @@ const CheckBoxList = ({
     <Grid container direction="row">
       {options.map((v, i) => {
         return (
-          <Grid item xs={3} key={v}>
+          <Grid item key={v} xs={labelSize}>
             <Tooltip title={optionTooltips[i] || ""}>
               <FormControlLabel
                 disabled={disabled}
@@ -41,7 +48,7 @@ const CheckBoxList = ({
                     }}
                   />
                 }
-                label={optionLabels[i]}
+                label={<Typography>{optionLabels[i]}</Typography>}
               />
             </Tooltip>
           </Grid>

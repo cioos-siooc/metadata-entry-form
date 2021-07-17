@@ -151,17 +151,19 @@ class MetadataForm extends Component {
         const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
-
+        let editorInfo;
         // get info of the person openeing the record
-        firebase
+        const editorDataRef = firebase
           .database()
           .ref(region)
           .child("users")
-          .child(loggedInUserID)
-          .child("userinfo")
-          .on("value", (userinfo) => {
-            this.setState({ editorInfo: userinfo.toJSON() });
-          });
+          .child(loggedInUserID);
+
+        editorDataRef.child("userinfo").on("value", (userinfo) => {
+          editorInfo = userinfo.toJSON();
+
+          this.setState({ editorInfo });
+        });
 
         // get info of the original author of record
         const userDataRef = firebase
@@ -171,7 +173,7 @@ class MetadataForm extends Component {
           .child(recordUserID);
 
         // get contacts
-        userDataRef.child("contacts").on("value", (contacts) => {
+        editorDataRef.child("contacts").on("value", (contacts) => {
           this.setState({ userContacts: contacts.toJSON() });
         });
 
@@ -238,9 +240,10 @@ class MetadataForm extends Component {
   async submitRecord() {
     const { match } = this.props;
     const { region } = match.params;
-    const { record } = this.state;
-    const { recordID } = record;
 
+    const recordID = await this.handleSaveClick();
+    console.log("record id is", recordID);
+    console.log("auth.currentUser", auth.currentUser);
     if (auth.currentUser && recordID) {
       await firebase
         .database()
@@ -272,8 +275,9 @@ class MetadataForm extends Component {
     record.created = new Date().toISOString();
 
     record.lastEditedBy = editorInfo;
-
+    let recordID;
     if (record.recordID) {
+      recordID = record.recordID;
       await recordsRef.child(record.recordID).update(record);
     } else {
       // new record
@@ -281,7 +285,7 @@ class MetadataForm extends Component {
 
       // cheesy workaround to the issue of push() not saving dates
       await newNode.update(record);
-      const recordID = newNode.key;
+      recordID = newNode.key;
       this.setState({
         record: { ...record, recordID },
       });
@@ -292,6 +296,7 @@ class MetadataForm extends Component {
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
+    return recordID;
   }
 
   render() {
