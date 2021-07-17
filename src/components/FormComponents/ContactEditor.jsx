@@ -30,7 +30,18 @@ const EditContact = ({
   const { language } = useParams();
   const options = Object.keys(roleCodes);
   const optionLabels = Object.values(roleCodes).map(
-    ({ title }) => title[language]
+    ({ title, includeInCitation }) =>
+      `${title[language]}${includeInCitation ? "*" : ""}`
+  );
+  const citationRoleText = {
+    en: "This role is included in the citation.",
+    fr: "Ce rôle est inclus dans la citation.",
+  };
+  const tooltips = Object.values(roleCodes).map(
+    ({ text, includeInCitation }) =>
+      `${text[language]}${
+        includeInCitation ? ".  " + citationRoleText[language] : ""
+      }`
   );
   const numSpecialRoles = 3;
   const [expanded, setExpanded] = React.useState(false);
@@ -72,9 +83,9 @@ const EditContact = ({
                   <Fr>
                     Au moins une personne-contact pour les métadonnées et une
                     personne ressource pour les données sont requises. Plusieurs
-                    rôles peuvent être sélectionnés par personne. Si vous
-                    avez besoin de rôles plus spécifiques, vous pouvez étendre
-                    la liste.
+                    rôles peuvent être sélectionnés par personne. Si vous avez
+                    besoin de rôles plus spécifiques, vous pouvez étendre la
+                    liste.
                   </Fr>
                 </I18n>
               </SupplementalText>
@@ -86,9 +97,7 @@ const EditContact = ({
               options={options.slice(0, numSpecialRoles)}
               optionLabels={optionLabels.slice(0, numSpecialRoles)}
               disabled={disabled}
-              optionTooltips={Object.values(roleCodes)
-                .map(({ text }) => text[language])
-                .slice(0, numSpecialRoles)}
+              optionTooltips={tooltips.slice(0, numSpecialRoles)}
             />
 
             <Accordion
@@ -116,9 +125,7 @@ const EditContact = ({
                   options={options.slice(numSpecialRoles)}
                   optionLabels={optionLabels.slice(numSpecialRoles)}
                   disabled={disabled}
-                  optionTooltips={Object.values(roleCodes)
-                    .map(({ text }) => text[language])
-                    .slice(numSpecialRoles)}
+                  optionTooltips={tooltips.slice(numSpecialRoles)}
                 />
               </AccordionDetails>
             </Accordion>
