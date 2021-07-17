@@ -23,6 +23,7 @@ function APAPreview({ record, language }) {
           // seems that only individuals gets cited
         }),
       date: { published: datePublished || created },
+
       identifier: [
         {
           type: "doi",
@@ -36,7 +37,6 @@ function APAPreview({ record, language }) {
       ],
     },
   ];
-
   const data = Cite(apaData);
 
   const html = data.format("bibliography", {

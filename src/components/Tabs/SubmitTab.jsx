@@ -29,7 +29,8 @@ const SubmitTab = ({ record, submitRecord }) => {
 
   function submit() {
     setSubmitting(true);
-    submitRecord().then(() => setSubmitting(false));
+    submitRecord();
+    setSubmitting(false);
   }
 
   const recordIsComplete = Math.round(percentValid(record) * 100) === 100;
@@ -100,7 +101,8 @@ const SubmitTab = ({ record, submitRecord }) => {
                         record can be submitted now.
                       </En>
                       <Fr>
-                        Vous avez rempli tous les champs obligatoires, vous pouvez maintenant soumettre votre formulaire.
+                        Vous avez rempli tous les champs obligatoires, vous
+                        pouvez maintenant soumettre votre formulaire.
                       </Fr>
                     </I18n>
                   </Typography>

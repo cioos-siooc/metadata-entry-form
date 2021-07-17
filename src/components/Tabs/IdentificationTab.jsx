@@ -14,6 +14,7 @@ import { camelToSentenceCase } from "../../utils/misc";
 import translate from "../../utils/i18n";
 import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
+
 import {
   QuestionText,
   SupplementalText,
@@ -62,7 +63,8 @@ const IdentificationTab = ({
               </En>
               <Fr>
                 Veuillez ne pas utiliser de caractères spéciaux dans le titre du
-                jeu de données. Ceci apparaîtra comme titre de votre jeu de données dans le {regionInfo.catalogueTitle.fr}.
+                jeu de données. Ceci apparaîtra comme titre de votre jeu de
+                données dans le {regionInfo.catalogueTitle.fr}.
               </Fr>
             </I18n>
           </SupplementalText>
@@ -144,10 +146,9 @@ const IdentificationTab = ({
               </En>
               <Fr>
                 {" "}
-                Cette description sera le résumé de votre jeu de
-                données lorsqu’il sera publié dans le{" "}
-                {regionInfo.catalogueTitle.fr}. Veuillez consulter d’autres jeux
-                de données déjà publiés :{" "}
+                Cette description sera le résumé de votre jeu de données
+                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}.
+                Veuillez consulter d’autres jeux de données déjà publiés :{" "}
                 <CatalogueLink lang="fr" />. Si possible, veuillez remplir ce
                 champ en utilisant un langage accessible pouvant être bien
                 compris par d’autres utilisateurs.
@@ -220,7 +221,9 @@ const IdentificationTab = ({
                 <I18n>
                   <En> Enter one at a time, clicking 'Add' after each.</En>
                   <Fr>
-                    Entrez un mot-clé à la fois. Cliquez sur « Ajouter » chaque mot saisi.                  </Fr>
+                    Entrez un mot-clé à la fois. Cliquez sur « Ajouter » chaque
+                    mot saisi.{" "}
+                  </Fr>
                 </I18n>
               </SupplementalText>
             </QuestionText>
@@ -278,8 +281,8 @@ const IdentificationTab = ({
               data collection is ongoing.
             </En>
             <Fr>
-              Inscrivez la date de fin de votre collecte de données. Laissez le champs
-              vide si la collecte des données toujours est en cours.
+              Inscrivez la date de fin de votre collecte de données. Laissez le
+              champs vide si la collecte des données toujours est en cours.
             </Fr>
           </I18n>
         </QuestionText>
@@ -299,7 +302,8 @@ const IdentificationTab = ({
             </En>
             <Fr>
               Quelle est la date de début à laquelle les données ont été
-              publiées ? Laissez le champs vide si les données n'ont pas été publiées.
+              publiées ? Laissez le champs vide si les données n'ont pas été
+              publiées.
             </Fr>
           </I18n>
         </QuestionText>
