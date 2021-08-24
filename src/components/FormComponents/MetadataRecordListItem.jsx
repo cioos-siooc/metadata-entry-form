@@ -25,8 +25,6 @@ const MetadataRecordListItem = ({
   onUnSubmitClick,
   onUnPublishClick,
 }) => {
-  if (!record["title"]) console.log(record);
-
   return (
     <ListItem key={record.key}>
       <ListItemAvatar>

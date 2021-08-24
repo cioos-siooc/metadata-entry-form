@@ -4,11 +4,6 @@ import { Chip } from "@material-ui/core";
 import { I18n } from "../I18n";
 
 const StatusChip = ({ status }) => {
-  const statusColors = {
-    submitted: "primary",
-    published: "secondary",
-  };
-
   let chipText = "";
 
   if (status === "submitted") chipText = <I18n en="Submitted" fr="Soumis" />;

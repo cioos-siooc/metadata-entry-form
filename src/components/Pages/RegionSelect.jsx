@@ -1,10 +1,11 @@
 import React from "react";
 import { Grid, Typography } from "@material-ui/core";
+import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import RegionCard from "../FormComponents/RegionCard";
-import { useParams } from "react-router-dom";
 
 import regions from "../../regions";
+
 export default function RegionSelect() {
   const { language } = useParams();
 

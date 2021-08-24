@@ -9,12 +9,11 @@ import {
   Paper,
 } from "@material-ui/core";
 
-import { QuestionText } from "../FormComponents/QuestionStyles";
-
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
@@ -204,7 +203,7 @@ class Reviewer extends React.Component {
       );
     });
 
-    const DraftRecordItem = ({ record, language }) => {
+    const DraftRecordItem = ({ record }) => {
       return (
         <MetadataRecordListItem
           record={record}
@@ -233,7 +232,7 @@ class Reviewer extends React.Component {
         />
       );
     };
-    const SubmittedRecordItem = ({ record, language }) => (
+    const SubmittedRecordItem = ({ record }) => (
       <MetadataRecordListItem
         record={record}
         key={record.key}
@@ -267,7 +266,7 @@ class Reviewer extends React.Component {
         showUnSubmitAction
       />
     );
-    const PublishedRecordItem = ({ record, language }) => {
+    const PublishedRecordItem = ({ record }) => {
       return (
         <MetadataRecordListItem
           record={record}
@@ -299,6 +298,7 @@ class Reviewer extends React.Component {
 
     const RecordItem = (props) => {
       const { record } = props;
+
       if (record.status === "") return <DraftRecordItem {...props} />;
       if (record.status === "submitted")
         return <SubmittedRecordItem {...props} />;
@@ -371,7 +371,7 @@ class Reviewer extends React.Component {
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <CheckBoxList
-                    value={this.state.showRecordTypes}
+                    value={showRecordTypes}
                     onChange={(e) => {
                       this.setState((s) => (s.showRecordTypes = e));
                     }}
@@ -418,11 +418,11 @@ class Reviewer extends React.Component {
                         </Grid>
                         <Grid item xs>
                           <CheckBoxList
-                            value={this.state.showUsers}
+                            value={showUsers}
                             onChange={(e) => {
                               this.setState({ showUsers: e });
                             }}
-                            options={this.state.users}
+                            options={users}
                             labelSize={null}
                           />
                         </Grid>

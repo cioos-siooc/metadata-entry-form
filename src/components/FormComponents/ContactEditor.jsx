@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import CheckBoxList from "./CheckBoxList";
-import RequiredMark from "../FormComponents/RequiredMark";
+import RequiredMark from "./RequiredMark";
 
 import { En, Fr, I18n } from "../I18n";
 import { roleCodes } from "../../isoCodeLists";
@@ -40,7 +40,7 @@ const EditContact = ({
   const tooltips = Object.values(roleCodes).map(
     ({ text, includeInCitation }) =>
       `${text[language]}${
-        includeInCitation ? ".  " + citationRoleText[language] : ""
+        includeInCitation ? `.  ${  citationRoleText[language]}` : ""
       }`
   );
   const numSpecialRoles = 3;

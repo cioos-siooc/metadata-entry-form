@@ -10,9 +10,8 @@ import {
   Tooltip,
   Typography,
   LinearProgress,
-  IconButton,
 } from "@material-ui/core";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";

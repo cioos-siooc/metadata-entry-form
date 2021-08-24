@@ -19,7 +19,6 @@ import {
   Delete,
   Edit,
   Publish,
-  Description,
   FileCopy,
   Visibility,
   Add,
@@ -260,7 +259,7 @@ class Submissions extends React.Component {
                     can submit your record for review by clicking the "Submit
                     for review" icon to the right of your record title. The
                     record will not be published until it is reviewed and
-                    approved by {regions[region]["title"][language]} staff.
+                    approved by {regions[region].title[language]} staff.
                   </En>
                   <Fr>
                     Afin de soumettre vos métadonnées, cliquez sur « Nouvel
@@ -272,7 +271,7 @@ class Submissions extends React.Component {
                     validation en cliquant sur l’icône « soumettre pour
                     validation ». Vos métadonnées seront publiées lorsqu’elles
                     auront été validées et approuvées par un professionel du{" "}
-                    {regions[region]["title"][language]}.
+                    {regions[region].title[language]}.
                   </Fr>
                 </I18n>
               </Typography>

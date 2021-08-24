@@ -92,7 +92,7 @@ const ContactListLeft = ({
 
   return (
     <Paper style={paperClass}>
-      <Grid container direction="column" justify={"flex-start"}>
+      <Grid container direction="column" justify="flex-start">
         <Grid item xs style={{ margin: "10px" }}>
           <Typography>
             {contacts.length ? (

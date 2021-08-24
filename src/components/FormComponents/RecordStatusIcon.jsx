@@ -10,13 +10,13 @@ const RecordStatusIcon = ({ status }) => {
         <AssignmentTurnedIn color="primary" />
       </Tooltip>
     );
-  else if (status === "submitted")
+  if (status === "submitted")
     return (
       <Tooltip title={<I18n en="Submitted" fr="Soumis" />}>
         <Description color="secondary" />
       </Tooltip>
     );
-  else if (status === "")
+  if (status === "")
     return (
       <Tooltip title={<I18n en="Draft" fr="Brouillon" />}>
         <Drafts color="action" />
