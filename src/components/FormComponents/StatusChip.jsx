@@ -19,7 +19,7 @@ const StatusChip = ({ status }) => {
   return (
     <Chip
       label={chipText}
-      color={statusColors[status] || "default"}
+      // color={statusColors[status] || "default"}
       variant="outlined"
     />
   );

@@ -15,7 +15,6 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
@@ -45,6 +44,7 @@ class Reviewer extends React.Component {
       showUsers: [],
       records: [],
       recordsFilter: "",
+      recordCountsByStatus: {},
     };
   }
 
@@ -79,7 +79,12 @@ class Reviewer extends React.Component {
               records.map((record) => record.userinfo.email)
             );
 
-            this.setState({ records, loading: false, users, showUsers: users });
+            this.setState({
+              records,
+              loading: false,
+              users,
+              showUsers: users,
+            });
           });
       }
     });
@@ -142,12 +147,62 @@ class Reviewer extends React.Component {
   }
 
   render() {
-    const { records, recordsFilter, showRecordTypes, showUsers } = this.state;
+    const {
+      records,
+      recordsFilter,
+      showRecordTypes,
+      showUsers,
+      deleteModalOpen,
+      modalKey,
+      modalUserID,
+      unPublishModalOpen,
+      publishModalOpen,
+      unSubmitModalOpen,
+      loading,
+      users,
+    } = this.state;
 
     const { match } = this.props;
     const { language } = match.params;
 
     const recordTypeOptions = ["", "submitted", "published"];
+
+    // sort records - drafts then submitted then published
+    let recordsToShow = records.filter((record) =>
+      showUsers.includes(record.userinfo.email)
+    );
+
+    // the text search
+    if (recordsFilter) {
+      recordsToShow = recordsToShow.filter((record) => {
+        const recordText = JSON.stringify([
+          record.title,
+          record.abstract,
+        ]).toUpperCase();
+        return recordText.includes(recordsFilter.toUpperCase());
+      });
+    }
+
+    const recordCountsByStatus = {
+      draft: (recordsToShow.filter((record) => record.status === "") || [])
+        .length,
+      submitted: (
+        recordsToShow.filter((record) => record.status === "submitted") || []
+      ).length,
+      published: (
+        recordsToShow.filter((record) => record.status === "published") || []
+      ).length,
+    };
+
+    recordsToShow = recordsToShow.filter((record) =>
+      showRecordTypes.includes(record.status)
+    );
+
+    recordsToShow = recordsToShow.sort((a, b) => {
+      return (
+        showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
+      );
+    });
 
     const DraftRecordItem = ({ record, language }) => {
       return (
@@ -241,6 +296,7 @@ class Reviewer extends React.Component {
         />
       );
     };
+
     const RecordItem = (props) => {
       const { record } = props;
       if (record.status === "") return <DraftRecordItem {...props} />;
@@ -249,37 +305,13 @@ class Reviewer extends React.Component {
       if (record.status === "published")
         return <PublishedRecordItem {...props} />;
     };
-    // sort records - drafts then submitted then published
-    let recordsToShow = records
-      .filter(
-        (record) =>
-          showRecordTypes.includes(record.status) &&
-          showUsers.includes(record.userinfo.email)
-      )
-      .sort((a, b) => {
-        return (
-          showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
-        );
-      });
-    if (recordsFilter) {
-      recordsToShow = recordsToShow.filter((record) => {
-        const recordText = JSON.stringify([
-          record.title,
-          record.abstract,
-        ]).toUpperCase();
-        return recordText.includes(recordsFilter.toUpperCase());
-      });
-    }
-    const {
-      deleteModalOpen,
-      modalKey,
-      modalUserID,
-      unPublishModalOpen,
-      publishModalOpen,
-      unSubmitModalOpen,
-      loading,
-    } = this.state;
 
+    const recordStatusTranslate = {
+      draft: { en: "Draft", fr: "Brouillon" },
+      submitted: { en: "Submitted", fr: "Soumis" },
+      published: { en: "Published", fr: "Publié" },
+    };
+    const selectedText = language === "fr" ? "sélectionnés" : "selected";
     return (
       <Grid
         container
@@ -344,11 +376,10 @@ class Reviewer extends React.Component {
                       this.setState((s) => (s.showRecordTypes = e));
                     }}
                     options={recordTypeOptions}
-                    optionLabels={[
-                      "Drafts",
-                      "Submitted records",
-                      "Published Records",
-                    ]}
+                    optionLabels={["draft", "submitted", "published"].map(
+                      (status) =>
+                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
+                    )}
                   />
                 </Grid>
                 <Grid item xs>
@@ -358,7 +389,19 @@ class Reviewer extends React.Component {
                       aria-controls="panel2a-content"
                       id="panel2a-header"
                     >
-                      <Typography>Users</Typography>
+                      <Typography>
+                        {showUsers.length === users.length ? (
+                          <I18n
+                            en="Users (All users selected)"
+                            fr="Utilisateurs (Tous les utilisateurs)"
+                          />
+                        ) : (
+                          <I18n
+                            en={`Users (${showUsers.length}  ${selectedText})`}
+                            fr={`Utilisateurs (${showUsers.length}  ${selectedText})`}
+                          />
+                        )}
+                      </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container direction="column">
@@ -368,9 +411,7 @@ class Reviewer extends React.Component {
                             label="Show All/None"
                             onChange={(e) => {
                               this.setState({
-                                showUsers: e.target.checked
-                                  ? this.state.users
-                                  : [],
+                                showUsers: e.target.checked ? users : [],
                               });
                             }}
                           />
@@ -395,7 +436,12 @@ class Reviewer extends React.Component {
                     onChange={(e) => {
                       this.setState({ recordsFilter: e.target.value });
                     }}
-                    label="Search title and abstract"
+                    label={
+                      <I18n
+                        en="Search title and abstract"
+                        fr="Rechercher le titre et le résumé"
+                      />
+                    }
                   />
                 </Grid>
               </Grid>

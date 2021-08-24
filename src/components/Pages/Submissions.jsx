@@ -39,6 +39,7 @@ import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
+import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
 
 // const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
 // function openInNewTab(url) {
@@ -262,15 +263,15 @@ class Submissions extends React.Component {
                     approved by {regions[region]["title"][language]} staff.
                   </En>
                   <Fr>
-                    Afin de soumettre vos métadonnées, cliquez sur «
-                    Nouvel enregistrement » et ajoutez-y les informations
-                    demandées. Si vous désirez reprendre la saisie d’un
-                    formulaire déjà entamé, sélectionnez-le dans la liste
-                    ci-dessous. Lorsque les informations sont saisies pour tous
-                    les champs obligatoires, vous pouvez soumettre vos
-                    métadonnées pour validation en cliquant sur l’icône «
-                    soumettre pour validation ». Vos métadonnées seront publiées
-                    lorsqu’elles auront été validées et approuvées par un professionel du{" "}
+                    Afin de soumettre vos métadonnées, cliquez sur « Nouvel
+                    enregistrement » et ajoutez-y les informations demandées. Si
+                    vous désirez reprendre la saisie d’un formulaire déjà
+                    entamé, sélectionnez-le dans la liste ci-dessous. Lorsque
+                    les informations sont saisies pour tous les champs
+                    obligatoires, vous pouvez soumettre vos métadonnées pour
+                    validation en cliquant sur l’icône « soumettre pour
+                    validation ». Vos métadonnées seront publiées lorsqu’elles
+                    auront été validées et approuvées par un professionel du{" "}
                     {regions[region]["title"][language]}.
                   </Fr>
                 </I18n>
@@ -342,7 +343,7 @@ class Submissions extends React.Component {
                       >
                         <ListItemAvatar>
                           <Avatar>
-                            <Description />
+                            <RecordStatusIcon status={record.status} />
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
