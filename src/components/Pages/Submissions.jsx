@@ -19,7 +19,6 @@ import {
   Delete,
   Edit,
   Publish,
-  Description,
   FileCopy,
   Visibility,
   Add,
@@ -39,6 +38,7 @@ import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
+import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
 
 // const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
 // function openInNewTab(url) {
@@ -259,19 +259,19 @@ class Submissions extends React.Component {
                     can submit your record for review by clicking the "Submit
                     for review" icon to the right of your record title. The
                     record will not be published until it is reviewed and
-                    approved by {regions[region]["title"][language]} staff.
+                    approved by {regions[region].title[language]} staff.
                   </En>
                   <Fr>
-                    Afin de soumettre vos métadonnées, cliquez sur «
-                    Nouvel enregistrement » et ajoutez-y les informations
-                    demandées. Si vous désirez reprendre la saisie d’un
-                    formulaire déjà entamé, sélectionnez-le dans la liste
-                    ci-dessous. Lorsque les informations sont saisies pour tous
-                    les champs obligatoires, vous pouvez soumettre vos
-                    métadonnées pour validation en cliquant sur l’icône «
-                    soumettre pour validation ». Vos métadonnées seront publiées
-                    lorsqu’elles auront été validées et approuvées par un professionel du{" "}
-                    {regions[region]["title"][language]}.
+                    Afin de soumettre vos métadonnées, cliquez sur « Nouvel
+                    enregistrement » et ajoutez-y les informations demandées. Si
+                    vous désirez reprendre la saisie d’un formulaire déjà
+                    entamé, sélectionnez-le dans la liste ci-dessous. Lorsque
+                    les informations sont saisies pour tous les champs
+                    obligatoires, vous pouvez soumettre vos métadonnées pour
+                    validation en cliquant sur l’icône « soumettre pour
+                    validation ». Vos métadonnées seront publiées lorsqu’elles
+                    auront été validées et approuvées par un professionel du{" "}
+                    {regions[region].title[language]}.
                   </Fr>
                 </I18n>
               </Typography>
@@ -342,7 +342,7 @@ class Submissions extends React.Component {
                       >
                         <ListItemAvatar>
                           <Avatar>
-                            <Description />
+                            <RecordStatusIcon status={record.status} />
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText

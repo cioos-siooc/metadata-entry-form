@@ -1,25 +1,49 @@
 import React from "react";
-import { Typography, List, Grid, CircularProgress } from "@material-ui/core";
+import {
+  Typography,
+  List,
+  Grid,
+  CircularProgress,
+  Checkbox,
+  TextField,
+  Paper,
+} from "@material-ui/core";
+
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
 
+import CheckBoxList from "../FormComponents/CheckBoxList";
+
 import SimpleModal from "../FormComponents/SimpleModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
+
+const unique = (arr) => [...new Set(arr)];
 
 class Reviewer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      users: {},
+      users: [],
       deleteModalOpen: false,
       publishModalOpen: false,
       unPublishModalOpen: false,
       unSubmitModalOpen: false,
+      submitModalOpen: false,
       modalKey: "",
       modalUserID: "",
       loading: false,
+      showRecordTypes: ["", "submitted", "published"],
+      showUsers: [],
+      records: [],
+      recordsFilter: "",
+      recordCountsByStatus: {},
     };
   }
 
@@ -34,9 +58,33 @@ class Reviewer extends React.Component {
           .database()
           .ref(region)
           .child("users")
-          .on("value", (users) =>
-            this.setState({ users: users.toJSON(), loading: false })
-          );
+          .on("value", (regionUsersRaw) => {
+            const regionUsers = regionUsersRaw.toJSON();
+            const records = [];
+
+            Object.entries(regionUsers).forEach(([userID, user]) => {
+              if (user.records) {
+                Object.entries(user.records).forEach(([key, record]) => {
+                  records.push({
+                    ...record,
+                    userinfo: { ...user.userinfo, userID },
+                    key,
+                  });
+                });
+              }
+            });
+
+            const users = unique(
+              records.map((record) => record.userinfo.email)
+            );
+
+            this.setState({
+              records,
+              loading: false,
+              users,
+              showUsers: users,
+            });
+          });
       }
     });
   }
@@ -98,32 +146,11 @@ class Reviewer extends React.Component {
   }
 
   render() {
-    const { users } = this.state;
-
-    const { match } = this.props;
-    const { language } = match.params;
-
-    const records = [];
-
-    Object.entries(users).forEach(([userID, user]) => {
-      if (user.records) {
-        Object.entries(user.records).forEach(([key, record]) => {
-          records.push({
-            ...record,
-            userinfo: { ...user.userinfo, userID },
-            key,
-          });
-        });
-      }
-    });
-
-    const recordsForReview = records.filter(
-      (record) => record.status === "submitted"
-    );
-    const recordsPublished = records.filter(
-      (record) => record.status === "published"
-    );
     const {
+      records,
+      recordsFilter,
+      showRecordTypes,
+      showUsers,
       deleteModalOpen,
       modalKey,
       modalUserID,
@@ -131,10 +158,168 @@ class Reviewer extends React.Component {
       publishModalOpen,
       unSubmitModalOpen,
       loading,
+      users,
     } = this.state;
 
+    const { match } = this.props;
+    const { language } = match.params;
+
+    const recordTypeOptions = ["", "submitted", "published"];
+
+    // sort records - drafts then submitted then published
+    let recordsToShow = records.filter((record) =>
+      showUsers.includes(record.userinfo.email)
+    );
+
+    // the text search
+    if (recordsFilter) {
+      recordsToShow = recordsToShow.filter((record) => {
+        const recordText = JSON.stringify([
+          record.title,
+          record.abstract,
+        ]).toUpperCase();
+        return recordText.includes(recordsFilter.toUpperCase());
+      });
+    }
+
+    const recordCountsByStatus = {
+      draft: (recordsToShow.filter((record) => record.status === "") || [])
+        .length,
+      submitted: (
+        recordsToShow.filter((record) => record.status === "submitted") || []
+      ).length,
+      published: (
+        recordsToShow.filter((record) => record.status === "published") || []
+      ).length,
+    };
+
+    recordsToShow = recordsToShow.filter((record) =>
+      showRecordTypes.includes(record.status)
+    );
+
+    recordsToShow = recordsToShow.sort((a, b) => {
+      return (
+        showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
+      );
+    });
+
+    const DraftRecordItem = ({ record }) => {
+      return (
+        <MetadataRecordListItem
+          record={record}
+          key={record.key}
+          language={language}
+          onViewClick={() =>
+            this.editRecord(record.key, record.userinfo.userID)
+          }
+          onDeleteClick={() =>
+            this.toggleModal(
+              "deleteModalOpen",
+              true,
+              record.key,
+              record.userinfo.userID
+            )
+          }
+          onSubmitClick={() =>
+            this.toggleModal(
+              "submitModalOpen",
+              true,
+              record.key,
+              record.userinfo.userID
+            )
+          }
+          showUnSubmitAction
+        />
+      );
+    };
+    const SubmittedRecordItem = ({ record }) => (
+      <MetadataRecordListItem
+        record={record}
+        key={record.key}
+        language={language}
+        onViewClick={() => this.editRecord(record.key, record.userinfo.userID)}
+        onDeleteClick={() =>
+          this.toggleModal(
+            "deleteModalOpen",
+            true,
+            record.key,
+            record.userinfo.userID
+          )
+        }
+        onSubmitClick={() =>
+          this.toggleModal(
+            "publishModalOpen",
+            true,
+            record.key,
+            record.userinfo.userID
+          )
+        }
+        onUnSubmitClick={() =>
+          this.toggleModal(
+            "unSubmitModalOpen",
+            true,
+            record.key,
+            record.userinfo.userID
+          )
+        }
+        showPublishAction
+        showUnSubmitAction
+      />
+    );
+    const PublishedRecordItem = ({ record }) => {
+      return (
+        <MetadataRecordListItem
+          record={record}
+          key={record.key}
+          language={language}
+          onViewClick={() =>
+            this.editRecord(record.key, record.userinfo.userID)
+          }
+          onDeleteClick={() =>
+            this.toggleModal(
+              "deleteModalOpen",
+              true,
+              record.key,
+              record.userinfo.userID
+            )
+          }
+          onUnPublishClick={() =>
+            this.toggleModal(
+              "unPublishModalOpen",
+              true,
+              record.key,
+              record.userinfo.userID
+            )
+          }
+          showUnPublishAction
+        />
+      );
+    };
+
+    const RecordItem = (props) => {
+      const { record } = props;
+
+      if (record.status === "") return <DraftRecordItem {...props} />;
+      if (record.status === "submitted")
+        return <SubmittedRecordItem {...props} />;
+      if (record.status === "published")
+        return <PublishedRecordItem {...props} />;
+    };
+
+    const recordStatusTranslate = {
+      draft: { en: "Draft", fr: "Brouillon" },
+      submitted: { en: "Submitted", fr: "Soumis" },
+      published: { en: "Published", fr: "Publié" },
+    };
+    const selectedText = language === "fr" ? "sélectionnés" : "selected";
     return (
-      <Grid container direction="column" spacing={3}>
+      <Grid
+        container
+        direction="column"
+        justify="space-between"
+        alignItems="stretch"
+        spacing={3}
+      >
         <SimpleModal
           open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
@@ -175,130 +360,135 @@ class Reviewer extends React.Component {
           <CircularProgress />
         ) : (
           <>
-            {recordsForReview.length ? (
-              <>
+            <Paper
+              style={{
+                padding: "10px",
+                margin: "10px",
+                width: "100%",
+              }}
+            >
+              <QuestionText>Filters</QuestionText>
+              <Grid container direction="column" spacing={2}>
                 <Grid item xs>
-                  <Typography>
-                    <I18n>
-                      <En>
-                        These are the submissions we have received from all
-                        users that have not yet been reviewed. To accept a
-                        record, click the 'Publish' button. Once a record is
-                        published, you can download the xml or yaml
-                      </En>
-                      <Fr>
-                        Ce sont les soumissions que nous avons reçues de tous
-                        les utilisateurs qui n'ont pas encore été examinées.
-                        Pour accepter un enregistrement, cliquez sur le bouton «
-                        Publier ». Une fois qu'un enregistrement est publié,
-                        vous pouvez télécharger le xml ou yaml
-                      </Fr>
-                    </I18n>{" "}
-                    .
-                  </Typography>
+                  <CheckBoxList
+                    value={showRecordTypes}
+                    onChange={(e) => {
+                      this.setState((s) => (s.showRecordTypes = e));
+                    }}
+                    options={recordTypeOptions}
+                    optionLabels={["draft", "submitted", "published"].map(
+                      (status) =>
+                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
+                    )}
+                  />
                 </Grid>
                 <Grid item xs>
-                  <List>
-                    {recordsForReview.map((record) => {
-                      return (
-                        <MetadataRecordListItem
-                          record={record}
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel2a-content"
+                      id="panel2a-header"
+                    >
+                      <Typography>
+                        {showUsers.length === users.length ? (
+                          <I18n
+                            en="Users (All users selected)"
+                            fr="Utilisateurs (Tous les utilisateurs)"
+                          />
+                        ) : (
+                          <I18n
+                            en={`Users (${showUsers.length}  ${selectedText})`}
+                            fr={`Utilisateurs (${showUsers.length}  ${selectedText})`}
+                          />
+                        )}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Grid container direction="column">
+                        <Grid item xs>
+                          Select All/None
+                          <Checkbox
+                            label="Show All/None"
+                            onChange={(e) => {
+                              this.setState({
+                                showUsers: e.target.checked ? users : [],
+                              });
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs>
+                          <CheckBoxList
+                            value={showUsers}
+                            onChange={(e) => {
+                              this.setState({ showUsers: e });
+                            }}
+                            options={users}
+                            labelSize={null}
+                          />
+                        </Grid>
+                      </Grid>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
+                <Grid item xs>
+                  <TextField
+                    fullWidth
+                    onChange={(e) => {
+                      this.setState({ recordsFilter: e.target.value });
+                    }}
+                    label={
+                      <I18n
+                        en="Search title and abstract"
+                        fr="Rechercher le titre et le résumé"
+                      />
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+            {recordsToShow.length ? (
+              <>
+                <Grid container direction="column">
+                  <Grid item xs>
+                    <Typography>
+                      <I18n>
+                        <En>
+                          These are the submissions we have received from all
+                          users that have not yet been reviewed. To accept a
+                          record, click the 'Publish' button.
+                        </En>
+                        <Fr>
+                          Ce sont les soumissions que nous avons reçues de tous
+                          les utilisateurs qui n'ont pas encore été examinées.
+                          Pour accepter un enregistrement, cliquez sur le bouton
+                          « Publier ».
+                        </Fr>
+                      </I18n>
+                    </Typography>
+                  </Grid>
+                  <Grid item xs>
+                    <List>
+                      {recordsToShow.map((record) => (
+                        <RecordItem
                           key={record.key}
+                          record={record}
                           language={language}
-                          onViewClick={() =>
-                            this.editRecord(record.key, record.userinfo.userID)
-                          }
-                          onDeleteClick={() =>
-                            this.toggleModal(
-                              "deleteModalOpen",
-                              true,
-                              record.key,
-                              record.userinfo.userID
-                            )
-                          }
-                          onSubmitClick={() =>
-                            this.toggleModal(
-                              "publishModalOpen",
-                              true,
-                              record.key,
-                              record.userinfo.userID
-                            )
-                          }
-                          onUnSubmitClick={() =>
-                            this.toggleModal(
-                              "unSubmitModalOpen",
-                              true,
-                              record.key,
-                              record.userinfo.userID
-                            )
-                          }
-                          showPublishAction
-                          showUnSubmitAction
                         />
-                      );
-                    })}
-                  </List>
+                      ))}
+                    </List>
+                  </Grid>
                 </Grid>
               </>
             ) : (
-              <Grid item xs>
-                <Typography>
-                  <I18n>
-                    <En>There are no records waiting to be reviewed.</En>
-                    <Fr>Aucun dossier n'attend d'être examiné.</Fr>
-                  </I18n>
-                </Typography>
-              </Grid>
-            )}
-
-            {recordsPublished.length ? (
-              <Grid item xs>
-                <Typography>
-                  <I18n>
-                    <En>Published records:</En>
-                    <Fr>Documents publiés:</Fr>
-                  </I18n>
-                </Typography>
-                <List>
-                  {recordsPublished.map((record, i) => {
-                    return (
-                      <MetadataRecordListItem
-                        record={record}
-                        key={i}
-                        language={language}
-                        onViewClick={() =>
-                          this.editRecord(record.key, record.userinfo.userID)
-                        }
-                        onDeleteClick={() =>
-                          this.toggleModal(
-                            "deleteModalOpen",
-                            true,
-                            record.key,
-                            record.userinfo.userID
-                          )
-                        }
-                        onUnPublishClick={() =>
-                          this.toggleModal(
-                            "unPublishModalOpen",
-                            true,
-                            record.key,
-                            record.userinfo.userID
-                          )
-                        }
-                        showUnPublishAction
-                      />
-                    );
-                  })}
-                </List>
-              </Grid>
-            ) : (
-              <Grid item xs>
-                <Typography>
-                  <I18n>
-                    <En>There are no published records.</En>
-                    <Fr>Il n'y a pas d'enregistrements publiés</Fr>
-                  </I18n>
-                </Typography>
+              <Grid container direction="column">
+                <Grid item xs>
+                  <Typography>
+                    <I18n>
+                      <En>There are no records waiting to be reviewed.</En>
+                      <Fr>Aucun dossier n'attend d'être examiné.</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
               </Grid>
             )}
           </>

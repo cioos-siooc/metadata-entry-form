@@ -69,7 +69,7 @@ const regions = {
       en: "IYS Data Catalogue",
     },
     colors: { primary: "#006e90", secondary: "#ffc857" },
-    email: "info@yearofthesalmon.org",
+    email: "iys.data@hakai.org",
     catalogueURL: {
       fr: "https://iys.hakai.org/dataset/",
       en: "https://iys.hakai.org/dataset/",
