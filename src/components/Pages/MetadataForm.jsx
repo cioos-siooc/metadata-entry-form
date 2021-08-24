@@ -34,6 +34,44 @@ import { firebaseToJSObject } from "../../utils/misc";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
+import { deepCopy } from "../../utils/misc";
+
+const blankRecord = {
+  title: { en: "", fr: "" },
+  abstract: { en: "", fr: "" },
+  identifier: uuidv4(),
+  keywords: { en: [], fr: [] },
+  eov: [],
+  progress: "",
+  distribution: [],
+  dateStart: null,
+  dateEnd: null,
+  map: { north: "", south: "", east: "", west: "", polygon: "" },
+  verticalExtentMin: "",
+  verticalExtentMax: "",
+  datePublished: null,
+  dateRevised: null,
+  recordID: "",
+  instruments: [],
+  platformID: "",
+  platformDescription: "",
+  language: "",
+  license: "",
+  contacts: [],
+  status: "",
+  comment: "",
+  limitations: "",
+  created: new Date().toISOString(),
+  lastEditedBy: {},
+  category: "",
+  verticalExtentDirection: "",
+  datasetIdentifier: "",
+  noPlatform: false,
+  filename: "",
+  organization: "",
+  timeFirstPublished: "",
+};
+
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
     title={
@@ -74,9 +112,14 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const styles = () => ({
+const styles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
+  },
+  fab: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
   },
 });
 class MetadataForm extends Component {
@@ -84,41 +127,7 @@ class MetadataForm extends Component {
     super(props);
 
     this.state = {
-      record: {
-        title: { en: "", fr: "" },
-        abstract: { en: "", fr: "" },
-        identifier: uuidv4(),
-        keywords: { en: [], fr: [] },
-        eov: [],
-        progress: "",
-        distribution: [],
-        dateStart: null,
-        dateEnd: null,
-        map: { north: "", south: "", east: "", west: "", polygon: "" },
-        verticalExtentMin: "",
-        verticalExtentMax: "",
-        datePublished: null,
-        dateRevised: null,
-        recordID: "",
-        instruments: [],
-        platformID: "",
-        platformDescription: "",
-        language: "",
-        license: "",
-        contacts: [],
-        status: "",
-        comment: "",
-        limitations: "",
-        created: new Date().toISOString(),
-        lastEditedBy: {},
-        category: "",
-        verticalExtentDirection: "",
-        datasetIdentifier: "",
-        noPlatform: false,
-        filename: "",
-        organization: "",
-        timeFirstPublished: "",
-      },
+      record: deepCopy(blankRecord),
 
       // contacts saved by user (not the ones saved in the record)
       // kept in firebase object format instead of array
@@ -151,17 +160,19 @@ class MetadataForm extends Component {
         const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
-
+        let editorInfo;
         // get info of the person openeing the record
-        firebase
+        const editorDataRef = firebase
           .database()
           .ref(region)
           .child("users")
-          .child(loggedInUserID)
-          .child("userinfo")
-          .on("value", (userinfo) => {
-            this.setState({ editorInfo: userinfo.toJSON() });
-          });
+          .child(loggedInUserID);
+
+        editorDataRef.child("userinfo").on("value", (userinfo) => {
+          editorInfo = userinfo.toJSON();
+
+          this.setState({ editorInfo });
+        });
 
         // get info of the original author of record
         const userDataRef = firebase
@@ -171,7 +182,7 @@ class MetadataForm extends Component {
           .child(recordUserID);
 
         // get contacts
-        userDataRef.child("contacts").on("value", (contacts) => {
+        editorDataRef.child("contacts").on("value", (contacts) => {
           this.setState({ userContacts: contacts.toJSON() });
         });
 
@@ -238,8 +249,8 @@ class MetadataForm extends Component {
   async submitRecord() {
     const { match } = this.props;
     const { region } = match.params;
-    const { record } = this.state;
-    const { recordID } = record;
+
+    const recordID = await this.handleSaveClick();
 
     if (auth.currentUser && recordID) {
       await firebase
@@ -272,18 +283,21 @@ class MetadataForm extends Component {
     record.created = new Date().toISOString();
 
     record.lastEditedBy = editorInfo;
-
+    let recordID;
     if (record.recordID) {
-      await recordsRef.child(record.recordID).update(record);
+      recordID = record.recordID;
+      await recordsRef
+        .child(record.recordID)
+        .update({ ...blankRecord, ...record });
     } else {
       // new record
       const newNode = await recordsRef.push(record);
 
       // cheesy workaround to the issue of push() not saving dates
       await newNode.update(record);
-      const recordID = newNode.key;
+      recordID = newNode.key;
       this.setState({
-        record: { ...record, recordID },
+        record: { ...blankRecord, ...record, recordID },
       });
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
@@ -292,6 +306,7 @@ class MetadataForm extends Component {
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
+    return recordID;
   }
 
   render() {
@@ -335,34 +350,28 @@ class MetadataForm extends Component {
         alignItems="stretch"
         spacing={3}
       >
-        <Tooltip
-          placement="left-start"
-          title={
-            saveDisabled
-              ? "Dataset needs a title before it can be saved"
-              : "Save record."
+        <Fab
+          color="primary"
+          aria-label="add"
+          className={classes.fab}
+          disabled={
+            saveDisabled || !(record.title.en || record.title.fr) || disabled
           }
+          onClick={() => this.handleSaveClick()}
         >
-          <span>
-            <Fab
-              color="primary"
-              aria-label="add"
-              style={{
-                right: 20,
-                bottom: 20,
-                position: "fixed",
-              }}
-              disabled={
-                saveDisabled ||
-                !(record.title.en || record.title.fr) ||
-                disabled
-              }
-              onClick={() => this.handleSaveClick()}
-            >
+          <Tooltip
+            placement="right-start"
+            title={
+              saveDisabled
+                ? "Dataset needs a title before it can be saved"
+                : "Save record."
+            }
+          >
+            <span>
               <Save />
-            </Fab>
-          </span>
-        </Tooltip>
+            </span>
+          </Tooltip>
+        </Fab>
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid item xs>
             <Tabs

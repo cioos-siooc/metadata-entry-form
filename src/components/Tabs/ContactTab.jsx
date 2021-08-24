@@ -48,13 +48,8 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
     };
   }
 
-  // const showApaBox =
-  //   record.title[language] &&
-  //   contacts.length &&
-  //   // contacts.some((contact) => contact.role.includes("author")) &&
-  //   record.created;
-
-  const showApaBox = false;
+  const showApaBox =
+    record.title[language] && contacts.length && record.created;
 
   const contact = contacts[activeContact];
   return (
@@ -66,14 +61,15 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
               <En>
                 Please enter at least one Metadata Contact <b>and</b> one Data
                 Contact for this dataset that can work with{" "}
-                {regions[region]["title"][language]} Staff to finalize this
+                {regions[region].title[language]} Staff to finalize this
                 Metadata Record.
               </En>
               <Fr>
                 Veuillez saisir au moins un contact pour les métadonnées ET un
-                contact pour les données de ce jeu. Ces personnes
-                pourraient être appelées à collaborer avec le personnel de la{" "}
-                {regions[region]["title"][language]} pour finaliser la saisie des informations.
+                contact pour les données de ce jeu. Ces personnes pourraient
+                être appelées à collaborer avec le personnel de la{" "}
+                {regions[region].title[language]} pour finaliser la saisie
+                des informations.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
@@ -92,8 +88,8 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
                   les parties concernées soient créditées de façon appropriée
                   pour leur rôle dans la création de ce jeu de données. Les
                   contacts sauvegardés peuvent être sélectionnés dans la liste
-                  ci-dessous. Si vous avez déjà des contacts enregistrés, vous pouvez
-                  les sélectionner dans la liste.
+                  ci-dessous. Si vous avez déjà des contacts enregistrés, vous
+                  pouvez les sélectionner dans la liste.
                 </Fr>
               </I18n>
             </SupplementalText>
@@ -107,14 +103,15 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
               <I18n>
                 <En>
                   This is how your record citation will look in the catalogue.
-                  Only contacts with "Cited Author" checked apppear. To change
+                  Only with starred roles will appear in the citation. To change
                   the order, drag the{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} /> symbol.
                 </En>
                 <Fr>
                   Voici à quoi ressemblera votre citation dans le catalogue.
                   Seuls les contacts dont la case «Auteur cité» est cochée
-                  apparaissent. Pour changer le ordre, faites glisser le symbole{" "}
+                  apparaissent. Seuls les rôles étoilés apparaîtront dans la
+                  citation. Changer la commande, faites glisser le{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} />.
                 </Fr>
               </I18n>
