@@ -4,6 +4,7 @@ import {
   InputAdornment,
   TextField,
   CircularProgress,
+  Tooltip,
 } from "@material-ui/core";
 import TranslateIcon from "@material-ui/icons/Translate";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
@@ -54,42 +55,53 @@ const BilingualTextInput = ({
             error={error}
           />
           {i === 0 && !translationButonDisabled && (
-            <Button
-              style={{ margin: "10px" }}
-              startIcon={
-                awaitingTranslation ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <TranslateIcon />
-                )
+            <Tooltip
+              title={
+                <I18n
+                  en="Translate english to french"
+                  fr="Traduire du français en anglais"
+                />
               }
-              endIcon={awaitingTranslation ? null : <ArrowDownwardIcon />}
-              disabled={
-                disabled || awaitingTranslation || !(value && value[lang])
-              }
-              onClick={() => {
-                const alternateLanguage = languages[1];
-                setAwaitingTranslation(true);
-
-                translate({ text: value[lang], fromLang: lang }).then(
-                  (translatedText) => {
-                    setAwaitingTranslation(false);
-                    const translation = translatedText.data;
-                    handleEvent({
-                      target: {
-                        name: alternateLanguage,
-                        value: translation,
-                      },
-                    });
-                  }
-                );
-              }}
             >
-              <I18n>
-                <En>Translate</En>
-                <Fr>Traduire</Fr>
-              </I18n>
-            </Button>
+              <span>
+                <Button
+                  style={{ margin: "10px" }}
+                  startIcon={
+                    awaitingTranslation ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <TranslateIcon />
+                    )
+                  }
+                  endIcon={awaitingTranslation ? null : <ArrowDownwardIcon />}
+                  disabled={
+                    disabled || awaitingTranslation || !(value && value[lang])
+                  }
+                  onClick={() => {
+                    const alternateLanguage = languages[1];
+                    setAwaitingTranslation(true);
+
+                    translate({ text: value[lang], fromLang: lang }).then(
+                      (translatedText) => {
+                        setAwaitingTranslation(false);
+                        const translation = translatedText.data;
+                        handleEvent({
+                          target: {
+                            name: alternateLanguage,
+                            value: translation,
+                          },
+                        });
+                      }
+                    );
+                  }}
+                >
+                  <I18n>
+                    <En>Translate</En>
+                    <Fr>Traduire</Fr>
+                  </I18n>
+                </Button>
+              </span>
+            </Tooltip>
           )}
         </div>
       ))}

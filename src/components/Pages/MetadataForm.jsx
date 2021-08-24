@@ -10,8 +10,9 @@ import {
   Tooltip,
   Typography,
   LinearProgress,
+  IconButton,
 } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
@@ -33,6 +34,44 @@ import firebase from "../../firebase";
 import { firebaseToJSObject } from "../../utils/misc";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
+
+import { deepCopy } from "../../utils/misc";
+
+const blankRecord = {
+  title: { en: "", fr: "" },
+  abstract: { en: "", fr: "" },
+  identifier: uuidv4(),
+  keywords: { en: [], fr: [] },
+  eov: [],
+  progress: "",
+  distribution: [],
+  dateStart: null,
+  dateEnd: null,
+  map: { north: "", south: "", east: "", west: "", polygon: "" },
+  verticalExtentMin: "",
+  verticalExtentMax: "",
+  datePublished: null,
+  dateRevised: null,
+  recordID: "",
+  instruments: [],
+  platformID: "",
+  platformDescription: "",
+  language: "",
+  license: "",
+  contacts: [],
+  status: "",
+  comment: "",
+  limitations: "",
+  created: new Date().toISOString(),
+  lastEditedBy: {},
+  category: "",
+  verticalExtentDirection: "",
+  datasetIdentifier: "",
+  noPlatform: false,
+  filename: "",
+  organization: "",
+  timeFirstPublished: "",
+};
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -74,9 +113,14 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const styles = () => ({
+const styles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
+  },
+  fab: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
   },
 });
 class MetadataForm extends Component {
@@ -84,41 +128,7 @@ class MetadataForm extends Component {
     super(props);
 
     this.state = {
-      record: {
-        title: { en: "", fr: "" },
-        abstract: { en: "", fr: "" },
-        identifier: uuidv4(),
-        keywords: { en: [], fr: [] },
-        eov: [],
-        progress: "",
-        distribution: [],
-        dateStart: null,
-        dateEnd: null,
-        map: { north: "", south: "", east: "", west: "", polygon: "" },
-        verticalExtentMin: "",
-        verticalExtentMax: "",
-        datePublished: null,
-        dateRevised: null,
-        recordID: "",
-        instruments: [],
-        platformID: "",
-        platformDescription: "",
-        language: "",
-        license: "",
-        contacts: [],
-        status: "",
-        comment: "",
-        limitations: "",
-        created: new Date().toISOString(),
-        lastEditedBy: {},
-        category: "",
-        verticalExtentDirection: "",
-        datasetIdentifier: "",
-        noPlatform: false,
-        filename: "",
-        organization: "",
-        timeFirstPublished: "",
-      },
+      record: deepCopy(blankRecord),
 
       // contacts saved by user (not the ones saved in the record)
       // kept in firebase object format instead of array
@@ -242,8 +252,7 @@ class MetadataForm extends Component {
     const { region } = match.params;
 
     const recordID = await this.handleSaveClick();
-    console.log("record id is", recordID);
-    console.log("auth.currentUser", auth.currentUser);
+
     if (auth.currentUser && recordID) {
       await firebase
         .database()
@@ -278,7 +287,9 @@ class MetadataForm extends Component {
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
-      await recordsRef.child(record.recordID).update(record);
+      await recordsRef
+        .child(record.recordID)
+        .update({ ...blankRecord, ...record });
     } else {
       // new record
       const newNode = await recordsRef.push(record);
@@ -287,7 +298,7 @@ class MetadataForm extends Component {
       await newNode.update(record);
       recordID = newNode.key;
       this.setState({
-        record: { ...record, recordID },
+        record: { ...blankRecord, ...record, recordID },
       });
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
@@ -340,34 +351,28 @@ class MetadataForm extends Component {
         alignItems="stretch"
         spacing={3}
       >
-        <Tooltip
-          placement="left-start"
-          title={
-            saveDisabled
-              ? "Dataset needs a title before it can be saved"
-              : "Save record."
+        <Fab
+          color="primary"
+          aria-label="add"
+          className={classes.fab}
+          disabled={
+            saveDisabled || !(record.title.en || record.title.fr) || disabled
           }
+          onClick={() => this.handleSaveClick()}
         >
-          <span>
-            <Fab
-              color="primary"
-              aria-label="add"
-              style={{
-                right: 20,
-                bottom: 20,
-                position: "fixed",
-              }}
-              disabled={
-                saveDisabled ||
-                !(record.title.en || record.title.fr) ||
-                disabled
-              }
-              onClick={() => this.handleSaveClick()}
-            >
+          <Tooltip
+            placement="right-start"
+            title={
+              saveDisabled
+                ? "Dataset needs a title before it can be saved"
+                : "Save record."
+            }
+          >
+            <span>
               <Save />
-            </Fab>
-          </span>
-        </Tooltip>
+            </span>
+          </Tooltip>
+        </Fab>
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid item xs>
             <Tabs
