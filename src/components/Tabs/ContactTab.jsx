@@ -61,14 +61,14 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
               <En>
                 Please enter at least one Metadata Contact <b>and</b> one Data
                 Contact for this dataset that can work with{" "}
-                {regions[region]["title"][language]} Staff to finalize this
+                {regions[region].title[language]} Staff to finalize this
                 Metadata Record.
               </En>
               <Fr>
                 Veuillez saisir au moins un contact pour les métadonnées ET un
                 contact pour les données de ce jeu. Ces personnes pourraient
                 être appelées à collaborer avec le personnel de la{" "}
-                {regions[region]["title"][language]} pour finaliser la saisie
+                {regions[region].title[language]} pour finaliser la saisie
                 des informations.
               </Fr>
             </I18n>

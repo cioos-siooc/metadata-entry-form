@@ -1,6 +1,6 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
-import { En, Fr, I18n } from "./I18n";
+import { En, Fr, I18n } from "../I18n";
 
 const RegionSelect = () => {
   return (
