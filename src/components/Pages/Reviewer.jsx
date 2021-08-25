@@ -24,6 +24,8 @@ import CheckBoxList from "../FormComponents/CheckBoxList";
 import SimpleModal from "../FormComponents/SimpleModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
+import blankRecord from "../../utils/blankRecord";
+
 const unique = (arr) => [...new Set(arr)];
 
 class Reviewer extends React.Component {
@@ -66,7 +68,7 @@ class Reviewer extends React.Component {
               if (user.records) {
                 Object.entries(user.records).forEach(([key, record]) => {
                   records.push({
-                    ...record,
+                    ...{ ...blankRecord, ...record },
                     userinfo: { ...user.userinfo, userID },
                     key,
                   });
@@ -175,8 +177,8 @@ class Reviewer extends React.Component {
     if (recordsFilter) {
       recordsToShow = recordsToShow.filter((record) => {
         const recordText = JSON.stringify([
-          record.title,
-          record.abstract,
+          record.title || {},
+          record.abstract || {},
         ]).toUpperCase();
         return recordText.includes(recordsFilter.toUpperCase());
       });

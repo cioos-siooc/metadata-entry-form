@@ -41,7 +41,7 @@ const BilingualTextInput = ({
           <TextField
             name={lang}
             fullWidth
-            value={value && value[lang]}
+            value={(value && value[lang]) || ""}
             onChange={handleEvent}
             InputProps={{
               startAdornment: (
