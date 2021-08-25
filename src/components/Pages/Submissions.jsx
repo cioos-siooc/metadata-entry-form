@@ -58,8 +58,14 @@ class Submissions extends React.Component {
       loading: false,
     };
   }
+  async componentDidUpdate(prevProps) {
+    // check for region change
+    if (this.props.match.params.region !== prevProps.match.params.region) {
+      this.loadRecords();
+    }
+  }
 
-  async componentDidMount() {
+  async loadRecords() {
     this.setState({ loading: true });
     const { match } = this.props;
     const { region } = match.params;
@@ -79,6 +85,10 @@ class Submissions extends React.Component {
         this.setState({ loading: false });
       }
     });
+  }
+
+  async componentDidMount() {
+    this.loadRecords();
   }
 
   static getRecordFilename(record) {
