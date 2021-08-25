@@ -13,7 +13,6 @@ import {
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
-import { v4 as uuidv4 } from "uuid";
 import { withRouter } from "react-router-dom";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
@@ -30,47 +29,11 @@ import SubmitTab from "../Tabs/SubmitTab";
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
-import { firebaseToJSObject } from "../../utils/misc";
+import { firebaseToJSObject, deepCopy } from "../../utils/misc";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
-import { deepCopy } from "../../utils/misc";
-
-const blankRecord = {
-  title: { en: "", fr: "" },
-  abstract: { en: "", fr: "" },
-  identifier: uuidv4(),
-  keywords: { en: [], fr: [] },
-  eov: [],
-  progress: "",
-  distribution: [],
-  dateStart: null,
-  dateEnd: null,
-  map: { north: "", south: "", east: "", west: "", polygon: "" },
-  verticalExtentMin: "",
-  verticalExtentMax: "",
-  datePublished: null,
-  dateRevised: null,
-  recordID: "",
-  instruments: [],
-  platformID: "",
-  platformDescription: "",
-  language: "",
-  license: "",
-  contacts: [],
-  status: "",
-  comment: "",
-  limitations: "",
-  created: new Date().toISOString(),
-  lastEditedBy: {},
-  category: "",
-  verticalExtentDirection: "",
-  datasetIdentifier: "",
-  noPlatform: false,
-  filename: "",
-  organization: "",
-  timeFirstPublished: "",
-};
+import blankRecord from "../../utils/blankRecord";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -208,7 +171,7 @@ class MetadataForm extends Component {
                 record.status !== "published";
 
               this.setState({
-                record: { ...record, recordID },
+                record: { ...blankRecord, ...record, recordID },
                 loggedInUserCanEditRecord,
               });
               this.setState({ loading: false });
@@ -248,21 +211,27 @@ class MetadataForm extends Component {
 
   async submitRecord() {
     const { match } = this.props;
-    const { region } = match.params;
+    const { region, userID } = match.params;
+    const isNewRecord = match.url.endsWith("new");
 
-    const recordID = await this.handleSaveClick();
+    // Bit of logic here to decide if this is a user submitting their own form
+    // or a reviewer submitting it
+    const loggedInUserID = auth.currentUser.uid;
+    const recordUserID = isNewRecord ? loggedInUserID : userID;
 
-    if (auth.currentUser && recordID) {
-      await firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(auth.currentUser.uid)
-        .child("records")
-        .child(recordID)
-        .child("status")
-        .set("submitted");
-    }
+    this.handleSaveClick().then(async (recordID) => {
+      if (userID && recordID) {
+        firebase
+          .database()
+          .ref(region)
+          .child("users")
+          .child(recordUserID)
+          .child("records")
+          .child(recordID)
+          .child("status")
+          .set("submitted");
+      }
+    });
   }
 
   async handleSaveClick() {
@@ -288,6 +257,7 @@ class MetadataForm extends Component {
       recordID = record.recordID;
       await recordsRef
         .child(record.recordID)
+        // using blankRecord here in case there are new fields that the old record didnt have
         .update({ ...blankRecord, ...record });
     } else {
       // new record
@@ -297,7 +267,7 @@ class MetadataForm extends Component {
       await newNode.update(record);
       recordID = newNode.key;
       this.setState({
-        record: { ...blankRecord, ...record, recordID },
+        record: { ...record, recordID },
       });
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
