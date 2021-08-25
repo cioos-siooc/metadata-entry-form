@@ -27,12 +27,6 @@ const SubmitTab = ({ record, submitRecord }) => {
 
   const { language } = useParams();
 
-  function submit() {
-    setSubmitting(true);
-    submitRecord();
-    setSubmitting(false);
-  }
-
   const recordIsComplete = Math.round(percentValid(record) * 100) === 100;
 
   const validationErrors = getErrorsByTab(record);
@@ -111,7 +105,15 @@ const SubmitTab = ({ record, submitRecord }) => {
                   {isSubmitting ? (
                     <CircularProgress />
                   ) : (
-                    <Button onClick={submit} disabled={submitted}>
+                    <Button
+                      onClick={() => {
+                        setSubmitting(true);
+                        submitRecord().then(() => {
+                          setSubmitting(false);
+                        });
+                      }}
+                      disabled={submitted}
+                    >
                       <I18n>
                         <En>Submit</En>
                         <Fr>Soumettre</Fr>

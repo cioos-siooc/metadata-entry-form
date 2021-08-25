@@ -15,7 +15,8 @@ const PlatformTab = ({
   handleUpdateRecord,
   updateRecord,
 }) => {
-  const { noPlatform = false } = record;
+  const noPlatform = record.noPlatform && record.noPlatform !== "false";
+
   return (
     <div>
       <Paper style={paperClass}>

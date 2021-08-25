@@ -152,9 +152,9 @@ const KeywordsInput = ({
               )}
               <Grid container direction="row">
                 <Grid item xs>
-                  {(value[lang] || []).map((keyword) => (
+                  {(value[lang] || []).map((keyword, i) => (
                     <Chip
-                      key={keyword}
+                      key={i}
                       disabled={disabled}
                       label={keyword}
                       onDelete={handleDelete(keyword, lang)}
