@@ -25,6 +25,10 @@ const MetadataRecordListItem = ({
   onUnSubmitClick,
   onUnPublishClick,
 }) => {
+  if (!record.title) {
+    console.log(record);
+    return <></>;
+  }
   return (
     <ListItem key={record.key}>
       <ListItemAvatar>
@@ -34,7 +38,11 @@ const MetadataRecordListItem = ({
       </ListItemAvatar>
       <ListItemText
         onClick={onViewClick}
-        primary={<div style={{ width: "80%" }}>{record.title[language]}</div>}
+        primary={
+          <div style={{ width: "80%" }}>
+            {record.title && record.title[language]}
+          </div>
+        }
         secondary={
           <span>
             Author: {record.userinfo.displayName} {record.userinfo.email} <br />
