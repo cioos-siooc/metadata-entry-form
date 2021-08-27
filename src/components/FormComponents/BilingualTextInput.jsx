@@ -33,7 +33,7 @@ const BilingualTextInput = ({
   const { language } = useParams();
   let languages;
 
-  const textSizeByes = new Blob([value[language]]).size;
+  const textSizeByes = new Blob([value && value[language]]).size;
   const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
 
   if (language === "en") languages = ["en", "fr"];
