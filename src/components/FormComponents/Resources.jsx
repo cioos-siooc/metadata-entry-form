@@ -65,7 +65,9 @@ const Resources = ({ updateResources, resources, disabled }) => {
                 </QuestionText>
 
                 <TextField
-                  helperText={!urlIsValid && "Invalid URL"}
+                  helperText={
+                    !urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />
+                  }
                   error={!urlIsValid}
                   label="URL"
                   value={dist.url}
