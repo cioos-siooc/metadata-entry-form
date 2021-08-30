@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-
 import {
   TextField,
   Typography,
@@ -160,7 +159,9 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
-              helperText={!orgURLValid && "Invalid URL"}
+              helperText={
+                !orgURLValid && <I18n en="Invalid URL" fr="URL non valide" />
+              }
               error={!orgURLValid}
               label={<I18n en="URL" fr="URL" />}
               value={value.orgURL}
@@ -198,7 +199,11 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
-              helperText={!orgEmailValid && "Invalid Email"}
+              helperText={
+                !orgEmailValid && (
+                  <I18n en="Invalid email" fr="E-mail non valide" />
+                )
+              }
               error={!orgEmailValid}
               label={<I18n en="Email" fr="Courriel" />}
               value={value.orgEmail}
@@ -244,7 +249,11 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
-              helperText={!indEmailValid && "Invalid Email"}
+              helperText={
+                !indEmailValid && (
+                  <I18n en="Invalid email" fr="E-mail non valide" />
+                )
+              }
               error={!indEmailValid}
               label={<I18n en="Email" fr="Courriel" />}
               value={value.indEmail}
