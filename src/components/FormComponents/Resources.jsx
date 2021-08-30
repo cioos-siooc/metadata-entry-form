@@ -1,12 +1,15 @@
 import React from "react";
 import { Add, Delete } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
+import validator from "validator";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
 import { QuestionText, paperClass } from "./QuestionStyles";
+
+const validateURL = (url) => !url || validator.isURL(url);
 
 const Resources = ({ updateResources, resources, disabled }) => {
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
@@ -25,6 +28,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
   return (
     <div>
       {resources.map((dist = deepCopy(emptyResource), i) => {
+        const urlIsValid = !dist.url || validateURL(dist.url);
         function handleResourceChange(key) {
           return (e) => {
             const newValue = [...resources];
@@ -57,10 +61,12 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     <En>Enter the URL for the resource</En>
                     <Fr>Entrez l'URL de la ressource</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.url} />
+                  <RequiredMark passes={validator.isURL(dist.url)} />
                 </QuestionText>
 
                 <TextField
+                  helperText={!urlIsValid && "Invalid URL"}
+                  error={!urlIsValid}
                   label="URL"
                   value={dist.url}
                   onChange={handleResourceChange("url")}

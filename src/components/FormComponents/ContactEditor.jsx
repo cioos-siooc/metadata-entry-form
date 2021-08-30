@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
+
 import {
   TextField,
   Typography,
@@ -11,6 +12,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
+import { validateEmail, validateURL } from "../../utils/validate";
 import CheckBoxList from "./CheckBoxList";
 import RequiredMark from "./RequiredMark";
 
@@ -51,8 +53,10 @@ const EditContact = ({
       (role) => options.indexOf(role) > numSpecialRoles - 1
     ).length > 0;
 
-  // function updateContact() {}
-  // function updateContactEvent() {}
+  const orgEmailValid = validateEmail(value.orgEmail);
+  const indEmailValid = validateEmail(value.indEmail);
+  const orgURLValid = validateURL(value.orgURL);
+
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
@@ -130,7 +134,6 @@ const EditContact = ({
             </Accordion>
           </Grid>
         )}
-
         <Grid
           container
           direction="column"
@@ -157,6 +160,8 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
+              helperText={!orgURLValid && "Invalid URL"}
+              error={!orgURLValid}
               label={<I18n en="URL" fr="URL" />}
               value={value.orgURL}
               onChange={updateContactEvent("orgURL")}
@@ -193,6 +198,8 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
+              helperText={!orgEmailValid && "Invalid Email"}
+              error={!orgEmailValid}
               label={<I18n en="Email" fr="Courriel" />}
               value={value.orgEmail}
               onChange={updateContactEvent("orgEmail")}
@@ -237,6 +244,8 @@ const EditContact = ({
           </Grid>
           <Grid item xs>
             <TextField
+              helperText={!indEmailValid && "Invalid Email"}
+              error={!indEmailValid}
               label={<I18n en="Email" fr="Courriel" />}
               value={value.indEmail}
               onChange={updateContactEvent("indEmail")}
