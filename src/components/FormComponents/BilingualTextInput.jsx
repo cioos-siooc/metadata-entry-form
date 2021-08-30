@@ -11,6 +11,7 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
+const MAX_AWS_TRANSLATE_SIZE = 5000;
 
 const BilingualTextInput = ({
   onChange,
@@ -31,6 +32,9 @@ const BilingualTextInput = ({
   }
   const { language } = useParams();
   let languages;
+
+  const textSizeByes = new Blob([value && value[language]]).size;
+  const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
 
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
@@ -75,7 +79,10 @@ const BilingualTextInput = ({
                   }
                   endIcon={awaitingTranslation ? null : <ArrowDownwardIcon />}
                   disabled={
-                    disabled || awaitingTranslation || !(value && value[lang])
+                    disabled ||
+                    awaitingTranslation ||
+                    !(value && value[lang]) ||
+                    textTooBig
                   }
                   onClick={() => {
                     const alternateLanguage = languages[1];
@@ -100,6 +107,18 @@ const BilingualTextInput = ({
                     <Fr>Traduire</Fr>
                   </I18n>
                 </Button>
+                {textTooBig && (
+                  <I18n>
+                    <En>
+                      Translation is disabled because text is larger than{" "}
+                      {MAX_AWS_TRANSLATE_SIZE} characters.
+                    </En>
+                    <Fr>
+                      La traduction est désactivée car le texte est plus grand
+                      que {MAX_AWS_TRANSLATE_SIZE} caractères.
+                    </Fr>
+                  </I18n>
+                )}
               </span>
             </Tooltip>
           )}

@@ -40,7 +40,7 @@ const EditContact = ({
   const tooltips = Object.values(roleCodes).map(
     ({ text, includeInCitation }) =>
       `${text[language]}${
-        includeInCitation ? `.  ${  citationRoleText[language]}` : ""
+        includeInCitation ? `.  ${citationRoleText[language]}` : ""
       }`
   );
   const numSpecialRoles = 3;
@@ -76,16 +76,15 @@ const EditContact = ({
                 {" "}
                 <I18n>
                   <En>
-                    At least one Metadata Contact and one Data Contact are
+                    At least one Metadata Custodian and one Data Owner are
                     required. Multiple roles can be selected for each contact.
                     Expand the list below for additional role.
                   </En>
                   <Fr>
-                    Au moins une personne-contact pour les métadonnées et une
-                    personne ressource pour les données sont requises. Plusieurs
-                    rôles peuvent être sélectionnés par personne. Si vous avez
-                    besoin de rôles plus spécifiques, vous pouvez étendre la
-                    liste.
+                    Au moins un dépositaire de métadonnées et un propriétaire de
+                    données sont requis. Plusieurs rôles peuvent être
+                    sélectionnés par personne. Si vous avez besoin de rôles plus
+                    spécifiques, vous pouvez étendre la liste.
                   </Fr>
                 </I18n>
               </SupplementalText>
