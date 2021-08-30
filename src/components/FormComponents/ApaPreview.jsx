@@ -1,7 +1,7 @@
 import React from "react";
 
 import Cite from "citation-js";
-
+const intersection = (arrA, arrB) => arrA.filter((x) => arrB.includes(x));
 function APAPreview({ record, language }) {
   const {
     title,
@@ -16,7 +16,16 @@ function APAPreview({ record, language }) {
       title: title[language],
 
       author: contacts
-        .filter((contact) => contact.role && contact.role.includes("author"))
+        .filter(
+          (contact) =>
+            contact.role &&
+            intersection(contact.role, [
+              "author",
+              "owner",
+              "originator",
+              "principalInvestigator",
+            ]).length
+        )
         .map((contact) => {
           if (contact.indName) return { name: contact.indName };
           return { family: contact.orgName };
