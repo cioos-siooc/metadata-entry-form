@@ -1,6 +1,7 @@
 import React from "react";
 
 import Cite from "citation-js";
+
 const intersection = (arrA, arrB) => arrA.filter((x) => arrB.includes(x));
 function APAPreview({ record, language }) {
   const {
