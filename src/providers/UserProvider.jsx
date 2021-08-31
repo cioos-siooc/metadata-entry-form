@@ -34,7 +34,7 @@ class UserProvider extends Component {
 
         Sentry.configureScope((scope) => {
           scope.setUser({
-            email: email,
+            email,
             username: email,
           });
         });
