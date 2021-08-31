@@ -57,7 +57,7 @@ const BilingualTextInput = ({
             }}
             multiline={multiline}
             disabled={disabled}
-            error={error}
+            error={Boolean(error)}
           />
           {i === 0 && !translationButonDisabled && (
             <Tooltip

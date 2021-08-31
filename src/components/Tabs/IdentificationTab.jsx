@@ -349,14 +349,17 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           name="datasetIdentifier"
           helperText={
-            !record.datasetIdentifier ||
-            doiRegexp.test(record.datasetIdentifier) ||
-            "Invalid DOI"
-          }
-          error={
             record.datasetIdentifier &&
-            !doiRegexp.test(record.datasetIdentifier)
+            !doiRegexp.test(record.datasetIdentifier) ? (
+              <I18n en="Invalid DOI" fr="DOI non valide" />
+            ) : (
+              ""
+            )
           }
+          error={Boolean(
+            record.datasetIdentifier &&
+              !doiRegexp.test(record.datasetIdentifier)
+          )}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
           fullWidth
