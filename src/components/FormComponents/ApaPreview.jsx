@@ -19,6 +19,8 @@ function APAPreview({ record, language }) {
       author: contacts
         .filter(
           (contact) =>
+            // citation-js crashes sometimes with single letter input for a name
+            (contact.indName.length > 1 || contact.orgName.length > 1) &&
             contact.role &&
             intersection(contact.role, [
               "author",
