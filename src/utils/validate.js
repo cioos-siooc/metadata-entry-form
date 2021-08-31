@@ -1,7 +1,7 @@
 import validator from "validator";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
-export const validateURL = (url) => !url || validator.isEmail(url);
+export const validateURL = (url) => !url || validator.isURL(url);
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
