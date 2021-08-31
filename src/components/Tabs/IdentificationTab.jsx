@@ -13,7 +13,7 @@ import SelectInput from "../FormComponents/SelectInput";
 import { camelToSentenceCase } from "../../utils/misc";
 import translate from "../../utils/i18n";
 import licenses from "../../utils/licenses";
-import { validateField } from "../../utils/validate";
+import { validateField, doiRegexp } from "../../utils/validate";
 
 import {
   QuestionText,
@@ -348,6 +348,15 @@ const IdentificationTab = ({
         <TextField
           style={{ marginTop: "10px" }}
           name="datasetIdentifier"
+          helperText={
+            !record.datasetIdentifier ||
+            doiRegexp.test(record.datasetIdentifier) ||
+            "Invalid DOI"
+          }
+          error={
+            record.datasetIdentifier &&
+            !doiRegexp.test(record.datasetIdentifier)
+          }
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
           fullWidth

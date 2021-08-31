@@ -58,6 +58,7 @@ class Submissions extends React.Component {
       loading: false,
     };
   }
+
   async componentDidUpdate(prevProps) {
     // check for region change
     if (this.props.match.params.region !== prevProps.match.params.region) {

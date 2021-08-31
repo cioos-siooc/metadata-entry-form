@@ -11,6 +11,7 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
+
 const MAX_AWS_TRANSLATE_SIZE = 5000;
 
 const BilingualTextInput = ({
