@@ -18,7 +18,7 @@ import translate from "../../utils/i18n";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
-import { getErrorsByTab, percentValid } from "../../utils/validate";
+import { getErrorsByTab, recordIsValid } from "../../utils/validate";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
@@ -26,8 +26,6 @@ const SubmitTab = ({ record, submitRecord }) => {
   const [isSubmitting, setSubmitting] = useState(false);
 
   const { language } = useParams();
-
-  const recordIsComplete = Math.round(percentValid(record) * 100) === 100;
 
   const validationErrors = getErrorsByTab(record);
   const submitted = record.status === "submitted";
@@ -85,7 +83,7 @@ const SubmitTab = ({ record, submitRecord }) => {
           </Grid>
         ) : (
           <>
-            {recordIsComplete ? (
+            {recordIsValid(record) ? (
               <>
                 <Grid item xs>
                   <Typography>
