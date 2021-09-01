@@ -41,7 +41,7 @@ class Reviewer extends FormClassTemplate {
       modalKey: "",
       modalUserID: "",
       loading: false,
-      showRecordTypes: ["", "submitted", "published"],
+      showRecordTypes: ["submitted"],
       showUsers: [],
       records: [],
       recordsFilter: "",
@@ -227,6 +227,7 @@ class Reviewer extends FormClassTemplate {
             )
           }
           showUnSubmitAction
+          showAuthor
         />
       );
     };
@@ -262,6 +263,7 @@ class Reviewer extends FormClassTemplate {
         }
         showPublishAction
         showUnSubmitAction
+        showAuthor
       />
     );
     const PublishedRecordItem = ({ record }) => {
@@ -290,6 +292,7 @@ class Reviewer extends FormClassTemplate {
             )
           }
           showUnPublishAction
+          showAuthor
         />
       );
     };

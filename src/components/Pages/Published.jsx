@@ -112,8 +112,8 @@ class Published extends FormClassTemplate {
                           }
                           showDeleteAction={false}
                           showUnSubmitAction={false}
-                          showViewAction
                           showCloneAction
+                          showAuthor
                           onCloneClick={() =>
                             this.handleCloneRecord(
                               record.key,

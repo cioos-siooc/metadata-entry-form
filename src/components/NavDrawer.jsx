@@ -14,6 +14,7 @@ import {
   RateReview,
   SupervisorAccount,
   Menu,
+  AssignmentTurnedIn,
 } from "@material-ui/icons";
 
 import {
@@ -320,7 +321,7 @@ export default function MiniDrawer({ children }) {
                     onClick={() => history.push(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
-                      <ListAlt />
+                      <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
                   </ListItem>
