@@ -22,6 +22,7 @@ function APAPreview({ record, language }) {
             // citation-js crashes sometimes with single letter input for a name
             (contact.indName.length > 1 || contact.orgName.length > 1) &&
             contact.role &&
+            // only these roles make it into the APA preview
             intersection(contact.role, [
               "author",
               "owner",
@@ -31,8 +32,8 @@ function APAPreview({ record, language }) {
         )
         .map((contact) => {
           if (contact.indName) return { name: contact.indName };
+          // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
-          // seems that only individuals gets cited
         }),
       date: { published: datePublished || created },
 

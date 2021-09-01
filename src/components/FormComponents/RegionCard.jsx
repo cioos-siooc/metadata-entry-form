@@ -19,7 +19,6 @@ const useStyles = makeStyles({
     "&:hover": {
       filter:
         "brightness( 100% ) contrast( 100% ) saturate( 200% ) blur( 0px ) hue-rotate( 197deg )",
-      /* … */
     },
   },
 });

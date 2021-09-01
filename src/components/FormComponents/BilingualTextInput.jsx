@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
 
+// AWS translate size limit is 5KB
 const MAX_AWS_TRANSLATE_SIZE = 5000;
 
 const BilingualTextInput = ({
@@ -34,7 +35,7 @@ const BilingualTextInput = ({
   const { language } = useParams();
   let languages;
 
-  const textSizeByes = new Blob([value && value[language]]).size;
+  const textSizeByes = new Blob([value?.[language]]).size;
   const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
 
   if (language === "en") languages = ["en", "fr"];
@@ -46,7 +47,7 @@ const BilingualTextInput = ({
           <TextField
             name={lang}
             fullWidth
-            value={(value && value[lang]) || ""}
+            value={value?.[lang] || ""}
             onChange={handleEvent}
             InputProps={{
               startAdornment: (
@@ -82,7 +83,7 @@ const BilingualTextInput = ({
                   disabled={
                     disabled ||
                     awaitingTranslation ||
-                    !(value && value[lang]) ||
+                    !value?.[lang] ||
                     textTooBig
                   }
                   onClick={() => {
