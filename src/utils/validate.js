@@ -250,21 +250,17 @@ export const percentValid = (record) => {
   const numTotalRequired = fields.filter((field) => !validators[field].optional)
     .length;
 
-  const numTotalOptional = fields.filter((field) => validators[field].optional)
-    .length;
-
-  const validFieldsOptional = fields.filter(
-    (field) => validators[field].optional && validateField(record, field)
-  );
-  const numValidOptional = validFieldsOptional.length;
-
-  const validFields = fields.filter(
+  const validFieldsRequired = fields.filter(
     (field) => !validators[field].optional && validateField(record, field)
   );
-  const numValid = validFields.length;
+  const numValidRequired = validFieldsRequired.length;
 
-  return (numValid + numValidOptional) / (numTotalRequired + numTotalOptional);
+  return numValidRequired / numTotalRequired;
 };
 export const recordIsValid = (record) => {
-  return percentValid(record) === 1;
+  const optionalFieldsAreValid = Object.entries(validators)
+    .filter(([field, validator]) => validator.optional)
+    .every(([field, validator]) => validateField(record, field));
+
+  return percentValid(record) === 1 && optionalFieldsAreValid;
 };
