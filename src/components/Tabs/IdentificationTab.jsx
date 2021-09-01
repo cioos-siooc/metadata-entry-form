@@ -31,6 +31,9 @@ const IdentificationTab = ({
 }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
+  const doiIsValid = Boolean(
+    !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
+  );
 
   const CatalogueLink = (lang) => (
     <a
@@ -349,17 +352,9 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           name="datasetIdentifier"
           helperText={
-            record.datasetIdentifier &&
-            !doiRegexp.test(record.datasetIdentifier) ? (
-              <I18n en="Invalid DOI" fr="DOI non valide" />
-            ) : (
-              ""
-            )
+            doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />
           }
-          error={Boolean(
-            record.datasetIdentifier &&
-              !doiRegexp.test(record.datasetIdentifier)
-          )}
+          error={!doiIsValid}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
           fullWidth
