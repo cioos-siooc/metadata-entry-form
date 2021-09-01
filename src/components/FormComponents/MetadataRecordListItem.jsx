@@ -1,4 +1,6 @@
 import React from "react";
+import { recordIsValid, percentValid } from "../../utils/validate";
+
 import {
   ListItem,
   ListItemText,
@@ -16,7 +18,7 @@ import {
   Eject,
   Visibility,
 } from "@material-ui/icons";
-import { I18n } from "../I18n";
+import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
 
@@ -24,14 +26,18 @@ const MetadataRecordListItem = ({
   record,
   language,
   onViewClick,
+  onEditClick,
   onDeleteClick,
   onCloneClick,
   onSubmitClick,
+  showAuthor,
   showDeleteAction,
+  showSubmitAction,
   showPublishAction,
   showUnPublishAction,
   showUnSubmitAction,
   showViewAction,
+  showPercentComplete,
   showCloneAction,
   showEditAction,
   onUnSubmitClick,
@@ -41,8 +47,16 @@ const MetadataRecordListItem = ({
     console.log(record);
     return <></>;
   }
+  let percentValidInt, isValidRecord;
+  if (showSubmitAction) {
+    isValidRecord = recordIsValid(record);
+  }
+  if (showPercentComplete) {
+    percentValidInt = Math.round(percentValid(record) * 100);
+  }
+
   return (
-    <ListItem key={record.key}>
+    <ListItem key={record.key} onClick={onEditClick} button>
       <ListItemAvatar>
         <Avatar>
           <RecordStatusIcon status={record.status} />
@@ -53,9 +67,19 @@ const MetadataRecordListItem = ({
         primary={<div style={{ width: "80%" }}>{record.title?.[language]}</div>}
         secondary={
           <span>
-            <I18n en="Author" fr="Auteur" />: {record.userinfo?.displayName}{" "}
-            {record.userinfo?.email} <br />
+            {showAuthor && (
+              <>
+                <I18n en="Author" fr="Auteur" />: {record.userinfo?.displayName}{" "}
+                {record.userinfo?.email} <br />
+              </>
+            )}
             <LastEdited dateStr={record.created} />
+            {showPercentComplete && (
+              <I18n>
+                <En>{percentValidInt}% complete</En>
+                <Fr>{percentValidInt}% Achevée</Fr>
+              </I18n>
+            )}
             <br />
             UUID: {record.identifier}
             <br />
@@ -80,7 +104,7 @@ const MetadataRecordListItem = ({
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
               <IconButton
-                onClick={onViewClick}
+                onClick={onEditClick}
                 edge="end"
                 aria-label="view record"
               >
@@ -115,6 +139,52 @@ const MetadataRecordListItem = ({
             </span>
           </Tooltip>
         )}
+        {showSubmitAction &&
+          (record.status === "" ? (
+            <Tooltip
+              title={
+                <>
+                  {isValidRecord ? (
+                    <I18n en="Submit for review" fr="Soumettre pour examen" />
+                  ) : (
+                    <I18n
+                      en="Can't submit incomplete or invalid record"
+                      fr="Impossible de soumettre un enregistrement incomplet ou non valide"
+                    />
+                  )}
+                </>
+              }
+            >
+              <span>
+                <IconButton
+                  onClick={onSubmitClick}
+                  edge="end"
+                  aria-label="delete"
+                >
+                  <Publish />
+                </IconButton>
+              </span>
+            </Tooltip>
+          ) : (
+            <Tooltip
+              title={
+                <I18n
+                  en="Return record to draft for editing"
+                  fr="Retourner l'enregistrement au brouillon pour modification"
+                />
+              }
+            >
+              <span>
+                <IconButton
+                  onClick={onSubmitClick}
+                  edge="end"
+                  aria-label="delete"
+                >
+                  <Eject />
+                </IconButton>
+              </span>
+            </Tooltip>
+          ))}
         {showUnPublishAction && (
           <Tooltip title={<I18n en="Un-publish" fr="De-Publier" />}>
             <span>
