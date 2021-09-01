@@ -30,7 +30,7 @@ import StatusChip from "../FormComponents/StatusChip";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
-import { percentValid } from "../../utils/validate";
+import { recordIsValid, percentValid } from "../../utils/validate";
 
 import { Fr, En, I18n } from "../I18n";
 import { firebaseToJSObject } from "../../utils/misc";
@@ -311,7 +311,7 @@ class Submissions extends React.Component {
                     const percentValidInt = Math.round(
                       percentValid(record) * 100
                     );
-                    const recordIsComplete = percentValidInt === 100;
+                    const isValidRecord = recordIsValid(record);
                     let submitTooltip = {
                       en: "Submit for review",
                       fr: "Soumettre pour examen",
@@ -322,11 +322,11 @@ class Submissions extends React.Component {
                         "Retourner l'enregistrement au brouillon pour modification",
                     };
 
-                    if (!recordIsComplete)
+                    if (!isValidRecord)
                       submitTooltip = {
-                        en: "Can't submit incomplete record",
+                        en: "Can't submit incomplete or invalid record",
                         fr:
-                          "Impossible de soumettre un enregistrement incomplet",
+                          "Impossible de soumettre un enregistrement incomplet ou non valide",
                       };
                     else if (status === "submitted" || status === "published")
                       submitTooltip = {
@@ -433,7 +433,7 @@ class Submissions extends React.Component {
                             <span>
                               <IconButton
                                 disabled={
-                                  submitted || published || !recordIsComplete
+                                  submitted || published || !isValidRecord
                                 }
                                 onClick={() =>
                                   this.toggleModal(
