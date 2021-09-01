@@ -28,9 +28,10 @@ const EditContact = ({
   updateContact,
   updateContactEvent,
 }) => {
+  const [expanded, setExpanded] = React.useState(false);
   const { language } = useParams();
-  const options = Object.keys(roleCodes);
-  const optionLabels = Object.values(roleCodes).map(
+  const roleCodeKeys = Object.keys(roleCodes);
+  const roleLabels = Object.values(roleCodes).map(
     ({ title, includeInCitation }) =>
       `${title[language]}${includeInCitation ? "*" : ""}`
   );
@@ -44,12 +45,12 @@ const EditContact = ({
         includeInCitation ? `.  ${citationRoleText[language]}` : ""
       }`
   );
-  const numSpecialRoles = 3;
-  const [expanded, setExpanded] = React.useState(false);
 
+  // the first 3 roles are show more prominently
+  const numSpecialRoles = 3;
   const selectOptionIsInExpandedList =
     (value.role || []).filter(
-      (role) => options.indexOf(role) > numSpecialRoles - 1
+      (role) => roleCodeKeys.indexOf(role) > numSpecialRoles - 1
     ).length > 0;
 
   const orgEmailValid = validateEmail(value.orgEmail);
@@ -74,7 +75,7 @@ const EditContact = ({
                 </En>
                 <Fr>Quel est son rôle?</Fr>
               </I18n>
-              <RequiredMark passes={value.role && value.role.length} />
+              <RequiredMark passes={value.role?.length} />
               <SupplementalText>
                 {" "}
                 <I18n>
@@ -96,8 +97,8 @@ const EditContact = ({
             <CheckBoxList
               value={value.role || []}
               onChange={updateContact("role")}
-              options={options.slice(0, numSpecialRoles)}
-              optionLabels={optionLabels.slice(0, numSpecialRoles)}
+              options={roleCodeKeys.slice(0, numSpecialRoles)}
+              roleLabels={roleLabels.slice(0, numSpecialRoles)}
               disabled={disabled}
               optionTooltips={tooltips.slice(0, numSpecialRoles)}
             />
@@ -124,8 +125,8 @@ const EditContact = ({
                 <CheckBoxList
                   value={value.role || []}
                   onChange={updateContact("role")}
-                  options={options.slice(numSpecialRoles)}
-                  optionLabels={optionLabels.slice(numSpecialRoles)}
+                  options={roleCodeKeys.slice(numSpecialRoles)}
+                  roleLabels={roleLabels.slice(numSpecialRoles)}
                   disabled={disabled}
                   optionTooltips={tooltips.slice(numSpecialRoles)}
                 />

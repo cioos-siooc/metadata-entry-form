@@ -22,7 +22,7 @@ import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 
-const initial = {
+const emptyContact = {
   role: [],
   orgName: "",
   orgEmail: "",
@@ -86,7 +86,7 @@ const ContactListLeft = ({
   }
 
   function handleAddNewContact() {
-    updateContacts(contacts.concat(deepCopy(initial)));
+    updateContacts(contacts.concat(deepCopy(emptyContact)));
     setActiveContact(contacts.length);
   }
 
@@ -200,7 +200,7 @@ const ContactListLeft = ({
             disabled={disabled}
             onClick={handleAddNewContact}
             fullWidth
-            style={{ height: "56px", justifyContent: "initial" }}
+            style={{ height: "56px", justifyContent: "emptyContact" }}
           >
             <Typography>
               <I18n>

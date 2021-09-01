@@ -13,13 +13,14 @@ function formatDate(date) {
     const d = date.getDate();
     const m = date.getMonth();
     const y = date.getFullYear();
+    // This is to get around the issue of timezones and dates
     return new Date(y, m, d, 12, 0, 0, 0);
   } catch (e) {
     return null;
   }
 }
 const DateInput = ({ onChange, value, name, disabled, dateStart, dateEnd }) => {
-    return (
+  return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
         disabled={disabled}

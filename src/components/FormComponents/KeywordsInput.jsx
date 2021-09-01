@@ -142,14 +142,14 @@ const KeywordsInput = ({
 
       <Grid item xs>
         {languages
-          .filter((lang) => value[lang] && value[lang].length)
+          .filter((lang) => value[lang]?.length)
           .map((lang) => (
             <div style={{ margin: "15px" }} key={lang}>
-              {true && (
+              {
                 <InputAdornment style={{ margin: "10px" }}>
                   {lang.toUpperCase()}
                 </InputAdornment>
-              )}
+              }
               <Grid container direction="row">
                 <Grid item xs>
                   {(value[lang] || []).map((keyword, i) => (
