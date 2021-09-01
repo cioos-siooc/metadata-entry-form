@@ -19,10 +19,6 @@ class UserProvider extends Component {
     };
   }
 
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
-  }
-
   componentDidMount = () => {
     const { match } = this.props;
 

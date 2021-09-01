@@ -11,10 +11,11 @@ import { Save } from "@material-ui/icons";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
+import FormClassTemplate from "../Pages/FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
 
-class Admin extends React.Component {
+class Admin extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -51,10 +52,6 @@ class Admin extends React.Component {
           });
       }
     });
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   updatePermissions() {

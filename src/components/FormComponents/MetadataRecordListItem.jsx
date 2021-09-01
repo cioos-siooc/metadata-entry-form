@@ -8,7 +8,14 @@ import {
   ListItemSecondaryAction,
   IconButton,
 } from "@material-ui/core";
-import { Delete, Publish, Edit, Eject, Visibility } from "@material-ui/icons";
+import {
+  FileCopy,
+  Delete,
+  Publish,
+  Edit,
+  Eject,
+  Visibility,
+} from "@material-ui/icons";
 import { I18n } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
@@ -18,10 +25,15 @@ const MetadataRecordListItem = ({
   language,
   onViewClick,
   onDeleteClick,
+  onCloneClick,
   onSubmitClick,
+  showDeleteAction,
   showPublishAction,
   showUnPublishAction,
   showUnSubmitAction,
+  showViewAction,
+  showCloneAction,
+  showEditAction,
   onUnSubmitClick,
   onUnPublishClick,
 }) => {
@@ -38,14 +50,11 @@ const MetadataRecordListItem = ({
       </ListItemAvatar>
       <ListItemText
         onClick={onViewClick}
-        primary={
-          <div style={{ width: "80%" }}>
-            {record.title && record.title[language]}
-          </div>
-        }
+        primary={<div style={{ width: "80%" }}>{record.title?.[language]}</div>}
         secondary={
           <span>
-            Author: {record.userinfo.displayName} {record.userinfo.email} <br />
+            <I18n en="Author" fr="Auteur" />: {record.userinfo?.displayName}{" "}
+            {record.userinfo?.email} <br />
             <LastEdited dateStr={record.created} />
             <br />
             UUID: {record.identifier}
@@ -54,25 +63,45 @@ const MetadataRecordListItem = ({
         }
       />
       <ListItemSecondaryAction>
-        <Tooltip title={<I18n en="View" fr="Vue" />}>
-          <span>
-            <IconButton
-              onClick={onViewClick}
-              edge="end"
-              aria-label="view record"
-            >
-              {showUnPublishAction ? <Visibility /> : <Edit />}
-            </IconButton>
-          </span>
-        </Tooltip>
-
-        <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-          <span>
-            <IconButton onClick={onDeleteClick} edge="end" aria-label="delete">
-              <Delete />
-            </IconButton>
-          </span>
-        </Tooltip>
+        {showViewAction && (
+          <Tooltip title={<I18n en="View" fr="Vue" />}>
+            <span>
+              <IconButton
+                onClick={onViewClick}
+                edge="end"
+                aria-label="view record"
+              >
+                <Visibility />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {showEditAction && (
+          <Tooltip title={<I18n en="View" fr="Vue" />}>
+            <span>
+              <IconButton
+                onClick={onViewClick}
+                edge="end"
+                aria-label="view record"
+              >
+                <Edit />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {showDeleteAction && (
+          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+            <span>
+              <IconButton
+                onClick={onDeleteClick}
+                edge="end"
+                aria-label="delete"
+              >
+                <Delete />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
         {showPublishAction && (
           <Tooltip title={<I18n en="Publish" fr="Publier" />}>
             <span>
@@ -95,6 +124,15 @@ const MetadataRecordListItem = ({
                 aria-label="delete"
               >
                 <Eject />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {showCloneAction && (
+          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+            <span>
+              <IconButton onClick={onCloneClick} edge="end" aria-label="clone">
+                <FileCopy />
               </IconButton>
             </span>
           </Tooltip>

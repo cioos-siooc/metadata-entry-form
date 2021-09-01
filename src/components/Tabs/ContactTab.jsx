@@ -49,7 +49,7 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
   }
 
   const showApaBox =
-    record.title[language] && contacts.length && record.created;
+    record.title?.[language] && contacts.length && record.created;
 
   const contact = contacts[activeContact];
   return (
