@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { Component } from "react";
+import React from "react";
+import FormClassTemplate from "./FormClassTemplate";
 import {
   Box,
   CircularProgress,
@@ -85,7 +86,7 @@ const styles = (theme) => ({
     right: theme.spacing(2),
   },
 });
-class MetadataForm extends Component {
+class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
@@ -179,11 +180,6 @@ class MetadataForm extends Component {
         }
       }
     });
-  }
-
-  componentWillUnmount() {
-    // fixes error Can't perform a React state update on an unmounted component
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   // genereric handler for updating state, used by most form components
@@ -407,7 +403,7 @@ class MetadataForm extends Component {
             </Tabs>
             <div style={{ marginTop: "10px", textAlign: "center" }}>
               <Typography variant="h5">
-                {(language && record.title && record.title[language]) || (
+                {(language && record.title?.[language]) || (
                   <I18n en="New Record" fr="Nouvel enregistrement" />
                 )}{" "}
                 <StatusChip status={record.status} />
@@ -415,7 +411,7 @@ class MetadataForm extends Component {
               <Typography component="div">
                 <i>
                   <LastEdited dateStr={record.created} />
-                  {record.lastEditedBy && record.lastEditedBy.displayName && (
+                  {record.lastEditedBy?.displayName && (
                     <>
                       <I18n>
                         <En>by </En>

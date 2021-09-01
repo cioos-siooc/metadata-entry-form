@@ -1,5 +1,6 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+import FormClassTemplate from "./FormClassTemplate";
 
 import {
   Typography,
@@ -45,7 +46,7 @@ import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
 //   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 //   if (newWindow) newWindow.opener = null;
 // }
-class Submissions extends React.Component {
+class Submissions extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -57,13 +58,6 @@ class Submissions extends React.Component {
       modalRecord: null,
       loading: false,
     };
-  }
-
-  async componentDidUpdate(prevProps) {
-    // check for region change
-    if (this.props.match.params.region !== prevProps.match.params.region) {
-      this.loadRecords();
-    }
   }
 
   async loadRecords() {
@@ -100,10 +94,6 @@ class Submissions extends React.Component {
       .trim()
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]/g, "_");
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   editRecord(key) {
@@ -303,7 +293,7 @@ class Submissions extends React.Component {
                     const record = firebaseToJSObject(recordFireBase);
                     const { status, title, created } = record;
 
-                    if (!title || (!title.en && !title.fr)) return null;
+                    if (!(title?.en || !title?.fr)) return null;
 
                     const submitted = status === "submitted";
                     const published = status === "published";
@@ -359,7 +349,7 @@ class Submissions extends React.Component {
                         <ListItemText
                           primary={
                             <div style={{ width: "60%" }}>
-                              {title[language]} <StatusChip status={status} />
+                              {title?.[language]} <StatusChip status={status} />
                             </div>
                           }
                           secondary={

@@ -162,6 +162,7 @@ export default function MiniDrawer({ children }) {
     new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
+    published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
@@ -172,8 +173,7 @@ export default function MiniDrawer({ children }) {
     : // CIOOS national "dominant colour" from branding doc
       "#52a79b";
 
-  // const regionText = region ? regions[region].title[language] : "";
-
+  // add some text to indicate connected to dev d
   const usingDevDatabase =
     process.env.REACT_APP_DEV_DEPLOYMENT ||
     process.env.NODE_ENV === "development";
@@ -310,62 +310,75 @@ export default function MiniDrawer({ children }) {
                     <ListItemText primary={translations.saved} />
                   </ListItem>
                 </Tooltip>
-                {region && (
-                  <>
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.contacts}
-                    >
-                      <ListItem
-                        button
-                        key="Contacts"
-                        onClick={() => history.push(`${baseURL}/contacts`)}
-                      >
-                        <ListItemIcon disabled>
-                          <Contacts />
-                        </ListItemIcon>
-                        <ListItemText primary={translations.contacts} />
-                      </ListItem>
-                    </Tooltip>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.saved}
+                >
+                  <ListItem
+                    button
+                    key="Region's Published Records"
+                    onClick={() => history.push(`${baseURL}/published`)}
+                  >
+                    <ListItemIcon>
+                      <ListAlt />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.published} />
+                  </ListItem>
+                </Tooltip>
 
-                    {userIsReviewer && (
-                      <Tooltip
-                        placement="right-start"
-                        title={open ? "" : translations.review}
-                      >
-                        <ListItem
-                          button
-                          key="Review"
-                          onClick={() => history.push(`${baseURL}/reviewer`)}
-                        >
-                          <ListItemIcon>
-                            <RateReview />
-                          </ListItemIcon>
-                          <ListItemText primary={translations.review} />
-                        </ListItem>
-                      </Tooltip>
-                    )}
-                    {userIsAdmin && (
-                      <Tooltip
-                        placement="right-start"
-                        title={open ? "" : translations.admin}
-                      >
-                        <ListItem
-                          button
-                          key="Admin"
-                          onClick={() => history.push(`${baseURL}/admin`)}
-                        >
-                          <ListItemIcon>
-                            <SupervisorAccount />
-                          </ListItemIcon>
-                          <ListItemText primary={translations.admin} />
-                        </ListItem>
-                      </Tooltip>
-                    )}
-                  </>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.contacts}
+                >
+                  <ListItem
+                    button
+                    key="Contacts"
+                    onClick={() => history.push(`${baseURL}/contacts`)}
+                  >
+                    <ListItemIcon disabled>
+                      <Contacts />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.contacts} />
+                  </ListItem>
+                </Tooltip>
+
+                {userIsReviewer && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.review}
+                  >
+                    <ListItem
+                      button
+                      key="Review"
+                      onClick={() => history.push(`${baseURL}/reviewer`)}
+                    >
+                      <ListItemIcon>
+                        <RateReview />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.review} />
+                    </ListItem>
+                  </Tooltip>
+                )}
+                {userIsAdmin && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.admin}
+                  >
+                    <ListItem
+                      button
+                      key="Admin"
+                      onClick={() => history.push(`${baseURL}/admin`)}
+                    >
+                      <ListItemIcon>
+                        <SupervisorAccount />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.admin} />
+                    </ListItem>
+                  </Tooltip>
                 )}
               </>
             )}
+
             {user && (
               <Tooltip
                 placement="right-start"

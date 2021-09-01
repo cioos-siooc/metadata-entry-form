@@ -9,7 +9,9 @@ export function deepCopy(obj) {
 export function deepEquals(obj1, obj2) {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
-
+/*
+Convert firebase to javascript, mostly just used to get real array elements
+*/
 export function firebaseToJSObject(input) {
   if (!input) return null;
   const out = deepCopy(input);

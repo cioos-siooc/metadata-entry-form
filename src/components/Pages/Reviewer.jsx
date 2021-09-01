@@ -25,10 +25,10 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 import blankRecord from "../../utils/blankRecord";
+import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
-
-class Reviewer extends React.Component {
+class Reviewer extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -89,10 +89,6 @@ class Reviewer extends React.Component {
           });
       }
     });
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   editRecord(key, userID) {
