@@ -69,6 +69,7 @@ const validators = {
   },
   datasetIdentifier: {
     validation: (val) => !val || doiRegexp.test(val),
+    optional: true,
     tab: "data identification",
     error: {
       en: "Invalid DOI",
@@ -246,13 +247,20 @@ export const getErrorsByTab = (record) => {
 
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
-  const numTotal = fields.length;
-  const validFields = fields.filter((field) => validateField(record, field));
+  const numTotalRequired = fields.filter((field) => !validators[field].optional)
+    .length;
 
-  const numValid = validFields.length;
+  const validFieldsRequired = fields.filter(
+    (field) => !validators[field].optional && validateField(record, field)
+  );
+  const numValidRequired = validFieldsRequired.length;
 
-  return numValid / numTotal;
+  return numValidRequired / numTotalRequired;
 };
 export const recordIsValid = (record) => {
-  return percentValid(record) === 1;
+  const optionalFieldsAreValid = Object.entries(validators)
+    .filter(([field, validator]) => validator.optional)
+    .every(([field, validator]) => validateField(record, field));
+
+  return percentValid(record) === 1 && optionalFieldsAreValid;
 };
