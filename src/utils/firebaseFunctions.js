@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
-import blankRecord from "../utils/blankRecord";
+import blankRecord from "./blankRecord";
 
 export function cloneRecord(recordID, sourceUserID, destinationUserID, region) {
   const sourceUserRecordsRef = firebase

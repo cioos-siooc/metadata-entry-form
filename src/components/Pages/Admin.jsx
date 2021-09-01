@@ -11,7 +11,7 @@ import { Save } from "@material-ui/icons";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
-import FormClassTemplate from "../Pages/FormClassTemplate";
+import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
 

@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
-import FormClassTemplate from "./FormClassTemplate";
 import {
   Box,
   CircularProgress,
@@ -15,6 +14,7 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { withRouter } from "react-router-dom";
+import FormClassTemplate from "./FormClassTemplate";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";

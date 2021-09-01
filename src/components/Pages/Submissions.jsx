@@ -1,50 +1,21 @@
 import React from "react";
+
+import { Typography, List, CircularProgress, Button } from "@material-ui/core";
+
+import { Add } from "@material-ui/icons";
 import FormClassTemplate from "./FormClassTemplate";
-
-import {
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Avatar,
-  ListItemAvatar,
-  Tooltip,
-  ListItemSecondaryAction,
-  IconButton,
-  CircularProgress,
-  Button,
-} from "@material-ui/core";
-
-import {
-  Delete,
-  Edit,
-  Publish,
-  FileCopy,
-  Visibility,
-  Add,
-  Eject,
-} from "@material-ui/icons";
-import StatusChip from "../FormComponents/StatusChip";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
-import { recordIsValid, percentValid } from "../../utils/validate";
 
 import { Fr, En, I18n } from "../I18n";
 import { firebaseToJSObject } from "../../utils/misc";
-import LastEdited from "../FormComponents/LastEdited";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
-import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
 import { cloneRecord } from "../../utils/firebaseFunctions";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
-// const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
-// function openInNewTab(url) {
-//   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-//   if (newWindow) newWindow.opener = null;
-// }
 class Submissions extends FormClassTemplate {
   constructor(props) {
     super(props);
@@ -266,12 +237,13 @@ class Submissions extends FormClassTemplate {
                   .sort(recordDateSort)
                   .map(([key, recordFireBase]) => {
                     const record = firebaseToJSObject(recordFireBase);
-                    const { status, title, created } = record;
+                    const { status, title } = record;
 
                     if (!(title?.en || !title?.fr)) return null;
 
                     return (
                       <MetadataRecordListItem
+                        key={key}
                         record={record}
                         language={language}
                         showCloneAction
