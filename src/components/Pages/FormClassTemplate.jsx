@@ -7,6 +7,7 @@ class FormClassTemplate extends Component {
       this.componentDidMount();
     }
   }
+
   componentWillUnmount() {
     // fixes error Can't perform a React state update on an unmounted component
     if (this.unsubscribe) this.unsubscribe();

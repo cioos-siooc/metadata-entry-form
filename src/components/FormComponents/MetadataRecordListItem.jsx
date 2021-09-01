@@ -1,5 +1,4 @@
 import React from "react";
-import { recordIsValid, percentValid } from "../../utils/validate";
 
 import {
   ListItem,
@@ -18,6 +17,7 @@ import {
   Eject,
   Visibility,
 } from "@material-ui/icons";
+import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
@@ -47,7 +47,7 @@ const MetadataRecordListItem = ({
     console.log(record);
     return <></>;
   }
-  let percentValidInt, isValidRecord;
+  let percentValidInt; let isValidRecord;
   if (showSubmitAction) {
     isValidRecord = recordIsValid(record);
   }

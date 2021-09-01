@@ -1,6 +1,6 @@
 import React from "react";
-import firebase from "../../firebase";
 import { Typography, List, CircularProgress } from "@material-ui/core";
+import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 import { auth } from "../../auth";
 import { cloneRecord, loadRegionRecords } from "../../utils/firebaseFunctions";
