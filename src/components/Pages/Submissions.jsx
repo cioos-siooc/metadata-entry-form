@@ -9,7 +9,7 @@ import firebase from "../../firebase";
 import { auth } from "../../auth";
 
 import { Fr, En, I18n } from "../I18n";
-import { firebaseToJSObject } from "../../utils/misc";
+import { multipleFirebaseToJSObject } from "../../utils/misc";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
@@ -43,9 +43,14 @@ class Submissions extends FormClassTemplate {
           .child("users")
           .child(user.uid)
           .child("records")
-          .on("value", (records) =>
-            this.setState({ records: records.toJSON(), loading: false })
-          );
+          .on("value", (records) => {
+            const allUsersRecords = records.toJSON();
+
+            this.setState({
+              records: multipleFirebaseToJSObject(allUsersRecords),
+              loading: false,
+            });
+          });
       } else {
         this.setState({ loading: false });
       }
@@ -235,8 +240,7 @@ class Submissions extends FormClassTemplate {
               <List>
                 {Object.entries(records || {})
                   .sort(recordDateSort)
-                  .map(([key, recordFireBase]) => {
-                    const record = firebaseToJSObject(recordFireBase);
+                  .map(([key, record]) => {
                     const { status, title } = record;
 
                     if (!(title?.en || !title?.fr)) return null;
