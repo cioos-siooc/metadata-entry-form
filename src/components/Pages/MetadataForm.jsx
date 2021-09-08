@@ -30,7 +30,11 @@ import SubmitTab from "../Tabs/SubmitTab";
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
-import { firebaseToJSObject, deepCopy } from "../../utils/misc";
+import {
+  firebaseToJSObject,
+  deepCopy,
+  trimStringsInObject,
+} from "../../utils/misc";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
@@ -244,7 +248,12 @@ class MetadataForm extends FormClassTemplate {
       .child("records");
 
     // remove userContacts since they get saved elsewhere
-    const { record, editorInfo } = this.state;
+    const { editorInfo } = this.state;
+
+    // trim whitespace from all srtings in record
+    const record = trimStringsInObject(this.state.record);
+
+    // created is really "last updated"
     record.created = new Date().toISOString();
 
     record.lastEditedBy = editorInfo;
