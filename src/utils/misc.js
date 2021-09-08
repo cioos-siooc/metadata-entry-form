@@ -41,8 +41,19 @@ export function firebaseToJSObject(input) {
 
 // runs firebaseToJSObject on each child object
 export const multipleFirebaseToJSObject = (multiple) => {
-  return Object.entries(multiple).reduce((acc, [k, v]) => {
+  return Object.entries(multiple || {}).reduce((acc, [k, v]) => {
     acc[k] = firebaseToJSObject(deepCopy(v));
     return acc;
   }, {});
 };
+
+const replacer = (key, value) => {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+  return value;
+};
+
+// used to trim all extra whitespace from strings in the record
+export const trimStringsInObject = (obj) =>
+  JSON.parse(JSON.stringify(obj, replacer));
