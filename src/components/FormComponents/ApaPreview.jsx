@@ -20,7 +20,7 @@ function APAPreview({ record, language }) {
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
-            (contact.indName.length > 1 || contact.orgName.length > 1) &&
+            (contact.indName?.length > 1 || contact.orgName?.length > 1) &&
             contact.role &&
             // only these roles make it into the APA preview
             intersection(contact.role, [
