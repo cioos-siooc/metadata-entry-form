@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 
 import { Container, Draggable } from "react-smooth-dnd";
+
 import arrayMove from "array-move";
-import { Delete, DragHandle, FileCopy } from "@material-ui/icons";
+import { Delete, DragHandle, FileCopy, Save } from "@material-ui/icons";
 import {
   List,
   ListItem,
@@ -35,13 +36,14 @@ const emptyContact = {
   indEmail: "",
 };
 
-const ContactListLeft = ({
+const ContactLeftList = ({
   contacts,
   updateContacts,
   activeContact,
   setActiveContact,
   disabled,
   userContacts,
+  saveToContacts,
 }) => {
   const [currentContacts, setItems] = useState(contacts);
 
@@ -174,6 +176,35 @@ const ContactListLeft = ({
                         </Tooltip>
                         <Tooltip
                           title={
+                            <I18n
+                              en="Add to saved contacts"
+                              fr="Ajouter aux contacts enregistrés"
+                            />
+                          }
+                        >
+                          <span>
+                            <IconButton
+                              onClick={() => {
+                                const contact = contacts[i];
+                                contact.contactID = saveToContacts(contact);
+
+                                setItems(contacts);
+                              }}
+                              disabled={
+                                !Boolean(
+                                  contacts[i].orgName?.length ||
+                                    contacts[i].indName?.length
+                                )
+                              }
+                              edge="end"
+                              aria-label="clone"
+                            >
+                              <Save />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                        <Tooltip
+                          title={
                             <I18n en="Drag to reorder" fr="Duplicate contact" />
                           }
                         >
@@ -227,4 +258,4 @@ const ContactListLeft = ({
     </Paper>
   );
 };
-export default ContactListLeft;
+export default ContactLeftList;

@@ -150,8 +150,13 @@ class MetadataForm extends FormClassTemplate {
           .child(recordUserID);
 
         // get contacts
-        editorDataRef.child("contacts").on("value", (contacts) => {
-          this.setState({ userContacts: contacts.toJSON() });
+        editorDataRef.child("contacts").on("value", (contactsFB) => {
+          const userContacts = contactsFB.toJSON();
+
+          Object.entries(userContacts || {}).map(
+            ([k, v]) => (v["contactID"] = k)
+          );
+          this.setState({ userContacts });
         });
 
         // if recordID is set then the user is editing an existing record
@@ -208,7 +213,29 @@ class MetadataForm extends FormClassTemplate {
       saveDisabled: false,
     }));
   };
+  saveUpdateContact(contact) {
+    const { contactID } = contact;
+    const { match } = this.props;
 
+    const { region } = match.params;
+
+    const contactsRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("contacts");
+
+    // existing contact
+    if (contactID) {
+      contactsRef.child(contactID).update(contact);
+      return contactID;
+    }
+    // new contact
+    else {
+      return contactsRef.push(contact).getKey();
+    }
+  }
   async submitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;
@@ -458,7 +485,11 @@ class MetadataForm extends FormClassTemplate {
 
         <TabPanel value={tabIndex} index="contact">
           {/* userContacts are the ones the user has saved, not necessarily part of the record */}
-          <ContactTab userContacts={userContacts} {...tabProps} />
+          <ContactTab
+            userContacts={userContacts}
+            saveToContacts={(c) => this.saveUpdateContact(c)}
+            {...tabProps}
+          />
         </TabPanel>
       </Grid>
     );

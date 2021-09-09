@@ -1,12 +1,13 @@
-import React, { Component, createContext } from "react";
+import React, { createContext } from "react";
 import { withRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { auth } from "../auth";
 import firebase from "../firebase";
+import FormClassTemplate from "../components/Pages/FormClassTemplate";
 
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
-class UserProvider extends Component {
+class UserProvider extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
