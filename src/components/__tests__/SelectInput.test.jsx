@@ -13,6 +13,7 @@ describe("<SelectInput />", () => {
       <SelectInput
         options={selectInputs}
         optionLabels={selectInputs}
+        // sdf
         value={selectInputs[0]}
       />
     );
