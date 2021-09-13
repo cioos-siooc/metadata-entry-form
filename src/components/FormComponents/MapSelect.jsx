@@ -21,15 +21,9 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 
-const MapSelect = ({
-  handleUpdateMap,
-  updateMap,
-  mapData = {},
-  disabled,
-  record,
-}) => {
+const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   // On map clear?
-  function onMapClear() {
+  function handleMapClear() {
     const emptySpatial = {
       north: "",
       south: "",
@@ -38,7 +32,7 @@ const MapSelect = ({
       polygon: "",
     };
 
-    handleUpdateMap(emptySpatial);
+    updateMap(emptySpatial);
   }
 
   const [editableFG, setEditableFG] = useState(null);
@@ -166,7 +160,7 @@ const MapSelect = ({
     enable() {
       // eslint-disable-next-line react/no-this-in-sfc
       this.options.featureGroup.clearLayers();
-      onMapClear();
+      handleMapClear();
     },
   });
 
@@ -199,7 +193,7 @@ const MapSelect = ({
               position="topleft"
               // onEdited={onEditPath}
               onCreated={onCreated}
-              onMapClear={onMapClear}
+              onMapClear={handleMapClear}
               draw={{
                 marker: false,
                 circle: false,
@@ -245,7 +239,8 @@ const MapSelect = ({
               minutes seconds.
             </En>
             <Fr>
-              Si vous fournissez des coordonnées de délimitation, veuillez les fournir en <b>degrés décimaux</b>.
+              Si vous fournissez des coordonnées de délimitation, veuillez les
+              fournir en <b>degrés décimaux</b>.
             </Fr>
           </I18n>
         </SupplementalText>
