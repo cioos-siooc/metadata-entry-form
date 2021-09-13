@@ -98,7 +98,7 @@ const EditContact = ({
               value={value.role || []}
               onChange={updateContact("role")}
               options={roleCodeKeys.slice(0, numSpecialRoles)}
-              roleLabels={roleLabels.slice(0, numSpecialRoles)}
+              optionLabels={roleLabels.slice(0, numSpecialRoles)}
               disabled={disabled}
               optionTooltips={tooltips.slice(0, numSpecialRoles)}
             />
@@ -126,7 +126,7 @@ const EditContact = ({
                   value={value.role || []}
                   onChange={updateContact("role")}
                   options={roleCodeKeys.slice(numSpecialRoles)}
-                  roleLabels={roleLabels.slice(numSpecialRoles)}
+                  optionLabels={roleLabels.slice(numSpecialRoles)}
                   disabled={disabled}
                   optionTooltips={tooltips.slice(numSpecialRoles)}
                 />
