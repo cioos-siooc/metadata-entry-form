@@ -152,10 +152,7 @@ class MetadataForm extends FormClassTemplate {
         // get contacts
         editorDataRef.child("contacts").on("value", (contactsFB) => {
           const userContacts = contactsFB.toJSON();
-
-          Object.entries(userContacts || {}).map(
-            ([k, v]) => (v["contactID"] = k)
-          );
+          Object.entries(userContacts || {}).map(([k, v]) => (v.contactID = k));
           this.setState({ userContacts });
         });
 
@@ -213,6 +210,7 @@ class MetadataForm extends FormClassTemplate {
       saveDisabled: false,
     }));
   };
+
   saveUpdateContact(contact) {
     const { contactID } = contact;
     const { match } = this.props;
@@ -232,10 +230,10 @@ class MetadataForm extends FormClassTemplate {
       return contactID;
     }
     // new contact
-    else {
-      return contactsRef.push(contact).getKey();
-    }
+
+    return contactsRef.push(contact).getKey();
   }
+
   async submitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;

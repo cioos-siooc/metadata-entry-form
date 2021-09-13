@@ -3,7 +3,7 @@ import { configure, mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 import { BrowserRouter } from "react-router-dom";
 
-import MetadataForm from "../../components/Pages/MetadataForm";
+import MetadataForm from "../Pages/MetadataForm";
 
 configure({ adapter: new Adapter() });
 jest.mock("react-router-dom", () => ({
