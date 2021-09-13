@@ -83,7 +83,9 @@ const ContactLeftList = ({
 
   function handleAddFromSavedContacts(e) {
     const index = e.target.value;
-    updateContacts(contacts.concat(deepCopy(contactList[index])));
+    const { role, ...contact } = contactList[index];
+
+    updateContacts(contacts.concat(deepCopy(contact)));
     setActiveContact(contacts.length);
   }
 
@@ -151,6 +153,7 @@ const ContactLeftList = ({
                               onClick={() => duplicateContact(i)}
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <FileCopy />
                             </IconButton>
@@ -169,6 +172,7 @@ const ContactLeftList = ({
                               onClick={() => removeItem(i)}
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <Delete />
                             </IconButton>
@@ -186,14 +190,19 @@ const ContactLeftList = ({
                             <IconButton
                               onClick={() => {
                                 const contact = contacts[i];
+
+                                // at this point the contact object could have
+                                // a role field, which shouldn't be saved
+                                delete contact.role;
+
                                 contact.contactID = saveToContacts(contact);
 
                                 setItems(contacts);
                               }}
                               disabled={
-                                !Boolean(
+                                !(
                                   contacts[i].orgName?.length ||
-                                    contacts[i].indName?.length
+                                  contacts[i].indName?.length
                                 )
                               }
                               edge="end"
@@ -213,6 +222,7 @@ const ContactLeftList = ({
                               className="drag-handle"
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <DragHandle />
                             </IconButton>
