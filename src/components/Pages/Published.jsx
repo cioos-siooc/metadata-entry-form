@@ -65,7 +65,7 @@ class Published extends FormClassTemplate {
     const { records, loading } = this.state;
 
     const recordDateSort = (a, b) =>
-      new Date(b[1].created) - new Date(a[1].created);
+      new Date(b.created) - new Date(a.created);
 
     return (
       <div>
