@@ -5,9 +5,11 @@ class FormClassTemplate extends Component {
     super();
     this.listenerRefs = [];
   }
+
   componentDidUpdate(prevProps) {
+    const { match } = this.props;
     // Refresh data when region changes via the URL
-    if (this.props.match.params.region !== prevProps.match.params.region) {
+    if (match.params.region !== prevProps.match.params.region) {
       this.componentDidMount();
     }
   }

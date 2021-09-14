@@ -25,7 +25,7 @@ class EditContact extends FormClassTemplate {
       indPosition: "",
       indEmail: "",
     };
-    const { match } = this.props;
+    const { match } = props;
 
     const { region } = match.params;
 

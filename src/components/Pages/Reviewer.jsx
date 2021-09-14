@@ -364,13 +364,16 @@ class Reviewer extends FormClassTemplate {
                 width: "100%",
               }}
             >
-              <QuestionText>Filters</QuestionText>
+              <QuestionText>
+                <En>Filters</En>
+                <Fr>Filtres</Fr>
+              </QuestionText>
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <CheckBoxList
                     value={showRecordTypes}
                     onChange={(e) => {
-                      this.setState((s) => (s.showRecordTypes = e));
+                      this.setState({ showRecordTypes: e });
                     }}
                     options={recordTypeOptions}
                     optionLabels={["draft", "submitted", "published"].map(
@@ -403,9 +406,11 @@ class Reviewer extends FormClassTemplate {
                     <AccordionDetails>
                       <Grid container direction="column">
                         <Grid item xs>
-                          Select All/None
+                          <En>Select All / None</En>
+                          <Fr>Tout sélectionner/Aucun</Fr>
+
                           <Checkbox
-                            label="Show All/None"
+                            label="Show All / None"
                             onChange={(e) => {
                               this.setState({
                                 showUsers: e.target.checked ? users : [],
