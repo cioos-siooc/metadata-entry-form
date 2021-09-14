@@ -64,8 +64,7 @@ class Published extends FormClassTemplate {
     const { language, region } = match.params;
     const { records, loading } = this.state;
 
-    const recordDateSort = (a, b) =>
-      new Date(b.created) - new Date(a.created);
+    const recordDateSort = (a, b) => new Date(b.created) - new Date(a.created);
 
     return (
       <div>
@@ -91,38 +90,41 @@ class Published extends FormClassTemplate {
               </Typography>
 
               <List>
-                {records &&
-                  records.length &&
-                  records
-                    .sort(recordDateSort)
-                    .filter((record) => record.status === "published")
-                    .map((record) => {
-                      const { title } = record;
+                {records && records.length
+                  ? records
+                      .sort(recordDateSort)
+                      .filter((record) => record.status === "published")
+                      .map((record) => {
+                        const { title } = record;
 
-                      if (!(title?.en || !title?.fr)) return null;
+                        if (!(title?.en || !title?.fr)) return null;
 
-                      return (
-                        <MetadataRecordListItem
-                          record={record}
-                          key={record.key}
-                          language={language}
-                          onViewClick={() =>
-                            this.editRecord(record.key, record.userinfo?.userID)
-                          }
-                          showDeleteAction={false}
-                          showUnSubmitAction={false}
-                          showCloneAction
-                          showAuthor
-                          onCloneClick={() =>
-                            this.handleCloneRecord(
-                              record.key,
-                              record.userinfo?.userID,
-                              region
-                            )
-                          }
-                        />
-                      );
-                    })}
+                        return (
+                          <MetadataRecordListItem
+                            record={record}
+                            key={record.key}
+                            language={language}
+                            onViewClick={() =>
+                              this.editRecord(
+                                record.key,
+                                record.userinfo?.userID
+                              )
+                            }
+                            showDeleteAction={false}
+                            showUnSubmitAction={false}
+                            showCloneAction
+                            showAuthor
+                            onCloneClick={() =>
+                              this.handleCloneRecord(
+                                record.key,
+                                record.userinfo?.userID,
+                                region
+                              )
+                            }
+                          />
+                        );
+                      })
+                  : ""}
               </List>
             </div>
 

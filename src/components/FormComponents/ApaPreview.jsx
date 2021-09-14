@@ -57,10 +57,10 @@ function APAPreview({ record, language }) {
     template: "apa",
     lang: "en-US",
   });
-
   return (
     <div>
       <div
+        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: html }}
         style={{ padding: "5px" }}
       />
