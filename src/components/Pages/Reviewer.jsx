@@ -56,37 +56,33 @@ class Reviewer extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .on("value", (regionUsersRaw) => {
-            const regionUsers = regionUsersRaw.toJSON();
-            const records = [];
+        const usersRef = firebase.database().ref(region).child("users");
 
-            Object.entries(regionUsers).forEach(([userID, user]) => {
-              if (user.records) {
-                Object.entries(user.records).forEach(([key, record]) => {
-                  records.push({
-                    ...{ ...blankRecord, ...record },
-                    userinfo: { ...user.userinfo, userID },
-                    key,
-                  });
+        usersRef.on("value", (regionUsersRaw) => {
+          const regionUsers = regionUsersRaw.toJSON();
+          const records = [];
+
+          Object.entries(regionUsers).forEach(([userID, user]) => {
+            if (user.records) {
+              Object.entries(user.records).forEach(([key, record]) => {
+                records.push({
+                  ...{ ...blankRecord, ...record },
+                  userinfo: { ...user.userinfo, userID },
+                  key,
                 });
-              }
-            });
-
-            const users = unique(
-              records.map((record) => record.userinfo.email)
-            );
-
-            this.setState({
-              records,
-              loading: false,
-              users,
-              showUsers: users,
-            });
+              });
+            }
           });
+          const users = unique(records.map((record) => record.userinfo.email));
+
+          this.setState({
+            records,
+            loading: false,
+            users,
+            showUsers: users,
+          });
+        });
+        this.listenerRefs.push(usersRef);
       }
     });
   }

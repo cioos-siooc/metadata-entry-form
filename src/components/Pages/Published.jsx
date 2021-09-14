@@ -28,14 +28,13 @@ class Published extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .on("value", (regionRecordsFB) => {
-            const records = loadRegionRecords(regionRecordsFB, "published");
-            this.setState({ records, loading: false });
-          });
+        const usersRef = firebase.database().ref(region).child("users");
+
+        usersRef.on("value", (regionRecordsFB) => {
+          const records = loadRegionRecords(regionRecordsFB, "published");
+          this.setState({ records, loading: false });
+        });
+        this.listenerRefs.push(usersRef);
       }
     });
   }
