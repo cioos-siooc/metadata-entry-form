@@ -44,10 +44,12 @@ const MetadataRecordListItem = ({
   onUnPublishClick,
 }) => {
   if (!record.title) {
+    // eslint-disable-next-line no-console
     console.log(record);
     return <></>;
   }
-  let percentValidInt; let isValidRecord;
+  let percentValidInt;
+  let isValidRecord;
   if (showSubmitAction) {
     isValidRecord = recordIsValid(record);
   }
@@ -159,7 +161,7 @@ const MetadataRecordListItem = ({
                 <IconButton
                   onClick={onSubmitClick}
                   edge="end"
-                  aria-label="delete"
+                  aria-label="submit"
                 >
                   <Publish />
                 </IconButton>
@@ -199,7 +201,7 @@ const MetadataRecordListItem = ({
           </Tooltip>
         )}
         {showCloneAction && (
-          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+          <Tooltip title={<I18n en="Clone" fr="Cloner" />}>
             <span>
               <IconButton onClick={onCloneClick} edge="end" aria-label="clone">
                 <FileCopy />
