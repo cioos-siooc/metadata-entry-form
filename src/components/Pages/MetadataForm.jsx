@@ -155,7 +155,9 @@ class MetadataForm extends FormClassTemplate {
 
         editorContactsRef.on("value", (contactsFB) => {
           const userContacts = contactsFB.toJSON();
-          Object.entries(userContacts || {}).map(([k, v]) => (v.contactID = k));
+          Object.entries(userContacts || {}).forEach(([k, v]) => {
+            v.contactID = k;
+          });
           this.setState({ userContacts });
         });
         this.listenerRefs.push(editorContactsRef);

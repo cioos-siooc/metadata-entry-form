@@ -10,7 +10,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
-const StartTab = ({ disabled, record }) => {
+const StartTab = ({ disabled }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
 

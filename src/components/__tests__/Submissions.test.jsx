@@ -12,10 +12,10 @@ jest.mock("react-router-dom", () => ({
   useParams: () => ({}),
 }));
 
-const mockRecords = { toJSON: () => ({ key: { title: { en: "value" } } }) };
+// const mockRecords = { toJSON: () => ({ key: { title: { en: "value" } } }) };
 describe("<Submissions />", () => {
   it("Renders", () => {
-    const wrapper = mount(
+    mount(
       <Submissions match={{ params: { region: "pacific", language: "en" } }} />
     );
   });

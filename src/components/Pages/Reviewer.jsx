@@ -28,6 +28,81 @@ import blankRecord from "../../utils/blankRecord";
 import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
+const RecordItem = ({ record, language, editRecord, toggleModal }) => {
+  const commonProps = {
+    record,
+    key: record.key,
+    language,
+    onViewClick: () => editRecord(record.key, record.userinfo.userID),
+    onDeleteClick: () =>
+      toggleModal("deleteModalOpen", true, record.key, record.userinfo.userID),
+    showAuthor: true,
+  };
+
+  const DraftRecordItem = () => {
+    return (
+      <MetadataRecordListItem
+        onSubmitClick={() =>
+          toggleModal(
+            "submitModalOpen",
+            true,
+            record.key,
+            record.userinfo.userID
+          )
+        }
+        showUnSubmitAction
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...commonProps}
+      />
+    );
+  };
+  const SubmittedRecordItem = () => (
+    <MetadataRecordListItem
+      onSubmitClick={() =>
+        toggleModal(
+          "publishModalOpen",
+          true,
+          record.key,
+          record.userinfo.userID
+        )
+      }
+      onUnSubmitClick={() =>
+        toggleModal(
+          "unSubmitModalOpen",
+          true,
+          record.key,
+          record.userinfo.userID
+        )
+      }
+      showPublishAction
+      showUnSubmitAction
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...commonProps}
+    />
+  );
+  const PublishedRecordItem = () => {
+    return (
+      <MetadataRecordListItem
+        onUnPublishClick={() =>
+          toggleModal(
+            "unPublishModalOpen",
+            true,
+            record.key,
+            record.userinfo.userID
+          )
+        }
+        showUnPublishAction
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...commonProps}
+      />
+    );
+  };
+
+  if (record.status === "submitted") return <SubmittedRecordItem />;
+  if (record.status === "published") return <PublishedRecordItem />;
+  return <DraftRecordItem />;
+};
+
 class Reviewer extends FormClassTemplate {
   constructor(props) {
     super(props);
@@ -54,8 +129,8 @@ class Reviewer extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
+    this.unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
         const usersRef = firebase.database().ref(region).child("users");
 
         usersRef.on("value", (regionUsersRaw) => {
@@ -196,112 +271,6 @@ class Reviewer extends FormClassTemplate {
         showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
       );
     });
-
-    const DraftRecordItem = ({ record }) => {
-      return (
-        <MetadataRecordListItem
-          record={record}
-          key={record.key}
-          language={language}
-          onViewClick={() =>
-            this.editRecord(record.key, record.userinfo.userID)
-          }
-          onDeleteClick={() =>
-            this.toggleModal(
-              "deleteModalOpen",
-              true,
-              record.key,
-              record.userinfo.userID
-            )
-          }
-          onSubmitClick={() =>
-            this.toggleModal(
-              "submitModalOpen",
-              true,
-              record.key,
-              record.userinfo.userID
-            )
-          }
-          showUnSubmitAction
-          showAuthor
-        />
-      );
-    };
-    const SubmittedRecordItem = ({ record }) => (
-      <MetadataRecordListItem
-        record={record}
-        key={record.key}
-        language={language}
-        onViewClick={() => this.editRecord(record.key, record.userinfo.userID)}
-        onDeleteClick={() =>
-          this.toggleModal(
-            "deleteModalOpen",
-            true,
-            record.key,
-            record.userinfo.userID
-          )
-        }
-        onSubmitClick={() =>
-          this.toggleModal(
-            "publishModalOpen",
-            true,
-            record.key,
-            record.userinfo.userID
-          )
-        }
-        onUnSubmitClick={() =>
-          this.toggleModal(
-            "unSubmitModalOpen",
-            true,
-            record.key,
-            record.userinfo.userID
-          )
-        }
-        showPublishAction
-        showUnSubmitAction
-        showAuthor
-      />
-    );
-    const PublishedRecordItem = ({ record }) => {
-      return (
-        <MetadataRecordListItem
-          record={record}
-          key={record.key}
-          language={language}
-          onViewClick={() =>
-            this.editRecord(record.key, record.userinfo.userID)
-          }
-          onDeleteClick={() =>
-            this.toggleModal(
-              "deleteModalOpen",
-              true,
-              record.key,
-              record.userinfo.userID
-            )
-          }
-          onUnPublishClick={() =>
-            this.toggleModal(
-              "unPublishModalOpen",
-              true,
-              record.key,
-              record.userinfo.userID
-            )
-          }
-          showUnPublishAction
-          showAuthor
-        />
-      );
-    };
-
-    const RecordItem = (props) => {
-      const { record } = props;
-
-      if (record.status === "") return <DraftRecordItem {...props} />;
-      if (record.status === "submitted")
-        return <SubmittedRecordItem {...props} />;
-      if (record.status === "published")
-        return <PublishedRecordItem {...props} />;
-    };
 
     const recordStatusTranslate = {
       draft: { en: "Draft", fr: "Brouillon" },
@@ -475,6 +444,8 @@ class Reviewer extends FormClassTemplate {
                           key={record.key}
                           record={record}
                           language={language}
+                          toggleModal={this.toggleModal}
+                          editRecord={this.editRecord.bind(this)}
                         />
                       ))}
                     </List>

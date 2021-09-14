@@ -189,7 +189,7 @@ const ContactLeftList = ({
                           <span>
                             <IconButton
                               onClick={() => {
-                                const contact = contacts[i];
+                                const contact = deepCopy(contacts[i]);
 
                                 // at this point the contact object could have
                                 // a role field, which shouldn't be saved
