@@ -37,22 +37,21 @@ class Submissions extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
+        const recordsRef = firebase
           .database()
           .ref(region)
           .child("users")
           .child(user.uid)
-          .child("records")
-          .on("value", (records) => {
-            const allUsersRecords = records.toJSON();
+          .child("records");
+        recordsRef.on("value", (records) => {
+          const allUsersRecords = records.toJSON();
 
-            this.setState({
-              records: multipleFirebaseToJSObject(allUsersRecords),
-              loading: false,
-            });
+          this.setState({
+            records: multipleFirebaseToJSObject(allUsersRecords),
+            loading: false,
           });
-      } else {
-        this.setState({ loading: false });
+        });
+        this.listenerRefs.push(recordsRef);
       }
     });
   }

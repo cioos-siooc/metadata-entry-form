@@ -135,12 +135,13 @@ class MetadataForm extends FormClassTemplate {
           .ref(region)
           .child("users")
           .child(loggedInUserID);
-
-        editorDataRef.child("userinfo").on("value", (userinfo) => {
+        const userinfoRef = editorDataRef.child("userinfo");
+        userinfoRef.on("value", (userinfo) => {
           editorInfo = userinfo.toJSON();
 
           this.setState({ editorInfo });
         });
+        this.listenerRefs.push(userinfoRef);
 
         // get info of the original author of record
         const userDataRef = firebase
@@ -150,39 +151,41 @@ class MetadataForm extends FormClassTemplate {
           .child(recordUserID);
 
         // get contacts
-        editorDataRef.child("contacts").on("value", (contactsFB) => {
+        const editorContactsRef = editorDataRef.child("contacts");
+
+        editorContactsRef.on("value", (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).map(([k, v]) => (v.contactID = k));
           this.setState({ userContacts });
         });
+        this.listenerRefs.push(editorContactsRef);
 
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
         } else {
-          userDataRef
-            .child("records")
-            .child(recordID)
-            .on("value", (recordFireBase) => {
-              // Record not found, eg a bad link
-              const recordFireBaseObj = recordFireBase.toJSON();
-              if (!recordFireBaseObj) {
-                this.setState({ loading: false, record: null });
+          const ref = userDataRef.child("records").child(recordID);
+          ref.on("value", (recordFireBase) => {
+            // Record not found, eg a bad link
+            const recordFireBaseObj = recordFireBase.toJSON();
+            if (!recordFireBaseObj) {
+              this.setState({ loading: false, record: null });
 
-                return;
-              }
-              const record = firebaseToJSObject(recordFireBaseObj);
+              return;
+            }
+            const record = firebaseToJSObject(recordFireBaseObj);
 
-              const loggedInUserCanEditRecord =
-                (isReviewer || loggedInUserOwnsRecord) &&
-                record.status !== "published";
+            const loggedInUserCanEditRecord =
+              (isReviewer || loggedInUserOwnsRecord) &&
+              record.status !== "published";
 
-              this.setState({
-                record: { ...blankRecord, ...record, recordID },
-                loggedInUserCanEditRecord,
-              });
-              this.setState({ loading: false });
+            this.setState({
+              record: { ...blankRecord, ...record, recordID },
+              loggedInUserCanEditRecord,
             });
+            this.setState({ loading: false });
+          });
+          this.listenerRefs.push(ref);
         }
       }
     });

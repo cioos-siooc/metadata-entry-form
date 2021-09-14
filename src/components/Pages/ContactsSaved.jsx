@@ -46,15 +46,16 @@ class Contacts extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
+        const contactsRef = firebase
           .database()
           .ref(region)
           .child("users")
           .child(user.uid)
-          .child("contacts")
-          .on("value", (records) =>
-            this.setState({ contacts: records.toJSON(), loading: false })
-          );
+          .child("contacts");
+        contactsRef.on("value", (records) =>
+          this.setState({ contacts: records.toJSON(), loading: false })
+        );
+        this.listenerRefs.push(contactsRef);
       }
     });
   }

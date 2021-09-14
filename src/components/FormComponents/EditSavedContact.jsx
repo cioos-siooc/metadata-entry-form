@@ -44,10 +44,9 @@ class EditContact extends FormClassTemplate {
 
     if (auth.currentUser && contactID) {
       this.setState({ contactID });
-
-      this.contactsRef
-        .child(contactID)
-        .on("value", (contact) => this.setState(contact.toJSON()));
+      const contactRef = this.contactsRef.child(contactID);
+      contactRef.on("value", (contact) => this.setState(contact.toJSON()));
+      this.listenerRefs.push(contactRef);
     }
   }
 
