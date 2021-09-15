@@ -256,6 +256,7 @@ class Submissions extends FormClassTemplate {
                           this.toggleModal("deleteModalOpen", true, key)
                         }
                         showEditAction
+                        showPercentComplete
                         onEditClick={() => this.editRecord(key)}
                         showSubmitAction
                         onSubmitClick={() => {
