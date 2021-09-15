@@ -52,12 +52,11 @@ class UserProvider extends FormClassTemplate {
         permissionsRef.on("value", (permissionsFB) => {
           const permissions = permissionsFB.toJSON();
 
-          const admins = permissions && Object.values(permissions.admins || {});
-          const reviewers =
-            permissions && Object.values(permissions.reviewers || {});
+          const admins = permissions?.admins || "";
+          const reviewers = permissions?.reviewers || "";
 
-          const isAdmin = admins && admins.includes(email);
-          const isReviewer = reviewers && reviewers.includes(email);
+          const isAdmin = admins.includes(email);
+          const isReviewer = reviewers.includes(email);
 
           this.setState({
             admins,
