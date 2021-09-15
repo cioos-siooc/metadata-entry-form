@@ -15,7 +15,7 @@ describe("<CheckBoxList />", () => {
   it("Changes the checkbox when clicked", () => {
     const wrapper = mount(
       <CheckBoxList
-        value={checkboxInputs[0]}
+        value={["theOneRing", "Narya"]}
         options={checkboxInputs}
         optionLabels={checkboxInputs}
         onChange={mockOnChange}
@@ -30,8 +30,6 @@ describe("<CheckBoxList />", () => {
         .onChange({ target: { value: "theOneRing" } });
     });
 
-    expect(mockOnChange).toHaveBeenCalledWith({
-      target: { value: ["theOneRing"] },
-    });
+    expect(mockOnChange).toHaveBeenCalledWith(["Narya"]);
   });
 });

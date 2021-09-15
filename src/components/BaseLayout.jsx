@@ -4,6 +4,7 @@ import { Route, Switch, useParams } from "react-router-dom";
 import { CircularProgress, Grid } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
+import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
@@ -60,6 +61,7 @@ const Pages = ({ match }) => {
                 path={`${match.path}/submissions`}
                 component={Submissions}
               />
+              <Route path={`${match.path}/published`} component={Published} />
               <Route path={`${match.path}/reviewer`} component={Reviewer} />
               <Route path={`${match.path}/admin`} component={Admin} />
               <Route

@@ -25,8 +25,9 @@ import { auth } from "../../auth";
 import ContactTitle from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
+import FormClassTemplate from "./FormClassTemplate";
 
-class Contacts extends React.Component {
+class Contacts extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -45,21 +46,18 @@ class Contacts extends React.Component {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
+        const contactsRef = firebase
           .database()
           .ref(region)
           .child("users")
           .child(user.uid)
-          .child("contacts")
-          .on("value", (records) =>
-            this.setState({ contacts: records.toJSON(), loading: false })
-          );
+          .child("contacts");
+        contactsRef.on("value", (records) =>
+          this.setState({ contacts: records.toJSON(), loading: false })
+        );
+        this.listenerRefs.push(contactsRef);
       }
     });
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   deleteContact(key) {
@@ -158,7 +156,8 @@ class Contacts extends React.Component {
                 records.
               </En>
               <Fr>
-                Ajoutez ici les personnes ressources que vous désirez réutiliser pour la saisie d’autres métadonnées.
+                Ajoutez ici les personnes ressources que vous désirez réutiliser
+                pour la saisie d’autres métadonnées.
               </Fr>
             </I18n>
           </Typography>

@@ -21,14 +21,15 @@ const translateText = async (
     try {
       translate.translateText(params, (err, data) => {
         if (err) {
+          // eslint-disable-next-line no-console
           console.log("translateText error: ", err);
           reject(err);
         }
 
-        console.log("translateText data: ", data);
         if (data) resolve(data);
       });
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
     }
   });

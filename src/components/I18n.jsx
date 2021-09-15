@@ -30,12 +30,13 @@ export const I18n = (props) => {
   // If this component used via attributes
   if (en || fr) {
     if (en && fr) return language === "en" ? en : fr;
-
+    // eslint-disable-next-line no-console
     console.error("Tag missing french or english!");
     return null;
   }
 
   if (Array.isArray(props.children) && props.children.length !== 2) {
+    // eslint-disable-next-line no-console
     console.error(props, "Tag missing french or english!");
   }
 

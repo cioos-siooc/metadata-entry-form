@@ -1,12 +1,13 @@
-import React, { Component, createContext } from "react";
+import React, { createContext } from "react";
 import { withRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { auth } from "../auth";
 import firebase from "../firebase";
+import FormClassTemplate from "../components/Pages/FormClassTemplate";
 
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
-class UserProvider extends Component {
+class UserProvider extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -17,10 +18,6 @@ class UserProvider extends Component {
       isReviewer: false,
       loggedIn: false,
     };
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   componentDidMount = () => {
@@ -47,29 +44,30 @@ class UserProvider extends Component {
           .child("userinfo")
           .update({ displayName, email });
 
-        firebase
+        const permissionsRef = firebase
           .database()
           .ref(region)
-          .child(`permissions`)
-          .on("value", (permissionsFB) => {
-            const permissions = permissionsFB.toJSON();
+          .child(`permissions`);
 
-            const admins =
-              permissions && Object.values(permissions.admins || {});
-            const reviewers =
-              permissions && Object.values(permissions.reviewers || {});
+        permissionsRef.on("value", (permissionsFB) => {
+          const permissions = permissionsFB.toJSON();
 
-            const isAdmin = admins && admins.includes(email);
-            const isReviewer = reviewers && reviewers.includes(email);
+          const admins = permissions && Object.values(permissions.admins || {});
+          const reviewers =
+            permissions && Object.values(permissions.reviewers || {});
 
-            this.setState({
-              admins,
-              reviewers,
-              isAdmin,
-              isReviewer,
-              loggedIn: true,
-            });
+          const isAdmin = admins && admins.includes(email);
+          const isReviewer = reviewers && reviewers.includes(email);
+
+          this.setState({
+            admins,
+            reviewers,
+            isAdmin,
+            isReviewer,
+            loggedIn: true,
           });
+        });
+        this.listenerRefs.push(permissionsRef);
       } else {
         this.setState({
           loggedIn: false,

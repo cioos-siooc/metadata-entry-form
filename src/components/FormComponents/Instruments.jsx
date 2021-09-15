@@ -176,12 +176,6 @@ const Instruments = ({
               </Grid>
             </Paper>
           )}
-          {/* <Paper style={paperClass}>
-            <Button startIcon={<Add />} disabled={disabled} onClick={addInstrument}>
-              <En>Add Instrument</En>
-              <Fr>Ajouter un article</Fr>
-            </Button>
-          </Paper> */}
         </Grid>
       </Grid>
     </Grid>

@@ -1,51 +1,22 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
 
-import {
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Avatar,
-  ListItemAvatar,
-  Tooltip,
-  ListItemSecondaryAction,
-  IconButton,
-  CircularProgress,
-  Button,
-} from "@material-ui/core";
+import { Typography, List, CircularProgress, Button } from "@material-ui/core";
 
-import {
-  Delete,
-  Edit,
-  Publish,
-  FileCopy,
-  Visibility,
-  Add,
-  Eject,
-  // CloudDownload,
-  // Code,
-} from "@material-ui/icons";
-import StatusChip from "../FormComponents/StatusChip";
+import { Add } from "@material-ui/icons";
+import FormClassTemplate from "./FormClassTemplate";
 
 import firebase from "../../firebase";
 import { auth } from "../../auth";
-import { recordIsValid, percentValid } from "../../utils/validate";
 
 import { Fr, En, I18n } from "../I18n";
-import { firebaseToJSObject } from "../../utils/misc";
-import LastEdited from "../FormComponents/LastEdited";
+import { multipleFirebaseToJSObject } from "../../utils/misc";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
-import RecordStatusIcon from "../FormComponents/RecordStatusIcon";
+import { cloneRecord } from "../../utils/firebaseFunctions";
+import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
-// const WAF_URL = "https://pac-dev1.cioos.org/dev/metadata";
-// function openInNewTab(url) {
-//   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-//   if (newWindow) newWindow.opener = null;
-// }
-class Submissions extends React.Component {
+class Submissions extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -59,13 +30,6 @@ class Submissions extends React.Component {
     };
   }
 
-  async componentDidUpdate(prevProps) {
-    // check for region change
-    if (this.props.match.params.region !== prevProps.match.params.region) {
-      this.loadRecords();
-    }
-  }
-
   async loadRecords() {
     this.setState({ loading: true });
     const { match } = this.props;
@@ -73,17 +37,21 @@ class Submissions extends React.Component {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
+        const recordsRef = firebase
           .database()
           .ref(region)
           .child("users")
           .child(user.uid)
-          .child("records")
-          .on("value", (records) =>
-            this.setState({ records: records.toJSON(), loading: false })
-          );
-      } else {
-        this.setState({ loading: false });
+          .child("records");
+        recordsRef.on("value", (records) => {
+          const allUsersRecords = records.toJSON();
+
+          this.setState({
+            records: multipleFirebaseToJSObject(allUsersRecords),
+            loading: false,
+          });
+        });
+        this.listenerRefs.push(recordsRef);
       }
     });
   }
@@ -100,10 +68,6 @@ class Submissions extends React.Component {
       .trim()
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]/g, "_");
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   editRecord(key) {
@@ -153,36 +117,12 @@ class Submissions extends React.Component {
     }
   }
 
-  cloneRecord(key) {
+  cloneRecord(recordID) {
     const { match } = this.props;
     const { region } = match.params;
 
     if (auth.currentUser) {
-      const recordsRef = firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(auth.currentUser.uid)
-        .child("records");
-
-      recordsRef.child(key).once("value", (recordFirebase) => {
-        const record = recordFirebase.toJSON();
-
-        // reset record details
-        record.recordID = "";
-        record.status = "";
-        record.lastEditedBy = {};
-        record.created = new Date().toISOString();
-        record.filename = "";
-        record.timeFirstPublished = "";
-
-        if (record.title.en) record.title.en = `${record.title.en} (Copy)`;
-        if (record.title.fr) record.title.fr = `${record.title.fr} (Copte)`;
-        record.identifier = uuidv4();
-        record.created = new Date().toISOString();
-
-        recordsRef.push(record);
-      });
+      cloneRecord(recordID, auth.currentUser.uid, auth.currentUser.uid, region);
     }
   }
 
@@ -299,219 +239,37 @@ class Submissions extends React.Component {
               <List>
                 {Object.entries(records || {})
                   .sort(recordDateSort)
-                  .map(([key, recordFireBase]) => {
-                    const record = firebaseToJSObject(recordFireBase);
-                    const { status, title, created } = record;
+                  .map(([key, record]) => {
+                    const { status, title } = record;
 
-                    if (!title || (!title.en && !title.fr)) return null;
-
-                    const submitted = status === "submitted";
-                    const published = status === "published";
-
-                    const percentValidInt = Math.round(
-                      percentValid(record) * 100
-                    );
-                    const isValidRecord = recordIsValid(record);
-                    let submitTooltip = {
-                      en: "Submit for review",
-                      fr: "Soumettre pour examen",
-                    };
-                    const withdrawTooltip = {
-                      en: "Return record to draft for editing",
-                      fr:
-                        "Retourner l'enregistrement au brouillon pour modification",
-                    };
-
-                    if (!isValidRecord)
-                      submitTooltip = {
-                        en: "Can't submit incomplete or invalid record",
-                        fr:
-                          "Impossible de soumettre un enregistrement incomplet ou non valide",
-                      };
-                    else if (status === "submitted" || status === "published")
-                      submitTooltip = {
-                        en: "Record has been submitted",
-                        fr: "L'enregistrement a été soumis",
-                      };
-                    // const recordTitleShortened = `${record.title[
-                    //   language
-                    // ].slice(0, 30)}_${record.identifier.slice(0, 5)}`
-                    //   .trim()
-                    //   .toLowerCase()
-                    //   .replace(/[^a-zA-Z0-9]/g, "_");
-
-                    // let wafPath = `${WAF_URL}/${region}`;
-                    // if (status !== "published") wafPath += "/unpublished";
-                    // const recordURLXML = `${wafPath}/${recordTitleShortened}.xml`;
-                    // const recordURLERDDAP = `${wafPath}/${recordTitleShortened}_erddap.txt`;
+                    if (!(title?.en || !title?.fr)) return null;
 
                     return (
-                      <ListItem
+                      <MetadataRecordListItem
                         key={key}
-                        button
-                        onClick={() => this.editRecord(key)}
-                      >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <RecordStatusIcon status={record.status} />
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={
-                            <div style={{ width: "60%" }}>
-                              {title[language]} <StatusChip status={status} />
-                            </div>
-                          }
-                          secondary={
-                            created && (
-                              <span>
-                                <LastEdited dateStr={created} />
-                                <I18n>
-                                  <En>{percentValidInt}% complete</En>
-                                  <Fr>{percentValidInt}% Achevée</Fr>
-                                </I18n>
-                              </span>
-                            )
-                          }
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.cloneRecord(key)}
-                                edge="end"
-                                aria-label="clone"
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          {published ? (
-                            <Tooltip title={<I18n en="View" fr="Vue" />}>
-                              <span>
-                                <IconButton
-                                  onClick={() => this.editRecord(key)}
-                                  edge="end"
-                                >
-                                  <Visibility />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                          ) : (
-                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                              <span>
-                                <IconButton
-                                  onClick={() => this.editRecord(key)}
-                                  edge="end"
-                                >
-                                  <Edit />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                          )}
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() =>
-                                  this.toggleModal("deleteModalOpen", true, key)
-                                }
-                                edge="end"
-                                aria-label="delete"
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en={submitTooltip.en}
-                                fr={submitTooltip.fr}
-                              />
-                            }
-                          >
-                            <span>
-                              <IconButton
-                                disabled={
-                                  submitted || published || !isValidRecord
-                                }
-                                onClick={() =>
-                                  this.toggleModal(
-                                    "submitModalOpen",
-                                    true,
-                                    key,
-                                    record
-                                  )
-                                }
-                                edge="end"
-                                aria-label="delete"
-                              >
-                                <Publish />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en={withdrawTooltip.en}
-                                fr={withdrawTooltip.fr}
-                              />
-                            }
-                          >
-                            <span>
-                              <IconButton
-                                disabled={!status}
-                                onClick={() =>
-                                  this.toggleModal(
-                                    "withdrawModalOpen",
-                                    true,
-                                    key
-                                  )
-                                }
-                                edge="end"
-                                aria-label="delete"
-                              >
-                                <Eject />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          {/* <Tooltip
-                            title={
-                              <I18n en="Download XML" fr="Télécharger XML" />
-                            }
-                          >
-                            <span>
-                              <IconButton
-                                disabled={!status}
-                                onClick={() => openInNewTab(recordURLXML)}
-                                edge="end"
-                                aria-label="delete"
-                              >
-                                <CloudDownload />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en="Download ERDDAP snippet"
-                                fr={"Télécharger l'extrait ERDDAP"}
-                              />
-                            }
-                          >
-                            <span>
-                              <IconButton
-                                disabled={!status}
-                                onClick={() => openInNewTab(recordURLERDDAP)}
-                                edge="end"
-                                aria-label="delete"
-                              >
-                                <Code />
-                              </IconButton>
-                            </span>
-                          </Tooltip> */}
-                        </ListItemSecondaryAction>
-                      </ListItem>
+                        record={record}
+                        language={language}
+                        showCloneAction
+                        onCloneClick={() => this.cloneRecord(key)}
+                        showDeleteAction
+                        onDeleteClick={() =>
+                          this.toggleModal("deleteModalOpen", true, key)
+                        }
+                        showEditAction
+                        showPercentComplete
+                        onEditClick={() => this.editRecord(key)}
+                        showSubmitAction
+                        onSubmitClick={() => {
+                          if (status === "")
+                            this.toggleModal(
+                              "submitModalOpen",
+                              true,
+                              key,
+                              record
+                            );
+                          else this.toggleModal("withdrawModalOpen", true, key);
+                        }}
+                      />
                     );
                   })}
               </List>

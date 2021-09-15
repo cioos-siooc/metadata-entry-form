@@ -22,7 +22,13 @@ import ApaPreview from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
 
-const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
+const ContactTab = ({
+  disabled,
+  record,
+  userContacts,
+  updateRecord,
+  saveToContacts,
+}) => {
   const { language, region } = useParams();
   const { contacts = [] } = record;
 
@@ -49,7 +55,7 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
   }
 
   const showApaBox =
-    record.title[language] && contacts.length && record.created;
+    record.title?.[language] && contacts.length && record.created;
 
   const contact = contacts[activeContact];
   return (
@@ -132,6 +138,7 @@ const ContactTab = ({ disabled, record, userContacts, updateRecord }) => {
             activeContact={activeContact}
             disabled={disabled}
             userContacts={userContacts}
+            saveToContacts={saveToContacts}
           />
         </Grid>
         {contact && (
