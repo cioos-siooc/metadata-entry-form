@@ -10,7 +10,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
-const StartTab = ({ disabled, record }) => {
+const StartTab = ({ disabled }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
 
@@ -22,14 +22,14 @@ const StartTab = ({ disabled, record }) => {
             <I18n>
               <En>
                 <b>
-                  This form is locked because it has already been{" "}
-                  {record.status}.
+                  This form is locked because it has already been published, or
+                  you do not have access to edit it.
                 </b>
               </En>
               <Fr>
                 <b>
-                  Ce formulaire est verrouillé car il a déjà été{" "}
-                  {record.status === "submitted" ? "soumis" : "publié"} .
+                  Ce formulaire est verrouillé car il a déjà été publié ou vous
+                  n'avez pas accès pour le modifier.
                 </b>
               </Fr>
             </I18n>
@@ -42,23 +42,23 @@ const StartTab = ({ disabled, record }) => {
               first step in making your data discoverable and accessible through
               CIOOS. This information will be used to create a metadata profile
               for your dataset that will allow it to be searchable through the{" "}
-              {regionInfo.catalogueTitle.en} Data Catalogue. Please fill out
-              each field with as much detail as possible. The metadata profile
-              will help describe this dataset for others to determine if it is
-              relevant for their work and ensure it is interoperable with other
-              databases and systems.
+              {regionInfo.catalogueTitle.en}. Please fill out each field with as
+              much detail as possible. The metadata profile will help describe
+              this dataset for others to determine if it is relevant for their
+              work and ensure it is interoperable with other databases and
+              systems.
               <br />
               <br /> Questions regarding the form can be directed to{" "}
             </En>
             <Fr>
               Bienvenue dans l’outil de saisie de métadonnées du{" "}
-              {regionInfo.title.fr}! Ceci constitue la première étape pour rendre vos données
-              accessibles et découvrables via notre plateforme. Ces
-              renseignements serviront à créer un profil de métadonnées pour
-              votre jeu de données, facilitant ainsi sa découverte dans le{" "}
-              {regionInfo.catalogueTitle.fr} et le rendant interopérable avec
-              d’autres systèmes de diffusion. Veuillez remplir les champs requis
-              de la façon la plus exhaustive possible.
+              {regionInfo.title.fr}! Ceci constitue la première étape pour
+              rendre vos données accessibles et découvrables via notre
+              plateforme. Ces renseignements serviront à créer un profil de
+              métadonnées pour votre jeu de données, facilitant ainsi sa
+              découverte dans le {regionInfo.catalogueTitle.fr} et le rendant
+              interopérable avec d’autres systèmes de diffusion. Veuillez
+              remplir les champs requis de la façon la plus exhaustive possible.
               <br />
               <br /> Les questions concernant le formulaire peuvent être
               adressées à{" "}
@@ -82,7 +82,8 @@ const StartTab = ({ disabled, record }) => {
               All fields marked with a <RequiredMark /> are mandatory.
             </En>
             <Fr>
-              Tous les champs marqués d'une étoile <RequiredMark /> sont obligatoires.
+              Tous les champs marqués d'une étoile <RequiredMark /> sont
+              obligatoires.
             </Fr>
           </li>
           <li>
@@ -94,8 +95,8 @@ const StartTab = ({ disabled, record }) => {
                 "Identification" section.
               </En>
               <Fr>
-                Le formulaire peut être sauvegardé et complété ultérieurement
-                en cliquant sur le bouton <Save /> dans le coin inférieur droit.
+                Le formulaire peut être sauvegardé et complété ultérieurement en
+                cliquant sur le bouton <Save /> dans le coin inférieur droit.
                 Cette icône sera grisée jusqu'à ce que vous ayez complété le
                 titre du jeu de données dans la Section « Identification des
                 données ».
@@ -114,9 +115,10 @@ const StartTab = ({ disabled, record }) => {
               <Fr>
                 Certains champs peuvent avoir du texte à la fois en français et
                 en anglais, toutefois seules les traductions du titre et de
-                l'abrégé sont réellement requisent. Il y a un Bouton « Traduire » qui générera
-                automatiquement du texte dans l'autre langue. Veuillez noter que cette traduction
-                est plus précise quand il y a plus de texte que moins à traduire.
+                l'abrégé sont réellement requisent. Il y a un Bouton « Traduire
+                » qui générera automatiquement du texte dans l'autre langue.
+                Veuillez noter que cette traduction est plus précise quand il y
+                a plus de texte que moins à traduire.
               </Fr>
             </I18n>
           </li>

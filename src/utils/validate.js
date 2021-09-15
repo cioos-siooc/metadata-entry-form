@@ -259,8 +259,8 @@ export const percentValid = (record) => {
 };
 export const recordIsValid = (record) => {
   const optionalFieldsAreValid = Object.entries(validators)
-    .filter(([field, validator]) => validator.optional)
-    .every(([field, validator]) => validateField(record, field));
+    .filter(([, validatorObject]) => validatorObject.optional)
+    .every(([field]) => validateField(record, field));
 
   return percentValid(record) === 1 && optionalFieldsAreValid;
 };

@@ -41,6 +41,12 @@ export default function SimpleModal({ open, onClose, onAccept }) {
         onClose={onClose}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
+        onKeyPress={(e) => {
+          if (e.key === "y") {
+            onClose();
+            onAccept();
+          }
+        }}
       >
         <div style={modalStyle} className={classes.paper}>
           <h2 id="simple-modal-title">

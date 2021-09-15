@@ -8,8 +8,9 @@ import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 
 import ContactEditor from "./ContactEditor";
+import FormClassTemplate from "../Pages/FormClassTemplate";
 
-class EditContact extends React.Component {
+class EditContact extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,11 +20,12 @@ class EditContact extends React.Component {
       orgAdress: "",
       orgCity: "",
       orgCountry: "",
+      // ind = individual
       indName: "",
       indPosition: "",
       indEmail: "",
     };
-    const { match } = this.props;
+    const { match } = props;
 
     const { region } = match.params;
 
@@ -42,15 +44,10 @@ class EditContact extends React.Component {
 
     if (auth.currentUser && contactID) {
       this.setState({ contactID });
-
-      this.contactsRef
-        .child(contactID)
-        .on("value", (contact) => this.setState(contact.toJSON()));
+      const contactRef = this.contactsRef.child(contactID);
+      contactRef.on("value", (contact) => this.setState(contact.toJSON()));
+      this.listenerRefs.push(contactRef);
     }
-  }
-
-  componentWillUnmount() {
-    if (this.contactsRef) this.contactsRef.off("value");
   }
 
   handleChange(key) {

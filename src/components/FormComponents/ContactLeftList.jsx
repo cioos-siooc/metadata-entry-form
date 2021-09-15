@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 
 import { Container, Draggable } from "react-smooth-dnd";
+
 import arrayMove from "array-move";
-import { Delete, DragHandle, FileCopy } from "@material-ui/icons";
+import { Delete, DragHandle, FileCopy, Save } from "@material-ui/icons";
 import {
   List,
   ListItem,
@@ -22,7 +23,7 @@ import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 
-const initial = {
+const emptyContact = {
   role: [],
   orgName: "",
   orgEmail: "",
@@ -35,13 +36,14 @@ const initial = {
   indEmail: "",
 };
 
-const ContactListLeft = ({
+const ContactLeftList = ({
   contacts,
   updateContacts,
   activeContact,
   setActiveContact,
   disabled,
   userContacts,
+  saveToContacts,
 }) => {
   const [currentContacts, setItems] = useState(contacts);
 
@@ -81,12 +83,14 @@ const ContactListLeft = ({
 
   function handleAddFromSavedContacts(e) {
     const index = e.target.value;
-    updateContacts(contacts.concat(deepCopy(contactList[index])));
+    const { role, ...contact } = contactList[index];
+
+    updateContacts(contacts.concat(deepCopy(contact)));
     setActiveContact(contacts.length);
   }
 
   function handleAddNewContact() {
-    updateContacts(contacts.concat(deepCopy(initial)));
+    updateContacts(contacts.concat(deepCopy(emptyContact)));
     setActiveContact(contacts.length);
   }
 
@@ -149,6 +153,7 @@ const ContactListLeft = ({
                               onClick={() => duplicateContact(i)}
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <FileCopy />
                             </IconButton>
@@ -167,8 +172,43 @@ const ContactListLeft = ({
                               onClick={() => removeItem(i)}
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <Delete />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                        <Tooltip
+                          title={
+                            <I18n
+                              en="Add to saved contacts"
+                              fr="Ajouter aux contacts enregistrés"
+                            />
+                          }
+                        >
+                          <span>
+                            <IconButton
+                              onClick={() => {
+                                const contact = deepCopy(contacts[i]);
+
+                                // at this point the contact object could have
+                                // a role field, which shouldn't be saved
+                                delete contact.role;
+
+                                contact.contactID = saveToContacts(contact);
+
+                                setItems(contacts);
+                              }}
+                              disabled={
+                                !(
+                                  contacts[i].orgName?.length ||
+                                  contacts[i].indName?.length
+                                )
+                              }
+                              edge="end"
+                              aria-label="clone"
+                            >
+                              <Save />
                             </IconButton>
                           </span>
                         </Tooltip>
@@ -182,6 +222,7 @@ const ContactListLeft = ({
                               className="drag-handle"
                               edge="end"
                               aria-label="clone"
+                              disabled={disabled}
                             >
                               <DragHandle />
                             </IconButton>
@@ -200,7 +241,7 @@ const ContactListLeft = ({
             disabled={disabled}
             onClick={handleAddNewContact}
             fullWidth
-            style={{ height: "56px", justifyContent: "initial" }}
+            style={{ height: "56px", justifyContent: "emptyContact" }}
           >
             <Typography>
               <I18n>
@@ -227,4 +268,4 @@ const ContactListLeft = ({
     </Paper>
   );
 };
-export default ContactListLeft;
+export default ContactLeftList;

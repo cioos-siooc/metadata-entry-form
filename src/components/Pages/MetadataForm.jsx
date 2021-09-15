@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { Component } from "react";
+import React from "react";
 import {
   Box,
   CircularProgress,
@@ -14,6 +14,7 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { withRouter } from "react-router-dom";
+import FormClassTemplate from "./FormClassTemplate";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
@@ -29,7 +30,11 @@ import SubmitTab from "../Tabs/SubmitTab";
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
-import { firebaseToJSObject, deepCopy } from "../../utils/misc";
+import {
+  firebaseToJSObject,
+  deepCopy,
+  trimStringsInObject,
+} from "../../utils/misc";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
@@ -85,7 +90,7 @@ const styles = (theme) => ({
     right: theme.spacing(2),
   },
 });
-class MetadataForm extends Component {
+class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
@@ -130,12 +135,13 @@ class MetadataForm extends Component {
           .ref(region)
           .child("users")
           .child(loggedInUserID);
-
-        editorDataRef.child("userinfo").on("value", (userinfo) => {
+        const userinfoRef = editorDataRef.child("userinfo");
+        userinfoRef.on("value", (userinfo) => {
           editorInfo = userinfo.toJSON();
 
           this.setState({ editorInfo });
         });
+        this.listenerRefs.push(userinfoRef);
 
         // get info of the original author of record
         const userDataRef = firebase
@@ -145,45 +151,46 @@ class MetadataForm extends Component {
           .child(recordUserID);
 
         // get contacts
-        editorDataRef.child("contacts").on("value", (contacts) => {
-          this.setState({ userContacts: contacts.toJSON() });
+        const editorContactsRef = editorDataRef.child("contacts");
+
+        editorContactsRef.on("value", (contactsFB) => {
+          const userContacts = contactsFB.toJSON();
+          Object.entries(userContacts || {}).forEach(([k, v]) => {
+            v.contactID = k;
+          });
+          this.setState({ userContacts });
         });
+        this.listenerRefs.push(editorContactsRef);
 
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
         } else {
-          userDataRef
-            .child("records")
-            .child(recordID)
-            .on("value", (recordFireBase) => {
-              // Record not found, eg a bad link
-              const recordFireBaseObj = recordFireBase.toJSON();
-              if (!recordFireBaseObj) {
-                this.setState({ loading: false, record: null });
+          const ref = userDataRef.child("records").child(recordID);
+          ref.on("value", (recordFireBase) => {
+            // Record not found, eg a bad link
+            const recordFireBaseObj = recordFireBase.toJSON();
+            if (!recordFireBaseObj) {
+              this.setState({ loading: false, record: null });
 
-                return;
-              }
-              const record = firebaseToJSObject(recordFireBaseObj);
+              return;
+            }
+            const record = firebaseToJSObject(recordFireBaseObj);
 
-              const loggedInUserCanEditRecord =
-                (isReviewer || loggedInUserOwnsRecord) &&
-                record.status !== "published";
+            const loggedInUserCanEditRecord =
+              (isReviewer || loggedInUserOwnsRecord) &&
+              record.status !== "published";
 
-              this.setState({
-                record: { ...blankRecord, ...record, recordID },
-                loggedInUserCanEditRecord,
-              });
-              this.setState({ loading: false });
+            this.setState({
+              record: { ...blankRecord, ...record, recordID },
+              loggedInUserCanEditRecord,
             });
+            this.setState({ loading: false });
+          });
+          this.listenerRefs.push(ref);
         }
       }
     });
-  }
-
-  componentWillUnmount() {
-    // fixes error Can't perform a React state update on an unmounted component
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   // genereric handler for updating state, used by most form components
@@ -208,6 +215,29 @@ class MetadataForm extends Component {
       saveDisabled: false,
     }));
   };
+
+  saveUpdateContact(contact) {
+    const { contactID } = contact;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const contactsRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("contacts");
+
+    // existing contact
+    if (contactID) {
+      contactsRef.child(contactID).update(contact);
+      return contactID;
+    }
+    // new contact
+
+    return contactsRef.push(contact).getKey();
+  }
 
   async submitRecord() {
     const { match } = this.props;
@@ -248,7 +278,12 @@ class MetadataForm extends Component {
       .child("records");
 
     // remove userContacts since they get saved elsewhere
-    const { record, editorInfo } = this.state;
+    const { editorInfo } = this.state;
+
+    // trim whitespace from all srtings in record
+    const record = trimStringsInObject(this.state.record);
+
+    // created is really "last updated"
     record.created = new Date().toISOString();
 
     record.lastEditedBy = editorInfo;
@@ -407,7 +442,7 @@ class MetadataForm extends Component {
             </Tabs>
             <div style={{ marginTop: "10px", textAlign: "center" }}>
               <Typography variant="h5">
-                {(language && record.title && record.title[language]) || (
+                {(language && record.title?.[language]) || (
                   <I18n en="New Record" fr="Nouvel enregistrement" />
                 )}{" "}
                 <StatusChip status={record.status} />
@@ -415,7 +450,7 @@ class MetadataForm extends Component {
               <Typography component="div">
                 <i>
                   <LastEdited dateStr={record.created} />
-                  {record.lastEditedBy && record.lastEditedBy.displayName && (
+                  {record.lastEditedBy?.displayName && (
                     <>
                       <I18n>
                         <En>by </En>
@@ -453,7 +488,11 @@ class MetadataForm extends Component {
 
         <TabPanel value={tabIndex} index="contact">
           {/* userContacts are the ones the user has saved, not necessarily part of the record */}
-          <ContactTab userContacts={userContacts} {...tabProps} />
+          <ContactTab
+            userContacts={userContacts}
+            saveToContacts={(c) => this.saveUpdateContact(c)}
+            {...tabProps}
+          />
         </TabPanel>
       </Grid>
     );

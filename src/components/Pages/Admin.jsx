@@ -11,10 +11,11 @@ import { Save } from "@material-ui/icons";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
+import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
 
-class Admin extends React.Component {
+class Admin extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,28 +34,25 @@ class Admin extends React.Component {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        firebase
+        const permissionsRef = firebase
           .database()
           .ref(region)
-          .child(`permissions`)
-          .on("value", (permissionsFirebase) => {
-            const permissions = permissionsFirebase.toJSON();
+          .child("permissions");
+        permissionsRef.on("value", (permissionsFirebase) => {
+          const permissions = permissionsFirebase.toJSON();
 
-            const admins = Object.values(permissions.admins || {});
-            const reviewers = Object.values(permissions.reviewers || {});
+          const admins = Object.values(permissions.admins || {});
+          const reviewers = Object.values(permissions.reviewers || {});
 
-            this.setState({
-              admins,
-              reviewers,
-              loading: false,
-            });
+          this.setState({
+            admins,
+            reviewers,
+            loading: false,
           });
+        });
+        this.listenerRefs.push(permissionsRef);
       }
     });
-  }
-
-  componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
   }
 
   updatePermissions() {
