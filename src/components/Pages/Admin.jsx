@@ -14,6 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
+const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
 class Admin extends FormClassTemplate {
   constructor(props) {
@@ -41,8 +42,8 @@ class Admin extends FormClassTemplate {
         permissionsRef.on("value", (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          const admins = Object.values(permissions.admins || {});
-          const reviewers = Object.values(permissions.reviewers || {});
+          const admins = permissions.admins.split(",");
+          const reviewers = permissions.reviewers.split(",");
 
           this.setState({
             admins,
@@ -60,11 +61,12 @@ class Admin extends FormClassTemplate {
     const { region } = match.params;
 
     const { reviewers, admins } = this.state;
+
     if (auth.currentUser) {
       const dbRef = firebase.database().ref(region).child("permissions");
 
-      dbRef.child("admins").set(unique(admins));
-      dbRef.child("reviewers").set(unique(reviewers));
+      dbRef.child("admins").set(cleanArr(admins).join());
+      dbRef.child("reviewers").set(cleanArr(reviewers).join());
     }
   }
 
@@ -128,7 +130,9 @@ class Admin extends FormClassTemplate {
                 fullWidth
                 value={reviewers.join("\n")}
                 onChange={(e) =>
-                  this.setState({ reviewers: e.target.value.split("\n") })
+                  this.setState({
+                    reviewers: e.target.value.split("\n"),
+                  })
                 }
               />
             </Grid>
