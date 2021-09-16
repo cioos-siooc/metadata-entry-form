@@ -444,7 +444,7 @@ class Reviewer extends FormClassTemplate {
                           key={record.key}
                           record={record}
                           language={language}
-                          toggleModal={this.toggleModal}
+                          toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
                         />
                       ))}
