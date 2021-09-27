@@ -31,7 +31,7 @@ function APAPreview({ record, language }) {
             ]).length
         )
         .map((contact) => {
-          if (contact.indName) return { name: contact.indName };
+          if (contact.indName?.length > 1 ) return { name: contact.indName };
           // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
         }),
