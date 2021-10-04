@@ -9,6 +9,7 @@ import Contacts from "./Pages/ContactsSaved";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
+import ErrorBoundary from "./Pages/ErrorBoundary";
 import EditContact from "./FormComponents/EditSavedContact";
 import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
@@ -41,35 +42,37 @@ const Pages = ({ match }) => {
       ) : (
         <RegionLogo>
           {loggedIn ? (
-            <Switch>
-              <Route path={`${match.path}/`} exact component={Submissions} />
-              <Route path={`${match.path}/new`} component={MetadataForm} />
-              <Route
-                path={`${match.path}/contacts/:contactID`}
-                component={EditContact}
-              />
-              <Route
-                path={`${match.path}/contacts/new`}
-                component={EditContact}
-              />
-              <Route path={`${match.path}/contacts`} component={Contacts} />
-              <Route
-                path={`${match.path}/:userID/:recordID`}
-                component={MetadataForm}
-              />
-              <Route
-                path={`${match.path}/submissions`}
-                component={Submissions}
-              />
-              <Route path={`${match.path}/published`} component={Published} />
-              <Route path={`${match.path}/reviewer`} component={Reviewer} />
-              <Route path={`${match.path}/admin`} component={Admin} />
-              <Route
-                path={`${match.path}/sentry-test`}
-                component={SentryTest}
-              />
-              <Route path="*" component={NotFound} />
-            </Switch>
+            <ErrorBoundary>
+              <Switch>
+                <Route path={`${match.path}/`} exact component={Submissions} />
+                <Route path={`${match.path}/new`} component={MetadataForm} />
+                <Route
+                  path={`${match.path}/contacts/:contactID`}
+                  component={EditContact}
+                />
+                <Route
+                  path={`${match.path}/contacts/new`}
+                  component={EditContact}
+                />
+                <Route path={`${match.path}/contacts`} component={Contacts} />
+                <Route
+                  path={`${match.path}/:userID/:recordID`}
+                  component={MetadataForm}
+                />
+                <Route
+                  path={`${match.path}/submissions`}
+                  component={Submissions}
+                />
+                <Route path={`${match.path}/published`} component={Published} />
+                <Route path={`${match.path}/reviewer`} component={Reviewer} />
+                <Route path={`${match.path}/admin`} component={Admin} />
+                <Route
+                  path={`${match.path}/sentry-test`}
+                  component={SentryTest}
+                />
+                <Route path="*" component={NotFound} />
+              </Switch>
+            </ErrorBoundary>
           ) : (
             <Login />
           )}
