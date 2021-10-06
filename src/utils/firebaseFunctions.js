@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
 import blankRecord from "./blankRecord";
+import { firebaseToJSObject } from "./misc";
 
 export function cloneRecord(recordID, sourceUserID, destinationUserID, region) {
   const sourceUserRecordsRef = firebase
@@ -44,9 +45,9 @@ export const loadRegionRecords = (regionRecords, statusFilter) => {
   Object.entries(regionUsers).forEach(([userID, user]) => {
     if (user.records) {
       Object.entries(user.records).forEach(([key, record]) => {
-        if (record.status === statusFilter)
+        if (statusFilter.includes(record.status))
           records.push({
-            ...{ ...blankRecord, ...record },
+            ...{ ...blankRecord, ...firebaseToJSObject(record) },
             userinfo: { ...user.userinfo, userID },
             key,
           });
