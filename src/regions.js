@@ -92,6 +92,21 @@ const regions = {
     introPageText: { en: "", fr: "" },
     showInRegionSelector: false,
   },
+  test: {
+    title: { en: "Test", fr: "Test" },
+    catalogueTitle: {
+      fr: "Catalogue de données du Test",
+      en: "Test Data Catalogue",
+    },
+    colors: { primary: "#fcba03", secondary: "#2518ad" },
+    email: "info@hakai.org",
+    catalogueURL: {
+      fr: "https://example.com",
+      en: "https://example.com",
+    },
+    introPageText: { en: "This is a test region", fr: "" },
+    showInRegionSelector: false,
+  },
 };
 
 export default regions;
