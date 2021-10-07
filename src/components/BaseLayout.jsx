@@ -109,7 +109,7 @@ const BaseLayout = ({ match }) => {
     en: `${regions[region].title[language]} Metadata Intake Form`,
     fr: `Formulaire de réception des métadonnées ${regions[region].title[language]}`,
   };
-  console.log(`${region  }.ico`);
+
   return (
     <>
       <Helmet>
