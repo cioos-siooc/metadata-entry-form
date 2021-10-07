@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Route, Switch, useParams } from "react-router-dom";
-
+import { Helmet } from "react-helmet";
 import { CircularProgress, Grid } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
@@ -79,7 +79,7 @@ const Pages = ({ match }) => {
   );
 };
 const BaseLayout = ({ match }) => {
-  const { region } = useParams();
+  const { region, language } = useParams();
 
   const theme = createMuiTheme({
     palette: {
@@ -102,15 +102,31 @@ const BaseLayout = ({ match }) => {
       },
     },
   });
-
+  const title = {
+    en: `${regions[region].title[language]} Metadata Intake Form`,
+    fr: `Formulaire de réception des métadonnées ${regions[region].title[language]}`,
+  };
+  console.log(`${region  }.ico`);
   return (
-    <UserProvider>
-      <ThemeProvider theme={theme}>
-        <NavDrawer>
-          <Pages match={match} />
-        </NavDrawer>
-      </ThemeProvider>
-    </UserProvider>
+    <>
+      <Helmet>
+        <title>{title[language]}</title>
+        <link
+          rel="icon"
+          type="image/png"
+          href={`${process.env.PUBLIC_URL}/favicons/${region}.ico`}
+          sizes="16x16"
+        />
+      </Helmet>
+
+      <UserProvider>
+        <ThemeProvider theme={theme}>
+          <NavDrawer>
+            <Pages match={match} />
+          </NavDrawer>
+        </ThemeProvider>
+      </UserProvider>
+    </>
   );
 };
 
