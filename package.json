@@ -24,6 +24,7 @@
     "leaflet-draw": "^1.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-helmet": "^6.1.0",
     "react-leaflet": "^2.7.0",
     "react-leaflet-draw": "^0.19.0",
     "react-router-dom": "^5.2.0",
@@ -64,7 +65,7 @@
     "deploy": "gh-pages -d build",
     "test:coverage": "npx jest --config=jest.config.js --coverage",
     "test:coverFile": "cross-env npx jest --config=jest.config.js --coverage --collectCoverageFrom=src/**/${FILE}.jsx $FILE",
-    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore  --ignore-pattern 'src/**/__tests__/*' --ignore-pattern 'src/serviceWorker.js' --ignore-pattern firebase-functions",
+    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore  --ignore-pattern 'src/**/__tests__/*.test*' --ignore-pattern 'src/serviceWorker.js' --ignore-pattern firebase-functions",
     "lint:fix": "eslint --fix . --ext .js,.jsx --ignore-path .gitignore --ignore-pattern serviceWorker.js",
     "format": "prettier --write \"**/*.+(js|jsx|json|css|md)\" --ignore-path .gitignore"
   },
