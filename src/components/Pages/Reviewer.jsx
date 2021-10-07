@@ -24,7 +24,7 @@ import CheckBoxList from "../FormComponents/CheckBoxList";
 import SimpleModal from "../FormComponents/SimpleModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
-import blankRecord from "../../utils/blankRecord";
+import { loadRegionRecords } from "../../utils/firebaseFunctions";
 import FormClassTemplate from "./FormClassTemplate";
 
 const unique = (arr) => [...new Set(arr)];
@@ -50,9 +50,10 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
             record.userinfo.userID
           )
         }
-        showUnSubmitAction
+        showSubmitAction
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
+        showPercentComplete
       />
     );
   };
@@ -76,6 +77,7 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
       }
       showPublishAction
       showUnSubmitAction
+      showPercentComplete
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...commonProps}
     />
@@ -92,6 +94,7 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
           )
         }
         showUnPublishAction
+        showPercentComplete
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
       />
@@ -132,22 +135,15 @@ class Reviewer extends FormClassTemplate {
     this.unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         const usersRef = firebase.database().ref(region).child("users");
-
         usersRef.on("value", (regionUsersRaw) => {
-          const regionUsers = regionUsersRaw.toJSON();
-          const records = [];
+          const records = loadRegionRecords(regionUsersRaw, [
+            "",
+            "submitted",
+            "published",
+          ]);
 
-          Object.entries(regionUsers).forEach(([userID, user]) => {
-            if (user.records) {
-              Object.entries(user.records).forEach(([key, record]) => {
-                records.push({
-                  ...{ ...blankRecord, ...record },
-                  userinfo: { ...user.userinfo, userID },
-                  key,
-                });
-              });
-            }
-          });
+          this.setState({ records, loading: false });
+
           const users = unique(records.map((record) => record.userinfo.email));
 
           this.setState({
@@ -236,9 +232,9 @@ class Reviewer extends FormClassTemplate {
     const recordTypeOptions = ["", "submitted", "published"];
 
     // sort records - drafts then submitted then published
-    let recordsToShow = records.filter((record) =>
-      showUsers.includes(record.userinfo.email)
-    );
+    let recordsToShow = records
+      .filter((record) => showUsers.includes(record.userinfo.email))
+      .sort((a, b) => a.created < b.created);
 
     // the text search
     if (recordsFilter) {

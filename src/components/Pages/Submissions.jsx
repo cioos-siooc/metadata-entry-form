@@ -9,7 +9,10 @@ import firebase from "../../firebase";
 import { auth } from "../../auth";
 
 import { Fr, En, I18n } from "../I18n";
-import { multipleFirebaseToJSObject } from "../../utils/misc";
+import {
+  multipleFirebaseToJSObject,
+  getRecordFilename,
+} from "../../utils/misc";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
@@ -60,16 +63,6 @@ class Submissions extends FormClassTemplate {
     this.loadRecords();
   }
 
-  static getRecordFilename(record) {
-    return `${record.title[record.language].slice(
-      0,
-      30
-    )}_${record.identifier.slice(0, 5)}`
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]/g, "_");
-  }
-
   editRecord(key) {
     const { match, history } = this.props;
     const { language, region } = match.params;
@@ -93,7 +86,7 @@ class Submissions extends FormClassTemplate {
       recordRef.child("status").set("submitted");
 
       if (record && !record.filename) {
-        const filename = Submissions.getRecordFilename(record);
+        const filename = getRecordFilename(record);
         recordRef.child("filename").set(filename);
       }
     }
