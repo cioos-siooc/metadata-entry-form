@@ -39,7 +39,7 @@ class UserProvider extends FormClassTemplate {
         firebase
           .database()
           .ref(region)
-          .child(`users`)
+          .child("users")
           .child(uid)
           .child("userinfo")
           .update({ displayName, email });
@@ -80,9 +80,16 @@ class UserProvider extends FormClassTemplate {
   render() {
     const { children } = this.props;
     const translate = firebase.functions().httpsCallable("translate");
+    const downloadRecord = firebase.functions().httpsCallable("downloadRecord");
 
     return (
-      <UserContext.Provider value={{ ...this.state, translate }}>
+      <UserContext.Provider
+        value={{
+          ...this.state,
+          translate,
+          downloadRecord,
+        }}
+      >
         {children}
       </UserContext.Provider>
     );

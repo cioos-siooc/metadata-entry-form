@@ -31,7 +31,7 @@ class Published extends FormClassTemplate {
         const usersRef = firebase.database().ref(region).child("users");
 
         usersRef.on("value", (regionRecordsFB) => {
-          const records = loadRegionRecords(regionRecordsFB, "published");
+          const records = loadRegionRecords(regionRecordsFB, ["published"]);
           this.setState({ records, loading: false });
         });
         this.listenerRefs.push(usersRef);

@@ -3,6 +3,7 @@ export function camelToSentenceCase(text = "") {
   const result = text.replace(/([A-Z])/g, " $1");
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
+
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -57,3 +58,13 @@ const replacer = (key, value) => {
 // used to trim all extra whitespace from strings in the record
 export const trimStringsInObject = (obj) =>
   JSON.parse(JSON.stringify(obj, replacer));
+
+export function getRecordFilename(record) {
+  return `${record.title[record.language].slice(
+    0,
+    30
+  )}_${record.identifier.slice(0, 5)}`
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]/g, "_");
+}
