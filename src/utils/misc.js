@@ -68,3 +68,4 @@ export function getRecordFilename(record) {
     .toLowerCase()
     .replace(/[^a-zA-Z0-9]/g, "_");
 }
+export const unique = (arr) => [...new Set(arr)];
