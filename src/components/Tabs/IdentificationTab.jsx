@@ -2,7 +2,8 @@ import React from "react";
 import { Paper, TextField, Grid } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
-import { eovList, progressCodes } from "../../isoCodeLists";
+import { progressCodes } from "../../isoCodeLists";
+import { eovs, eovCategories } from "../../eovs.json";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
@@ -10,8 +11,6 @@ import DateInput from "../FormComponents/DateInput";
 import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
-import { camelToSentenceCase } from "../../utils/misc";
-import translate from "../../utils/i18n";
 import licenses from "../../utils/licenses";
 import { validateField, doiRegexp } from "../../utils/validate";
 
@@ -34,6 +33,7 @@ const IdentificationTab = ({
   const doiIsValid = Boolean(
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
+  const languageUpperCase = language.toUpperCase();
 
   const CatalogueLink = (lang) => (
     <a
@@ -191,15 +191,27 @@ const IdentificationTab = ({
             </I18n>
           </SupplementalText>
         </QuestionText>
-        <CheckBoxList
-          value={record.eov || []}
-          onChange={updateRecord("eov")}
-          options={eovList}
-          optionLabels={eovList.map((e) => {
-            return camelToSentenceCase(translate(e, language));
-          })}
-          disabled={disabled}
-        />
+        {Object.entries(eovCategories).map(([categoryKey, categoryText]) => {
+          const eovsFiltered = eovs.filter((e) => e.category === categoryKey);
+
+          return (
+            <>
+              <h4>{categoryText[language]}</h4>
+              <CheckBoxList
+                value={record.eov || []}
+                onChange={updateRecord("eov")}
+                options={eovsFiltered.map((e) => e.value)}
+                optionLabels={eovsFiltered.map(
+                  (e) => e[`label ${languageUpperCase}`]
+                )}
+                optionTooltips={eovsFiltered.map(
+                  (e) => e[`definition ${languageUpperCase}`]
+                )}
+                disabled={disabled}
+              />
+            </>
+          );
+        })}
       </Paper>
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">

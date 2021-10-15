@@ -13,7 +13,8 @@ import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
-const unique = (arr) => [...new Set(arr)];
+import { unique } from "../../utils/misc";
+
 const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
 class Admin extends FormClassTemplate {

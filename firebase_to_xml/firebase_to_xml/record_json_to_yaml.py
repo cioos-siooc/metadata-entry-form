@@ -14,10 +14,15 @@ dir = os.path.dirname(os.path.realpath(__file__))
 def get_licenses():
     with open(dir + '/resources/licenses.json') as f:
         return json.load(f)
-
+        
 def get_eov_translations():
     with open(dir + '/resources/eov.json') as f:
-        return json.load(f)
+        eovs= json.load(f)
+        professions_dict = {}
+        translation={}
+        for eov in eovs:
+            translation[eov['value']]=translation['label FR']
+        return translation
 
 licenses=get_licenses()
 eov_translations=get_eov_translations()
