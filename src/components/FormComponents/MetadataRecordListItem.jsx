@@ -47,6 +47,7 @@ const MetadataRecordListItem = ({
   showCloneAction,
   onUnSubmitClick,
   onUnPublishClick,
+  showDownloadButton = true,
 }) => {
   const { downloadRecord } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
@@ -66,14 +67,12 @@ const MetadataRecordListItem = ({
     console.log(record);
     return <></>;
   }
-  let percentValidInt;
-  let isValidRecord;
-  if (showSubmitAction) {
-    isValidRecord = recordIsValid(record);
-  }
-  if (showPercentComplete) {
-    percentValidInt = Math.round(percentValid(record) * 100);
-  }
+
+  const isValidRecord =
+    (showSubmitAction || showDownloadButton) && recordIsValid(record);
+
+  const percentValidInt =
+    showPercentComplete && Math.round(percentValid(record) * 100);
 
   async function handleDownloadRecord(fileType) {
     setIsLoading({ downloadXML: true });
@@ -258,75 +257,70 @@ const MetadataRecordListItem = ({
           </Tooltip>
         )}
 
-        <Tooltip title={<I18n en="Download" fr="Download" />}>
-          <span>
-            {/* <IconButton
-              onClick={downloadXML}
-              edge="end"
-              aria-label="download"
-              disabled={!isValidRecord}
-            >
-              {isLoading["downloadXML"] ? (
-                <CircularProgress />
-              ) : (
-                <CloudDownload />
-              )}
-            </IconButton> */}
-            <IconButton
-              aria-label="more"
-              id="long-button"
-              aria-controls="long-menu"
-              aria-expanded={open ? "true" : undefined}
-              aria-haspopup="true"
-              onClick={handleClick}
-            >
-              {isLoading.downloadXML ? <CircularProgress /> : <CloudDownload />}
-            </IconButton>
-            <Menu
-              id="long-menu"
-              MenuListProps={{
-                "aria-labelledby": "long-button",
-              }}
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              PaperProps={{
-                style: {
-                  // maxHeight: ITEM_HEIGHT * 4.5,
-                  width: "20ch",
-                },
-              }}
-            >
-              <MenuItem
-                key="xml"
-                onClick={() => {
-                  handleDownloadRecord("xml");
-                  handleClose();
+        {showDownloadButton && (
+          <Tooltip title={<I18n en="Download" fr="Download" />}>
+            <span>
+              <IconButton
+                aria-label="more"
+                id="long-button"
+                aria-controls="long-menu"
+                aria-expanded={open ? "true" : undefined}
+                aria-haspopup="true"
+                onClick={handleClick}
+                disabled={!isValidRecord}
+              >
+                {isLoading.downloadXML ? (
+                  <CircularProgress />
+                ) : (
+                  <CloudDownload />
+                )}
+              </IconButton>
+              <Menu
+                id="long-menu"
+                MenuListProps={{
+                  "aria-labelledby": "long-button",
+                }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                  style: {
+                    // maxHeight: ITEM_HEIGHT * 4.5,
+                    width: "20ch",
+                  },
                 }}
               >
-                XML
-              </MenuItem>
-              <MenuItem
-                key="yaml"
-                onClick={() => {
-                  handleDownloadRecord("yaml");
-                  handleClose();
-                }}
-              >
-                YAML
-              </MenuItem>
-              <MenuItem
-                key="erddap"
-                onClick={() => {
-                  handleDownloadRecord("erddap");
-                  handleClose();
-                }}
-              >
-                ERDDAP snippet
-              </MenuItem>
-            </Menu>
-          </span>
-        </Tooltip>
+                <MenuItem
+                  key="xml"
+                  onClick={() => {
+                    handleDownloadRecord("xml");
+                    handleClose();
+                  }}
+                >
+                  XML
+                </MenuItem>
+                <MenuItem
+                  key="yaml"
+                  onClick={() => {
+                    handleDownloadRecord("yaml");
+                    handleClose();
+                  }}
+                >
+                  YAML
+                </MenuItem>
+                <MenuItem
+                  key="erddap"
+                  onClick={() => {
+                    handleDownloadRecord("erddap");
+                    handleClose();
+                  }}
+                >
+                  ERDDAP snippet
+                </MenuItem>
+              </Menu>
+            </span>
+          </Tooltip>
+        )}
       </ListItemSecondaryAction>
     </ListItem>
   );

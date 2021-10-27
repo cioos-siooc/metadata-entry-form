@@ -14,17 +14,21 @@ dir = os.path.dirname(os.path.realpath(__file__))
 def get_licenses():
     with open(dir + '/resources/licenses.json') as f:
         return json.load(f)
-
+        
 def get_eov_translations():
     with open(dir + '/resources/eov.json') as f:
-        return json.load(f)
+        eovs= json.load(f)
+        translation={}
+        for eov in eovs:
+            translation[eov['value']]=eov['label FR']
+        return translation
 
 licenses=get_licenses()
 eov_translations=get_eov_translations()
 
 def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
-    return list(filter(None, [eov_translations.get(eov) for eov in eovs_en]))
+    return [eov_translations[eov] for eov in eovs_en if eov]
 
 
 def strip_keywords(keywords):
