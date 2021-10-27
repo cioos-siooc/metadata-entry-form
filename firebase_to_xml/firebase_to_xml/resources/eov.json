@@ -318,7 +318,7 @@
     "category": "Physical",
     "value": "oceanSurfaceHeatFlux",
     "label EN": "Ocean surface heat flux",
-    "label FR": "FLux de chaleur de surface",
+    "label FR": "Flux de chaleur de surface",
     "definition EN": "Surface heat flux is the rate of heat exchange, per unit area, passing through the sea surface to the atmosphere. The net heat flux is the sum of the turbulent fluxes (latent and sensitive) and the radiative flux (short and long waves).",
     "definition FR": "Le flux de chaleur de surface est le taux d'échange de chaleur, par unité de surface, traversant la surface de la mer jusqu'à l'atmosphère. Le flux de chaleur net est la somme des flux turbulents (latents et sensibles) et du flux radiatif (ondes courtes et longues).",
     "icon": "ocean-surface-heat-flux.svg"

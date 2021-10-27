@@ -195,7 +195,7 @@ const IdentificationTab = ({
           const eovsFiltered = eovs.filter((e) => e.category === categoryKey);
 
           return (
-            <>
+            <div key={categoryText[language]}>
               <h4>{categoryText[language]}</h4>
               <CheckBoxList
                 value={record.eov || []}
@@ -209,7 +209,7 @@ const IdentificationTab = ({
                 )}
                 disabled={disabled}
               />
-            </>
+            </div>
           );
         })}
       </Paper>
