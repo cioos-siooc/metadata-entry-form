@@ -1,0 +1,350 @@
+{
+  "eovCategories": {
+    "Biogeochemical": { "en": "Biogeochemical", "fr": "Biogéochimie" },
+    "Biology and Ecosystems": {
+      "en": "Biology and Ecosystems",
+      "fr": "Biologie et écosystèmes"
+    },
+    "Cross-disciplinary": {
+      "en": "Cross-disciplinary",
+      "fr": "Interdisciplinaire"
+    },
+    "Physical": { "en": "Physical", "fr": "Physique" },
+    "Other": { "en": "Other", "fr": "Autre" }
+  },
+  "eovs": [
+    {
+      "category": "Biogeochemical",
+      "value": "oxygen",
+      "label EN": "Oxygen",
+      "label FR": "Oxygène",
+      "definition EN": "The amount of dissolved oxygen in seawater.",
+      "definition FR": "Concentration d'oxygène dissous dans l'eau de mer",
+      "icon": "dissolved-oxygen.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "nutrients",
+      "label EN": "Nutrients",
+      "label FR": "Nutriments",
+      "definition EN": "The amount of inorganic nutrients in seawater",
+      "definition FR": "Concentration des nutriments inorganiques dissous dans l'eau de mer [NO₃, NO₂, PO₄, NH₄, Si(OH)₄]",
+      "icon": "nutrients.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "nitrate",
+      "label EN": "Nitrate",
+      "label FR": "Nitrate",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "nitrate.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "phosphate",
+      "label EN": "Phosphate",
+      "label FR": "Phosphate",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "phosphate.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "silicate",
+      "label EN": "Silicate",
+      "label FR": "Silicate",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "silicate.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "inorganicCarbon",
+      "label EN": "Inorganic Carbon",
+      "label FR": "Carbone inorganique",
+      "definition EN": "Total amount of inorganic carbon dissolved in sea water [CO₂, HCO₃-, CO₃²-]",
+      "definition FR": "Quantité totale de carbone inorganique dissous dans l'eau de mer [CO₂, HCO₃-, CO₃²-]",
+      "icon": "inorganic-carbon.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "dissolvedOrganicCarbon",
+      "label EN": "Dissolved Organic Carbon",
+      "label FR": "Carbone organique dissous",
+      "definition EN": "The amount of dissolved carbon dioxide in seawater",
+      "definition FR": "Concentration de carbone organique dissous dans l'eau de mer",
+      "icon": "dissolved-organic-carbon.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seaSurfaceHeight",
+      "label EN": "Sea Surface Height",
+      "label FR": "Niveau de l'eau",
+      "definition EN": "The altitude of mean sea level relative to the Earth's geode.",
+      "definition FR": "Correspond au niveau d'eau mesuré. Les niveaux sont variables en fonction des saisons et des évènements climatique",
+      "icon": "sea-level.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seawaterDensity",
+      "label EN": "Seawater Density",
+      "label FR": "Densité de l'eau de mer",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "density.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "potentialTemperature",
+      "label EN": "Potential Temperature",
+      "label FR": "Température potentielle",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "temperature.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "potentialDensity",
+      "label EN": "Potential Density",
+      "label FR": "Densité potentielle",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "density.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "speedOfSound",
+      "label EN": "Speed of Sound",
+      "label FR": "Vitesse du son",
+      "definition EN": "Scientific field of study relating to the propagation of sound in the marine environment",
+      "definition FR": "Domaine d'étude scientifique relatif à la propagation du son dans le milieu marin.",
+      "icon": "speed-of-sound.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seaIce",
+      "label EN": "Sea Ice",
+      "label FR": "Glace de mer",
+      "definition EN": "The concentration of ice cover over a specified area and extent",
+      "definition FR": "La concentration en couverture de glace sur une zone et une étendue spécifiées",
+      "icon": "sea-ice.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seaState",
+      "label EN": "Sea State",
+      "label FR": "État de la mer",
+      "definition EN": "",
+      "definition FR": "L'état de la mer est la caractérisation des vagues et de la houle, généralement en termes de hauteur, de longueur d'onde, de période, et le flux d'énergie des ondes directionnelles",
+      "icon": "sea-state.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seaSurfaceSalinity",
+      "label EN": "Sea Surface Salinity",
+      "label FR": "Salinité de surface",
+      "definition EN": "The concentration of dissolved salts in surface seawater.",
+      "definition FR": "La concentration de sel dissous dans l'eau de mer de surface",
+      "icon": "salinity.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "seaSurfaceTemperature",
+      "label EN": "Sea Surface Temperature",
+      "label FR": "Température de surface",
+      "definition EN": "The temperature of surface seawater.",
+      "definition FR": "La température de l'eau de mer en surface",
+      "icon": "temperature.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "subSurfaceSalinity",
+      "label EN": "Sub Surface Salinity",
+      "label FR": "Salinité sous la surface",
+      "definition EN": "The concentration of dissolved salts in subsurface seawater.",
+      "definition FR": "La concentration de sel dissous dans l'eau de mer sous la surface",
+      "icon": "salinity.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "subSurfaceTemperature",
+      "label EN": "Sub Surface Temperature",
+      "label FR": "Température sous la surface",
+      "definition EN": "The temperature of subsurface seawater.",
+      "definition FR": "La température de l'eau de mer sous la surface",
+      "icon": "temperature.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "surfaceCurrents",
+      "label EN": "Surface Currents",
+      "label FR": "Courants de surface",
+      "definition EN": "The velocity of sea water in surface",
+      "definition FR": "Vitesse et débit de l'eau en surface",
+      "icon": "currents.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "subSurfaceCurrents",
+      "label EN": "Sub Surface Currents",
+      "label FR": "Courants sous-marins",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "currents.svg"
+    },
+    {
+      "category": "Other",
+      "value": "other",
+      "label EN": "Other",
+      "label FR": "Autre",
+      "definition EN": "All data that does not correspond to the current EOVs.",
+      "definition FR": "Toutes les données qui ne correspondent pas aux EOVs actuels.",
+      "icon": "eov_other.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "transientTracers",
+      "label EN": "Transient tracers",
+      "label FR": "Traceurs transitoires",
+      "definition EN": "Transient tracers are man-made chemical compounds released to the atmosphere at known quantities that can be used in the ocean to quantify ventilation, transit time distribution and transport time-scales",
+      "definition FR": "Les traceurs transitoires sont des composés chimiques artificiels rejetés dans l'atmosphère en quantités connues qui peuvent être utilisés dans l'océan pour quantifier la ventilation, la distribution des temps de transit et les échelles de temps de transport.",
+      "icon": "transient-tracers.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "particulateMatter",
+      "label EN": "Particulate matter",
+      "label FR": "Matière particulaire",
+      "definition EN": "Total amount of particles (organic & inorganic) suspended in sea water",
+      "definition FR": "Quantité totale de particules (organiques et inorganiques) en suspension dans l'eau de mer",
+      "icon": "particulate-matter.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "stableCarbonIsotopes",
+      "label EN": "Stable carbon isotopes",
+      "label FR": "Isotopes stable de carbone",
+      "definition EN": "The utility of carbon-13 isotope (δ13C, the carbon-13 to carbon-12 isotope ratio; 13C/12C) as a tracer of the ocean’s carbon cycle.",
+      "definition FR": "L’utilité de l’isotope du carbone-13 (δ13C, le rapport des isotopes du carbone-13 au carbone-12; 13C/12C) comme traceur du cycle du carbone de l’océan.",
+      "icon": "stable-carbon-isotopes.svg"
+    },
+    {
+      "category": "Biogeochemical",
+      "value": "nitrousOxide",
+      "label EN": "Nitrous oxide",
+      "label FR": "Oxydes d'azote",
+      "definition EN": "Nitrous oxide (N2O) is an important climate-relevant trace gas in the Earth’s atmosphere. The ocean-including its coastal areassuch as continental shelves, estuaries and upwelling areas is a major source of N2O and contributesabout 30% to the atmospheric N2O budget.",
+      "definition FR": "Le protoxyde d'azote ou azote nitreux (N2O) est un important gaz traceur du climat dans l'atmosphère terrestre. L'océan, y compris ses zones côtières telles que les plateaux continentaux, les estuaires et les zones d'upwelling, est une source majeure de N2O. Elle contribue à environ 30 % du bilan atmosphérique en protoxyde d'azote.",
+      "icon": "nitrous-oxide.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "phytoplanktonBiomassAndDiversity",
+      "label EN": "Phytoplankton biomass and diversity",
+      "label FR": "Biomasse et diversité de phytoplancton",
+      "definition EN": "Characterization of the biological diversity of phytoplankton, their phenology, vertical distribution, and community composition, and their role in ocean biogeochemistry and ecosystem services.",
+      "definition FR": "Caractérisation de la diversité biologique du phytoplancton, de sa phénologie, de sa distribution verticale et de sa composition communautaire, ainsi que le rôle dans la biogéochimie des océans et les services écosystémiques.",
+      "icon": "phytoplankton.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "zooplanktonBiomassAndDiversity",
+      "label EN": "Zooplankton biomass and diversity",
+      "label FR": "Biomasse et diversité de zooplancton",
+      "definition EN": "Zooplankton diversity refers to the number of zooplankton species, taxonomic composition, or community structure within a region. Zooplankton diversity influences ecosystem health and productivity through trophic links.",
+      "definition FR": "La diversité du zooplancton fait référence au nombre d'espèces de zooplancton, à la composition taxonomique ou à la structure communautaire au sein d'une région. La diversité du zooplancton influence la santé et la productivité de l'écosystème par le biais de liens trophiques.",
+      "icon": "zooplankton.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "fishAbundanceAndDistribution",
+      "label EN": "Fish abundance and distribution",
+      "label FR": "Abondance et distribution de poisson",
+      "definition EN": "Fish abundance describes the biomass or numbers of fish in the ocean. It can be reported in terms of species or taxonomic or functional groups (e.g., small pelagic fish, mesopelagic fish, and tunalike species) in an assemblage, population, stock or area, or globally",
+      "definition FR": "L'abondance des poissons décrit la biomasse ou le nombre de poissons dans l'océan. Il peut être rapporté en termes d'espèces ou de groupes taxonomiques ou fonctionnels (par exemple, petits poissons pélagiques, poissons mésopélagiques et espèces tunal) dans un assemblage, une population, un stock ou une zone, ou à l'échelle mondiale",
+      "icon": "fish.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+      "label EN": "Marine turtles, birds, mammals abundance and distribution",
+      "label FR": "Abondance et distribution de tortues marines, oiseaux et mammifères",
+      "definition EN": "Abundance refers to the number of individuals (turtles, birds or marine mammals) within a population while distribution refers to\nthe geographic or spatial extent of habitats used by individuals in the population.",
+      "definition FR": "L'abondance se réfère au nombre d'individus (tortues, oiseaux ou mammifères marins) au sein d'une population tandis que la distribution se réfère à\nl'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
+      "icon": "birds-mammals.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "seagrassCoverAndComposition",
+      "label EN": "Seagrass cover and composition",
+      "label FR": "Composition et couverture des herbiers marins",
+      "definition EN": "Characterization of seagrass beds according to species and their cover linked to a spatial distribution.",
+      "definition FR": "Caractérisation des herbiers marins en fonction des espèces et de leur couverture selon une distribution spatiale.",
+      "icon": "seagrass.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "macroalgalCanopyCoverAndComposition",
+      "label EN": "Macroalgal canopy cover and composition",
+      "label FR": "Composition et couverture de la canopée de macroalgues",
+      "definition EN": "Characterization of macroalgal forest according to species and their cover linked to a spatial distribution.",
+      "definition FR": "Caractérisation des macroalgues en fonction des espèces et de leur couvert selon une distribution spatiale.",
+      "icon": "macroalgal-canopy.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "invertebrateAbundanceAndDistribution",
+      "label EN": "Invertebrate abundance and distribution",
+      "label FR": "Abondance et distribution d'invertébrés",
+      "definition EN": "The abundance of invertebrate species describes the biomass or number of individuals in an assemblage and according to a spatial distribution.",
+      "definition FR": "L'abondance d'espèces invertébrées décrit la biomasse ou le nombre d'individus dans un assemblage et selon une distribution spatiale.",
+      "icon": "invertebrates.svg"
+    },
+    {
+      "category": "Biology and Ecosystems",
+      "value": "microbeBiomassAndDiversity",
+      "label EN": "Microbe biomass and diversity",
+      "label FR": "Biomasse et diversité microbienne",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "microbes.svg"
+    },
+    {
+      "category": "Cross-disciplinary",
+      "value": "oceanColour",
+      "label EN": "Ocean Colour",
+      "label FR": "Couleur des océans",
+      "definition EN": "The term \"ocean colour\" refers to the result of absorption and scattering of spectral radiation emanating from the sun. Light interacts with water and suspended or dissolved matter and encompasses a multitude of biological, biogeochemical and ecological factors that form the colour of water.",
+      "definition FR": "Le terme «couleur de l'océan» se réfère au résultat de l'absorption et de la diffusion du rayonnement spectral émanant du soleil. La lumière interagit avec l'eau et les matières en suspension ou dissoutes et englobe une multitude de facteurs biologiques, biogéochimiques et écologiques qui forment la couleur de l'eau.",
+      "icon": "ocean-color.svg"
+    },
+    {
+      "category": "Cross-disciplinary",
+      "value": "oceanSound",
+      "label EN": "Ocean Sound",
+      "label FR": "Bruit océanique",
+      "definition EN": "",
+      "definition FR": "",
+      "icon": "ocean-sound.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "oceanSurfaceHeatFlux",
+      "label EN": "Ocean surface heat flux",
+      "label FR": "Flux de chaleur de surface",
+      "definition EN": "Surface heat flux is the rate of heat exchange, per unit area, passing through the sea surface to the atmosphere. The net heat flux is the sum of the turbulent fluxes (latent and sensitive) and the radiative flux (short and long waves).",
+      "definition FR": "Le flux de chaleur de surface est le taux d'échange de chaleur, par unité de surface, traversant la surface de la mer jusqu'à l'atmosphère. Le flux de chaleur net est la somme des flux turbulents (latents et sensibles) et du flux radiatif (ondes courtes et longues).",
+      "icon": "ocean-surface-heat-flux.svg"
+    },
+    {
+      "category": "Physical",
+      "value": "oceanSurfaceStress",
+      "label EN": "Ocean surface stress",
+      "label FR": "Stress de surface océanique",
+      "definition EN": "Ocean stress is related to lower atmosphere drag and ocean surface dynamics. The magnitude of the stress influences the exchange of energy between the ocean and the atmosphere (evaporation, oxygen, carbon dioxide and other gases).",
+      "definition FR": "Le stress océanique est lié à la trainée de la basse atmosphère et à la dynamique de surface de l'océan. L'ampleur du stress influence l'échange d'énergie entre l'océan et l'atmosphère (évaporation, oxygène, dioxyde de carbon et gaz autres).",
+      "icon": "sea-surface-stress.svg"
+    }
+  ]
+}

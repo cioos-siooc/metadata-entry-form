@@ -25,9 +25,9 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 import { loadRegionRecords } from "../../utils/firebaseFunctions";
+import { unique } from "../../utils/misc";
 import FormClassTemplate from "./FormClassTemplate";
 
-const unique = (arr) => [...new Set(arr)];
 const RecordItem = ({ record, language, editRecord, toggleModal }) => {
   const commonProps = {
     record,
