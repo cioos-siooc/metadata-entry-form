@@ -18,10 +18,9 @@ def get_licenses():
 def get_eov_translations():
     with open(dir + '/resources/eov.json') as f:
         eovs= json.load(f)
-        professions_dict = {}
         translation={}
         for eov in eovs:
-            translation[eov['value']]=translation['label FR']
+            translation[eov['value']]=eov['label FR']
         return translation
 
 licenses=get_licenses()
