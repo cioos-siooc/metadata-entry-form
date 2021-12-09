@@ -28,7 +28,7 @@ eov_translations=get_eov_translations()
 
 def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
-    return [eov_translations[eov] for eov in eovs_en if eov]
+    return [eov_translations.get(eov,"") for eov in eovs_en if eov]
 
 
 def strip_keywords(keywords):

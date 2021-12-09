@@ -35,6 +35,7 @@ import {
   deepCopy,
   trimStringsInObject,
 } from "../../utils/misc";
+import { submitRecord } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
@@ -239,29 +240,18 @@ class MetadataForm extends FormClassTemplate {
     return contactsRef.push(contact).getKey();
   }
 
-  async submitRecord() {
+  async handleSubmitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;
     const isNewRecord = match.url.endsWith("new");
-
+    const { record } = this.state;
     // Bit of logic here to decide if this is a user submitting their own form
     // or a reviewer submitting it
     const loggedInUserID = auth.currentUser.uid;
     const recordUserID = isNewRecord ? loggedInUserID : userID;
 
-    this.handleSaveClick().then(async (recordID) => {
-      if (userID && recordID) {
-        firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(recordUserID)
-          .child("records")
-          .child(recordID)
-          .child("status")
-          .set("submitted");
-      }
-    });
+    const recordID = await this.handleSaveClick();
+    return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
   async handleSaveClick() {
@@ -285,6 +275,9 @@ class MetadataForm extends FormClassTemplate {
 
     // created is really "last updated"
     record.created = new Date().toISOString();
+
+    // having userID down here makes it easier to transfer records
+    record.userID = userID;
 
     record.lastEditedBy = editorInfo;
     let recordID;
@@ -483,7 +476,10 @@ class MetadataForm extends FormClassTemplate {
         </TabPanel>
 
         <TabPanel value={tabIndex} index="submit">
-          <SubmitTab {...tabProps} submitRecord={() => this.submitRecord()} />
+          <SubmitTab
+            {...tabProps}
+            submitRecord={() => this.handleSubmitRecord()}
+          />
         </TabPanel>
 
         <TabPanel value={tabIndex} index="contact">

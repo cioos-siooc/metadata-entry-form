@@ -20,19 +20,22 @@ import {
   Eject,
   Visibility,
   CloudDownload,
+  TransferWithinAStation,
+  OpenInNew,
+  Edit,
 } from "@material-ui/icons";
+import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
 import { UserContext } from "../../providers/UserProvider";
+import regions from "../../regions";
 
 const MetadataRecordListItem = ({
   record,
-  language,
-  onViewClick,
-  onEditClick,
+  onViewEditClick,
   onDeleteClick,
   onCloneClick,
   onSubmitClick,
@@ -43,16 +46,20 @@ const MetadataRecordListItem = ({
   showUnPublishAction,
   showUnSubmitAction,
   showViewAction,
+  showEditAction,
   showPercentComplete,
   showCloneAction,
   onUnSubmitClick,
   onUnPublishClick,
   showDownloadButton = true,
+  showTransferButton,
+  onTransferClick,
 }) => {
+  const { language, region } = useParams();
+  const showCatalogueURL = record.status === "published";
   const { downloadRecord } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
-  // const [open, setOpen] = useState(false);
-
+  const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -95,20 +102,22 @@ const MetadataRecordListItem = ({
       );
       setIsLoading({ downloadXML: false });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
       setIsLoading({ downloadXML: false });
     }
   }
 
   return (
-    <ListItem key={record.key} onClick={onEditClick} button>
+    <ListItem key={record.key}>
       <ListItemAvatar>
-        <Avatar>
-          <RecordStatusIcon status={record.status} />
-        </Avatar>
+        <IconButton onClick={onViewEditClick}>
+          <Avatar>
+            <RecordStatusIcon status={record.status} />
+          </Avatar>
+        </IconButton>
       </ListItemAvatar>
       <ListItemText
-        onClick={onViewClick}
         primary={<div style={{ width: "80%" }}>{record.title?.[language]}</div>}
         secondary={
           <span>
@@ -128,6 +137,8 @@ const MetadataRecordListItem = ({
             <br />
             UUID: {record.identifier}
             <br />
+            <br />
+            <br />
           </span>
         }
       />
@@ -136,11 +147,26 @@ const MetadataRecordListItem = ({
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
               <IconButton
-                onClick={onViewClick}
+                onClick={onViewEditClick}
                 edge="end"
                 aria-label="view record"
               >
                 <Visibility />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {showEditAction && (
+          <Tooltip
+            title={<I18n en="Edit record" fr="Éditer un enregistrement" />}
+          >
+            <span>
+              <IconButton
+                onClick={onViewEditClick}
+                edge="end"
+                aria-label="Edit record"
+              >
+                <Edit />
               </IconButton>
             </span>
           </Tooltip>
@@ -321,6 +347,46 @@ const MetadataRecordListItem = ({
             </span>
           </Tooltip>
         )}
+        {showTransferButton && (
+          <Tooltip
+            title={
+              <I18n en="Transfer to user" fr="Transfert vers l'utilisateur" />
+            }
+          >
+            <span>
+              <IconButton
+                onClick={onTransferClick}
+                edge="end"
+                aria-label="transfer"
+              >
+                <TransferWithinAStation />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+
+        <Tooltip
+          title={
+            <I18n
+              en="Open catalogue entry in new window"
+              fr="Ouvrir l'entrée dans le catalogue dans une nouvelle fenêtre"
+            />
+          }
+        >
+          <span>
+            <IconButton
+              disabled={!showCatalogueURL}
+              onClick={() => {
+                const win = window.open(catalogueURL, "_blank");
+                win.focus();
+              }}
+              edge="end"
+              aria-label="transfer"
+            >
+              <OpenInNew />
+            </IconButton>
+          </span>
+        </Tooltip>
       </ListItemSecondaryAction>
     </ListItem>
   );

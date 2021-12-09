@@ -1,7 +1,8 @@
-import { Paper, TextField, Grid } from "@material-ui/core";
+import { Paper, TextField, Grid, Tooltip, IconButton } from "@material-ui/core";
 import React from "react";
 import { useParams } from "react-router-dom";
 
+import { OpenInNew } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 
@@ -18,6 +19,27 @@ import {
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 
+const OpenEPSGDefn = ({ url }) => {
+  return (
+    <IconButton
+      onClick={() => {
+        const win = window.open(url, "_blank");
+        win.focus();
+      }}
+    >
+      <Tooltip
+        title={
+          <I18n
+            en="Open EPSG definition in new window"
+            fr="Ouvrir la définition EPSG dans une nouvelle fenêtre"
+          />
+        }
+      >
+        <OpenInNew />
+      </Tooltip>
+    </IconButton>
+  );
+};
 const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
   const { language } = useParams();
 
@@ -71,34 +93,49 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           />
 
           <SupplementalText>
-            <I18n>
-              <En>
-                <p>
+            <div>
+              <I18n>
+                <En>
                   This captures the minimum and maximum depths (or height from
                   sea floor) where the instrument recorded data.
-                </p>
-                <p>
+                </En>
+
+                <Fr>
+                  Cela permet de capturer les profondeurs minimales et maximales
+                  (ou la hauteur de fond marin) où l'instrument a enregistré des
+                  données.
+                </Fr>
+              </I18n>
+            </div>
+
+            <div style={{ paddingTop: "5px" }}>
+              <I18n>
+                <En>
                   Depth positive: Depth is recorded with positive values (i.e. a
                   maximum value of 150m implies 150m below the surface).
-                  <br />
-                  Heigth positive: Depth is the elevation from the sea floor
-                  (i.e. a maximum value of 150m implies 150m above the sea
-                  floor).
-                </p>
-              </En>
-              <Fr>
-                <p>
+                </En>
+                <Fr>
                   Profondeur positive: La profondeur est enregistrée avec des
                   valeurs positives (c'est-à-dire une valeur maximale de 150 m
                   implique 150 m au-dessous de la surface).
-                </p>
-                <p>
+                </Fr>
+              </I18n>
+              <OpenEPSGDefn url="https://epsg.io/5829" />
+            </div>
+            <div>
+              <I18n>
+                <En>
+                  Height positive: Depth is the elevation from sea level (i.e. a
+                  maximum value of 150m implies 150m above sea level).
+                </En>
+                <Fr>
                   Hauteur positive: La profondeur est l'élévation depuis le fond
                   marin (c'est-à-dire une valeur maximale de 150 m implique 150
                   m au-dessus du fond marin)
-                </p>
-              </Fr>
-            </I18n>
+                </Fr>
+              </I18n>
+              <OpenEPSGDefn url="https://epsg.io/5831" />
+            </div>
           </SupplementalText>
         </QuestionText>
         <Grid
