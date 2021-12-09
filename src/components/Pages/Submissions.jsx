@@ -9,14 +9,16 @@ import firebase from "../../firebase";
 import { auth } from "../../auth";
 
 import { Fr, En, I18n } from "../I18n";
-import {
-  multipleFirebaseToJSObject,
-  getRecordFilename,
-} from "../../utils/misc";
+import { multipleFirebaseToJSObject } from "../../utils/misc";
 import SimpleModal from "../FormComponents/SimpleModal";
 
 import regions from "../../regions";
-import { cloneRecord } from "../../utils/firebaseFunctions";
+import {
+  cloneRecord,
+  deleteRecord,
+  submitRecord,
+  returnRecordToDraft,
+} from "../../utils/firebaseRecordFunctions";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 class Submissions extends FormClassTemplate {
@@ -46,6 +48,7 @@ class Submissions extends FormClassTemplate {
           .child("users")
           .child(user.uid)
           .child("records");
+
         recordsRef.on("value", (records) => {
           const allUsersRecords = records.toJSON();
 
@@ -54,6 +57,7 @@ class Submissions extends FormClassTemplate {
             loading: false,
           });
         });
+
         this.listenerRefs.push(recordsRef);
       }
     });
@@ -70,26 +74,14 @@ class Submissions extends FormClassTemplate {
     history.push(`/${language}/${region}/${currentUser.uid}/${key}`);
   }
 
-  submitRecord(key, record) {
+  handleSubmitRecord(key, record) {
     const { match } = this.props;
     const { region } = match.params;
 
     if (auth.currentUser && key) {
-      const recordRef = firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(auth.currentUser.uid)
-        .child("records")
-        .child(key);
-
-      recordRef.child("status").set("submitted");
-
-      if (record && !record.filename) {
-        const filename = getRecordFilename(record);
-        recordRef.child("filename").set(filename);
-      }
+      return submitRecord(region, auth.currentUser.uid, key, record);
     }
+    return false;
   }
 
   // Make record a draft again
@@ -98,16 +90,9 @@ class Submissions extends FormClassTemplate {
     const { region } = match.params;
 
     if (auth.currentUser && key) {
-      firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(auth.currentUser.uid)
-        .child("records")
-        .child(key)
-        .child("status")
-        .set("");
+      return returnRecordToDraft(region, auth.currentUser.uid, key);
     }
+    return false;
   }
 
   cloneRecord(recordID) {
@@ -124,15 +109,9 @@ class Submissions extends FormClassTemplate {
     const { region } = match.params;
 
     if (auth.currentUser) {
-      firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(auth.currentUser.uid)
-        .child("records")
-        .child(key)
-        .remove();
+      return deleteRecord(region, auth.currentUser.uid, key);
     }
+    return false;
   }
 
   toggleModal(modalName, state, key = "", record = null) {
@@ -169,7 +148,7 @@ class Submissions extends FormClassTemplate {
         <SimpleModal
           open={submitModalOpen}
           onClose={() => this.toggleModal("submitModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalRecord)}
+          onAccept={() => this.handleSubmitRecord(modalKey, modalRecord)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -241,7 +220,6 @@ class Submissions extends FormClassTemplate {
                       <MetadataRecordListItem
                         key={key}
                         record={record}
-                        language={language}
                         showCloneAction
                         onCloneClick={() => this.cloneRecord(key)}
                         showDeleteAction
@@ -250,7 +228,7 @@ class Submissions extends FormClassTemplate {
                         }
                         showEditAction
                         showPercentComplete
-                        onEditClick={() => this.editRecord(key)}
+                        onViewEditClick={() => this.editRecord(key)}
                         showSubmitAction
                         onSubmitClick={() => {
                           if (status === "")
