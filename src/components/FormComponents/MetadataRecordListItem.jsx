@@ -119,26 +119,28 @@ const MetadataRecordListItem = ({
       </ListItemAvatar>
       <ListItemText
         primary={<div style={{ width: "80%" }}>{record.title?.[language]}</div>}
+        secondaryTypographyProps={{ variant: "body2" }}
         secondary={
           <span>
             {showAuthor && (
-              <>
+              <span>
                 <I18n en="Author" fr="Auteur" />: {record.userinfo?.displayName}{" "}
-                {record.userinfo?.email} <br />
-              </>
+                {record.userinfo?.email}
+              </span>
             )}
-            <LastEdited dateStr={record.created} />
-            {showPercentComplete && (
-              <I18n>
-                <En>{percentValidInt}% complete</En>
-                <Fr>{percentValidInt}% Achevée</Fr>
-              </I18n>
-            )}
-            <br />
-            UUID: {record.identifier}
-            <br />
-            <br />
-            <br />
+
+            <span style={{ display: "block" }}>
+              <LastEdited dateStr={record.created} />
+
+              {showPercentComplete && (
+                <I18n>
+                  <En>{percentValidInt}% complete</En>
+                  <Fr>{percentValidInt}% Achevée</Fr>
+                </I18n>
+              )}
+            </span>
+
+            <span style={{ display: "block" }}>UUID: {record.identifier}</span>
           </span>
         }
       />
