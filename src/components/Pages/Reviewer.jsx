@@ -22,9 +22,15 @@ import { Fr, En, I18n } from "../I18n";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 
 import SimpleModal from "../FormComponents/SimpleModal";
+import TransferModal from "../FormComponents/TransferModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
-import { loadRegionRecords } from "../../utils/firebaseFunctions";
+import {
+  loadRegionRecords,
+  transferRecord,
+  deleteRecord,
+  submitRecord,
+} from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
 import FormClassTemplate from "./FormClassTemplate";
 
@@ -33,24 +39,33 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
     record,
     key: record.key,
     language,
-    onViewClick: () => editRecord(record.key, record.userinfo.userID),
+    onViewEditClick: () => editRecord(record.key, record.userinfo.userID),
     onDeleteClick: () =>
       toggleModal("deleteModalOpen", true, record.key, record.userinfo.userID),
+    onTransferClick: () =>
+      toggleModal(
+        "transferModalOpen",
+        true,
+        record.key,
+        record.userinfo.userID
+      ),
     showAuthor: true,
+    showTransferButton: true,
   };
 
   const DraftRecordItem = () => {
     return (
       <MetadataRecordListItem
-        onSubmitClick={() =>
-          toggleModal(
+        onSubmitClick={() => {
+          return toggleModal(
             "submitModalOpen",
             true,
             record.key,
             record.userinfo.userID
-          )
-        }
+          );
+        }}
         showSubmitAction
+        showEditAction
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
         showPercentComplete
@@ -77,6 +92,7 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
       }
       showPublishAction
       showUnSubmitAction
+      showEditAction
       showPercentComplete
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...commonProps}
@@ -94,6 +110,7 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
           )
         }
         showUnPublishAction
+        showViewAction
         showPercentComplete
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
@@ -116,10 +133,11 @@ class Reviewer extends FormClassTemplate {
       unPublishModalOpen: false,
       unSubmitModalOpen: false,
       submitModalOpen: false,
+      transferModalOpen: false,
       modalKey: "",
       modalUserID: "",
       loading: false,
-      showRecordTypes: ["submitted"],
+      showRecordTypes: ["submitted", "published"],
       showUsers: [],
       records: [],
       recordsFilter: "",
@@ -159,9 +177,16 @@ class Reviewer extends FormClassTemplate {
   }
 
   editRecord(key, userID) {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
+    const { history } = this.props;
+    const { language, region } = this.props.match.params;
     history.push(`/${language}/${region}/${userID}/${key}`);
+  }
+
+  async handleTransferRecord(recordID, userID) {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    return transferRecord(this.state.transferEmail, recordID, userID, region);
   }
 
   async submitRecord(key, userID, status) {
@@ -170,18 +195,7 @@ class Reviewer extends FormClassTemplate {
 
     if (key && userID) {
       this.setState({ loading: true });
-
-      const recordRef = firebase
-        .database()
-        .ref(region)
-        .child("users")
-        .child(userID)
-        .child("records")
-        .child(key);
-
-      await recordRef.child("status").set(status);
-      await recordRef.child("timeFirstPublished").set(new Date().toISOString());
-
+      await submitRecord(region, userID, key, status);
       this.setState({ loading: false });
     }
   }
@@ -189,19 +203,10 @@ class Reviewer extends FormClassTemplate {
   async deleteRecord(key, userID) {
     const { match } = this.props;
     const { region } = match.params;
+
     if (key && userID) {
       this.setState({ loading: true });
-
-      await firebase
-        .database()
-        .ref(region)
-        .child("users")
-        // this can be any user id
-        .child(userID)
-        .child("records")
-        .child(key)
-        .remove();
-
+      await deleteRecord(region, userID, key);
       this.setState({ loading: false });
     }
   }
@@ -217,11 +222,15 @@ class Reviewer extends FormClassTemplate {
       showRecordTypes,
       showUsers,
       deleteModalOpen,
+      transferModalOpen,
+      transferEmail,
+      transferUserNotFound,
       modalKey,
       modalUserID,
       unPublishModalOpen,
       publishModalOpen,
       unSubmitModalOpen,
+      submitModalOpen,
       loading,
       users,
     } = this.state;
@@ -282,12 +291,31 @@ class Reviewer extends FormClassTemplate {
         alignItems="stretch"
         spacing={3}
       >
+        <TransferModal
+          open={transferModalOpen}
+          onClose={() => {
+            this.toggleModal("transferModalOpen", false);
+            this.setState({ transferEmail: "" });
+          }}
+          onAccept={() => this.handleTransferRecord(modalKey, modalUserID)}
+          transferUserNotFound={transferUserNotFound}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          email={transferEmail}
+          setEmail={(v) => this.setState({ transferEmail: v })}
+        />
         <SimpleModal
           open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
           onAccept={() => this.deleteRecord(modalKey, modalUserID)}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
+        />
+        <SimpleModal
+          open={submitModalOpen}
+          onClose={() => this.toggleModal("submitModalOpen", false)}
+          onAccept={() => this.submitRecord(modalKey, modalUserID, "submitted")}
+          aria-labelledby="simple-modal-title"
         />
         <SimpleModal
           open={publishModalOpen}
@@ -439,7 +467,6 @@ class Reviewer extends FormClassTemplate {
                         <RecordItem
                           key={record.key}
                           record={record}
-                          language={language}
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
                         />

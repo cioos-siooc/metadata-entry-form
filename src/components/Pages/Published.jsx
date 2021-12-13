@@ -3,7 +3,10 @@ import { Typography, List, CircularProgress } from "@material-ui/core";
 import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 import { auth } from "../../auth";
-import { cloneRecord, loadRegionRecords } from "../../utils/firebaseFunctions";
+import {
+  cloneRecord,
+  loadRegionRecords,
+} from "../../utils/firebaseRecordFunctions";
 import { Fr, En, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
@@ -61,7 +64,7 @@ class Published extends FormClassTemplate {
 
   render() {
     const { match } = this.props;
-    const { language, region } = match.params;
+    const { region } = match.params;
     const { records, loading } = this.state;
 
     const recordDateSort = (a, b) => new Date(b.created) - new Date(a.created);
@@ -103,8 +106,7 @@ class Published extends FormClassTemplate {
                           <MetadataRecordListItem
                             record={record}
                             key={record.key}
-                            language={language}
-                            onViewClick={() =>
+                            onViewEditClick={() =>
                               this.editRecord(
                                 record.key,
                                 record.userinfo?.userID
@@ -114,6 +116,7 @@ class Published extends FormClassTemplate {
                             showUnSubmitAction={false}
                             showCloneAction
                             showAuthor
+                            showViewAction
                             onCloneClick={() =>
                               this.handleCloneRecord(
                                 record.key,

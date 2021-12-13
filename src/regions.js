@@ -35,9 +35,9 @@ const regions = {
     },
     introPageText: {
       en:
-        "The St. Lawrence Global Observatory integrates multidisciplinary data and information about the St. Lawrence’s global system, from the Great Lakes to the Gulf.",
+        "SLGO integrates data from the St. Lawrence, from the Great Lakes to the Gulf.",
       fr:
-        "L'Observatoire global du Saint-Laurent intégre des données et de l'information multidisciplinaires sur l'écosystème global du Saint-Laurent, des Grands Lacs au Golfe",
+        "L'Observatoire global du Saint-Laurent intègre les données du Saint-Laurent, des Grands Lacs jusqu'au Golfe",
     },
     showInRegionSelector: true,
   },

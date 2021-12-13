@@ -18,7 +18,9 @@ class ErrorBoundary extends Component {
   }
 
   render() {
-    if (this.state.hasError) {
+    const { hasError } = this.state;
+    const { children } = this.props;
+    if (hasError) {
       return (
         <div>
           <h1>
@@ -42,7 +44,7 @@ class ErrorBoundary extends Component {
         </div>
       );
     }
-    return this.props.children;
+    return children;
   }
 }
 

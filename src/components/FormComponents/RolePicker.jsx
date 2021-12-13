@@ -61,13 +61,16 @@ const RolePicker = ({ value, disabled, updateContact }) => {
             <En>
               At least one Metadata Custodian and one Data Owner are required.
               Multiple roles can be selected for each contact. Expand the list
-              below for additional role.
+              below for additional role. Only starred roles (*) will appear in
+              the citation.
             </En>
             <Fr>
               Au moins un dépositaire de métadonnées et un propriétaire de
               données sont requis. Plusieurs rôles peuvent être sélectionnés par
               personne. Si vous avez besoin de rôles plus spécifiques, vous
-              pouvez étendre la liste.
+              pouvez étendre la liste. Développez la liste ci-dessous pour un
+              rôle supplémentaire. Seuls les rôles marqués d'un astérisque (*)
+              apparaîtront dans la citation.
             </Fr>
           </I18n>
         </SupplementalText>

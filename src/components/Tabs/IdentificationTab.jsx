@@ -1,6 +1,7 @@
 import React from "react";
-import { Paper, TextField, Grid } from "@material-ui/core";
+import { Paper, TextField, Grid, IconButton, Tooltip } from "@material-ui/core";
 import { useParams } from "react-router-dom";
+import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
@@ -43,6 +44,18 @@ const IdentificationTab = ({
     >
       {regionInfo.catalogueURL[lang]}
     </a>
+  );
+
+  // sort into array of objects sorted by name?
+  const licensesSorted = Object.values(licenses).sort((a, b) =>
+    (a.title[language] || a.title.en).localeCompare(
+      b.title[language] || a.title.en,
+      language
+    )
+  );
+
+  const licenseText = Object.values(licensesSorted).map(
+    (l) => l.title[language] || l.title.en
   );
 
   return (
@@ -173,11 +186,12 @@ const IdentificationTab = ({
           <I18n>
             <En>
               Please select all the essential ocean variables that are contained
-              in this dataset.
+              in this dataset. Hover over a variable to see its definition.
             </En>
             <Fr>
               Veuillez sélectionner toutes les variables océaniques essentielles
-              contenues dans ce jeu de données.
+              contenues dans ce jeu de données. Survolez une variable pour voir
+              sa définition.
             </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "eov")} />
@@ -192,21 +206,63 @@ const IdentificationTab = ({
           </SupplementalText>
         </QuestionText>
         {Object.entries(eovCategories).map(([categoryKey, categoryText]) => {
-          const eovsFiltered = eovs.filter((e) => e.category === categoryKey);
+          const eovsFiltered = eovs
+            .filter((e) => e.category === categoryKey)
+            .sort((a, b) =>
+              a[`label ${languageUpperCase}`].localeCompare(
+                b[`label ${languageUpperCase}`],
+                language
+              )
+            );
 
           return (
             <div key={categoryText[language]}>
               <h4>{categoryText[language]}</h4>
               <CheckBoxList
                 value={record.eov || []}
+                labelSize={6}
                 onChange={updateRecord("eov")}
                 options={eovsFiltered.map((e) => e.value)}
-                optionLabels={eovsFiltered.map(
-                  (e) => e[`label ${languageUpperCase}`]
-                )}
-                optionTooltips={eovsFiltered.map(
-                  (e) => e[`definition ${languageUpperCase}`]
-                )}
+                optionLabels={eovsFiltered.map((e) => (
+                  <>
+                    <Tooltip title={e[`definition ${languageUpperCase}`]}>
+                      <span>{e[`label ${languageUpperCase}`]}</span>
+                    </Tooltip>
+                    {e.url && (
+                      <IconButton
+                        onClick={() => {
+                          const win = window.open(e.url, "_blank");
+                          win.focus();
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            <I18n
+                              en="Open GOOS definition in new window"
+                              fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
+                            />
+                          }
+                        >
+                          <OpenInNew />
+                        </Tooltip>
+                      </IconButton>
+                    )}
+                    {e.emerging && (
+                      <IconButton onClick={() => {}}>
+                        <Tooltip
+                          title={
+                            <I18n
+                              en="GOOS emerging EOV"
+                              fr="EOV émergent GOOS"
+                            />
+                          }
+                        >
+                          <Update />
+                        </Tooltip>
+                      </IconButton>
+                    )}
+                  </>
+                ))}
                 disabled={disabled}
               />
             </div>
@@ -386,23 +442,46 @@ const IdentificationTab = ({
                 <ul>
                   <li>
                     <b>
-                      Creative Commons Attribution 4.0 International licence
-                      (CC-BY 4.0)
+                      <a
+                        href="https://creativecommons.org/licenses/by/4.0/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Creative Commons Attribution 4.0 International licence
+                        (CC-BY 4.0)
+                      </a>
                     </b>{" "}
                     - CIOOS recommended. Allows for open sharing and adaptation
                     of the data provided that the original creator is
                     attributed.
                   </li>
                   <li>
-                    <b>Creative Commons 0</b> - imposes no restrictions of any
-                    kind.
+                    <b>
+                      <a
+                        href="https://creativecommons.org/share-your-work/public-domain/cc0/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Creative Commons 0
+                      </a>
+                    </b>{" "}
+                    - imposes no restrictions of any kind.
                   </li>
                   <li>
-                    <b>Open Government Licence - Canada</b> - For datasets made
-                    available by Government of Canada departments and agencies,
-                    it is very similar to CC-BY as it allows for open sharing
-                    and adaptation of the data, provided that the original
-                    creator of the data is properly attributed.
+                    <b>
+                      <a
+                        href="https://open.canada.ca/en/open-government-licence-canada"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open Government Licence - Canada
+                      </a>
+                    </b>{" "}
+                    - For datasets made available by Government of Canada
+                    departments and agencies, it is very similar to CC-BY as it
+                    allows for open sharing and adaptation of the data, provided
+                    that the original creator of the data is properly
+                    attributed.
                   </li>
                 </ul>
               </En>
@@ -434,11 +513,34 @@ const IdentificationTab = ({
             </I18n>
           </SupplementalText>
         </QuestionText>
+        {record.license}
         <SelectInput
           value={record.license}
           onChange={handleUpdateRecord("license")}
-          optionLabels={Object.values(licenses)}
-          options={Object.keys(licenses)}
+          optionLabels={licenseText.map((l) => (
+            <span>
+              {l}
+
+              <Tooltip
+                title={
+                  <I18n
+                    en="Open license definition in new window"
+                    fr="Ouvrir la définition de licence dans une nouvelle fenêtre"
+                  />
+                }
+              >
+                <IconButton
+                  onClick={() => {
+                    const win = window.open(l.url, "_blank");
+                    win.focus();
+                  }}
+                >
+                  <OpenInNew />
+                </IconButton>
+              </Tooltip>
+            </span>
+          ))}
+          options={licensesSorted.map((l) => l.code)}
           disabled={disabled}
         />
       </Paper>

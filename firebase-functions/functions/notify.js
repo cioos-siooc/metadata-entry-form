@@ -24,9 +24,7 @@ exports.notifyReviewer = functions.database
         .ref(`/${region}/permissions/reviewers`)
         .once("value");
 
-      const reviewers = reviewersFirebase
-        ? Object.values(reviewersFirebase.toJSON()).map((e) => e)
-        : [];
+      const reviewers = reviewersFirebase.val().split(",");
 
       if (!reviewers.length) {
         console.log(`No reviewers found to notify for region ${region}`);
@@ -62,12 +60,15 @@ exports.notifyReviewer = functions.database
 
       // returning result
 
-      transporter.sendMail(mailOptionsReviewer, (e, info) => {
-        console.log(info);
-        if (e) {
-          console.log(e);
+      transporter.sendMail(
+        mailOptionsReviewer(reviewers, title, region),
+        (e, info) => {
+          console.log(info);
+          if (e) {
+            console.log(e);
+          }
         }
-      });
+      );
     }
   });
 /*
@@ -85,10 +86,12 @@ exports.notifyUser = functions.database
         .ref(`/${region}/permissions/reviewers`)
         .once("value");
 
-      const reviewers = reviewersFirebase
-        ? Object.values(reviewersFirebase.toJSON()).map((e) => e)
-        : [];
+      const reviewers = reviewersFirebase.val().split(",");
 
+      if (!reviewers.length) {
+        console.log("No reviewers for region", region);
+        return;
+      }
       const recordFB = await db
         .ref(`/${region}/users/${userID}/records/${recordID}`)
         .once("value");
@@ -119,11 +122,14 @@ exports.notifyUser = functions.database
 
       // returning result
 
-      transporter.sendMail(mailOptionsAuthor, (e, info) => {
-        console.log(info);
-        if (e) {
-          console.log(e);
+      transporter.sendMail(
+        mailOptionsAuthor(authorEmail, title, region),
+        (e, info) => {
+          console.log(info);
+          if (e) {
+            console.log(e);
+          }
         }
-      });
+      );
     }
   });
