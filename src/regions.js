@@ -30,7 +30,7 @@ const regions = {
     colors: { primary: "#00adef", secondary: "#00aeef" },
     email: "info@ogsl.ca",
     catalogueURL: {
-      fr: "https://catalogue.ogsl.ca",
+      fr: "https://catalogue.ogsl.ca/",
       en: "https://catalogue.ogsl.ca/en/",
     },
     introPageText: {
@@ -86,8 +86,8 @@ const regions = {
     colors: { primary: "#aa2025", secondary: "#459be2" },
     email: "info@hakai.org",
     catalogueURL: {
-      fr: "https://catalogue.hakai.org",
-      en: "https://catalogue.hakai.org",
+      fr: "https://catalogue.hakai.org/",
+      en: "https://catalogue.hakai.org/",
     },
     introPageText: { en: "", fr: "" },
     showInRegionSelector: false,
@@ -101,8 +101,8 @@ const regions = {
     colors: { primary: "#fcba03", secondary: "#2518ad" },
     email: "info@hakai.org",
     catalogueURL: {
-      fr: "https://example.com",
-      en: "https://example.com",
+      fr: "https://example.com/",
+      en: "https://example.com/",
     },
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
