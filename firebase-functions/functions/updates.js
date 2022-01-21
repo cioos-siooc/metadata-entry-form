@@ -23,22 +23,32 @@ exports.downloadRecord = functions.https.onCall(
   }
 );
 
-async function updateXML(region, path, status, filename) {
+async function updateXML(path, status = "", filename = "") {
   const url = `${urlBase}record`;
   const urlParams = new URLSearchParams({
-    region,
     path,
     status,
     filename,
   }).toString();
   const urlFull = `${url}?${urlParams}`;
-  console.log(urlFull);
 
   return https.get(urlFull);
 }
 
-// if the record changes, as long as it was publshed or submitted,
-// we should trigger an update
+// when user clicks "Save", if the record is submitted or published, update the XML
+exports.regenerateXMLforRecord = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth || !context.auth.token)
+      throw new functions.https.HttpsError("unauthenticated");
+
+    const { path, status } = data;
+    if (["submitted", "published"].includes(status)) updateXML(path);
+    // No need to create new XML if the record is a draft.
+    // If the record is complete, the user can still generate XML for a draft record
+  }
+);
+
+// if the record changes status we should trigger an update
 exports.updatesRecordUpdate = functions.database
   .ref("/{region}/users/{userID}/records/{recordID}/status")
   .onUpdate(({ before, after }, context) => {
@@ -50,7 +60,6 @@ exports.updatesRecordUpdate = functions.database
     const afterStatus = after.val();
     const beforeStatus = before.val();
 
-    console.log(region, userID, recordID, beforeStatus, afterStatus);
     // status changed to draft
     if (
       // if this record was or is published or submitted
@@ -58,7 +67,7 @@ exports.updatesRecordUpdate = functions.database
         (status) => status === "published" || status === "submitted"
       )
     ) {
-      return updateXML(region, path, afterStatus);
+      return updateXML(path, afterStatus);
     }
     console.log("no change");
   });
