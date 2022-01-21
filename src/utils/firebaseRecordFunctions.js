@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
-import blankRecord from "./blankRecord";
+import getBlankRecord from "./blankRecord";
 import { firebaseToJSObject, getRecordFilename } from "./misc";
 
 export async function cloneRecord(
@@ -53,7 +53,7 @@ export function loadRegionRecords(regionRecords, statusFilter) {
       Object.entries(user.records).forEach(([key, record]) => {
         if (statusFilter.includes(record.status))
           records.push({
-            ...{ ...blankRecord, ...firebaseToJSObject(record) },
+            ...{ ...getBlankRecord(), ...firebaseToJSObject(record) },
             userinfo: { ...user.userinfo, userID },
             key,
           });
