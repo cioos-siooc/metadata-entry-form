@@ -74,12 +74,12 @@ class Submissions extends FormClassTemplate {
     history.push(`/${language}/${region}/${currentUser.uid}/${key}`);
   }
 
-  handleSubmitRecord(key, record) {
+  handleSubmitRecord(key) {
     const { match } = this.props;
     const { region } = match.params;
 
     if (auth.currentUser && key) {
-      return submitRecord(region, auth.currentUser.uid, key, record);
+      return submitRecord(region, auth.currentUser.uid, key, "submitted");
     }
     return false;
   }
