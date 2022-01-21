@@ -30,11 +30,7 @@ import SubmitTab from "../Tabs/SubmitTab";
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
-import {
-  firebaseToJSObject,
-  deepCopy,
-  trimStringsInObject,
-} from "../../utils/misc";
+import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
 import { submitRecord } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
