@@ -39,7 +39,7 @@ import { submitRecord } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 
-import blankRecord from "../../utils/blankRecord";
+import getBlankRecord from "../../utils/blankRecord";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -96,7 +96,7 @@ class MetadataForm extends FormClassTemplate {
     super(props);
 
     this.state = {
-      record: deepCopy(blankRecord),
+      record: getBlankRecord(),
 
       // contacts saved by user (not the ones saved in the record)
       // kept in firebase object format instead of array
@@ -183,7 +183,7 @@ class MetadataForm extends FormClassTemplate {
               record.status !== "published";
 
             this.setState({
-              record: { ...blankRecord, ...record, recordID },
+              record: { ...getBlankRecord(), ...record, recordID },
               loggedInUserCanEditRecord,
             });
             this.setState({ loading: false });
@@ -286,7 +286,7 @@ class MetadataForm extends FormClassTemplate {
       await recordsRef
         .child(record.recordID)
         // using blankRecord here in case there are new fields that the old record didnt have
-        .update({ ...blankRecord, ...record });
+        .update({ ...getBlankRecord(), ...record });
     } else {
       // new record
       const newNode = await recordsRef.push(record);
