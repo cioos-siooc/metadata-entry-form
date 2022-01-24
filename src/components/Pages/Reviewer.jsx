@@ -30,16 +30,24 @@ import {
   transferRecord,
   deleteRecord,
   submitRecord,
+  cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
 import FormClassTemplate from "./FormClassTemplate";
 
-const RecordItem = ({ record, language, editRecord, toggleModal }) => {
+const RecordItem = ({
+  record,
+  language,
+  editRecord,
+  toggleModal,
+  cloneRecord,
+}) => {
   const commonProps = {
     record,
     key: record.key,
     language,
     onViewEditClick: () => editRecord(record.key, record.userinfo.userID),
+    onCloneClick: () => cloneRecord(record.key, record.userinfo.userID),
     onDeleteClick: () =>
       toggleModal("deleteModalOpen", true, record.key, record.userinfo.userID),
     onTransferClick: () =>
@@ -51,6 +59,8 @@ const RecordItem = ({ record, language, editRecord, toggleModal }) => {
       ),
     showAuthor: true,
     showTransferButton: true,
+    showDeleteAction: true,
+    showCloneAction: true,
   };
 
   const DraftRecordItem = () => {
@@ -189,7 +199,16 @@ class Reviewer extends FormClassTemplate {
     return transferRecord(this.state.transferEmail, recordID, userID, region);
   }
 
-  async submitRecord(key, userID, status) {
+  // user ID is that of the record owner, not the editor
+  handleCloneRecord(recordID, sourceUserID) {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    if (auth.currentUser) {
+      cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
+    }
+  }
+  async handleSubmitRecord(key, userID, status) {
     const { match } = this.props;
     const { region } = match.params;
 
@@ -314,27 +333,33 @@ class Reviewer extends FormClassTemplate {
         <SimpleModal
           open={submitModalOpen}
           onClose={() => this.toggleModal("submitModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID, "submitted")}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
+          }
           aria-labelledby="simple-modal-title"
         />
         <SimpleModal
           open={publishModalOpen}
           onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID, "published")}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "published")
+          }
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
           open={unPublishModalOpen}
           onClose={() => this.toggleModal("unPublishModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID, "submitted")}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
+          }
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
         <SimpleModal
           open={unSubmitModalOpen}
           onClose={() => this.toggleModal("unSubmitModalOpen", false)}
-          onAccept={() => this.submitRecord(modalKey, modalUserID, "")}
+          onAccept={() => this.handleSubmitRecord(modalKey, modalUserID, "")}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
@@ -469,6 +494,7 @@ class Reviewer extends FormClassTemplate {
                           record={record}
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
+                          cloneRecord={this.handleCloneRecord.bind(this)}
                         />
                       ))}
                     </List>
