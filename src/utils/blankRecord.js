@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
+import { deepCopy } from "../utils/misc";
+
 const blankRecord = {
   title: { en: "", fr: "" },
   abstract: { en: "", fr: "" },
-  identifier: uuidv4(),
   keywords: { en: [], fr: [] },
   eov: [],
   progress: "",
@@ -25,7 +26,6 @@ const blankRecord = {
   status: "",
   comment: "",
   limitations: "",
-  created: new Date().toISOString(),
   lastEditedBy: {},
   category: "",
   verticalExtentDirection: "",
@@ -36,4 +36,11 @@ const blankRecord = {
   timeFirstPublished: "",
 };
 
-export default blankRecord;
+function getBlankRecord() {
+  const record = deepCopy(blankRecord);
+  record.identifier = uuidv4();
+  record.created = new Date().toISOString();
+  return record;
+}
+
+export default getBlankRecord;
