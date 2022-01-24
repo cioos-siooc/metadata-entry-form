@@ -48,6 +48,25 @@ exports.regenerateXMLforRecord = functions.https.onCall(
   }
 );
 
+// if a record with status=submitted/published is created
+// this ONLY should happen when a submitted/published record is transferred to another user
+// when a new record is created/cloned, it would have status="" so this wouldnt run
+exports.updatesRecordCreate = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}")
+  .onCreate(async (snpashot, context) => {
+    const record = snpashot.val();
+    const { region, userID, recordID } = context.params;
+    const path = `${region}/${userID}/${recordID}`;
+    const { status } = record;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    if (["submitted", "published"].includes(status)) {
+      // wait a second so the file has a chance to be deleted on the server before it is created
+      // otherwise the server might delete the new files
+      await delay(1000);
+      return updateXML(path);
+    }
+  });
+
 // if the record changes status we should trigger an update
 exports.updatesRecordUpdate = functions.database
   .ref("/{region}/users/{userID}/records/{recordID}/status")
