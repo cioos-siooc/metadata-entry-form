@@ -80,6 +80,9 @@ class UserProvider extends FormClassTemplate {
   render() {
     const { children } = this.props;
     const translate = firebase.functions().httpsCallable("translate");
+    const regenerateXMLforRecord = firebase
+      .functions()
+      .httpsCallable("regenerateXMLforRecord");
     const downloadRecord = firebase.functions().httpsCallable("downloadRecord");
 
     return (
@@ -87,6 +90,7 @@ class UserProvider extends FormClassTemplate {
         value={{
           ...this.state,
           translate,
+          regenerateXMLforRecord,
           downloadRecord,
         }}
       >

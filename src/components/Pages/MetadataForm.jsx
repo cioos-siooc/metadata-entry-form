@@ -300,6 +300,17 @@ class MetadataForm extends FormClassTemplate {
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
 
+    // regnerate XML on save
+    if (["submitted", "published"].includes(record.status)) {
+      const { regenerateXMLforRecord } = this.context;
+
+      const path = `${region}/${userID}/${recordID}`;
+      const status = record.status;
+      const filename = record.filename;
+
+      regenerateXMLforRecord({ path, status, filename });
+    }
+
     this.setState({ saveDisabled: true });
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable

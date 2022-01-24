@@ -5,6 +5,7 @@ const {
   updatesRecordUpdate,
   updatesRecordDelete,
   downloadRecord,
+  regenerateXMLforRecord,
 } = require("./updates");
 
 admin.initializeApp();
@@ -15,3 +16,4 @@ exports.notifyUser = notifyUser;
 exports.updatesRecordUpdate = updatesRecordUpdate;
 exports.updatesRecordDelete = updatesRecordDelete;
 exports.downloadRecord = downloadRecord;
+exports.regenerateXMLforRecord = regenerateXMLforRecord;
