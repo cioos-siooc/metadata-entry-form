@@ -109,7 +109,7 @@ const ContactTab = ({
               <I18n>
                 <En>
                   This is how your record citation will look in the catalogue.
-                  Only with starred roles will appear in the citation. To change
+                  Only starred roles will appear in the citation. To change
                   the order, drag the{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} /> symbol.
                 </En>
