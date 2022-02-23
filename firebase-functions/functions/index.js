@@ -2,6 +2,7 @@ const admin = require("firebase-admin");
 const { translate } = require("./translate");
 const { notifyReviewer, notifyUser } = require("./notify");
 const {
+  updatesRecordCreate,
   updatesRecordUpdate,
   updatesRecordDelete,
   downloadRecord,
@@ -15,5 +16,6 @@ exports.notifyReviewer = notifyReviewer;
 exports.notifyUser = notifyUser;
 exports.updatesRecordUpdate = updatesRecordUpdate;
 exports.updatesRecordDelete = updatesRecordDelete;
+exports.updatesRecordCreate = updatesRecordCreate;
 exports.downloadRecord = downloadRecord;
 exports.regenerateXMLforRecord = regenerateXMLforRecord;

@@ -106,7 +106,10 @@ export default function TransferModal({
                   }
                   error={!emailIsValid}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setTransferResult(true);
+                    setEmail(e.target.value);
+                  }}
                   fullWidth
                 />
               </div>
@@ -116,13 +119,11 @@ export default function TransferModal({
                 disabled={!email || !emailIsValid || isTransferring}
                 onClick={async () => {
                   setIsTransferring(true);
-                  const res = await onAccept();
+                  const transferResult = await onAccept();
 
-                  setTransferResult(res);
+                  setTransferResult(transferResult);
                   setIsTransferring(false);
-                  if (transferResult) {
-                    onClose();
-                  }
+                  if (transferResult) onClose();
                 }}
               >
                 <I18n>
