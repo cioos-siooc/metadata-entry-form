@@ -84,8 +84,8 @@ const ContactTab = ({
                 <En>
                   It is important to include all individuals from the chain of
                   attribution to ensure all involved parties are credited
-                  appropriately for their role in creating this dataset Saved
-                  contacts can be selected from the list below If you have any
+                  appropriately for their role in creating this dataset. Saved
+                  contacts can be selected from the list below. If you have any
                   saved contacts you can select them from the list.
                 </En>
                 <Fr>

@@ -40,10 +40,10 @@ const StartTab = ({ disabled }) => {
             <En>
               Welcome to the {regionInfo.title.en} Metadata Entry Tool, the
               first step in making your data discoverable and accessible through
-              CIOOS. This information will be used to create a metadata profile
+              CIOOS. This information will be used to create a metadata record
               for your dataset that will allow it to be searchable through the{" "}
               {regionInfo.catalogueTitle.en}. Please fill out each field with as
-              much detail as possible. The metadata profile will help describe
+              much detail as possible. The metadata record will help describe
               this dataset for others to determine if it is relevant for their
               work and ensure it is interoperable with other databases and
               systems.
@@ -54,7 +54,7 @@ const StartTab = ({ disabled }) => {
               Bienvenue dans l’outil de saisie de métadonnées du{" "}
               {regionInfo.title.fr}! Ceci constitue la première étape pour
               rendre vos données accessibles et découvrables via notre
-              plateforme. Ces renseignements serviront à créer un profil de
+              plateforme. Ces renseignements serviront à créer un enregistrement de 
               métadonnées pour votre jeu de données, facilitant ainsi sa
               découverte dans le {regionInfo.catalogueTitle.fr} et le rendant
               interopérable avec d’autres systèmes de diffusion. Veuillez
