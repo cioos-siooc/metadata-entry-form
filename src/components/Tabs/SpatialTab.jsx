@@ -112,7 +112,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
               <I18n>
                 <En>
                   Depth positive: Depth is recorded with positive values (i.e. a
-                  maximum value of 150m implies 150m below the surface).
+                  maximum value of 150m implies 150m below sea level).
                 </En>
                 <Fr>
                   Profondeur positive: La profondeur est enregistrée avec des
@@ -125,13 +125,12 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <div>
               <I18n>
                 <En>
-                  Height positive: Height is the elevation from sea level (i.e. a
+                  Height Positive: Altitude is the elevation from sea level (i.e. a
                   maximum value of 150m implies 150m above sea level).
                 </En>
                 <Fr>
-                  Hauteur positive: La profondeur est l'élévation depuis le fond
-                  marin (c'est-à-dire une valeur maximale de 150 m implique 150
-                  m au-dessus du fond marin)
+                  Hauteur positive: L'altitude est l'altitude par rapport au niveau de la mer
+                  (c'est-à-dire qu'une valeur maximale de 150 m implique 150 m au-dessus du niveau de la mer).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5829" />
