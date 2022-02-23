@@ -120,12 +120,12 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                   implique 150 m au-dessous de la surface).
                 </Fr>
               </I18n>
-              <OpenEPSGDefn url="https://epsg.io/5829" />
+              <OpenEPSGDefn url="https://epsg.io/5831" />
             </div>
             <div>
               <I18n>
                 <En>
-                  Height positive: Depth is the elevation from sea level (i.e. a
+                  Height positive: Height is the elevation from sea level (i.e. a
                   maximum value of 150m implies 150m above sea level).
                 </En>
                 <Fr>
@@ -134,7 +134,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                   m au-dessus du fond marin)
                 </Fr>
               </I18n>
-              <OpenEPSGDefn url="https://epsg.io/5831" />
+              <OpenEPSGDefn url="https://epsg.io/5829" />
             </div>
           </SupplementalText>
         </QuestionText>
