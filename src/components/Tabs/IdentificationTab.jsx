@@ -36,7 +36,7 @@ const IdentificationTab = ({
   );
   const languageUpperCase = language.toUpperCase();
 
-  const CatalogueLink = (lang) => (
+  const CatalogueLink = ({lang}) => (
     <a
       href={regionInfo.catalogueURL[lang]}
       target="_blank"
@@ -52,10 +52,6 @@ const IdentificationTab = ({
       b.title[language] || a.title.en,
       language
     )
-  );
-
-  const licenseText = Object.values(licensesSorted).map(
-    (l) => l.title[language] || l.title.en
   );
 
   return (
@@ -127,7 +123,7 @@ const IdentificationTab = ({
                 for this dataset in the {regionInfo.catalogueTitle.en}. Browsing
                 datasets at <CatalogueLink lang="en" /> can help provide a sense
                 of the type of descriptions that are typically used for this
-                section of the profile. As a general rule, this section should
+                section of the record. As a general rule, this section should
                 be worded with as little jargon as possible to give potential
                 users an understanding of your dataset.
                 <br />
@@ -513,13 +509,12 @@ const IdentificationTab = ({
             </I18n>
           </SupplementalText>
         </QuestionText>
-        {record.license}
         <SelectInput
           value={record.license}
           onChange={handleUpdateRecord("license")}
-          optionLabels={licenseText.map((l) => (
+          optionLabels={licensesSorted.map((l) => (
             <span>
-              {l}
+              {l.title[language] || l.title.en}
 
               <Tooltip
                 title={

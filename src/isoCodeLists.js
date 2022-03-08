@@ -58,7 +58,7 @@ export const roleCodes = {
   },
   coAuthor: {
     title: { en: "Coauthor", fr: "Co-auteur" },
-    text: { en: "Parti qui est l'auteur de la ressource" },
+    text: { en:"Party who jointly authors the resource", fr: "Partie qui est l'auteur conjoint de la ressource" },
   },
 
   collaborator: {
@@ -175,14 +175,6 @@ export const roleCodes = {
         "Partie qui a un intérêt dans la ressource ou l'utilisation de la ressource",
     },
   },
-  // This option doesn't seem appropriate to the form
-  // user: {
-  //   title: { en: "User", fr: "Utilisateur" },
-  //   text: {
-  //     en: "Party who uses the resource",
-  //     fr: "Partie qui utilise la ressource",
-  //   },
-  // },
 };
 
 export const progressCodes = {
