@@ -1,5 +1,7 @@
 # metadata-entry-form
 
+[![Run Build and Tests](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml/badge.svg)](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml)
+
 CIOOS Metadata entry form
 
 ## Installation
