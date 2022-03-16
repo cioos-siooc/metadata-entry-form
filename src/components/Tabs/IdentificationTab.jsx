@@ -8,6 +8,7 @@ import { eovs, eovCategories } from "../../eovs.json";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
+import HelpMouseover from "../FormComponents/HelpMouseover";
 import DateInput from "../FormComponents/DateInput";
 import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -36,7 +37,7 @@ const IdentificationTab = ({
   );
   const languageUpperCase = language.toUpperCase();
 
-  const CatalogueLink = ({lang}) => (
+  const CatalogueLink = ({ lang }) => (
     <a
       href={regionInfo.catalogueURL[lang]}
       target="_blank"
@@ -69,14 +70,21 @@ const IdentificationTab = ({
           <SupplementalText>
             <I18n>
               <En>
-                Please refrain from using special characters in the dataset
-                title. This will appear as the title that is shown for this
-                dataset in the {regionInfo.catalogueTitle.en}.
+                Recommended title includes: What, Where, When. Title should be
+                precise enough so that the user will not have to open the
+                dataset to understand its contents. Title should not have
+                acronyms, special characters, or use specialized nomenclature.
+                This will appear as the title that is shown for this dataset in
+                the {regionInfo.catalogueTitle.en}.
               </En>
               <Fr>
-                Veuillez ne pas utiliser de caractères spéciaux dans le titre du
-                jeu de données. Ceci apparaîtra comme titre de votre jeu de
-                données dans le {regionInfo.catalogueTitle.fr}.
+                Le titre recommandé comprend : Quoi, Où, Quand. Le titre doit
+                être suffisamment précis pour que l'utilisateur n'ait pas à
+                ouvrir le ensemble de données pour comprendre son contenu. Le
+                titre ne doit pas avoir des acronymes, des caractères spéciaux
+                ou utiliser une nomenclature spécialisée. Ceci apparaîtra comme
+                titre de votre jeu de données dans le{" "}
+                {regionInfo.catalogueTitle.fr}.
               </Fr>
             </I18n>
           </SupplementalText>
@@ -123,9 +131,9 @@ const IdentificationTab = ({
                 for this dataset in the {regionInfo.catalogueTitle.en}. Browsing
                 datasets at <CatalogueLink lang="en" /> can help provide a sense
                 of the type of descriptions that are typically used for this
-                section of the record. As a general rule, this section should
-                be worded with as little jargon as possible to give potential
-                users an understanding of your dataset.
+                section of the record. As a general rule, this section should be
+                worded with as little jargon as possible to give potential users
+                an understanding of your dataset.
                 <br />
                 <br />
                 Suggested abstract points -
@@ -292,6 +300,23 @@ const IdentificationTab = ({
                     mot saisi.{" "}
                   </Fr>
                 </I18n>
+
+                <HelpMouseover>
+                  <I18n>
+                    <En>
+                      Keywords should include the place name of the closest
+                      community or major geographic location. Ex. Hartley Bay,
+                      Gitga’at Territory, in addition to the closest body of
+                      water, e.g. Douglas Channel.
+                    </En>
+                    <Fr>
+                      Les mots-clés doivent inclure le nom du lieu le plus
+                      proche communauté ou situation géographique importante.
+                      Ex. Hartley Bay, Le territoire des Gitga'at, outre le plan
+                      d'eau le plus proche, Par exemple Douglas Channel.
+                    </Fr>
+                  </I18n>
+                </HelpMouseover>
               </SupplementalText>
             </QuestionText>
           </Grid>
@@ -311,6 +336,13 @@ const IdentificationTab = ({
             <Fr>Quel est l'état de ce jeu de données?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "progress")} />
+          <HelpMouseover>
+            {Object.values(progressCodes).map(({ title, text }) => (
+              <div style={{ margin: "10px" }} key={title[language]}>
+                {title[language] + ": " + text[language]}
+              </div>
+            ))}
+          </HelpMouseover>
         </QuestionText>
         <SelectInput
           value={record.progress || ""}
@@ -318,9 +350,6 @@ const IdentificationTab = ({
           options={Object.keys(progressCodes)}
           optionLabels={Object.values(progressCodes).map(
             ({ title }) => title[language]
-          )}
-          optionTooltips={Object.values(progressCodes).map(
-            ({ text }) => text[language]
           )}
           disabled={disabled}
           fullWidth={false}

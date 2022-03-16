@@ -2,7 +2,7 @@ import React from "react";
 import { Typography } from "@material-ui/core";
 
 export const SupplementalText = ({ children }) => (
-  <Typography variant="body2" component="div">
+  <Typography variant="body2" component="div" style={{ marginTop: "10px" }}>
     {children}
   </Typography>
 );

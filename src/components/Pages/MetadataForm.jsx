@@ -34,6 +34,7 @@ import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
 import { submitRecord } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
+import tabs from "../../utils/tabs";
 
 import getBlankRecord from "../../utils/blankRecord";
 
@@ -389,24 +390,19 @@ class MetadataForm extends FormClassTemplate {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={<I18n en="Start" fr="Accueil" />}
+                label={tabs.start[language]}
                 value="start"
               />
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={
-                  <I18n
-                    en="Data Identification"
-                    fr="Identification des données"
-                  />
-                }
+                label={tabs.dataID[language]}
                 value="identification"
               />
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label="Spatial"
+                label={tabs.spatial[language]}
                 value="spatial"
               />
               <Tab
@@ -418,13 +414,13 @@ class MetadataForm extends FormClassTemplate {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={<I18n en="Resources" fr="Ressources" />}
+                label={tabs.resources[language]}
                 value="distribution"
               />
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={<I18n en="Platform" fr="Plateforme" />}
+                label={tabs.platform[language]}
                 value="platform"
               />
               {loggedInUserCanEditRecord && (

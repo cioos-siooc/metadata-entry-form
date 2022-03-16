@@ -13,9 +13,10 @@ const regions = {
       en: "https://catalogue.cioospacific.ca/",
     },
     introPageText: {
-      en: "CIOOS Pacific is focused on ocean data from Canada’s West Coast",
+      en:
+        "CIOOS Pacific integrates data from Canada’s west coast, from Dixon Entrance to the Strait of Juan de Fuca.",
       fr:
-        "SIOOC Pacifique se concentre sur les données océaniques de la côte ouest du Canada",
+        "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
   },
@@ -55,9 +56,9 @@ const regions = {
     },
     introPageText: {
       en:
-        "CIOOS Atlantic is focused on the integration of oceanographic data from the Atlantic seaboard, a region spanning from Labrador to the USA.",
+        "CIOOS Atlantic integrates data from Canada’s east coast, from Labrador to Bay of Fundy.",
       fr:
-        "SIOOC Atlantique intègre des données océanographiques de la côte atlantique, une région qui s’étend du Labrador aux États-Unis",
+        "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
   },

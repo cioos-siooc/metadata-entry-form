@@ -7,10 +7,9 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 
 import MapSelect from "../FormComponents/MapSelect";
-import { camelToSentenceCase } from "../../utils/misc";
+
 import SelectInput from "../FormComponents/SelectInput";
 import { depthDirections } from "../../isoCodeLists";
-import translate from "../../utils/i18n";
 
 import {
   QuestionText,
@@ -125,12 +124,13 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <div>
               <I18n>
                 <En>
-                  Height Positive: Altitude is the elevation from sea level (i.e. a
-                  maximum value of 150m implies 150m above sea level).
+                  Height Positive: Altitude is the elevation from sea level
+                  (i.e. a maximum value of 150m implies 150m above sea level).
                 </En>
                 <Fr>
-                  Hauteur positive: L'altitude est l'altitude par rapport au niveau de la mer
-                  (c'est-à-dire qu'une valeur maximale de 150 m implique 150 m au-dessus du niveau de la mer).
+                  Hauteur positive: L'altitude est l'altitude par rapport au
+                  niveau de la mer (c'est-à-dire qu'une valeur maximale de 150 m
+                  implique 150 m au-dessus du niveau de la mer).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5829" />
@@ -148,9 +148,9 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <SelectInput
               value={record.verticalExtentDirection || ""}
               onChange={handleUpdateRecord("verticalExtentDirection")}
-              options={depthDirections}
-              optionLabels={depthDirections.map((e) =>
-                camelToSentenceCase(translate(e, language))
+              options={Object.keys(depthDirections)}
+              optionLabels={Object.values(depthDirections).map(
+                (e) => e[language]
               )}
               disabled={disabled}
             />
