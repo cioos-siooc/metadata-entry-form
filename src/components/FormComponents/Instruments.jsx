@@ -14,6 +14,8 @@ import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import { deepCopy } from "../../utils/misc";
 
+import RequiredMark from "./RequiredMark";
+
 const emptyInstrument = {
   id: "",
   manufacturer: "",
@@ -108,9 +110,10 @@ const Instruments = ({
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <I18n>
-                    <En>Instrument ID is required</En>
-                    <Fr>L'ID de l'instrument est requis</Fr>
+                    <En>Instrument ID</En>
+                    <Fr>L'ID de l'instrument</Fr>
                   </I18n>
+                  <RequiredMark passes={instrument.id} />
                   <TextField
                     label="ID"
                     value={instrument.id}

@@ -11,7 +11,7 @@ const validateLatitude = (num) => num >= -90 && num <= 90;
 const deepCompare = (obj1, obj2) =>
   JSON.parse(JSON.stringify(obj1) === JSON.stringify(obj2));
 
-const validateLongitude = (num) => num >= -180 && num <= 180;
+const validateLongitude = (num) => num >= -360 && num <= 360;
 
 const polygonIsValid = (polygon) => {
   // eg 48,-128 56,-133 56,-147 48,-128
@@ -37,7 +37,7 @@ const contactIsFilled = (contact) =>
 const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
-    tab: "data identification",
+    tab: "dataID",
     error: {
       en: "Missing title in French or English",
       fr: "Titre manquant en français ou en anglais",
@@ -45,7 +45,7 @@ const validators = {
   },
   abstract: {
     validation: (val) => val && val.en && val.fr,
-    tab: "data identification",
+    tab: "dataID",
     error: {
       en: "Missing abstract in French or English",
       fr: "Abrégé manquant en français ou en anglais",
@@ -53,7 +53,7 @@ const validators = {
   },
   keywords: {
     validation: (val) => val && (val.en.length || val.fr.length),
-    tab: "data identification",
+    tab: "dataID",
     error: {
       en: "At least one keyword is required",
       fr: "Au moins un mot clé est requis",
@@ -61,7 +61,7 @@ const validators = {
   },
   eov: {
     validation: (val) => val && val.length,
-    tab: "data identification",
+    tab: "dataID",
     error: {
       en: "At least one EOV is required",
       fr: "Au moins un variable essentielle océanique est requise",
@@ -70,7 +70,7 @@ const validators = {
   datasetIdentifier: {
     validation: (val) => !val || doiRegexp.test(val),
     optional: true,
-    tab: "data identification",
+    tab: "dataID",
     error: {
       en: "Invalid DOI",
       fr: "DOI non valide",
@@ -106,7 +106,7 @@ const validators = {
     },
   },
   progress: {
-    tab: "data identification",
+    tab: "dataID",
     validation: (val) => val,
     error: {
       en: "Please select a dataset status",
@@ -169,7 +169,7 @@ const validators = {
     },
   },
   instruments: {
-    tab: "platform - instruments",
+    tab: "platformInstruments",
     validation: (val, record) =>
       record.noPlatform ||
       (val && val.filter((instrument) => instrument.id).length),
@@ -179,7 +179,7 @@ const validators = {
     },
   },
   language: {
-    tab: "data identification",
+    tab: "dataID",
     validation: (val) => val,
     error: {
       en: "Language field is missing",
@@ -187,7 +187,7 @@ const validators = {
     },
   },
   license: {
-    tab: "data identification",
+    tab: "dataID",
     validation: (val) => val,
     error: {
       en: "Please select a license for the dataset",
@@ -196,7 +196,7 @@ const validators = {
   },
   // at least one contact has to have a role and a org or individual name
   contacts: {
-    tab: "contacts",
+    tab: "dataID",
     validation: (val) =>
       val &&
       // every contact must have a role and name
