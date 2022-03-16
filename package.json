@@ -23,6 +23,7 @@
     "javascript-time-ago": "^2.3.4",
     "leaflet": "^1.6.0",
     "leaflet-draw": "^1.0.4",
+    "nunjucks": "^3.2.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",

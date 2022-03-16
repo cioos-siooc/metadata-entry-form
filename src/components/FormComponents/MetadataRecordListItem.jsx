@@ -26,6 +26,7 @@ import {
 } from "@material-ui/icons";
 import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
+import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
@@ -82,23 +83,38 @@ const MetadataRecordListItem = ({
     showPercentComplete && Math.round(percentValid(record) * 100);
 
   async function handleDownloadRecord(fileType) {
+    // filetype is 
+    const extensions={
+      erddap:'_erddap.txt',
+      xml: '.xml',
+      yaml:'.yaml',
+      eml:'_eml.xml'
+    }
     setIsLoading({ downloadXML: true });
 
     try {
-      const res = await downloadRecord({ record, fileType });
-      const data = Object.values(res.data.message);
+      let data;
+      if (fileType === "eml") {
+        const emlStr= await recordToEML(record);
+        console.log(emlStr);
+        data = [emlStr];
+      } else {
+        const res = await downloadRecord({ record, fileType });
+        data = Object.values(res.data.message);
+      }
       const mimeTypes = {
         xml: "application/xml",
         yaml: "application/x-yaml",
+        eml: "application/xml",
         erddap: "application/xml",
       };
       const blob = new Blob(data, {
         type: `${mimeTypes[fileType]};charset=utf-8`,
       });
 
-      FileSaver.saveAs(
+      FileSaver.saveAs( 
         blob,
-        `${getRecordFilename(record)}.${fileType === "yaml" ? "yaml" : "xml"}`
+        `${getRecordFilename(record)}${extensions[fileType]}`
       );
       setIsLoading({ downloadXML: false });
     } catch (e) {
@@ -325,7 +341,7 @@ const MetadataRecordListItem = ({
                     handleClose();
                   }}
                 >
-                  XML
+                  ISO 19115 XML
                 </MenuItem>
                 <MenuItem
                   key="yaml"
@@ -344,6 +360,15 @@ const MetadataRecordListItem = ({
                   }}
                 >
                   ERDDAP snippet
+                </MenuItem>
+                <MenuItem
+                  key="eml"
+                  onClick={() => {
+                    handleDownloadRecord("eml");
+                    handleClose();
+                  }}
+                >
+                  EML for OBIS IPT
                 </MenuItem>
               </Menu>
             </span>
