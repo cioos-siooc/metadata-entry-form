@@ -141,7 +141,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                   {Object.keys(validationErrors).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
-                        {tabs.find((t) => t.en === tab).fr}
+                        {tabs[tab][language]}
                       </Typography>
                       <List>
                         {validationErrors[tab].map(

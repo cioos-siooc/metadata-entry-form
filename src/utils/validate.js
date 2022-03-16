@@ -76,6 +76,30 @@ const validators = {
       fr: "DOI non valide",
     },
   },
+  progress: {
+    tab: "dataID",
+    validation: (val) => val,
+    error: {
+      en: "Please select a dataset status",
+      fr: "L'information spatiale est manquante",
+    },
+  },
+  language: {
+    tab: "dataID",
+    validation: (val) => val,
+    error: {
+      en: "Language field is missing",
+      fr: "Le champ de langue est vide",
+    },
+  },
+  license: {
+    tab: "dataID",
+    validation: (val) => val,
+    error: {
+      en: "Please select a license for the dataset",
+      fr: "Veuillez sélectionner une licence pour le jeu de données",
+    },
+  },
   map: {
     error: {
       en: "Spatial information is missing",
@@ -105,28 +129,7 @@ const validators = {
       );
     },
   },
-  progress: {
-    tab: "dataID",
-    validation: (val) => val,
-    error: {
-      en: "Please select a dataset status",
-      fr: "L'information spatiale est manquante",
-    },
-  },
-  distribution: {
-    tab: "resources",
-    validation: (val) =>
-      Array.isArray(val) &&
-      val.filter((dist) => dist.name && dist.url && validator.isURL(dist.url))
-        .length,
 
-    error: {
-      en:
-        "Must have at least one resource. If a URL is included it must be valid.",
-      fr:
-        "Doit avoir au moins une ressource. Si une URL est incluse, elle doit être valide.",
-    },
-  },
   verticalExtentMin: {
     tab: "spatial",
 
@@ -150,6 +153,46 @@ const validators = {
     error: {
       en: "Missing Vertical Extent Direction",
       fr: "Direction de l'étendue verticale manquante",
+    },
+  },
+  // at least one contact has to have a role and a org or individual name
+  contacts: {
+    tab: "contacts",
+    validation: (val) =>
+      val &&
+      // every contact must have a role and name
+      val.every(contactIsFilled) &&
+      val.every(
+        (contact) =>
+          validateEmail(contact.indEmail) &&
+          validateEmail(contact.orgEmail) &&
+          validateURL(contact.orgURL)
+      ) &&
+      val
+        .filter(contactIsFilled)
+        .find((contact) => contact.role.includes("custodian")) &&
+      val
+        .filter(contactIsFilled)
+        .find((contact) => contact.role.includes("owner")),
+    error: {
+      en:
+        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.",
+      fr:
+        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides.",
+    },
+  },
+  distribution: {
+    tab: "resources",
+    validation: (val) =>
+      Array.isArray(val) &&
+      val.filter((dist) => dist.name && dist.url && validator.isURL(dist.url))
+        .length,
+
+    error: {
+      en:
+        "Must have at least one resource. If a URL is included it must be valid.",
+      fr:
+        "Doit avoir au moins une ressource. Si une URL est incluse, elle doit être valide.",
     },
   },
   platformID: {
@@ -176,48 +219,6 @@ const validators = {
     error: {
       en: "At least one instrument is required if there is a platform",
       fr: "Au moins un instrument est requis s'il y a une plateforme",
-    },
-  },
-  language: {
-    tab: "dataID",
-    validation: (val) => val,
-    error: {
-      en: "Language field is missing",
-      fr: "Le champ de langue est vide",
-    },
-  },
-  license: {
-    tab: "dataID",
-    validation: (val) => val,
-    error: {
-      en: "Please select a license for the dataset",
-      fr: "Veuillez sélectionner une licence pour le jeu de données",
-    },
-  },
-  // at least one contact has to have a role and a org or individual name
-  contacts: {
-    tab: "dataID",
-    validation: (val) =>
-      val &&
-      // every contact must have a role and name
-      val.every(contactIsFilled) &&
-      val.every(
-        (contact) =>
-          validateEmail(contact.indEmail) &&
-          validateEmail(contact.orgEmail) &&
-          validateURL(contact.orgURL)
-      ) &&
-      val
-        .filter(contactIsFilled)
-        .find((contact) => contact.role.includes("custodian")) &&
-      val
-        .filter(contactIsFilled)
-        .find((contact) => contact.role.includes("owner")),
-    error: {
-      en:
-        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.",
-      fr:
-        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides.",
     },
   },
 };
