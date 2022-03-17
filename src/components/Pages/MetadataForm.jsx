@@ -302,8 +302,7 @@ class MetadataForm extends FormClassTemplate {
       const { regenerateXMLforRecord } = this.context;
 
       const path = `${region}/${userID}/${recordID}`;
-      const status = record.status;
-      const filename = record.filename;
+      const { status, filename } = record;
 
       regenerateXMLforRecord({ path, status, filename });
     }

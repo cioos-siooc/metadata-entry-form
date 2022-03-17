@@ -15,7 +15,7 @@ import keywordList from "../../utils/keywords";
 import { En, Fr, I18n } from "../I18n";
 
 function translate(word, toLang = "fr") {
-  if (!word) return;
+  if (!word) return "";
   return keywordList.find((e) => e[toLang === "fr" ? "en" : "fr"] === word)[
     toLang
   ];
