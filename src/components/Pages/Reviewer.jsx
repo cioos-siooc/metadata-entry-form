@@ -208,6 +208,7 @@ class Reviewer extends FormClassTemplate {
       cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
     }
   }
+
   async handleSubmitRecord(key, userID, status) {
     const { match } = this.props;
     const { region } = match.params;

@@ -8,7 +8,6 @@ import { eovs, eovCategories } from "../../eovs.json";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
-import HelpMouseover from "../FormComponents/HelpMouseover";
 import DateInput from "../FormComponents/DateInput";
 import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -279,14 +278,10 @@ const IdentificationTab = ({
             <QuestionText>
               <I18n>
                 <En>
-                  Keywords are an important way to categorize your data that
-                  allow people and other systems to search for datasets that
-                  share some important characteristics. Choose the most specific
-                  keywords that apply to your data, or create your own.
+                  Choose the most specific keywords that apply to your data, or
+                  create your own.
                 </En>
                 <Fr>
-                  Les mots-clés permettent de catégoriser vos données et
-                  facilitent leur découverte par d’autres utilisateurs.
                   Choisissez des mots-clés spécifiques qui s’appliquent à vos
                   données ou créez-en des nouveaux.
                 </Fr>
@@ -294,29 +289,37 @@ const IdentificationTab = ({
               <RequiredMark passes={validateField(record, "keywords")} />
               <SupplementalText>
                 <I18n>
-                  <En> Enter one at a time, clicking 'Add' after each.</En>
-                  <Fr>
-                    Entrez un mot-clé à la fois. Cliquez sur « Ajouter » chaque
-                    mot saisi.{" "}
-                  </Fr>
-                </I18n>
-
-                <HelpMouseover>
-                  <I18n>
-                    <En>
+                  <En>
+                    <p>
+                      Keywords are an important way to categorize your data that
+                      allow people and other systems to search for datasets that
+                      share some important characteristics.
+                    </p>
+                    <p>
                       Keywords should include the place name of the closest
                       community or major geographic location. Ex. Hartley Bay,
                       Gitga’at Territory, in addition to the closest body of
                       water, e.g. Douglas Channel.
-                    </En>
-                    <Fr>
+                    </p>
+                    <p>Enter one at a time, clicking 'Add' after each.</p>
+                  </En>
+                  <Fr>
+                    <p>
+                      Les mots-clés permettent de catégoriser vos données et
+                      facilitent leur découverte par d’autres utilisateurs.
+                    </p>
+                    <p>
                       Les mots-clés doivent inclure le nom du lieu le plus
                       proche communauté ou situation géographique importante.
-                      Ex. Hartley Bay, Le territoire des Gitga'at, outre le plan
-                      d'eau le plus proche, Par exemple Douglas Channel.
-                    </Fr>
-                  </I18n>
-                </HelpMouseover>
+                      Ex. Hartley Bay, Le territoire des Gitga'at, en plus du
+                      corps le plus proche de eau, par exemple Douglas Channel.
+                    </p>
+                    <p>
+                      Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
+                      chaque mot saisi.
+                    </p>
+                  </Fr>
+                </I18n>
               </SupplementalText>
             </QuestionText>
           </Grid>
@@ -336,13 +339,14 @@ const IdentificationTab = ({
             <Fr>Quel est l'état de ce jeu de données?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "progress")} />
-          <HelpMouseover>
+
+          <SupplementalText>
             {Object.values(progressCodes).map(({ title, text }) => (
               <div style={{ margin: "10px" }} key={title[language]}>
-                {title[language] + ": " + text[language]}
+                {`${title[language]}: ${text[language]}`}
               </div>
             ))}
-          </HelpMouseover>
+          </SupplementalText>
         </QuestionText>
         <SelectInput
           value={record.progress || ""}
