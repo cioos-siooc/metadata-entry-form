@@ -1,26 +1,27 @@
 {
   "files": {
     "main.css": "/metadata-entry-form/static/css/main.34de6062.chunk.css",
-    "main.js": "/metadata-entry-form/static/js/main.bef42797.chunk.js",
-    "main.js.map": "/metadata-entry-form/static/js/main.bef42797.chunk.js.map",
+    "main.js": "/metadata-entry-form/static/js/main.032971f7.chunk.js",
+    "main.js.map": "/metadata-entry-form/static/js/main.032971f7.chunk.js.map",
     "runtime-main.js": "/metadata-entry-form/static/js/runtime-main.0b7029d3.js",
     "runtime-main.js.map": "/metadata-entry-form/static/js/runtime-main.0b7029d3.js.map",
     "static/css/2.dacbec41.chunk.css": "/metadata-entry-form/static/css/2.dacbec41.chunk.css",
-    "static/js/2.1d288d68.chunk.js": "/metadata-entry-form/static/js/2.1d288d68.chunk.js",
-    "static/js/2.1d288d68.chunk.js.map": "/metadata-entry-form/static/js/2.1d288d68.chunk.js.map",
+    "static/js/2.de8269c8.chunk.js": "/metadata-entry-form/static/js/2.de8269c8.chunk.js",
+    "static/js/2.de8269c8.chunk.js.map": "/metadata-entry-form/static/js/2.de8269c8.chunk.js.map",
     "index.html": "/metadata-entry-form/index.html",
-    "precache-manifest.35c609282e832f2267a423f35ca73fb7.js": "/metadata-entry-form/precache-manifest.35c609282e832f2267a423f35ca73fb7.js",
+    "precache-manifest.cc332dc46211652d5074172a2c833ee5.js": "/metadata-entry-form/precache-manifest.cc332dc46211652d5074172a2c833ee5.js",
     "service-worker.js": "/metadata-entry-form/service-worker.js",
     "static/css/2.dacbec41.chunk.css.map": "/metadata-entry-form/static/css/2.dacbec41.chunk.css.map",
     "static/css/main.34de6062.chunk.css.map": "/metadata-entry-form/static/css/main.34de6062.chunk.css.map",
-    "static/js/2.1d288d68.chunk.js.LICENSE.txt": "/metadata-entry-form/static/js/2.1d288d68.chunk.js.LICENSE.txt",
+    "static/js/2.de8269c8.chunk.js.LICENSE.txt": "/metadata-entry-form/static/js/2.de8269c8.chunk.js.LICENSE.txt",
+    "static/media/emlTemplate.j2": "/metadata-entry-form/static/media/emlTemplate.11e794be.j2",
     "static/media/leaflet.draw.css": "/metadata-entry-form/static/media/spritesheet.fd5728f2.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.0b7029d3.js",
     "static/css/2.dacbec41.chunk.css",
-    "static/js/2.1d288d68.chunk.js",
+    "static/js/2.de8269c8.chunk.js",
     "static/css/main.34de6062.chunk.css",
-    "static/js/main.bef42797.chunk.js"
+    "static/js/main.032971f7.chunk.js"
   ]
 }
