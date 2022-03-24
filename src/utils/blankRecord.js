@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { deepCopy } from "../utils/misc";
+import { deepCopy } from "./misc";
 
 const blankRecord = {
   title: { en: "", fr: "" },

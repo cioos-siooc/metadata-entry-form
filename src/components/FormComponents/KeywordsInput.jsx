@@ -11,9 +11,15 @@ import {
 } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { ArrowDownward } from "@material-ui/icons";
-import keywordList from "../../keywordList";
+import keywordList from "../../utils/keywords";
 import { En, Fr, I18n } from "../I18n";
-import translate from "../../utils/i18n";
+
+function translate(word, toLang = "fr") {
+  if (!word) return "";
+  return keywordList.find((e) => e[toLang === "fr" ? "en" : "fr"] === word)[
+    toLang
+  ];
+}
 
 const KeywordsInput = ({
   onChange,
@@ -96,9 +102,9 @@ const KeywordsInput = ({
           }
           value={selectedKeyword || ""}
           freeSolo
-          renderOption={(option) => translate(option, language) || option}
-          options={keywordList}
-          getOptionLabel={(option) => translate(option, language) || option}
+          options={keywordList
+            .sort((a, b) => a[language].localeCompare(b[language]))
+            .map((e) => e[language])}
           fullWidth
           renderInput={(params) => (
             <TextField
@@ -146,8 +152,8 @@ const KeywordsInput = ({
           .map((lang) => (
             <div style={{ margin: "15px" }} key={lang}>
               <InputAdornment style={{ margin: "10px" }}>
-                  {lang.toUpperCase()}
-                </InputAdornment>
+                {lang.toUpperCase()}
+              </InputAdornment>
               <Grid container direction="row">
                 <Grid item xs>
                   {(value[lang] || []).map((keyword, i) => (

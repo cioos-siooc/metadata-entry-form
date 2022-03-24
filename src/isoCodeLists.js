@@ -58,7 +58,10 @@ export const roleCodes = {
   },
   coAuthor: {
     title: { en: "Coauthor", fr: "Co-auteur" },
-    text: { en:"Party who jointly authors the resource", fr: "Partie qui est l'auteur conjoint de la ressource" },
+    text: {
+      en: "Party who jointly authors the resource",
+      fr: "Partie qui est l'auteur conjoint de la ressource",
+    },
   },
 
   collaborator: {
@@ -144,6 +147,7 @@ export const roleCodes = {
       en: "Party who published the resource",
       fr: "Partie qui a publié la ressource",
     },
+    includeInCitation:true,
   },
   resourceProvider: {
     title: { en: "Resource Provider", fr: "Fournisseur de ressources" },
@@ -209,4 +213,7 @@ export const progressCodes = {
   },
 };
 
-export const depthDirections = ["depthPositive", "heightPositive"];
+export const depthDirections = {
+  heightPositive: { en: "Depth Positive", fr: "Profondeur positive" },
+  depthPositive: { en: "Height Positive", fr: "Hauteur positive" },
+};

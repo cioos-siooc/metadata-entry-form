@@ -12,13 +12,12 @@ import {
 } from "@material-ui/core";
 
 import { useParams } from "react-router-dom";
-import { camelToSentenceCase } from "../../utils/misc";
-import translate from "../../utils/i18n";
 
 import { paperClass } from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
 import { getErrorsByTab, recordIsValid } from "../../utils/validate";
+import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
@@ -142,7 +141,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                   {Object.keys(validationErrors).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
-                        {camelToSentenceCase(translate(tab, language))}
+                        {tabs[tab][language]}
                       </Typography>
                       <List>
                         {validationErrors[tab].map(
