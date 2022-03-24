@@ -7,7 +7,7 @@ import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
-import { QuestionText, paperClass } from "./QuestionStyles";
+import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
 
 const validateURL = (url) => !url || validator.isURL(url);
 
@@ -59,9 +59,33 @@ const Resources = ({ updateResources, resources, disabled }) => {
                 <QuestionText>
                   <I18n>
                     <En>Enter the URL for the resource</En>
-                    <Fr>Entrez l'URL de la ressource</Fr>
+                    <Fr>
+                      Le lien peut être vers une ressource de données formelle
+                      sur un autre un référentiel ou un lien vers un lecteur en
+                      ligne personnel (par exemple Google Entraînement).
+                    </Fr>
                   </I18n>
+
                   <RequiredMark passes={validator.isURL(dist.url)} />
+                  <SupplementalText>
+                    <I18n>
+                      <En>
+                        <p>
+                          The link may be to a formal data resource on another
+                          repository or a link to a personal online drive (e.g.
+                          Google Drive).
+                        </p>
+                      </En>
+                      <Fr>
+                        <p>
+                          Le lien peut être vers une ressource de données
+                          formelle sur un autre un référentiel ou un lien vers
+                          un lecteur en ligne personnel (par exemple Google
+                          Entraînement).
+                        </p>
+                      </Fr>
+                    </I18n>
+                  </SupplementalText>
                 </QuestionText>
 
                 <TextField
