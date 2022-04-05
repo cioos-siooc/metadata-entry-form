@@ -427,6 +427,27 @@ const IdentificationTab = ({
               Laissez le champs vide si le jeu de données n'a pas a été révisé.
             </Fr>
           </I18n>
+          <SupplementalText>
+                <I18n>
+                  <En>
+                    <p>
+                      Please note that this field does not need to be populated 
+                      or updated when revisions are made to the metadata, but 
+                      rather when a new version of the data file or package 
+                      becomes available, i.e. for time-series data.
+                    </p>
+                  </En>
+                  <Fr>
+                    <p>
+                      Veuillez noter que ce champ n'a pas besoin d'être rempli 
+                      ou mis à jour lorsque des révisions sont apportées aux 
+                      métadonnées, mais plutôt lorsqu'une nouvelle version du 
+                      fichier ou du paquet de données devient disponible, 
+                      c'est-à-dire pour les données de séries chronologiques.
+                    </p>
+                  </Fr>
+                </I18n>
+              </SupplementalText>
         </QuestionText>
         <DateInput
           name="dateRevised"
