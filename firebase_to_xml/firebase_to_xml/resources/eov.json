@@ -65,7 +65,7 @@
     "value": "seaState",
     "label EN": "Sea state",
     "label FR": "État de la mer",
-    "definition EN": "",
+    "definition EN": "Sea State is the characterization of wave and swell, typically in terms of height, wavelength, period, and directional wave energy flux.",
     "definition FR": "L'état de la mer est la caractérisation des vagues et de la houle, généralement en termes de hauteur, de longueur d'onde, de période, et le flux d'énergie des ondes directionnelles",
     "icon": "sea-state.svg",
     "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17462"

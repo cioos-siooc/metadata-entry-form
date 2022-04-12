@@ -69,21 +69,25 @@ const IdentificationTab = ({
           <SupplementalText>
             <I18n>
               <En>
-                Recommended title includes: What, Where, When. Title should be
-                precise enough so that the user will not have to open the
-                dataset to understand its contents. Title should not have
-                acronyms, special characters, or use specialized nomenclature.
-                This will appear as the title that is shown for this dataset in
-                the {regionInfo.catalogueTitle.en}.
+                <p>Recommended title includes: What, Where, When.</p>
+                <p>
+                  Title should be precise enough so that the user will not have
+                  to open the dataset to understand its contents. Title should
+                  not have acronyms, special characters, or use specialized
+                  nomenclature. This will appear as the title that is shown for
+                  this dataset in the {regionInfo.catalogueTitle.en}.
+                </p>
               </En>
               <Fr>
-                Le titre recommandé comprend : Quoi, Où, Quand. Le titre doit
-                être suffisamment précis pour que l'utilisateur n'ait pas à
-                ouvrir le ensemble de données pour comprendre son contenu. Le
-                titre ne doit pas avoir des acronymes, des caractères spéciaux
-                ou utiliser une nomenclature spécialisée. Ceci apparaîtra comme
-                titre de votre jeu de données dans le{" "}
-                {regionInfo.catalogueTitle.fr}.
+                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
+                <p>
+                  Le titre doit être suffisamment précis pour que l'utilisateur
+                  n'ait pas à ouvrir le ensemble de données pour comprendre son
+                  contenu. Le titre ne doit pas avoir des acronymes, des
+                  caractères spéciaux ou utiliser une nomenclature spécialisée.
+                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
+                  {regionInfo.catalogueTitle.fr}.
+                </p>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -374,6 +378,7 @@ const IdentificationTab = ({
           disabled={disabled}
           dateEnd={record.dateEnd || undefined}
         />
+        <br />
         <QuestionText>
           <I18n>
             <En>
