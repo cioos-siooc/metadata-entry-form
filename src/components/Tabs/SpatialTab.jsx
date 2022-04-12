@@ -148,12 +148,13 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
               <I18n>
                 <En>
                   Height Positive: Altitude is the elevation from sea level
-                  (i.e. a maximum value of 150m implies 150m above sea level).
+                  (i.e. a maximum value of 150m implies 150m above the water
+                  surface).
                 </En>
                 <Fr>
                   Hauteur positive: L'altitude est l'altitude par rapport au
                   niveau de la mer (c'est-à-dire qu'une valeur maximale de 150 m
-                  implique 150 m au-dessus du niveau de la mer).
+                  implique 150 m sous la surface de l'eau).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5829" />
