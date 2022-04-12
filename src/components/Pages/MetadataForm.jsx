@@ -20,6 +20,7 @@ import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
 import NotFound from "./NotFound";
 
+import SimpleModal from "../FormComponents/SimpleModal";
 import StartTab from "../Tabs/StartTab";
 import ContactTab from "../Tabs/ContactTab";
 import ResourcesTab from "../Tabs/ResourcesTab";
@@ -110,6 +111,7 @@ class MetadataForm extends FormClassTemplate {
 
       editorInfo: { email: "", displayName: "" },
       loggedInUserCanEditRecord: false,
+      saveIncompleteRecordModalOpen: false,
     };
   }
 
@@ -176,8 +178,7 @@ class MetadataForm extends FormClassTemplate {
             const record = firebaseToJSObject(recordFireBaseObj);
 
             const loggedInUserCanEditRecord =
-              (isReviewer || loggedInUserOwnsRecord) &&
-              record.status !== "published";
+              isReviewer || loggedInUserOwnsRecord;
 
             this.setState({
               record: { ...getBlankRecord(), ...record, recordID },
@@ -190,7 +191,9 @@ class MetadataForm extends FormClassTemplate {
       }
     });
   }
-
+  toggleModal = (modalName, state, key = "", userID) => {
+    this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
+  };
   // genereric handler for updating state, used by most form components
   // generic event handler
   handleUpdateRecord = (key) => (event) => {
@@ -250,8 +253,9 @@ class MetadataForm extends FormClassTemplate {
     const recordID = await this.handleSaveClick();
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
-
-  async handleSaveClick() {
+  // userOKedRecordDemotion - user has clicked that they understand that their record will be
+  // changed from published to draft since the record is incomplete
+  async handleSaveClick(userOKedRecordDemotion = false) {
     const { match, history } = this.props;
     const { language, region } = match.params;
 
@@ -270,6 +274,20 @@ class MetadataForm extends FormClassTemplate {
     // trim whitespace from all srtings in record
     const record = trimStringsInObject(this.state.record);
 
+    // record doesn't have required fieds filled
+    const recordIsComplete = percentValid(record) === 1;
+
+    if (record.status === "published" && !recordIsComplete) {
+      // if userOKedRecordDemotion is set, user has acknowledge that record will be demoted to draft
+      if (userOKedRecordDemotion) {
+        record.status = "";
+      } else {
+        // display warning modal
+        this.toggleModal("saveIncompleteRecordModalOpen", true);
+
+        return;
+      }
+    }
     // created is really "last updated"
     record.created = new Date().toISOString();
 
@@ -327,6 +345,7 @@ class MetadataForm extends FormClassTemplate {
       loading,
       highlightMissingRequireFields,
       loggedInUserCanEditRecord,
+      saveIncompleteRecordModalOpen,
     } = this.state;
 
     if (!record) {
@@ -355,6 +374,23 @@ class MetadataForm extends FormClassTemplate {
         alignItems="stretch"
         spacing={3}
       >
+        <SimpleModal
+          open={saveIncompleteRecordModalOpen}
+          modalQuestion={
+            <I18n
+              en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
+              fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+            />
+          }
+          onClose={() => {
+            this.toggleModal("saveIncompleteRecordModalOpen", false);
+          }}
+          onAccept={() => {
+            this.handleSaveClick(true);
+            this.toggleModal("saveIncompleteRecordModalOpen", false);
+          }}
+        />
+
         <Fab
           color="primary"
           aria-label="add"
