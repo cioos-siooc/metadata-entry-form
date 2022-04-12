@@ -147,7 +147,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <div>
               <I18n>
                 <En>
-                  Height Positive: Altitude is the elevation from sea level
+                  Height Positive: Height is the elevation from water surface
                   (i.e. a maximum value of 150m implies 150m above the water
                   surface).
                 </En>
