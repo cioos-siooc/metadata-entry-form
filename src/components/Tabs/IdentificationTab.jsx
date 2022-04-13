@@ -136,7 +136,8 @@ const IdentificationTab = ({
                 of the type of descriptions that are typically used for this
                 section of the record. As a general rule, this section should be
                 worded with as little jargon as possible to give potential users
-                an understanding of your dataset.
+                an understanding of your dataset. Use a maximum of 500 words. For
+                detailed methods please submit supplemental materials with your data.
                 <br />
                 <br />
                 Suggested abstract points -
@@ -152,13 +153,6 @@ const IdentificationTab = ({
                     <li>
                       <b>Where</b>- spatial coverage of the data, sampling
                       sites, sensor tracks, laboratory spaces
-                    </li>
-                    <li>
-                      <b>How</b>- equipment, procedures, protocols,
-                      calibrations, QA/QC
-                    </li>
-                    <li>
-                      <b>Who</b>- participants, staff
                     </li>
                     <li>
                       <b>Why</b>- a high level statement on the outcome this
