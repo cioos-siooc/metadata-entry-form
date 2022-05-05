@@ -136,7 +136,9 @@ const IdentificationTab = ({
                 of the type of descriptions that are typically used for this
                 section of the record. As a general rule, this section should be
                 worded with as little jargon as possible to give potential users
-                an understanding of your dataset.
+                an understanding of your dataset. Use a maximum of 500 words.
+                For detailed methods please submit supplemental materials with
+                your data.
                 <br />
                 <br />
                 Suggested abstract points -
@@ -154,27 +156,48 @@ const IdentificationTab = ({
                       sites, sensor tracks, laboratory spaces
                     </li>
                     <li>
-                      <b>How</b>- equipment, procedures, protocols,
-                      calibrations, QA/QC
-                    </li>
-                    <li>
-                      <b>Who</b>- participants, staff
-                    </li>
-                    <li>
                       <b>Why</b>- a high level statement on the outcome this
                       data is meant to inform
                     </li>
                   </ul>
                 </div>
               </En>
+
               <Fr>
-                {" "}
-                Cette description sera le résumé de votre jeu de données
-                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}.
-                Veuillez consulter d’autres jeux de données déjà publiés :{" "}
-                <CatalogueLink lang="fr" />. Si possible, veuillez remplir ce
-                champ en utilisant un langage accessible pouvant être bien
-                compris par d’autres utilisateurs.
+                Ces informations apparaîtront sous forme de texte récapitulatif
+                qui s'affiche pour cet ensemble de données dans le
+                {regionInfo.catalogueTitle.fr}. Naviguer les ensembles de
+                données au <CatalogueLink lang="fr" /> peuvent aider à donner un
+                sens du type de descriptions qui sont généralement utilisées
+                pour cette section du dossier. En règle générale, cette section
+                doit être rédigé avec le moins de jargon possible pour donner
+                aux utilisateurs potentiels une compréhension de votre jeu
+                de données. Utilisez un maximum de 500 mots. Pour des méthodes
+                détaillées, veuillez soumettre des documents supplémentaires
+                avec vos données.
+                <br />
+                <br />
+                Points de résumé suggérés -
+                <div>
+                  <ul>
+                    <li>
+                      <b>Quoi</b> : variables qui ont été mesurées
+                    </li>
+                    <li>
+                      <b>When</b> - couverture temporelle des données, fréquence
+                      les mesures/observations
+                    </li>
+                    <li>
+                      <b>Où</b> : couverture spatiale des données,
+                      échantillonnage sites, pistes de capteurs, espaces de
+                      laboratoire
+                    </li>
+                    <li>
+                      <b>Pourquoi</b> - une déclaration de haut niveau sur le
+                      résultat les données sont destinées à informer
+                    </li>
+                  </ul>
+                </div>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -255,7 +278,7 @@ const IdentificationTab = ({
                       </IconButton>
                     )}
                     {e.emerging && (
-                      <IconButton onClick={() => {}}>
+                      <IconButton onClick={() => { }}>
                         <Tooltip
                           title={
                             <I18n
@@ -433,26 +456,26 @@ const IdentificationTab = ({
             </Fr>
           </I18n>
           <SupplementalText>
-                <I18n>
-                  <En>
-                    <p>
-                      Please note that this field does not need to be populated 
-                      or updated when revisions are made to the metadata, but 
-                      rather when a new version of the data file or package 
-                      becomes available, i.e. for time-series data.
-                    </p>
-                  </En>
-                  <Fr>
-                    <p>
-                      Veuillez noter que ce champ n'a pas besoin d'être rempli 
-                      ou mis à jour lorsque des révisions sont apportées aux 
-                      métadonnées, mais plutôt lorsqu'une nouvelle version du 
-                      fichier ou du paquet de données devient disponible, 
-                      c'est-à-dire pour les données de séries chronologiques.
-                    </p>
-                  </Fr>
-                </I18n>
-              </SupplementalText>
+            <I18n>
+              <En>
+                <p>
+                  Please note that this field does not need to be populated or
+                  updated when revisions are made to the metadata, but rather
+                  when a new version of the data file or package becomes
+                  available, i.e. for time-series data.
+                </p>
+              </En>
+              <Fr>
+                <p>
+                  Veuillez noter que ce champ n'a pas besoin d'être rempli ou
+                  mis à jour lorsque des révisions sont apportées aux
+                  métadonnées, mais plutôt lorsqu'une nouvelle version du
+                  fichier ou du paquet de données devient disponible,
+                  c'est-à-dire pour les données de séries temporelles.
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
         </QuestionText>
         <DateInput
           name="dateRevised"
