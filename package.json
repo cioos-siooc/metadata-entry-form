@@ -1,3 +1,35 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@ogsletcax 
+cioos-siooc
+/
+metadata-entry-form
+Public
+Code
+Issues
+34
+Pull requests
+3
+Discussions
+Actions
+Projects
+Wiki
+Security
+Insights
+metadata-entry-form/package.json
+@n-a-t-e
+n-a-t-e add basic EML draft creation
+Latest commit a794708 on 16 Mar
+ History
+ 3 contributors
+@n-a-t-e@mmbutton@ogsletcax
+101 lines (101 sloc)  3.13 KB
+   
 {
   "name": "cioos-metadata-entry-form",
   "homepage": "https://cioos-siooc.github.io/metadata-entry-form/",
@@ -35,10 +67,10 @@
     "react-time-ago": "^6.2.2",
     "regenerator-runtime": "^0.13.7",
     "uuid": "^8.3.0",
-    "validator": "^13.7.0"
+    "validator": "^13.6.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.17.6",
+    "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@babel/plugin-proposal-export-default-from": "^7.0.0",
