@@ -154,7 +154,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 <Fr>
                   Hauteur positive : La hauteur est l'altitude par rapport à la
                   surface de l'eau (c'est-à-dire qu'une valeur maximale de 150 m
-                  implique 150 m sous la surface de l'eau).
+                  implique 150 m au-dessus de la surface de l'eau).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5829" />
