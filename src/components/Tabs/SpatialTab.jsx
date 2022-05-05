@@ -152,8 +152,8 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                   surface).
                 </En>
                 <Fr>
-                  Hauteur positive: L'altitude est l'altitude par rapport au
-                  niveau de la mer (c'est-à-dire qu'une valeur maximale de 150 m
+                  Hauteur positive : La hauteur est l'altitude par rapport à la
+                  surface de l'eau (c'est-à-dire qu'une valeur maximale de 150 m
                   implique 150 m sous la surface de l'eau).
                 </Fr>
               </I18n>
