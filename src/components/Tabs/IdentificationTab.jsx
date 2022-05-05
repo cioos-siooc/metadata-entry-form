@@ -165,14 +165,14 @@ const IdentificationTab = ({
 
               <Fr>
                 Ces informations apparaîtront sous forme de texte récapitulatif
-                qui s'affiche pour cet ensemble de données dans le{" "}
+                qui s'affiche pour cet ensemble de données dans le
                 {regionInfo.catalogueTitle.fr}. Naviguer les ensembles de
-                données <CatalogueLink lang="fr" /> peuvent aider à donner un
+                données au <CatalogueLink lang="fr" /> peuvent aider à donner un
                 sens du type de descriptions qui sont généralement utilisées
-                pour cela section du dossier. En règle générale, cette section
+                pour cette section du dossier. En règle générale, cette section
                 doit être rédigé avec le moins de jargon possible pour donner
-                aux utilisateurs potentiels une compréhension de votre ensemble
-                de données. Utilisez un maximum de 500 mots. Pour méthodes
+                aux utilisateurs potentiels une compréhension de votre jeu
+                de données. Utilisez un maximum de 500 mots. Pour des méthodes
                 détaillées, veuillez soumettre des documents supplémentaires
                 avec vos données.
                 <br />
@@ -278,7 +278,7 @@ const IdentificationTab = ({
                       </IconButton>
                     )}
                     {e.emerging && (
-                      <IconButton onClick={() => {}}>
+                      <IconButton onClick={() => { }}>
                         <Tooltip
                           title={
                             <I18n
@@ -471,7 +471,7 @@ const IdentificationTab = ({
                   mis à jour lorsque des révisions sont apportées aux
                   métadonnées, mais plutôt lorsqu'une nouvelle version du
                   fichier ou du paquet de données devient disponible,
-                  c'est-à-dire pour les données de séries chronologiques.
+                  c'est-à-dire pour les données de séries temporelles.
                 </p>
               </Fr>
             </I18n>
