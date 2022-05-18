@@ -49,13 +49,13 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => (
               Il s'agit d'une identification unique de la plateforme. Si la
               plateforme est enregistrée auprès du{" "}
               <a
-                href="https://www.ices.dk/"
+                href="https://vocab.seadatanet.org/v_bodc_vocab_v2/search.asp?lib=C17"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 CIEM
               </a>
-              , utilisez cet identificateur
+              , utilisez cet identifiant
             </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "platformID")} />

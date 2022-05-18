@@ -48,14 +48,10 @@ const SubmitTab = ({ record, submitRecord }) => {
               </En>
               <Fr>
                 Merci d'avoir rempli ce formulaire. L'information sera validée
-                par un membre du personnel du {regionInfo.title.fr}. Cette
+                par un membre du personnel {regionInfo.titleFrPossessive}. Cette
                 personne pourrait vous contacter pour obtenir plus
                 d'informations ou pour vous indiquer quand votre jeu de données
-                sera disponible dans notre {regionInfo.catalogueTitle.fr}. Vos
-                informations ne seront pas publiées avant d'obtenir votre
-                approbation. Si vous avez des questions ou si vous désirez
-                effectuer un suivi concernant l'état de votre soumission,
-                veuillez contacter
+                sera disponible dans notre {regionInfo.catalogueTitle.fr}. Vos informations ne seront pas publiées avant d'obtenir votre approbation. Si vous avez des questions ou si vous désirez effectuer un suivi concernant l'état de votre soumission, veuillez contacte
               </Fr>
             </I18n>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
