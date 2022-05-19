@@ -46,7 +46,7 @@ const regions = {
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
-    titleFrPossessive: "SIOOC Atlantique",
+    titleFrPossessive: "du SIOOC Atlantique",
     catalogueTitle: {
       fr: "Catalogue de données du SIOOC du Atlantic",
       en: "CIOOS Atlantic Data Catalogue",
