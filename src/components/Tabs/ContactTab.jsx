@@ -73,8 +73,8 @@ const ContactTab = ({
               <Fr>
                 Veuillez saisir au moins un Dépositaire des métadonnées ET un
                 propriétaire des données de ce jeu. Ces personnes pourraient
-                être appelées à collaborer avec le personnel de la{" "}
-                {regions[region].title[language]} pour finaliser la saisie des
+                être appelées à collaborer avec le personnel
+                {regions[region].titleFrPossessive} pour finaliser la saisie des
                 informations.
               </Fr>
             </I18n>

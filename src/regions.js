@@ -2,6 +2,7 @@
 const regions = {
   pacific: {
     title: { en: "CIOOS Pacific", fr: "SIOOC Pacifique" },
+    titleFrPossessive: "du SIOOC Pacifique",
     catalogueTitle: {
       fr: "Catalogue de données du SIOOC du Pacifique",
       en: "CIOOS Pacific Data Catalogue",
@@ -22,7 +23,8 @@ const regions = {
   },
 
   stlaurent: {
-    title: { en: "CIOOS St. Lawrence", fr: "SIOOC Saint-Laurent" },
+    title: { en: "St. Lawrence Global Observatory", fr: "Observatoire Global du Saint-Laurent (OGSL)" },
+    titleFrPossessive: "de l'Observatoire Global du Saint-Laurent (OGSL)",
     catalogueTitle: {
       fr:
         "Catalogue de données de l'Observatoire global du Saint-Laurent (OGSL)",
@@ -44,6 +46,7 @@ const regions = {
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
+    titleFrPossessive: "du SIOOC Atlantique",
     catalogueTitle: {
       fr: "Catalogue de données du SIOOC du Atlantic",
       en: "CIOOS Atlantic Data Catalogue",

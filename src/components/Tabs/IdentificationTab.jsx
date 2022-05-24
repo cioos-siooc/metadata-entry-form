@@ -164,37 +164,31 @@ const IdentificationTab = ({
               </En>
 
               <Fr>
-                Ces informations apparaîtront sous forme de texte récapitulatif
-                qui s'affiche pour cet ensemble de données dans le
-                {regionInfo.catalogueTitle.fr}. Naviguer les ensembles de
-                données au <CatalogueLink lang="fr" /> peuvent aider à donner un
-                sens du type de descriptions qui sont généralement utilisées
-                pour cette section du dossier. En règle générale, cette section
-                doit être rédigé avec le moins de jargon possible pour donner
-                aux utilisateurs potentiels une compréhension de votre jeu
-                de données. Utilisez un maximum de 500 mots. Pour des méthodes
-                détaillées, veuillez soumettre des documents supplémentaires
-                avec vos données.
+                Cette description correspond au résumé de votre jeu de données lorsqu’il sera publié dans le{" "}
+                {regionInfo.catalogueTitle.fr} <CatalogueLink lang="fr" />. Pour vous aider à rédiger ce résumé,
+                vous pouvez vous inspirer d’autres jeux de données déjà publiés dans le catalogue. Ce champ doit être compris par tout type d’utilisateur, nous vous recommandons un maximum de 500 mots, l’utilisation d’un langage accessible et de limiter l’utilisation de vocabulaire de type jargon.
                 <br />
                 <br />
-                Points de résumé suggérés -
+                Suggestion de points à aborder dans votre résumé:
                 <div>
                   <ul>
                     <li>
-                      <b>Quoi</b> : variables qui ont été mesurées
+                      <b>Quoi</b>: Les variables qui ont été mesurées
                     </li>
                     <li>
-                      <b>When</b> - couverture temporelle des données, fréquence
-                      les mesures/observations
+                      <b>Quand</b>: Couverture temporelle de la donnée, fréquence de la mesure/observation
                     </li>
                     <li>
-                      <b>Où</b> : couverture spatiale des données,
-                      échantillonnage sites, pistes de capteurs, espaces de
-                      laboratoire
+                      <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des sites d’échantillonnages,  déplacement enregistrés d’un capteur, laboratoire, etc.
                     </li>
                     <li>
-                      <b>Pourquoi</b> - une déclaration de haut niveau sur le
-                      résultat les données sont destinées à informer
+                      <b>Comment</b>: Équipement, procédures, protocoles, calibration, assurance/contrôle de la qualité
+                    </li>
+                    <li>
+                      <b>Qui</b>: Participants, membres du personnel
+                    </li>
+                    <li>
+                      <b>Pourquoi</b>: Quelques lignes pour décrire le contexte dans lequel les données ont été échantillonnées et comment elles permettent de répondre à la problématique (p. ex: quelles informations peuvent-elles apporter)
                     </li>
                   </ul>
                 </div>
@@ -221,7 +215,7 @@ const IdentificationTab = ({
             <Fr>
               Veuillez sélectionner toutes les variables océaniques essentielles
               contenues dans ce jeu de données. Survolez une variable pour voir
-              sa définition.
+              sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à la définition complète du Système d’Observatoire Global des Océans (GOOS).
             </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "eov")} />
@@ -229,8 +223,7 @@ const IdentificationTab = ({
             <I18n>
               <En>If none of these apply you can select Other.</En>
               <Fr>
-                Si aucun de ces éléments ne s'applique, vous pouvez sélectionner
-                « Autre ».
+                Si aucune de ces variables ne vous semble pertinente, vous pouvez sélectionner « Autre ».
               </Fr>
             </I18n>
           </SupplementalText>
@@ -332,14 +325,10 @@ const IdentificationTab = ({
                   </En>
                   <Fr>
                     <p>
-                      Les mots-clés permettent de catégoriser vos données et
-                      facilitent leur découverte par d’autres utilisateurs.
+                      Les mots clés sont un moyen efficace de catégoriser vos données pour permettre aux utilisateurs ou à d'autres systèmes d’accéder à tous les jeux de données partageant une même caractéristique.
                     </p>
                     <p>
-                      Les mots-clés doivent inclure le nom du lieu le plus
-                      proche communauté ou situation géographique importante.
-                      Ex. Hartley Bay, Le territoire des Gitga'at, en plus du
-                      corps le plus proche de eau, par exemple Douglas Channel.
+                      Vous pouvez choisir un mot clé prédéfini (liste déroulante) en français puis cliquer sur le bouton de traduction. Vous pouvez aussi créer votre propre mot clé en rédigeant un texte libre en anglais ou en français (vérifiez toujours si son équivalent existe dans la liste déroulante afin de diminuer le risque d’écriture multiple d’un même mot clé -ex: phoque Vs Phoques-).
                     </p>
                     <p>
                       Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
@@ -429,9 +418,7 @@ const IdentificationTab = ({
               dataset hasn't been published.
             </En>
             <Fr>
-              Quelle est la date de début à laquelle les données ont été
-              publiées ? Laissez le champs vide si les données n'ont pas été
-              publiées.
+              Quelle est la date de première publication des données ? Laissez le champ vide si les données n'ont pas été publiées.
             </Fr>
           </I18n>
         </QuestionText>
@@ -451,8 +438,7 @@ const IdentificationTab = ({
               hasn't been revised.
             </En>
             <Fr>
-              Quelle est la date à laquelle les données ont été révisées ?
-              Laissez le champs vide si le jeu de données n'a pas a été révisé.
+              Quelle est la date de la dernière révision des données ? Laissez le champ vide si le jeu de données n'a pas été révisé.
             </Fr>
           </I18n>
           <SupplementalText>
