@@ -192,7 +192,7 @@ const validators = {
       en:
         "Must have at least one resource. If a URL is included it must be valid.",
       fr:
-        "Doit avoir au moins une ressource. Si une URL est incluse, elle doit être valide.",
+        "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
     },
   },
   platformID: {

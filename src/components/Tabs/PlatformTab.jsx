@@ -41,9 +41,7 @@ const PlatformTab = ({
                   of the page.
                 </En>
                 <Fr>
-                  Une plateforme est tout ce qui est utilisé dans la collecte de
-                  données auquel un ou plusieurs instruments sont attachés. Par
-                  exemple :
+                  Une plateforme désigne tout “objet” sur lequel un ou plusieurs instruments sont attachés et utilisés dans la collecte des données. Par exemple :
                   <ul>
                     <li>
                       <i>Glider</i>
@@ -55,9 +53,7 @@ const PlatformTab = ({
                     <li>ROV</li>
                     <li>Amarrage</li>
                   </ul>
-                  Il est fortement encouragé d'ajouter des informations sur une
-                  plateforme. S'il n'y a pas de plateformes, vous pouvez entrer
-                  des informations sur les instruments au bas de la page.
+                  S'il n'y a pas de plateforme, vous pouvez entrer des informations sur les instruments au bas de la page. Sinon, vous devez décrire le plus précisément possible la plateforme utilisée dans la collecte de données.
                 </Fr>
               </I18n>
             </QuestionText>
