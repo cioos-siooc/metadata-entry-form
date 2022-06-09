@@ -4,10 +4,8 @@ import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import Instruments from "../FormComponents/Instruments";
 
 import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";
-import RequiredMark from "../FormComponents/RequiredMark";
 import Platform from "../FormComponents/Platform";
 import { En, Fr, I18n } from "../I18n";
-import { validateField } from "../../utils/validate";
 
 const PlatformTab = ({
   disabled,
