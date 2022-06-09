@@ -17,7 +17,7 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
   const platformsSorted = Object.values(platforms).sort((a, b) =>
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
   );
-  console.log("record.platform", record.platform);
+
   return (
     <div>
       <Grid item xs style={{ ...paperClass, marginTop: "-40px" }}>
@@ -70,12 +70,17 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
         <QuestionText>
           <I18n>
             <En>More about the platform</En>
-            <Fr>Décrire la plateforme</Fr>
+            <Fr>En savoir plus sur la plateforme</Fr>
           </I18n>
           <SupplementalText>
             <I18n>
-              <En>You can also add aditional information about the platform</En>
-              <Fr>Par exemple, le nom ou le type de plateforme.</Fr>
+              <En>
+                You can also add aditional information about the platform.
+              </En>
+              <Fr>
+                Vous pouvez également ajouter des informations supplémentaires
+                sur la plateforme.
+              </Fr>
             </I18n>
           </SupplementalText>
         </QuestionText>
