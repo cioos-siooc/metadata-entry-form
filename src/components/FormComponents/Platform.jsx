@@ -1,7 +1,8 @@
 import React from "react";
 
-import { TextField, Grid } from "@material-ui/core";
+import { TextField, Grid, Tooltip } from "@material-ui/core";
 import { useParams } from "react-router-dom";
+import { OpenInNew } from "@material-ui/icons";
 
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
@@ -28,27 +29,30 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           </I18n>
           <SupplementalText>
             <I18n>
-              <En>
-                Please select a platform from the{" "}
-                <a
-                  href="http://vocab.nerc.ac.uk/collection/L06/current/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  NERC L06 Vocabulary
-                </a>
-              </En>
-              <Fr>
-                Veuillez sélectionner une plateforme dans la liste{" "}
-                <a
-                  href="http://vocab.nerc.ac.uk/collection/L06/current/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Vocabulaire NERC L06
-                </a>
-              </Fr>
+              <En>Please select a platform from the </En>
+              <Fr>Veuillez sélectionner une plateforme dans la </Fr>
             </I18n>
+            <a
+              href="http://vocab.nerc.ac.uk/collection/L06/current/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <I18n>
+                <En>SeaVoX Platform Categories (NERC L06 Vocabulary)</En>
+                <Fr>SeaVoX Platform Categories (liste Vocabulaire NERC L06)</Fr>
+              </I18n>
+              <Tooltip
+                title={
+                  <I18n
+                    en="Open in new window"
+                    fr="Ouvrir dans une nouvelle fenêtre"
+                  />
+                }
+              >
+                <OpenInNew style={{ verticalAlign: "middle" }} />
+              </Tooltip>
+            </a>
+
             <RequiredMark passes={validateField(record, "platform")} />
           </SupplementalText>
         </QuestionText>
@@ -63,32 +67,6 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           // disabled={!contactList.length || disabled}
           label={<I18n en="Platform" fr="Plateforme" />}
           fullWidth={false}
-        />
-      </Grid>
-
-      <Grid item xs style={paperClass}>
-        <QuestionText>
-          <I18n>
-            <En>More about the platform</En>
-            <Fr>En savoir plus sur la plateforme</Fr>
-          </I18n>
-          <SupplementalText>
-            <I18n>
-              <En>
-                You can also add aditional information about the platform.
-              </En>
-              <Fr>
-                Vous pouvez également ajouter des informations supplémentaires
-                sur la plateforme.
-              </Fr>
-            </I18n>
-          </SupplementalText>
-        </QuestionText>
-        <BilingualTextInput
-          value={record.platformDescription}
-          onChange={handleUpdateRecord("platformDescription")}
-          multiline
-          disabled={disabled}
         />
       </Grid>
 
@@ -134,6 +112,32 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           value={record.platformID}
           onChange={handleUpdateRecord("platformID")}
           fullWidth
+          disabled={disabled}
+        />
+      </Grid>
+
+      <Grid item xs style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>More information about the platform</En>
+            <Fr>Plus d'informations sur la plateforme</Fr>
+          </I18n>
+          <SupplementalText>
+            <I18n>
+              <En>
+                You can also add aditional information about the platform.
+              </En>
+              <Fr>
+                Vous pouvez également ajouter des informations supplémentaires
+                sur la plateforme.
+              </Fr>
+            </I18n>
+          </SupplementalText>
+        </QuestionText>
+        <BilingualTextInput
+          value={record.platformDescription}
+          onChange={handleUpdateRecord("platformDescription")}
+          multiline
           disabled={disabled}
         />
       </Grid>
