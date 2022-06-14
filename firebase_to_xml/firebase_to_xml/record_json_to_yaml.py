@@ -153,6 +153,7 @@ def record_json_to_yaml(record):
         record_yaml["platform"] = {
             "id": record.get("platformID"),
             "description": record.get("platformDescription"),
+            "type": record.get("platform"),
         }
 
         if record.get("instruments"):
