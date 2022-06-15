@@ -207,8 +207,8 @@ const validators = {
     tab: "platform",
     validation: (val, record) => record.noPlatform || val,
     error: {
-      en: "Missing platform",
-      fr: "Plateforme manquante",
+      en: "Missing platform type",
+      fr: "Type de plateforme manquant",
     },
   },
   instruments: {

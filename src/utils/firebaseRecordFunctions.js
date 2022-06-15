@@ -79,7 +79,7 @@ export async function submitRecord(region, userID, key, status, record) {
 
   if (record && !record.filename) {
     const filename = getRecordFilename(record);
-    recordRef.child("filename").set(filename);
+    await recordRef.child("filename").set(filename);
   }
 }
 
