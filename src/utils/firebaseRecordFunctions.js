@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
 import getBlankRecord from "./blankRecord";
-import { firebaseToJSObject, getRecordFilename } from "./misc";
+import { firebaseToJSObject, getRecordFilename, deepCopy } from "./misc";
 
 export async function cloneRecord(
   recordID,
@@ -43,6 +43,15 @@ export async function cloneRecord(
 
   destinationUserRecordsRef.push(record);
 }
+// fills in missing fields on older records
+function standardizeRecord(record, user, userID, recordID) {
+  return {
+    recordID,
+    ...getBlankRecord(),
+    ...record,
+    userinfo: { ...user?.userinfo, userID },
+  };
+}
 
 export function loadRegionRecords(regionRecords, statusFilter) {
   const regionUsers = regionRecords.toJSON();
@@ -52,11 +61,9 @@ export function loadRegionRecords(regionRecords, statusFilter) {
     if (user.records) {
       Object.entries(user.records).forEach(([key, record]) => {
         if (statusFilter.includes(record.status))
-          records.push({
-            ...{ ...getBlankRecord(), ...firebaseToJSObject(record) },
-            userinfo: { ...user.userinfo, userID },
-            key,
-          });
+          records.push(
+            standardizeRecord(firebaseToJSObject(record), user, userID, key)
+          );
       });
     }
   });
@@ -152,3 +159,11 @@ export function returnRecordToDraft(region, userID, key) {
     .child("status")
     .set("");
 }
+
+// runs firebaseToJSObject on each child object
+export const multipleFirebaseToJSObject = (multiple) => {
+  return Object.entries(multiple || {}).reduce((acc, [key, record]) => {
+    acc[key] = standardizeRecord(firebaseToJSObject(deepCopy(record)));
+    return acc;
+  }, {});
+};
