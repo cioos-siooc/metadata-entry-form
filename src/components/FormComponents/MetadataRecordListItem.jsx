@@ -81,22 +81,20 @@ const MetadataRecordListItem = ({
 
   const percentValidInt =
     showPercentComplete && Math.round(percentValid(record) * 100);
-
   async function handleDownloadRecord(fileType) {
-    // filetype is 
-    const extensions={
-      erddap:'_erddap.txt',
-      xml: '.xml',
-      yaml:'.yaml',
-      eml:'_eml.xml'
-    }
+    // filetype is
+    const extensions = {
+      erddap: "_erddap.txt",
+      xml: ".xml",
+      yaml: ".yaml",
+      eml: "_eml.xml",
+    };
     setIsLoading({ downloadXML: true });
 
     try {
       let data;
       if (fileType === "eml") {
-        const emlStr= await recordToEML(record);
-        console.log(emlStr);
+        const emlStr = await recordToEML(record);
         data = [emlStr];
       } else {
         const res = await downloadRecord({ record, fileType });
@@ -112,7 +110,7 @@ const MetadataRecordListItem = ({
         type: `${mimeTypes[fileType]};charset=utf-8`,
       });
 
-      FileSaver.saveAs( 
+      FileSaver.saveAs(
         blob,
         `${getRecordFilename(record)}${extensions[fileType]}`
       );
@@ -125,7 +123,7 @@ const MetadataRecordListItem = ({
   }
 
   return (
-    <ListItem key={record.key}>
+    <ListItem key={record.recordID}>
       <ListItemAvatar>
         <IconButton onClick={onViewEditClick}>
           <Avatar>

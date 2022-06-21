@@ -213,8 +213,7 @@ const validators = {
   },
   instruments: {
     tab: "platformInstruments",
-    validation: (val, record) =>
-      record.noPlatform || (val && val.every((instrument) => instrument.id)),
+    validation: (val) => val.every((instrument) => instrument.id),
     error: {
       en: "Instrument ID is required",
       fr: "L'identifiant de l'instrument est requis",
