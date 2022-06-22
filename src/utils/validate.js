@@ -203,22 +203,20 @@ const validators = {
       fr: "ID de la plateforme manquant",
     },
   },
-  platformDescription: {
+  platform: {
     tab: "platform",
     validation: (val, record) => record.noPlatform || val,
     error: {
-      en: "Missing platform description",
-      fr: "Description de la plateforme manquante",
+      en: "Missing platform type",
+      fr: "Type de plateforme manquant",
     },
   },
   instruments: {
     tab: "platformInstruments",
-    validation: (val, record) =>
-      record.noPlatform ||
-      (val && val.filter((instrument) => instrument.id).length),
+    validation: (val) => val.every((instrument) => instrument.id),
     error: {
-      en: "At least one instrument is required if there is a platform",
-      fr: "Au moins un instrument est requis s'il y a une plateforme",
+      en: "Instrument ID is required",
+      fr: "L'identifiant de l'instrument est requis",
     },
   },
 };

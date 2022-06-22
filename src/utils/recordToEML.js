@@ -1,4 +1,5 @@
 import templatePath from "./emlTemplate.j2";
+
 const nunjucks = require("nunjucks");
 
 // get the full goos eov name here

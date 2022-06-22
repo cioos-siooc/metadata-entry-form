@@ -44,17 +44,21 @@ const RecordItem = ({
 }) => {
   const commonProps = {
     record,
-    key: record.key,
     language,
-    onViewEditClick: () => editRecord(record.key, record.userinfo.userID),
-    onCloneClick: () => cloneRecord(record.key, record.userinfo.userID),
+    onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
+    onCloneClick: () => cloneRecord(record.recordID, record.userinfo.userID),
     onDeleteClick: () =>
-      toggleModal("deleteModalOpen", true, record.key, record.userinfo.userID),
+      toggleModal(
+        "deleteModalOpen",
+        true,
+        record.recordID,
+        record.userinfo.userID
+      ),
     onTransferClick: () =>
       toggleModal(
         "transferModalOpen",
         true,
-        record.key,
+        record.recordID,
         record.userinfo.userID
       ),
     showAuthor: true,
@@ -70,7 +74,7 @@ const RecordItem = ({
           return toggleModal(
             "submitModalOpen",
             true,
-            record.key,
+            record.recordID,
             record.userinfo.userID
           );
         }}
@@ -88,7 +92,7 @@ const RecordItem = ({
         toggleModal(
           "publishModalOpen",
           true,
-          record.key,
+          record.recordID,
           record.userinfo.userID
         )
       }
@@ -96,7 +100,7 @@ const RecordItem = ({
         toggleModal(
           "unSubmitModalOpen",
           true,
-          record.key,
+          record.recordID,
           record.userinfo.userID
         )
       }
@@ -115,7 +119,7 @@ const RecordItem = ({
           toggleModal(
             "unPublishModalOpen",
             true,
-            record.key,
+            record.recordID,
             record.userinfo.userID
           )
         }
@@ -491,7 +495,7 @@ class Reviewer extends FormClassTemplate {
                     <List>
                       {recordsToShow.map((record) => (
                         <RecordItem
-                          key={record.key}
+                          key={record.recordID}
                           record={record}
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}

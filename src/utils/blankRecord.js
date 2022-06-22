@@ -18,6 +18,7 @@ const blankRecord = {
   dateRevised: null,
   recordID: "",
   instruments: [],
+  platform: "",
   platformID: "",
   platformDescription: "",
   language: "",
