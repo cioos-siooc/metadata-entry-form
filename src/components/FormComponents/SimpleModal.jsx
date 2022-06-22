@@ -55,9 +55,7 @@ export default function SimpleModal({
       >
         <div style={modalStyle} className={classes.paper}>
           <h2 id="simple-modal-title">
-            {modalQuestion ? (
-              modalQuestion
-            ) : (
+            {modalQuestion || (
               <I18n>
                 <En>Are you sure?</En>
                 <Fr>Vous êtes sûr ?</Fr>

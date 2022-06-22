@@ -9,16 +9,17 @@ import firebase from "../../firebase";
 import { auth } from "../../auth";
 
 import { Fr, En, I18n } from "../I18n";
-import { multipleFirebaseToJSObject } from "../../utils/misc";
-import SimpleModal from "../FormComponents/SimpleModal";
-
-import regions from "../../regions";
 import {
+  multipleFirebaseToJSObject,
   cloneRecord,
   deleteRecord,
   submitRecord,
   returnRecordToDraft,
 } from "../../utils/firebaseRecordFunctions";
+import SimpleModal from "../FormComponents/SimpleModal";
+
+import regions from "../../regions";
+
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 class Submissions extends FormClassTemplate {

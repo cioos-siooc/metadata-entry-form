@@ -191,9 +191,11 @@ class MetadataForm extends FormClassTemplate {
       }
     });
   }
+
   toggleModal = (modalName, state, key = "", userID) => {
     this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
   };
+
   // genereric handler for updating state, used by most form components
   // generic event handler
   handleUpdateRecord = (key) => (event) => {
@@ -253,6 +255,7 @@ class MetadataForm extends FormClassTemplate {
     const recordID = await this.handleSaveClick();
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
+
   // userOKedRecordDemotion - user has clicked that they understand that their record will be
   // changed from published to draft since the record is incomplete
   async handleSaveClick(userOKedRecordDemotion = false) {
