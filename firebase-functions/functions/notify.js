@@ -3,6 +3,8 @@ const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 const { notificationsGmailAuth } = require("./hooks-auth");
 const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
+const createIssue = require("./issue");
+
 /**
  * Here we're using Gmail to send
  */
@@ -26,10 +28,6 @@ exports.notifyReviewer = functions.database
 
       const reviewers = reviewersFirebase.val().split(",");
 
-      if (!reviewers.length) {
-        console.log(`No reviewers found to notify for region ${region}`);
-        return;
-      }
       const authorUserInfoFB = await db
         .ref(`/${region}/users/${userID}/userinfo`)
         .once("value");
@@ -37,16 +35,9 @@ exports.notifyReviewer = functions.database
 
       const authorEmail = authorUserInfo.email;
 
-      if (reviewers.includes(authorEmail)) {
-        console.log("Author is a reviewer, don't notifiy other reviewers");
-        return;
-      }
-
       const recordFB = await db
         .ref(`/${region}/users/${userID}/records/${recordID}`)
         .once("value");
-
-      console.log("Emailing ", reviewers);
 
       const record = recordFB.toJSON();
       const { language } = record;
@@ -56,10 +47,27 @@ exports.notifyReviewer = functions.database
         console.log(`No title found for record ${recordID}`);
         return;
       }
+      console.log("region", region);
+
+      if (region === "hakai" && !title.includes("JUST TESTING")) {
+        console.log("Creating github issue");
+        await createIssue(
+          title,
+          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`
+        );
+      }
       // getting dest email by query string
 
       // returning result
-
+      if (reviewers.includes(authorEmail)) {
+        console.log("Author is a reviewer, don't notifiy other reviewers");
+        return;
+      }
+      if (!reviewers.length) {
+        console.log(`No reviewers found to notify for region ${region}`);
+        return;
+      }
+      console.log("Emailing ", reviewers);
       transporter.sendMail(
         mailOptionsReviewer(reviewers, title, region),
         (e, info) => {
