@@ -117,6 +117,7 @@ def record_json_to_yaml(record):
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
             "status": record.get("status"),
+            "projects": record.get("projects"),
             "progress_code": record.get("progress"),
         },
         "contact": [

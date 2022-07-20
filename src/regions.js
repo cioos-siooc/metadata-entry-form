@@ -88,7 +88,7 @@ const regions = {
       en: "Hakai Data Catalogue",
     },
     colors: { primary: "#aa2025", secondary: "#459be2" },
-    email: "info@hakai.org",
+    email: "data@hakai.org",
     catalogueURL: {
       fr: "https://catalogue.hakai.org/",
       en: "https://catalogue.hakai.org/",
@@ -103,7 +103,7 @@ const regions = {
       en: "Test Data Catalogue",
     },
     colors: { primary: "#fcba03", secondary: "#2518ad" },
-    email: "info@hakai.org",
+    email: "data@hakai.org",
     catalogueURL: {
       fr: "https://example.com/",
       en: "https://example.com/",
