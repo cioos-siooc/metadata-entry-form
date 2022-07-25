@@ -1,7 +1,7 @@
 const { Octokit } = require("octokit");
 const fs = require("fs");
-const { githubAuth } = require("./hooks-auth");
 
+const { GITHUB_AUTH } = process.env;
 function readIssueText(filename) {
   try {
     return fs.readFileSync(filename, "utf8");
@@ -13,7 +13,7 @@ function readIssueText(filename) {
 
 async function createIssue(title, url) {
   const octokit = new Octokit({
-    auth: githubAuth.auth,
+    auth: GITHUB_AUTH,
   });
   const issueText = readIssueText("dataset-name.md");
   const input = {

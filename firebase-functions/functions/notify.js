@@ -1,16 +1,17 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
-const { notificationsGmailAuth } = require("./hooks-auth");
 const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
 const createIssue = require("./issue");
 
 /**
  * Here we're using Gmail to send
  */
+const { GMAIL_USER, GMAIL_PASS } = process.env;
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: notificationsGmailAuth,
+  auth: { user: GMAIL_USER, pass: GMAIL_PASS },
 });
 /*
 Email the reviewers for the region when a form is submitted for review
