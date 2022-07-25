@@ -9,6 +9,7 @@ import {
 import { Save } from "@material-ui/icons";
 
 import firebase from "../../firebase";
+import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -23,6 +24,7 @@ class Admin extends FormClassTemplate {
     this.state = {
       // array of strings which are email addresses or reviewers, admins
       admins: [],
+      projects: [],
       reviewers: [],
       loading: false,
     };
@@ -34,19 +36,20 @@ class Admin extends FormClassTemplate {
 
     this.setState({ loading: true });
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
+    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const permissionsRef = firebase
-          .database()
-          .ref(region)
-          .child("permissions");
+        const regionRef = firebase.database().ref(region);
+        const permissionsRef = regionRef.child("permissions");
+        const projects = await getRegionProjects(region);
         permissionsRef.on("value", (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
+          // const projects = permissions.projects.split(",");
           const admins = permissions.admins.split(",");
           const reviewers = permissions.reviewers.split(",");
 
           this.setState({
+            projects,
             admins,
             reviewers,
             loading: false,
@@ -57,22 +60,26 @@ class Admin extends FormClassTemplate {
     });
   }
 
-  updatePermissions() {
+  save() {
     const { match } = this.props;
     const { region } = match.params;
 
-    const { reviewers, admins } = this.state;
+    const { reviewers, admins, projects } = this.state;
 
     if (auth.currentUser) {
-      const dbRef = firebase.database().ref(region).child("permissions");
+      const regionRef = firebase.database().ref(region);
+      const permissionsRef = regionRef.child("permissions");
+      const projectsRef = regionRef.child("projects");
 
-      dbRef.child("admins").set(cleanArr(admins).join());
-      dbRef.child("reviewers").set(cleanArr(reviewers).join());
+      permissionsRef.child("admins").set(cleanArr(admins).join());
+
+      projectsRef.set(cleanArr(projects));
+      permissionsRef.child("reviewers").set(cleanArr(reviewers).join());
     }
   }
 
   render() {
-    const { loading, reviewers, admins } = this.state;
+    const { loading, reviewers, admins, projects } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
@@ -99,6 +106,24 @@ class Admin extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
+            <Grid item xs>
+              <Typography>
+                <I18n>
+                  <En>Projects</En>
+                  <Fr>Projets</Fr>
+                </I18n>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                multiline
+                fullWidth
+                value={projects.join("\n")}
+                onChange={(e) =>
+                  this.setState({ projects: e.target.value.split("\n") })
+                }
+              />
+            </Grid>
             <Grid item xs>
               <Typography>
                 <I18n>
@@ -142,7 +167,7 @@ class Admin extends FormClassTemplate {
                 startIcon={<Save />}
                 variant="contained"
                 color="secondary"
-                onClick={() => this.updatePermissions()}
+                onClick={() => this.save()}
               >
                 <I18n>
                   <En>Save</En>

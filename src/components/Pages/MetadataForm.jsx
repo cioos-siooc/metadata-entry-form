@@ -32,7 +32,10 @@ import SubmitTab from "../Tabs/SubmitTab";
 import { auth } from "../../auth";
 import firebase from "../../firebase";
 import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
-import { submitRecord } from "../../utils/firebaseRecordFunctions";
+import {
+  submitRecord,
+  getRegionProjects,
+} from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
@@ -94,6 +97,7 @@ class MetadataForm extends FormClassTemplate {
     super(props);
 
     this.state = {
+      projects: [],
       record: getBlankRecord(),
 
       // contacts saved by user (not the ones saved in the record)
@@ -128,6 +132,8 @@ class MetadataForm extends FormClassTemplate {
         const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
+
+        this.setState({ projects: await getRegionProjects(region) });
         let editorInfo;
         // get info of the person openeing the record
         const editorDataRef = firebase
@@ -349,6 +355,7 @@ class MetadataForm extends FormClassTemplate {
       highlightMissingRequireFields,
       loggedInUserCanEditRecord,
       saveIncompleteRecordModalOpen,
+      projects,
     } = this.state;
 
     if (!record) {
@@ -366,7 +373,6 @@ class MetadataForm extends FormClassTemplate {
       updateRecord: this.updateRecord,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
-
     return loading ? (
       <CircularProgress />
     ) : (
@@ -504,7 +510,7 @@ class MetadataForm extends FormClassTemplate {
           <StartTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="identification">
-          <IdentificationTab {...tabProps} />
+          <IdentificationTab {...tabProps} projects={projects} />
         </TabPanel>
         <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />

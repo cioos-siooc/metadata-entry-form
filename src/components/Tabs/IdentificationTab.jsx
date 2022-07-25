@@ -28,6 +28,7 @@ const IdentificationTab = ({
   record,
   handleUpdateRecord,
   updateRecord,
+  projects,
 }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
@@ -117,6 +118,34 @@ const IdentificationTab = ({
         />
       </Paper>
 
+      {projects.length ? (
+        <Paper style={paperClass}>
+          <QuestionText>
+            <I18n>
+              <En>
+                What are the projects that this record is part of? To add a
+                project, email{" "}
+              </En>
+              <Fr>
+                Quels sont les projets dont ce disque fait partie? Pour ajouter
+                un projet, e-mail{" "}
+              </Fr>
+            </I18n>
+            <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
+          </QuestionText>
+          <CheckBoxList
+            value={record.projects || []}
+            labelSize={6}
+            onChange={updateRecord("projects")}
+            options={projects}
+            optionLabels={projects}
+            disabled={disabled}
+          />
+        </Paper>
+      ) : (
+        <div />
+      )}
+
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -164,9 +193,14 @@ const IdentificationTab = ({
               </En>
 
               <Fr>
-                Cette description correspond au résumé de votre jeu de données lorsqu’il sera publié dans le{" "}
-                {regionInfo.catalogueTitle.fr} <CatalogueLink lang="fr" />. Pour vous aider à rédiger ce résumé,
-                vous pouvez vous inspirer d’autres jeux de données déjà publiés dans le catalogue. Ce champ doit être compris par tout type d’utilisateur, nous vous recommandons un maximum de 500 mots, l’utilisation d’un langage accessible et de limiter l’utilisation de vocabulaire de type jargon.
+                Cette description correspond au résumé de votre jeu de données
+                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}{" "}
+                <CatalogueLink lang="fr" />. Pour vous aider à rédiger ce
+                résumé, vous pouvez vous inspirer d’autres jeux de données déjà
+                publiés dans le catalogue. Ce champ doit être compris par tout
+                type d’utilisateur, nous vous recommandons un maximum de 500
+                mots, l’utilisation d’un langage accessible et de limiter
+                l’utilisation de vocabulaire de type jargon.
                 <br />
                 <br />
                 Suggestion de points à aborder dans votre résumé:
@@ -176,19 +210,26 @@ const IdentificationTab = ({
                       <b>Quoi</b>: Les variables qui ont été mesurées
                     </li>
                     <li>
-                      <b>Quand</b>: Couverture temporelle de la donnée, fréquence de la mesure/observation
+                      <b>Quand</b>: Couverture temporelle de la donnée,
+                      fréquence de la mesure/observation
                     </li>
                     <li>
-                      <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des sites d’échantillonnages,  déplacement enregistrés d’un capteur, laboratoire, etc.
+                      <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des
+                      sites d’échantillonnages, déplacement enregistrés d’un
+                      capteur, laboratoire, etc.
                     </li>
                     <li>
-                      <b>Comment</b>: Équipement, procédures, protocoles, calibration, assurance/contrôle de la qualité
+                      <b>Comment</b>: Équipement, procédures, protocoles,
+                      calibration, assurance/contrôle de la qualité
                     </li>
                     <li>
                       <b>Qui</b>: Participants, membres du personnel
                     </li>
                     <li>
-                      <b>Pourquoi</b>: Quelques lignes pour décrire le contexte dans lequel les données ont été échantillonnées et comment elles permettent de répondre à la problématique (p. ex: quelles informations peuvent-elles apporter)
+                      <b>Pourquoi</b>: Quelques lignes pour décrire le contexte
+                      dans lequel les données ont été échantillonnées et comment
+                      elles permettent de répondre à la problématique (p. ex:
+                      quelles informations peuvent-elles apporter)
                     </li>
                   </ul>
                 </div>
@@ -215,7 +256,9 @@ const IdentificationTab = ({
             <Fr>
               Veuillez sélectionner toutes les variables océaniques essentielles
               contenues dans ce jeu de données. Survolez une variable pour voir
-              sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à la définition complète du Système d’Observatoire Global des Océans (GOOS).
+              sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à
+              la définition complète du Système d’Observatoire Global des Océans
+              (GOOS).
             </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "eov")} />
@@ -223,7 +266,8 @@ const IdentificationTab = ({
             <I18n>
               <En>If none of these apply you can select Other.</En>
               <Fr>
-                Si aucune de ces variables ne vous semble pertinente, vous pouvez sélectionner « Autre ».
+                Si aucune de ces variables ne vous semble pertinente, vous
+                pouvez sélectionner « Autre ».
               </Fr>
             </I18n>
           </SupplementalText>
@@ -271,7 +315,7 @@ const IdentificationTab = ({
                       </IconButton>
                     )}
                     {e.emerging && (
-                      <IconButton onClick={() => { }}>
+                      <IconButton onClick={() => {}}>
                         <Tooltip
                           title={
                             <I18n
@@ -325,10 +369,19 @@ const IdentificationTab = ({
                   </En>
                   <Fr>
                     <p>
-                      Les mots clés sont un moyen efficace de catégoriser vos données pour permettre aux utilisateurs ou à d'autres systèmes d’accéder à tous les jeux de données partageant une même caractéristique.
+                      Les mots clés sont un moyen efficace de catégoriser vos
+                      données pour permettre aux utilisateurs ou à d'autres
+                      systèmes d’accéder à tous les jeux de données partageant
+                      une même caractéristique.
                     </p>
                     <p>
-                      Vous pouvez choisir un mot clé prédéfini (liste déroulante) en français puis cliquer sur le bouton de traduction. Vous pouvez aussi créer votre propre mot clé en rédigeant un texte libre en anglais ou en français (vérifiez toujours si son équivalent existe dans la liste déroulante afin de diminuer le risque d’écriture multiple d’un même mot clé -ex: phoque Vs Phoques-).
+                      Vous pouvez choisir un mot clé prédéfini (liste
+                      déroulante) en français puis cliquer sur le bouton de
+                      traduction. Vous pouvez aussi créer votre propre mot clé
+                      en rédigeant un texte libre en anglais ou en français
+                      (vérifiez toujours si son équivalent existe dans la liste
+                      déroulante afin de diminuer le risque d’écriture multiple
+                      d’un même mot clé -ex: phoque Vs Phoques-).
                     </p>
                     <p>
                       Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
@@ -418,7 +471,8 @@ const IdentificationTab = ({
               dataset hasn't been published.
             </En>
             <Fr>
-              Quelle est la date de première publication des données ? Laissez le champ vide si les données n'ont pas été publiées.
+              Quelle est la date de première publication des données ? Laissez
+              le champ vide si les données n'ont pas été publiées.
             </Fr>
           </I18n>
         </QuestionText>
@@ -438,7 +492,8 @@ const IdentificationTab = ({
               hasn't been revised.
             </En>
             <Fr>
-              Quelle est la date de la dernière révision des données ? Laissez le champ vide si le jeu de données n'a pas été révisé.
+              Quelle est la date de la dernière révision des données ? Laissez
+              le champ vide si le jeu de données n'a pas été révisé.
             </Fr>
           </I18n>
           <SupplementalText>

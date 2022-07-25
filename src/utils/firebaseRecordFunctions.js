@@ -159,6 +159,14 @@ export function returnRecordToDraft(region, userID, key) {
     .child("status")
     .set("");
 }
+export async function getRegionProjects(region) {
+  const projects = Object.values(
+    (
+      await firebase.database().ref(region).child("projects").once("value")
+    ).toJSON() || {}
+  );
+  return projects;
+}
 
 // runs firebaseToJSObject on each child object
 export const multipleFirebaseToJSObject = (multiple) => {
