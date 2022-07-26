@@ -17,7 +17,7 @@ import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions from "../regions";
-
+console.log('process.env.PUBLIC_URL',process.env.PUBLIC_URL);
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
   const imgPath = `/cioos-${region}-${language}.png`;

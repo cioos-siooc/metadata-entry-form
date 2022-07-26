@@ -24,6 +24,8 @@ class EditContact extends FormClassTemplate {
       indName: "",
       indPosition: "",
       indEmail: "",
+      givenNames: "",
+      lastName: "",
     };
     const { match } = props;
 
@@ -78,8 +80,8 @@ class EditContact extends FormClassTemplate {
   }
 
   render() {
-    const { orgName, indName } = this.state;
-    const isFilledEnoughToSave = orgName || indName;
+    const { orgName, givenNames, lastName } = this.state;
+    const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>
         <Grid item xs>
