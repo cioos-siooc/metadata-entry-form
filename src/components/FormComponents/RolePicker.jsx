@@ -7,6 +7,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  Checkbox,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 
@@ -45,8 +46,26 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       (role) => roleCodeKeys.indexOf(role) > numSpecialRoles - 1
     ).length > 0;
 
+  console.log("value.isCitation", value.isCitation);
+
   return (
     <Grid item xs>
+      <QuestionText>
+        <I18n>
+          <En>Appear in citation?</En>
+          <Fr>Apparaissent dans la citation?</Fr>
+        </I18n>
+
+        <Checkbox
+          name="isCitation"
+          checked={value.isCitation}
+          onChange={(e) => {
+            const { checked } = e.target;
+
+            updateContact("isCitation")(checked);
+          }}
+        />
+      </QuestionText>
       <QuestionText>
         <I18n>
           <En>
@@ -59,18 +78,13 @@ const RolePicker = ({ value, disabled, updateContact }) => {
           {" "}
           <I18n>
             <En>
-              At least one Metadata Custodian and one Data Owner are required.
               Multiple roles can be selected for each contact. Expand the list
-              below for additional role. Only starred roles (*) will appear in
-              the citation.
+              below for additional role.
             </En>
             <Fr>
-              Au moins un dépositaire de métadonnées et un propriétaire de
-              données sont requis. Plusieurs rôles peuvent être sélectionnés par
-              personne. Si vous avez besoin de rôles plus spécifiques, vous
-              pouvez étendre la liste. Développez la liste ci-dessous pour un
-              rôle supplémentaire. Seuls les rôles marqués d'un astérisque (*)
-              apparaîtront dans la citation.
+              Plusieurs rôles peuvent être sélectionnés par personne. Si vous
+              avez besoin de rôles plus spécifiques, vous pouvez étendre la
+              liste. Développez la liste ci-dessous pour un rôle supplémentaire.
             </Fr>
           </I18n>
         </SupplementalText>

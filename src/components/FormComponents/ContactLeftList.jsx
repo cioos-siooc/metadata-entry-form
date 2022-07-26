@@ -34,6 +34,9 @@ const emptyContact = {
   indName: "",
   indPosition: "",
   indEmail: "",
+  givenNames: "",
+  lastName: "",
+  isCitation: true,
 };
 
 const ContactLeftList = ({

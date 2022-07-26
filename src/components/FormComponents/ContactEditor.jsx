@@ -9,6 +9,19 @@ import { En, Fr, I18n } from "../I18n";
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
 
+function givenNamesFormat(givenNames) {
+  return givenNames
+    .split(" ")
+    .filter((e) => e)
+    .map((e) => e[0].toUpperCase() + ". ")
+    .join(" ");
+}
+function namesToCitation(givenNames, lastname) {
+  if (!givenNames || !lastname) return "";
+
+  return lastname + ", " + givenNamesFormat(givenNames);
+}
+
 const ContactEditor = ({
   value,
   showRolePicker,
@@ -19,6 +32,8 @@ const ContactEditor = ({
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
   const orgURLValid = validateURL(value.orgURL);
+  const givenNamesValid = !value.givenNames?.includes(",");
+  const lastNameValid = !value.lastName?.includes(",");
 
   return (
     <Grid container direction="column" spacing={2}>
@@ -132,10 +147,56 @@ const ContactEditor = ({
           style={{ marginTop: "10px" }}
         >
           <Grid item xs>
+            {value.givenNames && value.lastName && value.isCitation && (
+              <div style={{ marginBottom: "10px" }}>
+                This name will appear in the citation as:{" "}
+                <b>{namesToCitation(value.givenNames, value.lastName)}</b>
+              </div>
+            )}
+          </Grid>
+          <Grid item xs>
             <TextField
-              label={<I18n en="Individual Name" fr="Nom de l'individu" />}
-              value={value.indName}
-              onChange={updateContactEvent("indName")}
+              label={<I18n en="Given name(s)" fr="Prénom" />}
+              value={value.givenNames}
+              helperText={
+                !givenNamesValid && (
+                  <I18n
+                    en="No commas allowed"
+                    fr="Aucune virgule n'est autorisée"
+                  />
+                )
+              }
+              error={!givenNamesValid}
+              onChange={(a) => {
+                updateContact("indName")(
+                  value.givenNames + " " + value.lastName
+                );
+                updateContactEvent("givenNames")(a);
+              }}
+              disabled={disabled}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs>
+            <TextField
+              // style={{ margin: "25px" }}
+              label={<I18n en="Last name" fr="nom de famille" />}
+              value={value.lastName}
+              helperText={
+                !lastNameValid && (
+                  <I18n
+                    en="No commas allowed"
+                    fr="Aucune virgule n'est autorisée"
+                  />
+                )
+              }
+              error={!lastNameValid}
+              onChange={(a) => {
+                updateContact("indName")(
+                  value.givenNames + " " + value.lastName
+                );
+                updateContactEvent("lastName")(a);
+              }}
               disabled={disabled}
               fullWidth
             />

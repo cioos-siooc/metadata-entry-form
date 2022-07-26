@@ -1,7 +1,13 @@
 import React from "react";
 
 import Cite from "citation-js";
-
+function givenNamesFormat(givenNames) {
+  return givenNames
+    .split(" ")
+    .filter((e) => e)
+    .map((e) => e[0].toUpperCase() + ". ")
+    .join(" ");
+}
 const intersection = (arrA, arrB) => arrA.filter((x) => arrB.includes(x));
 function APAPreview({ record, language }) {
   const {
@@ -20,18 +26,16 @@ function APAPreview({ record, language }) {
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
-            (contact.indName?.length > 1 || contact.orgName?.length > 1) &&
-            contact.role &&
-            // only these roles make it into the APA preview
-            intersection(contact.role, [
-              "author",
-              "owner",
-              "originator",
-              "principalInvestigator",
-            ]).length
+            (contact.givenNames?.length > 1 && contact.lastName?.length > 1) ||
+            contact.orgName?.length > 1
         )
+
         .map((contact) => {
-          if (contact.indName?.length > 1) return { name: contact.indName };
+          if (contact.givenNames?.length > 1 && contact.lastName?.length > 1)
+            return {
+              given: givenNamesFormat(contact.givenNames),
+              family: contact.lastName,
+            };
           // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
         }),
