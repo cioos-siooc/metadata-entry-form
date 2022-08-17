@@ -35,7 +35,8 @@
     "react-time-ago": "^6.2.2",
     "regenerator-runtime": "^0.13.7",
     "uuid": "^8.3.0",
-    "validator": "^13.6.0"
+    "validator": "^13.6.0",
+    "xml-escape": "^1.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",

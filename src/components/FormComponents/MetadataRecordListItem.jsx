@@ -27,6 +27,7 @@ import {
 import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
+import recordToERDDAP from "../../utils/recordToERDDAP";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
@@ -96,6 +97,8 @@ const MetadataRecordListItem = ({
       if (fileType === "eml") {
         const emlStr = await recordToEML(record);
         data = [emlStr];
+      } else if (fileType === "erddap") {
+        data = [recordToERDDAP(record)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);
