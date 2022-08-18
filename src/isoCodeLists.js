@@ -35,6 +35,8 @@ export const roleCodes = {
       fr:
         "Partie qui accepte la reddition de comptes et la responsabilité de la ressource et assure le soin et l'entretien appropriés de la ressource ",
     },
+    required: true,
+    showProminently: true,
   },
   owner: {
     title: { en: "Data Owner", fr: "Propriétaire des données" },
@@ -42,6 +44,8 @@ export const roleCodes = {
       en: "Party that owns the resource",
       fr: "Partie propriétaire de la ressource",
     },
+    required: true,
+    showProminently: true,
   },
   distributor: {
     title: { en: "Distributor", fr: "Distributeur" },
@@ -49,6 +53,7 @@ export const roleCodes = {
       en: "Party who distributes the resource",
       fr: "Partie qui distribue la ressource",
     },
+    showProminently: true,
   },
   author: {
     title: { en: "Author", fr: "Auteur" },
