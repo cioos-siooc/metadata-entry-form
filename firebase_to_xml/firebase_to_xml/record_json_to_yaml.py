@@ -136,6 +136,7 @@ def record_json_to_yaml(record):
                     "position": contact.get("indPosition"),
                     "email": contact.get("indEmail"),
                 },
+                "inCitation": contact.get("inCitation"),
             }
             for contact in record.get("contacts", [])
         ],
