@@ -36,7 +36,7 @@ const emptyContact = {
   indEmail: "",
   givenNames: "",
   lastName: "",
-  isCitation: true,
+  inCitation: true,
 };
 
 const ContactLeftList = ({

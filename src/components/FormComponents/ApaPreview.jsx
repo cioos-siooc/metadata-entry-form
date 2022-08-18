@@ -1,11 +1,12 @@
 import React from "react";
 
 import Cite from "citation-js";
+
 function givenNamesFormat(givenNames) {
   return givenNames
     .split(" ")
     .filter((e) => e)
-    .map((e) => e[0].toUpperCase() + ". ")
+    .map((e) => `${e[0].toUpperCase()}. `)
     .join(" ");
 }
 const intersection = (arrA, arrB) => arrA.filter((x) => arrB.includes(x));
@@ -26,8 +27,9 @@ function APAPreview({ record, language }) {
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
-            (contact.givenNames?.length > 1 && contact.lastName?.length > 1) ||
-            contact.orgName?.length > 1
+            contact.inCitation &&
+            ((contact.givenNames?.length > 1 && contact.lastName?.length > 1) ||
+              contact.orgName?.length > 1)
         )
 
         .map((contact) => {

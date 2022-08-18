@@ -55,7 +55,10 @@ const ContactTab = ({
   }
 
   const showApaBox =
-    record.title?.[language] && contacts.length && record.created;
+    record.title?.[language] &&
+    contacts.length &&
+    record.created &&
+    record.contacts?.some((c) => c.inCitation);
 
   const contact = contacts[activeContact];
   return (
@@ -68,14 +71,16 @@ const ContactTab = ({
                 Please enter at least one Metadata Custodian <b>and</b> one Data
                 Owner for this dataset that can work with{" "}
                 {regions[region].title[language]} Staff to finalize this
-                Metadata Record.
+                Metadata Record. You also must select at least one contact to
+                appear in the citation.
               </En>
               <Fr>
                 Veuillez saisir au moins un Dépositaire des métadonnées ET un
                 propriétaire des données de ce jeu. Ces personnes pourraient
                 être appelées à collaborer avec le personnel
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
-                informations.
+                informations. Vous devez également sélectionner au moins un
+                contact pour apparaître dans la citation.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />

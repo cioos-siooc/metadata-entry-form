@@ -147,7 +147,7 @@ const ContactEditor = ({
           style={{ marginTop: "10px" }}
         >
           <Grid item xs>
-            {value.givenNames && value.lastName && value.isCitation && (
+            {value.givenNames && value.lastName && value.inCitation && (
               <div style={{ marginBottom: "10px" }}>
                 This name will appear in the citation as:{" "}
                 <b>{namesToCitation(value.givenNames, value.lastName)}</b>
