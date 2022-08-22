@@ -13,13 +13,13 @@ function givenNamesFormat(givenNames) {
   return givenNames
     .split(" ")
     .filter((e) => e)
-    .map((e) => e[0].toUpperCase() + ". ")
+    .map((e) => `${e[0].toUpperCase()  }. `)
     .join(" ");
 }
 function namesToCitation(givenNames, lastname) {
   if (!givenNames || !lastname) return "";
 
-  return lastname + ", " + givenNamesFormat(givenNames);
+  return `${lastname  }, ${  givenNamesFormat(givenNames)}`;
 }
 
 const ContactEditor = ({
@@ -169,7 +169,7 @@ const ContactEditor = ({
               error={!givenNamesValid}
               onChange={(a) => {
                 updateContact("indName")(
-                  value.givenNames + " " + value.lastName
+                  `${value.givenNames  } ${  value.lastName}`
                 );
                 updateContactEvent("givenNames")(a);
               }}
@@ -193,7 +193,7 @@ const ContactEditor = ({
               error={!lastNameValid}
               onChange={(a) => {
                 updateContact("indName")(
-                  value.givenNames + " " + value.lastName
+                  `${value.givenNames  } ${  value.lastName}`
                 );
                 updateContactEvent("lastName")(a);
               }}

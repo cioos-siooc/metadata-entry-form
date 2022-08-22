@@ -9,7 +9,7 @@ function givenNamesFormat(givenNames) {
     .map((e) => `${e[0].toUpperCase()}. `)
     .join(" ");
 }
-const intersection = (arrA, arrB) => arrA.filter((x) => arrB.includes(x));
+
 function APAPreview({ record, language }) {
   const {
     title,
