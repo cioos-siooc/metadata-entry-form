@@ -175,7 +175,7 @@ const validators = {
       val
         .filter(contactIsFilled)
         .find((contact) => contact.role.includes("owner")) &&
-      val.filter(contactIsFilled).find((contact) => contact.isCitation),
+      val.filter(contactIsFilled).find((contact) => contact.inCitation),
     error: {
       en:
         "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",

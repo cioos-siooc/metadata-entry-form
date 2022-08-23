@@ -10,11 +10,13 @@ function arrayOverlap(a, b) {
 function getFirstName(x) {
   const names = x.split(" ");
   if (names) return names.slice(-1);
+  return null;
 }
 
 function getLastName(x) {
   const names = x.split(" ");
   if (names) return names[0];
+  return null;
 }
 function translateRole(isoRoles) {
   console.log(isoRoles);

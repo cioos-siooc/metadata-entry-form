@@ -44,7 +44,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
 
         <Checkbox
           name="inCitation"
-          checked={value.inCitation}
+          checked={value.inCitation || false}
           onChange={(e) => {
             const { checked } = e.target;
 
