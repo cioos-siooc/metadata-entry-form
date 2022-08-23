@@ -64,7 +64,7 @@ function recordToERDDAP(record) {
   };
   const attributesStr = Object.entries(attributes)
     .filter(([, v]) => v)
-    .map(([k, v]) => `  <att name="${xmlescape(k)}">${v}</att>`)
+    .map(([k, v]) => `  <att name="${k}">${xmlescape(String(v))}</att>`)
     .join("\n");
 
   return `
