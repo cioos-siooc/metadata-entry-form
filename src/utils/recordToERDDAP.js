@@ -67,10 +67,11 @@ function recordToERDDAP(record) {
     .map(([k, v]) => `  <att name="${xmlescape(k)}">${v}</att>`)
     .join("\n");
 
-  return `<addAttributes>
+  return `
 <iso19115File>/your/waf/${
     record.filename || getRecordFilename(record)
   }.xml</iso19115File>
+<addAttributes>
 ${attributesStr}
 </addAttributes>`;
 }
