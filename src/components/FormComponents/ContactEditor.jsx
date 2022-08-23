@@ -167,12 +167,7 @@ const ContactEditor = ({
                 )
               }
               error={!givenNamesValid}
-              onChange={(a) => {
-                updateContact("indName")(
-                  `${value.givenNames  } ${  value.lastName}`
-                );
-                updateContactEvent("givenNames")(a);
-              }}
+              onChange={updateContactEvent("givenNames")}
               disabled={disabled}
               fullWidth
             />
@@ -191,12 +186,7 @@ const ContactEditor = ({
                 )
               }
               error={!lastNameValid}
-              onChange={(a) => {
-                updateContact("indName")(
-                  `${value.givenNames  } ${  value.lastName}`
-                );
-                updateContactEvent("lastName")(a);
-              }}
+              onChange={updateContactEvent("lastName")}
               disabled={disabled}
               fullWidth
             />
