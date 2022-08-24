@@ -21,7 +21,6 @@ class EditContact extends FormClassTemplate {
       orgCity: "",
       orgCountry: "",
       // ind = individual
-      indName: "",
       indPosition: "",
       indEmail: "",
       givenNames: "",
