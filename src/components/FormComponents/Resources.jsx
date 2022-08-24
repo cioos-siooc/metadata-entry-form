@@ -54,9 +54,9 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     <En>Enter a name for the resource</En>
                     <Fr>Entrez un titre pour la ressource</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.name} />
+                  <RequiredMark passes={dist.name?.en || dist.name?.fr} />
                 </QuestionText>
-                <TextField
+                <BilingualTextInput
                   label={nameLabel}
                   value={dist.name}
                   onChange={handleResourceChange("name")}
