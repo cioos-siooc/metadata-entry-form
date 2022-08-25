@@ -170,7 +170,7 @@ def record_json_to_yaml(record):
                 contact["role"] += ["distributor"]
 
     organization = record.get("organization")
-    print("organization", organization)
+
     if organization:
         organization = {
             "roles": ["owner"],

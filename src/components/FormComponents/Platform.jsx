@@ -64,7 +64,7 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
             (e) => `${e[`definition_${language}`]}`
           )}
           options={platformsSorted.map((e) => e.label_en)}
-          // disabled={!contactList.length || disabled}
+          disabled={disabled}
           label={<I18n en="Platform" fr="Plateforme" />}
           fullWidth={false}
         />
