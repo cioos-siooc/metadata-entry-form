@@ -544,6 +544,7 @@ const IdentificationTab = ({
           error={!doiIsValid}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
+          disabled={disabled}
           fullWidth
         />
       </Paper>

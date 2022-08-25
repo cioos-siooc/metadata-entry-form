@@ -58,7 +58,7 @@ function recordToERDDAP(record) {
     references: `https://doi.org/${record.datasetIdentifier}`,
     keywords: record.keywords[lang],
     platform: record.platform,
-    platform_vocabulary: "http://vocab.nerc.ac.uk/collection/L06/current/",
+    platform_vocabulary: record.platform && "http://vocab.nerc.ac.uk/collection/L06/current/",
     summary: record.abstract[lang],
     title: record.title[lang],
   };
