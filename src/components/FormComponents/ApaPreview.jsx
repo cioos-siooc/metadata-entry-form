@@ -2,14 +2,6 @@ import React from "react";
 
 import Cite from "citation-js";
 
-function givenNamesFormat(givenNames) {
-  return givenNames
-    .split(" ")
-    .filter((e) => e)
-    .map((e) => `${e[0].toUpperCase()}. `)
-    .join(" ");
-}
-
 function APAPreview({ record, language }) {
   const {
     title,
@@ -19,7 +11,7 @@ function APAPreview({ record, language }) {
     datePublished,
   } = record;
 
-  const apaData = [
+  const cslJSON = [
     {
       title: title[language],
 
@@ -35,30 +27,21 @@ function APAPreview({ record, language }) {
         .map((contact) => {
           if (contact.givenNames?.length > 1 && contact.lastName?.length > 1)
             return {
-              given: givenNamesFormat(contact.givenNames),
+              given: contact.givenNames,
               family: contact.lastName,
             };
           // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
         }),
-      date: { published: datePublished || created },
+        issued: { 'date-parts': [[datePublished || created]] },
 
-      identifier: [
-        {
-          type: "doi",
-          id: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
-        },
-      ],
-      license: [
-        {
-          raw: record.license,
-        },
-      ],
+        DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
+      
     },
   ];
 
   try {
-    const data = Cite(apaData);
+    const data = Cite(cslJSON);
 
     const html = data.format("bibliography", {
       format: "html",
