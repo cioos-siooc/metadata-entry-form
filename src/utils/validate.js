@@ -30,7 +30,7 @@ const polygonIsValid = (polygon) => {
 
 const contactIsFilled = (contact) =>
   Boolean(
-    contact.role && contact.role.length && (contact.orgName || contact.indName)
+    contact.role && contact.role.length && (contact.orgName || contact.givenNames || contact.lastName)
   );
 
 // required fields and  a function to validate each
@@ -156,6 +156,7 @@ const validators = {
     },
   },
   // at least one contact has to have a role and a org or individual name
+  // at least one contact has to appear in citation
   contacts: {
     tab: "contacts",
     validation: (val) =>
@@ -173,12 +174,13 @@ const validators = {
         .find((contact) => contact.role.includes("custodian")) &&
       val
         .filter(contactIsFilled)
-        .find((contact) => contact.role.includes("owner")),
+        .find((contact) => contact.role.includes("owner")) &&
+      val.filter(contactIsFilled).find((contact) => contact.inCitation),
     error: {
       en:
-        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.",
+        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
       fr:
-        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides.",
+        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation",
     },
   },
   distribution: {

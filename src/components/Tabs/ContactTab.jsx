@@ -55,7 +55,10 @@ const ContactTab = ({
   }
 
   const showApaBox =
-    record.title?.[language] && contacts.length && record.created;
+    record.title?.[language] &&
+    contacts.length &&
+    record.created &&
+    record.contacts?.some((c) => c.inCitation);
 
   const contact = contacts[activeContact];
   return (
@@ -68,14 +71,16 @@ const ContactTab = ({
                 Please enter at least one Metadata Custodian <b>and</b> one Data
                 Owner for this dataset that can work with{" "}
                 {regions[region].title[language]} Staff to finalize this
-                Metadata Record.
+                Metadata Record. You also must select at least one contact to
+                appear in the citation.
               </En>
               <Fr>
                 Veuillez saisir au moins un Dépositaire des métadonnées ET un
                 propriétaire des données de ce jeu. Ces personnes pourraient
                 être appelées à collaborer avec le personnel
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
-                informations.
+                informations. Vous devez également sélectionner au moins un
+                contact pour apparaître dans la citation.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
@@ -85,8 +90,7 @@ const ContactTab = ({
                   It is important to include all individuals from the chain of
                   attribution to ensure all involved parties are credited
                   appropriately for their role in creating this dataset. Saved
-                  contacts can be selected from the list below. If you have any
-                  saved contacts you can select them from the list.
+                  contacts can be selected from the list below.
                 </En>
                 <Fr>
                   Il est important d'inclure toutes les personnes ayant
@@ -94,8 +98,7 @@ const ContactTab = ({
                   les parties concernées soient créditées de façon appropriée
                   pour leur rôle dans la création de ce jeu de données. Les
                   contacts sauvegardés peuvent être sélectionnés dans la liste
-                  ci-dessous. Si vous avez déjà des contacts enregistrés, vous
-                  pouvez les sélectionner dans la liste.
+                  ci-dessous.
                 </Fr>
               </I18n>
             </SupplementalText>
@@ -109,8 +112,7 @@ const ContactTab = ({
               <I18n>
                 <En>
                   This is how your record citation will look in the catalogue.
-                  Only starred roles will appear in the citation. To change
-                  the order, drag the{" "}
+                  To change the citation order, drag the{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} /> symbol.
                 </En>
                 <Fr>

@@ -21,8 +21,8 @@
 
         <{{role}}>
         <individualName>
-                <givenName>{{ getFirstName(contact.indName) }}</givenName>
-                <surName>{{ getLastName(contact.indName) }}</surName>
+                <givenName>{{ contact.givenNames }}</givenName>
+                <surName>{{ contact.lastName }}</surName>
             </individualName>
             <organizationName>{{ contacts.orgName}}</organizationName>
             <!-- <positionName>Biologist and Scientific Data Specialist</positionName> -->

@@ -7,6 +7,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  Checkbox,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 
@@ -21,37 +22,39 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 const RolePicker = ({ value, disabled, updateContact }) => {
   const [expanded, setExpanded] = useState(false);
   const { language } = useParams();
-  const roleCodeKeys = Object.keys(roleCodes);
-  const roleLabels = Object.values(roleCodes).map(
-    ({ title, includeInCitation }) =>
-      `${title[language]}${includeInCitation ? "*" : ""}`
-  );
-  const citationRoleText = {
-    en: "This role is included in the citation.",
-    fr: "Ce rôle est inclus dans la citation.",
-  };
-  const tooltips = Object.values(roleCodes).map(
-    ({ text, includeInCitation }) =>
-      `${text[language]}${
-        includeInCitation ? `.  ${citationRoleText[language]}` : ""
-      }`
-  );
 
-  // the first 3 roles are show more prominently
-  const numSpecialRoles = 3;
-
+  const roles = Object.entries(roleCodes).map(([key, role]) => ({
+    key,
+    ...role,
+  }));
+  const prominentRoles = roles.filter((role) => role.showProminently);
+  const nonProminentRoles = roles.filter((role) => !role.showProminently);
+  const nonProminentRoleKeys = nonProminentRoles.map((r) => r.key);
   const selectOptionIsInExpandedList =
-    (value.role || []).filter(
-      (role) => roleCodeKeys.indexOf(role) > numSpecialRoles - 1
-    ).length > 0;
+    (value.role || []).filter((role) => nonProminentRoleKeys.includes(role))
+      .length > 0;
 
   return (
     <Grid item xs>
       <QuestionText>
         <I18n>
-          <En>
-            What is the role of this contact? {selectOptionIsInExpandedList}
-          </En>
+          <En>Appear in citation?</En>
+          <Fr>Apparaissent dans la citation?</Fr>
+        </I18n>
+
+        <Checkbox
+          name="inCitation"
+          checked={value.inCitation || false}
+          onChange={(e) => {
+            const { checked } = e.target;
+
+            updateContact("inCitation")(checked);
+          }}
+        />
+      </QuestionText>
+      <QuestionText>
+        <I18n>
+          <En>What is the role of this contact?</En>
           <Fr>Quel est son rôle?</Fr>
         </I18n>
         <RequiredMark passes={value.role?.length} />
@@ -59,18 +62,13 @@ const RolePicker = ({ value, disabled, updateContact }) => {
           {" "}
           <I18n>
             <En>
-              At least one Metadata Custodian and one Data Owner are required.
               Multiple roles can be selected for each contact. Expand the list
-              below for additional role. Only starred roles (*) will appear in
-              the citation.
+              below for additional role.
             </En>
             <Fr>
-              Au moins un dépositaire de métadonnées et un propriétaire de
-              données sont requis. Plusieurs rôles peuvent être sélectionnés par
-              personne. Si vous avez besoin de rôles plus spécifiques, vous
-              pouvez étendre la liste. Développez la liste ci-dessous pour un
-              rôle supplémentaire. Seuls les rôles marqués d'un astérisque (*)
-              apparaîtront dans la citation.
+              Plusieurs rôles peuvent être sélectionnés par personne. Si vous
+              avez besoin de rôles plus spécifiques, vous pouvez étendre la
+              liste. Développez la liste ci-dessous pour un rôle supplémentaire.
             </Fr>
           </I18n>
         </SupplementalText>
@@ -79,10 +77,12 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       <CheckBoxList
         value={value.role || []}
         onChange={updateContact("role")}
-        options={roleCodeKeys.slice(0, numSpecialRoles)}
-        optionLabels={roleLabels.slice(0, numSpecialRoles)}
+        options={prominentRoles.map((r) => r.key)}
+        optionLabels={prominentRoles.map(
+          (r) => r.title[language] + (r.required ? "*" : "")
+        )}
         disabled={disabled}
-        optionTooltips={tooltips.slice(0, numSpecialRoles)}
+        optionTooltips={prominentRoles.map((r) => r.text[language])}
       />
 
       <Accordion
@@ -107,10 +107,10 @@ const RolePicker = ({ value, disabled, updateContact }) => {
           <CheckBoxList
             value={value.role || []}
             onChange={updateContact("role")}
-            options={roleCodeKeys.slice(numSpecialRoles)}
-            optionLabels={roleLabels.slice(numSpecialRoles)}
+            options={nonProminentRoles.map((r) => r.key)}
+            optionLabels={nonProminentRoles.map((r) => r.title[language])}
             disabled={disabled}
-            optionTooltips={tooltips.slice(numSpecialRoles)}
+            optionTooltips={nonProminentRoles.map((r) => r.text[language])}
           />
         </AccordionDetails>
       </Accordion>
