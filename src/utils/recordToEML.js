@@ -7,15 +7,7 @@ const nunjucks = require("nunjucks");
 function arrayOverlap(a, b) {
   return a.some((e) => b.includes(e));
 }
-function getFirstName(x) {
-  const names = x.split(" ");
-  if (names) return names.slice(-1);
-}
 
-function getLastName(x) {
-  const names = x.split(" ");
-  if (names) return names[0];
-}
 function translateRole(isoRoles) {
   console.log(isoRoles);
   return isoRoles;
@@ -28,8 +20,6 @@ async function recordToEML(record) {
 
   return nunjucks.renderString(templateXML, {
     record,
-    getFirstName,
-    getLastName,
     translateRole,
     arrayOverlap,
   });

@@ -10,7 +10,7 @@ export async function cloneContact(region, userID, contactID) {
 
   const contact = (await contactsRef.child(contactID).once("value")).val();
 
-  if (contact.indName) contact.indName += " (Copy)";
+  if (contact.lastName) contact.lastName += " (Copy)";
   else contact.orgName += " (Copy)";
   contactsRef.push(contact);
 }

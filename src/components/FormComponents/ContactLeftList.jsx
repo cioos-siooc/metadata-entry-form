@@ -31,9 +31,11 @@ const emptyContact = {
   orgAdress: "",
   orgCity: "",
   orgCountry: "",
-  indName: "",
   indPosition: "",
   indEmail: "",
+  givenNames: "",
+  lastName: "",
+  inCitation: true,
 };
 
 const ContactLeftList = ({
@@ -72,8 +74,7 @@ const ContactLeftList = ({
   }
   function duplicateContact(contactIndex) {
     const duplicatedContact = deepCopy(contacts[contactIndex]);
-
-    if (duplicatedContact.indName) duplicatedContact.indName += " (Copy)";
+    if (duplicatedContact.lastName) duplicatedContact.lastName += " (Copy)";
     else duplicatedContact.orgName += " (Copy)";
 
     updateContacts(contacts.concat(duplicatedContact));
@@ -202,7 +203,8 @@ const ContactLeftList = ({
                               disabled={
                                 !(
                                   contacts[i].orgName?.length ||
-                                  contacts[i].indName?.length
+                                  contacts[i].givenNames?.length ||
+                                  contacts[i].lastName?.length
                                 )
                               }
                               edge="end"
