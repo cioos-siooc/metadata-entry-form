@@ -10,12 +10,25 @@ function APAPreview({ record, language }) {
     contacts = [],
     datePublished,
   } = record;
+  
+  const publishers = contacts
+    .filter(
+      (contact) =>
+        // citation-js crashes sometimes with single letter input for a name
+        contact.inCitation && contact.role.includes("publisher")
+    )
+    .map((contact) => contact.orgName);
 
   const cslJSON = [
     {
       title: title[language],
 
       author: contacts
+        // if only publisher is checked, it just appears in publisher section
+        .filter(
+          (contact) =>
+            !(contact.role.includes("publisher") && contact.role.length === 1)
+        )
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
@@ -33,10 +46,9 @@ function APAPreview({ record, language }) {
           // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
         }),
-        issued: { 'date-parts': [[datePublished || created]] },
-
-        DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
-      
+      issued: { "date-parts": [[datePublished || created]] },
+      publisher: publishers.join(", "),
+      DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
     },
   ];
 
