@@ -1,0 +1,95 @@
+
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:dc="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd" packageId="72de3af4-1572-4f2d-8006-2bfa2007065c/v1.25" system="http://gbif.org" scope="system" xml:lang="eng">
+
+    <dataset>
+        <!-- <alternateIdentifier>72de3af4-1572-4f2d-8006-2bfa2007065c</alternateIdentifier> -->
+
+        <!-- <alternateIdentifier>http://ipt.iobis.org/obiscanada/resource?r=hakai_jsp</alternateIdentifier> -->
+
+        <title xml:lang="eng">{{ record.title.en }}</title>
+
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(['author','originator'],contact.role) %}
+            {% set role = "creator" %}
+        {% elif arrayOverlap(['publisher','distributor'],contact.role) %}
+            {% set role = "metadataProvider" %}
+        {% elif arrayOverlap(['principalInvestigator','editor'],contact.role) %}
+            {% set role = "associatedParty" %}
+        {% else %}}
+            {% set role = "creator" %}
+        {% endif %}
+
+        <{{role}}>
+        <individualName>
+                <givenName>{{ contact.givenNames }}</givenName>
+                <surName>{{ contact.lastName }}</surName>
+            </individualName>
+            <organizationName>{{ contacts.orgName}}</organizationName>
+            <!-- <positionName>Biologist and Scientific Data Specialist</positionName> -->
+            <address>
+                <!-- <deliveryPoint>1747</deliveryPoint> -->
+                <city>{{ contact.orgCity }}</city>
+                <!-- <administrativeArea>British Columbia</administrativeArea> -->
+                <!-- <postalCode>V0P 1H0</postalCode> -->
+                <country>{{ contact.orgCountry }}</country>
+            </address>
+            <!-- <phone>6047035347</phone> -->
+            <electronicMailAddress>{{ contact.indEmail }}</electronicMailAddress>
+            <onlineUrl>{{ contact.orgURL }}</onlineUrl>
+            <!-- <role> is used by associatedParty, but its a single item not a list -->
+            <!-- <role></role> -->
+            <userId directory="http://orcid.org/">{{ contact.orcid }}</userId>
+            <!-- NOTE that we can have multiple roles per contact, just get the first -->
+        </{{role}} >
+        {% endfor %}
+
+        <pubDate>
+            <!-- TODO why is this 2017 in one and 2021 in the other? -->
+            {{ record.datePublished }}
+        </pubDate>
+        <!-- TODO 2 char vs 3 char? -->
+        <language>{{ record.language }}</language>
+        <abstract>
+            <para>{{ record.abstract.en }}</para>
+        </abstract>
+        <keywordSet>
+            {% for keyword in record.keywords.en %}
+            <keyword>{{ keyword }}</keyword>
+            {% endfor %}
+            <!-- TODO GCMD and another? -->
+            <keywordThesaurus>GCMD</keywordThesaurus>
+        </keywordSet>
+        <intellectualRights>
+            <para>
+                This work is licensed under
+                <ulink url="{{ record.license.url }}">
+                    <citetitle>{{ record.license.title }}</citetitle>
+                </ulink>
+                .
+            </para>
+        </intellectualRights>
+        <distribution scope="document">
+            <online>
+                <url function="information">{{ record.doi }}</url>
+            </online>
+        </distribution>
+        <coverage>
+            <geographicCoverage>
+                <boundingCoordinates>
+                    <westBoundingCoordinate>{{ record.map.west }}</westBoundingCoordinate>
+                    <eastBoundingCoordinate>{{ record.map.east }}</eastBoundingCoordinate>
+                    <northBoundingCoordinate>{{ record.map.north }}</northBoundingCoordinate>
+                    <southBoundingCoordinate>{{ record.map.south }}</southBoundingCoordinate>
+                </boundingCoordinates>
+            </geographicCoverage>
+        </coverage>
+    </dataset>
+    <additionalMetadata>
+        <metadata>
+            <gbif>
+                <hierarchyLevel>dataset</hierarchyLevel>
+                <citation identifier="{{ record.doi }}">{{ record.title.en }}. Canadian node of the Ocean Biogeographic Information System (OBIS Canada). Dataset/Samplingevent. {{ record.doi }}</citation>
+            </gbif>
+        </metadata>
+    </additionalMetadata>
+</eml:eml>
