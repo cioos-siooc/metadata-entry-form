@@ -1,6 +1,7 @@
 import React from "react";
 
 import { TextField, Typography, Grid } from "@material-ui/core";
+import {getBlankContact} from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
 import RolePicker from "./RolePicker";
@@ -34,7 +35,10 @@ const ContactEditor = ({
   const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
-
+  
+  // eslint-disable-next-line no-param-reassign
+  value = {...getBlankContact(),...value}
+  
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>

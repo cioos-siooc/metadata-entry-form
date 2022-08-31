@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
-import getBlankRecord from "./blankRecord";
+import {getBlankRecord} from "./blankRecord";
 import { firebaseToJSObject, getRecordFilename, deepCopy } from "./misc";
 
 export async function cloneRecord(

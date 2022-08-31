@@ -22,21 +22,7 @@ import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
-
-const emptyContact = {
-  role: [],
-  orgName: "",
-  orgEmail: "",
-  orgURL: "",
-  orgAdress: "",
-  orgCity: "",
-  orgCountry: "",
-  indPosition: "",
-  indEmail: "",
-  givenNames: "",
-  lastName: "",
-  inCitation: true,
-};
+import { getBlankContact } from "../../utils/blankRecord";
 
 const ContactLeftList = ({
   contacts,
@@ -91,7 +77,7 @@ const ContactLeftList = ({
   }
 
   function handleAddNewContact() {
-    updateContacts(contacts.concat(deepCopy(emptyContact)));
+    updateContacts(contacts.concat(getBlankContact()));
     setActiveContact(contacts.length);
   }
 

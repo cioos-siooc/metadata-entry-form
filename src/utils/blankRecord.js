@@ -44,4 +44,25 @@ function getBlankRecord() {
   return record;
 }
 
-export default getBlankRecord;
+
+const blankContact = {
+  role: [],
+  orgName: "",
+  orgEmail: "",
+  orgURL: "",
+  orgAdress: "",
+  orgCity: "",
+  orgCountry: "",
+  indPosition: "",
+  indEmail: "",
+  givenNames: "",
+  lastName: "",
+  inCitation: true,
+};
+
+function getBlankContact() {
+  const contact = deepCopy(blankContact);
+  return contact;
+}
+
+export {getBlankRecord,getBlankContact};
