@@ -7,7 +7,7 @@ the metadata-xml module.
 
 import json
 
-from firebase_to_xml.scrubbers import scrub_dict, scrub_keys
+from firebase_to_xml.scrubbers import scrub_dict, scrub_keys, remove_nones
 import os
 dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -132,7 +132,7 @@ def record_json_to_yaml(record):
                     "email": contact.get("orgEmail"),
                 },
                 "individual": {
-                    "name": contact.get("lastName") + ', ' + contact.get("givenNames"),
+                    "name": ", ".join(remove_nones([contact.get("lastName") or None, contact.get("givenNames") or None])),
                     "position": contact.get("indPosition"),
                     "email": contact.get("indEmail"),
                 },
