@@ -35,6 +35,7 @@ import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
 import {
   submitRecord,
   getRegionProjects,
+  standardizeRecord,
 } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
@@ -187,7 +188,7 @@ class MetadataForm extends FormClassTemplate {
               isReviewer || loggedInUserOwnsRecord;
 
             this.setState({
-              record: { ...getBlankRecord(), ...record, recordID },
+              record: standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
             });
             this.setState({ loading: false });
