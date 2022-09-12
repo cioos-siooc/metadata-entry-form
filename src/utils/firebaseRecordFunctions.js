@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
-import {getBlankRecord} from "./blankRecord";
+import {getBlankRecord, getBlankContact} from "./blankRecord";
 import { firebaseToJSObject, getRecordFilename, deepCopy } from "./misc";
 
 export async function cloneRecord(
@@ -43,14 +43,26 @@ export async function cloneRecord(
 
   destinationUserRecordsRef.push(record);
 }
+export function standardizeContact(contact) {
+  return ({ 
+    ...getBlankContact(), ...contact,
+  })
+}
+
 // fills in missing fields on older records
-function standardizeRecord(record, user, userID, recordID) {
-  return {
+export function standardizeRecord(record, user, userID, recordID) {
+  const updatedRecord= {
     recordID,
     ...getBlankRecord(),
     ...record,
-    userinfo: { ...user?.userinfo, userID },
   };
+  if (user && userID) {
+    updatedRecord.userinfo = { ...user?.userinfo, userID }
+  }
+
+  updatedRecord.contacts = updatedRecord.contacts.map(standardizeContact)
+  return updatedRecord
+
 }
 
 export function loadRegionRecords(regionRecords, statusFilter) {
