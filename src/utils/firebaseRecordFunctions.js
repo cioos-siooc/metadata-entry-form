@@ -52,10 +52,10 @@ export function standardizeContact(contact) {
 // fills in missing fields on older records
 export function standardizeRecord(record, user, userID, recordID) {
   const updatedRecord= {
-    recordID,
     ...getBlankRecord(),
     ...record,
   };
+  if(recordID) updatedRecord.recordID = recordID
   if (user && userID) {
     updatedRecord.userinfo = { ...user?.userinfo, userID }
   }
