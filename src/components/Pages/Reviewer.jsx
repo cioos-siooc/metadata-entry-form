@@ -40,13 +40,13 @@ const RecordItem = ({
   language,
   editRecord,
   toggleModal,
-  cloneRecord,
+  handleCloneRecord,
 }) => {
   const commonProps = {
     record,
     language,
     onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
-    onCloneClick: () => cloneRecord(record.recordID, record.userinfo.userID),
+    onCloneClick: () => handleCloneRecord(record.recordID, record.userinfo.userID),
     onDeleteClick: () =>
       toggleModal(
         "deleteModalOpen",
@@ -499,7 +499,7 @@ class Reviewer extends FormClassTemplate {
                           record={record}
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
-                          cloneRecord={this.handleCloneRecord.bind(this)}
+                          handleCloneRecord={this.handleCloneRecord.bind(this)}
                         />
                       ))}
                     </List>
