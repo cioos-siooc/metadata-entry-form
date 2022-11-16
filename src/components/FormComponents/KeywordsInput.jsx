@@ -16,9 +16,10 @@ import { En, Fr, I18n } from "../I18n";
 
 function translate(word, toLang = "fr") {
   if (!word) return "";
-  return keywordList.find((e) => e && e[toLang === "fr" ? "en" : "fr"] === word)[
-    toLang
-  ];
+  const fromLang =  toLang === "fr" ? "en" : "fr"
+  const foundWord = keywordList.find((e) => e && e[fromLang] === word)
+  if (foundWord) return foundWord[toLang]
+  return ""
 }
 
 const KeywordsInput = ({
