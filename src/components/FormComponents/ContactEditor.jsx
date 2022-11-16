@@ -1,6 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 
 import { TextField, Typography, Grid } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import {getBlankContact} from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
@@ -29,16 +30,20 @@ const ContactEditor = ({
   disabled,
   updateContact,
   updateContactEvent,
+  // updateContactROR,
 }) => {
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
   const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
-  
+  const [inputValue, setInputValue] = useState("");
+  const [rorOptions, setRorOptions] = useState([]);
+
+
   // eslint-disable-next-line no-param-reassign
   value = {...getBlankContact(),...value}
-  
+
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
@@ -68,6 +73,38 @@ const ContactEditor = ({
                 <Fr>Identification de l'organisation</Fr>
               </I18n>
             </QuestionText>
+          </Grid>
+          <Grid item xs style={{ marginleft: "10px" }}>
+            <Autocomplete
+                inputValue={inputValue}
+                onInputChange={(event, newInputValue) => {
+                  setInputValue(newInputValue)
+                  fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
+                      .then(response => response.json())
+                      .then(response => setRorOptions(response.items))
+                }}
+                disabled={disabled}
+                onChange={(e, organization) => {
+                  fetch(`https://api.ror.org/organizations/${organization.id}`)
+                      .then(response => response.json())
+                      // TODO: spread props to other fields
+                }
+                }
+                // value={selectedKeyword || ""}
+                freeSolo
+                getOptionLabel={
+                    (e) => e.name
+                }
+                options={rorOptions}
+                fullWidth
+                renderInput={(params) => (
+                    <TextField
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...params}
+                        label="TEST"
+                    />
+                )}
+            />
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <TextField
