@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
-import { TextField, Typography, Grid } from "@material-ui/core";
+import {TextField, Typography, Grid } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import {useDebounce} from "use-debounce";
 import {getBlankContact} from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
@@ -10,6 +11,7 @@ import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
+
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -30,21 +32,41 @@ const ContactEditor = ({
   disabled,
   updateContact,
   updateContactEvent,
-  // updateContactROR,
+  updateContactRor,
+  updateContactOrcid,
 }) => {
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
   const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
-  const [inputValue, setInputValue] = useState("");
+  const [rorInputValue, setRorInputValue] = useState("");
+  const [orcidInputValue, setOrcidInputValue] = useState("");
+  const [debouncedRorInputValue] = useDebounce(rorInputValue, 1000);
   const [rorOptions, setRorOptions] = useState([]);
+
+
 
 
   // eslint-disable-next-line no-param-reassign
   value = {...getBlankContact(),...value}
 
-  return (
+  function updateRorOptions(newInputValue) {
+          fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
+              .then(response => response.json())
+              .then(response => setRorOptions(response.items))
+  }
+
+  useEffect(
+      () => {
+          if (debouncedRorInputValue) {
+              updateRorOptions(debouncedRorInputValue)
+          }
+      },
+      [debouncedRorInputValue]
+  )
+
+    return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
         <Typography variant="h6">
@@ -76,21 +98,25 @@ const ContactEditor = ({
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <Autocomplete
-                inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
-                  setInputValue(newInputValue)
-                  fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
-                      .then(response => response.json())
-                      .then(response => setRorOptions(response.items))
-                }}
+                inputValue={rorInputValue}
+                onInputChange={
+                    (e, newInputValue) => {
+                        setRorInputValue(newInputValue);
+                    }
+            }
                 disabled={disabled}
                 onChange={(e, organization) => {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
-                      .then(response => response.json())
-                      // TODO: spread props to other fields
+                  if (organization !== null){
+                    fetch(`https://api.ror.org/organizations/${organization.id}`)
+                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.errors){
+                                updateContactRor(response)
+                            } // todo: do some error handling here if search fails?
+                        })
+                  }
                 }
                 }
-                // value={selectedKeyword || ""}
                 freeSolo
                 getOptionLabel={
                     (e) => e.name
@@ -101,7 +127,7 @@ const ContactEditor = ({
                     <TextField
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...params}
-                        label="TEST"
+                        label={<I18n en="ROR Search" fr="Recherche ROR" />}
                     />
                 )}
             />
@@ -180,7 +206,40 @@ const ContactEditor = ({
             <Fr>Identification de l'individu</Fr>
           </I18n>
         </Typography>
+      <Typography>
+          <a href='https://orcid.org/orcid-search/search' target="_blank" rel="noopener noreferrer">
+              <I18n>
+                  <En>Lookup ORCID record here</En>
+                  <Fr>Rechercher l'enregistrement ORCID ici</Fr>
+              </I18n>
+          </a>
+      </Typography>
 
+
+          <Grid item xs style={{ marginleft: "10px" }}>
+              <TextField
+                  label={<I18n en="ORCID identifier" fr="Identifiant ORCID" />}
+                  value={value.orcidInputValue}
+                  onChange={(e) => {
+                      setOrcidInputValue(orcidInputValue);
+                      const regex = /\w{4}-\w{4}-\w{4}-\w{4}/g
+                      const orcid = e.target.value.match(regex)
+                      if (orcid){
+                          fetch(`https://pub.orcid.org/v3.0/${orcid}/record`,
+                              {
+                                  "headers": {
+                                      "accept": "application/json",
+                                  },
+                              },)
+                              .then(response => response.json())
+                              .then(response => updateContactOrcid(response))
+                      }
+                  }
+              }
+                  disabled={disabled}
+                  fullWidth
+              />
+          </Grid>
         <Grid
           container
           direction="column"
