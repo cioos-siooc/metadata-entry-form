@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-import {TextField, Typography, Grid } from "@material-ui/core";
+import {TextField, Typography, Grid, CircularProgress, Button} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {useDebounce} from "use-debounce";
 import {getBlankContact} from "../../utils/blankRecord";
@@ -42,8 +42,9 @@ const ContactEditor = ({
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState("");
   const [orcidInputValue, setOrcidInputValue] = useState("");
-  const [debouncedRorInputValue] = useDebounce(rorInputValue, 1000);
+  const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
   const [rorOptions, setRorOptions] = useState([]);
+  const [rorSearchActive, setRorSearchActive] = useState(false);
 
 
 
@@ -55,6 +56,7 @@ const ContactEditor = ({
           fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
               .then(response => response.json())
               .then(response => setRorOptions(response.items))
+              .then(() => setRorSearchActive(false))
   }
 
   useEffect(
@@ -96,11 +98,15 @@ const ContactEditor = ({
               </I18n>
             </QuestionText>
           </Grid>
+          <Grid item xs style={{ marginleft: "10px", height:"33px" }}>
+              {rorSearchActive ? <CircularProgress size={20} /> : <div style={{height:"33px"}} />}
+          </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <Autocomplete
                 inputValue={rorInputValue}
                 onInputChange={
                     (e, newInputValue) => {
+                        setRorSearchActive(true)
                         setRorInputValue(newInputValue);
                     }
             }
@@ -113,7 +119,7 @@ const ContactEditor = ({
                             if (!response.errors){
                                 updateContactRor(response)
                             } // todo: do some error handling here if search fails?
-                        })
+                        }).then(() => setRorSearchActive(false))
                   }
                 }
                 }
@@ -207,15 +213,14 @@ const ContactEditor = ({
           </I18n>
         </Typography>
       <Typography>
-          <a href='https://orcid.org/orcid-search/search' target="_blank" rel="noopener noreferrer">
+          <Button href='https://orcid.org/orcid-search/search' target="_blank" rel="noopener noreferrer"
+            style={{marginTop: "10px", marginBottom: "10px"}}>
               <I18n>
-                  <En>Lookup ORCID record here</En>
-                  <Fr>Rechercher l'enregistrement ORCID ici</Fr>
+                  <En>ORCID search</En>
+                  <Fr>Rechercher ORCID </Fr>
               </I18n>
-          </a>
+          </Button>
       </Typography>
-
-
           <Grid item xs style={{ marginleft: "10px" }}>
               <TextField
                   label={<I18n en="ORCID identifier" fr="Identifiant ORCID" />}
@@ -244,7 +249,6 @@ const ContactEditor = ({
           container
           direction="column"
           spacing={1}
-          style={{ marginTop: "10px" }}
         >
           <Grid item xs>
             {value.givenNames && value.lastName && value.inCitation && (
