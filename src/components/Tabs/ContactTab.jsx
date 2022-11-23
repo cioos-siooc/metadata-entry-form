@@ -50,8 +50,30 @@ const ContactTab = ({
       const newContacts = [...contacts];
       newContacts[activeContact][key] = value;
 
-      updateContacts(newContacts);
     };
+  }
+
+  function updateOrgFromRor(payload) {
+      const newContacts = [...contacts]
+      newContacts[activeContact].orgRor = payload.id
+      newContacts[activeContact].orgName = payload.name
+      newContacts[activeContact].orgURL = payload.links.find(() => true) || ''
+      newContacts[activeContact].orgCity = payload.addresses.find(() => true).city || ''
+      newContacts[activeContact].orgCountry = payload.country.country_name
+      updateContacts(newContacts);
+  }
+
+  function updateIndFromOrcid(payload) {
+      const {name, emails} = payload.person
+      const indEmail = emails.email.length > 0 ? emails.email[0].email : ''
+      const lastName = name['family-name'] ? name['family-name'].value : ''
+
+      const newContacts = [...contacts]
+      newContacts[activeContact].indOrcid = payload['orcid-identifier'].uri
+      newContacts[activeContact].givenNames = name['given-names'].value
+      newContacts[activeContact].indEmail = indEmail
+      newContacts[activeContact].lastName = lastName
+      updateContacts(newContacts);
   }
 
   const showApaBox =
@@ -154,6 +176,8 @@ const ContactTab = ({
                       value={contact}
                       updateContactEvent={updateContactEvent}
                       updateContact={updateContact}
+                      updateContactRor={updateOrgFromRor}
+                      updateContactOrcid={updateIndFromOrcid}
                       disabled={disabled}
                     />
                   </Grid>
