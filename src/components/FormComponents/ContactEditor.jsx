@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {TextField, Typography, Grid, CircularProgress, Button} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {useDebounce} from "use-debounce";
+import {OpenInNew} from "@material-ui/icons";
 import {getBlankContact} from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
@@ -40,14 +41,11 @@ const ContactEditor = ({
   const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
-  const [rorInputValue, setRorInputValue] = useState("");
+  const [rorInputValue, setRorInputValue] = useState(value.orgRor);
   const [orcidInputValue, setOrcidInputValue] = useState("");
   const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
   const [rorOptions, setRorOptions] = useState([]);
   const [rorSearchActive, setRorSearchActive] = useState(false);
-
-
-
 
   // eslint-disable-next-line no-param-reassign
   value = {...getBlankContact(),...value}
@@ -106,24 +104,28 @@ const ContactEditor = ({
                 inputValue={rorInputValue}
                 onInputChange={
                     (e, newInputValue) => {
-                        setRorSearchActive(true)
                         setRorInputValue(newInputValue);
+                        if (newInputValue === "") {
+                            setRorSearchActive(false)
+                        } else {
+                            setRorSearchActive(true)
+                        }
                     }
-            }
+                }
                 disabled={disabled}
                 onChange={(e, organization) => {
-                  if (organization !== null){
-                    fetch(`https://api.ror.org/organizations/${organization.id}`)
-                        .then(response => response.json())
-                        .then(response => {
-                            if (!response.errors){
-                                updateContactRor(response)
-                            } // todo: do some error handling here if search fails?
-                        }).then(() => setRorSearchActive(false))
-                  }
-                }
-                }
+                      if (organization !== null){
+                        fetch(`https://api.ror.org/organizations/${organization.id}`)
+                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.errors){
+                                    updateContactRor(response)
+                                } // todo: do some error handling here if search fails?
+                            }).then(() => setRorSearchActive(false))
+                      }
+                }}
                 freeSolo
+                filterOptions={(x) => x}
                 getOptionLabel={
                     (e) => e.name
                 }
@@ -216,9 +218,10 @@ const ContactEditor = ({
           <Button href='https://orcid.org/orcid-search/search' target="_blank" rel="noopener noreferrer"
             style={{marginTop: "10px", marginBottom: "10px"}}>
               <I18n>
-                  <En>ORCID search</En>
+                  <En>ORCID search </En>
                   <Fr>Rechercher ORCID </Fr>
               </I18n>
+              <OpenInNew style={{ verticalAlign: "middle" }} />
           </Button>
       </Typography>
           <Grid item xs style={{ marginleft: "10px" }}>
