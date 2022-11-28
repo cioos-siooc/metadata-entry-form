@@ -135,10 +135,19 @@ const ContactEditor = ({
                     <TextField
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...params}
-                        label={<I18n en="ROR Search" fr="Recherche ROR" />}
+                        label={<I18n en="Type to search Research Organization Registry (ROR)" fr="Tapez pour rechercher le registre des organismes de recherche (ROR)
+" />}
                     />
                 )}
             />
+          </Grid>
+            <Grid item xs style={{marginleft: "10px"}}>
+                <TextField
+                    label={<I18n en="ROR URL" fr="URL ROR"/>}
+                    value={value.orgRor}
+                    disabled
+                    fullWidth
+                />
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <TextField
@@ -226,7 +235,7 @@ const ContactEditor = ({
       </Typography>
           <Grid item xs style={{ marginleft: "10px" }}>
               <TextField
-                  label={<I18n en="ORCID identifier" fr="Identifiant ORCID" />}
+                  label={<I18n en="Paste ORCID identifier here to populate personal data" fr="Collez l'identifiant ORCID ici pour remplir les données personnelles" />}
                   value={value.orcidInputValue}
                   onChange={(e) => {
                       setOrcidInputValue(orcidInputValue);
@@ -260,6 +269,14 @@ const ContactEditor = ({
                 <b>{namesToCitation(value.givenNames, value.lastName)}</b>
               </div>
             )}
+          </Grid>
+          <Grid item xs>
+              <TextField
+                  label={<I18n en="ORCID URL" fr="URL ORCID" />}
+                  value={value.indOrcid}
+                  disabled
+                  fullWidth
+              />
           </Grid>
           <Grid item xs>
             <TextField
