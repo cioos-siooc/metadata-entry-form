@@ -141,13 +141,14 @@ const ContactEditor = ({
                 )}
             />
           </Grid>
-            <Grid item xs style={{marginleft: "10px"}}>
-                <TextField
-                    label={<I18n en="ROR URL" fr="URL ROR"/>}
-                    value={value.orgRor}
-                    disabled
-                    fullWidth
-                />
+          <Grid item xs style={{marginleft: "10px"}}>
+            <TextField
+                label={<I18n active en="ROR URL" fr="URL ROR" />}
+                InputLabelProps={{ shrink: value.orgRor }}
+                value={value.orgRor}
+                disabled
+                fullWidth
+            />
           </Grid>
           <Grid item xs style={{ marginleft: "10px" }}>
             <TextField
@@ -273,6 +274,7 @@ const ContactEditor = ({
           <Grid item xs>
               <TextField
                   label={<I18n en="ORCID URL" fr="URL ORCID" />}
+                  InputLabelProps={{ shrink: value.indOrcid }}
                   value={value.indOrcid}
                   disabled
                   fullWidth
