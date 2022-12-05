@@ -59,6 +59,10 @@ class EditContact extends FormClassTemplate {
     };
   }
 
+  handleClear(key) {
+      this.setState({[key]: ''})
+  }
+
   updateOrgFromRor() {
     return (payload) => {
       this.setState({
@@ -115,6 +119,7 @@ class EditContact extends FormClassTemplate {
         <Grid item xs>
           <ContactEditor
             value={this.state}
+            handleClear={(key) => this.handleClear(key)}
             updateContactEvent={(key) => this.handleChange(key)}
             updateContactRor={this.updateOrgFromRor()}
             updateContactOrcid={this.updateIndFromOrcid()}
