@@ -124,6 +124,7 @@ const ContactEditor = ({
                                                 updateContactRor(response)
                                             } // todo: do some error handling here if search fails?
                                         }).then(() => setRorSearchActive(false))
+                                        .then(() => setRorInputValue(''))
                                 }
                             }}
                             freeSolo
@@ -255,9 +256,9 @@ const ContactEditor = ({
                     <TextField
                         label={<I18n en="Paste ORCID identifier here to populate personal data"
                                      fr="Collez l'identifiant ORCID ici pour remplir les données personnelles"/>}
-                        value={value.orcidInputValue}
+                        value={orcidInputValue}
                         onChange={(e) => {
-                            setOrcidInputValue(orcidInputValue);
+                            setOrcidInputValue(e.target.value);
                             const regex = /\w{4}-\w{4}-\w{4}-\w{4}/g
                             const orcid = e.target.value.match(regex)
                             if (orcid) {
@@ -269,6 +270,10 @@ const ContactEditor = ({
                                     },)
                                     .then(response => response.json())
                                     .then(response => updateContactOrcid(response))
+                                    .then(() => {
+                                        setTimeout(() => setOrcidInputValue(''), 100)
+                                    })
+
                             }
                         }
                         }
