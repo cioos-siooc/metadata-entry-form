@@ -45,11 +45,12 @@ const ContactTab = ({
       updateContacts(newContacts);
     };
   }
+
   function updateContact(key) {
     return (value) => {
       const newContacts = [...contacts];
       newContacts[activeContact][key] = value;
-
+      updateContacts(newContacts)
     };
   }
 
@@ -174,6 +175,7 @@ const ContactTab = ({
                     <EditContact
                       showRolePicker
                       value={contact}
+                      handleClear={(key) => updateContact(key)('')}
                       updateContactEvent={updateContactEvent}
                       updateContact={updateContact}
                       updateContactRor={updateOrgFromRor}
