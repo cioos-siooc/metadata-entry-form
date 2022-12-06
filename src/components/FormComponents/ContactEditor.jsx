@@ -53,10 +53,14 @@ const ContactEditor = ({
     value = {...getBlankContact(), ...value}
 
     function updateRorOptions(newInputValue) {
-        fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
-            .then(response => response.json())
-            .then(response => setRorOptions(response.items))
-            .then(() => setRorSearchActive(false))
+        if (newInputValue.startsWith("http") && !newInputValue.includes("ror.org")){
+            setRorSearchActive(false)
+        } else {
+            fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
+                .then(response => response.json())
+                .then(response => setRorOptions(response.items))
+                .then(() => setRorSearchActive(false))
+        }
     }
 
     useEffect(
