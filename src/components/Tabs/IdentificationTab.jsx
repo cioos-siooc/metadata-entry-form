@@ -37,7 +37,7 @@ const IdentificationTab = ({
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
-  const abstractWordLimit = 500
+  const abstractWordLimit = 5
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -244,13 +244,17 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.abstract}
           onChange={(dataEvent) => {
+            let newErrorObj = {...errorMessages}
             // eslint-disable-next-line no-restricted-syntax
             for (const [key, abstract] of Object.entries(dataEvent.target.value)){
               if (abstract.split(" ").length > abstractWordLimit){
-                setErrorMessages({...errorMessages, [key]: `Abstract over ${abstractWordLimit} words.`})
+                newErrorObj = {...newErrorObj, [key]: `${abstractWordLimit} word limit.`}
+              } else {
+                newErrorObj = {...newErrorObj, [key]: ``}
+                handleUpdateRecord("abstract")(dataEvent)
               }
             }
-            handleUpdateRecord("abstract")(dataEvent)
+            setErrorMessages(newErrorObj)
           }}
           errorMessages={errorMessages}
           disabled={disabled}
