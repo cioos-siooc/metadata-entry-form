@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { Paper, TextField, Grid, IconButton, Tooltip } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
@@ -31,11 +31,13 @@ const IdentificationTab = ({
   projects,
 }) => {
   const { language, region } = useParams();
+  const [errorMessages, setErrorMessages] = useState({en: "", fr: ""});
   const regionInfo = regions[region];
   const doiIsValid = Boolean(
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
+  const abstractWordLimit = 500
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -54,6 +56,7 @@ const IdentificationTab = ({
       language
     )
   );
+
 
   return (
     <div>
@@ -240,7 +243,16 @@ const IdentificationTab = ({
 
         <BilingualTextInput
           value={record.abstract}
-          onChange={handleUpdateRecord("abstract")}
+          onChange={(dataEvent) => {
+            // eslint-disable-next-line no-restricted-syntax
+            for (const [key, abstract] of Object.entries(dataEvent.target.value)){
+              if (abstract.split(" ").length > abstractWordLimit){
+                setErrorMessages({...errorMessages, [key]: `Abstract over ${abstractWordLimit} words.`})
+              }
+            }
+            handleUpdateRecord("abstract")(dataEvent)
+          }}
+          errorMessages={errorMessages}
           disabled={disabled}
           multiline
         />

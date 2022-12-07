@@ -22,6 +22,7 @@ const BilingualTextInput = ({
   multiline,
   disabled,
   error,
+  errorMessages,
   translationButonDisabled = false,
 }) => {
   const { translate } = useContext(UserContext);
@@ -58,7 +59,8 @@ const BilingualTextInput = ({
             }}
             multiline={multiline}
             disabled={disabled}
-            error={Boolean(error)}
+            error={errorMessages !== undefined ? errorMessages?.[lang] !== '' : error}
+            helperText={errorMessages?.[lang]}
           />
           {i === 0 && !translationButonDisabled && (
             <Tooltip
