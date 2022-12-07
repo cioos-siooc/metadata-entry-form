@@ -92,7 +92,7 @@ export const roleCodes = {
     },
   },
   funder: {
-    title: { en: "Funder", fr: "Fondateur" },
+    title: { en: "Funder", fr: "Financeur" },
     text: {
       en: "Party providing monetary support for the resource",
       fr: "Partie fournissant un soutien monétaire pour la ressource",
