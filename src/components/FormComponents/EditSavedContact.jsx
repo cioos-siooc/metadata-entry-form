@@ -14,6 +14,7 @@ class EditContact extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
+      orgRor: "",
       orgName: "",
       orgEmail: "",
       orgURL: "",
@@ -21,6 +22,7 @@ class EditContact extends FormClassTemplate {
       orgCity: "",
       orgCountry: "",
       // ind = individual
+      indOrcid: "",
       indPosition: "",
       indEmail: "",
       givenNames: "",
@@ -57,6 +59,37 @@ class EditContact extends FormClassTemplate {
     };
   }
 
+  handleClear(key) {
+      this.setState({[key]: ''})
+  }
+
+  updateOrgFromRor() {
+    return (payload) => {
+      this.setState({
+        orgRor: payload.id,
+        orgName: payload.name,
+        orgURL: payload.links.find(() => true) || '',
+        orgCity: payload.addresses.find(() => true).city || '',
+        orgCountry: payload.country.country_name,
+      });
+    };
+  }
+
+  updateIndFromOrcid() {
+    return (payload) => {
+      const {name, emails} = payload.person
+      const indEmail = emails.email.length > 0 ? emails.email[0].email : ''
+      const lastName = name['family-name'] ? name['family-name'].value : ''
+
+      this.setState({
+        indOrcid: payload['orcid-identifier'].uri,
+        givenNames: name['given-names'].value,
+        indEmail,
+        lastName,
+      })
+    }
+  }
+
   handleCancelClick() {
     const { match, history } = this.props;
     const { language, region } = match.params;
@@ -86,8 +119,10 @@ class EditContact extends FormClassTemplate {
         <Grid item xs>
           <ContactEditor
             value={this.state}
+            handleClear={(key) => this.handleClear(key)}
             updateContactEvent={(key) => this.handleChange(key)}
-            // updateContact
+            updateContactRor={this.updateOrgFromRor()}
+            updateContactOrcid={this.updateIndFromOrcid()}
           />
         </Grid>
 
