@@ -335,7 +335,7 @@ const ContactEditor = ({
                             }
                             error={!givenNamesValid}
                             onChange={updateContactEvent("givenNames")}
-                            disabled={value.indOrcid !== '' || disabled}
+                            disabled={disabled}
                             fullWidth
                         />
                     </Grid>
@@ -354,7 +354,7 @@ const ContactEditor = ({
                             }
                             error={!lastNameValid}
                             onChange={updateContactEvent("lastName")}
-                            disabled={value.indOrcid !== '' || disabled}
+                            disabled={disabled}
                             fullWidth
                         />
                     </Grid>
@@ -378,7 +378,7 @@ const ContactEditor = ({
                             label={<I18n en="Email" fr="Courriel"/>}
                             value={value.indEmail}
                             onChange={updateContactEvent("indEmail")}
-                            disabled={value.indOrcid !== '' || disabled}
+                            disabled={disabled}
                             fullWidth
                         />
                     </Grid>
