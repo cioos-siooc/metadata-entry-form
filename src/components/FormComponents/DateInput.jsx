@@ -29,7 +29,7 @@ const DateInput = ({ onChange, value, name, disabled, dateStart, dateEnd }) => {
         label={<I18n en="Select date" fr="Sélectionner une date" />}
         format="yyyy-MM-dd"
         value={value}
-        minDate={dateStart}
+        minDate={dateStart || "1100-01-01"}
         maxDate={dateEnd}
         onChange={(dateSelected) => {
           return onChange({
