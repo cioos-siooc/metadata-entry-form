@@ -104,6 +104,24 @@ const IdentificationTab = ({
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
+            <En>What version/revision of the dataset is this entry?</En>
+            <Fr>
+              À quelle version/révision de l'ensemble de données correspond cette entrée ?
+            </Fr>
+          </I18n>
+        </QuestionText>
+        <TextField
+            value={record.edition}
+            onChange={handleUpdateRecord("edition")}
+            disabled={disabled}
+            style={{ marginTop: "10px" }}
+            fullWidth
+        />
+      </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
             <En>What is the primary language of the dataset?</En>
             <Fr>Quelle est la langue principale du jeu de données?</Fr>
           </I18n>
