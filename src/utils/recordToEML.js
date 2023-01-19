@@ -22,6 +22,7 @@ async function recordToEML(record) {
     record,
     translateRole,
     arrayOverlap,
+    currentDate: new Date().toISOString(),
   });
 }
 
