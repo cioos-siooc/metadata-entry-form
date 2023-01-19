@@ -76,7 +76,7 @@
         </intellectualRights>
         <distribution scope="document">
             <online>
-                <url function="information">{{ record.doi }}</url>
+                <url function="information">{{ record.datasetIdentifier }}</url>
             </online>
         </distribution>
         <coverage>
@@ -117,7 +117,7 @@
             <gbif>
                 <dateStamp>{{ record.datePublished or currentDate }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
-                <citation identifier="{{ record.doi }}">{{citation}}</citation>
+                <citation identifier="{{ record.datasetIdentifier }}">{{citation}}</citation>
             </gbif>
         </metadata>
     </additionalMetadata>
