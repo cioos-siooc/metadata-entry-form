@@ -18,7 +18,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
 
-import ApaPreview from "../FormComponents/ApaPreview";
+import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
 

@@ -117,7 +117,7 @@
             <gbif>
                 <dateStamp>{{ record.datePublished or currentDate }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
-                <citation identifier="{{ record.doi }}">{{ record.contacts }}. {{record.title.en}} [Dataset]. {{record.publisher}}. {{record.doi}}</citation>
+                <citation identifier="{{ record.doi }}">{{citation}}</citation>
             </gbif>
         </metadata>
     </additionalMetadata>
