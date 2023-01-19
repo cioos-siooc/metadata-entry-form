@@ -11,7 +11,7 @@
         {% for contact in record.contacts %}
         {% if arrayOverlap(['pointOfContact', 'owner'],contact.role) %}
             {% set role = "contact" %}
-        {% if arrayOverlap(['author','originator'],contact.role) %}
+        {% elif arrayOverlap(['author','originator'],contact.role) %}
             {% set role = "creator" %}
         {% elif arrayOverlap(['distributor','custodian'],contact.role) %}
             {% set role = "metadataProvider" %}
