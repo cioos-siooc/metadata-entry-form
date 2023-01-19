@@ -105,20 +105,17 @@
         </address>
         <!-- <phone></phone> -->
         <electronicMailAddress> {{contact.indEmail}} </electronicMailAddress>
-        <onlineURL><{{ contact.orgURL}} </onlineURL>
+        <onlineURL>{{ contact.orgURL}}</onlineURL>
         <!-- <role> is used by associatedParty, buts its a single item not a list -->
         <!-- <role></role> -->
-        <userId directory "http://orcid.org">{{contact.orcid}}</userId>
+
+        <userId directory="http://orcid.org">{{contact.orcid}}</userId>
     </contact>
     </dataset>
     <additionalMetadata>
         <metadata>
             <gbif>
-                {% if dataset_first_publication_date %}
-                <dateStamp>{{ record.datePublished}}</dateStamp>
-                {% else %}
-                <dateStamp>{{ current_utc_dt }}</dateStamp>
-                {% endif %}
+                <dateStamp>{{ record.datePublished or currentDate }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
                 <citation identifier="{{ record.doi }}">{{ record.contacts }}. {{record.title.en}} [Dataset]. {{record.publisher}}. {{record.doi}}</citation>
             </gbif>
