@@ -23,7 +23,6 @@ async function recordToEML(record) {
     record,
     translateRole,
     arrayOverlap,
-    currentDate: new Date().toISOString(),
     citation:generateCitation(record,record.language,"text"),
   });
 }
