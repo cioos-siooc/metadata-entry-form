@@ -1,4 +1,5 @@
 import templatePath from "./emlTemplate.j2";
+import { generateCitation } from "../components/FormComponents/ApaPreview";
 
 const nunjucks = require("nunjucks");
 
@@ -22,6 +23,7 @@ async function recordToEML(record) {
     record,
     translateRole,
     arrayOverlap,
+    citation:generateCitation(record,record.language,"text"),
   });
 }
 
