@@ -115,7 +115,7 @@
     <additionalMetadata>
         <metadata>
             <gbif>
-                <dateStamp>{{ record.datePublished or currentDate }}</dateStamp>
+                <dateStamp>{{ record.datePublished or record.created }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
                 <citation identifier="{{ record.datasetIdentifier }}">{{citation}}</citation>
             </gbif>
