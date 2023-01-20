@@ -9,10 +9,14 @@
         <title xml:lang="eng">{{ record.title.en }}</title>
 
         {% for contact in record.contacts %}
-        {% if arrayOverlap(['author','originator'],contact.role) %}
+        {% if arrayOverlap(['pointOfContact', 'owner'],contact.role) %}
+            {% set role = "contact" %}
+        {% elif arrayOverlap(['author','originator'],contact.role) %}
             {% set role = "creator" %}
-        {% elif arrayOverlap(['publisher','distributor'],contact.role) %}
+        {% elif arrayOverlap(['distributor','custodian'],contact.role) %}
             {% set role = "metadataProvider" %}
+        {% elif arrayOverlap(['publisher'], contact.role) %}
+            {% set role = "publisher" %}
         {% elif arrayOverlap(['principalInvestigator','editor'],contact.role) %}
             {% set role = "associatedParty" %}
         {% else %}}
@@ -24,10 +28,11 @@
                 <givenName>{{ contact.givenNames }}</givenName>
                 <surName>{{ contact.lastName }}</surName>
             </individualName>
-            <organizationName>{{ contacts.orgName}}</organizationName>
-            <!-- <positionName>Biologist and Scientific Data Specialist</positionName> -->
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{contact.indPosition}}</positionName>
             <address>
-                <!-- <deliveryPoint>1747</deliveryPoint> -->
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <!-- NOTE this might not work as it's currently still referenced as contact.orgAdress -->
                 <city>{{ contact.orgCity }}</city>
                 <!-- <administrativeArea>British Columbia</administrativeArea> -->
                 <!-- <postalCode>V0P 1H0</postalCode> -->
@@ -39,6 +44,7 @@
             <!-- <role> is used by associatedParty, but its a single item not a list -->
             <!-- <role></role> -->
             <userId directory="http://orcid.org/">{{ contact.orcid }}</userId>
+            <!-- NOTE wondering whether contact.orcid should be contact.indOrcid -->
             <!-- NOTE that we can have multiple roles per contact, just get the first -->
         </{{role}} >
         {% endfor %}
@@ -70,7 +76,7 @@
         </intellectualRights>
         <distribution scope="document">
             <online>
-                <url function="information">{{ record.doi }}</url>
+                <url function="information">{{ record.datasetIdentifier }}</url>
             </online>
         </distribution>
         <coverage>
@@ -83,12 +89,35 @@
                 </boundingCoordinates>
             </geographicCoverage>
         </coverage>
+    <contact>
+        <individualName>
+            <givenName>{{ contact.givenNames}}</givenName>
+            <surName>{{ contact.lastName}}</surName>
+        </individualName>
+        <organizationName>{{ contact.orgName}}</organizationName>
+        <positionName>{{ contact.indPosition}}</positionName>
+        <address>
+            <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+            <city>{{ contact.orgCity}}</city>
+            <!-- <administrativeArea></administrativeArea> -->
+            <!-- <postalCode></postalCode> -->
+            <country> {{contact.orgCountry}} </country>
+        </address>
+        <!-- <phone></phone> -->
+        <electronicMailAddress> {{contact.indEmail}} </electronicMailAddress>
+        <onlineURL>{{ contact.orgURL}}</onlineURL>
+        <!-- <role> is used by associatedParty, buts its a single item not a list -->
+        <!-- <role></role> -->
+
+        <userId directory="http://orcid.org">{{contact.orcid}}</userId>
+    </contact>
     </dataset>
     <additionalMetadata>
         <metadata>
             <gbif>
+                <dateStamp>{{ record.datePublished or record.created }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
-                <citation identifier="{{ record.doi }}">{{ record.title.en }}. Canadian node of the Ocean Biogeographic Information System (OBIS Canada). Dataset/Samplingevent. {{ record.doi }}</citation>
+                <citation identifier="{{ record.datasetIdentifier }}">{{citation}}</citation>
             </gbif>
         </metadata>
     </additionalMetadata>

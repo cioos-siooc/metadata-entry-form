@@ -2,7 +2,7 @@ import React from "react";
 
 import Cite from "citation-js";
 
-function APAPreview({ record, language }) {
+export function generateCitation(record,language, format) {
   const {
     title,
     datasetIdentifier = "",
@@ -55,25 +55,31 @@ function APAPreview({ record, language }) {
   try {
     const data = Cite(cslJSON);
 
-    const html = data.format("bibliography", {
-      format: "html",
+    const res = data.format("bibliography", {
+      format,
       template: "apa",
       lang: "en-US",
     });
+    return res
+  } catch (e) {
+    // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
+    return ""
+    
+  }
+}
+export function ApaPreview({ record, language }) {
+  const citation = generateCitation(record, language, "html")
 
     return (
       <div>
         <div
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: citation }}
           style={{ padding: "5px" }}
         />
       </div>
     );
-  } catch (e) {
-    // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
-    return <div />;
-  }
+
 }
 
-export default APAPreview;
+
