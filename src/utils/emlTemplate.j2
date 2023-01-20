@@ -9,9 +9,7 @@
         <title xml:lang="eng">{{ record.title.en }}</title>
 
         {% for contact in record.contacts %}
-        {% if arrayOverlap(['pointOfContact', 'owner'],contact.role) %}
-            {% set role = "contact" %}
-        {% elif arrayOverlap(['author','originator'],contact.role) %}
+        {% if arrayOverlap(['author','originator'],contact.role) %}
             {% set role = "creator" %}
         {% elif arrayOverlap(['distributor','custodian'],contact.role) %}
             {% set role = "metadataProvider" %}
@@ -89,6 +87,9 @@
                 </boundingCoordinates>
             </geographicCoverage>
         </coverage>
+    
+    {% for contact in record.contacts %}
+    {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
     <contact>
         <individualName>
             <givenName>{{ contact.givenNames}}</givenName>
@@ -111,6 +112,9 @@
 
         <userId directory="http://orcid.org">{{contact.orcid}}</userId>
     </contact>
+    {% endif %}
+    {% endfor %}
+
     </dataset>
     <additionalMetadata>
         <metadata>
