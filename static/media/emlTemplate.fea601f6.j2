@@ -31,8 +31,7 @@
             <onlineUrl>{{ contact.orgURL }}</onlineUrl>
             <!-- <role> is used by associatedParty, but its a single item not a list -->
             <!-- <role></role> -->
-            <userId directory="http://orcid.org/">{{ contact.orcid }}</userId>
-            <!-- NOTE wondering whether contact.orcid should be contact.indOrcid -->
+            <userId directory="http://orcid.org/">{{ contact.indOrcid }}</userId>
             <!-- NOTE that we can have multiple roles per contact, just get the first -->
         </{{role}} >
         {% endif %}
@@ -102,7 +101,7 @@
         <!-- <role> is used by associatedParty, buts its a single item not a list -->
         <!-- <role></role> -->
 
-        <userId directory="http://orcid.org">{{contact.orcid}}</userId>
+        <userId directory="http://orcid.org">{{contact.indOrcid}}</userId>
     </contact>
     {% endif %}
     {% endfor %}
