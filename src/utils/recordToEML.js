@@ -13,7 +13,11 @@ function translateRole(isoRoles) {
   console.log(isoRoles);
   return isoRoles;
 }
-
+const roleMapping = {
+  creator: ["author", "originator"],
+  metadataProvider: ["distributor", "custodian"],
+  associatedParty: ["principalInvestigator", "editor"],
+};
 async function recordToEML(record) {
   nunjucks.configure({ autoescape: true, web: true });
 
@@ -23,7 +27,9 @@ async function recordToEML(record) {
     record,
     translateRole,
     arrayOverlap,
-    citation:generateCitation(record,record.language,"text"),
+    citation: generateCitation(record, record.language, "text"),
+    roleMapping,
+    roleMappingKeys: Object.keys(roleMapping),
   });
 }
 
