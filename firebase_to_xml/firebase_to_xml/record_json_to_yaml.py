@@ -85,7 +85,6 @@ def record_json_to_yaml(record):
                 "revision": record.get("created"),
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
-            "edition": record.get("edition"),
         },
         "spatial": {
             "bbox": [
@@ -120,6 +119,7 @@ def record_json_to_yaml(record):
             "status": record.get("status"),
             "project": record.get("projects"),
             "progress_code": record.get("progress"),
+            "edition": record.get("edition"),
         },
         "contact": [
             {
