@@ -10,7 +10,7 @@ export function generateCitation(record,language, format) {
     contacts = [],
     datePublished,
   } = record;
-  
+
   const publishers = contacts
     .filter(
       (contact) =>
@@ -49,6 +49,7 @@ export function generateCitation(record,language, format) {
       issued: { "date-parts": [[datePublished || created]] },
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
+      version: record.edition,
     },
   ];
 
@@ -64,7 +65,7 @@ export function generateCitation(record,language, format) {
   } catch (e) {
     // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
     return ""
-    
+
   }
 }
 export function ApaPreview({ record, language }) {
