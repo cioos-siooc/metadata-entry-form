@@ -104,9 +104,9 @@ const IdentificationTab = ({
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
-            <En>What version/revision of the dataset is this entry?</En>
+            <En>What edition of the dataset is this entry?</En>
             <Fr>
-              À quelle version/révision de l'ensemble de données correspond cette entrée ?
+              À quelle édition de l'ensemble de données correspond cette entrée?
             </Fr>
           </I18n>
         </QuestionText>
