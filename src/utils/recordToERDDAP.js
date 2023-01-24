@@ -1,6 +1,7 @@
 import xmlescape from "xml-escape";
 import licenses from "./licenses";
 import { getRecordFilename } from "./misc";
+import { generateCitation } from "../components/FormComponents/ApaPreview";
 
 function isoStrToDate(isoStr) {
   return isoStr.slice(0, 10);
@@ -21,6 +22,7 @@ function recordToERDDAP(record) {
   );
 
   const attributes = {
+    citation: generateCitation(record, record.language, "text"),
     creator_email: creator?.indEmail,
     creator_name: creator?.indName,
     creator_url: creator?.orgURL,
