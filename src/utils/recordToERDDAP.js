@@ -50,6 +50,7 @@ function recordToERDDAP(record) {
       .filter((e) => e)
       .join(),
     project: record.projects?.join(),
+    product_version: record.edition,
     license: licenses[record.license]?.url || record.license,
     instrument: record.instruments
       .map((i) => [i.manufacturer, i.id, i.version].join(" - "))

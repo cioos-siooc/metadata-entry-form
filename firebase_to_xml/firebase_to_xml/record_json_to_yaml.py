@@ -119,6 +119,7 @@ def record_json_to_yaml(record):
             "status": record.get("status"),
             "project": record.get("projects"),
             "progress_code": record.get("progress"),
+            "edition": record.get("edition"),
         },
         "contact": [
             {
