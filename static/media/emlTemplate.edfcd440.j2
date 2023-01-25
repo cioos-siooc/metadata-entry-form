@@ -78,7 +78,7 @@
                 </boundingCoordinates>
             </geographicCoverage>
         </coverage>
-    
+
     {% for contact in record.contacts %}
     {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
     <contact>
@@ -113,6 +113,7 @@
                 <dateStamp>{{ record.datePublished or record.created }}</dateStamp>
                 <hierarchyLevel>dataset</hierarchyLevel>
                 <citation identifier="{{ record.datasetIdentifier }}">{{citation}}</citation>
+                <edition>{{ record.edition }}</edition>
             </gbif>
         </metadata>
     </additionalMetadata>
