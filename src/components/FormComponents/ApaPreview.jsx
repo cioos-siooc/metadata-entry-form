@@ -49,7 +49,7 @@ export function generateCitation(record,language, format) {
       issued: { "date-parts": [[datePublished || created]] },
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
-      version: record.edition,
+      version: `v${record.edition}`,
     },
   ];
 
