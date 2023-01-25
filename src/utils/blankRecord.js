@@ -16,6 +16,7 @@ const blankRecord = {
   verticalExtentMax: "",
   datePublished: null,
   dateRevised: null,
+  edition: "",
   recordID: "",
   instruments: [],
   platform: "",
