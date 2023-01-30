@@ -1,5 +1,5 @@
-import React from "react";
-import { Paper, TextField, Grid, IconButton, Tooltip } from "@material-ui/core";
+import React, {useState} from "react";
+import {Paper, TextField, Grid, IconButton, Tooltip, Button} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
@@ -36,6 +36,11 @@ const IdentificationTab = ({
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
+  // const { DATACITE_USER, DATACITE_PASS } = process.env;
+  const DATACITE_USER = 'HAKAI.DFUKGL'
+  const DATACITE_PASS = '3Ldx5m92'
+  const [doiGenerated, updateDoiGenerated] = useState(false)
+  const [newDraftDoi, updateNewDraftDoi] = useState('')
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -55,7 +60,45 @@ const IdentificationTab = ({
     )
   );
 
-  return (
+  async function handleGenerateDOI(){
+          const apiPayload = {
+              "data": {
+                  "type": "dois",
+                  "attributes": {
+                      "prefix": "10.21966",
+                  },
+              },
+          }
+          fetch('https://api.datacite.org/dois', {
+            method: "POST",
+            body: apiPayload,
+            header: {
+              user: `${DATACITE_USER}:${DATACITE_PASS}`,
+              // user: `HAKAI.DFUKGL:3Ldx5m92`,
+              content_type: "application/json",
+            },
+         }).then(res => res.json())
+           .then(res => {
+           updateNewDraftDoi(res.data.id);
+           updateRecord("datasetIdentifier")(res.data.id);
+           updateDoiGenerated(true);
+          })
+  }
+
+  function handleCancelDOI() {
+          fetch(`https://api.datacite.org/dois/${newDraftDoi}`, {
+            method: "DELETE",
+            header: {
+              user: `${DATACITE_USER}:${DATACITE_PASS}`,
+            },
+          }).then(() => {
+                updateNewDraftDoi('');
+                updateRecord("datasetIdentifier")('10.0000/0000')
+                updateDoiGenerated(false)
+              })
+  }
+
+    return (
     <div>
       <Paper style={paperClass}>
         <QuestionText>
@@ -552,6 +595,20 @@ const IdentificationTab = ({
           </I18n>{" "}
           10.0000/0000
         </QuestionText>
+
+        <Button onClick={handleGenerateDOI}
+                disabled = { doiGenerated }
+                style={{display:"inline"}}>
+          Generate Draft DOI
+        </Button>
+          {
+              doiGenerated &&
+              <Button onClick={handleCancelDOI}
+                style={{display: "inline"}}>
+                Cancel Draft DOI
+              </Button>
+          }
+
 
         <TextField
           style={{ marginTop: "10px" }}
