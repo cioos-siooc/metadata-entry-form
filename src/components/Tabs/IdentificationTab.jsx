@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {Paper, TextField, Grid, IconButton, Tooltip, Button} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
@@ -22,6 +22,7 @@ import {
 } from "../FormComponents/QuestionStyles";
 
 import regions from "../../regions";
+import {UserContext} from "../../providers/UserProvider";
 
 const IdentificationTab = ({
   disabled,
@@ -30,15 +31,13 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
+  const { createDraftDoi, deleteDraftDoi } = useContext(UserContext);
   const { language, region } = useParams();
   const regionInfo = regions[region];
   const doiIsValid = Boolean(
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
-  // const { DATACITE_USER, DATACITE_PASS } = process.env;
-  const DATACITE_USER = 'HAKAI.DFUKGL'
-  const DATACITE_PASS = '3Ldx5m92'
   const [doiGenerated, updateDoiGenerated] = useState(false)
   const [newDraftDoi, updateNewDraftDoi] = useState('')
 
@@ -61,41 +60,23 @@ const IdentificationTab = ({
   );
 
   async function handleGenerateDOI(){
-          const apiPayload = {
-              "data": {
-                  "type": "dois",
-                  "attributes": {
-                      "prefix": "10.21966",
-                  },
-              },
-          }
-          fetch('https://api.datacite.org/dois', {
-            method: "POST",
-            body: apiPayload,
-            header: {
-              user: `${DATACITE_USER}:${DATACITE_PASS}`,
-              // user: `HAKAI.DFUKGL:3Ldx5m92`,
-              content_type: "application/json",
-            },
-         }).then(res => res.json())
-           .then(res => {
-           updateNewDraftDoi(res.data.id);
-           updateRecord("datasetIdentifier")(res.data.id);
-           updateDoiGenerated(true);
-          })
+      const response = await createDraftDoi()
+      console.log("response:", response)
+
+       updateNewDraftDoi(response.data.id);
+       updateRecord("datasetIdentifier")(response.data.id);
+       updateDoiGenerated(true);
   }
 
-  function handleCancelDOI() {
-          fetch(`https://api.datacite.org/dois/${newDraftDoi}`, {
-            method: "DELETE",
-            header: {
-              user: `${DATACITE_USER}:${DATACITE_PASS}`,
-            },
-          }).then(() => {
-                updateNewDraftDoi('');
-                updateRecord("datasetIdentifier")('10.0000/0000')
-                updateDoiGenerated(false)
-              })
+  async function handleCancelDOI() {
+      const response = await deleteDraftDoi(newDraftDoi)
+      console.log("response:", response)
+      console.log("response:", response.status)
+      if (response.status() === "204"){
+        updateRecord("datasetIdentifier")("10.0000/0000")
+        updateDoiGenerated(false)
+      }
+
   }
 
     return (
