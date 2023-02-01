@@ -1,5 +1,5 @@
 const baseUrl = 'https://api.datacite.org/dois/'
-const {DATACITE_USER, DATACITE_PASS, HAKAI_DOI_PREFIX} = process.env;
+const {DATACITE_AUTH_HASH, HAKAI_DOI_PREFIX} = process.env;
 const functions = require("firebase-functions");
 const axios = require("axios");
 
@@ -14,13 +14,14 @@ exports.createDraftDoi = functions.https.onCall(
                 },
             },
         }
+
         const response = await axios.post(url, body, {
             headers: {
-                user: `${DATACITE_USER}:${DATACITE_PASS}`,
+                authorization: `Basic ${DATACITE_AUTH_HASH}`,
                 content_type: "application/json",
             }
         })
-        return response.json()
+        return response
     }
 )
 
@@ -31,7 +32,7 @@ exports.deleteDraftDoi = functions.https.onCall(
             url,
             {
                 headers :
-                    {user: `${DATACITE_USER}:${DATACITE_PASS}`,}
+                    {authorization: `Basic ${DATACITE_AUTH_HASH}`,}
             })
         return response
     }
