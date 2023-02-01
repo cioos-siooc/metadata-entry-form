@@ -60,12 +60,20 @@ const IdentificationTab = ({
   );
 
   async function handleGenerateDOI(){
-      const response = await createDraftDoi()
-      console.log("response:", response)
+      createDraftDoi().then(
+          (response) => {
+            console.log("response:", response)
+            return response.json()
+          }
+      ).then(
+          (response) => {
+            updateNewDraftDoi(response.data.id);
+            updateRecord("datasetIdentifier")(response.data.id);
+            updateDoiGenerated(true);
+          }
+      )
 
-       updateNewDraftDoi(response.data.id);
-       updateRecord("datasetIdentifier")(response.data.id);
-       updateDoiGenerated(true);
+
   }
 
   async function handleCancelDOI() {
