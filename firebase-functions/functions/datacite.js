@@ -21,7 +21,7 @@ exports.createDraftDoi = functions.https.onCall(
                 content_type: "application/json",
             }
         })
-        return response
+        return response.data
     }
 )
 
