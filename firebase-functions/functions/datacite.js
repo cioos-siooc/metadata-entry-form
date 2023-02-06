@@ -34,6 +34,6 @@ exports.deleteDraftDoi = functions.https.onCall(
                 headers :
                     {authorization: `Basic ${DATACITE_AUTH_HASH}`,}
             })
-        return response
+        return response.data
     }
 )
