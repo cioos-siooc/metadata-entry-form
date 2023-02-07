@@ -38,8 +38,9 @@ const IdentificationTab = ({
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
-  const [doiGenerated, updateDoiGenerated] = useState(false)
-  const [newDraftDoi, updateNewDraftDoi] = useState('')
+  const [doiGenerated, setDoiGenerated] = useState(false)
+  const [newDraftDoi, setNewDraftDoi] = useState("")
+  const [doiErrorFlag, setDoiErrorFlag] = useState(false)
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -60,31 +61,47 @@ const IdentificationTab = ({
   );
 
   async function handleGenerateDOI(){
+    try {
       createDraftDoi().then(
-          (response) => {
-            console.log("response:", response)
-            return response.json()
+          response => {
+            return response.data.data.attributes
           }
       ).then(
-          (response) => {
-            updateNewDraftDoi(response.data.id);
-            updateRecord("datasetIdentifier")(response.data.id);
-            updateDoiGenerated(true);
+          (attributes) => {
+            setNewDraftDoi(attributes.doi);
+            updateRecord("datasetIdentifier")(attributes.doi);
+            setDoiGenerated(true);
           }
       )
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log(err)
+      setDoiErrorFlag(true)
+    }
 
 
   }
 
   async function handleCancelDOI() {
-      const response = await deleteDraftDoi(newDraftDoi)
-      console.log("response:", response)
-      console.log("response:", response.status)
-      if (response.status() === "204"){
-        updateRecord("datasetIdentifier")("10.0000/0000")
-        updateDoiGenerated(false)
-      }
+    try{
 
+      deleteDraftDoi(newDraftDoi).then(
+          response => response.data
+      ).then(
+          statusCode => {
+            if (statusCode === 204) {
+              setDoiGenerated(false)
+              updateRecord("datasetIdentifier")("10.0000/0000")
+            } else {
+              setDoiErrorFlag(true)
+            }
+          }
+      )
+    } catch (err){
+      // eslint-disable-next-line no-console
+      console.log(err)
+      setDoiErrorFlag(true)
+    }
   }
 
     return (
@@ -591,12 +608,15 @@ const IdentificationTab = ({
           Generate Draft DOI
         </Button>
           {
-              doiGenerated &&
+              doiGenerated && !doiErrorFlag &&
               <Button onClick={handleCancelDOI}
                 style={{display: "inline"}}>
                 Cancel Draft DOI
               </Button>
           }
+         {
+           doiErrorFlag && <span><I18n en="Error occurred with DOI API" fr="Une erreur s'est produite avec l'API DOI" /></span>
+         }
 
 
         <TextField
