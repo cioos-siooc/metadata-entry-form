@@ -30,10 +30,8 @@ exports.deleteDraftDoi = functions.https.onCall(
         const url = `${baseUrl}${draftDoi}/`
         const response = await axios.delete(
             url,
-            {
-                headers :
-                    {authorization: `Basic ${DATACITE_AUTH_HASH}`,}
-            })
-        return response.data
+            {headers : {authorization: `Basic ${DATACITE_AUTH_HASH}`,}}
+        )
+        return response.status
     }
 )
