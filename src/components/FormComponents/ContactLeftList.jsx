@@ -22,19 +22,7 @@ import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
-
-const emptyContact = {
-  role: [],
-  orgName: "",
-  orgEmail: "",
-  orgURL: "",
-  orgAdress: "",
-  orgCity: "",
-  orgCountry: "",
-  indName: "",
-  indPosition: "",
-  indEmail: "",
-};
+import { getBlankContact } from "../../utils/blankRecord";
 
 const ContactLeftList = ({
   contacts,
@@ -72,8 +60,7 @@ const ContactLeftList = ({
   }
   function duplicateContact(contactIndex) {
     const duplicatedContact = deepCopy(contacts[contactIndex]);
-
-    if (duplicatedContact.indName) duplicatedContact.indName += " (Copy)";
+    if (duplicatedContact.lastName) duplicatedContact.lastName += " (Copy)";
     else duplicatedContact.orgName += " (Copy)";
 
     updateContacts(contacts.concat(duplicatedContact));
@@ -85,12 +72,12 @@ const ContactLeftList = ({
     const index = e.target.value;
     const { role, ...contact } = contactList[index];
 
-    updateContacts(contacts.concat(deepCopy(contact)));
+    updateContacts(contacts.concat(deepCopy({...getBlankContact(), ...contact})));
     setActiveContact(contacts.length);
   }
 
   function handleAddNewContact() {
-    updateContacts(contacts.concat(deepCopy(emptyContact)));
+    updateContacts(contacts.concat(getBlankContact()));
     setActiveContact(contacts.length);
   }
 
@@ -202,7 +189,8 @@ const ContactLeftList = ({
                               disabled={
                                 !(
                                   contacts[i].orgName?.length ||
-                                  contacts[i].indName?.length
+                                  contacts[i].givenNames?.length ||
+                                  contacts[i].lastName?.length
                                 )
                               }
                               edge="end"

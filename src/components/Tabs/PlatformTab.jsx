@@ -4,10 +4,8 @@ import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import Instruments from "../FormComponents/Instruments";
 
 import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";
-import RequiredMark from "../FormComponents/RequiredMark";
 import Platform from "../FormComponents/Platform";
 import { En, Fr, I18n } from "../I18n";
-import { validateField } from "../../utils/validate";
 
 const PlatformTab = ({
   disabled,
@@ -32,7 +30,6 @@ const PlatformTab = ({
                     <li>Ship</li>
                     <li>Buoy</li>
                     <li>Satellite</li>
-                    <li>Rossette</li>
                     <li>ROV</li>
                     <li>Mooring</li>
                   </ul>
@@ -41,9 +38,9 @@ const PlatformTab = ({
                   of the page.
                 </En>
                 <Fr>
-                  Une plateforme est tout ce qui est utilisé dans la collecte de
-                  données auquel un ou plusieurs instruments sont attachés. Par
-                  exemple :
+                  Une plateforme désigne tout “objet” sur lequel un ou plusieurs
+                  instruments sont attachés et utilisés dans la collecte des
+                  données. Par exemple :
                   <ul>
                     <li>
                       <i>Glider</i>
@@ -51,13 +48,13 @@ const PlatformTab = ({
                     <li>Navire</li>
                     <li>Bouée</li>
                     <li>Satellite</li>
-                    <li>Rosette</li>
                     <li>ROV</li>
                     <li>Amarrage</li>
                   </ul>
-                  Il est fortement encouragé d'ajouter des informations sur une
-                  plateforme. S'il n'y a pas de plateformes, vous pouvez entrer
-                  des informations sur les instruments au bas de la page.
+                  S'il n'y a pas de plateforme, vous pouvez entrer des
+                  informations sur les instruments au bas de la page. Sinon,
+                  vous devez décrire le plus précisément possible la plateforme
+                  utilisée dans la collecte de données.
                 </Fr>
               </I18n>
             </QuestionText>
@@ -92,20 +89,6 @@ const PlatformTab = ({
                   handleUpdateRecord={handleUpdateRecord}
                   disabled={disabled}
                 />
-
-                <QuestionText>
-                  <I18n>
-                    <En>
-                      At least one instrument is required if there is a
-                      platform.
-                    </En>
-                    <Fr>
-                      Au moins un instrument est requis s'il y a une plateforme.
-                    </Fr>
-                  </I18n>
-
-                  <RequiredMark passes={validateField(record, "instruments")} />
-                </QuestionText>
               </>
             ) : (
               <QuestionText>

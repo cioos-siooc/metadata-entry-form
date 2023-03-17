@@ -1,4 +1,6 @@
 import templatePath from "./emlTemplate.j2";
+import { generateCitation } from "../components/FormComponents/ApaPreview";
+
 const nunjucks = require("nunjucks");
 
 // get the full goos eov name here
@@ -6,20 +8,16 @@ const nunjucks = require("nunjucks");
 function arrayOverlap(a, b) {
   return a.some((e) => b.includes(e));
 }
-function getFirstName(x) {
-  const names = x.split(" ");
-  if (names) return names.slice(-1);
-}
 
-function getLastName(x) {
-  const names = x.split(" ");
-  if (names) return names[0];
-}
 function translateRole(isoRoles) {
   console.log(isoRoles);
   return isoRoles;
 }
-
+const roleMapping = {
+  creator: ["author", "originator"],
+  metadataProvider: ["distributor", "custodian"],
+  associatedParty: ["principalInvestigator", "editor"],
+};
 async function recordToEML(record) {
   nunjucks.configure({ autoescape: true, web: true });
 
@@ -27,10 +25,11 @@ async function recordToEML(record) {
 
   return nunjucks.renderString(templateXML, {
     record,
-    getFirstName,
-    getLastName,
     translateRole,
     arrayOverlap,
+    citation: generateCitation(record, record.language, "text"),
+    roleMapping,
+    roleMappingKeys: Object.keys(roleMapping),
   });
 }
 

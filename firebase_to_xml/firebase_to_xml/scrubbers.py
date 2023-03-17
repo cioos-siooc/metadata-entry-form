@@ -40,3 +40,6 @@ def scrub_keys(d_in):
         if d_in[k]:
             scrubbed[k] = d_in[k]
     return scrubbed
+
+def remove_nones(l):
+    return list(filter(lambda item: item is not None, l))

@@ -124,7 +124,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
 
                 <Fr>
                   Cela permet de capturer les profondeurs minimales et maximales
-                  (ou la hauteur de fond marin) où l'instrument a enregistré des
+                  (ou la hauteur du fond marin) où l'instrument a enregistré des
                   données.
                 </Fr>
               </I18n>
@@ -138,8 +138,8 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
                 <Fr>
                   Profondeur positive: La profondeur est enregistrée avec des
-                  valeurs positives (c'est-à-dire un une valeur maximale de 150
-                  m implique 150 m sous la surface de l'eau).
+                  valeurs positives (c’est-à-dire qu’une valeur maximale de 150
+                  m indique que les enregistrements ont été effectués à un maximum de 150 m au-dessous de la surface).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5831" />
@@ -147,13 +147,14 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <div>
               <I18n>
                 <En>
-                  Height Positive: Altitude is the elevation from sea level
-                  (i.e. a maximum value of 150m implies 150m above sea level).
+                  Height Positive: Height is the elevation from water surface
+                  (i.e. a maximum value of 150m implies 150m above the water
+                  surface).
                 </En>
                 <Fr>
-                  Hauteur positive: L'altitude est l'altitude par rapport au
-                  niveau de la mer (c'est-à-dire qu'une valeur maximale de 150 m
-                  implique 150 m au-dessus du niveau de la mer).
+                  Hauteur positive: La hauteur est l'altitude par rapport à la
+                  surface de l'eau (c'est-à-dire qu'une valeur maximale de 150 m
+                  implique 150 m au-dessus de la surface de l'eau).
                 </Fr>
               </I18n>
               <OpenEPSGDefn url="https://epsg.io/5829" />

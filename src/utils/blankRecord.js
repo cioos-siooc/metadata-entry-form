@@ -16,8 +16,10 @@ const blankRecord = {
   verticalExtentMax: "",
   datePublished: null,
   dateRevised: null,
+  edition: "",
   recordID: "",
   instruments: [],
+  platform: "",
   platformID: "",
   platformDescription: "",
   language: "",
@@ -43,4 +45,27 @@ function getBlankRecord() {
   return record;
 }
 
-export default getBlankRecord;
+
+const blankContact = {
+  role: [],
+  orgName: "",
+  orgEmail: "",
+  orgURL: "",
+  orgAdress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  indPosition: "",
+  indEmail: "",
+  indOrcid: "",
+  givenNames: "",
+  lastName: "",
+  inCitation: true,
+};
+
+function getBlankContact() {
+  const contact = deepCopy(blankContact);
+  return contact;
+}
+
+export {getBlankRecord,getBlankContact};

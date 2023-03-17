@@ -1,0 +1,34 @@
+name: Deploy firebase functions
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "firebase-functions/**"
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: npm install
+        working-directory: firebase-functions
+      - name: Install Dependencies
+        run: npm install
+        working-directory: firebase-functions/functions
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
+          AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
+          GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
+          PROJECT_PATH: ./firebase-functions

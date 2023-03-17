@@ -34,14 +34,6 @@ export function firebaseToJSObject(input) {
   return out;
 }
 
-// runs firebaseToJSObject on each child object
-export const multipleFirebaseToJSObject = (multiple) => {
-  return Object.entries(multiple || {}).reduce((acc, [k, v]) => {
-    acc[k] = firebaseToJSObject(deepCopy(v));
-    return acc;
-  }, {});
-};
-
 const replacer = (key, value) => {
   if (typeof value === "string") {
     return value.trim();

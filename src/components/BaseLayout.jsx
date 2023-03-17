@@ -85,6 +85,13 @@ const BaseLayout = ({ match }) => {
   const { region, language } = useParams();
 
   const theme = createMuiTheme({
+    overrides: {
+      MuiTooltip: {
+        tooltip: {
+          fontSize: "1em",
+        },
+      },
+    },
     palette: {
       primary: {
         main: regions[region].colors.primary,

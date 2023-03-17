@@ -1,0 +1,569 @@
+[
+  {
+    "identifier": "91",
+    "label_en": "ice island",
+    "label_fr": "île de glace",
+    "definition_en": "A floating ice sheet detached from the coast.",
+    "definition_fr": "Un iceberg ou bloc de glace flottant détaché d'un glacier."
+  },
+  {
+    "identifier": "6C",
+    "label_en": "parachute",
+    "label_fr": "parachute",
+    "definition_en": "A fabric sheet designed to slow the descent of an object through the atmosphere.",
+    "definition_fr": "Un morceau de tissu conçu pour ralentir la descente d'un objet dans l'atmosphère."
+  },
+  {
+    "identifier": "6A",
+    "label_en": "glider",
+    "label_fr": "planeur",
+    "definition_en": "A fixed-wing aircraft with no propulsion.",
+    "definition_fr": "Un aéronef à voilure fixe sans propulsion."
+  },
+  {
+    "identifier": "9A",
+    "label_en": "DUKW",
+    "label_fr": "DUKW",
+    "definition_en": "A six-wheel drive amphibious truck developed during the second World War.",
+    "definition_fr": "Un camion amphibie à six roues motrices développé pendant la Seconde Guerre mondiale."
+  },
+  {
+    "identifier": "38",
+    "label_en": "man-powered boat",
+    "label_fr": "bateau à propulsion humaine",
+    "definition_en": "A platform operating on the surface of the water column that is manually propelled and may not be easily removed from the water (e.g. trireme).",
+    "definition_fr": "Une plateforme fonctionnant à la surface de la colonne d'eau qui est propulsée manuellement et qui peut ne pas être facilement retirée de l'eau (par exemple trirème)."
+  },
+  {
+    "identifier": "15",
+    "label_en": "land/onshore vehicle",
+    "label_fr": "véhicule terrestre",
+    "definition_en": "An instrumented vehicle or sample collector that operates on the solid surface of the Earth (e.g. mobile meteorological station, land crawler, snowmobile).",
+    "definition_fr": "Un véhicule instrumenté ou un collecteur d'échantillons qui fonctionne sur la surface solide de la Terre (par exemple: station météorologique mobile, véhicule à chenille terrestre, motoneige)."
+  },
+  {
+    "identifier": "13",
+    "label_en": "beach/intertidal zone structure",
+    "label_fr": "structure de plage/zone intertidale",
+    "definition_en": "A structure to which instrumentation may be attached that is either in air or under water depending on the state of the tide and weather conditions.",
+    "definition_fr": "Structure sur laquelle des instruments peuvent être fixés et qui se trouvent dans l'air ou sous l'eau en fonction de l'état de la marée et des conditions météorologiques."
+  },
+  {
+    "identifier": "19",
+    "label_en": "mesocosm bag",
+    "label_fr": "sac à mésocosme",
+    "definition_en": "A large polythene bag containing a water sample suspended in the natural environment so that it shares ambient physical conditions such as temperature and light levels, but is chemically isolated to allow experiments such as fertilisation.",
+    "definition_fr": "Grand sac en polyéthylène contenant un volume d'eau en suspension dans l'environnement naturel afin qu'il partage les conditions physiques ambiantes telles que la température et les niveaux de lumière, mais qui est isolé chimiquement pour permettre des expériences telles que la fertilisation."
+  },
+  {
+    "identifier": "34",
+    "label_en": "vessel at fixed position",
+    "label_fr": "navire en position fixe",
+    "definition_en": "A platform of any size occupying a fixed location on the surface of the water column for prolonged periods collecting scientific (oceanographic and meteorological) data as a primary or secondary mission. Includes light vessels and weather ships.",
+    "definition_fr": "Plateforme de toute taille occupant un emplacement fixe à la surface de la colonne d'eau pendant de longues périodes collectant des données scientifiques (océanographiques et météorologiques) en tant que mission principale ou secondaire. Inclut les navires légers et les navires météorologiques."
+  },
+  {
+    "identifier": "17",
+    "label_en": "coastal structure",
+    "label_fr": "structure côtière",
+    "definition_en": "A fixed man-made structure permanently linked to land with access to water at all states of the tide to which instrumentation may be attached (e.g. pier).",
+    "definition_fr": "Une structure artificielle fixe sur laquelle des instruments peuvent être fixés et qui est reliée en permanence à la terre avec un accès à l'eau peu importe l'état de la marée  (par exemple, une jetée)."
+  },
+  {
+    "identifier": "36",
+    "label_en": "fishing vessel",
+    "label_fr": "navire de pêche",
+    "definition_en": "A platform operating on the surface of the water column whose primary purpose is the commercial harvesting of fish or shellfish but may be engaged in scientific activities such as fish stock surveys or mooring deployments and recoveries.",
+    "definition_fr": "Plateforme opérant à la surface de la colonne d'eau et dont l'objectif principal est la récolte commerciale de poissons ou de crustacés, mais qui peut être engagée dans des activités scientifiques telles que des études de stocks de poissons ou des déploiements et des récupérations d'amarrages."
+  },
+  {
+    "identifier": "30",
+    "label_en": "ship",
+    "label_fr": "navire",
+    "definition_en": "A large platform operating on the surface of the water column. Objective definitions for guidelines: >50m length (EU), >100 foot length (USA), >300 GRT weight (SOLAS). Subjective definition: a ship is a vessel big enough to carry a boat.",
+    "definition_fr": "Une grande plateforme fonctionnant à la surface de la colonne d'eau. Définitions des objectifs pour les lignes directrices : > 50 m de longueur (UE), > 100 pieds de longueur (États-Unis), > 300 poids brut (SOLAS). Définition subjective : un vaisseau est un navire suffisamment grand pour transporter un bateau."
+  },
+  {
+    "identifier": "76",
+    "label_en": "fish",
+    "label_fr": "poisson",
+    "definition_en": "A free-swimming creature that exists totally within the water column.",
+    "definition_fr": "Une créature qui nage librement et qui vit dans la colonne d'eau."
+  },
+  {
+    "identifier": "53",
+    "label_en": "tethered balloon",
+    "label_fr": "ballon captif",
+    "definition_en": "A container filled with a gas that is lighter than air, which is tethered at a fixed height and location.",
+    "definition_fr": "Récipient rempli d'un gaz plus léger que l'air, qui est attaché à une hauteur et à un emplacement fixes."
+  },
+  {
+    "identifier": "0",
+    "label_en": "unknown",
+    "label_fr": "inconnu",
+    "definition_en": "The correct value is not known to, and not computable by, the creator of this information. However, a correct value probably exists.",
+    "definition_fr": "La valeur correcte n'est pas connue du créateur de ces informations et ne peut pas être calculée par lui. Cependant, il existe probablement une valeur correcte."
+  },
+  {
+    "identifier": "74",
+    "label_en": "seabird and duck",
+    "label_fr": "oiseau de mer et canard",
+    "definition_en": "A flighted bird that is able to exist on the water column surface and dive into the water column (e.g. cormorants, auks, ducks and gulls).",
+    "definition_fr": "Oiseau en vol capable d'exister à la surface et de plonger dans la colonne d'eau (cormorans, pingouins, canards et goélands)."
+  },
+  {
+    "identifier": "32",
+    "label_en": "vessel of opportunity",
+    "label_fr": "navire occasionnel (VOS)",
+    "definition_en": "A platform for purpose of commerce of any size operating on the surface of the water column in unpredictable locations that regularly collects scientific (oceanographic and meteorological) data (e.g. an instrumented cargo vessel).",
+    "definition_fr": "Plateforme commerciale de toute taille opérant à la surface de la colonne d'eau dans des lieux imprévisibles qui recueille régulièrement des données scientifiques (océanographiques et météorologiques) (par exemple un cargo instrumenté)."
+  },
+  {
+    "identifier": "72",
+    "label_en": "diver",
+    "label_fr": "plongeur",
+    "definition_en": "A human being with self-contained equipment or surface-connected suit enabling operation within the water column.",
+    "definition_fr": "Un être humain doté d'un équipement autonome ou d'une combinaison connectée en surface permettant le fonctionnement dans la colonne d'eau."
+  },
+  {
+    "identifier": "95",
+    "label_en": "amphibious vehicle",
+    "label_fr": "véhicule amphibie",
+    "definition_en": "A self-propelled platform capable of operating on land and within or on the surface of a water body.",
+    "definition_fr": "Plateforme automotrice capable de fonctionner sur terre et à l'intérieur ou à la surface d'un plan d'eau."
+  },
+  {
+    "identifier": "11",
+    "label_en": "fixed benthic node",
+    "label_fr": "platform benthique fixe",
+    "definition_en": "A collection of oceanographic instruments mounted at a fixed position on the seabed (e.g. POL Monitoring Platform, seabed ADCP).",
+    "definition_fr": "Ensemble d'instruments océanographiques positionné de manière fixe sur le fond marin (par exemple, plateforme de surveillance POL, ADCP du fond marin)."
+  },
+  {
+    "identifier": "70",
+    "label_en": "organism",
+    "label_fr": "organisme",
+    "definition_en": "A living creature carrying instruments or collecting samples.",
+    "definition_fr": "Créature vivante transportant des instruments ou prélevant des échantillons."
+  },
+  {
+    "identifier": "93",
+    "label_en": "pack ice",
+    "label_fr": "banquise",
+    "definition_en": "Sea ice not connected to land with an ice concentration of over 70 per cent.",
+    "definition_fr": "Glace de mer non reliée à la terre avec une concentration de glace supérieure à 70 pour cent."
+  },
+  {
+    "identifier": "51",
+    "label_en": "free-rising balloon",
+    "label_fr": "ballon aérostat",
+    "definition_en": "A container filled with a gas that is lighter than air, which is constrained to rise vertically at a fixed location.",
+    "definition_fr": "Récipient rempli d'un gaz plus léger que l'air, qui est contraint de monter verticalement en un endroit fixe."
+  },
+  {
+    "identifier": "3D",
+    "label_en": "drillship",
+    "label_fr": "navire de forage",
+    "definition_en": "A drillship is a merchant vessel designed for use in exploratory offshore drilling of new oil and gas wells or for scientific drilling purposes.",
+    "definition_fr": "Un navire de forage est un navire marchand conçu pour être utilisé dans le forage exploratoire de nouveaux puits de pétrole et de gaz  en mer ou à des fins de forage scientifique."
+  },
+  {
+    "identifier": "3B",
+    "label_en": "autonomous surface water vehicle",
+    "label_fr": "véhicule autonome pour les eaux de surface",
+    "definition_en": "A self-propelled vehicle operating on the sea surface with no human occupants.",
+    "definition_fr": "Un véhicule automoteur circulant à la surface de la mer sans occupants humains."
+  },
+  {
+    "identifier": "49",
+    "label_en": "surface ice buoy",
+    "label_fr": "bouée de glace de surface",
+    "definition_en": "An undrogued (i.e. no sub-surface parachute) surface float that is deployed in regions where sea ice forms that moves with either ice or water depending upon the time of year.",
+    "definition_fr": "Flotteur de surface sans ancre flottante déployé dans les régions où se forme de la glace de mer qui se déplace avec la glace ou l'eau en fonction de la période de l'année."
+  },
+  {
+    "identifier": "3Z",
+    "label_en": "surface vessel",
+    "label_fr": "navire de surface",
+    "definition_en": "A mobile platform with propulsion operating on and restricted to the surface of a water body.",
+    "definition_fr": "Une plateforme mobile dont la propulsion fonctionne et est limitée à la surface d'un plan d'eau."
+  },
+  {
+    "identifier": "24",
+    "label_en": "drifting manned submersible",
+    "label_fr": "submersible dérivant habité",
+    "definition_en": "A platform operating in the water column attached to a mothership by an umbilical but with no means of propulsion that has at least one human operator on board (e.g. bathysphere).",
+    "definition_fr": "plateforme fonctionnant dans la colonne d'eau rattachée à un vaisseau-mère par un ombilical mais sans moyen de propulsion et comportant au moins un opérateur humain à bord (par exemple bathysphère)."
+  },
+  {
+    "identifier": "45",
+    "label_en": "fixed subsurface vertical profiler",
+    "label_fr": "profileur vertical souterrain fixe",
+    "definition_en": "A platform that periodically makes an automated vertical traverse of the water column at a predetermined fixed location. (e.g. YSI vertical profiler, HOMER CTD).",
+    "definition_fr": "plateforme qui effectue périodiquement un profil vertical automatisé de la colonne d'eau à un emplacement fixe prédéterminé. (par exemple profileur vertical YSI, HOMER CTD)."
+  },
+  {
+    "identifier": "68",
+    "label_en": "satellite",
+    "label_fr": "satellite",
+    "definition_en": "A vehicle operating beyond the Earth's atmosphere without human occupants that orbits the Earth.",
+    "definition_fr": "Un véhicule non habité circulant au-delà de l'atmosphère terrestre en orbite autour de la Terre."
+  },
+  {
+    "identifier": "26",
+    "label_en": "lowered unmanned submersible",
+    "label_fr": "submersible treuillé non habité",
+    "definition_en": "An unmanned platform lowered and raised vertically by a cable from the mothership. Includes any type of profiling sensor mounting such as CTD frames, profiling radiometers and instrumented nets.",
+    "definition_fr": "Une plateforme non habitée montée est descendue verticalement (treuillé) par un câble depuis le vaisseau-mère. Inclut tout type de capteurs de profilage tels que les cadres CTD, les radiomètres de profilage et les réseaux instrumentés."
+  },
+  {
+    "identifier": "47",
+    "label_en": "float",
+    "label_fr": "bouée",
+    "definition_en": "A free-floating platform either on the surface of the water column or at a predetermined depth within the water column.",
+    "definition_fr": "Une plateforme flottante soit à la surface de la colonne d'eau, soit à une profondeur prédéterminée dans la colonne d'eau."
+  },
+  {
+    "identifier": "20",
+    "label_en": "submersible",
+    "label_fr": "submersible",
+    "definition_en": "A platform operating within a water body.",
+    "definition_fr": "Plateforme fonctionnant dans un plan d'eau."
+  },
+  {
+    "identifier": "66",
+    "label_en": "manned spacecraft",
+    "label_fr": "vaisseau spatial habité",
+    "definition_en": "A vehicle operating beyond the Earth's atmosphere with human occupants.",
+    "definition_fr": "Un véhicule évoluant au-delà de l'atmosphère terrestre avec des occupants humains."
+  },
+  {
+    "identifier": "41",
+    "label_en": "moored surface buoy",
+    "label_fr": "bouée de surface amarrée",
+    "definition_en": "An unmanned instrumented platform operating on the surface of the water column loosely tethered to the seafloor to maintain a fixed position (e.g. ODAS buoy).",
+    "definition_fr": "Une plateforme instrumentée non habitée fonctionnant à la surface de la colonne d'eau et attachée de manière lâche au fond marin pour maintenir une position fixe (par exemple une bouée ODAS)."
+  },
+  {
+    "identifier": "64",
+    "label_en": "geostationary orbiting satellite",
+    "label_fr": "satellite orbital géostationnaire",
+    "definition_en": "A vehicle operating beyond the Earth's atmosphere without human occupants that orbits the Earth at the same rate as the Earth's rotation keeping it over a fixed location on the Earth's surface..",
+    "definition_fr": "Un véhicule circulant au-delà de l'atmosphère terrestre sans occupants humains qui orbite autour de la Terre au même rythme que la rotation de la Terre en la maintenant au-dessus d'un emplacement fixe sur la surface de la Terre."
+  },
+  {
+    "identifier": "22",
+    "label_en": "propelled unmanned submersible",
+    "label_fr": "submersible propulsé non habité",
+    "definition_en": "A platform operating in the water column attached to a mothership by an umbilical with limited propulsion and no human operator on board (e.g. ROV).",
+    "definition_fr": "Plateforme non habitée fonctionnant dans la colonne d'eau, rattachée à un vaisseau-mère par un ombilical et dont sa propulsion propre est limitée (par exemple ROV)."
+  },
+  {
+    "identifier": "43",
+    "label_en": "subsurface mooring",
+    "label_fr": "amarrage sous marin",
+    "definition_en": "A collection of oceanographic instruments attached to wires suspended between anchors on the seabed and buoyant spheres in the water column.",
+    "definition_fr": "Collection d'instruments océanographiques attachés à un cable tiré entre une ancre sur le fond marin et des sphères flottantes dans la colonne d'eau."
+  },
+  {
+    "identifier": "62",
+    "label_en": "aeroplane",
+    "label_fr": "avion",
+    "definition_en": "A fixed-wing self-propelled aircraft.",
+    "definition_fr": "Un avion automoteur à voilure fixe."
+  },
+  {
+    "identifier": "60",
+    "label_en": "non-buoyant aircraft",
+    "label_fr": "aérodyne",
+    "definition_en": "A platform capable of flight in the atmosphere despite its being heavier than air.",
+    "definition_fr": "Une plateforme capable de voler dans l'atmosphère même si elle est plus lourde que l'air."
+  },
+  {
+    "identifier": "90",
+    "label_en": "cryosphere",
+    "label_fr": "cryosphère",
+    "definition_en": "A frozen body of water on land, freshwater or sea.",
+    "definition_fr": "Portions de la surface des mers ou terres émergées où l'eau est présente à l'état solide"
+  },
+  {
+    "identifier": "4A",
+    "label_en": "Ice-tethered subsurface profiling float",
+    "label_fr": "bouée de profilage sous-marine lié à la glace",
+    "definition_en": "A platform that periodically makes an automated vertical traverse of the water column that is fixed to a floating body of ice.",
+    "definition_fr": "plateforme fixée à un corps de glace flottant qui effectue périodiquement une traversée verticale automatisée de la colonne d'eau ."
+  },
+  {
+    "identifier": "6D",
+    "label_en": "unmanned aerial vehicle",
+    "label_fr": "véhicule aérien sans pilote",
+    "definition_en": "Any untethered heavier-than-air aircraft that is not occupied by people: may be a remotely piloted aircraft or an autonomous aircraft. Also referred to as a drone.",
+    "definition_fr": "Tout aéronef non attaché plus lourd que l'air qui n'est pas occupé par des personnes : il peut s'agir d'un aéronef télépiloté ou d'un avion autonome. Également appelé drone."
+  },
+  {
+    "identifier": "6B",
+    "label_en": "kite",
+    "label_fr": "cerf-volant",
+    "definition_en": "An aerofoil tethered to the ground held aloft by the wind.",
+    "definition_fr": "Une surface portante attachée au sol et maintenu en altitude par le vent."
+  },
+  {
+    "identifier": "39",
+    "label_en": "naval vessel",
+    "label_fr": "navire militaire",
+    "definition_en": "A platform operating on the surface of the water column in unpredictable locations that is primarily equipped, manned and operated for military purposes. Includes surface warships of all sizes and logistic support vessels.",
+    "definition_fr": "Plateforme opérant à la surface de la colonne d'eau dans des endroits imprévisibles qui est principalement équipée, habitée et exploitée à des fins militaires. Comprend les navires de guerre de surface de toutes tailles et les navires de soutien logistique."
+  },
+  {
+    "identifier": "14",
+    "label_en": "land/onshore structure",
+    "label_fr": "structure terrestre",
+    "definition_en": "A fixed man-made structure on land to which instrumentation may be attached (e.g. meteorological tower).",
+    "definition_fr": "Une structure terrestre artificielle fixe sur laquelle des instruments peuvent être attachés (par exemple une tour météorologique)."
+  },
+  {
+    "identifier": "12",
+    "label_en": "sea bed vehicle",
+    "label_fr": "véhicule benthique",
+    "definition_en": "An instrumented platform that is propelled on wheels or tracks on the seabed (e.g benthic crawler).",
+    "definition_fr": "Une plateforme instrumentée qui est propulsée sur des roues ou des chenilles sur le fond marin (par exemple, chenille benthique)."
+  },
+  {
+    "identifier": "6Z",
+    "label_en": "spacecraft",
+    "label_fr": "vaisseau spatial",
+    "definition_en": "A platform operating beyond the Earth's atmosphere.",
+    "definition_fr": "Une plateforme qui fonctionne au-delà de l'atmosphère terrestre."
+  },
+  {
+    "identifier": "18",
+    "label_en": "river station",
+    "label_fr": "station de rivière",
+    "definition_en": "An instrumented structure in a river upstream of its tidal limit.",
+    "definition_fr": "Structure instrumentée dans une rivière en amont de la limite de marée."
+  },
+  {
+    "identifier": "35",
+    "label_en": "vessel of opportunity on fixed route",
+    "label_fr": "navire occasionnel (VOS) en itinéraire fixe",
+    "definition_en": "A platform repeatedly following a predictable fixed track on the surface of the water column that collects scientific (oceanographic and meteorological) data (e.g. an instrumented ferry).",
+    "definition_fr": "Une plateforme qui suit de façon répétée une trajectoire fixe prévisible à la surface de la colonne d'eau qui recueille des données scientifiques (océanographiques et météorologiques) (par exemple un traversier instrumenté)."
+  },
+  {
+    "identifier": "16",
+    "label_en": "offshore structure",
+    "label_fr": "structure hauturière",
+    "definition_en": "A fixed (for the duration of the measurements) man-made structure away from the coast to which instrumentation may be attached (e.g. oil rig, gas rig or jack-up barge).",
+    "definition_fr": "Une structure artificielle fixe (pour la durée des mesures) éloignée de la côte sur laquelle peuvent être fixés des instruments (par exemple, plateforme pétrolière, plateforme gazière ou barge auto-élévatrice)."
+  },
+  {
+    "identifier": "37",
+    "label_en": "self-propelled boat",
+    "label_fr": "bateau automoteur",
+    "definition_en": "A small self-propelled platform operating on the surface of the water column in unpredictable locations that is smaller than a ship, but too large to easily remove from the water.",
+    "definition_fr": "Petite plateforme automotrice opérant à la surface de la colonne d'eau dans des endroits imprévisibles, plus petite qu'un navire, mais trop grande pour être facilement retirée de l'eau."
+  },
+  {
+    "identifier": "52",
+    "label_en": "free-floating balloon",
+    "label_fr": "ballon flottant",
+    "definition_en": "A container filled with a gas that is lighter than air, which is free to drift in the atmosphere.",
+    "definition_fr": "Récipient rempli d'un gaz plus léger que l'air, libre de dériver dans l'atmosphère."
+  },
+  {
+    "identifier": "31",
+    "label_en": "research vessel",
+    "label_fr": "navire de recherche",
+    "definition_en": "A platform of any size operating on the surface of the water column in unpredictable locations that is specifically equipped, manned and operated for scientific, usually oceanographic, research.",
+    "definition_fr": "plateforme de toute taille opérant à la surface de la colonne d'eau dans des lieux imprévisibles, spécialement équipée, habitée et exploitée pour la recherche scientifique, généralement océanographique."
+  },
+  {
+    "identifier": "77",
+    "label_en": "land-sea mammals",
+    "label_fr": "mammifères amphibie marin",
+    "definition_en": "A mammal that exists both on land and within the water column. Includes seals, sealions, sea-otters and walruses.",
+    "definition_fr": "Mammifère qui vit à la fois sur terre et dans la colonne d'eau. Comprend les phoques, les otaries, les loutres de mer et les morses."
+  },
+  {
+    "identifier": "96",
+    "label_en": "amphibious crawler",
+    "label_fr": "véhicule amphibie à chenille",
+    "definition_en": "A self-propelled vehicle capable of operation on land or the seabed (e.g. beach crawler).",
+    "definition_fr": "Véhicule automoteur capable de fonctionner sur terre ou sur le fond marin (par exemple, chenille de plage)."
+  },
+  {
+    "identifier": "54",
+    "label_en": "airship",
+    "label_fr": "dirigeable",
+    "definition_en": "A self-propelled container filled with a gas that is lighter than air.",
+    "definition_fr": "Conteneur autopropulsé rempli d'un gaz plus léger que l'air."
+  },
+  {
+    "identifier": "75",
+    "label_en": "cetacean",
+    "label_fr": "cétacé",
+    "definition_en": "A mammal that exists within the water column but needing to regularly surface to breathe (i.e. dolphins and whales).",
+    "definition_fr": "Mammifère présent dans la colonne d'eau mais qui a besoin de remonter régulièrement à la surface pour respirer (c'est-à-dire les dauphins et les baleines)."
+  },
+  {
+    "identifier": "33",
+    "label_en": "self-propelled small boat",
+    "label_fr": "petit bateau automoteur",
+    "definition_en": "A small self-propelled platform operating on the surface of the water column that may be easily removed from the water (e.g. shore-based RIBs, ships' boats).",
+    "definition_fr": "Petite plateforme automotrice fonctionnant à la surface de la colonne d'eau qui peut être facilement retirée de l'eau (par exemple, semi-rigides à terre, bateaux de navires)."
+  },
+  {
+    "identifier": "94",
+    "label_en": "drift ice",
+    "label_fr": "glace dérivante",
+    "definition_en": "Sea ice not connected to land with an ice concentration of under 70 per cent.",
+    "definition_fr": "Glace de mer non reliée à la terre avec une concentration de glace inférieure à 70 pour cent."
+  },
+  {
+    "identifier": "10",
+    "label_en": "land or seafloor",
+    "label_fr": "terre ou fond marin",
+    "definition_en": "A platform located on the solid surface of the Earth either above or below sea level.",
+    "definition_fr": "plateforme située sur la surface solide de la Terre au-dessus ou au-dessous du niveau de la mer."
+  },
+  {
+    "identifier": "73",
+    "label_en": "flightless bird",
+    "label_fr": "oiseau inapte au vol",
+    "definition_en": "A bird that is unable to fly with the ability to exist within the water column (e.g. penguin).",
+    "definition_fr": "Oiseau incapable de voler avec la capacité d'exister dans la colonne d'eau (par exemple, manchot)."
+  },
+  {
+    "identifier": "92",
+    "label_en": "ice shelf",
+    "label_fr": "plateforme de glace flottante",
+    "definition_en": "A floating ice sheet attached to the coast.",
+    "definition_fr": "Une calotte glaciaire flottante attachée à la côte."
+  },
+  {
+    "identifier": "50",
+    "label_en": "buoyant aircraft",
+    "label_fr": "avion aérostat",
+    "definition_en": "A platform capable of flight in the atmosphere because it is lighter than air.",
+    "definition_fr": "Une plateforme capable de voler dans l'atmosphère parce qu'elle est plus légère que l'air."
+  },
+  {
+    "identifier": "71",
+    "label_en": "human",
+    "label_fr": "humain",
+    "definition_en": "A human being without specialised equipment operating on land or the surface of the water column.",
+    "definition_fr": "Un être humain sans équipement spécialisé opérant sur terre ou à la surface de la colonne d'eau."
+  },
+  {
+    "identifier": "3A",
+    "label_en": "man-powered small boat",
+    "label_fr": "petit bateau à propulsion humaine",
+    "definition_en": "A platform operating on the surface of the water column that is manually propelled and may be easily removed from the water (e.g. rowing boat, canoe).",
+    "definition_fr": "Une plateforme fonctionnant à la surface de la colonne d'eau qui est propulsée manuellement et peut être facilement retirée de l'eau (par exemple bateau à rames, canoë)."
+  },
+  {
+    "identifier": "3C",
+    "label_en": "surface gliders",
+    "label_fr": "planeurs de surface",
+    "definition_en": "Platforms operating at a single depth near the sea surface, using a combination of solar energy and wave motion as means of propulsion.",
+    "definition_fr": "Plateforme fonctionnant à une seule profondeur près de la surface de la mer, utilisant une combinaison d'énergie solaire et de mouvement des vagues comme moyens de propulsion."
+  },
+  {
+    "identifier": "9B",
+    "label_en": "hovercraft",
+    "label_fr": "aéroglisseur",
+    "definition_en": "A craft capable of moving over water or land on a downwardly-propelled cushion of air.",
+    "definition_fr": "Engin capable de se déplacer au-dessus de l'eau ou d'atterrir sur un coussin d'air propulsé vers le bas."
+  },
+  {
+    "identifier": "27",
+    "label_en": "sub-surface gliders",
+    "label_fr": "planeurs sous-marins",
+    "definition_en": "Platforms with buoyancy-based propulsion that are capable of operations at variable depths which are not constrained to be near the sea surface.",
+    "definition_fr": "Plateforme dont la propulsion repose le remplissage de ballast (modification de flottabilité) et capable de fonctionner à des profondeurs variables no contraintes à surface de la mer."
+  },
+  {
+    "identifier": "46",
+    "label_en": "drifting subsurface profiling float",
+    "label_fr": "profileur sous-marine dérivant",
+    "definition_en": "An unmanned instrumented platform drifting freely in the water column that periodically makes vertical traverses through the water column (e.g. Argo float).",
+    "definition_fr": "Une plateforme instrumentée sans pilote dérivant librement dans la colonne d'eau qui effectue périodiquement des traversées verticales à travers la colonne d'eau (par exemple, flotteur Argo)."
+  },
+  {
+    "identifier": "23",
+    "label_en": "towed unmanned submersible",
+    "label_fr": "submersible non habité remorqué",
+    "definition_en": "A vehicle towed by rigid cable through the water column at fixed or varying depth with no propulsion and no human operator (e.g. Towfish, Scanfish, UOR, SeaSoar).",
+    "definition_fr": "Véhicule remorqué par câble rigide à travers la colonne d'eau à une profondeur fixe ou variable, sans propulsion et sans opérateur humain (par exemple Towfish, Scanfish, UOR, SeaSoar)."
+  },
+  {
+    "identifier": "69",
+    "label_en": "autogyro",
+    "label_fr": "autogyre",
+    "definition_en": "An aircraft without wings that obtains its lift from the rotation of overhead blades, but obtains forward populsion from a fixed propellor.",
+    "definition_fr": "Aéronef sans ailes dont la portance provient de la rotation des pales aériennes, mais qui obtient une poussée vers l'avant à partir d'une hélice fixe."
+  },
+  {
+    "identifier": "48",
+    "label_en": "mooring",
+    "label_fr": "mouillage",
+    "definition_en": "A tethered collection of oceanographic instruments at a fixed location that may include seafloor, mid-water and surface components.",
+    "definition_fr": "Ensemble d'instruments océanographiques encordé à un emplacement fixe pouvant inclure des éléments du fond marin, du milieu de l'eau et de la surface."
+  },
+  {
+    "identifier": "67",
+    "label_en": "helicopter",
+    "label_fr": "hélicoptère",
+    "definition_en": "An aircraft without wings that obtains its lift from the rotation of overhead blades.",
+    "definition_fr": "Un avion sans ailes qui tire sa portance de la rotation des pales aériennes."
+  },
+  {
+    "identifier": "25",
+    "label_en": "autonomous underwater vehicle",
+    "label_fr": "véhicule sous-marin autonome",
+    "definition_en": "A free-roving platform operating in the water column with propulsion but no human operator on board (e.g. Autosub, Gavia).",
+    "definition_fr": "Une plateforme mobile fonctionnant dans la colonne d'eau avec propulsion mais sans opérateur humain à bord (par exemple Autosub, Gavia)."
+  },
+  {
+    "identifier": "42",
+    "label_en": "drifting surface float",
+    "label_fr": "bouée de surface dérivante",
+    "definition_en": "An unmanned instrumented platform operating on the surface of the water column often attached to a drogue to track currents rather than winds (e.g. Argos buoy).",
+    "definition_fr": "Plateforme instrumentée sans pilote évoluant à la surface de la colonne d'eau, souvent fixée à une ancre flottante pour suivre les courants plutôt que les vents (par exemple, une bouée Argos)."
+  },
+  {
+    "identifier": "65",
+    "label_en": "orbiting satellite",
+    "label_fr": "satellite en orbite",
+    "definition_en": "A vehicle operating beyond the Earth's atmosphere without human occupants that orbits the Earth at a different rate to the Earth's rotation so it moves over the Earth's surface..",
+    "definition_fr": "Un véhicule évoluant au-delà de l'atmosphère terrestre sans occupants humains qui orbite autour de la Terre à une vitesse différente de celle de la Terre de sorte qu'il se déplace au-dessus de la surface de la Terre."
+  },
+  {
+    "identifier": "44",
+    "label_en": "drifting subsurface float",
+    "label_fr": "flotteur dérivant de subsurface",
+    "definition_en": "An unmanned instrumented platform drifting freely in the water column at a depth governed by its density (e.g. Swallow float).",
+    "definition_fr": "Une plateforme instrumentée sans pilote dérivant librement dans la colonne d'eau à une profondeur déterminée par sa densité (par exemple flotteur Swallow)."
+  },
+  {
+    "identifier": "63",
+    "label_en": "rocket",
+    "label_fr": "fusée",
+    "definition_en": "A rocket is a vehicle, missile or aircraft which obtains thrust by the reaction to the ejection of fast moving exhaust gas from within a rocket engine.",
+    "definition_fr": "Une fusée est un véhicule, un missile ou un aéronef qui est propulsé par la réaction à l'éjection de gaz d'échappement se déplaçant rapidement à l'intérieur d'un moteur-fusée."
+  },
+  {
+    "identifier": "21",
+    "label_en": "propelled manned submersible",
+    "label_fr": "submersible habité propulsé",
+    "definition_en": "A platform operating in the water column that has both self-contained propulsion and at least one human operator on board (e.g. submarine).",
+    "definition_fr": "Une plateforme fonctionnant dans la colonne d'eau qui possède à la fois une propulsion autonome et au moins un opérateur humain à bord (par exemple un sous-marin)."
+  },
+  {
+    "identifier": "61",
+    "label_en": "research aeroplane",
+    "label_fr": "avion de recherche",
+    "definition_en": "A fixed-wing self-propelled aircraft that is equipped, manned and operated for atmospheric, meteorological or oceanographic research.",
+    "definition_fr": "Aéronef automoteur à voilure fixe équipé, piloté et exploité pour la recherche atmosphérique, météorologique ou océanographique."
+  }
+]

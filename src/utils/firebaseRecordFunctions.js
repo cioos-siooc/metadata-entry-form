@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import firebase from "../firebase";
 
-import getBlankRecord from "./blankRecord";
-import { firebaseToJSObject, getRecordFilename } from "./misc";
+import {getBlankRecord, getBlankContact} from "./blankRecord";
+import { firebaseToJSObject, getRecordFilename, deepCopy } from "./misc";
 
 export async function cloneRecord(
   recordID,
@@ -43,6 +43,27 @@ export async function cloneRecord(
 
   destinationUserRecordsRef.push(record);
 }
+export function standardizeContact(contact) {
+  return ({ 
+    ...getBlankContact(), ...contact,
+  })
+}
+
+// fills in missing fields on older records
+export function standardizeRecord(record, user, userID, recordID) {
+  const updatedRecord= {
+    ...getBlankRecord(),
+    ...record,
+  };
+  if(recordID) updatedRecord.recordID = recordID
+  if (user && userID) {
+    updatedRecord.userinfo = { ...user?.userinfo, userID }
+  }
+
+  updatedRecord.contacts = updatedRecord.contacts.map(standardizeContact)
+  return updatedRecord
+
+}
 
 export function loadRegionRecords(regionRecords, statusFilter) {
   const regionUsers = regionRecords.toJSON();
@@ -52,11 +73,9 @@ export function loadRegionRecords(regionRecords, statusFilter) {
     if (user.records) {
       Object.entries(user.records).forEach(([key, record]) => {
         if (statusFilter.includes(record.status))
-          records.push({
-            ...{ ...getBlankRecord(), ...firebaseToJSObject(record) },
-            userinfo: { ...user.userinfo, userID },
-            key,
-          });
+          records.push(
+            standardizeRecord(firebaseToJSObject(record), user, userID, key)
+          );
       });
     }
   });
@@ -79,7 +98,7 @@ export async function submitRecord(region, userID, key, status, record) {
 
   if (record && !record.filename) {
     const filename = getRecordFilename(record);
-    recordRef.child("filename").set(filename);
+    await recordRef.child("filename").set(filename);
   }
 }
 
@@ -152,3 +171,19 @@ export function returnRecordToDraft(region, userID, key) {
     .child("status")
     .set("");
 }
+export async function getRegionProjects(region) {
+  const projects = Object.values(
+    (
+      await firebase.database().ref(region).child("projects").once("value")
+    ).toJSON() || {}
+  );
+  return projects;
+}
+
+// runs firebaseToJSObject on each child object
+export const multipleFirebaseToJSObject = (multiple) => {
+  return Object.entries(multiple || {}).reduce((acc, [key, record]) => {
+    acc[key] = standardizeRecord(firebaseToJSObject(deepCopy(record)));
+    return acc;
+  }, {});
+};
