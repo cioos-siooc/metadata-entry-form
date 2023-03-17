@@ -34,6 +34,6 @@ node_modules
 notforrepo
 __pycache__
 *.xml
-*.yaml
+
 firebase-debug.log
 .Rproj.user

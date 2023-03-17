@@ -28,6 +28,7 @@ const IdentificationTab = ({
   record,
   handleUpdateRecord,
   updateRecord,
+  projects,
 }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
@@ -69,21 +70,25 @@ const IdentificationTab = ({
           <SupplementalText>
             <I18n>
               <En>
-                Recommended title includes: What, Where, When. Title should be
-                precise enough so that the user will not have to open the
-                dataset to understand its contents. Title should not have
-                acronyms, special characters, or use specialized nomenclature.
-                This will appear as the title that is shown for this dataset in
-                the {regionInfo.catalogueTitle.en}.
+                <p>Recommended title includes: What, Where, When.</p>
+                <p>
+                  Title should be precise enough so that the user will not have
+                  to open the dataset to understand its contents. Title should
+                  not have acronyms, special characters, or use specialized
+                  nomenclature. This will appear as the title that is shown for
+                  this dataset in the {regionInfo.catalogueTitle.en}.
+                </p>
               </En>
               <Fr>
-                Le titre recommandé comprend : Quoi, Où, Quand. Le titre doit
-                être suffisamment précis pour que l'utilisateur n'ait pas à
-                ouvrir le ensemble de données pour comprendre son contenu. Le
-                titre ne doit pas avoir des acronymes, des caractères spéciaux
-                ou utiliser une nomenclature spécialisée. Ceci apparaîtra comme
-                titre de votre jeu de données dans le{" "}
-                {regionInfo.catalogueTitle.fr}.
+                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
+                <p>
+                  Le titre doit être suffisamment précis pour que l'utilisateur
+                  n'ait pas à ouvrir le ensemble de données pour comprendre son
+                  contenu. Le titre ne doit pas avoir des acronymes, des
+                  caractères spéciaux ou utiliser une nomenclature spécialisée.
+                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
+                  {regionInfo.catalogueTitle.fr}.
+                </p>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -113,6 +118,34 @@ const IdentificationTab = ({
         />
       </Paper>
 
+      {projects.length ? (
+        <Paper style={paperClass}>
+          <QuestionText>
+            <I18n>
+              <En>
+                What are the projects that this record is part of? To add a
+                project, email{" "}
+              </En>
+              <Fr>
+                Quels sont les projets dont ce disque fait partie? Pour ajouter
+                un projet, e-mail{" "}
+              </Fr>
+            </I18n>
+            <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
+          </QuestionText>
+          <CheckBoxList
+            value={record.projects || []}
+            labelSize={6}
+            onChange={updateRecord("projects")}
+            options={projects}
+            optionLabels={projects}
+            disabled={disabled}
+          />
+        </Paper>
+      ) : (
+        <div />
+      )}
+
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -132,7 +165,9 @@ const IdentificationTab = ({
                 of the type of descriptions that are typically used for this
                 section of the record. As a general rule, this section should be
                 worded with as little jargon as possible to give potential users
-                an understanding of your dataset.
+                an understanding of your dataset. Use a maximum of 500 words.
+                For detailed methods please submit supplemental materials with
+                your data.
                 <br />
                 <br />
                 Suggested abstract points -
@@ -150,27 +185,54 @@ const IdentificationTab = ({
                       sites, sensor tracks, laboratory spaces
                     </li>
                     <li>
-                      <b>How</b>- equipment, procedures, protocols,
-                      calibrations, QA/QC
-                    </li>
-                    <li>
-                      <b>Who</b>- participants, staff
-                    </li>
-                    <li>
                       <b>Why</b>- a high level statement on the outcome this
                       data is meant to inform
                     </li>
                   </ul>
                 </div>
               </En>
+
               <Fr>
-                {" "}
-                Cette description sera le résumé de votre jeu de données
-                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}.
-                Veuillez consulter d’autres jeux de données déjà publiés :{" "}
-                <CatalogueLink lang="fr" />. Si possible, veuillez remplir ce
-                champ en utilisant un langage accessible pouvant être bien
-                compris par d’autres utilisateurs.
+                Cette description correspond au résumé de votre jeu de données
+                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}{" "}
+                <CatalogueLink lang="fr" />. Pour vous aider à rédiger ce
+                résumé, vous pouvez vous inspirer d’autres jeux de données déjà
+                publiés dans le catalogue. Ce champ doit être compris par tout
+                type d’utilisateur, nous vous recommandons un maximum de 500
+                mots, l’utilisation d’un langage accessible et de limiter
+                l’utilisation de vocabulaire de type jargon.
+                <br />
+                <br />
+                Suggestion de points à aborder dans votre résumé:
+                <div>
+                  <ul>
+                    <li>
+                      <b>Quoi</b>: Les variables qui ont été mesurées
+                    </li>
+                    <li>
+                      <b>Quand</b>: Couverture temporelle de la donnée,
+                      fréquence de la mesure/observation
+                    </li>
+                    <li>
+                      <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des
+                      sites d’échantillonnages, déplacement enregistrés d’un
+                      capteur, laboratoire, etc.
+                    </li>
+                    <li>
+                      <b>Comment</b>: Équipement, procédures, protocoles,
+                      calibration, assurance/contrôle de la qualité
+                    </li>
+                    <li>
+                      <b>Qui</b>: Participants, membres du personnel
+                    </li>
+                    <li>
+                      <b>Pourquoi</b>: Quelques lignes pour décrire le contexte
+                      dans lequel les données ont été échantillonnées et comment
+                      elles permettent de répondre à la problématique (p. ex:
+                      quelles informations peuvent-elles apporter)
+                    </li>
+                  </ul>
+                </div>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -194,7 +256,9 @@ const IdentificationTab = ({
             <Fr>
               Veuillez sélectionner toutes les variables océaniques essentielles
               contenues dans ce jeu de données. Survolez une variable pour voir
-              sa définition.
+              sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à
+              la définition complète du Système d’Observatoire Global des Océans
+              (GOOS).
             </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "eov")} />
@@ -202,8 +266,8 @@ const IdentificationTab = ({
             <I18n>
               <En>If none of these apply you can select Other.</En>
               <Fr>
-                Si aucun de ces éléments ne s'applique, vous pouvez sélectionner
-                « Autre ».
+                Si aucune de ces variables ne vous semble pertinente, vous
+                pouvez sélectionner « Autre ».
               </Fr>
             </I18n>
           </SupplementalText>
@@ -305,14 +369,19 @@ const IdentificationTab = ({
                   </En>
                   <Fr>
                     <p>
-                      Les mots-clés permettent de catégoriser vos données et
-                      facilitent leur découverte par d’autres utilisateurs.
+                      Les mots clés sont un moyen efficace de catégoriser vos
+                      données pour permettre aux utilisateurs ou à d'autres
+                      systèmes d’accéder à tous les jeux de données partageant
+                      une même caractéristique.
                     </p>
                     <p>
-                      Les mots-clés doivent inclure le nom du lieu le plus
-                      proche communauté ou situation géographique importante.
-                      Ex. Hartley Bay, Le territoire des Gitga'at, en plus du
-                      corps le plus proche de eau, par exemple Douglas Channel.
+                      Vous pouvez choisir un mot clé prédéfini (liste
+                      déroulante) en français puis cliquer sur le bouton de
+                      traduction. Vous pouvez aussi créer votre propre mot clé
+                      en rédigeant un texte libre en anglais ou en français
+                      (vérifiez toujours si son équivalent existe dans la liste
+                      déroulante afin de diminuer le risque d’écriture multiple
+                      d’un même mot clé -ex: phoque Vs Phoques-).
                     </p>
                     <p>
                       Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
@@ -374,6 +443,7 @@ const IdentificationTab = ({
           disabled={disabled}
           dateEnd={record.dateEnd || undefined}
         />
+        <br />
         <QuestionText>
           <I18n>
             <En>
@@ -401,9 +471,8 @@ const IdentificationTab = ({
               dataset hasn't been published.
             </En>
             <Fr>
-              Quelle est la date de début à laquelle les données ont été
-              publiées ? Laissez le champs vide si les données n'ont pas été
-              publiées.
+              Quelle est la date de première publication des données ? Laissez
+              le champ vide si les données n'ont pas été publiées.
             </Fr>
           </I18n>
         </QuestionText>
@@ -418,36 +487,54 @@ const IdentificationTab = ({
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
+            <En>The version number of this dataset. For example, 1.1</En>
+            <Fr>
+              Le numéro de version de cet ensemble de données. Par exemple, 1.1
+            </Fr>
+          </I18n>
+        </QuestionText>
+        <TextField
+            value={record.edition}
+            onChange={handleUpdateRecord("edition")}
+            disabled={disabled}
+            style={{ marginTop: "10px" }}
+            fullWidth
+        />
+      </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
             <En>
               What is the date when data was revised? Leave blank if dataset
               hasn't been revised.
             </En>
             <Fr>
-              Quelle est la date à laquelle les données ont été révisées ?
-              Laissez le champs vide si le jeu de données n'a pas a été révisé.
+              Quelle est la date de la dernière révision des données ? Laissez
+              le champ vide si le jeu de données n'a pas été révisé.
             </Fr>
           </I18n>
           <SupplementalText>
-                <I18n>
-                  <En>
-                    <p>
-                      Please note that this field does not need to be populated 
-                      or updated when revisions are made to the metadata, but 
-                      rather when a new version of the data file or package 
-                      becomes available, i.e. for time-series data.
-                    </p>
-                  </En>
-                  <Fr>
-                    <p>
-                      Veuillez noter que ce champ n'a pas besoin d'être rempli 
-                      ou mis à jour lorsque des révisions sont apportées aux 
-                      métadonnées, mais plutôt lorsqu'une nouvelle version du 
-                      fichier ou du paquet de données devient disponible, 
-                      c'est-à-dire pour les données de séries chronologiques.
-                    </p>
-                  </Fr>
-                </I18n>
-              </SupplementalText>
+            <I18n>
+              <En>
+                <p>
+                  Please note that this field does not need to be populated or
+                  updated when revisions are made to the metadata, but rather
+                  when a new version of the data file or package becomes
+                  available, i.e. for time-series data.
+                </p>
+              </En>
+              <Fr>
+                <p>
+                  Veuillez noter que ce champ n'a pas besoin d'être rempli ou
+                  mis à jour lorsque des révisions sont apportées aux
+                  métadonnées, mais plutôt lorsqu'une nouvelle version du
+                  fichier ou du paquet de données devient disponible,
+                  c'est-à-dire pour les données de séries temporelles.
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
         </QuestionText>
         <DateInput
           name="dateRevised"
@@ -475,6 +562,7 @@ const IdentificationTab = ({
           error={!doiIsValid}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
+          disabled={disabled}
           fullWidth
         />
       </Paper>

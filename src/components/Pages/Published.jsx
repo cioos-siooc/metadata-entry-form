@@ -105,10 +105,10 @@ class Published extends FormClassTemplate {
                         return (
                           <MetadataRecordListItem
                             record={record}
-                            key={record.key}
+                            key={record.recordID}
                             onViewEditClick={() =>
                               this.editRecord(
-                                record.key,
+                                record.recordID,
                                 record.userinfo?.userID
                               )
                             }
@@ -119,7 +119,7 @@ class Published extends FormClassTemplate {
                             showViewAction
                             onCloneClick={() =>
                               this.handleCloneRecord(
-                                record.key,
+                                record.recordID,
                                 record.userinfo?.userID,
                                 region
                               )

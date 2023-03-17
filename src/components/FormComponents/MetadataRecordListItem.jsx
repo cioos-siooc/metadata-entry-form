@@ -27,6 +27,7 @@ import {
 import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
+import recordToERDDAP from "../../utils/recordToERDDAP";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
@@ -81,23 +82,23 @@ const MetadataRecordListItem = ({
 
   const percentValidInt =
     showPercentComplete && Math.round(percentValid(record) * 100);
-
   async function handleDownloadRecord(fileType) {
-    // filetype is 
-    const extensions={
-      erddap:'_erddap.txt',
-      xml: '.xml',
-      yaml:'.yaml',
-      eml:'_eml.xml'
-    }
+    // filetype is
+    const extensions = {
+      erddap: "_erddap.txt",
+      xml: ".xml",
+      yaml: ".yaml",
+      eml: "_eml.xml",
+    };
     setIsLoading({ downloadXML: true });
 
     try {
       let data;
       if (fileType === "eml") {
-        const emlStr= await recordToEML(record);
-        console.log(emlStr);
+        const emlStr = await recordToEML(record);
         data = [emlStr];
+      } else if (fileType === "erddap") {
+        data = [recordToERDDAP(record)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);
@@ -112,7 +113,7 @@ const MetadataRecordListItem = ({
         type: `${mimeTypes[fileType]};charset=utf-8`,
       });
 
-      FileSaver.saveAs( 
+      FileSaver.saveAs(
         blob,
         `${getRecordFilename(record)}${extensions[fileType]}`
       );
@@ -125,7 +126,7 @@ const MetadataRecordListItem = ({
   }
 
   return (
-    <ListItem key={record.key}>
+    <ListItem key={record.recordID}>
       <ListItemAvatar>
         <IconButton onClick={onViewEditClick}>
           <Avatar>

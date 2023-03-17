@@ -1,5 +1,5 @@
 import React from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Add, Delete, ArrowUpwardSharp, ArrowDownwardSharp } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
 import { En, Fr, I18n } from "../I18n";
@@ -21,6 +21,15 @@ const Resources = ({ updateResources, resources, disabled }) => {
   // removes the resource section from the list at index i
   function removeResource(i) {
     updateResources(resources.filter((e, index) => index !== i));
+  }
+
+  // move the resource section 
+  function moveResource(i, newIndex) {
+    if (newIndex < 0 || newIndex >= resources.length)
+      return;
+    const element = resources.splice(i, 1)[0]
+    resources.splice(newIndex, 0, element)
+    updateResources(resources);
   }
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
@@ -45,9 +54,9 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     <En>Enter a name for the resource</En>
                     <Fr>Entrez un titre pour la ressource</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.name} />
+                  <RequiredMark passes={dist.name?.en || dist.name?.fr} />
                 </QuestionText>
-                <TextField
+                <BilingualTextInput
                   label={nameLabel}
                   value={dist.name}
                   onChange={handleResourceChange("name")}
@@ -124,6 +133,26 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   <I18n>
                     <En>Remove item</En>
                     <Fr>Supprimer la ressource</Fr>
+                  </I18n>
+                </Button>
+                <Button
+                  startIcon={<ArrowUpwardSharp />}
+                  disabled={disabled || i - 1 < 0}
+                  onClick={() => moveResource(i, i - 1)}
+                >
+                  <I18n>
+                    <En>Move up</En>
+                    <Fr>Déplacer vers le haut</Fr>
+                  </I18n>
+                </Button>
+                <Button
+                  startIcon={<ArrowDownwardSharp />}
+                  disabled={disabled || i + 1 >= resources.length}
+                  onClick={() => moveResource(i, i + 1)}
+                >
+                  <I18n>
+                    <En>Move down</En>
+                    <Fr>Déplacer vers le bas</Fr>
                   </I18n>
                 </Button>
               </Grid>

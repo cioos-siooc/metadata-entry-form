@@ -7,14 +7,14 @@ the metadata-xml module.
 
 import json
 
-from firebase_to_xml.scrubbers import scrub_dict, scrub_keys
+from firebase_to_xml.scrubbers import scrub_dict, scrub_keys, remove_nones
 import os
 dir = os.path.dirname(os.path.realpath(__file__))
 
 def get_licenses():
     with open(dir + '/resources/licenses.json') as f:
         return json.load(f)
-        
+
 def get_eov_translations():
     with open(dir + '/resources/eov.json') as f:
         eovs= json.load(f)
@@ -117,7 +117,9 @@ def record_json_to_yaml(record):
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
             "status": record.get("status"),
+            "project": record.get("projects"),
             "progress_code": record.get("progress"),
+            "edition": record.get("edition"),
         },
         "contact": [
             {
@@ -129,12 +131,15 @@ def record_json_to_yaml(record):
                     "city": contact.get("orgCity"),
                     "country": contact.get("orgCountry"),
                     "email": contact.get("orgEmail"),
+                    "ror": contact.get("orgRor"),
                 },
                 "individual": {
-                    "name": contact.get("indName"),
+                    "name": ", ".join(remove_nones([contact.get("lastName") or None, contact.get("givenNames") or None])),
                     "position": contact.get("indPosition"),
                     "email": contact.get("indEmail"),
+                    "orcid": contact.get("indOrcid"),
                 },
+                "inCitation": contact.get("inCitation"),
             }
             for contact in record.get("contacts", [])
         ],
@@ -153,6 +158,7 @@ def record_json_to_yaml(record):
         record_yaml["platform"] = {
             "id": record.get("platformID"),
             "description": record.get("platformDescription"),
+            "type": record.get("platform"),
         }
 
         if record.get("instruments"):
@@ -168,7 +174,7 @@ def record_json_to_yaml(record):
                 contact["role"] += ["distributor"]
 
     organization = record.get("organization")
-    print("organization", organization)
+
     if organization:
         organization = {
             "roles": ["owner"],
