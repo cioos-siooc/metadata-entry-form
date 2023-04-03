@@ -62,7 +62,7 @@ const IdentificationTab = ({
 
   async function handleGenerateDOI(){
     try {
-      createDraftDoi().then(
+      createDraftDoi(record).then(
           response => {
             return response.data.data.attributes
           }

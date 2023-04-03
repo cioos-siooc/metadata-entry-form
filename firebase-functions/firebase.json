@@ -8,13 +8,17 @@
   },
   "emulators": {
     "functions": {
-      "port": 5001
+      "port": 5002
     },
     "database": {
-      "port": 9000
+      "port": 9001
     },
     "ui": {
       "enabled": true
-    }
+    },
+    "firestore": {
+      "port": 8081
+    },
+    "singleProjectMode": true
   }
 }
