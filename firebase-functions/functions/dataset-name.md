@@ -34,6 +34,8 @@
 - [ ] For datasets where DFO is a partner, ensure 'parent' ROR is added (https://ror.org/02qa1x782). DFO 'child' organizations (i.e. CHS) and their ROR are optional.
 - [ ] The citation in the metadata record matches the preferred citation mentioned in the data package. 
 - [ ] Include Hakai Institute as Publisher (& Distributor?)
+- [ ] Make sure email address is provided if the role is 'Point of Contact'
+- [ ] Add contact affiliation where known
 
 ### Resources
 
