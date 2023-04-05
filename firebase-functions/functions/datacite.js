@@ -1,9 +1,11 @@
 const baseUrl = 'https://api.datacite.org/dois/'
+const {DATACITE_AUTH_HASH, HAKAI_DOI_PREFIX} = process.env;
 const functions = require("firebase-functions");
 const axios = require("axios");
 
-const dataciteHash = functions.config().hakai.datacite_hash;
-const datacitePrefix = functions.config().hakai.datacite_prefix;
+// function mapRecordToDataCite(record) {
+
+// }
 
 exports.createDraftDoi = functions.https.onCall(
     async (record) => {
@@ -14,7 +16,7 @@ exports.createDraftDoi = functions.https.onCall(
             "data": {
                 "type": "dois",
                 "attributes": {
-                    "prefix": `${datacitePrefix}`,
+                    "prefix": `${HAKAI_DOI_PREFIX}`,
                     "titles": [
                         {
                             "lang": "en",
@@ -31,7 +33,7 @@ exports.createDraftDoi = functions.https.onCall(
 
         const response = await axios.post(url, body, {
             headers: {
-                authorization: `Basic ${dataciteHash}`,
+                authorization: `Basic ${DATACITE_AUTH_HASH}`,
                 content_type: "application/json",
             }
         })
@@ -45,7 +47,7 @@ exports.deleteDraftDoi = functions.https.onCall(
         const url = `${baseUrl}${draftDoi}/`
         const response = await axios.delete(
             url,
-            {headers : {authorization: `Basic ${dataciteHash}`,}}
+            {headers : {authorization: `Basic ${DATACITE_AUTH_HASH}`,}}
         )
         return response.status
     }
