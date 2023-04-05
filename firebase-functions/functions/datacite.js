@@ -7,8 +7,9 @@ const datacitePrefix = functions.config().hakai.datacite_prefix;
 
 exports.createDraftDoi = functions.https.onCall(
     async (record) => {
-        console.log(`hash: ${dataciteHash}`)
+        console.log(`title: ${record.title.en}`)
         const url = `${baseUrl}`
+        
         const body = {
             "data": {
                 "type": "dois",
@@ -16,7 +17,12 @@ exports.createDraftDoi = functions.https.onCall(
                     "prefix": `${datacitePrefix}`,
                     "titles": [
                         {
+                            "lang": "en",
                             "title": record.title.en
+                        },
+                        {
+                            "lang": "fr",
+                            "title": record.title.fr
                         }
                     ],
                 },
@@ -29,6 +35,7 @@ exports.createDraftDoi = functions.https.onCall(
                 content_type: "application/json",
             }
         })
+        functions.logger.debug(`response: ${JSON.stringify(response.data)}`)
         return response.data
     }
 )
