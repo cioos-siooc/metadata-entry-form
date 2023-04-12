@@ -494,11 +494,11 @@ const IdentificationTab = ({
           </I18n>
         </QuestionText>
         <TextField
-            value={record.edition}
-            onChange={handleUpdateRecord("edition")}
-            disabled={disabled}
-            style={{ marginTop: "10px" }}
-            fullWidth
+          value={record.edition}
+          onChange={handleUpdateRecord("edition")}
+          disabled={disabled}
+          style={{ marginTop: "10px" }}
+          fullWidth
         />
       </Paper>
 

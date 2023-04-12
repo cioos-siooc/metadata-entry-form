@@ -60,7 +60,7 @@ class EditContact extends FormClassTemplate {
   }
 
   handleClear(key) {
-      this.setState({[key]: ''})
+    this.setState({ [key]: "" });
   }
 
   updateOrgFromRor() {
@@ -68,8 +68,8 @@ class EditContact extends FormClassTemplate {
       this.setState({
         orgRor: payload.id,
         orgName: payload.name,
-        orgURL: payload.links.find(() => true) || '',
-        orgCity: payload.addresses.find(() => true).city || '',
+        orgURL: payload.links.find(() => true) || "",
+        orgCity: payload.addresses.find(() => true).city || "",
         orgCountry: payload.country.country_name,
       });
     };
@@ -77,17 +77,17 @@ class EditContact extends FormClassTemplate {
 
   updateIndFromOrcid() {
     return (payload) => {
-      const {name, emails} = payload.person
-      const indEmail = emails.email.length > 0 ? emails.email[0].email : ''
-      const lastName = name['family-name'] ? name['family-name'].value : ''
+      const { name, emails } = payload.person;
+      const indEmail = emails.email.length > 0 ? emails.email[0].email : "";
+      const lastName = name["family-name"] ? name["family-name"].value : "";
 
       this.setState({
-        indOrcid: payload['orcid-identifier'].uri,
-        givenNames: name['given-names'].value,
+        indOrcid: payload["orcid-identifier"].uri,
+        givenNames: name["given-names"].value,
         indEmail,
         lastName,
-      })
-    }
+      });
+    };
   }
 
   handleCancelClick() {

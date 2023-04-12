@@ -1,9 +1,7 @@
-
-
-
 ## Best Practices Checklist
 
 ### In General
+
 - [ ] No previous versions of this metadata record exist (eg for earlier versions of the data, if so update that record rather than creating a new one)
 
 ### Data Identification
@@ -11,14 +9,13 @@
 #### Dataset title:
 
 - [ ] No version information in the title
-- [ ] Frontloaded (with the most important information first) 
-- [ ] Include the geographical region the data apply to 
-- [ ] Short – aim for 60 characters including spaces 
-- [ ] Does not include acronyms – put these in the keywords 
-- [ ] Does not include the word “dataset” 
-- [ ] Time series datasets should include “time series” at the end of the title 
+- [ ] Frontloaded (with the most important information first)
+- [ ] Include the geographical region the data apply to
+- [ ] Short – aim for 60 characters including spaces
+- [ ] Does not include acronyms – put these in the keywords
+- [ ] Does not include the word “dataset”
+- [ ] Time series datasets should include “time series” at the end of the title
 - [ ] Does not include the time period (this is covered in the temporal extents fields)
-
 
 #### Abstract
 
@@ -32,7 +29,7 @@
 
 - [ ] ROR and ORCID(s) are included and linked properly where applicable
 - [ ] For datasets where DFO is a partner, ensure 'parent' ROR is added (https://ror.org/02qa1x782). DFO 'child' organizations (i.e. CHS) and their ROR are optional.
-- [ ] The citation in the metadata record matches the preferred citation mentioned in the data package. 
+- [ ] The citation in the metadata record matches the preferred citation mentioned in the data package.
 - [ ] Include Hakai Institute as Publisher (& Distributor?)
 - [ ] Make sure email address is provided if the role is 'Point of Contact'
 - [ ] Add contact affiliation where known

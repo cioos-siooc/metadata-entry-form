@@ -41,7 +41,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
-import {getBlankRecord} from "../../utils/blankRecord";
+import { getBlankRecord } from "../../utils/blankRecord";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip

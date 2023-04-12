@@ -13,8 +13,9 @@ const Login = () => {
             Google account to login.
           </En>
           <Fr>
-            Connectez-vous pour accéder à l'historique de saisie de vos métadonnées.
-            Vous aurez besoin d'un compte Google pour vous connecter.
+            Connectez-vous pour accéder à l'historique de saisie de vos
+            métadonnées. Vous aurez besoin d'un compte Google pour vous
+            connecter.
           </Fr>
         </I18n>
       </Typography>
