@@ -34,7 +34,8 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                   <li>ERDDAP datasets</li>
                   <li>images</li>
                 </ul>
-                At least one item is required. A Resource URL can link to a (compressed) data package or folder.
+                At least one item is required. A Resource URL can link to a
+                (compressed) data package or folder.
               </En>
               <Fr>
                 Voici quelques exemples de ressources :
@@ -46,7 +47,8 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                   <li>Jeux de données ERDDAP</li>
                   <li>Images</li>
                 </ul>
-                Au moins une ressource est requise. Une URL de ressource peut être liée à un paquet de données (compressé) ou à un dossier.
+                Au moins une ressource est requise. Une URL de ressource peut
+                être liée à un paquet de données (compressé) ou à un dossier.
               </Fr>
             </I18n>
           </SupplementalText>

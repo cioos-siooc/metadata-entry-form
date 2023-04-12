@@ -7,8 +7,11 @@ import { I18n } from "../I18n";
 // creates text from a contact in the form
 // <organization> - <individual name>
 function getContactTitleFromNames(contact) {
-  const { orgName, givenNames,lastName } = contact;
-  const titleParts = [[lastName,givenNames].filter(e=>e).join(', '),orgName];
+  const { orgName, givenNames, lastName } = contact;
+  const titleParts = [
+    [lastName, givenNames].filter((e) => e).join(", "),
+    orgName,
+  ];
 
   return titleParts
     .filter((e) => e)

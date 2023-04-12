@@ -1,5 +1,10 @@
 import React from "react";
-import { Add, Delete, ArrowUpwardSharp, ArrowDownwardSharp } from "@material-ui/icons";
+import {
+  Add,
+  Delete,
+  ArrowUpwardSharp,
+  ArrowDownwardSharp,
+} from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
 import { En, Fr, I18n } from "../I18n";
@@ -23,12 +28,11 @@ const Resources = ({ updateResources, resources, disabled }) => {
     updateResources(resources.filter((e, index) => index !== i));
   }
 
-  // move the resource section 
+  // move the resource section
   function moveResource(i, newIndex) {
-    if (newIndex < 0 || newIndex >= resources.length)
-      return;
-    const element = resources.splice(i, 1)[0]
-    resources.splice(newIndex, 0, element)
+    if (newIndex < 0 || newIndex >= resources.length) return;
+    const element = resources.splice(i, 1)[0];
+    resources.splice(newIndex, 0, element);
     updateResources(resources);
   }
   const nameLabel = <I18n en="Name" fr="Titre" />;
