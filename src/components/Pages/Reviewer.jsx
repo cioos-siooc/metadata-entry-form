@@ -46,7 +46,8 @@ const RecordItem = ({
     record,
     language,
     onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
-    onCloneClick: () => handleCloneRecord(record.recordID, record.userinfo.userID),
+    onCloneClick: () =>
+      handleCloneRecord(record.recordID, record.userinfo.userID),
     onDeleteClick: () =>
       toggleModal(
         "deleteModalOpen",

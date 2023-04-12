@@ -45,7 +45,6 @@ function getBlankRecord() {
   return record;
 }
 
-
 const blankContact = {
   role: [],
   orgName: "",
@@ -68,4 +67,4 @@ function getBlankContact() {
   return contact;
 }
 
-export {getBlankRecord,getBlankContact};
+export { getBlankRecord, getBlankContact };

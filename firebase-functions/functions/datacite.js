@@ -1,101 +1,109 @@
-const baseUrl = 'https://api.datacite.org/dois/'
-const {DATACITE_AUTH_HASH, HAKAI_DOI_PREFIX} = process.env;
+const baseUrl = "https://api.datacite.org/dois/";
+const { DATACITE_AUTH_HASH, HAKAI_DOI_PREFIX } = process.env;
 const functions = require("firebase-functions");
 const axios = require("axios");
 import licenses from "../../src/utils/licenses";
 
 function mapRecordToDataCite(metadata) {
+  const creators = metadata.contacts.reduce((creatorList, contact) => {
+    let creator;
 
-    const creators = metadata.contacts.reduce(( creatorList, contact) => {
-            let creator;
-            
-            if (contact.inCitation) {
-                const { indName, orgName, lastName, givenNames, indOrcid, orgRor } = contact;
-          
-                if (indName) {
-                  creator = {
-                    name: `${lastName}, ${givenNames}`,
-                    nameType: "Personal",
-                    givenName: givenNames,
-                    familyName: lastName,
-                    ...(indOrcid && {
-                      nameIdentifiers: [
-                        {
-                          schemeUri: "https://orcid.org",
-                          nameIdentifier: indOrcid,
-                          nameIdentifierScheme: "ORCID",
-                        },
-                      ],
-                    }),
-                  };
-                }
-          
-                if (orgName) {
-                  creator = {
-                    name: orgName,
-                    nameType: "Organizational",
-                    ...(orgRor && {
-                      nameIdentifiers: [
-                        {
-                          schemeUri: "https://ror.org",
-                          nameIdentifier: orgRor,
-                          nameIdentifierScheme: "ROR",
-                        },
-                      ],
-                    }),
-                  };
-                }
-              }
-          
-              if (creator) {
-                creatorList.push(creator);
-              }
-          
-              return creatorList;
-            }, []);
+    if (contact.inCitation) {
+      const {
+        indName,
+        orgName,
+        lastName,
+        givenNames,
+        indOrcid,
+        orgRor,
+      } = contact;
 
-    const publisher = metadata.contacts.find(contact => contact.role.includes("publisher"));
+      if (indName) {
+        creator = {
+          name: `${lastName}, ${givenNames}`,
+          nameType: "Personal",
+          givenName: givenNames,
+          familyName: lastName,
+          ...(indOrcid && {
+            nameIdentifiers: [
+              {
+                schemeUri: "https://orcid.org",
+                nameIdentifier: indOrcid,
+                nameIdentifierScheme: "ORCID",
+              },
+            ],
+          }),
+        };
+      }
 
-    const publicationYear = metadata.datePublished
-        ? parseInt(metadata.datePublished.slice(0, 4), 10)
-        : undefined;
-
-    const subjects = metadata.keywords
-        ? Object.entries(metadata.keywords).flatMap(([lang, keywords]) =>
-            keywords.map((keyword) => ({
-                lang,
-                subject: keyword,
-            }))
-            )
-        : undefined;
-
-    let dates = [];
-
-    if (metadata.dateStart) {
-        dates.push({
-            date: metadata.dateStart,
-            dateType: 'Collected',
-            dateInformation: 'Start date when data was first collected'
-        });
+      if (orgName) {
+        creator = {
+          name: orgName,
+          nameType: "Organizational",
+          ...(orgRor && {
+            nameIdentifiers: [
+              {
+                schemeUri: "https://ror.org",
+                nameIdentifier: orgRor,
+                nameIdentifierScheme: "ROR",
+              },
+            ],
+          }),
+        };
+      }
     }
 
-    if (metadata.dateEnd) {
-        dates.push({
-            date: metadata.dateEnd,
-            dateType: 'Collected',
-            dateInformation: 'End date when data was last collected'
-        });
+    if (creator) {
+      creatorList.push(creator);
     }
 
-    if (metadata.dateRevised) {
-        dates.push({
-            date: metadata.dateRevised,
-            dateType: 'Updated',
-            dateInformation: 'Date when the data was last revised'
-        });
-    }
+    return creatorList;
+  }, []);
 
-    // Look up the license information
+  const publisher = metadata.contacts.find((contact) =>
+    contact.role.includes("publisher")
+  );
+
+  const publicationYear = metadata.datePublished
+    ? parseInt(metadata.datePublished.slice(0, 4), 10)
+    : undefined;
+
+  const subjects = metadata.keywords
+    ? Object.entries(metadata.keywords).flatMap(([lang, keywords]) =>
+        keywords.map((keyword) => ({
+          lang,
+          subject: keyword,
+        }))
+      )
+    : undefined;
+
+  let dates = [];
+
+  if (metadata.dateStart) {
+    dates.push({
+      date: metadata.dateStart,
+      dateType: "Collected",
+      dateInformation: "Start date when data was first collected",
+    });
+  }
+
+  if (metadata.dateEnd) {
+    dates.push({
+      date: metadata.dateEnd,
+      dateType: "Collected",
+      dateInformation: "End date when data was last collected",
+    });
+  }
+
+  if (metadata.dateRevised) {
+    dates.push({
+      date: metadata.dateRevised,
+      dateType: "Updated",
+      dateInformation: "Date when the data was last revised",
+    });
+  }
+
+  // Look up the license information
   const licenseInfo = licenses[metadata.license];
 
   // Create the DataCite rightsList object
@@ -124,59 +132,61 @@ function mapRecordToDataCite(metadata) {
     },
   ];
 
-    const mappedDataCiteObject = {
-        "data": {
-            "type": "dois",
-            "attributes": {
-                "prefix": `${HAKAI_DOI_PREFIX}`,
-                "creators": creators,
-                "titles": [
-                    ...(metadata.title.en ? [{ lang: "en", title: metadata.title.en }] : []),
-                    ...(metadata.title.fr ? [{ lang: "fr", title: metadata.title.fr }] : []),
-                ],
-                ...(publisher ? {publisher: publisher.orgName} || publisher.indName : {}),
-                ...(metadata.datePublished ? {publicationYear: publicationYear} : {}),
-                ...(metadata.keywords ? {subjects: subjects} : {}),
-                ...(dates.length > 0 ? {dates: dates} : {}),
-                "rightsList": rightsList,
-                "descriptions": Object.entries(metadata.abstract).map(([lang, description]) => ({
-                    lang,
-                    description,
-                    descriptionType: 'Abstract'
-                })),
-                ...(metadata.map ? {geoLocations: geoLocations} : {}),
-            }
-        }
-    }
+  const mappedDataCiteObject = {
+    data: {
+      type: "dois",
+      attributes: {
+        prefix: `${HAKAI_DOI_PREFIX}`,
+        creators: creators,
+        titles: [
+          ...(metadata.title.en
+            ? [{ lang: "en", title: metadata.title.en }]
+            : []),
+          ...(metadata.title.fr
+            ? [{ lang: "fr", title: metadata.title.fr }]
+            : []),
+        ],
+        ...(publisher
+          ? { publisher: publisher.orgName } || publisher.indName
+          : {}),
+        ...(metadata.datePublished ? { publicationYear: publicationYear } : {}),
+        ...(metadata.keywords ? { subjects: subjects } : {}),
+        ...(dates.length > 0 ? { dates: dates } : {}),
+        rightsList: rightsList,
+        descriptions: Object.entries(metadata.abstract).map(
+          ([lang, description]) => ({
+            lang,
+            description,
+            descriptionType: "Abstract",
+          })
+        ),
+        ...(metadata.map ? { geoLocations: geoLocations } : {}),
+      },
+    },
+  };
 
-    return mappedDataCiteObject;
+  return mappedDataCiteObject;
 }
 
-exports.createDraftDoi = functions.https.onCall(
-    async (record) => {
-        
-        const url = `${baseUrl}`
-        
-        const body = mapRecordToDataCite(record);
+exports.createDraftDoi = functions.https.onCall(async (record) => {
+  const url = `${baseUrl}`;
 
-        const response = await axios.post(url, body, {
-            headers: {
-                authorization: `Basic ${DATACITE_AUTH_HASH}`,
-                content_type: "application/json",
-            }
-        })
+  const body = mapRecordToDataCite(record);
 
-        return response.data
-    }
-)
+  const response = await axios.post(url, body, {
+    headers: {
+      authorization: `Basic ${DATACITE_AUTH_HASH}`,
+      content_type: "application/json",
+    },
+  });
 
-exports.deleteDraftDoi = functions.https.onCall(
-    async (draftDoi) => {
-        const url = `${baseUrl}${draftDoi}/`
-        const response = await axios.delete(
-            url,
-            {headers : {authorization: `Basic ${DATACITE_AUTH_HASH}`,}}
-        )
-        return response.status
-    }
-)
+  return response.data;
+});
+
+exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
+  const url = `${baseUrl}${draftDoi}/`;
+  const response = await axios.delete(url, {
+    headers: { authorization: `Basic ${DATACITE_AUTH_HASH}` },
+  });
+  return response.status;
+});

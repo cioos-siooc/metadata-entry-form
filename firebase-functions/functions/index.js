@@ -1,6 +1,6 @@
 const admin = require("firebase-admin");
 const { translate } = require("./translate");
-const { createDraftDoi, deleteDraftDoi } = require("./datacite")
+const { createDraftDoi, deleteDraftDoi } = require("./datacite");
 const { notifyReviewer, notifyUser } = require("./notify");
 const {
   updatesRecordCreate,

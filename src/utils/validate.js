@@ -30,7 +30,9 @@ const polygonIsValid = (polygon) => {
 
 const contactIsFilled = (contact) =>
   Boolean(
-    contact.role && contact.role.length && (contact.orgName || contact.givenNames || contact.lastName)
+    contact.role &&
+      contact.role.length &&
+      (contact.orgName || contact.givenNames || contact.lastName)
   );
 
 // required fields and  a function to validate each
