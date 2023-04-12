@@ -52,8 +52,15 @@ const StartTab = ({ disabled }) => {
             </En>
             <Fr>
               Bienvenue dans l’outil de saisie de métadonnées{" "}
-              {regionInfo.titleFrPossessive} qui constitue la première étape du processus de partage de vos données. Ces renseignements serviront à créer le profil de métadonnées de votre jeu de données. Ces métadonnées facilitent l’accessibilité et la découvrabilité de vos données via le Catalogue de données {regionInfo.catalogueTitle.fr}.
-              Elles rendent également vos jeux de données interopérables avec d’autres systèmes de diffusion. Aussi, nous vous incitons fortement à remplir les champs requis de la façon la plus exhaustive possible.
+              {regionInfo.titleFrPossessive} qui constitue la première étape du
+              processus de partage de vos données. Ces renseignements serviront
+              à créer le profil de métadonnées de votre jeu de données. Ces
+              métadonnées facilitent l’accessibilité et la découvrabilité de vos
+              données via le Catalogue de données {regionInfo.catalogueTitle.fr}
+              . Elles rendent également vos jeux de données interopérables avec
+              d’autres systèmes de diffusion. Aussi, nous vous incitons
+              fortement à remplir les champs requis de la façon la plus
+              exhaustive possible.
               <br />
               <br /> Les questions concernant le formulaire peuvent être
               adressées à{" "}
@@ -67,7 +74,8 @@ const StartTab = ({ disabled }) => {
             <I18n>
               <En>You can save the form once you have filled out a title.</En>
               <Fr>
-                Dès que vous avez saisi un titre, vous pouvez enregistrer le formulaire.
+                Dès que vous avez saisi un titre, vous pouvez enregistrer le
+                formulaire.
               </Fr>
             </I18n>
           </li>
@@ -91,7 +99,8 @@ const StartTab = ({ disabled }) => {
               <Fr>
                 Le formulaire peut être sauvegardé et complété ultérieurement en
                 cliquant sur le bouton <Save /> dans le coin inférieur droit.
-                Cet icône sera activé par l’ajout du titre du jeu de données dans la section « Identification des données ».
+                Cet icône sera activé par l’ajout du titre du jeu de données
+                dans la section « Identification des données ».
               </Fr>
             </I18n>
           </li>
@@ -105,7 +114,12 @@ const StartTab = ({ disabled }) => {
                 more text to translate.
               </En>
               <Fr>
-                Certains champs peuvent avoir du texte à la fois en français et en anglais, toutefois seules les traductions du titre et du résumé sont réellement requises. Le bouton « Traduire» génère automatiquement du texte dans l'autre langue. Veuillez noter que plus il y a de texte à traduire et plus la traduction sera précise.
+                Certains champs peuvent avoir du texte à la fois en français et
+                en anglais, toutefois seules les traductions du titre et du
+                résumé sont réellement requises. Le bouton « Traduire» génère
+                automatiquement du texte dans l'autre langue. Veuillez noter que
+                plus il y a de texte à traduire et plus la traduction sera
+                précise.
               </Fr>
             </I18n>
           </li>

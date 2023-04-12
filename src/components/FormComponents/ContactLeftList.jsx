@@ -72,7 +72,9 @@ const ContactLeftList = ({
     const index = e.target.value;
     const { role, ...contact } = contactList[index];
 
-    updateContacts(contacts.concat(deepCopy({...getBlankContact(), ...contact})));
+    updateContacts(
+      contacts.concat(deepCopy({ ...getBlankContact(), ...contact }))
+    );
     setActiveContact(contacts.length);
   }
 

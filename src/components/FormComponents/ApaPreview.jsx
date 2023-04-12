@@ -2,7 +2,7 @@ import React from "react";
 
 import Cite from "citation-js";
 
-export function generateCitation(record,language, format) {
+export function generateCitation(record, language, format) {
   const {
     title,
     datasetIdentifier = "",
@@ -61,26 +61,22 @@ export function generateCitation(record,language, format) {
       template: "apa",
       lang: "en-US",
     });
-    return res
+    return res;
   } catch (e) {
     // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
-    return ""
-
+    return "";
   }
 }
 export function ApaPreview({ record, language }) {
-  const citation = generateCitation(record, language, "html")
+  const citation = generateCitation(record, language, "html");
 
-    return (
-      <div>
-        <div
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: citation }}
-          style={{ padding: "5px" }}
-        />
-      </div>
-    );
-
+  return (
+    <div>
+      <div
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: citation }}
+        style={{ padding: "5px" }}
+      />
+    </div>
+  );
 }
-
-
