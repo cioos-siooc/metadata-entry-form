@@ -382,7 +382,7 @@ class MetadataForm extends FormClassTemplate {
       <Grid
         container
         direction="column"
-        justify="space-between"
+        justifyContent="space-between"
         alignItems="stretch"
         spacing={3}
       >

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import React from "react";
 import {
   Typography,
@@ -312,7 +313,7 @@ class Reviewer extends FormClassTemplate {
       <Grid
         container
         direction="column"
-        justify="space-between"
+        justifyContent="space-between"
         alignItems="stretch"
         spacing={3}
       >
@@ -498,6 +499,7 @@ class Reviewer extends FormClassTemplate {
                         <RecordItem
                           key={record.recordID}
                           record={record}
+                          // eslint-disable-next-line react/jsx-no-bind
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
                           handleCloneRecord={this.handleCloneRecord.bind(this)}

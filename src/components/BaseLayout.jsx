@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Route, Switch, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { CircularProgress, Grid } from "@material-ui/core";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
@@ -84,7 +84,7 @@ const Pages = ({ match }) => {
 const BaseLayout = ({ match }) => {
   const { region, language } = useParams();
 
-  const theme = createMuiTheme({
+  const theme = createTheme({
     overrides: {
       MuiTooltip: {
         tooltip: {
