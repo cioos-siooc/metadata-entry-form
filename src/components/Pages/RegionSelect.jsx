@@ -38,7 +38,7 @@ export default function RegionSelect() {
           <Grid
             container
             direction="row"
-            justify="flex-start"
+            justifyContent="flex-start"
             alignItems="stretch"
           >
             {Object.entries(regions).map(([regionCode, regionInfo]) => {

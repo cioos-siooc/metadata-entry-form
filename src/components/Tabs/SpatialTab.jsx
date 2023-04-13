@@ -165,7 +165,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
         <Grid
           container
           direction="row"
-          justify="flex-start"
+          justifyContent="flex-start"
           alignItems="flex-start"
           spacing={4}
         >
