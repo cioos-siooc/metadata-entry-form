@@ -152,7 +152,7 @@ const KeywordsInput = ({
           .filter((lang) => value[lang]?.length)
           .map((lang) => (
             <div style={{ margin: "15px" }} key={lang}>
-              <InputAdornment style={{ margin: "10px" }}>
+              <InputAdornment position="start" style={{ margin: "10px" }}>
                 {lang.toUpperCase()}
               </InputAdornment>
               <Grid container direction="row">
