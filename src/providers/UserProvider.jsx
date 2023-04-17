@@ -85,6 +85,7 @@ class UserProvider extends FormClassTemplate {
       .httpsCallable("regenerateXMLforRecord");
     const downloadRecord = firebase.functions().httpsCallable("downloadRecord");
     const createDraftDoi = firebase.functions().httpsCallable("createDraftDoi");
+    const updateDraftDoi = firebase.functions().httpsCallable("updateDraftDoi");
     const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
 
     return (
@@ -95,6 +96,7 @@ class UserProvider extends FormClassTemplate {
           regenerateXMLforRecord,
           downloadRecord,
           createDraftDoi,
+          updateDraftDoi,
           deleteDraftDoi,
         }}
       >
