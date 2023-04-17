@@ -39,7 +39,7 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { createDraftDoi, deleteDraftDoi } = useContext(UserContext);
+  const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
   const { language, region } = useParams();
   const regionInfo = regions[region];
   const doiIsValid = Boolean(
@@ -47,9 +47,13 @@ const IdentificationTab = ({
   );
   const languageUpperCase = language.toUpperCase();
   const [doiGenerated, setDoiGenerated] = useState(false);
-  const [newDraftDoi, setNewDraftDoi] = useState("");
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingDoi, setLoadingDoi] = useState(false);
+  const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
+  const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
+  const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
+
+  const [displayDoiUpdateButton, setDisplayDoiUpdateButton] = useState(record.doiCreationStatus === 'draft' && record.datasetIdentifier !== '');
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -70,7 +74,7 @@ const IdentificationTab = ({
   );
 
   async function handleGenerateDOI() {
-    setLoading(true);
+    setLoadingDoi(true);
 
     try {
       await createDraftDoi(record)
@@ -78,12 +82,13 @@ const IdentificationTab = ({
           return response.data.data.attributes;
         })
         .then((attributes) => {
-          setNewDraftDoi(attributes.doi);
           updateRecord("datasetIdentifier")(attributes.doi);
+          updateRecord("doiCreationStatus")("draft");
+          setDisplayDoiUpdateButton(true);
           setDoiGenerated(true);
         })
         .finally(() => {
-          setLoading(false);
+          setLoadingDoi(false);
         });
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -92,17 +97,44 @@ const IdentificationTab = ({
     }
   }
 
-  async function handleCancelDOI() {
+  async function handleUpdateDraftDOI() {
+    setLoadingDoiUpdate(true);
+  
     try {
-      deleteDraftDoi(newDraftDoi)
+      const response = await updateDraftDoi(record);
+      const statusCode = response.data;
+  
+      if (statusCode === 200) {
+        setDoiUpdateFlag(true);
+      } else {
+        setDoiErrorFlag(true);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log(err);
+      setDoiErrorFlag(true);
+    } finally {
+      setLoadingDoiUpdate(false);
+    }
+  }
+
+  async function handleDeleteDOI() {
+    setLoadingDoiDelete(true);
+
+    try {
+      deleteDraftDoi(record.datasetIdentifier)
         .then((response) => response.data)
         .then((statusCode) => {
           if (statusCode === 204) {
             setDoiGenerated(false);
-            updateRecord("datasetIdentifier")("10.0000/0000");
+            updateRecord("datasetIdentifier")("");
+            updateRecord("doiCreationStatus")("");
           } else {
             setDoiErrorFlag(true);
           }
+        })
+        .finally(() => {
+          setLoadingDoiDelete(false);
         });
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -610,11 +642,11 @@ const IdentificationTab = ({
         </QuestionText>
         <Button
           onClick={handleGenerateDOI}
-          disabled={doiGenerated || loading}
+          disabled={doiGenerated || loadingDoi || (record.doiCreationStatus !== "")}
           style={{ display: "inline" }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            {loading ? (
+            {loadingDoi ? (
               <>
                 <CircularProgress size={24} style={{ marginRight: "8px" }} />
                 Loading...
@@ -624,16 +656,57 @@ const IdentificationTab = ({
             )}
           </div>
         </Button>
-        {doiGenerated && !doiErrorFlag && (
-          <Button onClick={handleCancelDOI} style={{ display: "inline" }}>
-            Cancel Draft DOI
-          </Button>
+        {displayDoiUpdateButton && (
+          <>
+            <Button 
+              onClick={handleUpdateDraftDOI} 
+              style={{ display: 'inline' }}
+            >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoiUpdate ? (
+                <>
+                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                    Loading...
+                </>
+              ) : (
+                "Update Draft DOI"
+              )}
+            </div>
+            </Button>
+          </>
         )}
+      {record.doiCreationStatus && !doiErrorFlag && (
+        <>
+          <Button 
+            onClick={handleDeleteDOI} 
+            style={{ display: "inline" }}
+          >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {loadingDoiDelete ? (
+              <>
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
+              </>
+            ) : (
+              "Delete Draft DOI"
+            )}
+          </div>
+          </Button>
+        </>
+      )}
         {doiErrorFlag && (
           <span>
             <I18n
               en="Error occurred with DOI API"
               fr="Une erreur s'est produite avec l'API DOI"
+            />
+          </span>
+        )}
+        {doiUpdateFlag && (
+          <span>
+            <I18n
+              en="DOI has been updated"
+              fr="Le DOI a été mis à jour"
             />
           </span>
         )}
