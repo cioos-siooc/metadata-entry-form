@@ -36,3 +36,4 @@ __pycache__
 *.xml
 
 firebase-debug.log
+.Rproj.user
