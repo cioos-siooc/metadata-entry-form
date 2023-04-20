@@ -28,6 +28,7 @@ import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import recordToERDDAP from "../../utils/recordToERDDAP";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
@@ -89,6 +90,7 @@ const MetadataRecordListItem = ({
       xml: ".xml",
       yaml: ".yaml",
       eml: "_eml.xml",
+      json: ".json",
     };
     setIsLoading({ downloadXML: true });
 
@@ -99,6 +101,8 @@ const MetadataRecordListItem = ({
         data = [emlStr];
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
+      } else if (fileType === "json") {
+        data = [JSON.stringify(recordToDataCite(record))];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);
@@ -108,6 +112,7 @@ const MetadataRecordListItem = ({
         yaml: "application/x-yaml",
         eml: "application/xml",
         erddap: "application/xml",
+        json: "application/json",
       };
       const blob = new Blob(data, {
         type: `${mimeTypes[fileType]};charset=utf-8`,
@@ -370,6 +375,15 @@ const MetadataRecordListItem = ({
                   }}
                 >
                   EML for OBIS IPT
+                </MenuItem>
+                <MenuItem
+                  key="json"
+                  onClick={() => {
+                    handleDownloadRecord("json");
+                    handleClose();
+                  }}
+                >
+                  DATACITE JSON
                 </MenuItem>
               </Menu>
             </span>

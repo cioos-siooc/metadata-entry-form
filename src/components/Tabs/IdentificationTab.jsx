@@ -21,6 +21,7 @@ import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { validateField, doiRegexp } from "../../utils/validate";
 
 import {
@@ -77,7 +78,8 @@ const IdentificationTab = ({
     setLoadingDoi(true);
 
     try {
-      await createDraftDoi(record)
+      const mappedDataCiteObject = recordToDataCite(record);
+      await createDraftDoi(mappedDataCiteObject)
         .then((response) => {
           return response.data.data.attributes;
         })
@@ -101,7 +103,17 @@ const IdentificationTab = ({
     setLoadingDoiUpdate(true);
   
     try {
-      const response = await updateDraftDoi(record);
+
+      const mappedDataCiteObject = recordToDataCite(record);
+      delete mappedDataCiteObject.data.type;
+      delete mappedDataCiteObject.data.attributes.prefix;
+
+      const dataObject = {
+        doi: record.datasetIdentifier,
+        data: mappedDataCiteObject,
+      }
+
+      const response = await updateDraftDoi( dataObject );
       const statusCode = response.data;
   
       if (statusCode === 200) {
