@@ -1,5 +1,6 @@
-const licenses = require("./licenses");
-const { HAKAI_DOI_PREFIX } = process.env;
+import licenses from "./licenses";
+import regions from "../regions";
+
 
 function recordToDataCite(metadata) {
     const creators = metadata.contacts.reduce((creatorList, contact) => {
@@ -74,7 +75,7 @@ function recordToDataCite(metadata) {
         )
       : undefined;
   
-    let dates = [];
+    const dates = [];
   
     if (metadata.dateStart) {
       dates.push({
@@ -133,8 +134,8 @@ function recordToDataCite(metadata) {
       data: {
         type: "dois",
         attributes: {
-          prefix: `${HAKAI_DOI_PREFIX}`,
-          creators: creators,
+          prefix: regions.hakai.datacitePrefix,
+          creators,
           titles: [
             ...(metadata.title.en
               ? [{ lang: "en", title: metadata.title.en }]
@@ -146,10 +147,10 @@ function recordToDataCite(metadata) {
           ...(publisher
             ? { publisher: publisher.orgName } || publisher.indName
             : {}),
-          ...(metadata.datePublished ? { publicationYear: publicationYear } : {}),
-          ...(metadata.keywords ? { subjects: subjects } : {}),
-          ...(dates.length > 0 ? { dates: dates } : {}),
-          rightsList: rightsList,
+          ...(metadata.datePublished ? { publicationYear } : {}),
+          ...(metadata.keywords ? { subjects } : {}),
+          ...(dates.length > 0 ? { dates } : {}),
+          rightsList,
           descriptions: Object.entries(metadata.abstract).map(
             ([lang, description]) => ({
               lang,
@@ -157,7 +158,7 @@ function recordToDataCite(metadata) {
               descriptionType: "Abstract",
             })
           ),
-          ...(metadata.map ? { geoLocations: geoLocations } : {}),
+          ...(metadata.map ? { geoLocations } : {}),
         },
       },
     };
@@ -165,4 +166,4 @@ function recordToDataCite(metadata) {
     return mappedDataCiteObject;
   }
 
-  module.exports = recordToDataCite;
+  export default recordToDataCite;

@@ -86,6 +86,7 @@ const regions = {
   },
   hakai: {
     title: { en: "Hakai", fr: "Hakai" },
+    datacitePrefix: "10.21966",
     catalogueTitle: {
       fr: "Catalogue de données du Hakai",
       en: "Hakai Data Catalogue",
