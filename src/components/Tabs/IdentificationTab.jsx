@@ -94,8 +94,9 @@ const IdentificationTab = ({
         });
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log(err);
+      console.error(err);
       setDoiErrorFlag(true);
+      throw err;
     }
   }
 
@@ -103,18 +104,17 @@ const IdentificationTab = ({
     setLoadingDoiUpdate(true);
   
     try {
-
       const mappedDataCiteObject = recordToDataCite(record);
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
       const dataObject = {
-        doi: record.datasetIdentifier,
+        doi: null,
         data: mappedDataCiteObject,
       }
 
       const response = await updateDraftDoi( dataObject );
-      const statusCode = response.data;
+      const statusCode = response.data.status;
   
       if (statusCode === 200) {
         setDoiUpdateFlag(true);
@@ -123,8 +123,9 @@ const IdentificationTab = ({
       }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log(err);
+      console.error('Error updating draft DOI: ', err);
       setDoiErrorFlag(true);
+      throw err;
     } finally {
       setLoadingDoiUpdate(false);
     }
