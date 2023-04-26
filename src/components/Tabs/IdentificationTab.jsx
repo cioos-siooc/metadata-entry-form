@@ -74,6 +74,13 @@ const IdentificationTab = ({
     )
   );
 
+  console.log(`Region Info: ${JSON.stringify(regionInfo)}`)
+
+  // Check if Region is Hakai
+  function isHakai(regionObj) {
+    return Object.values(regionObj.title).some(title => title.includes("Hakai"));
+  }
+
   async function handleGenerateDOI() {
     setLoadingDoi(true);
 
@@ -654,22 +661,26 @@ const IdentificationTab = ({
           </I18n>{" "}
           10.0000/0000
         </QuestionText>
-        <Button
-          onClick={handleGenerateDOI}
-          disabled={doiGenerated || loadingDoi || (record.doiCreationStatus !== "")}
-          style={{ display: "inline" }}
-        >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {loadingDoi ? (
-              <>
-                <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                Loading...
-              </>
-            ) : (
-              "Generate Draft DOI"
-            )}
-          </div>
-        </Button>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {isHakai(regionInfo) ? (
+            <Button
+              onClick={handleGenerateDOI}
+              disabled={doiGenerated || loadingDoi || (record.doiCreationStatus !== "")}
+              style={{ display: "inline" }}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {loadingDoi ? (
+                  <>
+                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                    Loading...
+                  </>
+                ) : (
+                  "Generate Draft DOI"
+                )}
+              </div>
+            </Button>
+          ) : null}
+        </div>
         {displayDoiUpdateButton && (
           <>
             <Button 
