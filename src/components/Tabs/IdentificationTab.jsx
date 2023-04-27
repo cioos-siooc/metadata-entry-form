@@ -14,6 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
 
+import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import DateInput from "../FormComponents/DateInput";
@@ -41,7 +42,7 @@ const IdentificationTab = ({
   projects,
 }) => {
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
-  const { language, region } = useParams();
+  const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid = Boolean(
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
@@ -54,11 +55,12 @@ const IdentificationTab = ({
   const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
 
-  const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "");
+  const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
   const showUpdateDoi = record.doiCreationStatus !== "";
   const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
 
+  console.log(record)
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -87,9 +89,25 @@ const IdentificationTab = ({
         .then((response) => {
           return response.data.data.attributes;
         })
-        .then((attributes) => {
+        .then(async (attributes) => {
+          // Update the record object with datasetIdentifier and doiCreationStatus
           updateRecord("datasetIdentifier")(attributes.doi);
           updateRecord("doiCreationStatus")("draft");
+
+          // Save the updated record to the Firebase database
+          const recordsRef = firebase
+            .database()
+            .ref(region)
+            .child("users")
+            .child(userID)
+            .child("records");
+
+          if (record.recordID) {
+            await recordsRef
+              .child(record.recordID)
+              .update({ datasetIdentifier: record.datasetIdentifier, doiCreationStatus: record.doiCreationStatus });
+          }
+
           setDoiGenerated(true);
         })
         .finally(() => {
@@ -140,11 +158,27 @@ const IdentificationTab = ({
     try {
       deleteDraftDoi(record.datasetIdentifier)
         .then((response) => response.data)
-        .then((statusCode) => {
+        .then(async (statusCode) => {
           if (statusCode === 204) {
-            setDoiGenerated(false);
+            // Update the record object with datasetIdentifier and doiCreationStatus
             updateRecord("datasetIdentifier")("");
             updateRecord("doiCreationStatus")("");
+
+            // Save the updated record to the Firebase database
+            const recordsRef = firebase
+              .database()
+              .ref(region)
+              .child("users")
+              .child(userID)
+              .child("records");
+
+            if (record.recordID) {
+              await recordsRef
+                .child(record.recordID)
+                .update({ datasetIdentifier: record.datasetIdentifier, doiCreationStatus: record.doiCreationStatus });
+            }
+
+            setDoiGenerated(false);
           } else {
             setDoiErrorFlag(true);
           }
@@ -656,6 +690,20 @@ const IdentificationTab = ({
             <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
           </I18n>{" "}
           10.0000/0000
+          <SupplementalText>
+            <I18n>
+              <En>
+                <p>
+                  Please save the form before generating a draft DOI.
+                </p>
+              </En>
+              <Fr>
+                <p>
+                Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
         </QuestionText>
         {showGenerateDoi && (
           <Button
