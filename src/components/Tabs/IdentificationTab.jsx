@@ -54,7 +54,11 @@ const IdentificationTab = ({
   const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
 
-  const [displayDoiUpdateButton, setDisplayDoiUpdateButton] = useState(record.doiCreationStatus === 'draft' && record.datasetIdentifier !== '');
+  const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "");
+  const showGenerateDoi = regionInfo.datacitePrefix;
+  const showUpdateDoi = record.doiCreationStatus !== "";
+  const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
+
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -74,13 +78,6 @@ const IdentificationTab = ({
     )
   );
 
-  console.log(`Region Info: ${JSON.stringify(regionInfo)}`)
-
-  // Check if Region is Hakai
-  function isHakai(regionObj) {
-    return Object.values(regionObj.title).some(title => title.includes("Hakai"));
-  }
-
   async function handleGenerateDOI() {
     setLoadingDoi(true);
 
@@ -93,7 +90,6 @@ const IdentificationTab = ({
         .then((attributes) => {
           updateRecord("datasetIdentifier")(attributes.doi);
           updateRecord("doiCreationStatus")("draft");
-          setDisplayDoiUpdateButton(true);
           setDoiGenerated(true);
         })
         .finally(() => {
@@ -116,7 +112,7 @@ const IdentificationTab = ({
       delete mappedDataCiteObject.data.attributes.prefix;
 
       const dataObject = {
-        doi: null,
+        doi: record.datasetIdentifier,
         data: mappedDataCiteObject,
       }
 
@@ -661,32 +657,29 @@ const IdentificationTab = ({
           </I18n>{" "}
           10.0000/0000
         </QuestionText>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {isHakai(regionInfo) ? (
-            <Button
-              onClick={handleGenerateDOI}
-              disabled={doiGenerated || loadingDoi || (record.doiCreationStatus !== "")}
-              style={{ display: "inline" }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                {loadingDoi ? (
-                  <>
-                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                    Loading...
-                  </>
-                ) : (
-                  "Generate Draft DOI"
-                )}
-              </div>
-            </Button>
-          ) : null}
-        </div>
-        {displayDoiUpdateButton && (
-          <>
-            <Button 
-              onClick={handleUpdateDraftDOI} 
-              style={{ display: 'inline' }}
-            >
+        {showGenerateDoi && (
+          <Button
+            onClick={handleGenerateDOI}
+            disabled={generateDoiDisabled}
+            style={{ display: "inline" }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoi ? (
+                <>
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
+                </>
+              ) : (
+                "Generate Draft DOI"
+              )}
+            </div>
+          </Button>
+        )}
+        {showUpdateDoi && (
+          <Button 
+            onClick={handleUpdateDraftDOI} 
+            style={{ display: 'inline' }}
+          >
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiUpdate ? (
                 <>
@@ -697,15 +690,13 @@ const IdentificationTab = ({
                 "Update Draft DOI"
               )}
             </div>
-            </Button>
-          </>
+          </Button>
         )}
-      {record.doiCreationStatus && !doiErrorFlag && (
-        <>
-          <Button 
-            onClick={handleDeleteDOI} 
-            style={{ display: "inline" }}
-          >
+      {showDeleteDoi && (
+        <Button 
+          onClick={handleDeleteDOI} 
+          style={{ display: "inline" }}
+        >
           <div style={{ display: "flex", alignItems: "center" }}>
             {loadingDoiDelete ? (
               <>
@@ -716,8 +707,7 @@ const IdentificationTab = ({
               "Delete Draft DOI"
             )}
           </div>
-          </Button>
-        </>
+        </Button>
       )}
         {doiErrorFlag && (
           <span>
