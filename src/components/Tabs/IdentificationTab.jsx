@@ -60,8 +60,6 @@ const IdentificationTab = ({
   const showUpdateDoi = record.doiCreationStatus !== "";
   const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
 
-  console.log(record)
-
   const CatalogueLink = ({ lang }) => (
     <a
       href={regionInfo.catalogueURL[lang]}
@@ -94,6 +92,13 @@ const IdentificationTab = ({
           updateRecord("datasetIdentifier")(attributes.doi);
           updateRecord("doiCreationStatus")("draft");
 
+          // Create a new object with updated properties
+          const updatedRecord = {
+            ...record,
+            datasetIdentifier: attributes.doi,
+            doiCreationStatus: "draft",
+          };
+
           // Save the updated record to the Firebase database
           const recordsRef = firebase
             .database()
@@ -105,7 +110,7 @@ const IdentificationTab = ({
           if (record.recordID) {
             await recordsRef
               .child(record.recordID)
-              .update({ datasetIdentifier: record.datasetIdentifier, doiCreationStatus: record.doiCreationStatus });
+              .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
           }
 
           setDoiGenerated(true);
@@ -164,6 +169,13 @@ const IdentificationTab = ({
             updateRecord("datasetIdentifier")("");
             updateRecord("doiCreationStatus")("");
 
+            // Create a new object with updated properties
+            const updatedRecord = {
+              ...record,
+              datasetIdentifier: "",
+              doiCreationStatus: "",
+            };
+
             // Save the updated record to the Firebase database
             const recordsRef = firebase
               .database()
@@ -175,7 +187,7 @@ const IdentificationTab = ({
             if (record.recordID) {
               await recordsRef
                 .child(record.recordID)
-                .update({ datasetIdentifier: record.datasetIdentifier, doiCreationStatus: record.doiCreationStatus });
+                .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
             }
 
             setDoiGenerated(false);
