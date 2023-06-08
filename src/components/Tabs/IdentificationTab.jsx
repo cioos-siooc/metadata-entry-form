@@ -702,20 +702,22 @@ const IdentificationTab = ({
             <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
           </I18n>{" "}
           10.0000/0000
-          <SupplementalText>
-            <I18n>
-              <En>
-                <p>
-                  Please save the form before generating a draft DOI.
-                </p>
-              </En>
-              <Fr>
-                <p>
-                Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
-                </p>
-              </Fr>
-            </I18n>
-          </SupplementalText>
+          {showGenerateDoi && (
+            <SupplementalText>
+              <I18n>
+                <En>
+                  <p>
+                    Please save the form before generating a draft DOI.
+                  </p>
+                </En>
+                <Fr>
+                  <p>
+                  Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                  </p>
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          )}
         </QuestionText>
         {showGenerateDoi && (
           <Button
