@@ -5,7 +5,7 @@ import regions from "../regions";
 function recordToDataCite(metadata) {
 
     // Reduce contacts to a list of creators
-    const creators = metadata.contacts.reduce((creatorList, contact) => {
+    const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
       let creator;
   
       if (contact.inCitation) {
@@ -65,7 +65,7 @@ function recordToDataCite(metadata) {
       }
   
       return creatorList;
-    }, []);
+    }, []) : [];
   
     // Find the publisher contact
     const publisher = metadata.contacts.find((contact) =>
@@ -73,9 +73,13 @@ function recordToDataCite(metadata) {
     );
   
     // Get the publication year from the datePublished field
-    const publicationYear = metadata.datePublished
-      ? parseInt(metadata.datePublished.slice(0, 4), 10)
-      : undefined;
+    let publicationYear;
+    if (metadata.datePublished) {
+      const year = parseInt(metadata.datePublished.slice(0, 4), 10)
+      publicationYear = Number.isNaN(year) ? undefined : year;
+    } else {
+      publicationYear = undefined;
+    }
   
     // Create the DataCite subjects from the keywords field
     const subjects = metadata.keywords
@@ -118,7 +122,7 @@ function recordToDataCite(metadata) {
     const licenseInfo = licenses[metadata.license];
   
     // Create the DataCite rightsList object
-    const rightsList = [
+    const rightsList = licenseInfo && licenseInfo.title ? [
       {
         rights: licenseInfo.title.en,
         rightsUri: licenseInfo.url,
@@ -126,13 +130,18 @@ function recordToDataCite(metadata) {
         rightsIdentifier: licenseInfo.code,
         rightsIdentifierScheme: "SPDX",
       },
-    ];
+    ] : [];
   
     // Extract the values from the map field
-    const { east, north, south, west } = metadata.map;
+    let { east, north, south, west } = metadata.map ? metadata.map : {};
+
+    east = Number.isNaN(east) ? undefined : east;
+    north = Number.isNaN(north) ? undefined : north;
+    south = Number.isNaN(south) ? undefined : south;
+    west = Number.isNaN(west) ? undefined : west;   
   
     // Create the DataCite geoLocations object
-    const geoLocations = [
+    const geoLocations = metadata.map && east && north && south && west ? [
       {
         geoLocationBox: {
           eastBoundLongitude: parseFloat(east),
@@ -141,7 +150,7 @@ function recordToDataCite(metadata) {
           westBoundLongitude: parseFloat(west),
         },
       },
-    ];
+    ] : [];
   
     // Create the mapped DataCite object with the extracted information
     const mappedDataCiteObject = {
