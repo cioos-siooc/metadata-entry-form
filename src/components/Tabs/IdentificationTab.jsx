@@ -1,11 +1,20 @@
-import React from "react";
-import { Paper, TextField, Grid, IconButton, Tooltip } from "@material-ui/core";
+import React, { useContext, useState } from "react";
+import {
+  Paper,
+  TextField,
+  Grid,
+  IconButton,
+  Tooltip,
+  Button,
+} from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
 
+import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import DateInput from "../FormComponents/DateInput";
@@ -13,6 +22,7 @@ import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { validateField, doiRegexp } from "../../utils/validate";
 
 import {
@@ -22,6 +32,7 @@ import {
 } from "../FormComponents/QuestionStyles";
 
 import regions from "../../regions";
+import { UserContext } from "../../providers/UserProvider";
 
 const IdentificationTab = ({
   disabled,
@@ -30,12 +41,24 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { language, region } = useParams();
+  const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
+  const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid = Boolean(
     !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
   );
   const languageUpperCase = language.toUpperCase();
+  const [doiGenerated, setDoiGenerated] = useState(false);
+  const [doiErrorFlag, setDoiErrorFlag] = useState(false);
+  const [loadingDoi, setLoadingDoi] = useState(false);
+  const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
+  const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
+  const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
+
+  const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
+  const showGenerateDoi = regionInfo.datacitePrefix;
+  const showUpdateDoi = record.doiCreationStatus !== "";
+  const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -54,6 +77,134 @@ const IdentificationTab = ({
       language
     )
   );
+
+  async function handleGenerateDOI() {
+    setLoadingDoi(true);
+
+    try {
+      const mappedDataCiteObject = recordToDataCite(record);
+      await createDraftDoi(mappedDataCiteObject)
+        .then((response) => {
+          return response.data.data.attributes;
+        })
+        .then(async (attributes) => {
+          // Update the record object with datasetIdentifier and doiCreationStatus
+          updateRecord("datasetIdentifier")(attributes.doi);
+          updateRecord("doiCreationStatus")("draft");
+
+          // Create a new object with updated properties
+          const updatedRecord = {
+            ...record,
+            datasetIdentifier: attributes.doi,
+            doiCreationStatus: "draft",
+          };
+
+          // Save the updated record to the Firebase database
+          const recordsRef = firebase
+            .database()
+            .ref(region)
+            .child("users")
+            .child(userID)
+            .child("records");
+
+          if (record.recordID) {
+            await recordsRef
+              .child(record.recordID)
+              .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+          }
+
+          setDoiGenerated(true);
+        })
+        .finally(() => {
+          setLoadingDoi(false);
+        });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setDoiErrorFlag(true);
+      throw err;
+    }
+  }
+
+  async function handleUpdateDraftDOI() {
+    setLoadingDoiUpdate(true);
+  
+    try {
+      const mappedDataCiteObject = recordToDataCite(record);
+      delete mappedDataCiteObject.data.type;
+      delete mappedDataCiteObject.data.attributes.prefix;
+
+      const dataObject = {
+        doi: record.datasetIdentifier,
+        data: mappedDataCiteObject,
+      }
+
+      const response = await updateDraftDoi( dataObject );
+      const statusCode = response.data.status;
+  
+      if (statusCode === 200) {
+        setDoiUpdateFlag(true);
+      } else {
+        setDoiErrorFlag(true);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating draft DOI: ', err);
+      setDoiErrorFlag(true);
+      throw err;
+    } finally {
+      setLoadingDoiUpdate(false);
+    }
+  }
+
+  async function handleDeleteDOI() {
+    setLoadingDoiDelete(true);
+
+    try {
+      deleteDraftDoi(record.datasetIdentifier)
+        .then((response) => response.data)
+        .then(async (statusCode) => {
+          if (statusCode === 204) {
+            // Update the record object with datasetIdentifier and doiCreationStatus
+            updateRecord("datasetIdentifier")("");
+            updateRecord("doiCreationStatus")("");
+
+            // Create a new object with updated properties
+            const updatedRecord = {
+              ...record,
+              datasetIdentifier: "",
+              doiCreationStatus: "",
+            };
+
+            // Save the updated record to the Firebase database
+            const recordsRef = firebase
+              .database()
+              .ref(region)
+              .child("users")
+              .child(userID)
+              .child("records");
+
+            if (record.recordID) {
+              await recordsRef
+                .child(record.recordID)
+                .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+            }
+
+            setDoiGenerated(false);
+          } else {
+            setDoiErrorFlag(true);
+          }
+        })
+        .finally(() => {
+          setLoadingDoiDelete(false);
+        });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setDoiErrorFlag(true);
+      throw err;
+    }
+  }
 
   return (
     <div>
@@ -551,7 +702,91 @@ const IdentificationTab = ({
             <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
           </I18n>{" "}
           10.0000/0000
+          {showGenerateDoi && (
+            <SupplementalText>
+              <I18n>
+                <En>
+                  <p>
+                    Please save the form before generating a draft DOI.
+                  </p>
+                </En>
+                <Fr>
+                  <p>
+                  Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                  </p>
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          )}
         </QuestionText>
+        {showGenerateDoi && (
+          <Button
+            onClick={handleGenerateDOI}
+            disabled={generateDoiDisabled}
+            style={{ display: "inline" }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoi ? (
+                <>
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
+                </>
+              ) : (
+                "Generate Draft DOI"
+              )}
+            </div>
+          </Button>
+        )}
+        {showUpdateDoi && (
+          <Button 
+            onClick={handleUpdateDraftDOI} 
+            style={{ display: 'inline' }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoiUpdate ? (
+                <>
+                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                    Loading...
+                </>
+              ) : (
+                "Update Draft DOI"
+              )}
+            </div>
+          </Button>
+        )}
+      {showDeleteDoi && (
+        <Button 
+          onClick={handleDeleteDOI} 
+          style={{ display: "inline" }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {loadingDoiDelete ? (
+              <>
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
+              </>
+            ) : (
+              "Delete Draft DOI"
+            )}
+          </div>
+        </Button>
+      )}
+        {doiErrorFlag && (
+          <span>
+            <I18n
+              en="Error occurred with DOI API"
+              fr="Une erreur s'est produite avec l'API DOI"
+            />
+          </span>
+        )}
+        {doiUpdateFlag && (
+          <span>
+            <I18n
+              en="DOI has been updated"
+              fr="Le DOI a été mis à jour"
+            />
+          </span>
+        )}
 
         <TextField
           style={{ marginTop: "10px" }}
@@ -562,7 +797,7 @@ const IdentificationTab = ({
           error={!doiIsValid}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
-          disabled={disabled}
+          disabled={record.doiCreationStatus === "draft"}
           fullWidth
         />
       </Paper>

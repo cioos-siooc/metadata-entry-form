@@ -64,6 +64,18 @@ class Submissions extends FormClassTemplate {
     });
   }
 
+  componentWillUnmount() {
+    // fixes error Can't perform a React state update on an unmounted component
+    this.unsubscribeAndCloseListeners();
+  }
+
+  unsubscribeAndCloseListeners() {
+    if (this.unsubscribe) this.unsubscribe();
+    if (this.listenerRefs.length) {
+      this.listenerRefs.forEach((ref) => ref.off());
+    }
+  }
+
   async componentDidMount() {
     this.loadRecords();
   }

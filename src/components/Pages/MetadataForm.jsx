@@ -163,6 +163,7 @@ class MetadataForm extends FormClassTemplate {
         editorContactsRef.on("value", (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
             v.contactID = k;
           });
           this.setState({ userContacts });
@@ -339,6 +340,7 @@ class MetadataForm extends FormClassTemplate {
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
+    // eslint-disable-next-line consistent-return
     return recordID;
   }
 
@@ -380,7 +382,7 @@ class MetadataForm extends FormClassTemplate {
       <Grid
         container
         direction="column"
-        justify="space-between"
+        justifyContent="space-between"
         alignItems="stretch"
         spacing={3}
       >
