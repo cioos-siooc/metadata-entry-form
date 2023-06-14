@@ -72,11 +72,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                 <QuestionText>
                   <I18n>
                     <En>Enter the URL for the resource</En>
-                    <Fr>
-                      Le lien peut être vers une ressource de données formelle
-                      sur un autre un référentiel ou un lien vers un lecteur en
-                      ligne personnel (par exemple Google Entraînement).
-                    </Fr>
+                    <Fr>Entrez l'URL de la ressource</Fr>
                   </I18n>
 
                   <RequiredMark passes={validator.isURL(dist.url)} />
@@ -92,9 +88,9 @@ const Resources = ({ updateResources, resources, disabled }) => {
                       <Fr>
                         <p>
                           Le lien peut être vers une ressource de données
-                          formelle sur un autre un référentiel ou un lien vers
-                          un lecteur en ligne personnel (par exemple Google
-                          Entraînement).
+                          formelle sur un autre dépôt de données ou un lien vers
+                          un disque personnel en ligne (par exemple Google
+                          Drive).
                         </p>
                       </Fr>
                     </I18n>
