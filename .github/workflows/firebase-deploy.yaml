@@ -29,7 +29,6 @@ jobs:
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           DATACITE_USER: ${{ secrets.DATACITE_USER }}
           DATACITE_PASS: ${{ secrets.DATACITE_PASS }}
-          HAKAI_DOI_PREFIX: ${{ secrets.HAKAI_DOI_PREFIX }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
