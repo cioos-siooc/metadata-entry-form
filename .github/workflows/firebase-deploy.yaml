@@ -15,10 +15,10 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
         working-directory: firebase-functions
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
         working-directory: firebase-functions/functions
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
