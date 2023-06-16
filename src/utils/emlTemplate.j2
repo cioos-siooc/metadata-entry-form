@@ -57,8 +57,8 @@
         <intellectualRights>
             <para>
                 This work is licensed under
-                <ulink url="{{ record.license.url }}">
-                    <citetitle>{{ record.license.title }}</citetitle>
+                <ulink url="{{ licenses[record.license]?.url }}">
+                    <citetitle>{{ licenses[record.license]?.title }}</citetitle>
                 </ulink>
                 .
             </para>
@@ -88,14 +88,14 @@
                 </rangeOfDates>
             </temporalCoverage>
         </coverage>
-    
+
     <maintenance>
       <description>
         <para/>
       </description>
       <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
     </maintenance>
-  
+
 
     {% for contact in record.contacts %}
     {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
