@@ -217,3 +217,57 @@ export const depthDirections = {
   heightPositive: { en: "Depth Positive", fr: "Profondeur positive" },
   depthPositive: { en: "Height Positive", fr: "Hauteur positive" },
 };
+
+export const metadataScopeCodes = {
+  dataset: {
+    title: {
+      en: "dataset",
+      fr: "Ensembles de données"
+    },
+    text: {
+      en: "information applies to the dataset",
+      fr: "l'information s'applique à l'ensemble de données"
+    },
+  },
+  document: {
+    title: {
+      en: "document",
+      fr: "document"
+    },
+    text: {
+      en: "information applies to a document",
+      fr: "l'information s'applique à un document"
+    },
+  },
+  model: {
+    title: {
+      en: "model",
+      fr: "modèle"
+    },
+    text: {
+      en: "information applies to a copy or imitation of an existing or hypothetical object",
+      fr: "l'information s'applique à une copie ou à une imitation d'un objet existant ou hypothétique"
+    },
+  },
+  service: {
+    title: {
+      en: "service",
+      fr: "service"
+    },
+    text: {
+      en: "information applies to a capability which a service provider entity makes available to a service user entity through a set of interfaces that define a behaviour, such as a use case",
+      fr: "les informations s'appliquent à une capacité qu'une entité fournisseur de services met à la disposition d'une entité utilisatrice de services par l'intermédiaire d'un ensemble d'interfaces qui définissent un comportement, tel qu'un cas d'utilisation"
+    },
+  },
+  software: {
+    title: {
+      title: {
+        en: "software", fr: "logiciel"
+      },
+      text: {
+        en: "information applies to a computer program or routine",
+        fr: "l'information s'applique à un programme informatique ou à une routine"
+      },
+    },
+  },
+};

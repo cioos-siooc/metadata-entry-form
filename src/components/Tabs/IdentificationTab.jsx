@@ -555,6 +555,34 @@ const IdentificationTab = ({
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
+            <En>What is the dataset type?</En>
+            <Fr>Quel est le type de jeu de données ?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "metadataScope")} />
+
+          <SupplementalText>
+            {Object.values(metadataScopeCodes).map(({ title, text }) => (
+              <div style={{ margin: "10px" }} key={title[language]}>
+                {`${title[language]}: ${text[language]}`}
+              </div>
+            ))}
+          </SupplementalText>
+        </QuestionText>
+        <SelectInput
+          value={record.metadataScope || ""}
+          onChange={handleUpdateRecord("metadataScope")}
+          options={Object.keys(metadataScopeCodes)}
+          optionLabels={Object.values(metadataScopeCodes).map(
+            ({ title }) => title[language]
+          )}
+          disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
+        />
+      </Paper>
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
             <En>What is the status of this dataset?</En>
             <Fr>Quel est l'état de ce jeu de données?</Fr>
           </I18n>

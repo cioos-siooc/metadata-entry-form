@@ -78,6 +78,14 @@ const validators = {
       fr: "DOI non valide",
     },
   },
+  metadataScope: {
+    tab: "dataID",
+    validation: (val) => val,
+    error: {
+      en: "Please select a dataset type",
+      fr: "Veuillez sélectionner un type d'ensemble de données",
+    },
+  },
   progress: {
     tab: "dataID",
     validation: (val) => val,
