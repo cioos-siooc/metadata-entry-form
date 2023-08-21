@@ -11,7 +11,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
-import { progressCodes } from "../../isoCodeLists";
+import { progressCodes, metadataScopeCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
 
 import firebase from "../../firebase";
@@ -560,13 +560,13 @@ const IdentificationTab = ({
           </I18n>
           <RequiredMark passes={validateField(record, "metadataScope")} />
 
-          <SupplementalText>
+          {/* <SupplementalText>
             {Object.values(metadataScopeCodes).map(({ title, text }) => (
               <div style={{ margin: "10px" }} key={title[language]}>
                 {`${title[language]}: ${text[language]}`}
               </div>
             ))}
-          </SupplementalText>
+          </SupplementalText> */}
         </QuestionText>
         <SelectInput
           value={record.metadataScope || ""}

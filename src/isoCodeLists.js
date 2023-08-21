@@ -261,13 +261,11 @@ export const metadataScopeCodes = {
   },
   software: {
     title: {
-      title: {
         en: "software", fr: "logiciel"
       },
       text: {
         en: "information applies to a computer program or routine",
         fr: "l'information s'applique à un programme informatique ou à une routine"
-      },
     },
   },
 };
