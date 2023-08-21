@@ -464,12 +464,14 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.platform[language]}
-                value="platform"
-              />
+                {record.metadataScope !== 'model' && (
+                  <Tab
+                    fullWidth
+                    classes={{ root: classes.tabRoot }}
+                    label={tabs.platform[language]}
+                    value="platform"
+                  />
+                )}
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
