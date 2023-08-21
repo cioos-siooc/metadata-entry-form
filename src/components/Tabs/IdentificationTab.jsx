@@ -560,13 +560,6 @@ const IdentificationTab = ({
           </I18n>
           <RequiredMark passes={validateField(record, "metadataScope")} />
 
-          {/* <SupplementalText>
-            {Object.values(metadataScopeCodes).map(({ title, text }) => (
-              <div style={{ margin: "10px" }} key={title[language]}>
-                {`${title[language]}: ${text[language]}`}
-              </div>
-            ))}
-          </SupplementalText> */}
         </QuestionText>
         <SelectInput
           value={record.metadataScope || ""}
