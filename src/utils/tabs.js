@@ -10,5 +10,6 @@ const tabs = {
     en: "Platform - instruments",
     fr: "Plateforme - instruments",
   },
+  lineage: { en: "Lineage", fr: "lignée" },
 };
 export default tabs;

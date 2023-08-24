@@ -37,6 +37,7 @@ const blankRecord = {
   filename: "",
   organization: "",
   timeFirstPublished: "",
+  history: [],
 };
 
 function getBlankRecord() {

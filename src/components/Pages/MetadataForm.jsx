@@ -470,6 +470,12 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.platform[language]}
                 value="platform"
               />
+                <Tab
+                  fullWidth
+                  classes={{ root: classes.tabRoot }}
+                  label={tabs.lineage[language]}
+                  value="lineage"
+                /> 
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
@@ -524,7 +530,9 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
         </TabPanel>
-
+          <TabPanel value={tabIndex} index="lineage">
+            <LineageTab {...tabProps} />
+          </TabPanel>
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
             {...tabProps}
