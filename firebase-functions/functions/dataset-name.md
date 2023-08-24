@@ -22,6 +22,13 @@
 - [ ] Abbreviations have been expanded upon at first mention
 - [ ] Abstract describes how, when, what, where, why of data collection and is limited to ~ 250 words
 
+#### DOI
+
+- [ ] A DOI has been drafted for this record
+- [ ] DOI has been updated via the form after review and changes to record
+- [ ] DOI has been manually edited on datacite fabrica
+- [ ] DOI status has been changed from Draft to Findable
+
 ### Spatial
 
 - [ ] Ensure that Depth or Height Positive is correctly selected
