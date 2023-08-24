@@ -28,6 +28,7 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import LineageTab from "../Tabs/LineageTab"
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";

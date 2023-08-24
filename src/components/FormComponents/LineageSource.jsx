@@ -13,6 +13,7 @@ import {
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
+import BilingualTextInput from "./BilingualTextInput";
 
 const emptySource = {
   description: "",
@@ -26,6 +27,7 @@ const LineageSource = ({
   sources = [],
   disabled,
   paperClass,
+  language,
 }) => {
   const [activeSource, setActiveSource] = useState(0);
 
@@ -73,8 +75,8 @@ const LineageSource = ({
                           }}
                         >
                           {i + 1}. {
-                            sourceItem.description.length <= 50 ?
-                              sourceItem.description : sourceItem.description.substring(0, 50) + '...'
+                            (sourceItem.description[language] ?? '').length <= 50 ?
+                              (sourceItem.description[language] ?? '') : sourceItem.description[language].substring(0, 50) + '...'
                           }
                         </Typography>
                       }
@@ -110,9 +112,8 @@ const LineageSource = ({
                     <En>Description</En>
                     <Fr>Description</Fr>
                   </I18n>
-                  <RequiredMark passes={source.description} />
-                  <TextField
-                    label="Description"
+                  <RequiredMark passes={source.description?.en || source.description?.fr} />
+                  <BilingualTextInput
                     value={source.description}
                     onChange={updateSourceField("description")}
                     fullWidth
@@ -121,8 +122,11 @@ const LineageSource = ({
                 </Grid>
 
                 <Grid item xs>
-                  <TextField
-                    label={<I18n en="Title" fr="Titre" />}
+                  <I18n>
+                    <En>Title</En>
+                    <Fr>Titre</Fr>
+                  </I18n>
+                  <BilingualTextInput
                     value={source.title}
                     onChange={updateSourceField("title")}
                     fullWidth

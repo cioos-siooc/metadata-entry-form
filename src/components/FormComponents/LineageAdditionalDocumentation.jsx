@@ -13,6 +13,7 @@ import {
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
+import BilingualTextInput from "./BilingualTextInput";
 
 const emptyDocumentation = {
   title: "",
@@ -25,6 +26,7 @@ const LineageAdditionalDocumentation = ({
   documentations = [],
   disabled,
   paperClass,
+  language,
 }) => {
   const [activeDocumentation, setActiveDocumentation] = useState(0);
 
@@ -75,8 +77,8 @@ const LineageAdditionalDocumentation = ({
                           }}
                         >
                           {i + 1}. {
-                            documentationItem.title.length <= 50 ?
-                              documentationItem.title : documentationItem.title.substring(0, 50) + '...'
+                            (documentationItem.title[language] ?? '').length <= 50 ?
+                              (documentationItem.title[language] ?? '') : documentationItem.title[language].substring(0, 50) + '...'
                           }
                         </Typography>
                       }
@@ -112,9 +114,8 @@ const LineageAdditionalDocumentation = ({
                     <En>Title</En>
                     <Fr>Titre</Fr>
                   </I18n>
-                  <RequiredMark passes={documentation.title} />
-                  <TextField
-                    label={<I18n en="Title" fr="Titre" />}
+                  <RequiredMark passes={documentation.title?.en || documentation.title?.fr} />
+                  <BilingualTextInput
                     value={documentation.title}
                     onChange={updateDocumentationField("title")}
                     fullWidth

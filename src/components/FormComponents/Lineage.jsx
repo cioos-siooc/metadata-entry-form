@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
-    TextField,
     Grid,
     Typography,
     Button,
@@ -17,6 +16,7 @@ import RequiredMark from "./RequiredMark";
 import AdditionalDocumentation from "./LineageAdditionalDocumentation"
 import LineageSource from "./LineageSource";
 import SelectInput from "./SelectInput";
+import BilingualTextInput from "./BilingualTextInput";
 
 const emptyLineage = {
     statment: "",
@@ -63,7 +63,11 @@ const Lineage = ({
 
     if (typeof history === "string") {
         const item = deepCopy(emptyLineage)
-        item['statment'] = history
+        if (history !== '') {
+            item['statment'] = {
+                en: history, fr: history
+            }
+        }
         history = [deepCopy(item)];
     }
 
@@ -72,10 +76,6 @@ const Lineage = ({
     // const typeLabel = <I18n en="Type" fr="Type" />;
     // const descriptionLabel = <I18n en="Description" fr="Description" />;
     const lineageStep = history.length > 0 && history[activeLineage];
-
-
-
-
 
     return (
 
@@ -104,8 +104,9 @@ const Lineage = ({
                                                     }}
                                                 >
                                                     {i + 1}. {
-                                                        lineageItem.statment.length <= 50 ?
-                                                            lineageItem.statment : lineageItem.statment.substring(0, 50) + '...'
+                                                        (lineageItem.statment[language] ?? '').length <= 50 ?
+                                                            (lineageItem.statment[language] ?? '') : lineageItem.statment[language].substring(0, 50) + '...'
+
                                                     }
                                                 </Typography>
                                             }
@@ -142,8 +143,7 @@ const Lineage = ({
                                         <Fr>Déclaration de lignée</Fr>
                                     </I18n>
                                     <RequiredMark passes={lineageStep.statment} />
-                                    <TextField
-                                        label="Statment"
+                                    <BilingualTextInput
                                         value={lineageStep.statment}
                                         onChange={updateLineageField("statment")}
                                         fullWidth
@@ -174,6 +174,7 @@ const Lineage = ({
                                         updateDocumentations={updateLineageSubField("additionalDocumentation")}
                                         disabled={disabled}
                                         paperClass={paperClass}
+                                        language={language}
                                     />
                                 </Grid>
                                 <Grid item xs>
@@ -182,6 +183,7 @@ const Lineage = ({
                                         updateSources={updateLineageSubField("source")}
                                         disabled={disabled}
                                         paperClass={paperClass}
+                                        language={language}
                                     />
                                 </Grid>
                                 <Grid item xs>
