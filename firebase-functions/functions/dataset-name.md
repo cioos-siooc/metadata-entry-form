@@ -15,7 +15,6 @@
 - [ ] Does not include acronyms – put these in the keywords
 - [ ] Does not include the word “dataset”
 - [ ] Time series datasets should include “time series” at the end of the title
-- [ ] Does not include the time period (this is covered in the temporal extents fields)
 
 #### Abstract
 
