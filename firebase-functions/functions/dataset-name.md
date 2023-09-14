@@ -19,7 +19,7 @@
 #### Abstract
 
 - [ ] Abbreviations have been expanded upon at first mention
-- [ ] Abstract describes how, when, what, where, why of data collection and is limited to ~ 250 words
+- [ ] Abstract describes how, when, what, where, why of data collection and is limited to no more than 500 words
 
 #### DOI
 
