@@ -36,7 +36,7 @@
 
 - [ ] ROR and ORCID(s) are included and linked properly where applicable
 - [ ] For datasets where DFO is a partner, ensure 'parent' ROR is added (https://ror.org/02qa1x782). DFO 'child' organizations (i.e. CHS) and their ROR are optional.
-- [ ] Include Hakai Institute as Publisher, Distributor, and Owner (if applicable) and include data@hakai.org as email
+- [ ] Include Hakai Institute as Publisher and include data@hakai.org as email
 - [ ] Make sure email address is provided if the role is 'Metadata Custodian' or 'Point of Contact' 
 - [ ] Add contact affiliation where known including ROR
 - [ ] Use institutional email adresses where possible for contacts
