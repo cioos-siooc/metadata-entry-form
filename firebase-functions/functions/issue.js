@@ -20,7 +20,7 @@ async function createIssue(title, url) {
     owner: "HakaiInstitute",
     repo: "metadata-review",
     title: `Dataset - ${title}`,
-    body: `## ${title}\n\n${url}\n\n${issueText}`,
+    body: `## ${title}\n\n<${url}>\n\n${issueText}`,
   };
 
   await octokit.request("POST /repos/{owner}/{repo}/issues", input);
