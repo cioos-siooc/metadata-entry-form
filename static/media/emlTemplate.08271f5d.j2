@@ -31,7 +31,7 @@
             <onlineUrl>{{ contact.orgURL }}</onlineUrl>
             <!-- <role> is used by associatedParty, but its a single item not a list -->
             <!-- <role></role> -->
-            <userId directory="http://orcid.org/">{{ contact.indOrcid }}</userId>
+            <userId directory="https://orcid.org/"  >{{ contact.indOrcid }}</userId>
             <!-- NOTE that we can have multiple roles per contact, just get the first -->
         </{{role}} >
         {% endif %}
@@ -57,8 +57,8 @@
         <intellectualRights>
             <para>
                 This work is licensed under
-                <ulink url="{{ record.license.url }}">
-                    <citetitle>{{ record.license.title }}</citetitle>
+                <ulink url="{{ licenses[record.license]?.url }}">
+                    <citetitle>{{ licenses[record.license]?.title }}</citetitle>
                 </ulink>
                 .
             </para>
@@ -77,7 +77,25 @@
                     <southBoundingCoordinate>{{ record.map.south }}</southBoundingCoordinate>
                 </boundingCoordinates>
             </geographicCoverage>
+            <temporalCoverage>
+                <rangeOfDates>
+                    <beginDate>
+                        <calendarDate>{{ record.dateStart }}</calendarDate>
+                    </beginDate>
+                    <endDate>
+                        <calendarDate>{{ record.dateEnd }}</calendarDate>
+                    </endDate>
+                </rangeOfDates>
+            </temporalCoverage>
         </coverage>
+
+    <maintenance>
+      <description>
+        <para/>
+      </description>
+      <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
+    </maintenance>
+
 
     {% for contact in record.contacts %}
     {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
@@ -101,7 +119,7 @@
         <!-- <role> is used by associatedParty, buts its a single item not a list -->
         <!-- <role></role> -->
 
-        <userId directory="http://orcid.org">{{contact.indOrcid}}</userId>
+        <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
     </contact>
     {% endif %}
     {% endfor %}
