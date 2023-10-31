@@ -4,7 +4,7 @@ export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
 
 // See https://stackoverflow.com/a/48524047/7416701
-export const doiRegexp = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
 
 const validateLatitude = (num) => num >= -90 && num <= 90;
 
