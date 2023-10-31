@@ -4,6 +4,20 @@ export function deepCopy(obj) {
 export function deepEquals(obj1, obj2) {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
+
+/* recursively convert objects with the first key == 0 to arrays */
+function objectToArray(obj) {
+  if (typeof obj === "object" && Object.keys(obj)[0] === "0") {
+    obj = Object.entries(obj).map(([, v]) => {
+      Object.keys(v).forEach((key) => {
+        v[key] = objectToArray(v[key]);
+      })
+      return v
+    })
+  }
+  return obj
+}
+
 /*
 Convert firebase to javascript, mostly just used to get real array elements
 */
@@ -11,9 +25,7 @@ export function firebaseToJSObject(input) {
   if (!input) return null;
   const out = deepCopy(input);
   Object.keys(out).forEach((key) => {
-    if (typeof out[key] === "object" && Object.keys(out[key])[0] === "0") {
-      out[key] = Object.entries(out[key]).map(([, v]) => v);
-    }
+    out[key] = objectToArray(out[key])
 
     //  special case
     if (input.keywords)
