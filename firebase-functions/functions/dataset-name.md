@@ -15,12 +15,18 @@
 - [ ] Does not include acronyms – put these in the keywords
 - [ ] Does not include the word “dataset”
 - [ ] Time series datasets should include “time series” at the end of the title
-- [ ] Does not include the time period (this is covered in the temporal extents fields)
 
 #### Abstract
 
 - [ ] Abbreviations have been expanded upon at first mention
-- [ ] Abstract describes how, when, what, where, why of data collection and is limited to ~ 250 words
+- [ ] Abstract describes how, when, what, where, why of data collection and is limited to no more than 500 words
+
+#### DOI
+
+- [ ] A DOI has been drafted for this record
+- [ ] DOI has been updated via the form after review and changes to record
+- [ ] DOI has been manually edited on datacite fabrica
+- [ ] DOI status has been changed from Draft to Findable
 
 ### Spatial
 
@@ -30,7 +36,7 @@
 
 - [ ] ROR and ORCID(s) are included and linked properly where applicable
 - [ ] For datasets where DFO is a partner, ensure 'parent' ROR is added (https://ror.org/02qa1x782). DFO 'child' organizations (i.e. CHS) and their ROR are optional.
-- [ ] Include Hakai Institute as Publisher, Distributor, and Owner (if applicable) and include data@hakai.org as email
+- [ ] Include Hakai Institute as Publisher and include data@hakai.org as email
 - [ ] Make sure email address is provided if the role is 'Metadata Custodian' or 'Point of Contact' 
 - [ ] Add contact affiliation where known including ROR
 - [ ] Use institutional email adresses where possible for contacts
