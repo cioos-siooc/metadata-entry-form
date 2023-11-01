@@ -219,6 +219,10 @@ function recordToDataCite(metadata) {
       mappedDataCiteObject.data.attributes.geoLocations = geoLocations;
     }
 
+    // Auto-populate Datacite Resource type general  as 'dataset'
+    mappedDataCiteObject.data.attributes.types = {
+      resourceTypeGeneral: "Dataset",
+  };
     return mappedDataCiteObject;
   }
 
