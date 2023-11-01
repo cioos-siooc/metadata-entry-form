@@ -8,18 +8,20 @@ function recordToDataCite(metadata) {
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
       let creator;
   
-      if (contact.inCitation) {
+      if (contact.inCitation && !contact.role.includes("publisher")) {
         const {
           indName,
           orgName,
           lastName,
           givenNames,
+          lastName,
+          orgName,
           indOrcid,
           orgRor,
         } = contact;
         
-        // Create an individual creator object if indName is present
-        if (indName) {
+        // Create an individual creator object with names
+        if (givenNames) {
           creator = {
             name: `${lastName}, ${givenNames}`,
             nameType: "Personal",
