@@ -10,7 +10,13 @@ function objectToArray(obj) {
   if (typeof obj === "object" && Object.keys(obj)[0] === "0") {
     obj = Object.entries(obj).map(([, v]) => {
       Object.keys(v).forEach((key) => {
-        v[key] = objectToArray(v[key]);
+        try {
+          v[key] = objectToArray(v[key]);
+        }
+        catch (error) {
+          if (error instanceof TypeError)
+            return;
+        }
       })
       return v
     })
