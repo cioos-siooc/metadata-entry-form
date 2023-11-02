@@ -159,7 +159,7 @@ function recordToDataCite(metadata, language, region) {
       data: {
         type: "dois",
         attributes: {
-          prefix: regions.hakai.datacitePrefix,
+          prefix: regions[region].datacitePrefix,
           creators,
           // Initialize an empty array for titles
           titles: [],
