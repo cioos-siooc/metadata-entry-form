@@ -2,7 +2,7 @@ import licenses from "./licenses";
 import regions from "../regions";
 
 
-function recordToDataCite(metadata) {
+function recordToDataCite(metadata, language, region) {
 
     // Reduce contacts to a list of creators
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
@@ -224,7 +224,10 @@ function recordToDataCite(metadata) {
     // Auto-populate Datacite Resource type general  as 'dataset'
     mappedDataCiteObject.data.attributes.types = {
       resourceTypeGeneral: "Dataset",
-  };
+    };
+
+    // Generate URL element
+    mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
     return mappedDataCiteObject;
   }
 
