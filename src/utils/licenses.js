@@ -76,6 +76,11 @@ const licenses = {
     url: "https://www.apache.org/licenses/LICENSE-2.0",
     code: "Apache-2.0",
   },
+  "No License": {
+    title: {en: "No License", fr: "Aucune licence"},
+    url: "https://choosealicense.com/no-permission/",
+    code: "None",
+  },
 };
 
 export default licenses;
