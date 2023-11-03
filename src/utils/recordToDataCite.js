@@ -213,7 +213,7 @@ function recordToDataCite(metadata, language, region) {
 
     // Generate URL element
     mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
-    
+
     return mappedDataCiteObject;
   }
 
