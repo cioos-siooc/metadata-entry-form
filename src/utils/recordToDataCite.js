@@ -4,6 +4,8 @@ import regions from "../regions";
 
 function recordToDataCite(metadata, language, region) {
 
+  console.log(JSON.stringify(metadata));
+
     // Reduce contacts to a list of creators
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
       let creator;
@@ -213,6 +215,8 @@ function recordToDataCite(metadata, language, region) {
 
     // Generate URL element
     mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
+
+    console.log(JSON.stringify(mappedDataCiteObject))
 
     return mappedDataCiteObject;
   }
