@@ -1,0 +1,30 @@
+version: "3.3"
+
+services:
+
+  # -------------------------------------
+  # Firebase Eumulator
+  # -------------------------------------
+
+  emulator:
+    image: cioos/firebase-emulator:latest
+    build: ./firebase-functions/
+    volumes:
+      - ./firebase-functions/firebase.json:/app/firebase.json:rw
+      - ./firebase-functions/firestore.rules:/app/firestore.rules
+      - ./firebase-functions/firestore.indexes.json:/app/firestore.indexes.json
+      - ./firebase-functions/functions:/app/functions
+      - ./firebase-functions/emulator_backup:/app/backup
+    environment:
+      # FIREBASE_TOKEN: AIzaSyAdlELZS5Lbea5NquotMT8amwO-Lc_7ogc
+      FIREBASE_PROJECT: cioos-metadata-form
+    ports:
+      - 5002:5002
+      - 9001:9001
+      - 8081:8081
+      - 4000:4000
+      - 4400:4400
+      - 4500:4500
+      - 9299:9299
+      - 9099:9099
+      - 9150:9150
