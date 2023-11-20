@@ -130,7 +130,7 @@ const IdentificationTab = ({
     setLoadingDoiUpdate(true);
   
     try {
-      const mappedDataCiteObject = recordToDataCite(record);
+      const mappedDataCiteObject = recordToDataCite(record, language, region);
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
