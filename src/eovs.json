@@ -343,6 +343,16 @@
       "definition FR": "Le stress océanique est lié à la trainée de la basse atmosphère et à la dynamique de surface de l'océan. L'ampleur du stress influence l'échange d'énergie entre l'océan et l'atmosphère (évaporation, oxygène, dioxyde de carbon et gaz autres).",
       "icon": "sea-surface-stress.svg",
       "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17463"
+    },
+    {
+      "category": "Physical",
+      "value": "oceanBottomPressure",
+      "label EN": "Ocean Bottom Pressure",
+      "label FR": "Pression au fond de l'océan",
+      "definition EN": "Ocean bottom pressure is the total pressure resulting from the weight or mass of the column of seawater and the overlaying atmosphere.",
+      "definition FR": "La pression au fond de l'océan est la pression totale résultant du poids ou de la masse de la colonne d'eau de mer et de l'atmosphère qui la recouvre.",
+      "icon": "ocean-bottom-pressure.svg",
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=32488"
     }
   ]
 }
