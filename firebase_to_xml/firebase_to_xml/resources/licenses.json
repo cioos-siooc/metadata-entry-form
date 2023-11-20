@@ -90,5 +90,13 @@
     },
     "url": "https://www.apache.org/licenses/LICENSE-2.0",
     "code": "Apache-2.0"
+  },
+  "ca-eccc-odl": {
+    "title": {
+      "en": "Environment and Climate Change Canada Data Servers End-use Licence",
+      "fr": "Licence d’utilisation finale pour les serveurs de données d’Environnement et Changement climatique Canada"
+    },
+    "url": "https://eccc-msc.github.io/open-data/licence/readme_en/",
+    "code": "ca-eccc-odl"
   }
 }
