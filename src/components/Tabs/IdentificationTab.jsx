@@ -128,7 +128,7 @@ const IdentificationTab = ({
 
   async function handleUpdateDraftDOI() {
     setLoadingDoiUpdate(true);
-  
+
     try {
       const mappedDataCiteObject = recordToDataCite(record, language, region);
       delete mappedDataCiteObject.data.type;
@@ -141,7 +141,7 @@ const IdentificationTab = ({
 
       const response = await updateDraftDoi( dataObject );
       const statusCode = response.data.status;
-  
+
       if (statusCode === 200) {
         setDoiUpdateFlag(true);
       } else {
@@ -701,7 +701,7 @@ const IdentificationTab = ({
             <En>What is the DOI for this dataset? Eg,</En>
             <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
           </I18n>{" "}
-          10.0000/0000
+          https://doi.org/10.0000/0000
           {showGenerateDoi && (
             <SupplementalText>
               <I18n>
@@ -738,8 +738,8 @@ const IdentificationTab = ({
           </Button>
         )}
         {showUpdateDoi && (
-          <Button 
-            onClick={handleUpdateDraftDOI} 
+          <Button
+            onClick={handleUpdateDraftDOI}
             style={{ display: 'inline' }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -755,8 +755,8 @@ const IdentificationTab = ({
           </Button>
         )}
       {showDeleteDoi && (
-        <Button 
-          onClick={handleDeleteDOI} 
+        <Button
+          onClick={handleDeleteDOI}
           style={{ display: "inline" }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
