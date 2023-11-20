@@ -82,7 +82,7 @@ const IdentificationTab = ({
     setLoadingDoi(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record);
+      const mappedDataCiteObject = recordToDataCite(record, language, region);
       await createDraftDoi(mappedDataCiteObject)
         .then((response) => {
           return response.data.data.attributes;
