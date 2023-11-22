@@ -23,7 +23,7 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import recordToDataCite from "../../utils/recordToDataCite";
-import { validateField, doiRegexp } from "../../utils/validate";
+import { validateField, doiRegexp, validateDOI } from "../../utils/validate";
 
 import {
   QuestionText,
@@ -44,9 +44,8 @@ const IdentificationTab = ({
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
-  const doiIsValid = Boolean(
-    !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
-  );
+  const doiIsValid =validateDOI(record.datasetIdentifier)
+  
   const languageUpperCase = language.toUpperCase();
   const [doiGenerated, setDoiGenerated] = useState(false);
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
