@@ -2,29 +2,35 @@ import licenses from "./licenses";
 import regions from "../regions";
 
 
-function recordToDataCite(metadata) {
+function recordToDataCite(metadata, language, region) {
 
     // Reduce contacts to a list of creators
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
       let creator;
   
-      if (contact.inCitation) {
+      if (contact.inCitation && !contact.role.includes("publisher")) {
         const {
-          indName,
-          orgName,
-          lastName,
           givenNames,
+          lastName,
+          orgName,
           indOrcid,
           orgRor,
         } = contact;
         
-        // Create an individual creator object if indName is present
-        if (indName) {
+        // Create an individual creator object with names
+        if (givenNames) {
           creator = {
             name: `${lastName}, ${givenNames}`,
             nameType: "Personal",
             givenName: givenNames,
             familyName: lastName,
+            // Add affiliation for individual if organization details are provided
+            affiliation: orgName ? [{
+              name: orgName,
+              schemeUri: "https://ror.org",
+              affiliationIdentifier: orgRor,
+              affiliationIdentifierScheme: "ROR",
+            }] : [],
           };
 
           // Add nameIdentifiers for individual with an ORCID
@@ -34,25 +40,6 @@ function recordToDataCite(metadata) {
                   schemeUri: "https://orcid.org",
                   nameIdentifier: indOrcid,
                   nameIdentifierScheme: "ORCID",
-                },
-              ];
-            }
-          }
-        
-        // Create an organizational creator object if orgName is present
-        if (orgName) {
-          creator = {
-            name: orgName,
-            nameType: "Organizational",
-          };
-
-          // Add nameIdentifiers for organization with a ROR
-          if (orgRor) {
-            creator.nameIdentifiers = [
-                {
-                  schemeUri: "https://ror.org",
-                  nameIdentifier: orgRor,
-                  nameIdentifierScheme: "ROR",
                 },
               ];
             }
@@ -157,7 +144,7 @@ function recordToDataCite(metadata) {
       data: {
         type: "dois",
         attributes: {
-          prefix: regions.hakai.datacitePrefix,
+          prefix: regions[region].datacitePrefix,
           creators,
           // Initialize an empty array for titles
           titles: [],
@@ -218,6 +205,14 @@ function recordToDataCite(metadata) {
     if (metadata.map) {
       mappedDataCiteObject.data.attributes.geoLocations = geoLocations;
     }
+
+    // Auto-populate Datacite Resource type general  as 'dataset'
+    mappedDataCiteObject.data.attributes.types = {
+      resourceTypeGeneral: "Dataset",
+    };
+
+    // Generate URL element
+    mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
 
     return mappedDataCiteObject;
   }
