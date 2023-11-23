@@ -28,6 +28,7 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import BiologicalTab from "../Tabs/BiologicalTab";
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
@@ -470,6 +471,12 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.platform[language]}
                 value="platform"
               />
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label={tabs.biological[language]}
+                value="biological"
+              />
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
@@ -523,6 +530,9 @@ class MetadataForm extends FormClassTemplate {
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
+        </TabPanel>
+        <TabPanel value={tabIndex} index="biological">
+          <BiologicalTab {...tabProps} />
         </TabPanel>
 
         <TabPanel value={tabIndex} index="submit">
