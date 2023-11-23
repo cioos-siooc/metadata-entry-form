@@ -46,9 +46,7 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
     <div>
       {resources.map((dist = deepCopy(emptyResource), i) => {
         function urlIsValid(url) {
-          return (e) => {
-            !url || validateURL(url)
-          };
+          return !url || validateURL(url);
         }
         function handleResourceChange(key) {
           return (e) => {
@@ -67,10 +65,6 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
             switch (true) {
               case urlIsValid(newValue[i]['code']) && /^http.?:\/\/doi\.org\//i.test(s):
                 newValue[i]['authority'] = 'DOI'
-                console.log('MATCH DOI')
-                break;
-              case urlIsValid(newValue[i]['code']) && /^http.?:\/\/ca\.cioos/i.test(s):
-                newValue[i]['authority'] = 'ca.cioos'
                 console.log('MATCH DOI')
                 break;
               case urlIsValid(newValue[i]['code']):
