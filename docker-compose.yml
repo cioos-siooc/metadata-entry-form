@@ -19,12 +19,12 @@ services:
       # FIREBASE_TOKEN: AIzaSyAdlELZS5Lbea5NquotMT8amwO-Lc_7ogc
       FIREBASE_PROJECT: cioos-metadata-form
     ports:
-      - 5002:5002
-      - 9001:9001
+      - 5002:5002 # Functions emulator
+      - 9001:9001 # Realtime Database
       - 8081:8081
-      - 4000:4000
+      - 4000:4000 # UI
       - 4400:4400
       - 4500:4500
       - 9299:9299
-      - 9099:9099
+      - 9099:9099 # Authentication emulator
       - 9150:9150
