@@ -74,7 +74,16 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     const drawnItems = editableFG.leafletElement._layers;
     clearExtraLayers(drawnItems);
 
-    const newData = { ...mapData, polygon: e.target.value };
+    const bounds = L.latLngBounds(parsePolyString(e.target.value))
+    let { lat: north, lng: east } = bounds.getNorthEast();
+    let { lat: south, lng: west } = bounds.getSouthWest();
+
+    north = limitDecimals(north);
+    south = limitDecimals(south);
+    east = limitDecimals(east);
+    west = limitDecimals(west);
+
+    const newData = { ...mapData, polygon: e.target.value, north, south, east, west };
     updateMap(newData);
   }
 
@@ -125,22 +134,33 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     clearExtraLayers(drawnItems);
 
     switch (layerType) {
-      case "polygon":
+      case "polygon": {
         const points = layer.getLatLngs()[0];
         const polygonStrings = points.map(
           ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
         );
         const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
-        updateMap({ polygon });
+        const polybounds = layer.getBounds();
+
+        let { lat: north, lng: east } = polybounds.getNorthEast();
+        let { lat: south, lng: west } = polybounds.getSouthWest();
+
+        north = limitDecimals(north);
+        south = limitDecimals(south);
+        east = limitDecimals(east);
+        west = limitDecimals(west);
+
+        updateMap({ polygon, north, south, east, west });
+      }
         break;
 
       default: // Assume rectangle
-      case "rectangle":
+      case "rectangle": {
         const bounds = layer.getBounds();
 
-        let { lat: north, lng: east } = bounds.getNorthEast().wrap();
-        let { lat: south, lng: west } = bounds.getSouthWest().wrap();
+        let { lat: north, lng: east } = bounds.getNorthEast();
+        let { lat: south, lng: west } = bounds.getSouthWest();
 
         north = limitDecimals(north);
         south = limitDecimals(south);
@@ -149,6 +169,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
         const newValue = { north, south, east, west };
         updateMap(newValue);
+      }
     }
   };
 
@@ -217,6 +238,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
                 [mapData.north, mapData.east],
                 [mapData.south, mapData.west],
               ]}
+              color={hasPolygon() && hasBoundingBox() ? "rgb(255,215,0)" : "blue"}
             />
           )}
         </FeatureGroup>
