@@ -217,3 +217,194 @@ export const depthDirections = {
   heightPositive: { en: "Depth Positive", fr: "Profondeur positive" },
   depthPositive: { en: "Height Positive", fr: "Hauteur positive" },
 };
+
+export const associationTypeCode = {
+  collectiveTitle: {
+    title: { en: "Collective Title", fr: "Titre Collectif" },
+    text: {
+      en: "Common title for a collection of resources",
+      fr: "Titre commun pour une collection de ressources",
+    },
+  },
+  crossReference: {
+    title: { en: "Cross Reference", fr: "Références Croisées" },
+    text: {
+      en: "Reference from one dataset to another.	Use to identify related documents or related resources",
+      fr: "Référence d'un jeu de données à un autre. À utiliser pour identifier des documents ou des ressources connexes",
+    },
+  },
+  dependency: {
+    title: { en: "Dependency", fr: "Dépendance" },
+    text: {
+      en: "Associated through a dependency",
+      fr: "Associé par une dépendance",
+    },
+  },
+  isComposedOf: {
+    title: {
+      en: "Is Composed Of", fr: "Est composé de"
+    },
+    text: {
+      en: "Reference to resources that are parts of this resource",
+      fr: "Référence aux ressources qui font partie de cette ressource",
+    },
+  },
+  largerWorkCitation: {
+    title: {
+      en: "Larger Work Citation", fr: "Citation de travail plus grande"
+    },
+    text: {
+      en: "Reference to a master dataset of which this one is a part",
+      fr: "Référence à un jeu de données maître dont celui- ci fait partie",
+    },
+  },
+  partOfSeamlessDatabase: {
+    title: { en: "Part Of Seamless Database", fr: "Partie d'une base de données transparente" },
+    text: {
+      en: "Part of the same structured set of data held in a computer",
+      fr: "Fait partie du même ensemble structuré de données contenues dans un ordinateur",
+    },
+  },
+  revisionOf: {
+    title: { en: "Revision Of", fr: "Révision de" },
+    text: {
+      en: "Resource is a revision of associated resource",
+      fr: "La ressource est une révision de la ressource associée",
+    },
+  },
+  series: {
+    title: { en: "Series", fr: "Série" },
+    text: {
+      en: "Associated through a common heritage such as produced to a common product specification",
+      fr: "Associé à travers un héritage commun tel que produit selon une spécification de produit commune",
+    },
+  },
+  stereoMate: {
+    title: { en: "Stereo Mate", fr: "Compagnon Stéréo" },
+    text: {
+      en: "Part of a set of imagery that when used together, provides three-dimensional images",
+      fr: "Fait partie d'un ensemble d'images qui, lorsqu'elles sont utilisées ensemble, fournissent des images en trois dimensions",
+    },
+  },
+
+};
+
+
+
+export const initiativeTypeCode = {
+  campaign: {
+    title: { en: "campaign", fr: "" },
+    text: {
+      en: "series of organized planned actions", fr: "",
+    },
+  },
+  collection: {
+    title: { en: "collection", fr: "" },
+    text: {
+      en: "accumulation of datasets assembled for a specific purpose", fr: "",
+    },
+  },
+  exercise: {
+    title: { en: "exercise", fr: "" },
+    text: {
+      en: "specific performance of a function or group of functions", fr: "",
+    },
+  },
+  experiment: {
+    title: { en: "experiment", fr: "" },
+    text: {
+      en: "process designed to find if something is effective or valid", fr: "",
+    },
+  },
+  investigation: {
+    title: { en: "investigation", fr: "" },
+    text: {
+      en: "search or systematic inquiry", fr: "",
+    },
+  },
+  mission: {
+    title: { en: "mission", fr: "" },
+    text: {
+      en: "specific operation of a data collection system", fr: "",
+    },
+  },
+  operation: {
+    title: { en: "operation", fr: "" },
+    text: {
+      en: "action that is part of a series of actions", fr: "",
+    },
+  },
+  platform: {
+    title: { en: "platform", fr: "" },
+    text: {
+      en: "vehicle or other support base that holds a sensor", fr: "",
+    },
+  },
+  process: {
+    title: { en: "process", fr: "" },
+    text: {
+      en: "method of doing something involving a number of steps", fr: "",
+    },
+  },
+  program: {
+    title: { en: "program", fr: "" },
+    text: {
+      en: "specific planned activity", fr: "",
+    },
+  },
+  project: {
+    title: { en: "project", fr: "" },
+    text: {
+      en: "organized undertaking, research, or development", fr: "",
+    },
+  },
+  sensor: {
+    title: { en: "sensor", fr: "" },
+    text: {
+      en: "device or piece of equipment which detects or records", fr: "",
+    },
+  },
+  study: {
+    title: { en: "study", fr: "" },
+    text: {
+      en: "examination or investigation", fr: "",
+    },
+  },
+  task: {
+    title: { en: "task", fr: "" },
+    text: {
+      en: "piece of work", fr: "",
+    },
+  },
+  trial: {
+    title: { en: "trial", fr: "" },
+    text: {
+      en: "process of testing to discover or demonstrate somethin", fr: "",
+    },
+  },
+
+};
+
+export const identifierType = [
+  "ARK",
+  "arXiv",
+  "bibcode",
+  "ca.cioos",
+  "DOI",
+  "EAN13",
+  "EISSN",
+  "Handle",
+  "IGSN",
+  "ISBN",
+  "ISSN",
+  "ISTC",
+  "LISSN",
+  "LSID",
+  "PMID",
+  "PURL",
+  "UPC",
+  "URL",
+  "URN",
+  "w3id",
+]
+
