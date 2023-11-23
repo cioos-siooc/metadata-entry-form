@@ -63,13 +63,7 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
             const newValue = [...resources];
             newValue[i][key] = e.target.value;
 
-            if (urlIsValid(newValue[i]['code']) && !newValue[i]['urls']) {
-              console.log('Code is Valid URL')
-              newValue[i]['url'] = newValue[i]['code']
-            }
-
             let s = newValue[i]['code']
-
             switch (true) {
               case urlIsValid(newValue[i]['code']) && /^http.?:\/\/doi\.org\//i.test(s):
                 newValue[i]['authority'] = 'DOI'
@@ -87,10 +81,7 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                 newValue[i]['authority'] = ''
                 break;
             }
-
             updateResources(newValue);
-            console.log(newValue[i])
-
           };
         }
         return (
@@ -169,20 +160,6 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                   />}
                 />
               </Grid>
-
-              <Grid item xs>
-                <TextField
-                  label={<I18n en="url" fr="url" />}
-                  value={dist.url}
-                  onChange={handleIdentifierChange("url")}
-                  fullWidth
-                  disabled={disabled}
-                />
-              </Grid>
-
-
-
-
               <Grid item xs>
                 <QuestionText>
                   <I18n>
