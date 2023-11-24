@@ -145,7 +145,7 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                   options={identifierType}
                   optionLabels={identifierType}
                   disabled={disabled}
-                  label={< I18n en="Identifier Iype" fr="Type d'identifiant" />}
+                  label={< I18n en="Identifier Type" fr="Type d'identifiant" />}
                   fullWidth={false}
                 />
               </Grid>
