@@ -6,11 +6,10 @@ import {
   ArrowDownwardSharp,
 } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import validator from "validator";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
-import { associationTypeCode, initiativeTypeCode, identifierType } from "../../isoCodeLists";
+import { associationTypeCode, identifierType } from "../../isoCodeLists";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
@@ -22,7 +21,7 @@ const validateURL = (url) => !url || validator.isURL(url);
 
 const AssociatedResources = ({ updateResources, resources, disabled }) => {
 
-  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", initiative_type: "", url: "" };
+  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", url: "" };
   const { language } = useParams();
 
   function addResource() {
@@ -140,18 +139,14 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                   <RequiredMark passes={dist.authority} />
                 </QuestionText>
 
-                <Autocomplete
-                  freeSolo
-                  options={identifierType}
+                <SelectInput
                   value={dist.authority}
-                  renderInput={(params) => <TextField
-                    {...params}
-                    label={< I18n en="Authority" fr="Autorité" />}
-
-                    onChange={handleResourceChange("authority")}
-                    fullWidth
-                    disabled={disabled}
-                  />}
+                  onChange={handleResourceChange("authority")}
+                  options={identifierType}
+                  optionLabels={identifierType}
+                  disabled={disabled}
+                  label={< I18n en="Identifier Iype" fr="Type d'identifiant" />}
+                  fullWidth={false}
                 />
               </Grid>
               <Grid item xs>
@@ -162,6 +157,30 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                       Quel est le type de relation?</Fr>
                   </I18n>
                   <RequiredMark passes={dist.association_type} />
+                  <SupplementalText>
+                    <I18n>
+                      <En>
+                        <p>
+                          Specify the relationship between this record and another. The relationship is from the perspective of What the other record is to this one. for example:
+                        </p>
+                        <ul>
+                          <li>Use the 'crossReference' code value to identify related datasets.</li>
+                          <li>Use 'largerWorkCitation' code value to identify a larger program or operation of which this record is a part.</li>
+                        </ul>
+
+                      </En>
+                      <Fr>
+                        <p>
+                          Spécifiez la relation entre cet enregistrement et un autre. La relation est du point de vue de ce qu'est l'autre disque par rapport à celui-ci. Par exemple:
+                        </p>
+                        <ul>
+                          <li>Utilisez la valeur du code « crossReference » pour identifier les ensembles de données associés.</li>
+                          <li>Utilisez la valeur de code « largerWorkCitation » pour identifier un programme ou une opération plus vaste dont cet enregistrement fait partie.</li>
+                        </ul>
+
+                      </Fr>
+                    </I18n>
+                  </SupplementalText>
                 </QuestionText>
                 <SelectInput
                   value={dist.association_type}
@@ -175,29 +194,6 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                   )}
                   disabled={disabled}
                   label={<I18n en="Association Type" fr="Type d'association" />}
-                  fullWidth={false}
-                />
-              </Grid>
-              <Grid item xs>
-                <QuestionText>
-                  <I18n>
-                    <En>What is the initiative type?</En>
-                    <Fr>
-                      Quel est le type d'initiative ?</Fr>
-                  </I18n>
-                </QuestionText>
-                <SelectInput
-                  value={dist.initiative_type}
-                  onChange={handleResourceChange("initiative_type")}
-                  options={Object.keys(initiativeTypeCode)}
-                  optionLabels={Object.values(initiativeTypeCode).map(
-                    ({ title }) => title[language]
-                  )}
-                  optionTooltips={Object.values(initiativeTypeCode).map(
-                    ({ text }) => text[language]
-                  )}
-                  disabled={disabled}
-                  label={<I18n en="Initiative Type" fr="Type d'initiative" />}
                   fullWidth={false}
                 />
               </Grid>
