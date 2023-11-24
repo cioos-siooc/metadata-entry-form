@@ -189,6 +189,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     mapData.north || mapData.south || mapData.east || mapData.west
   );
 
+  const polyIsDrawn = Boolean(
+    mapData.polygon
+  );
+
   const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
 
   return (
@@ -232,13 +236,13 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
 
-          {hasBoundingBox() && (
+          // do not draw the bounding box if we are creating a polygon
+          {hasBoundingBox() && !hasPolygon() && (
             <LeafletRectangle
               bounds={[
                 [mapData.north, mapData.east],
                 [mapData.south, mapData.west],
               ]}
-              color={hasPolygon() && hasBoundingBox() ? "rgb(255,215,0)" : "blue"}
             />
           )}
         </FeatureGroup>
@@ -249,7 +253,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Bounding Box Coordinates</En>
           <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
         </I18n>
-        {(bboxIsDrawn || fieldsAreEmpty) && (
+        {((bboxIsDrawn && !polyIsDrawn) || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
 
@@ -319,7 +323,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Polygon coordinates</En>
           <Fr>Coordonnées du/des polygone(s)</Fr>
         </I18n>
-        {(!bboxIsDrawn || fieldsAreEmpty) && (
+        {(polyIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
         <SupplementalText>
@@ -340,7 +344,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         onChange={handleChangePoly}
         type="text"
         fullWidth
-        disabled={disabled || bboxIsDrawn}
+        disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
       />
     </div>
   );
