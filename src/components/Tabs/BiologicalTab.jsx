@@ -1,25 +1,19 @@
-import React, { useContext, useState } from "react";
-import {
-    Paper,
-    TextField,
-    Grid,
-    IconButton,
-    Tooltip,
-    Button,
-} from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import { useParams } from "react-router-dom";
-import { OpenInNew, Update } from "@material-ui/icons";
+import React from "react";
+import { Paper } from "@material-ui/core";
+// import CircularProgress from "@material-ui/core/CircularProgress";
+// import { useParams } from "react-router-dom";
+// import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
-import { progressCodes } from "../../isoCodeLists";
+// import { progressCodes } from "../../isoCodeLists";
 
-import firebase from "../../firebase";
+// import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
-import CheckBoxList from "../FormComponents/CheckBoxList";
-import DateInput from "../FormComponents/DateInput";
-import RequiredMark from "../FormComponents/RequiredMark";
-import SelectInput from "../FormComponents/SelectInput";
-import { validateField, doiRegexp } from "../../utils/validate";
+import MethodSteps from "../FormComponents/MethodSteps";
+// import CheckBoxList from "../FormComponents/CheckBoxList";
+// import DateInput from "../FormComponents/DateInput";
+// import RequiredMark from "../FormComponents/RequiredMark";
+// import SelectInput from "../FormComponents/SelectInput";
+// import { validateField } from "../../utils/validate";
 
 import {
     QuestionText,
@@ -27,16 +21,12 @@ import {
     paperClass,
 } from "../FormComponents/QuestionStyles";
 
-import regions from "../../regions";
-import { UserContext } from "../../providers/UserProvider";
+// import regions from "../../regions";
+// import { UserContext } from "../../providers/UserProvider";
 
-const BiologicalTab = ({
-    disabled,
-    record,
-    handleUpdateRecord,
-}) => {
-    const { language, region, userID } = useParams();
-
+const BiologicalTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
+    const updateMethods = updateRecord("biological");
+    
     return (
 
         // Additional fields that need to be added to the form as they are required in the IPT:
@@ -84,12 +74,12 @@ const BiologicalTab = ({
                     <SupplementalText>
                         <I18n>
                             <En>
-                                A free text description of the geographic area 
+                                A free text description of the geographic area
                                 in which the data was collected.
                             </En>
                             <Fr>
-                                Une description textuelle libre de la région 
-                                géographique dans laquelle les données ont été 
+                                Une description textuelle libre de la région
+                                géographique dans laquelle les données ont été
                                 recueillies.
                             </Fr>
                         </I18n>
@@ -111,7 +101,7 @@ const BiologicalTab = ({
                             What is the sampling procedure for this dataset?
                         </En>
                         <Fr>
-                            Quelle est la procédure d'échantillonnage pour cet 
+                            Quelle est la procédure d'échantillonnage pour cet
                             ensemble de données?
                         </Fr>
                     </I18n>
@@ -119,16 +109,16 @@ const BiologicalTab = ({
                     <SupplementalText>
                         <I18n>
                             <En>
-                                This field allows for a text-based / human 
-                                readable description of the sampling procedures 
-                                used in the research project. The content of 
-                                this element would be similar to a description 
-                                of sampling procedures found in the methods 
+                                This field allows for a text-based / human
+                                readable description of the sampling procedures
+                                used in the research project. The content of
+                                this element would be similar to a description
+                                of sampling procedures found in the methods
                                 section of a journal article.
                             </En>
                             <Fr>
-                                Une description textuelle libre de la région 
-                                géographique dans laquelle les données ont 
+                                Une description textuelle libre de la région
+                                géographique dans laquelle les données ont
                                 été recueillies.
                             </Fr>
                         </I18n>
@@ -142,7 +132,12 @@ const BiologicalTab = ({
                     multiline
                 />
             </Paper>
-
+            <MethodSteps
+                paperClass={paperClass}
+                methods={record.biological.methods || []}
+                updateMethods={updateMethods}
+                disabled={disabled}
+            />
         </div>
     );
 };

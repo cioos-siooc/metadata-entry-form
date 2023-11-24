@@ -37,6 +37,12 @@ const blankRecord = {
   filename: "",
   organization: "",
   timeFirstPublished: "",
+  biological: { 
+    geograhicDescription: "", 
+    samplingDescription: "", 
+    studyExtent: {}, 
+    methods: [],
+  },
 };
 
 function getBlankRecord() {
