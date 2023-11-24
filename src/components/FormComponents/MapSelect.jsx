@@ -236,7 +236,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
 
-          // do not draw the bounding box if we are creating a polygon
+          {/* do not draw the bounding box if we are creating a polygon */}
           {hasBoundingBox() && !hasPolygon() && (
             <LeafletRectangle
               bounds={[
