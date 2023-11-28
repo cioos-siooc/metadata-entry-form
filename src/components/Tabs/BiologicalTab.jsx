@@ -28,7 +28,7 @@ import {
 
 const BiologicalTab = ({ disabled, record, updateRecord }) => {
   const updateBiological = updateRecord("biological");
-
+  
   function handleBiologicalChange(key){
     return (e) => {
       const newData = {...record.biological, [key]: e.target.value };

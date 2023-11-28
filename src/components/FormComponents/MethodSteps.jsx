@@ -6,13 +6,13 @@ import {
   ArrowDownwardSharp,
 } from "@material-ui/icons";
 import { Button, Grid, Paper } from "@material-ui/core";
-import validator from "validator";
+// import validator from "validator";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
-import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
+import { QuestionText, paperClass } from "./QuestionStyles";
 
 // const validateURL = (url) => !url || validator.isURL(url);
 
