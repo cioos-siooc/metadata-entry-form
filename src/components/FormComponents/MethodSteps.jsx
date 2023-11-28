@@ -25,7 +25,8 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
   const nameLabel = <I18n en="Title" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
-  // Extract Method as array of objects
+  // Extract Method as array of objects, methods are not seen as an array when 
+  // returning from firebase, possibly due to nesting?
   const methodList = Object.entries(methods).map(([key, method]) => ({
     ...method,
   }));
