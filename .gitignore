@@ -37,3 +37,4 @@ __pycache__
 
 firebase-debug.log
 .Rproj.user
+package-lock.json
