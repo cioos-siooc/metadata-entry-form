@@ -35,12 +35,12 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
     updateMethods(methodList.concat(deepCopy(emptyMethod)));
   }
 
-  // removes the resource section from the list at index i
+  // removes the method step section from the list at index i
   function removeMethodStep(i) {
     updateMethods(methodList.filter((e, index) => index !== i));
   }
 
-  // move the resource section
+  // move the method step section
   function moveMethodStep(i, newIndex) {
     if (newIndex < 0 || newIndex >= methodList.length) return;
     const element = methodList.splice(i, 1)[0];

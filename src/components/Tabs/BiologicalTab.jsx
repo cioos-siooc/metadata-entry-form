@@ -1,29 +1,15 @@
 import React from "react";
 import { Paper } from "@material-ui/core";
-// import CircularProgress from "@material-ui/core/CircularProgress";
-// import { useParams } from "react-router-dom";
-// import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
-// import { progressCodes } from "../../isoCodeLists";
 
-// import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import MethodSteps from "../FormComponents/MethodSteps";
-// import CheckBoxList from "../FormComponents/CheckBoxList";
-// import DateInput from "../FormComponents/DateInput";
-// import RequiredMark from "../FormComponents/RequiredMark";
-// import SelectInput from "../FormComponents/SelectInput";
-// import { validateField } from "../../utils/validate";
 
 import {
   QuestionText,
   SupplementalText,
   paperClass,
 } from "../FormComponents/QuestionStyles";
-
-// import regions from "../../regions";
-// import { UserContext } from "../../providers/UserProvider";
-
 
 
 const BiologicalTab = ({ disabled, record, updateRecord }) => {
@@ -41,7 +27,6 @@ const BiologicalTab = ({ disabled, record, updateRecord }) => {
 
     updateBiological(newData);
   }
-
 
   return (
     <div>
