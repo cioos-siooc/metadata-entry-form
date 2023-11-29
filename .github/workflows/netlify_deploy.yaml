@@ -1,0 +1,61 @@
+name: Netlify Deploy a Preview URL In PR Comment
+
+env:
+  DEPLOY_DIRECTORY: ./build
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+
+jobs:
+  build-deploy-preview:
+    timeout-minutes: 15
+    concurrency:
+      group: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Install and Build 🔧
+        run: |
+          npm ci
+          npm run build
+        working-directory: frontend
+
+      - name: install netlify cli and deploy to preview mode
+        id: deploy-preview
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          SENTRY_ENVIRONMENT: "netlify"
+        run: |
+          npm install netlify-cli@13 -g
+          COMMAND="netlify deploy --prod --dir=$DEPLOY_DIRECTORY"
+          OUTPUT=$(sh -c "$COMMAND")
+          NETLIFY_OUTPUT=$(echo "$OUTPUT")
+          NETLIFY_PREVIEW_URL=$(echo "$OUTPUT" | grep -Eo '(http|https)://[a-zA-Z0-9./?=_-]*(--)[a-zA-Z0-9./?=_-]*')
+          NETLIFY_LOGS_URL=$(echo "$OUTPUT" | grep -Eo '(http|https)://app.netlify.com/[a-zA-Z0-9./?=_-]*')
+          echo "NETLIFY_PREVIEW_URL=$NETLIFY_PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "NETLIFY_LOGS_URL=$NETLIFY_LOGS_URL" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: find the netlify information comment
+        uses: peter-evans/find-comment@v2.3.0
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: Netlify Preview Deployment Information
+
+      - name: create or update comment
+        uses: peter-evans/create-or-update-comment@v3.0.0
+        id: update-comment
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Netlify Preview Deployment Information
+            - Log URL: ${{ steps.deploy-preview.outputs.NETLIFY_LOGS_URL }}
+            - Preview URL: ${{ steps.deploy-preview.outputs.NETLIFY_PREVIEW_URL }}
+          edit-mode: replace
