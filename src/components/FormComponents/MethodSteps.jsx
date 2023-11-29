@@ -53,7 +53,7 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
       {methodList.map((method = deepCopy(emptyMethod), i) => {
         function handleMethodStepChange(key) {
           return (e) => {
-            const newValue = [...methods];
+            const newValue = [...methodList];
             newValue[i][key] = e.target.value;
 
             updateMethods(newValue);

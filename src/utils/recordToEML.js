@@ -22,6 +22,10 @@ async function recordToEML(record) {
   nunjucks.configure({ autoescape: true, web: true });
 
   const templateXML = await fetch(templatePath).then((t) => t.text());
+  
+  const methodList = Object.entries(record.biological.methods).map(([key, method]) => ({
+    ...method,
+  }));
 
   return nunjucks.renderString(templateXML, {
     record,
@@ -30,6 +34,7 @@ async function recordToEML(record) {
     citation: generateCitation(record, record.language, "text"),
     roleMapping,
     roleMappingKeys: Object.keys(roleMapping),
+    methodList,
   });
 }
 
