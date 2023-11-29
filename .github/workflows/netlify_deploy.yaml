@@ -21,7 +21,6 @@ jobs:
         run: |
           npm ci
           npm run build
-        working-directory: frontend
 
       - name: install netlify cli and deploy to preview mode
         id: deploy-preview
