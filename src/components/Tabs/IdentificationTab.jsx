@@ -6,6 +6,7 @@ import {
   IconButton,
   Tooltip,
   Button,
+  Chip,
 } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { useParams } from "react-router-dom";
@@ -753,7 +754,9 @@ const IdentificationTab = ({
               )}
             </div>
           </Button>
-        )}
+        )} {
+          showUpdateDoi && record.doiCreationStatus && (<Chip label={`Status: ${record.doiCreationStatus}`} variant="outlined" />)
+        }
       {showDeleteDoi && (
         <Button
           onClick={handleDeleteDOI}

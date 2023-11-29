@@ -188,16 +188,41 @@ class MetadataForm extends FormClassTemplate {
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord;
 
+            // query datacite for doi status and update record
+            const doi_url = record["datasetIdentifier"]
+            if (doi_url) {
+              const id = doi_url.split('doi.org/').pop();
+              const options = { method: 'GET', headers: { accept: 'application/vnd.api+json' } };
+
+              fetch(`https://api.datacite.org/dois/${id}`, options)
+                .then(response => response.json())
+                .then(response => {
+                  if (response["errors"]) {
+                    record["doiCreationStatus"] = 'error';
+                  } else {
+                    record["doiCreationStatus"] = response["data"]["attributes"]["state"]
+                  }
+                  this.setState({ record: standardizeRecord(record, null, null, recordID) });
+                })
+                .catch(err => {
+                  console.error(err)
+                });
+            }
+
             this.setState({
               record: standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
             });
+
             this.setState({ loading: false });
           });
           this.listenerRefs.push(ref);
         }
       }
     });
+
+
+
   }
 
   toggleModal = (modalName, state, key = "", userID) => {
