@@ -37,13 +37,7 @@ const BiologicalTab = ({ disabled, record, updateRecord }) => {
   }
 
   function updateMethods(methodCollection){
-    // Extract Method as array of objects, methods are not seen as an array when 
-    // returning from firebase, possibly due to nesting?
-    const methodList = Object.entries(methodCollection).map(([key, method]) => ({
-      ...method,
-    }));
-
-    const newData = {...record.biological, methods: methodList};
+    const newData = {...record.biological, methods: methodCollection};
 
     updateBiological(newData);
   }
