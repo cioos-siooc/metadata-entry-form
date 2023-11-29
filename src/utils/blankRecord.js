@@ -39,8 +39,9 @@ const blankRecord = {
   timeFirstPublished: "",
   biological: { 
     geographicDescription: { en: "", fr: "" }, 
-    samplingDescription: { en: "", fr: "" }, 
     methods: [],
+    samplingDescription: { en: "", fr: "" }, 
+    studyExtent: { en: "", fr: "" }, 
   },
 };
 
