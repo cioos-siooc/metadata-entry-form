@@ -15,6 +15,8 @@ services:
       - ./firebase-functions/firestore.indexes.json:/app/firestore.indexes.json
       - ./firebase-functions/functions:/app/functions
       - ./firebase-functions/emulator_backup:/app/backup
+    env_file:
+      - .env
     environment:
       # FIREBASE_TOKEN: AIzaSyAdlELZS5Lbea5NquotMT8amwO-Lc_7ogc
       FIREBASE_PROJECT: cioos-metadata-form
