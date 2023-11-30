@@ -28,9 +28,9 @@ if (window.location.hostname === "localhost" && deployedOnTestServer) {
 
 firebase.initializeApp(config);
 // uncomment below to use firebase emulator for local development
-// if (window.location.hostname === "localhost" && deployedOnTestServer) {
-//   firebase.functions().useFunctionsEmulator("http://127.0.0.1:5002");
+if (window.location.hostname === "localhost" && deployedOnTestServer) {
+  firebase.functions().useFunctionsEmulator("http://127.0.0.1:5002");
   // firebase.auth().useEmulator("http://localhost:9099");
-// }
+ }
 
 export default firebase;

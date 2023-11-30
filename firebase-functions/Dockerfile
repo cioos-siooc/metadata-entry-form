@@ -16,3 +16,9 @@ ADD ./entrypoint.sh /app/entrypoint.sh
 RUN chmod 755 entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
+
+# ENTRYPOINT [ "firebase", "--project=cioos-metadata-form", "emulators:start", "--only", "firestore,database,functions,auth", "--import", "./backup"]
+# ENTRYPOINT [ "firebase", "--project=cioos-metadata-form", "--debug", "emulators:start", "--only", "firestore,database,functions,auth", "--import", "./backup"]
+# ENTRYPOINT [ "firebase", "--project=cioos-metadata-form", "emulators:start", "--only", "firestore,database,functions,auth", "--import", "./backup", "--export-on-exit", "./backup"]
+
+# firebase --project=cioos-metadata-form emulators:export ./backup
