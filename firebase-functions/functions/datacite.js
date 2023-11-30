@@ -48,6 +48,7 @@ exports.createDraftDoi = functions.https.onCall(async (record) => {
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
   try{
+    // check data.doi with regions[region].datacitePrefix. if match then continue if not return and do not attempt to update?
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
@@ -128,4 +129,46 @@ exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
     // throw a default HttpsError with the code 'unknown' and the error message
     throw new functions.https.HttpsError('unknown',errMessage);
   }
+});
+
+exports.getDoiStatus = functions.https.onCall(async (doi) => {
+  try {
+    const url = `${baseUrl}${doi}/`;
+    // TODO: limit response to just the state field. elasticsearch query syntax?
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': `Basic ${DATACITE_AUTH_HASH}`
+      },
+    });
+    return response.data;
+  } catch (err) {
+    // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
+    if (err.response && err.response.status === 401) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'Error from DataCite API: Unauthorized. Please check your API credentials.'
+      );
+    }
+    // if the error is a 404, throw a HttpsError with the code 'not-found'
+    if (err.response && err.response.status === 404) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
+      );
+    }
+    // initialize a default error message
+    let errMessage = 'An error occurred while fetching the DOI.';
+
+    // if there is an error response from DataCite, include the status and statusText from the API error
+    // if the error doesn't have a response, include the error message
+    if (err.response) {
+      errMessage = `from DataCite API: ${err.response.status} - ${err.response.statusText}`;
+    } else if (err.message) {
+      errMessage = err.message;
+    }
+
+    // throw a default HttpsError with the code 'unknown' and the error message
+    throw new functions.https.HttpsError('unknown', errMessage);
+  }
+
 });
