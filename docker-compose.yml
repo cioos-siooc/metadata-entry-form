@@ -14,7 +14,6 @@ services:
       - ./firebase-functions/firestore.rules:/app/firestore.rules
       - ./firebase-functions/firestore.indexes.json:/app/firestore.indexes.json
       - ./firebase-functions/functions:/app/functions
-      - ./firebase-functions/emulator_backup:/app/backup
     env_file:
       - .env
     environment:
