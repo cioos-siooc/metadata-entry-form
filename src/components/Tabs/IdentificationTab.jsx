@@ -216,21 +216,19 @@ const IdentificationTab = ({
       updateRecord("doiCreationStatus")('')
     }
     else if (debouncedDoiIdValue) {
-      const doiUrl = debouncedDoiIdValue
-      if (doiUrl) {
-        let id = doiUrl
-        if (doiUrl.includes('doi.org/')) {
-          id = doiUrl.split('doi.org/').pop();
-        }
-        getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
-          .then(response => {
-            updateRecord("doiCreationStatus")(response.data)
-          })
-          .catch(err => {
-            console.error(err)
-          });
+      let id = debouncedDoiIdValue
+      if (debouncedDoiIdValue.includes('doi.org/')) {
+        id = debouncedDoiIdValue.split('doi.org/').pop();
       }
+      getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
+        .then(response => {
+          updateRecord("doiCreationStatus")(response.data)
+        })
+        .catch(err => {
+          console.error(err)
+        });
     }
+
     return () => {
       mounted.current = false;
     };
