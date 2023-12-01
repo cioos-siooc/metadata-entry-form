@@ -47,8 +47,7 @@ exports.createDraftDoi = functions.https.onCall(async (record) => {
 });
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
-  try{
-    // check data.doi with regions[region].datacitePrefix. if match then continue if not return and do not attempt to update?
+  try {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
@@ -131,16 +130,16 @@ exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
   }
 });
 
-exports.getDoiStatus = functions.https.onCall(async (doi) => {
+exports.getDoiStatus = functions.https.onCall(async (data) => {
   try {
-    const url = `${baseUrl}${doi}/`;
+    const url = `${baseUrl}${data.doi}/`;
     // TODO: limit response to just the state field. elasticsearch query syntax?
     const response = await axios.get(url, {
       headers: {
         'Authorization': `Basic ${DATACITE_AUTH_HASH}`
       },
     });
-    return response.data;
+    return response.data.data.attributes.state;
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
     if (err.response && err.response.status === 401) {
@@ -151,10 +150,10 @@ exports.getDoiStatus = functions.https.onCall(async (doi) => {
     }
     // if the error is a 404, throw a HttpsError with the code 'not-found'
     if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
-      );
+      if (data.doi.startsWith(`${data.prefix}/`)) {
+        return 'not found'
+      }
+      return 'unknown'
     }
     // initialize a default error message
     let errMessage = 'An error occurred while fetching the DOI.';

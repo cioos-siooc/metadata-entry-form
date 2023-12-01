@@ -132,7 +132,7 @@ class MetadataForm extends FormClassTemplate {
         const loggedInUserID = user.uid;
         const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
-        const { isReviewer, getDoiStatus } = this.context;
+        const { isReviewer } = this.context;
 
         this.setState({ projects: await getRegionProjects(region) });
         let editorInfo;
@@ -187,23 +187,6 @@ class MetadataForm extends FormClassTemplate {
 
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord;
-
-            // query datacite for doi status and update record
-            const doi_url = record["datasetIdentifier"]
-            if (doi_url) {
-              let id = doi_url
-              if (doi_url.includes('doi.org/')) {
-                id = doi_url.split('doi.org/').pop();
-              }
-              getDoiStatus(id)
-                .then(response => {
-                  record["doiCreationStatus"] = response["data"]["data"]["attributes"]["state"]
-                  this.setState({ record: standardizeRecord(record, null, null, recordID) });
-                })
-                .catch(err => {
-                  console.error(err)
-                });
-            }
 
             this.setState({
               record: standardizeRecord(record, null, null, recordID),
