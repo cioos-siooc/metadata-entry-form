@@ -18,10 +18,14 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
     <div>
       <Paper style={paperClass}>
         <QuestionText>
-          <En>Enter any links to information associated with this dataset.</En>
+          <En>Enter any links to data or datasets described by this metadata record.
+            Resources should not already have their own identifiers, such resources
+            are better added to the 'Related Works' section. </En>
           <Fr>
-            Entrez les liens vers les informations associées à ce jeu de
-            données.
+            Saisissez tous les liens vers des données ou des ensembles de données
+            décrits par cet enregistrement de métadonnées. Les ressources ne doivent
+            pas déjà avoir leurs propres identifiants, il est préférable que ces
+            ressources soient ajoutées à la section "Travaux associés".
           </Fr>
           <RequiredMark passes={validateField(record, "distribution")} />
           <SupplementalText>
@@ -33,6 +37,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                   <li>CSV files</li>
                   <li>ERDDAP datasets</li>
                   <li>images</li>
+                  <li>Online forms to request access to the data</li>
                 </ul>
                 At least one item is required. A Resource URL can link to a
                 (compressed) data package or folder.
@@ -40,15 +45,14 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
               <Fr>
                 Voici quelques exemples de ressources :
                 <ul>
-                  <li>
-                    Documentation à l'appui (par exemple, fichiers texte ou pdf)
-                  </li>
+                  <li>documentation à l'appui (par exemple, fichiers texte ou PDF)</li>
                   <li>Fichiers CSV</li>
-                  <li>Jeux de données ERDDAP</li>
-                  <li>Images</li>
+                  <li>Ensembles de données ERDDAP</li>
+                  <li>images</li>
+                  <li>Formulaires en ligne pour demander l'accès aux données</li>
                 </ul>
-                Au moins une ressource est requise. Une URL de ressource peut
-                être liée à un paquet de données (compressé) ou à un dossier.
+                Au moins un élément est requis. Une URL de ressource peut créer un lien vers un
+                paquet ou dossier de données (compressé).
               </Fr>
             </I18n>
           </SupplementalText>

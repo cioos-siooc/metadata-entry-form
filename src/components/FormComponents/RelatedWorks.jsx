@@ -13,13 +13,13 @@ import { associationTypeCode, identifierType } from "../../isoCodeLists";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
-import SelectInput from "../FormComponents/SelectInput";
+import SelectInput from "./SelectInput";
 import { deepCopy } from "../../utils/misc";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
 
 const validateURL = (url) => !url || validator.isURL(url);
 
-const AssociatedResources = ({ updateResources, resources, disabled }) => {
+const RelatedWorks = ({ updateResources, resources, disabled }) => {
 
   const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", url: "" };
   const { language } = useParams();
@@ -83,8 +83,8 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <I18n>
-                    <En>Enter a title of the resource</En>
-                    <Fr>Entrez une titre de la ressource</Fr>
+                    <En>Enter the title of the related work</En>
+                    <Fr>Entrez le titre de l'œuvre concernée</Fr>
                   </I18n>
                   <RequiredMark passes={dist.title?.en || dist.title?.fr} />
                 </QuestionText>{" "}
@@ -99,8 +99,8 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <I18n>
-                    <En>Enter the identifier for the related resource</En>
-                    <Fr>Saisissez l'identifiant de la ressource associée</Fr>
+                    <En>Enter the identifier for the related work</En>
+                    <Fr>Saisissez l'identifiant de l'œuvre concernée</Fr>
                   </I18n>
 
                   <RequiredMark passes={validator.isURL(dist.code)} />
@@ -108,15 +108,15 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                     <I18n>
                       <En>
                         <p>
-                          The identifier may be to a metadata resource on another
+                          The identifier may be to a metadata record on another
                           repository or another record within CIOOS. A DOI or full URL are prefered.
                         </p>
                       </En>
                       <Fr>
                         <p>
-                          L'identifiant peut provenir d'une ressource de métadonnées sur un autre
-                          référentiel ou d'un autre enregistrement au sein de CIOOS. Un DOI ou une
-                          URL complète sont préférables.
+                          L'identifiant peut provenir d'un enregistrement de métadonnées sur un autre
+                          référentiel ou d'un autre enregistrement dans CIOOS. Un DOI ou une URL
+                          complète sont préférables.
                         </p>
                       </Fr>
                     </I18n>
@@ -161,7 +161,7 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
                     <I18n>
                       <En>
                         <p>
-                          Specify the relationship between this record and another. The relationship is from the perspective of What the other record is to this one. for example:
+                          Specify the relationship between this record and another. The relationship is from the perspective of 'What the other record is to this one'. for example:
                         </p>
                         <ul>
                           <li>Use the 'crossReference' code value to identify related datasets.</li>
@@ -246,4 +246,4 @@ const AssociatedResources = ({ updateResources, resources, disabled }) => {
   );
 };
 
-export default AssociatedResources;
+export default RelatedWorks;

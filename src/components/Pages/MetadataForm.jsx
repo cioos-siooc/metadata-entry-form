@@ -24,7 +24,7 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import StartTab from "../Tabs/StartTab";
 import ContactTab from "../Tabs/ContactTab";
 import ResourcesTab from "../Tabs/ResourcesTab";
-import AssociatedResourcesTab from "../Tabs/AssociatedResourcesTab";
+import RelatedWorksTab from "../Tabs/RelatedWorksTab";
 import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
@@ -468,7 +468,7 @@ class MetadataForm extends FormClassTemplate {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
-                label={tabs.associatedresources[language]}
+                  label={tabs.relatedworks[language]}
                 value="related"
               />
               <Tab
@@ -532,7 +532,7 @@ class MetadataForm extends FormClassTemplate {
           <ResourcesTab {...tabProps} />
         </TabPanel>
           <TabPanel value={tabIndex} index="related">
-            <AssociatedResourcesTab {...tabProps} />
+            <RelatedWorksTab {...tabProps} />
           </TabPanel>
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
