@@ -74,16 +74,20 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     const drawnItems = editableFG.leafletElement._layers;
     clearExtraLayers(drawnItems);
 
-    const bounds = L.latLngBounds(parsePolyString(e.target.value))
-    let { lat: north, lng: east } = bounds.getNorthEast();
-    let { lat: south, lng: west } = bounds.getSouthWest();
+    const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' }
+    try {
+      const bounds = L.latLngBounds(parsePolyString(e.target.value))
+      const { lat: north, lng: east } = bounds.getNorthEast();
+      const { lat: south, lng: west } = bounds.getSouthWest();
 
-    north = limitDecimals(north);
-    south = limitDecimals(south);
-    east = limitDecimals(east);
-    west = limitDecimals(west);
+      newData.north = limitDecimals(north);
+      newData.south = limitDecimals(south);
+      newData.east = limitDecimals(east);
+      newData.west = limitDecimals(west);
+    } catch (ignore) {
+      // ignore bounds errors as a missing or invalid polygon string should not take down the app
+    }
 
-    const newData = { ...mapData, polygon: e.target.value, north, south, east, west };
     updateMap(newData);
   }
 
