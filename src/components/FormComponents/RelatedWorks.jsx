@@ -103,7 +103,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <Fr>Saisissez l'identifiant de l'œuvre concernée</Fr>
                   </I18n>
 
-                  <RequiredMark passes={validator.isURL(dist.code)} />
+                  <RequiredMark passes={dist.code} />
                   <SupplementalText>
                     <I18n>
                       <En>
