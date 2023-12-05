@@ -133,8 +133,11 @@ const IdentificationTab = ({
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
+      // Extract DOI from the full URL
+      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+
       const dataObject = {
-        doi: record.datasetIdentifier,
+        doi,
         data: mappedDataCiteObject,
       }
 
