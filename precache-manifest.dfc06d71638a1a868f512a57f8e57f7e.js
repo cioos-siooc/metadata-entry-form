@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "f08515681ce26f933bb2bdca04a7f638",
+    "revision": "83efa28b585ed90034e9b4c6a1f72a21",
     "url": "/metadata-entry-form/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/metadata-entry-form/static/css/2.dacbec41.chunk.css"
   },
   {
-    "revision": "6a79b069fa7fd9be725b",
+    "revision": "50fa6e57df77497261d0",
     "url": "/metadata-entry-form/static/css/main.34de6062.chunk.css"
   },
   {
@@ -20,16 +20,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/metadata-entry-form/static/js/2.340a0b99.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "6a79b069fa7fd9be725b",
-    "url": "/metadata-entry-form/static/js/main.5c233c5d.chunk.js"
+    "revision": "50fa6e57df77497261d0",
+    "url": "/metadata-entry-form/static/js/main.f53683dd.chunk.js"
   },
   {
     "revision": "b85c89d0981620d2e991",
     "url": "/metadata-entry-form/static/js/runtime-main.0b7029d3.js"
   },
   {
-    "revision": "08271f5dcc4793308488c0f45a0a7310",
-    "url": "/metadata-entry-form/static/media/emlTemplate.08271f5d.j2"
+    "revision": "998d6686463be3e173113e59804a8c42",
+    "url": "/metadata-entry-form/static/media/emlTemplate.998d6686.j2"
   },
   {
     "revision": "fd5728f2cf777b06b966d05c0c823dc9",
