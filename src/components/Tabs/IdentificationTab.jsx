@@ -737,7 +737,7 @@ const IdentificationTab = ({
                   Loading...
                 </>
               ) : (
-                "Generate Draft DOI"
+                "Generate DOI"
               )}
             </div>
           </Button>
@@ -754,7 +754,7 @@ const IdentificationTab = ({
                     Loading...
                 </>
               ) : (
-                "Update Draft DOI"
+                "Update DOI"
               )}
             </div>
           </Button>
@@ -771,7 +771,7 @@ const IdentificationTab = ({
                   Loading...
               </>
             ) : (
-              "Delete Draft DOI"
+              "Delete DOI"
             )}
           </div>
         </Button>
