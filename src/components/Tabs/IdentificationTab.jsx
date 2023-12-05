@@ -163,7 +163,10 @@ const IdentificationTab = ({
     setLoadingDoiDelete(true);
 
     try {
-      deleteDraftDoi(record.datasetIdentifier)
+      // Extract DOI from the full URL
+      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+
+      deleteDraftDoi(doi)
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
