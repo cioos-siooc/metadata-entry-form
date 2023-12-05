@@ -88,13 +88,13 @@ const IdentificationTab = ({
         })
         .then(async (attributes) => {
           // Update the record object with datasetIdentifier and doiCreationStatus
-          updateRecord("datasetIdentifier")(attributes.doi);
+          updateRecord("datasetIdentifier")(`https://doi.org/${attributes.doi}`);
           updateRecord("doiCreationStatus")("draft");
 
           // Create a new object with updated properties
           const updatedRecord = {
             ...record,
-            datasetIdentifier: attributes.doi,
+            datasetIdentifier: `https://doi.org/${attributes.doi}`,
             doiCreationStatus: "draft",
           };
 
