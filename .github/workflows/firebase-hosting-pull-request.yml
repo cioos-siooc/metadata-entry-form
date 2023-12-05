@@ -16,6 +16,7 @@ jobs:
         env:
           NODE_OPTIONS: --openssl-legacy-provider
           REACT_APP_DEV_DEPLOYMENT: true
+          PUBLIC_URL: /
         run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
