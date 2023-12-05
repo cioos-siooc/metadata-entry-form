@@ -700,7 +700,7 @@ const IdentificationTab = ({
             <En>What is the DOI for this dataset? Eg,</En>
             <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
           </I18n>{" "}
-          10.0000/0000
+          https://doi.org/10.0000/0000
           {showGenerateDoi && (
             <SupplementalText>
               <I18n>
