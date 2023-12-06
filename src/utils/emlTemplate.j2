@@ -54,15 +54,17 @@
             <!-- TODO GCMD and another? -->
             <keywordThesaurus>GCMD</keywordThesaurus>
         </keywordSet>
+        {% if record.license != "None" %}
         <intellectualRights>
             <para>
                 This work is licensed under
-                <ulink url="{{ licenses[record.license]?.url }}">
-                    <citetitle>{{ licenses[record.license]?.title }}</citetitle>
+                <ulink url="{{ licenses[record.license].url }}">
+                    <citetitle>{{ licenses[record.license].title }}</citetitle>
                 </ulink>
                 .
             </para>
         </intellectualRights>
+        {% endif %}
         <distribution scope="document">
             <online>
                 <url function="information">{{ record.datasetIdentifier }}</url>
