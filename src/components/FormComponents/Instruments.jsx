@@ -15,6 +15,7 @@ import BilingualTextInput from "./BilingualTextInput";
 import { deepCopy } from "../../utils/misc";
 
 import RequiredMark from "./RequiredMark";
+import InstrumentLeftList from "./InstrumentLeftList";
 
 const emptyInstrument = {
   id: "",
@@ -24,22 +25,55 @@ const emptyInstrument = {
   description: { en: "", fr: "" },
 };
 
+// Mock function for updateInstruments
+const updateInstruments = () => { };
+
+// Mock function for setActiveInstrument
+const setActiveInstrument = () => { };
+
+// Mock instruments data
+
+
+// Mock activeInstrument data
+const activeInstrument = { id: '1', name: 'Instrument 1', email: 'contact1@example.com' };
+
 const Instruments = ({
   updateInstruments,
-  instruments = [],
+  instruments,
+  // instruments = [],
   disabled,
   paperClass,
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
 
+  instruments = [
+    {
+      id: "1",
+      manufacturer: "",
+      version: "",
+      type: { en: "", fr: "" },
+      description: { en: "", fr: "" },
+    },
+    {
+      id: "2",
+      manufacturer: "",
+      version: "",
+      type: { en: "", fr: "" },
+      description: { en: "", fr: "" },
+    }
+  ];
+
   function addInstrument() {
     updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
     setActiveInstrument(instruments.length);
   }
+
   function updateInstrumentField(key) {
     return (e) => {
       const instrumentsCopy = [...instruments];
+      console.log('instruments copy', instrumentsCopy);
       instrumentsCopy[activeInstrument][key] = e.target.value;
+      console.log('instruments copy after setting value', instrumentsCopy);
       updateInstruments(instrumentsCopy);
     };
   }
@@ -58,51 +92,19 @@ const Instruments = ({
   const instrument = instruments.length > 0 && instruments[activeInstrument];
 
   return (
-    <Grid container direction="row" spacing={3}>
-      <Grid item xs={3}>
-        <Grid container direction="column" spacing={2}>
-          <Grid item xs>
-            Instruments:
-            <List>
-              {instruments.map((instrumentItem, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    button
-                    onClick={() => setActiveInstrument(i)}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography
-                          style={{
-                            fontWeight: activeInstrument === i ? "bold" : "",
-                          }}
-                        >
-                          {i + 1}. {instrumentItem.id}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Grid>
+    <Grid container direction="row" style={{ marginLeft: "5px" }}>            
+    <Grid item xs={5}>
 
-          <Grid item xs>
-            <Button
+    <InstrumentLeftList
+              instruments={instruments}
+              updateInstruments={updateInstruments}
+              activeInstrument={activeInstrument}
+              setActiveInstrument={setActiveInstrument}
               disabled={disabled}
-              startIcon={<Add />}
-              onClick={addInstrument}
-              style={{ height: "56px", marginLeft: "10px" }}
-            >
-              <I18n>
-                <En>Add instrument</En>
-                <Fr>Ajouter un instrument</Fr>
-              </I18n>
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
+              // userInstruments={userInstruments}
+              // saveToInstruments={saveToInstruments}
+              />
+    </Grid>
       <Grid item xs>
         <Grid container direction="column">
           {instrument && (

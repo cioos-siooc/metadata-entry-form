@@ -68,4 +68,26 @@ function getBlankContact() {
   return contact;
 }
 
-export { getBlankRecord, getBlankContact };
+const blankInstrument = {
+  role: [],
+  orgName: "",
+  orgEmail: "",
+  orgURL: "",
+  orgAdress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  indPosition: "",
+  indEmail: "",
+  indOrcid: "",
+  givenNames: "",
+  lastName: "",
+  inCitation: true,
+};
+
+function getBlankInstrument() {
+  const instrument = deepCopy(blankInstrument);
+  return instrument;
+}
+
+export { getBlankRecord, getBlankContact, getBlankInstrument };

@@ -10,10 +10,13 @@ import { En, Fr, I18n } from "../I18n";
 const PlatformTab = ({
   disabled,
   record,
+  userInstruments,
+  saveUpdateInstrument,
   handleUpdateRecord,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
+
 
   return (
     <div>
@@ -105,6 +108,8 @@ const PlatformTab = ({
             <Instruments
               instruments={record.instruments}
               updateInstruments={updateRecord("instruments")}
+              saveUpdateInstrument={saveUpdateInstrument}
+              userInstruments={userInstruments}
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}

@@ -170,6 +170,19 @@ class MetadataForm extends FormClassTemplate {
         });
         this.listenerRefs.push(editorContactsRef);
 
+        // get instruments
+        const editorInstrumentsRef = editorDataRef.child("instruments");
+
+        editorInstrumentsRef.on("value", (instrumentsFB) => {
+          const userInstruments = instrumentsFB.toJSON();
+          Object.entries(userInstruments || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userInstruments });
+        });
+        this.listenerRefs.push(editorInstrumentsRef);
+
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
@@ -248,6 +261,29 @@ class MetadataForm extends FormClassTemplate {
     // new contact
 
     return contactsRef.push(contact).getKey();
+  }
+
+  saveUpdateInstrument(instrument) {
+    const { instrumentID } = instrument;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const instrumentsRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("instruments");
+
+    // existing instrument
+    if (instrumentID) {
+      instrumentsRef.child(instrumentID).update(instrument);
+      return instrumentID;
+    }
+    // new instrument
+
+    return instrumentsRef.push(instrument).getKey();
   }
 
   async handleSubmitRecord() {
@@ -351,6 +387,7 @@ class MetadataForm extends FormClassTemplate {
 
     const {
       userContacts,
+      userInstruments,
       tabIndex,
       record,
       saveDisabled,
@@ -519,7 +556,10 @@ class MetadataForm extends FormClassTemplate {
           <SpatialTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="platform">
-          <PlatformTab {...tabProps} />
+          <PlatformTab 
+          userInstruments={userInstruments}
+          saveUpdateInstrument={(c) => this.saveUpdateInstrument(c)}
+          {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
