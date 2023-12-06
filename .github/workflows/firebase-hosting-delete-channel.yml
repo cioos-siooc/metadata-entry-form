@@ -1,0 +1,17 @@
+name: Close PR delete firebase channel
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  delete_firebase_channel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: w9jds/firebase-action@master
+        with:
+          args: hosting:channel:delete ${{ github.head_ref }} --force
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: cioos-metadata-form
+          GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
