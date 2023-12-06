@@ -7,10 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: w9jds/firebase-action@master
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - id: get-short-name
+        run: |
+          id=$(echo ${{github.event.pull_request.head.ref}} | cut -c 1-20)
+          echo "id=$id" >> $GITHUB_OUTPUT
+      - name: Delete Preview Channel on Firebase
+        uses: w9jds/firebase-action@master
         with:
-          args: hosting:channel:delete ${{ github.head_ref }} --force
+          args: hosting:channel:delete pr${{github.event.number}}-${{steps.get-short-name.outputs.id}} --force
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: cioos-metadata-form
