@@ -193,7 +193,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     ({ text }) => text[language]
                   )}
                   disabled={disabled}
-                  label={<I18n en="Association Type" fr="Type d'association" />}
+                  label={<I18n en="Relation Type" fr="Type de relation" />}
                   fullWidth={false}
                 />
               </Grid>
