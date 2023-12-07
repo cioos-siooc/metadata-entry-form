@@ -16,7 +16,7 @@ function isValidHttpUrl(string) {
 
   return url.protocol === "http:" || url.protocol === "https:";
 }
-
+export const validateDOI = (val) => !val || (doiRegexp.test(val) && isValidHttpUrl(val));
 const validateLatitude = (num) => num >= -90 && num <= 90;
 
 const deepCompare = (obj1, obj2) =>
@@ -81,7 +81,7 @@ const validators = {
     },
   },
   datasetIdentifier: {
-    validation: (val) => !val || (doiRegexp.test(val) && isValidHttpUrl(val)),
+    validation: validateDOI,
     optional: true,
     tab: "dataID",
     error: {

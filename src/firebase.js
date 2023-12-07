@@ -24,9 +24,9 @@ const config = {
 
 firebase.initializeApp(config);
 // uncomment below to use firebase emulator for local development
-if (window.location.hostname === "localhost") {
-  firebase.functions().useFunctionsEmulator("http://localhost:5002");
+// if (window.location.hostname === "localhost") {
+//   firebase.functions().useFunctionsEmulator("http://localhost:5002");
 //   // firebase.auth().useEmulator("http://localhost:9099");
-}
+// }
 
 export default firebase;
