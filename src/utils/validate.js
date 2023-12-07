@@ -211,7 +211,7 @@ const validators = {
     },
   },
   associated_resources: {
-    tab: "relatedWorks",
+    tab: "relatedworks",
     validation: (val) =>
       !val ||
       (val &&
