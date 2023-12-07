@@ -210,6 +210,21 @@ const validators = {
         "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
     },
   },
+  associated_resources: {
+    tab: "relatedWorks",
+    validation: (val) =>
+      !val ||
+      (val &&
+        val.every(
+          (work) => work.title && work.title.en && work.title.fr && work.authority && work.code && work.association_type
+        )),
+    error: {
+      en:
+        "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
+      fr:
+        "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+    },
+  },
   platformID: {
     tab: "platform",
     validation: (val, record) => record.noPlatform || val,

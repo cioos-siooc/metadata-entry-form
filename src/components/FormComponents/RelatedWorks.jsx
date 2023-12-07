@@ -21,7 +21,7 @@ const validateURL = (url) => !url || validator.isURL(url);
 
 const RelatedWorks = ({ updateResources, resources, disabled }) => {
 
-  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", url: "" };
+  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "" };
   const { language } = useParams();
 
   function addResource() {
@@ -164,18 +164,20 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                           Specify the relationship between this record and another. The relationship is from the perspective of 'What the other record is to this one'. for example:
                         </p>
                         <ul>
-                          <li>Use the 'crossReference' code value to identify related datasets.</li>
-                          <li>Use 'largerWorkCitation' code value to identify a larger program or operation of which this record is a part.</li>
+                          <li>Use the 'Cross Reference' to identify related datasets.</li>
+                          <li>Use 'Larger Work Citation' to identify a larger program or operation of which this record is a part.</li>
+                          <li>Use 'Dependency' when identifying another work that is cited in this record or is required for this record to exist. A model linking to its input datasets could be once use case for this. </li>
                         </ul>
 
                       </En>
                       <Fr>
                         <p>
-                          Spécifiez la relation entre cet enregistrement et un autre. La relation est du point de vue de ce qu'est l'autre disque par rapport à celui-ci. Par exemple:
+                          Spécifiez la relation entre cet enregistrement et un autre. La relation se situe dans la perspective de "ce que l'autre disque est par rapport à celui-ci". Par exemple:
                         </p>
                         <ul>
-                          <li>Utilisez la valeur du code « crossReference » pour identifier les ensembles de données associés.</li>
-                          <li>Utilisez la valeur de code « largerWorkCitation » pour identifier un programme ou une opération plus vaste dont cet enregistrement fait partie.</li>
+                          <li>Utilisez les "Références croisées" pour identifier les ensembles de données associés.</li>
+                          <li>Utilisez "Citation de travail plus importante" pour identifier un programme ou une opération plus vaste dont cet enregistrement fait partie.</li>
+                          <li>Utilisez "Dépendance" lorsque vous identifiez une autre œuvre citée dans cet enregistrement ou requise pour que cet enregistrement existe. Un modèle lié à ses ensembles de données d’entrée pourrait être un cas d’utilisation pour cela. </li>
                         </ul>
 
                       </Fr>
