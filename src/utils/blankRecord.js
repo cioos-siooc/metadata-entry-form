@@ -69,20 +69,11 @@ function getBlankContact() {
 }
 
 const blankInstrument = {
-  role: [],
-  orgName: "",
-  orgEmail: "",
-  orgURL: "",
-  orgAdress: "",
-  orgCity: "",
-  orgCountry: "",
-  orgRor: "",
-  indPosition: "",
-  indEmail: "",
-  indOrcid: "",
-  givenNames: "",
-  lastName: "",
-  inCitation: true,
+  id: "",
+  manufacturer: "",
+  version: "",
+  type: { en: "", fr: "" },
+  description: { en: "", fr: "" },
 };
 
 function getBlankInstrument() {

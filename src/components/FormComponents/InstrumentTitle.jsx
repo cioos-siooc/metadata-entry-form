@@ -7,8 +7,8 @@ import { I18n } from "../I18n";
 // creates text from an instrument in the form
 // <instrumentName> - <instrumentType>
 function getInstrumentTitleFromNames(instrument) {
-    const { instrumentName, instrumentType } = instrument;
-    const titleParts = [instrumentName, instrumentType];
+    const { id, manufacturer } = instrument;
+    const titleParts = [manufacturer, id];
 
     return titleParts
         .filter((e) => e)

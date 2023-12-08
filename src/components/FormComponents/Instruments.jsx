@@ -17,64 +17,25 @@ import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import InstrumentLeftList from "./InstrumentLeftList";
 
-const emptyInstrument = {
-  id: "",
-  manufacturer: "",
-  version: "",
-  type: { en: "", fr: "" },
-  description: { en: "", fr: "" },
-};
-
-// Mock function for updateInstruments
-const updateInstruments = () => { };
-
-// Mock function for setActiveInstrument
-const setActiveInstrument = () => { };
-
-// Mock instruments data
-
-
 // Mock activeInstrument data
 const activeInstrument = { id: '1', name: 'Instrument 1', email: 'contact1@example.com' };
 
 const Instruments = ({
   updateInstruments,
-  instruments,
-  // instruments = [],
+  instruments = [],
   disabled,
   paperClass,
+  saveUpdateInstrument,
+  userInstruments,
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
-
-  instruments = [
-    {
-      id: "1",
-      manufacturer: "",
-      version: "",
-      type: { en: "", fr: "" },
-      description: { en: "", fr: "" },
-    },
-    {
-      id: "2",
-      manufacturer: "",
-      version: "",
-      type: { en: "", fr: "" },
-      description: { en: "", fr: "" },
-    }
-  ];
-
-  function addInstrument() {
-    updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
-    setActiveInstrument(instruments.length);
-  }
 
   function updateInstrumentField(key) {
     return (e) => {
       const instrumentsCopy = [...instruments];
-      console.log('instruments copy', instrumentsCopy);
       instrumentsCopy[activeInstrument][key] = e.target.value;
-      console.log('instruments copy after setting value', instrumentsCopy);
       updateInstruments(instrumentsCopy);
+      console.log(instruments)
     };
   }
   function removeInstrument() {
@@ -101,8 +62,8 @@ const Instruments = ({
               activeInstrument={activeInstrument}
               setActiveInstrument={setActiveInstrument}
               disabled={disabled}
-              // userInstruments={userInstruments}
-              // saveToInstruments={saveToInstruments}
+              userInstruments={userInstruments}
+              saveUpdateInstrument={saveUpdateInstrument}
               />
     </Grid>
       <Grid item xs>

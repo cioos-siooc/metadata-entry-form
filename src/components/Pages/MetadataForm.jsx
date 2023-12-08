@@ -263,7 +263,7 @@ class MetadataForm extends FormClassTemplate {
     return contactsRef.push(contact).getKey();
   }
 
-  saveUpdateInstrument(instrument) {
+  handleSaveUpdateInstrument(instrument) {
     const { instrumentID } = instrument;
     const { match } = this.props;
 
@@ -558,7 +558,7 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="platform">
           <PlatformTab 
           userInstruments={userInstruments}
-          saveUpdateInstrument={(c) => this.saveUpdateInstrument(c)}
+          saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
           {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">

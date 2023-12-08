@@ -30,8 +30,8 @@ const InstrumentLeftList = ({
   activeInstrument,
   setActiveInstrument,
   disabled,
-  // userInstruments,
-  // saveToInstruments,
+  userInstruments,
+  saveUpdateInstrument,
 }) => {
   const [currentInstruments, setItems] = useState(instruments);
 
@@ -66,8 +66,7 @@ const InstrumentLeftList = ({
     updateInstruments(instruments.concat(duplicatedInstrument));
   }
 
-  // const instrumentList = Object.values(userInstruments || {});
-  const instrumentList = Object.values({});
+  const instrumentList = Object.values(userInstruments || {});
 
   function handleAddFromSavedInstruments(e) {
     const index = e.target.value;
@@ -185,15 +184,13 @@ const InstrumentLeftList = ({
                                 // a role field, which shouldn't be saved
                                 delete instrument.role;
 
-                                // instrument.instrumentID = saveToInstruments(instrument);
+                                instrument.instrumentID = saveUpdateInstrument(instrument);
 
                                 setItems(instruments);
                               }}
                               disabled={
                                 !(
-                                  instruments[i].orgName?.length ||
-                                  instruments[i].givenNames?.length ||
-                                  instruments[i].lastName?.length
+                                  instruments[i].instrumentID?.length
                                 )
                               }
                               edge="end"
@@ -252,7 +249,7 @@ const InstrumentLeftList = ({
             ))}
             options={instrumentList.map((v, i) => i)}
             disabled={!instrumentList.length || disabled}
-            label={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT" />}
+            label={<I18n en="ADD SAVED INSTRUMENT" fr="AJOUTER UN INSTRUMENT" />}
           />
         </Grid>
       </Grid>
