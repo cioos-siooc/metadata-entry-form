@@ -1,63 +1,46 @@
-import React, { useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import React from "react";
+
 import {
-  TextField,
-  Grid,
-  Typography,
   Button,
-  Paper,
+  Grid, Paper,
+  TextField,
+  Typography,
 } from "@material-ui/core";
+import { Delete } from "@material-ui/icons";
+import { getBlankInstrument } from "../../utils/blankRecord";
+
 import { En, Fr, I18n } from "../I18n";
+
 import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
-import InstrumentLeftList from "./InstrumentLeftList";
-
-const Instruments = ({
-  updateInstruments,
-  instruments = [],
-  disabled,
-  paperClass,
-  saveUpdateInstrument,
-  userInstruments,
-}) => {
-  const [activeInstrument, setActiveInstrument] = useState(0);
 
   function updateInstrumentField(key) {
     return (e) => {
-      const instrumentsCopy = [...instruments];
-      instrumentsCopy[activeInstrument][key] = e.target.value;
-      updateInstruments(instrumentsCopy);
+      // const instrumentsCopy = [...instruments];
+      // instrumentsCopy[activeInstrument][key] = e.target.value;
+      // updateInstruments(instrumentsCopy);
     };
   }
-  function removeInstrument() {
-    updateInstruments(
-      instruments.filter((e, index) => index !== activeInstrument)
-    );
-    if (instruments.length) setActiveInstrument(instruments.length - 2);
-  }
+const InstrumentEditor = ({
+  instrument,
+  disabled,
+  paperClass,
+  updateInstrumentEvent,
+}) => {
 
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
   const versionLabel = <I18n en="Version" fr="Version" />;
   const typeLabel = <I18n en="Type" fr="Type" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
-  const instrument = instruments.length > 0 && instruments[activeInstrument];
+  // eslint-disable-next-line no-param-reassign
+  instrument = { ...getBlankInstrument(), ...instrument };
+
+
 
   return (
-    <Grid container direction="row" style={{ marginLeft: "5px" }}>
-    <Grid item xs={5}>
-
-    <InstrumentLeftList
-              instruments={instruments}
-              updateInstruments={updateInstruments}
-              activeInstrument={activeInstrument}
-              setActiveInstrument={setActiveInstrument}
-              disabled={disabled}
-              userInstruments={userInstruments}
-              saveUpdateInstrument={saveUpdateInstrument}
-              />
-    </Grid>
+    <Grid container direction="column" spacing={2}>
       <Grid item xs>
         <Grid container direction="column">
           {instrument && (
@@ -119,18 +102,18 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
-                  <Button
-                    startIcon={<Delete />}
-                    disabled={disabled}
-                    onClick={removeInstrument}
-                  >
-                    <I18n>
-                      <En>Remove item</En>
-                      <Fr>Supprimer l'instrument</Fr>
-                    </I18n>
-                  </Button>
-                </Grid>
+                {/*<Grid item xs>*/}
+                {/*  <Button*/}
+                {/*    startIcon={<Delete />}*/}
+                {/*    disabled={disabled}*/}
+                {/*    onClick={removeInstrument}*/}
+                {/*  >*/}
+                {/*    <I18n>*/}
+                {/*      <En>Remove item</En>*/}
+                {/*      <Fr>Supprimer l'instrument</Fr>*/}
+                {/*    </I18n>*/}
+                {/*  </Button>*/}
+                {/*</Grid>*/}
               </Grid>
             </Paper>
           )}
@@ -139,4 +122,5 @@ const Instruments = ({
     </Grid>
   );
 };
-export default Instruments;
+
+export default InstrumentEditor;
