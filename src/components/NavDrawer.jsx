@@ -15,6 +15,7 @@ import {
   SupervisorAccount,
   Menu,
   AssignmentTurnedIn,
+  LinearScale, Straighten, StraightenSharp, StraightenRounded, StraightenOutlined,
 } from "@material-ui/icons";
 
 import {
@@ -354,7 +355,7 @@ export default function MiniDrawer({ children }) {
                     onClick={() => history.push(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
-                      <Contacts />
+                      <StraightenSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.instruments} />
                   </ListItem>

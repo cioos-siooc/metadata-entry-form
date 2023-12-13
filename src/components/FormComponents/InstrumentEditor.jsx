@@ -15,15 +15,9 @@ import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
 
-  function updateInstrumentField(key) {
-    return (e) => {
-      // const instrumentsCopy = [...instruments];
-      // instrumentsCopy[activeInstrument][key] = e.target.value;
-      // updateInstruments(instrumentsCopy);
-    };
-  }
+
 const InstrumentEditor = ({
-  instrument,
+  value,
   disabled,
   paperClass,
   updateInstrumentEvent,
@@ -34,10 +28,7 @@ const InstrumentEditor = ({
   const typeLabel = <I18n en="Type" fr="Type" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
-  // eslint-disable-next-line no-param-reassign
-  instrument = { ...getBlankInstrument(), ...instrument };
-
-
+  const instrument = { ...getBlankInstrument(), ...value };
 
   return (
     <Grid container direction="column" spacing={2}>
@@ -55,7 +46,7 @@ const InstrumentEditor = ({
                   <TextField
                     label="ID"
                     value={instrument.id}
-                    onChange={updateInstrumentField("id")}
+                    onChange={updateInstrumentEvent("id")}
                     fullWidth
                     disabled={disabled}
                   />
@@ -65,7 +56,7 @@ const InstrumentEditor = ({
                     label={manufacturerLabel}
                     name="manufacturer"
                     value={instrument.manufacturer}
-                    onChange={updateInstrumentField("manufacturer")}
+                    onChange={updateInstrumentEvent("manufacturer")}
                     fullWidth
                     disabled={disabled}
                   />{" "}
@@ -74,7 +65,7 @@ const InstrumentEditor = ({
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
-                    onChange={updateInstrumentField("version")}
+                    onChange={updateInstrumentEvent("version")}
                     fullWidth
                     disabled={disabled}
                   />
@@ -89,7 +80,7 @@ const InstrumentEditor = ({
                   <BilingualTextInput
                     label={typeLabel}
                     value={instrument.type}
-                    onChange={updateInstrumentField("type")}
+                    onChange={updateInstrumentEvent("type")}
                     disabled={disabled}
                   />
                 </Grid>{" "}
@@ -98,7 +89,7 @@ const InstrumentEditor = ({
                   <BilingualTextInput
                     label={descriptionLabel}
                     value={instrument.description}
-                    onChange={updateInstrumentField("description")}
+                    onChange={updateInstrumentEvent("description")}
                     disabled={disabled}
                   />
                 </Grid>

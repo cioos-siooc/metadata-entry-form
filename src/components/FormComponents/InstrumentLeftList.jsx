@@ -189,9 +189,7 @@ const InstrumentLeftList = ({
                                 setItems(instruments);
                               }}
                               disabled={
-                                !(
-                                  instruments[i].instrumentID?.length
-                                )
+                                instruments[i].id?.length === 0
                               }
                               edge="end"
                               aria-label="clone"

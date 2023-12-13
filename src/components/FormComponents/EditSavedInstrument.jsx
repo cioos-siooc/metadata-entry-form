@@ -7,7 +7,7 @@ import { auth } from "../../auth";
 
 import { En, Fr, I18n } from "../I18n";
 
-import InstrumentEditor from "./InstrumentEditor.jsx";
+import InstrumentEditor from "./InstrumentEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
 
 class EditInstrument extends FormClassTemplate {
@@ -59,7 +59,7 @@ class EditInstrument extends FormClassTemplate {
     const { match, history } = this.props;
     const { language, region } = match.params;
 
-    history.push(`/${language}/${region}/contacts`);
+    history.push(`/${language}/${region}/instruments`);
   }
 
   // Create or update instrument
@@ -93,6 +93,7 @@ class EditInstrument extends FormClassTemplate {
             variant="contained"
             color="primary"
             onClick={() => this.handleSubmitClick()}
+            disabled={!this.state.id}
           >
             <I18n>
               <En>Save</En>
