@@ -4,8 +4,19 @@ export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
 
 // See https://stackoverflow.com/a/48524047/7416701
-export const doiRegexp = /^10.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+function isValidHttpUrl(string) {
+  let url;
 
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+export const validateDOI = (val) => !val || (doiRegexp.test(val) && isValidHttpUrl(val));
 const validateLatitude = (num) => num >= -90 && num <= 90;
 
 const deepCompare = (obj1, obj2) =>
@@ -70,7 +81,7 @@ const validators = {
     },
   },
   datasetIdentifier: {
-    validation: (val) => !val || doiRegexp.test(val),
+    validation: validateDOI,
     optional: true,
     tab: "dataID",
     error: {
