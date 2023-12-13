@@ -14,16 +14,16 @@ import {
 
 const BiologicalTab = ({ disabled, record, updateRecord }) => {
   const updateBiological = updateRecord("biological");
-  
-  function handleBiologicalChange(key){
+
+  function handleBiologicalChange(key) {
     return (e) => {
-      const newData = {...record.biological, [key]: e.target.value };
+      const newData = { ...record.biological, [key]: e.target.value };
       updateBiological(newData);
     };
   }
 
-  function updateMethods(methodCollection){
-    const newData = {...record.biological, methods: methodCollection};
+  function updateMethods(methodCollection) {
+    const newData = { ...record.biological, methods: methodCollection };
 
     updateBiological(newData);
   }
@@ -114,13 +114,13 @@ const BiologicalTab = ({ disabled, record, updateRecord }) => {
           <SupplementalText>
             <I18n>
               <En>
-                This field represents both a specific sampling area and the 
-                sampling frequency (temporal boundaries, frequency of 
+                This field represents both a specific sampling area and the
+                sampling frequency (temporal boundaries, frequency of
                 occurrence).
               </En>
               <Fr>
-                Ce champ représente à la fois une zone d'échantillonnage 
-                spécifique et la fréquence d'échantillonnage (limites 
+                Ce champ représente à la fois une zone d'échantillonnage
+                spécifique et la fréquence d'échantillonnage (limites
                 temporelles, fréquence d'occurrence).
               </Fr>
             </I18n>
@@ -132,15 +132,50 @@ const BiologicalTab = ({ disabled, record, updateRecord }) => {
           onChange={handleBiologicalChange("studyExtent")}
           disabled={disabled}
           multiline
-        />
-      </Paper>
+          />
+        </Paper>
 
-      <MethodSteps
-        paperClass={paperClass}
-        methods={record.biological.methods || []}
-        updateMethods={updateMethods}
-        disabled={disabled}
-      />
+        <Paper style={paperClass}>
+          <QuestionText>
+            <I18n>
+              <En>
+                What are the methods and procedures used in this dataset?
+              </En>
+              <Fr>
+                Quelles sont les méthodes et procédures utilisées dans cet 
+                ensemble de données?
+              </Fr>
+            </I18n>
+            <SupplementalText>
+              <I18n>
+                <En>
+                  This field allows for repeated sets of elements that document
+                  a series of methods and procedures used in the study, and the 
+                  processing steps leading to the production of the data files. 
+                  These include e.g. text descriptions of the procedures, 
+                  relevant literature, software, instrumentation and any quality 
+                  control measurements taken.
+                </En>
+                <Fr>
+                  Ce champ permet des ensembles répétés d'éléments qui documentent 
+                  une série de méthodes et de procédures utilisées dans l'étude ; 
+                  les étapes de traitement menant à la production des fichiers de 
+                  données. Ceux-ci comprennent par exemple des descriptions 
+                  textuelles des procédures, la documentation, les logiciels, 
+                  les instruments et toute qualité pertinents ; mesures de 
+                  contrôle prises.
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+
+          <MethodSteps
+            paperClass={paperClass}
+            methods={record.biological.methods || []}
+            updateMethods={updateMethods}
+            disabled={disabled}
+          />
+        </Paper>
     </div>
   );
 };

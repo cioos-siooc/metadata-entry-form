@@ -65,8 +65,8 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <I18n>
-                    <En>Enter a title for this method step</En>
-                    <Fr>Entrez un titre pour cette étape de méthode</Fr>
+                    <En>{i + 1}. Enter a title for this method step</En>
+                    <Fr>{i + 1}. Entrez un titre pour cette étape de méthode</Fr>
                   </I18n>
                   <RequiredMark passes={method.title?.en || method.title?.fr} />
                 </QuestionText>
@@ -100,8 +100,8 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
                   onClick={() => removeMethodStep(i)}
                 >
                   <I18n>
-                    <En>Remove item</En>
-                    <Fr>Supprimer la ressource</Fr>
+                    <En>Remove step</En>
+                    <Fr>Étape de suppression</Fr>
                   </I18n>
                 </Button>
                 <Button
@@ -133,8 +133,8 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
       <Paper style={paperClass}>
         <Button startIcon={<Add />} disabled={disabled} onClick={addMethodStep}>
           <I18n>
-            <En>Add item</En>
-            <Fr>Ajouter une ressource</Fr>
+            <En>Add Method Step</En>
+            <Fr>Étape d'ajout de méthode</Fr>
           </I18n>
         </Button>
       </Paper>
