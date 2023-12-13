@@ -55,7 +55,7 @@ const LineageSource = ({
 
   return (
     <Grid container direction="row" spacing={3}>
-      <Grid item xs={3}>
+      <Grid item xs={4}>
         <Grid container direction="column" spacing={2}>
           <Grid item xs>
             Source:

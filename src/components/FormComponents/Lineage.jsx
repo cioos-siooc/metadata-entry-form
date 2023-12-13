@@ -19,7 +19,7 @@ import SelectInput from "./SelectInput";
 import BilingualTextInput from "./BilingualTextInput";
 
 const emptyLineage = {
-    statment: "",
+    statement: "",
     scope: "",
     additionalDocumentation: [],
     source: [],
@@ -64,8 +64,8 @@ const Lineage = ({
     if (typeof history === "string") {
         const item = deepCopy(emptyLineage)
         if (history !== '') {
-            item['statment'] = {
-                en: history, fr: history
+            item['statement'] = {
+                en: history, fr: history,
             }
         }
         history = [deepCopy(item)];
@@ -104,8 +104,8 @@ const Lineage = ({
                                                     }}
                                                 >
                                                     {i + 1}. {
-                                                        (lineageItem.statment[language] ?? '').length <= 50 ?
-                                                            (lineageItem.statment[language] ?? '') : lineageItem.statment[language].substring(0, 50) + '...'
+                                                        (lineageItem.statement[language] ?? '').length <= 50 ?
+                                                            (lineageItem.statement[language] ?? '') : lineageItem.statement[language].substring(0, 50) + '...'
 
                                                     }
                                                 </Typography>
@@ -139,13 +139,13 @@ const Lineage = ({
                             <Grid container direction="column" spacing={2}>
                                 <Grid item xs>
                                     <I18n>
-                                        <En>Lineage Statment</En>
+                                        <En>Lineage Statement</En>
                                         <Fr>Déclaration de lignée</Fr>
                                     </I18n>
-                                    <RequiredMark passes={lineageStep.statment} />
+                                    <RequiredMark passes={lineageStep.statement} />
                                     <BilingualTextInput
-                                        value={lineageStep.statment}
-                                        onChange={updateLineageField("statment")}
+                                        value={lineageStep.statement}
+                                        onChange={updateLineageField("statement")}
                                         fullWidth
                                         disabled={disabled}
                                     />
