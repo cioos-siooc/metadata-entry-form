@@ -15,7 +15,7 @@ import {
   SupervisorAccount,
   Menu,
   AssignmentTurnedIn,
-  LinearScale, Straighten, StraightenSharp, StraightenRounded, StraightenOutlined,
+  StraightenSharp,
 } from "@material-ui/icons";
 
 import {

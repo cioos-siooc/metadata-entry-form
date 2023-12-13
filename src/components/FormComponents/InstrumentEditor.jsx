@@ -1,12 +1,10 @@
 import React from "react";
 
 import {
-  Button,
   Grid, Paper,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { Delete } from "@material-ui/icons";
 import { getBlankInstrument } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";
@@ -93,18 +91,6 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                {/*<Grid item xs>*/}
-                {/*  <Button*/}
-                {/*    startIcon={<Delete />}*/}
-                {/*    disabled={disabled}*/}
-                {/*    onClick={removeInstrument}*/}
-                {/*  >*/}
-                {/*    <I18n>*/}
-                {/*      <En>Remove item</En>*/}
-                {/*      <Fr>Supprimer l'instrument</Fr>*/}
-                {/*    </I18n>*/}
-                {/*  </Button>*/}
-                {/*</Grid>*/}
               </Grid>
             </Paper>
           )}

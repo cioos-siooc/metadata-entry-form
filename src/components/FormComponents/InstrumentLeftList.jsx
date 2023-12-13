@@ -1,28 +1,28 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 
-import { Container, Draggable } from "react-smooth-dnd";
+import {Container, Draggable} from "react-smooth-dnd";
 
 import arrayMove from "array-move";
-import { Delete, DragHandle, FileCopy, Save } from "@material-ui/icons";
+import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
 import {
+  Button,
+  Grid,
+  IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  IconButton,
-  Typography,
-  Tooltip,
-  Grid,
   Paper,
-  Button,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
-import { deepCopy, deepEquals } from "../../utils/misc";
-import { paperClass } from "./QuestionStyles";
+import {deepCopy, deepEquals} from "../../utils/misc";
+import {paperClass} from "./QuestionStyles";
 import SelectInput from "./SelectInput";
-import { En, Fr, I18n } from "../I18n";
+import {En, Fr, I18n} from "../I18n";
 
 import InstrumentTitle from "./InstrumentTitle";
-import { getBlankInstrument } from "../../utils/blankRecord";
+import {getBlankInstrument} from "../../utils/blankRecord";
 
 const InstrumentLeftList = ({
   instruments,
