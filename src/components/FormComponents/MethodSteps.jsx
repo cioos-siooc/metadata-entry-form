@@ -116,7 +116,7 @@ const MethodSteps = ({ updateMethods, methods, disabled }) => {
                 </Button>
                 <Button
                   startIcon={<ArrowDownwardSharp />}
-                  disabled={disabled || i + 1 >= methods.length}
+                  disabled={disabled || i + 1 === methodList.length}
                   onClick={() => moveMethodStep(i, i + 1)}
                 >
                   <I18n>
