@@ -108,15 +108,14 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <I18n>
                       <En>
                         <p>
-                          The identifier may be to a metadata record on another
-                          repository or another record within CIOOS. A DOI or full URL are prefered.
+                          The identifier may be to a resource, or metadata record on another
+                          repository or another record within CIOOS. A DOI or full URL are preferred.
                         </p>
                       </En>
                       <Fr>
                         <p>
-                          L'identifiant peut provenir d'un enregistrement de métadonnées sur un autre
-                          référentiel ou d'un autre enregistrement dans CIOOS. Un DOI ou une URL
-                          complète sont préférables.
+                          L'identifiant peut provenir d'une ressource ou d'un enregistrement de métadonnées sur un autre
+                          référentiel ou un autre enregistrement dans CIOOS. Un DOI ou une URL complète sont préférés.
                         </p>
                       </Fr>
                     </I18n>
@@ -161,23 +160,25 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <I18n>
                       <En>
                         <p>
-                          Specify the relationship between this record and another. The relationship is from the perspective of 'What the other record is to this one'. for example:
+                          Specify the relationship from the perspective of (A) the related resource; to (B) the primary resource in the metadata record you are creating. For example:
                         </p>
                         <ul>
+                          <li>Use 'Revision of' to indicate the primary resource described (A) is a new version of (B) the related work.</li>
+                          <li>Use 'Larger Work Citation' to indicate the primary resource described in this metadata record (A) is a subset of (B) the related larger work.</li>
+                          <li>Use 'Is Composed Of' to indicate the primary resource described (A) is the larger work that includes (B) the related work.</li>
                           <li>Use the 'Cross Reference' to identify related datasets.</li>
-                          <li>Use 'Larger Work Citation' to identify a larger program or operation of which this record is a part.</li>
-                          <li>Use 'Dependency' when identifying another work that is cited in this record or is required for this record to exist. A model linking to its input datasets could be once use case for this. </li>
                         </ul>
 
                       </En>
                       <Fr>
                         <p>
-                          Spécifiez la relation entre cet enregistrement et un autre. La relation se situe dans la perspective de "ce que l'autre disque est par rapport à celui-ci". Par exemple:
+                          Spécifiez la relation du point de vue de (A) la ressource associée ; à (B) la ressource principale dans l'enregistrement de métadonnées que vous créez. Par exemple:
                         </p>
                         <ul>
+                          <li>Utilisez "Révision de" pour indiquer que la ressource principale décrite (A) est une nouvelle version de (B) l'œuvre associée.</li>
+                          <li>Utilisez "Citation de travail plus important" pour indiquer que la ressource principale décrite dans cet enregistrement de métadonnées (A) est un sous-ensemble de (B) le travail plus important associé.</li>
+                          <li>Utilisez "Est composé de" pour indiquer que la ressource principale décrite (A) est le travail le plus important qui comprend (B) le travail associé.</li>
                           <li>Utilisez les "Références croisées" pour identifier les ensembles de données associés.</li>
-                          <li>Utilisez "Citation de travail plus importante" pour identifier un programme ou une opération plus vaste dont cet enregistrement fait partie.</li>
-                          <li>Utilisez "Dépendance" lorsque vous identifiez une autre œuvre citée dans cet enregistrement ou requise pour que cet enregistrement existe. Un modèle lié à ses ensembles de données d’entrée pourrait être un cas d’utilisation pour cela. </li>
                         </ul>
 
                       </Fr>

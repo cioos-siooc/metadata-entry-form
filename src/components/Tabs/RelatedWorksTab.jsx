@@ -18,22 +18,22 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
     <div>
       <Paper style={paperClass}>
         <QuestionText>
-          <En>Enter any links to other related metadata records or works that are associated with this dataset.
-            This should not include links to data or datasets described by this metadata record.</En>
+          <En>Enter links to other metadata records, publications or works that are
+            related to the primary resources this metadata record describes.
+          </En>
           <Fr>
-            Saisissez tous les liens vers d'autres enregistrements de métadonnées ou travaux associés à cet
-            ensemble de données. Cela ne doit pas inclure de liens vers des données ou des ensembles de données
-            décrits par cet enregistrement de métadonnées.
+            Entrez des liens vers d'autres enregistrements de métadonnées, publications ou ouvrages qui sont
+            liés aux ressources principales décrites par cet enregistrement de métadonnées.
           </Fr>
           <RequiredMark passes={validateField(record, "associated_resources")} />
           <SupplementalText>
             <I18n>
               <En>
-                Related works are:
+                Related works may be:
                 <ul>
                   <li>Other datasets that are part of the same collection, project, or sampling protocol</li>
                   <li>Metadata records on other catalogues such as OBIS or FRDR that describe the same dataset</li>
-                  <li>Works whose relationship to this record adds information or context to this record</li>
+                  <li>Any work that adds context to or describes the primary resource for which you are creating this metadata record for</li>
                 </ul>
 
                 Some of the ways a work can be related are:
@@ -45,11 +45,11 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
                 </ul>
               </En>
               <Fr>
-                Les travaux connexes sont :
+                Les œuvres connexes peuvent être :
                 <ul>
                   <li>Autres ensembles de données faisant partie de la même collection, du même projet ou du même protocole d'échantillonnage</li>
                   <li>Enregistrements de métadonnées sur d'autres catalogues tels que OBIS ou FRDR qui décrivent le même ensemble de données</li>
-                  <li>Œuvres dont la relation avec cet enregistrement ajoute des informations ou un contexte à cet enregistrement</li>
+                  <li>Tout travail qui ajoute du contexte ou décrit la ressource principale pour laquelle vous créez cet enregistrement de métadonnées</li>
                 </ul>
 
                 Certaines des façons dont une œuvre peut être liée sont :
