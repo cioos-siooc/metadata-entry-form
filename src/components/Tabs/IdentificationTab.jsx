@@ -986,6 +986,25 @@ const IdentificationTab = ({
           multiline
           disabled={disabled}
         />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="limitationsTranslationVerified"
+              checked={record.limitationsTranslationVerified || false}
+              onChange={(e) => {
+                const { checked } = e.target;
+                updateRecord("limitationsTranslationVerified")(checked);
+              }}
+              color="primary"
+            />
+          }
+          label={
+            <I18n>
+              <En>I have verified this translation</En>
+              <Fr>J'ai vérifié cette traduction</Fr>
+            </I18n>
+          }
+        />
       </Paper>
     </div>
   );
