@@ -59,8 +59,8 @@ const IdentificationTab = ({
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
-  const showUpdateDoi = record.doiCreationStatus !== "";
-  const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
+  const showUpdateDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "";
+  const showDeleteDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
   const mounted = useRef(false);
 
   const CatalogueLink = ({ lang }) => (
@@ -220,7 +220,7 @@ const IdentificationTab = ({
     if (debouncedDoiIdValue === '') {
       updateRecord("doiCreationStatus")('')
     }
-    else if (debouncedDoiIdValue) {
+    else if (debouncedDoiIdValue && regionInfo.datacitePrefix) {
       let id = debouncedDoiIdValue
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
