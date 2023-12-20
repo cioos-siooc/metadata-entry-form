@@ -14,6 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 
 const emptySource = {
   description: "",
@@ -54,12 +55,34 @@ const LineageSource = ({
   const source = sources.length > 0 && sources[activeSource];
 
   return (
-    <Grid container direction="row" spacing={3}>
+    <Grid container spacing={0}>
+      <Grid item>
+        <QuestionText>
+          Source:
+          <SupplementalText>
+            <I18n>
+              <En>
+                Information about the input used in creating the resource specified by the scope. Provide
+                citations to the input data. This is especially valuable for processed satellite data and
+                model data. For model data, it is suggested to describe the model and its input, especially
+                if their is no publication cited above to describe the model.
+              </En>
+              <Fr>
+                Informations sur l'entrée utilisée lors de la création de la ressource spécifiée par la portée. Fournir
+                citations aux données d’entrée. Ceci est particulièrement utile pour les données satellitaires traitées et
+                données du modèle. Pour les données de modèle, il est suggéré de décrire le modèle et ses entrées, en particulier
+                s'il n'y a pas de publication citée ci-dessus pour décrire le modèle.
+              </Fr>
+            </I18n>
+          </SupplementalText>
+        </QuestionText>
+      </Grid>
+      <Grid container item direction="row" spacing={1}>
       <Grid item xs={4}>
-        <Grid container direction="column" spacing={2}>
-          <Grid item xs>
-            Source:
-            <List>
+          <Grid container direction="column" spacing={1}>
+            <Grid item xs spacing={1}>
+
+              <List spacing={1}>
               {sources.map((sourceItem, i) => {
                 return (
                   <ListItem
@@ -169,6 +192,7 @@ const LineageSource = ({
           )}
         </Grid>
       </Grid>
+    </Grid>
     </Grid>
   );
 };

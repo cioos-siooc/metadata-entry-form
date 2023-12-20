@@ -17,6 +17,7 @@ import AdditionalDocumentation from "./LineageAdditionalDocumentation"
 import LineageSource from "./LineageSource";
 import SelectInput from "./SelectInput";
 import BilingualTextInput from "./BilingualTextInput";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 
 const emptyLineage = {
     statement: "",
@@ -84,10 +85,12 @@ const Lineage = ({
             <Grid item xs={3}>
                 <Grid container direction="column" spacing={2}>
                     <Grid item xs>
+                        <QuestionText>
                         <I18n>
                             <En>Lineage:</En>
                             <Fr>Lignée:</Fr>
                         </I18n>
+                        </QuestionText>
                         <List>
                             {history.map((lineageItem, i) => {
                                 return (
@@ -138,11 +141,23 @@ const Lineage = ({
                         <Paper style={paperClass}>
                             <Grid container direction="column" spacing={2}>
                                 <Grid item xs>
+                                    <QuestionText>
                                     <I18n>
                                         <En>Lineage Statement</En>
                                         <Fr>Déclaration de lignée</Fr>
                                     </I18n>
                                     <RequiredMark passes={lineageStep.statement} />
+                                        <SupplementalText>
+                                            <I18n>
+                                                <En>
+                                                    General explanation of the level of knowledge or lack thereof about the lineage.
+                                                </En>
+                                                <Fr>
+                                                    Explication générale du niveau de connaissance ou du manque de connaissances sur la lignée.
+                                                </Fr>
+                                            </I18n>
+                                        </SupplementalText>
+                                    </QuestionText>
                                     <BilingualTextInput
                                         value={lineageStep.statement}
                                         onChange={updateLineageField("statement")}
@@ -151,11 +166,22 @@ const Lineage = ({
                                     />
                                 </Grid>
                                 <Grid item xs>
-
+                                    <QuestionText>
                                     <I18n>
                                         <En>Scope</En>
                                         <Fr>Portée</Fr>
                                     </I18n>
+                                        <SupplementalText>
+                                            <I18n>
+                                                <En>
+                                                    Type of resource and/or extent to which the lineage information applies.
+                                                </En>
+                                                <Fr>
+                                                    Type de ressource et/ou mesure dans laquelle les informations sur la lignée s'appliquent.
+                                                </Fr>
+                                            </I18n>
+                                        </SupplementalText>
+                                    </QuestionText>
                                     <SelectInput
                                         value={lineageStep.scope}
                                         onChange={updateLineageField("scope")}

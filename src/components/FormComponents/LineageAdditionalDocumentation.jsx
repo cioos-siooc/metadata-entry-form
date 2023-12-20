@@ -14,6 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 
 const emptyDocumentation = {
   title: "",
@@ -53,15 +54,32 @@ const LineageAdditionalDocumentation = ({
   const documentation = documentations.length > 0 && documentations[activeDocumentation];
 
   return (
-    <Grid container direction="row" spacing={3}>
-      <Grid item xs={4}>
-        <Grid container direction="column" spacing={2}>
-          <Grid item xs>
+    <Grid container spacing={0}>
+      <Grid item>
+        <QuestionText>
+          <I18n>
+            <En>Additional Documentation:</En>
+            <Fr>Documentation Supplémentaire:</Fr>
+          </I18n>
+          <SupplementalText>
             <I18n>
-              <En>Additional Documentation:</En>
-              <Fr>Documentation Supplémentaire:</Fr>
+              <En>
+                A citation to additional lineage documentation. This could be a publication that describes the whole process, dataset, or model.
+              </En>
+              <Fr>
+                Une citation à une documentation supplémentaire sur la lignée. Il peut s'agir d'une publication décrivant l'ensemble du processus, de l'ensemble de données ou du modèle.
+              </Fr>
             </I18n>
-            <List>
+          </SupplementalText>
+        </QuestionText>
+      </Grid>
+
+
+      <Grid container item direction="row" spacing={1}>
+        <Grid item xs={4}>
+          <Grid container direction="column" spacing={1}>
+            <Grid item xs spacing={1}>
+              <List spacing={1}>
               {documentations.map((documentationItem, i) => {
                 return (
                   <ListItem
@@ -158,6 +176,7 @@ const LineageAdditionalDocumentation = ({
           )}
         </Grid>
       </Grid>
+    </Grid>
     </Grid>
   );
 };
