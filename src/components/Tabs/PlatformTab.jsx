@@ -87,6 +87,7 @@ const PlatformTab = ({
                 <Platform
                   record={record}
                   handleUpdateRecord={handleUpdateRecord}
+                  updateRecord={updateRecord}
                   disabled={disabled}
                 />
               </>

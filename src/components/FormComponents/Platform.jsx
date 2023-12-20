@@ -3,6 +3,8 @@ import React from "react";
 import { TextField, Grid, Tooltip } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew } from "@material-ui/icons";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
@@ -12,7 +14,7 @@ import { validateField } from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platforms from "../../platforms.json";
 
-const Platform = ({ record, handleUpdateRecord, disabled }) => {
+const Platform = ({ record, handleUpdateRecord, disabled, updateRecord }) => {
   const { language = "en" } = useParams();
 
   const platformsSorted = Object.values(platforms).sort((a, b) =>
@@ -139,6 +141,25 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           onChange={handleUpdateRecord("platformDescription")}
           multiline
           disabled={disabled}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="platformDescriptionTranslationVerified"
+              checked={record.platformDescriptionTranslationVerified || false}
+              onChange={(e) => {
+                const { checked } = e.target;
+                updateRecord("platformDescriptionTranslationVerified")(checked);
+              }}
+              color="primary"
+            />
+          }
+          label={
+            <I18n>
+              <En>I have verified this translation</En>
+              <Fr>J'ai vérifié cette traduction</Fr>
+            </I18n>
+          }
         />
       </Grid>
     </div>
