@@ -59,6 +59,7 @@ const IdentificationTab = ({
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
+  const showDoiStatus = regionInfo.datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
   const showUpdateDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
   const showDeleteDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
   const mounted = useRef(false);
@@ -807,7 +808,7 @@ const IdentificationTab = ({
           </Button>
         )} 
         {
-          showUpdateDoi && record.doiCreationStatus && (<Chip label={`Status: ${record.doiCreationStatus}`} variant="outlined" />)
+          showDoiStatus && (<Chip label={`Status: ${record.doiCreationStatus}`} variant="outlined" />)
         }
         {doiErrorFlag && (
           <span>
