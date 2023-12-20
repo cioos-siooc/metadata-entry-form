@@ -59,8 +59,8 @@ const IdentificationTab = ({
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
-  const showUpdateDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "";
-  const showDeleteDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
+  const showUpdateDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const showDeleteDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
   const mounted = useRef(false);
 
   const CatalogueLink = ({ lang }) => (
