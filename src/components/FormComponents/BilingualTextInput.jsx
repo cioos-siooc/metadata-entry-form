@@ -6,6 +6,8 @@ import {
   CircularProgress,
   Tooltip,
 } from "@material-ui/core";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import TranslateIcon from "@material-ui/icons/Translate";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
@@ -23,6 +25,8 @@ const BilingualTextInput = ({
   disabled,
   error,
   translationButonDisabled = false,
+  translateChecked,
+  translateOnChange,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
@@ -109,6 +113,25 @@ const BilingualTextInput = ({
                     <Fr>Traduire</Fr>
                   </I18n>
                 </Button>
+                {translateOnChange && (
+                  <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="platformDescriptionTranslationVerified"
+                      checked={translateChecked}
+                      onChange={translateOnChange}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <I18n>
+                      <En>I have verified this translation</En>
+                      <Fr>J'ai vérifié cette traduction</Fr>
+                    </I18n>
+                  }
+                />
+                )}
+                
                 {textTooBig && (
                   <I18n>
                     <En>
