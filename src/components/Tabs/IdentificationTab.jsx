@@ -573,6 +573,9 @@ const IdentificationTab = ({
           optionLabels={Object.values(metadataScopeCodes).map(
             ({ title }) => title[language]
           )}
+          optionTooltips={Object.values(metadataScopeCodes).map(
+            ({ text }) => text[language]
+          )}
           disabled={disabled}
           fullWidth={false}
           style={{ width: "200px" }}
