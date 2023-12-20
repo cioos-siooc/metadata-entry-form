@@ -10,8 +10,6 @@ import {
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
@@ -251,25 +249,15 @@ const IdentificationTab = ({
           value={record.title}
           onChange={handleUpdateRecord("title")}
           disabled={disabled}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="titleTranslationVerified"
-              checked={record.titleTranslationVerified || false}
-              onChange={(e) => {
-                const { checked } = e.target;
-                updateRecord("titleTranslationVerified")(checked);
-              }}
-              color="primary"
-            />
-          }
-          label={
-            <I18n>
-              <En>I have verified this translation</En>
-              <Fr>J'ai vérifié cette traduction</Fr>
-            </I18n>
-          }
+          translateChecked={
+                        record.titleTranslationVerified || false
+                      }
+          translateOnChange={(e) => {
+                        const { checked } = e.target;
+                        updateRecord("titleTranslationVerified")(
+                          checked
+                        );
+                      }}
         />
       </Paper>
 
@@ -415,25 +403,15 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("abstract")}
           disabled={disabled}
           multiline
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="abstractTranslationVerified"
-              checked={record.abstractTranslationVerified || false}
-              onChange={(e) => {
-                const { checked } = e.target;
-                updateRecord("abstractTranslationVerified")(checked);
-              }}
-              color="primary"
-            />
-          }
-          label={
-            <I18n>
-              <En>I have verified this translation</En>
-              <Fr>J'ai vérifié cette traduction</Fr>
-            </I18n>
-          }
+          translateChecked={
+                        record.abstractTranslationVerified || false
+                      }
+          translateOnChange={(e) => {
+                        const { checked } = e.target;
+                        updateRecord("abstractTranslationVerified")(
+                          checked
+                        );
+                      }}
         />
       </Paper>
 
@@ -985,25 +963,15 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("limitations")}
           multiline
           disabled={disabled}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="limitationsTranslationVerified"
-              checked={record.limitationsTranslationVerified || false}
-              onChange={(e) => {
-                const { checked } = e.target;
-                updateRecord("limitationsTranslationVerified")(checked);
-              }}
-              color="primary"
-            />
-          }
-          label={
-            <I18n>
-              <En>I have verified this translation</En>
-              <Fr>J'ai vérifié cette traduction</Fr>
-            </I18n>
-          }
+          translateChecked={
+                        record.limitationsTranslationVerified || false
+                      }
+          translateOnChange={(e) => {
+                        const { checked } = e.target;
+                        updateRecord("limitationsTranslationVerified")(
+                          checked
+                        );
+                      }}
         />
       </Paper>
     </div>
