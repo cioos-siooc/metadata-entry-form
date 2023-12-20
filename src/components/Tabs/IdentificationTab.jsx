@@ -255,13 +255,21 @@ const IdentificationTab = ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={record.translationVerified || false}
-              onChange={handleUpdateRecord("translationVerified")}
               name="translationVerified"
+              checked={record.translationVerified || false}
+              onChange={(e) => {
+                const { checked } = e.target;
+                updateRecord("translationVerified")(checked);
+              }}
               color="primary"
             />
           }
-          label="I have verified this translation"
+          label={
+            <I18n>
+              <En>I have verified this translation</En>
+              <Fr>J'ai vérifié cette traduction</Fr>
+            </I18n>
+          }
         />
       </Paper>
 
@@ -719,13 +727,12 @@ const IdentificationTab = ({
             <SupplementalText>
               <I18n>
                 <En>
-                  <p>
-                    Please save the form before generating a draft DOI.
-                  </p>
+                  <p>Please save the form before generating a draft DOI.</p>
                 </En>
                 <Fr>
                   <p>
-                  Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                    Veuillez enregistrer le formulaire avant de générer un
+                    brouillon de DOI.
                   </p>
                 </Fr>
               </I18n>
@@ -751,15 +758,12 @@ const IdentificationTab = ({
           </Button>
         )}
         {showUpdateDoi && (
-          <Button
-            onClick={handleUpdateDraftDOI}
-            style={{ display: 'inline' }}
-          >
+          <Button onClick={handleUpdateDraftDOI} style={{ display: "inline" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiUpdate ? (
                 <>
-                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                    Loading...
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
                 </>
               ) : (
                 "Update Draft DOI"
@@ -767,23 +771,20 @@ const IdentificationTab = ({
             </div>
           </Button>
         )}
-      {showDeleteDoi && (
-        <Button
-          onClick={handleDeleteDOI}
-          style={{ display: "inline" }}
-        >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {loadingDoiDelete ? (
-              <>
+        {showDeleteDoi && (
+          <Button onClick={handleDeleteDOI} style={{ display: "inline" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoiDelete ? (
+                <>
                   <CircularProgress size={24} style={{ marginRight: "8px" }} />
                   Loading...
-              </>
-            ) : (
-              "Delete Draft DOI"
-            )}
-          </div>
-        </Button>
-      )}
+                </>
+              ) : (
+                "Delete Draft DOI"
+              )}
+            </div>
+          </Button>
+        )}
         {doiErrorFlag && (
           <span>
             <I18n
@@ -794,10 +795,7 @@ const IdentificationTab = ({
         )}
         {doiUpdateFlag && (
           <span>
-            <I18n
-              en="DOI has been updated"
-              fr="Le DOI a été mis à jour"
-            />
+            <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
           </span>
         )}
 
