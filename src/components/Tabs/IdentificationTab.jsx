@@ -255,11 +255,11 @@ const IdentificationTab = ({
         <FormControlLabel
           control={
             <Checkbox
-              name="translationVerified"
-              checked={record.translationVerified || false}
+              name="titleTranslationVerified"
+              checked={record.titleTranslationVerified || false}
               onChange={(e) => {
                 const { checked } = e.target;
-                updateRecord("translationVerified")(checked);
+                updateRecord("titleTranslationVerified")(checked);
               }}
               color="primary"
             />
@@ -415,6 +415,25 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("abstract")}
           disabled={disabled}
           multiline
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="abstractTranslationVerified"
+              checked={record.abstractTranslationVerified || false}
+              onChange={(e) => {
+                const { checked } = e.target;
+                updateRecord("abstractTranslationVerified")(checked);
+              }}
+              color="primary"
+            />
+          }
+          label={
+            <I18n>
+              <En>I have verified this translation</En>
+              <Fr>J'ai vérifié cette traduction</Fr>
+            </I18n>
+          }
         />
       </Paper>
 
