@@ -206,6 +206,7 @@ const IdentificationTab = ({
     }
   }
 
+  console.log(record)
   return (
     <div>
       <Paper style={paperClass}>
@@ -250,11 +251,11 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("title")}
           disabled={disabled}
           translateChecked={
-                        record.titleTranslationVerified || false
+                        record.translationVerifiedTitle || false
                       }
           translateOnChange={(e) => {
                         const { checked } = e.target;
-                        updateRecord("titleTranslationVerified")(
+                        updateRecord("translationVerifiedTitle")(
                           checked
                         );
                       }}
@@ -404,11 +405,11 @@ const IdentificationTab = ({
           disabled={disabled}
           multiline
           translateChecked={
-                        record.abstractTranslationVerified || false
+                        record.translationVerifiedAbstract || false
                       }
           translateOnChange={(e) => {
                         const { checked } = e.target;
-                        updateRecord("abstractTranslationVerified")(
+                        updateRecord("translationVerifiedAbstract")(
                           checked
                         );
                       }}
@@ -964,11 +965,11 @@ const IdentificationTab = ({
           multiline
           disabled={disabled}
           translateChecked={
-                        record.limitationsTranslationVerified || false
+                        record.translationVerifiedLimitations || false
                       }
           translateOnChange={(e) => {
                         const { checked } = e.target;
-                        updateRecord("limitationsTranslationVerified")(
+                        updateRecord("translationVerifiedLimitations")(
                           checked
                         );
                       }}

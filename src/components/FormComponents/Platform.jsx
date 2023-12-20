@@ -140,11 +140,11 @@ const Platform = ({ record, handleUpdateRecord, disabled, updateRecord }) => {
           multiline
           disabled={disabled}
           translateChecked={
-                        record.platformDescriptionTranslationVerified || false
+                        record.translationVerifiedPlatformDescription || false
                       }
           translateOnChange={(e) => {
                         const { checked } = e.target;
-                        updateRecord("platformDescriptionTranslationVerified")(
+                        updateRecord("translationVerifiedPlatformDescription")(
                           checked
                         );
                       }}
