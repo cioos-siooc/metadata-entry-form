@@ -59,9 +59,9 @@ const IdentificationTab = ({
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
-  const showDoiStatus = regionInfo.datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
-  const showUpdateDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
-  const showDeleteDoi = regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const showDoiStatus = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
+  const showUpdateDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const showDeleteDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
   const mounted = useRef(false);
 
   const CatalogueLink = ({ lang }) => (
@@ -221,7 +221,7 @@ const IdentificationTab = ({
     if (debouncedDoiIdValue === '') {
       updateRecord("doiCreationStatus")('')
     }
-    else if (debouncedDoiIdValue && regionInfo.datacitePrefix) {
+    else if (debouncedDoiIdValue && regionInfo.datacitePrefix && doiIsValid) {
       let id = debouncedDoiIdValue
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
