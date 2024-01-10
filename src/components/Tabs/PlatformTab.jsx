@@ -10,6 +10,8 @@ import { En, Fr, I18n } from "../I18n";
 const PlatformTab = ({
   disabled,
   record,
+  userPlatforms,
+  saveUpdatePlatform,
   userInstruments,
   saveUpdateInstrument,
   handleUpdateRecord,
@@ -88,9 +90,13 @@ const PlatformTab = ({
             {!noPlatform ? (
               <>
                 <Platform
+                  userPlatforms={userPlatforms}
+                  saveUpdatePlatform={saveUpdatePlatform}
                   record={record}
                   handleUpdateRecord={handleUpdateRecord}
+                  updatePlatforms={updateRecord("platforms")}
                   disabled={disabled}
+                  paperClass={paperClass}
                 />
               </>
             ) : (

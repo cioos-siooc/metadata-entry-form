@@ -183,6 +183,20 @@ class MetadataForm extends FormClassTemplate {
         });
         this.listenerRefs.push(editorInstrumentsRef);
 
+        // get platforms
+        const editorPlatformsRef = editorDataRef.child("platforms");
+
+        editorPlatformsRef.on("value", (platformsFB) => {
+          const userPlatforms = platformsFB.toJSON();
+          Object.entries(userPlatforms || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userPlatforms });
+        });
+        this.listenerRefs.push(editorPlatformsRef);
+
+
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
@@ -284,6 +298,29 @@ class MetadataForm extends FormClassTemplate {
     // new instrument
 
     return instrumentsRef.push(instrument).getKey();
+  }
+
+  handleSaveUpdatePlatform(platform) {
+    const { platformID } = platform;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const platformRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("platforms");
+
+    // existing instrument
+    if (platformID) {
+      platformRef.child(platformID).update(platform);
+      return platformID;
+    }
+    // new instrument
+
+    return platformRef.push(platform).getKey();
   }
 
   async handleSubmitRecord() {
@@ -388,6 +425,7 @@ class MetadataForm extends FormClassTemplate {
     const {
       userContacts,
       userInstruments,
+      userPlatforms,
       tabIndex,
       record,
       saveDisabled,
@@ -556,9 +594,11 @@ class MetadataForm extends FormClassTemplate {
           <SpatialTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="platform">
-          <PlatformTab 
+          <PlatformTab
           userInstruments={userInstruments}
           saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+          userPlatforms={userPlatforms}
+          saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
           {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">

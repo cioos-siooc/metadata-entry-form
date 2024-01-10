@@ -64,8 +64,7 @@ const blankContact = {
 };
 
 function getBlankContact() {
-  const contact = deepCopy(blankContact);
-  return contact;
+  return deepCopy(blankContact);
 }
 
 const blankInstrument = {
@@ -77,8 +76,19 @@ const blankInstrument = {
 };
 
 function getBlankInstrument() {
-  const instrument = deepCopy(blankInstrument);
-  return instrument;
+  return deepCopy(blankInstrument);
 }
 
-export { getBlankRecord, getBlankContact, getBlankInstrument };
+const blankPlatform = {
+  id: "",
+  manufacturer: "",
+  version: "",
+  type: { en: "", fr: "" },
+  description: { en: "", fr: "" },
+};
+
+function getBlankPlatform() {
+  return deepCopy(blankPlatform);
+}
+
+export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};

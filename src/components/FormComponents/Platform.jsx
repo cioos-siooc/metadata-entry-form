@@ -1,27 +1,72 @@
-import React from "react";
+import React, {useState} from "react";
 
-import { TextField, Grid, Tooltip } from "@material-ui/core";
+import {TextField, Grid, Tooltip, Paper} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew } from "@material-ui/icons";
 
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 import RequiredMark from "./RequiredMark";
 import { En, Fr, I18n } from "../I18n";
 import { validateField } from "../../utils/validate";
 import SelectInput from "./SelectInput";
-import platforms from "../../platforms.json";
+import platformTypes from "../../platforms.json";
+import PlatformLeftList from "./PlatformLeftList";
 
-const Platform = ({ record, handleUpdateRecord, disabled }) => {
+const Platform = ({
+      platforms = [],
+      userPlatforms,
+      record,
+      handleUpdateRecord,
+      updatePlatforms,
+      saveUpdatePlatform,
+      disabled,
+      paperClass,
+}) => {
   const { language = "en" } = useParams();
+  const [activePlatform, setActivePlatform] = useState(0);
 
-  const platformsSorted = Object.values(platforms).sort((a, b) =>
+  function updatePlatformField(key) {
+      return (e) => {
+        const platformsCopy = [...platforms];
+        platformsCopy[activePlatform][key] = e.target.value;
+        updatePlatforms(platformsCopy);
+      };
+    }
+
+  function removePlatform() {
+    updatePlatforms(
+      platforms.filter((e, index) => index !== activePlatform)
+    );
+    if (platforms.length) setActivePlatform(platforms.length - 2);
+  }
+
+
+  const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
   );
 
   return (
     <div>
-      <Grid item xs style={{ ...paperClass, marginTop: "-40px" }}>
+
+      <Grid container direction="row" style={{ marginLeft: "5px" }}>
+        <Grid item xs={5}>
+
+        <PlatformLeftList
+                  platforms={platforms}
+                  updatePlatforms={updatePlatforms}
+                  activePlatform={activePlatform}
+                  setActivePlatform={setActivePlatform}
+                  disabled={disabled}
+                  userPlatforms={userPlatforms}
+                  saveUpdatePlatform={saveUpdatePlatform}
+                  />
+        </Grid>
+
+
+
+      <Grid item xs>
+        <Grid container direction="column">
         <QuestionText>
           <I18n>
             <En>What type of platform is it?</En>
@@ -59,11 +104,11 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
         <SelectInput
           value={record.platform}
           onChange={handleUpdateRecord("platform")}
-          optionLabels={platformsSorted.map((e) => `${e[`label_${language}`]}`)}
-          optionTooltips={platformsSorted.map(
+          optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
+          optionTooltips={sortedPlatformTypes.map(
             (e) => `${e[`definition_${language}`]}`
           )}
-          options={platformsSorted.map((e) => e.label_en)}
+          options={sortedPlatformTypes.map((e) => e.label_en)}
           disabled={disabled}
           label={<I18n en="Platform" fr="Plateforme" />}
           fullWidth={false}
@@ -141,6 +186,10 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           disabled={disabled}
         />
       </Grid>
+      </Grid>
+      </Grid>
+
+
     </div>
   );
 };
