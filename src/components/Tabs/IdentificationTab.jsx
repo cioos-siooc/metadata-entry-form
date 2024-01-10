@@ -39,6 +39,7 @@ const IdentificationTab = ({
   record,
   handleUpdateRecord,
   updateRecord,
+  handleTranslationComplete,
   projects,
 }) => {
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
@@ -77,11 +78,6 @@ const IdentificationTab = ({
       language
     )
   );
-
-  const handleTranslationComplete = (fieldName) => (message) => {
-    const translationMethodField = `${fieldName}TranslationMethod`;
-    updateRecord(translationMethodField)(message);
-  };
 
   async function handleGenerateDOI() {
     setLoadingDoi(true);
