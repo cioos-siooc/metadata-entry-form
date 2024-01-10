@@ -27,6 +27,7 @@ const BilingualTextInput = ({
   translationButonDisabled = false,
   translateChecked,
   translateOnChange,
+  onTranslateComplete,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
@@ -104,6 +105,7 @@ const BilingualTextInput = ({
                             value: translation,
                           },
                         });
+                        onTranslateComplete(`Auto-translated using AWS`);
                       }
                     );
                   }}
