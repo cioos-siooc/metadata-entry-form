@@ -137,7 +137,7 @@ const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, disab
         <BilingualTextInput
           value={record.platformDescription}
           onChange={handleUpdateRecord("platformDescription")}
-          onTranslateComplete={handleTranslationComplete}
+          onTranslateComplete={handleTranslationComplete("platformDescription")}
           multiline
           disabled={disabled}
           translateChecked={
