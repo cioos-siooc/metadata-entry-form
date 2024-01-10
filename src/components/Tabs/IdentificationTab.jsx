@@ -78,8 +78,9 @@ const IdentificationTab = ({
     )
   );
 
-  const handleTranslationComplete = (message) => {
-    updateRecord("translationMethod")(message);
+  const handleTranslationComplete = (fieldName) => (message) => {
+    const translationMethodField = `${fieldName}TranslationMethod`;
+    updateRecord(translationMethodField)(message);
   };
 
   async function handleGenerateDOI() {
@@ -253,7 +254,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.title}
           onChange={handleUpdateRecord("title")}
-          onTranslateComplete={handleTranslationComplete}
+          onTranslateComplete={handleTranslationComplete("title")}
           disabled={disabled}
           translateChecked={
                         record.translationVerifiedTitle || false
@@ -407,7 +408,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.abstract}
           onChange={handleUpdateRecord("abstract")}
-          onTranslateComplete={handleTranslationComplete}
+          onTranslateComplete={handleTranslationComplete("abstract")}
           disabled={disabled}
           multiline
           translateChecked={
@@ -968,7 +969,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.limitations}
           onChange={handleUpdateRecord("limitations")}
-          onTranslateComplete={handleTranslationComplete}
+          onTranslateComplete={handleTranslationComplete("limitations")}
           multiline
           disabled={disabled}
           translateChecked={
