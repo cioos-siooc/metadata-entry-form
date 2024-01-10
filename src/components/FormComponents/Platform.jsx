@@ -12,7 +12,7 @@ import { validateField } from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platforms from "../../platforms.json";
 
-const Platform = ({ record, handleUpdateRecord, disabled, updateRecord }) => {
+const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, disabled, updateRecord }) => {
   const { language = "en" } = useParams();
 
   const platformsSorted = Object.values(platforms).sort((a, b) =>
@@ -137,6 +137,7 @@ const Platform = ({ record, handleUpdateRecord, disabled, updateRecord }) => {
         <BilingualTextInput
           value={record.platformDescription}
           onChange={handleUpdateRecord("platformDescription")}
+          onTranslateComplete={handleTranslationComplete}
           multiline
           disabled={disabled}
           translateChecked={
