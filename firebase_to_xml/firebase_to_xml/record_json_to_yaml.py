@@ -30,6 +30,10 @@ def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
     return [eov_translations.get(eov,"") for eov in eovs_en if eov]
 
+def verify_translation(verified, message):
+    if not verified:
+        return message
+    return ""
 
 def strip_keywords(keywords):
     """Strips whitespace from each keyword in either language"""
