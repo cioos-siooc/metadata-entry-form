@@ -207,7 +207,6 @@ const IdentificationTab = ({
     }
   }
 
-  console.log(record)
   return (
     <div>
       <Paper style={paperClass}>
