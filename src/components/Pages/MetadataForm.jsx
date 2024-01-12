@@ -227,9 +227,9 @@ class MetadataForm extends FormClassTemplate {
     }));
   };
 
-  handleTranslationComplete = (fieldName) => (message) => {
+  handleTranslationComplete = (fieldName, translateMessage) => () => {
     const translationMethodField = `${fieldName}TranslationMethod`;
-    this.updateRecord(translationMethodField)(message);
+    this.updateRecord(translationMethodField)(translateMessage);
   };
 
   saveUpdateContact(contact) {

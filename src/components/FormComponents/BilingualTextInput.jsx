@@ -105,7 +105,7 @@ const BilingualTextInput = ({
                             value: translation,
                           },
                         });
-                        onTranslateComplete(`Auto-translated using AWS`);
+                        onTranslateComplete();
                       }
                     );
                   }}

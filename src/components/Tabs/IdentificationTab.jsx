@@ -254,7 +254,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.title}
           onChange={handleUpdateRecord("title")}
-          onTranslateComplete={handleTranslationComplete("title")}
+          onTranslateComplete={handleTranslationComplete("title", "Title text translated using the Amazon translate service / Texte du titre traduit à l’aide du service de traduction Amazon")}
           disabled={disabled}
           translateChecked={
                         record.translationVerifiedTitle || false
@@ -408,7 +408,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.abstract}
           onChange={handleUpdateRecord("abstract")}
-          onTranslateComplete={handleTranslationComplete("abstract")}
+          onTranslateComplete={handleTranslationComplete("abstract", "Abstract text translated using the Amazon translate service / Texte abstrait traduit à l'aide du service de traduction Amazon")}
           disabled={disabled}
           multiline
           translateChecked={
@@ -969,7 +969,7 @@ const IdentificationTab = ({
         <BilingualTextInput
           value={record.limitations}
           onChange={handleUpdateRecord("limitations")}
-          onTranslateComplete={handleTranslationComplete("limitations")}
+          onTranslateComplete={handleTranslationComplete("limitations", "Limitations text translated using the Amazon translate service / Texte des limitations traduit à l'aide du service de traduction Amazon")}
           multiline
           disabled={disabled}
           translateChecked={
