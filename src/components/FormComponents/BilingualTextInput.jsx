@@ -119,7 +119,6 @@ const BilingualTextInput = ({
                   <FormControlLabel
                   control={
                     <Checkbox
-                      name="platformDescriptionTranslationVerified"
                       checked={translateChecked}
                       onChange={translateOnChange}
                       color="primary"
