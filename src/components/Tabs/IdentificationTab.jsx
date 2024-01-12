@@ -23,7 +23,7 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import recordToDataCite from "../../utils/recordToDataCite";
-import { validateField, doiRegexp } from "../../utils/validate";
+import { validateField, validateDOI } from "../../utils/validate";
 
 import {
   QuestionText,
@@ -45,9 +45,8 @@ const IdentificationTab = ({
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
-  const doiIsValid = Boolean(
-    !record.datasetIdentifier || doiRegexp.test(record.datasetIdentifier)
-  );
+  const doiIsValid =validateDOI(record.datasetIdentifier)
+  
   const languageUpperCase = language.toUpperCase();
   const [doiGenerated, setDoiGenerated] = useState(false);
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
@@ -90,13 +89,13 @@ const IdentificationTab = ({
         })
         .then(async (attributes) => {
           // Update the record object with datasetIdentifier and doiCreationStatus
-          updateRecord("datasetIdentifier")(attributes.doi);
+          updateRecord("datasetIdentifier")(`https://doi.org/${attributes.doi}`);
           updateRecord("doiCreationStatus")("draft");
 
           // Create a new object with updated properties
           const updatedRecord = {
             ...record,
-            datasetIdentifier: attributes.doi,
+            datasetIdentifier: `https://doi.org/${attributes.doi}`,
             doiCreationStatus: "draft",
           };
 
@@ -135,8 +134,11 @@ const IdentificationTab = ({
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
+      // Extract DOI from the full URL
+      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+
       const dataObject = {
-        doi: record.datasetIdentifier,
+        doi,
         data: mappedDataCiteObject,
       }
 
@@ -162,7 +164,10 @@ const IdentificationTab = ({
     setLoadingDoiDelete(true);
 
     try {
-      deleteDraftDoi(record.datasetIdentifier)
+      // Extract DOI from the full URL
+      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+
+      deleteDraftDoi(doi)
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
@@ -752,7 +757,7 @@ const IdentificationTab = ({
                   Loading...
                 </>
               ) : (
-                "Generate Draft DOI"
+                "Generate DOI"
               )}
             </div>
           </Button>
@@ -766,7 +771,7 @@ const IdentificationTab = ({
                   Loading...
                 </>
               ) : (
-                "Update Draft DOI"
+                "Update DOI"
               )}
             </div>
           </Button>
@@ -778,13 +783,13 @@ const IdentificationTab = ({
                 <>
                   <CircularProgress size={24} style={{ marginRight: "8px" }} />
                   Loading...
-                </>
-              ) : (
-                "Delete Draft DOI"
-              )}
-            </div>
-          </Button>
-        )}
+              </>
+            ) : (
+              "Delete DOI"
+            )}
+          </div>
+        </Button>
+      )}
         {doiErrorFlag && (
           <span>
             <I18n

@@ -102,7 +102,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = [JSON.stringify(recordToDataCite(record), null, 2)];
+        data = [JSON.stringify(recordToDataCite(record, language, region), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);
