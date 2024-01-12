@@ -59,11 +59,14 @@ function recordToDataCite(metadata, language, region) {
       contact.role.includes("publisher")
     );
   
-    // Get the publication year from the datePublished field
+    // Get the publication year from the datePublished field, if dateRevised contains value use dateRevised as publication year
     let publicationYear;
-    if (metadata.datePublished) {
-      const year = parseInt(metadata.datePublished.slice(0, 4), 10)
-      publicationYear = Number.isNaN(year) ? undefined : year;
+    if (metadata.dateRevised) {
+      const revisedYear = parseInt(metadata.dateRevised.slice(0, 4), 10);
+      publicationYear = Number.isNaN(revisedYear) ? undefined : revisedYear;
+    } else if (metadata.datePublished) {
+      const publishedYear = parseInt(metadata.datePublished.slice(0, 4), 10)
+      publicationYear = Number.isNaN(publishedYear) ? undefined : publishedYear;
     } else {
       publicationYear = undefined;
     }
