@@ -58,6 +58,11 @@ function recordToDataCite(metadata, language, region) {
     const publisher = metadata.contacts.find((contact) =>
       contact.role.includes("publisher")
     );
+
+    // Find the funder organization
+    const funder = metadata.contacts.find((contact) => 
+      contact.role.includes("funder")
+    );
   
     // Get the publication year from the datePublished field
     let publicationYear;
@@ -172,6 +177,17 @@ function recordToDataCite(metadata, language, region) {
     if (publisher) {
       mappedDataCiteObject.data.attributes.publisher = 
         publisher.orgName || publisher.indName;
+    }
+
+    // Initialize fundingReference array
+    mappedDataCiteObject.data.attributes.fundingReferences = [];
+
+    // Add funder if it exists
+    if (funder) {
+      const funderReference = {
+        funderName: funder.orgName,
+      };
+      mappedDataCiteObject.data.attributes.fundingReferences.push(funderReference);
     }
 
     // Add publication year if it exists
