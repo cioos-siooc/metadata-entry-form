@@ -59,8 +59,8 @@ function recordToDataCite(metadata, language, region) {
       contact.role.includes("publisher")
     );
 
-    // Find the funder organization
-    const funder = metadata.contacts.find((contact) => 
+    // Filter all contacts with the role of 'funder'
+    const funders = metadata.contacts.filter((contact) => 
       contact.role.includes("funder")
     );
   
@@ -179,16 +179,12 @@ function recordToDataCite(metadata, language, region) {
         publisher.orgName || publisher.indName;
     }
 
-    // Initialize fundingReference array
-    mappedDataCiteObject.data.attributes.fundingReferences = [];
-
-    // Add funder if it exists
-    if (funder) {
-      const funderReference = {
+    // Add funders list if it exists
+    if (funders) {
+      mappedDataCiteObject.data.attributes.fundingReferences = funders.map(funder => ({
         funderName: funder.orgName,
-      };
-      mappedDataCiteObject.data.attributes.fundingReferences.push(funderReference);
-    }
+      }));
+    }    
 
     // Add publication year if it exists
     if (metadata.datePublished) {
