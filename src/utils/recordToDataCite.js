@@ -104,7 +104,7 @@ function recordToDataCite(metadata, language, region) {
         dateInformation: "Date when the data was last revised",
       });
     }
-  
+
     // Look up the license information
     const licenseInfo = licenses[metadata.license];
   
@@ -183,6 +183,12 @@ function recordToDataCite(metadata, language, region) {
     if (metadata.keywords) {
       mappedDataCiteObject.data.attributes.subjects = subjects;
     }
+
+    // add Version if it exists
+    if (metadata.edition) {
+      mappedDataCiteObject.data.attributes.version = metadata.edition;
+    }
+  
 
     // Add dates if they exist
     if (dates.length > 0) {
