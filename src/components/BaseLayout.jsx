@@ -91,6 +91,25 @@ const BaseLayout = ({ match }) => {
           fontSize: "1em",
         },
       },
+      MuiFormControlLabel: {
+        root: {
+          '&.Mui-disabled': {
+            '& .MuiCheckbox-root': {
+              color: '#585858', 
+            },
+            '& .MuiTypography-root': {
+              color: '#585858',
+            },
+          },
+        },
+      },
+      MuiInputBase: {
+        input: {
+          '&.Mui-disabled': {
+            color: '#585858',
+          },
+        },
+      },
     },
     palette: {
       primary: {
