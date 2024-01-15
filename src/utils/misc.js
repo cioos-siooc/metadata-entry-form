@@ -23,6 +23,10 @@ export const debounce = (mainFunction, delay) => {
   return debouncedFunction;
 }
 
+export const checkURL = () => {
+  console.log("check URL executed");
+}
+
 /*
 Convert firebase to javascript, mostly just used to get real array elements
 */
