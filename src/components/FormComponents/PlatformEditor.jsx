@@ -1,72 +1,54 @@
-import React, {useState} from "react";
+import React from "react";
 
-import {TextField, Grid, Tooltip, Paper} from "@material-ui/core";
-import { useParams } from "react-router-dom";
-import { OpenInNew } from "@material-ui/icons";
+import {
+  Grid, Paper,
+  TextField, Tooltip,
+  Typography,
+} from "@material-ui/core";
+import {OpenInNew} from "@material-ui/icons";
+import {useParams} from "react-router-dom";
+import { getBlankPlatform } from "../../utils/blankRecord";
+
+import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "./QuestionStyles";
+
 import RequiredMark from "./RequiredMark";
-import { En, Fr, I18n } from "../I18n";
-import { validateField } from "../../utils/validate";
+import {QuestionText, SupplementalText} from "./QuestionStyles";
+import {validateField} from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
-import PlatformLeftList from "./PlatformLeftList";
 
-const Platform = ({
-      platforms = [],
-      userPlatforms,
-      record,
-      updatePlatforms,
-      saveUpdatePlatform,
-      disabled,
-      paperClass,
+
+const PlatformEditor = ({
+  value,
+  disabled,
+  paperClass,
+  updatePlatformEvent,
 }) => {
+
   const { language = "en" } = useParams();
-  const [activePlatform, setActivePlatform] = useState(0);
-
-  function updatePlatformField(key) {
-      return (e) => {
-        const platformsCopy = [...platforms];
-        platformsCopy[activePlatform][key] = e.target.value;
-        updatePlatforms(platformsCopy);
-      };
-    }
-
-  function removePlatform() {
-    updatePlatforms(
-      platforms.filter((e, index) => index !== activePlatform)
-    );
-    if (platforms.length) setActivePlatform(platforms.length - 2);
-  }
-
 
   const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
   );
 
-  const platform = platforms.length > 0 && platforms[activePlatform];
+
+
+  const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
+  const versionLabel = <I18n en="Version" fr="Version" />;
+  const typeLabel = <I18n en="Type" fr="Type" />;
+  const descriptionLabel = <I18n en="Description" fr="Description" />;
+
+  const platform = { ...getBlankPlatform(), ...value };
 
   return (
-    <div>
-
-      <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid item xs={5}>
-
-        <PlatformLeftList
-                  platforms={platforms}
-                  updatePlatforms={updatePlatforms}
-                  activePlatform={activePlatform}
-                  setActivePlatform={setActivePlatform}
-                  disabled={disabled}
-                  userPlatforms={userPlatforms}
-                  saveUpdatePlatform={saveUpdatePlatform}
-                  />
-        </Grid>
-
-
-
+    <Grid container direction="column" spacing={2}>
       <Grid item xs>
+        <Grid container direction="column">
+          {platform && (
+            <Paper style={paperClass}>
+                    <Grid item xs>
         <Grid container direction="column">
         <QuestionText>
           <I18n>
@@ -99,12 +81,12 @@ const Platform = ({
               </Tooltip>
             </a>
 
-            <RequiredMark passes={validateField(record, "platform")} />
+            <RequiredMark passes={platform.id} />
           </SupplementalText>
         </QuestionText>
         <SelectInput
           value={platform.platform}
-          onChange={updatePlatformField("platformId")}
+          onChange={updatePlatformEvent("platformId")}
           optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
           optionTooltips={sortedPlatformTypes.map(
             (e) => `${e[`definition_${language}`]}`
@@ -149,14 +131,14 @@ const Platform = ({
                 , utilisez cet identifiant
               </Fr>
             </I18n>
-            <RequiredMark passes={validateField(record, "platformID")} />
+            <RequiredMark passes={platform.platformID} />
           </SupplementalText>
         </QuestionText>
 
         <TextField
           label={<I18n en="Platform ID" fr="ID de plateforme" />}
           value={platform.platformID}
-          onChange={updatePlatformField("platformID")}
+          onChange={updatePlatformEvent("platformID")}
           fullWidth
           disabled={disabled}
         />
@@ -182,17 +164,18 @@ const Platform = ({
         </QuestionText>
         <BilingualTextInput
           value={platform.platformDescription}
-          onChange={updatePlatformField("platformDescription")}
+          onChange={updatePlatformEvent("platformDescription")}
           multiline
           disabled={disabled}
         />
       </Grid>
       </Grid>
+            </Paper>
+          )}
+        </Grid>
       </Grid>
-
-
-    </div>
+    </Grid>
   );
 };
 
-export default Platform;
+export default PlatformEditor;

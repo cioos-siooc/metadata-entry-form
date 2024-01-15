@@ -19,9 +19,7 @@ const blankRecord = {
   edition: "",
   recordID: "",
   instruments: [],
-  platform: "",
-  platformID: "",
-  platformDescription: "",
+  platforms: [],
   language: "",
   license: "",
   contacts: [],
@@ -80,11 +78,9 @@ function getBlankInstrument() {
 }
 
 const blankPlatform = {
-  id: "",
-  manufacturer: "",
-  version: "",
-  type: { en: "", fr: "" },
-  description: { en: "", fr: "" },
+  platform: "",
+  platformID: "",
+  platformDescription: "",
 };
 
 function getBlankPlatform() {

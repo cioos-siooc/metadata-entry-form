@@ -19,6 +19,8 @@ import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions from "../regions";
+import Platforms from "./Pages/PlatformsSaved";
+import EditPlatform from "./FormComponents/EditSavedPlatform";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
@@ -59,6 +61,8 @@ const Pages = ({ match }) => {
                 <Route path={`${match.path}/contacts`} component={Contacts} />
                 <Route path={`${match.path}/instruments/:instrumentID`} component={EditInstrument} />
                 <Route path={`${match.path}/instruments`} component={Instruments} />
+                <Route path={`${match.path}/platforms/:platformID`} component={EditPlatform} />
+                <Route path={`${match.path}/platforms`} component={Platforms} />
                 <Route
                   path={`${match.path}/:userID/:recordID`}
                   component={MetadataForm}

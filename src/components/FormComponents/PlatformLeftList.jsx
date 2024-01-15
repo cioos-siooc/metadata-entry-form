@@ -25,7 +25,7 @@ import PlatformTitle from "./PlatformTitle";
 import {getBlankPlatform} from "../../utils/blankRecord";
 
 const PlatformLeftList = ({
-  platforms,
+  platforms = [],
   updatePlatforms,
   activePlatform,
   setActivePlatform,
@@ -247,7 +247,7 @@ const PlatformLeftList = ({
             ))}
             options={platformList.map((v, i) => i)}
             disabled={!platformList.length || disabled}
-            label={<I18n en="ADD SAVED INSTRUMENT" fr="AJOUTER UN INSTRUMENT" />}
+            label={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATFORM" />}
           />
         </Grid>
       </Grid>

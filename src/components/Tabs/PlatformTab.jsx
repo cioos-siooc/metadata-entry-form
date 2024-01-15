@@ -14,7 +14,6 @@ const PlatformTab = ({
   saveUpdatePlatform,
   userInstruments,
   saveUpdateInstrument,
-  handleUpdateRecord,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
@@ -90,10 +89,10 @@ const PlatformTab = ({
             {!noPlatform ? (
               <>
                 <Platform
+                  platforms={record.platforms}
                   userPlatforms={userPlatforms}
                   saveUpdatePlatform={saveUpdatePlatform}
                   record={record}
-                  handleUpdateRecord={handleUpdateRecord}
                   updatePlatforms={updateRecord("platforms")}
                   disabled={disabled}
                   paperClass={paperClass}
