@@ -95,10 +95,10 @@ const BaseLayout = ({ match }) => {
         root: {
           '&.Mui-disabled': {
             '& .MuiCheckbox-root': {
-              color: '#6cbd9f', 
+              color: '#ababab', 
             },
             '& .MuiTypography-root': {
-              color: '#6cbd9f',
+              color: '#ababab',
             },
           },
         },
@@ -106,7 +106,7 @@ const BaseLayout = ({ match }) => {
       MuiInputBase: {
         input: {
           '&.Mui-disabled': {
-            color: '#6cbd9f',
+            color: '#ababab',
           },
         },
       },
