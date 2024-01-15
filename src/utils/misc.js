@@ -4,6 +4,25 @@ export function deepCopy(obj) {
 export function deepEquals(obj1, obj2) {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
+
+export const debounce = (mainFunction, delay) => {
+
+  let timer;
+
+  // return an anonymous functiont hat takes in any number of arguments
+  const debouncedFunction = (...args) => {
+    // clear previous timer to prevent the execution of 'mainFunction'
+    clearTimeout(timer);
+
+    // set a new timer that will execute 'mainFunction' after the delay
+    timer = setTimeout(() => {
+      mainFunction(...args);
+    }, delay);
+  };
+
+  return debouncedFunction;
+}
+
 /*
 Convert firebase to javascript, mostly just used to get real array elements
 */
