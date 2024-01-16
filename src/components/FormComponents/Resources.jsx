@@ -12,9 +12,8 @@ import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
+import { validateURL } from "../../utils/validate";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
-
-const validateURL = (url) => !url || validator.isURL(url);
 
 const Resources = ({ updateResources, resources, disabled }) => {
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
