@@ -1,3 +1,5 @@
+import { validateURL } from "./validate";
+
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -23,9 +25,17 @@ export const debounce = (mainFunction, delay) => {
   return debouncedFunction;
 }
 
-export const checkURL = () => {
-  console.log("check URL executed");
-}
+export const isURLActive = async (url) => {
+  if (validateURL(url)) {
+    try {
+      const response = await fetch(url, {method: "HEAD" });
+      return response.ok;
+    } catch (error) {
+      return false
+    }
+  }
+  return false;
+};
 
 /*
 Convert firebase to javascript, mostly just used to get real array elements
