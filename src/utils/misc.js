@@ -1,5 +1,3 @@
-import { validateURL } from "./validate";
-
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -7,35 +5,34 @@ export function deepEquals(obj1, obj2) {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
 
+/**
+ * Creates a debounced version of a function.
+ * 
+ * @param {Function} mainFunction - The function to debounce.
+ * @param {number} delay - The amount of time (in milliseconds) to delay.
+ * @return {Function} A debounced version of the specified function.
+ */
 export const debounce = (mainFunction, delay) => {
-
   let timer;
 
-  // return an anonymous functiont hat takes in any number of arguments
   const debouncedFunction = (...args) => {
-    // clear previous timer to prevent the execution of 'mainFunction'
-    clearTimeout(timer);
+    // Return a promise that resolves or rejects based on the mainFunction's execution
+    return new Promise((resolve, reject) => {
+      // Clear existing timer to reset the debounce period
+      clearTimeout(timer);
 
-    // set a new timer that will execute 'mainFunction' after the delay
-    timer = setTimeout(() => {
-      mainFunction(...args);
-    }, delay);
+      // Set a new timer to delay the execution of mainFunction
+      timer = setTimeout(() => {
+        // Execute mainFunction and handle its promise
+        Promise.resolve(mainFunction(...args))
+          .then(resolve)
+          .catch(reject);
+      }, delay);
+    });
   };
 
   return debouncedFunction;
 }
-
-export const isURLActive = async (url) => {
-  if (validateURL(url)) {
-    try {
-      const response = await fetch(url, {method: "HEAD" });
-      return response.ok;
-    } catch (error) {
-      return false
-    }
-  }
-  return false;
-};
 
 /*
 Convert firebase to javascript, mostly just used to get real array elements
