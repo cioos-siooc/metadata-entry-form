@@ -3,7 +3,8 @@ const fetch = require('node-fetch');
 
 // Function to check if a given URL is active
 exports.isURLActive = functions.https.onCall(async (data) => {
-    const url = data.url;
+    const url = data;
+    functions.logger.log('Received URL:', data);
 
     if (!url) {
         throw new functions.https.HttpsError('invalid-argument', 'The function must be called with one argument "url".');
