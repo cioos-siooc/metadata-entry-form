@@ -15,6 +15,7 @@ import { metadataScopeCodes } from "../../isoCodeLists";
 import RequiredMark from "./RequiredMark";
 import AdditionalDocumentation from "./LineageAdditionalDocumentation"
 import LineageSource from "./LineageSource";
+import ProcessingStep from "./ProcessingStep";
 import SelectInput from "./SelectInput";
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
@@ -24,6 +25,7 @@ const emptyLineage = {
     scope: "",
     additionalDocumentation: [],
     source: [],
+    processingStep: [],
 };
 
 const Lineage = ({
@@ -207,6 +209,15 @@ const Lineage = ({
                                     <LineageSource
                                         sources={lineageStep.source}
                                         updateSources={updateLineageSubField("source")}
+                                        disabled={disabled}
+                                        paperClass={paperClass}
+                                        language={language}
+                                    />
+                                </Grid>
+                                <Grid item xs>
+                                    <ProcessingStep
+                                        sources={lineageStep.processingStep}
+                                        updateSources={updateLineageSubField("processingStep")}
                                         disabled={disabled}
                                         paperClass={paperClass}
                                         language={language}
