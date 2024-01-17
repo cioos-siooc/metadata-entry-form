@@ -87,7 +87,7 @@ class UserProvider extends FormClassTemplate {
     const createDraftDoi = firebase.functions().httpsCallable("createDraftDoi");
     const updateDraftDoi = firebase.functions().httpsCallable("updateDraftDoi");
     const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
-    const isURLActive = firebase.functions().httpsCallable("isURLActive");
+    const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
 
     return (
       <UserContext.Provider
@@ -99,7 +99,7 @@ class UserProvider extends FormClassTemplate {
           createDraftDoi,
           updateDraftDoi,
           deleteDraftDoi,
-          isURLActive,
+          checkURLActive,
         }}
       >
         {children}
