@@ -12,7 +12,7 @@ jest.spyOn(global, "Date").mockImplementation(() => mockedData);
 Date.now = () => 1606348800;
 
 configure({ adapter: new Adapter() });
-const mockEventValue = new Date("2021-09-08T22:23:52.468Z");
+const mockEventValue = new Date("2021-09-08T22:23:52.468Z").toISOString();
 const mockComponentName = "date";
 const mockOnChange = jest.fn();
 
