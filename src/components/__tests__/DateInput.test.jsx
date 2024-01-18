@@ -7,7 +7,7 @@ import { KeyboardDatePicker } from "@material-ui/pickers";
 import DateInput from "../FormComponents/DateInput";
 
 // this helps mock the a date
-const mockedData = new Date("2020-11-26T00:00:00.000Z");
+const mockedData = new Date("2020-11-26T00:00:00.000Z").toISOString();
 jest.spyOn(global, "Date").mockImplementation(() => mockedData);
 Date.now = () => 1606348800;
 
