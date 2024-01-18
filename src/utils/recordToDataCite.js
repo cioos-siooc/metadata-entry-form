@@ -180,10 +180,20 @@ function recordToDataCite(metadata, language, region) {
     }
 
     // Add funders list if it exists
-    if (funders) {
-      mappedDataCiteObject.data.attributes.fundingReferences = funders.map(funder => ({
-        funderName: funder.orgName,
-      }));
+    if (funders && funders.length > 0) {
+      mappedDataCiteObject.data.attributes.fundingReferences = funders.map(funder => {
+        const fundingReference = {
+          funderName: funder.orgName,
+        };
+
+        // Add ROR information if available
+        if (funder.orgRor) {
+          fundingReference.funderIdentifier = funder.orgRor;
+          fundingReference.funderIdentifierType = "ROR";
+        }
+
+        return fundingReference;
+      });
     }    
 
     // Add publication year if it exists
