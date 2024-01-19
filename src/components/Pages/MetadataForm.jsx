@@ -193,12 +193,16 @@ class MetadataForm extends FormClassTemplate {
               record: standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
             });
+
             this.setState({ loading: false });
           });
           this.listenerRefs.push(ref);
         }
       }
     });
+
+
+
   }
 
   toggleModal = (modalName, state, key = "", userID) => {
