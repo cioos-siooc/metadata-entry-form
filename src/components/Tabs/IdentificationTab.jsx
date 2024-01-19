@@ -6,7 +6,6 @@ import {
   IconButton,
   Tooltip,
   Button,
-  Chip,
 } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { useDebounce } from "use-debounce";
@@ -238,7 +237,7 @@ const IdentificationTab = ({
     return () => {
       mounted.current = false;
     };
-  }, [debouncedDoiIdValue, getDoiStatus, updateRecord, regionInfo.datacitePrefix])
+  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, regionInfo.datacitePrefix])
 
   return (
     <div>
@@ -807,9 +806,7 @@ const IdentificationTab = ({
             </div>
           </Button>
         )} 
-        {
-          showDoiStatus && (<Chip label={`Status: ${record.doiCreationStatus}`} variant="outlined" />)
-        }
+
         {doiErrorFlag && (
           <span>
             <I18n
@@ -831,7 +828,8 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           name="datasetIdentifier"
           helperText={
-            doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />
+            (doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />)
+            || (showDoiStatus && <I18n en={`DOI Status: ${record.doiCreationStatus}`} fr={`Statut DOI: ${record.doiCreationStatus}`} />)
           }
           error={!doiIsValid}
           value={record.datasetIdentifier}
