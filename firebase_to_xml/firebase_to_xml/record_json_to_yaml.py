@@ -105,6 +105,7 @@ def record_json_to_yaml(record):
             "title": record.get("title"),
             "identifier": record.get("datasetIdentifier"),
             "abstract": record.get("abstract"),
+            "associated_resources": record.get("associated_resources", []),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
                 "publication": date_from_datetime_str(record.get("datePublished")),

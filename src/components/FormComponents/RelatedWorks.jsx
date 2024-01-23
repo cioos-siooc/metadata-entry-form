@@ -17,11 +17,12 @@ import SelectInput from "./SelectInput";
 import { deepCopy } from "../../utils/misc";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
 
+import associationTypeToIso from "../../associationTypeMapping"
 const validateURL = (url) => !url || validator.isURL(url);
 
 const RelatedWorks = ({ updateResources, resources, disabled }) => {
 
-  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "" };
+  const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", association_type_iso: ""};
   const { language } = useParams();
 
   function addResource() {
@@ -50,6 +51,17 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
         function handleResourceChange(key) {
           return (e) => {
             const newValue = [...resources];
+            newValue[i][key] = e.target.value;
+            updateResources(newValue);
+          };
+        }
+
+        function handleAssociationTypeChange() {
+          let key = "association_type";
+          console.log("In handleAssociationTypeChange")
+          return (e) => {
+            const newValue = [...resources];
+            newValue[i]["association_type_iso"] = associationTypeToIso[e.target.value];
             newValue[i][key] = e.target.value;
             updateResources(newValue);
           };
@@ -187,7 +199,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                 </QuestionText>
                 <SelectInput
                   value={dist.association_type}
-                  onChange={handleResourceChange("association_type")}
+                  onChange={handleAssociationTypeChange()}
                   options={Object.keys(associationTypeCode)}
                   optionLabels={Object.values(associationTypeCode).map(
                     ({ title }) => title[language]

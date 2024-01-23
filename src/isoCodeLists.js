@@ -219,74 +219,244 @@ export const depthDirections = {
 };
 
 export const associationTypeCode = {
-  collectiveTitle: {
-    title: { en: "Collective Title", fr: "Titre Collectif" },
+  IsCitedBy: {
+    title: { en: "Is Cited By", fr: "Est cité par" },
     text: {
-      en: "Common title for a collection of resources",
-      fr: "Titre commun pour une collection de ressources",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  crossReference: {
-    title: { en: "Cross Reference", fr: "Références Croisées" },
+  Cites: {
+    title: { en: "Cites", fr: "Cites" },
     text: {
-      en: "Reference from one dataset to another.	Use to identify related documents or related resources",
-      fr: "Référence d'un jeu de données à un autre. À utiliser pour identifier des documents ou des ressources connexes",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  dependency: {
-    title: { en: "Dependency", fr: "Dépendance" },
+  IsSupplementTo: {
+    title: { en: "Is Supplement To", fr: "Est un supplément à" },
     text: {
-      en: "Associated through a dependency",
-      fr: "Associé par une dépendance",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  isComposedOf: {
-    title: {
-      en: "Is Composed Of", fr: "Est composé de"
-    },
+  IsSupplementedBy: {
+    title: { en: "Is Supplemented By", fr: "Est complété par" },
     text: {
-      en: "Reference to resources that are parts of this resource",
-      fr: "Référence aux ressources qui font partie de cette ressource",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  largerWorkCitation: {
-    title: {
-      en: "Larger Work Citation", fr: "Citation de travail plus grande"
-    },
+  IsContinuedBy: {
+    title: { en: "Is Continued By", fr: "Est continué par" },
     text: {
-      en: "Reference to a master dataset of which this one is a part",
-      fr: "Référence à un jeu de données maître dont celui- ci fait partie",
+      en: "mapped to ISO value 'series'", fr: "mappé à la valeur ISO 'series'",
     },
+    isoValue: "series"
   },
-  partOfSeamlessDatabase: {
-    title: { en: "Part Of Seamless Database", fr: "Partie d'une base de données transparente" },
+  Continues: {
+    title: { en: "Continues", fr: "Continue" },
     text: {
-      en: "Part of the same structured set of data held in a computer",
-      fr: "Fait partie du même ensemble structuré de données contenues dans un ordinateur",
+      en: "mapped to ISO value 'series'", fr: "mappé à la valeur ISO 'series'",
     },
+    isoValue: "series"
   },
-  revisionOf: {
-    title: { en: "Revision Of", fr: "Révision de" },
+  IsDescribedBy: {
+    title: { en: "Is Described By", fr: "Est décrit par" },
     text: {
-      en: "Resource is a revision of associated resource",
-      fr: "La ressource est une révision de la ressource associée",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  series: {
-    title: { en: "Series", fr: "Série" },
+  Describes: {
+    title: { en: "Describes", fr: "Décrit" },
     text: {
-      en: "Associated through a common heritage such as produced to a common product specification",
-      fr: "Associé à travers un héritage commun tel que produit selon une spécification de produit commune",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-  stereoMate: {
-    title: { en: "Stereo Mate", fr: "Compagnon Stéréo" },
+  HasMetadata: {
+    title: { en: "Has Metadata", fr: "Possède des métadonnées" },
     text: {
-      en: "Part of a set of imagery that when used together, provides three-dimensional images",
-      fr: "Fait partie d'un ensemble d'images qui, lorsqu'elles sont utilisées ensemble, fournissent des images en trois dimensions",
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
     },
+    isoValue: "crossReference"
   },
-
+  IsMetadataFor: {
+    title: { en: "Is Metadata For", fr: "Les métadonnées sont-elles destinées" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  HasVersion: {
+    title: { en: "Has Version", fr: "A une version" },
+    text: {
+      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+    },
+    isoValue: "revisionOf"
+  },
+  IsVersionOf: {
+    title: { en: "Is Version Of", fr: "Est la version de" },
+    text: {
+      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+    },
+    isoValue: "revisionOf"
+  },
+  IsNewVersionOf: {
+    title: { en: "Is New Version Of", fr: "Est-ce une nouvelle version de" },
+    text: {
+      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+    },
+    isoValue: "revisionOf"
+  },
+  PreviousVersionOf: {
+    title: { en: "Previous Version Of", fr: "Version précédente de" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsPartOf: {
+    title: { en: "Is Part Of", fr: "Fait partie de" },
+    text: {
+      en: "mapped to ISO value 'largerWorkCitation'", fr: "mappé à la valeur ISO 'largerWorkCitation'",
+    },
+    isoValue: "largerWorkCitation"
+  },
+  HasPart: {
+    title: { en: "Has Part", fr: "A une partie" },
+    text: {
+      en: "mapped to ISO value 'isComposedOf'", fr: "mappé à la valeur ISO 'isComposedOf'",
+    },
+    isoValue: "isComposedOf"
+  },
+  IsPublishedIn: {
+    title: { en: "Is Published In", fr: "Est publié dans" },
+    text: {
+      en: "mapped to ISO value 'largerWorkCitation'", fr: "mappé à la valeur ISO 'largerWorkCitation'",
+    },
+    isoValue: "largerWorkCitation"
+  },
+  IsReferencedBy: {
+    title: { en: "Is Referenced By", fr: "Est référencé par" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  References: {
+    title: { en: "References", fr: "Les références" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsDocumentedBy: {
+    title: { en: "Is Documented By", fr: "Est documenté par" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  Documents: {
+    title: { en: "Documents", fr: "Documents" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsCompiledBy: {
+    title: { en: "Is Compiled By", fr: "Est compilé par" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  Compiles: {
+    title: { en: "Compiles", fr: "Compile" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  IsVariantFormOf: {
+    title: { en: "Is Variant Form Of", fr: "Est une forme variante de" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsOriginalFormOf: {
+    title: { en: "Is Original Form Of", fr: "Est la forme originale de" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsIdenticalTo: {
+    title: { en: "Is Identical To", fr: "Est identique à" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsReviewedBy: {
+    title: { en: "Is Reviewed By", fr: "Est révisé par" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  Reviews: {
+    title: { en: "Reviews", fr: "Commentaires" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  IsDerivedFrom: {
+    title: { en: "Is Derived From", fr: "Dérive de" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  IsSourceOf: {
+    title: { en: "Is Source Of", fr: "est la source de" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  Requires: {
+    title: { en: "Requires", fr: "A besoin" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  IsRequiredBy: {
+    title: { en: "Is Required By", fr: "Est requis par" },
+    text: {
+      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+    },
+    isoValue: "dependency"
+  },
+  IsObsoletedBy: {
+    title: { en: "Is Obsoleted By", fr: "Est obsolète par" },
+    text: {
+      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+    },
+    isoValue: "crossReference"
+  },
+  Obsoletes: {
+    title: { en: "Obsoletes", fr: "Obsolètes" },
+    text: {
+      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+    },
+    isoValue: "revisionOf"
+  },
 };
 
 
