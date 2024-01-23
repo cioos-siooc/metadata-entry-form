@@ -17,9 +17,10 @@ exports.checkURLActive = functions.https.onCall(async (data) => {
 
     try {
         const response = await fetch(url, {method: "HEAD" });
+        functions.logger.log(`Fetch response status for ${url}:`, response.status);
         return response.ok; // Return true if response is OK, otherwise false
     } catch (error) {
-        console.error('Error in checkURLActive:', error); // Log the error for debugging
+        functions.logger.error('Error in checkURLActive for URL:', url, error);
         return false; // Return false if an error occurs 
     }
 })
