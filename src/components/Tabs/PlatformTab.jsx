@@ -118,7 +118,7 @@ const PlatformTab = ({
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}
-
+              platformList={record.platforms}
             />
           </Grid>
         </Grid>

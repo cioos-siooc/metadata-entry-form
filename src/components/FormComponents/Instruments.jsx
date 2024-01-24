@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import { Delete } from "@material-ui/icons";
-import {
-  TextField,
-  Grid,
-  Typography,
-  Button,
-  Paper,
-} from "@material-ui/core";
-import { En, Fr, I18n } from "../I18n";
+import React, {useState} from "react";
+import {Delete} from "@material-ui/icons";
+import {Button, Grid, Paper, TextField, Typography,} from "@material-ui/core";
+import {En, Fr, I18n} from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
 import InstrumentLeftList from "./InstrumentLeftList";
+import {SupplementalText} from "./QuestionStyles";
+import PlatformTitle from "./PlatformTitle";
+import SelectInput from "./SelectInput";
 
 const Instruments = ({
   updateInstruments,
@@ -20,6 +17,7 @@ const Instruments = ({
   paperClass,
   saveUpdateInstrument,
   userInstruments,
+  platformList,
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
 
@@ -41,6 +39,7 @@ const Instruments = ({
   const versionLabel = <I18n en="Version" fr="Version" />;
   const typeLabel = <I18n en="Type" fr="Type" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
+  const platformLabel = <I18n en="Platform" fr="Plateforme" />;
 
   const instrument = instruments.length > 0 && instruments[activeInstrument];
 
@@ -131,6 +130,32 @@ const Instruments = ({
                     </I18n>
                   </Button>
                 </Grid>
+                  {platformList.length >= 2 && (
+                      <Grid item xs>
+                          <SupplementalText>
+                              <I18n>
+                                  <En>
+                                      When mutiple platforms are used, you must specify which platform the instrument is
+                                      attached to. <RequiredMark passes={instrument.platform} />
+                                  </En>
+                                  <Fr>
+                                      Lorsque plusieurs plates-formes sont utilisées, vous devez spécifier à quelle
+                                      plate-forme l'instrument est connecté.
+                                  </Fr>
+                              </I18n>
+                          </SupplementalText>
+                          <SelectInput
+                              label={platformLabel}
+                              name="platform"
+                              value={instrument.platform}
+                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform} />))}
+                              options={platformList.map((platform) => platform.id)}
+                              onChange={updateInstrumentField("platform")}
+                              fullWidth
+                              disabled={disabled}
+                          />
+                      </Grid>
+                  )}
               </Grid>
             </Paper>
           )}
