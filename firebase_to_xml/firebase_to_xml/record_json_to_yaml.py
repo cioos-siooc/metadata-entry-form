@@ -152,17 +152,26 @@ def record_json_to_yaml(record):
             for distribution in record.get("distribution", [])
         ],
     }
+
     if record.get("noPlatform"):
         record_yaml["instruments"] = record.get("instruments")
     else:
-        record_yaml["platform"] = {
-            "id": record.get("platformID"),
-            "description": record.get("platformDescription"),
-            "type": record.get("platform"),
-        }
-
-        if record.get("instruments"):
-            record_yaml["platform"]["instruments"] = record.get("instruments")
+        instrumentsList = record.get("instruments")
+        platformList = record.get("platforms")
+        # If platforms has only one element, add it to the platform dict and add all instruments as a key
+        if len(record.get("platform")) == 1:
+            record["platform"][0]["instruments"] = instruments
+            record_yaml["platform"] = record["platforms"][0]
+        # If platforms has more than one element, add all platforms and match instruments by platform ID
+        else:
+            for platform in platformList:
+                instruments = []
+                for instrument in instrumentsList:
+                    if instrument["platform"] == platform["id"]:
+                        instruments.append(instrument)
+                if instruments.length > 0:
+                    platform["instruments"] = instrument
+            record_yaml["platforms"] = record["platforms"]
 
     # If there's no distributor set, set it to the data contact (owner)
     all_roles = [contact["role"] for contact in record["contacts"]]
