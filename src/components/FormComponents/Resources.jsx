@@ -174,7 +174,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
                     || (resourceItem.url && urlIsActive[resourceItem.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
                   }
-                  error={!urlIsValid || (resourceItem.url && urlIsActive[resourceItem.url] === false)}
+                  error={!urlIsValid}
                   label="URL"
                   value={resourceItem.url}
                   onChange={handleResourceChange("url")}
