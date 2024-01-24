@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Add,
   Delete,
@@ -7,43 +7,85 @@ import {
 } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
+import { useDebouncedCallback } from 'use-debounce';
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
-import { deepCopy, debounce } from "../../utils/misc";
+import { deepCopy } from "../../utils/misc";
 import { validateURL } from "../../utils/validate";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
 import { UserContext } from "../../providers/UserProvider";
 
 const Resources = ({ updateResources, resources, disabled }) => {
 
+  const mounted = useRef(false);
   const { checkURLActive } = useContext(UserContext);
-
-  const [urlIsActive, setUrlIsActive] = useState(false);
+  const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
-  const debouncedcheckURLActive = useCallback(
-    debounce(checkURLActive, 500),
-    [checkURLActive]
-  );
+
+  // Debounce callback for URL updates
+  // const debouncedResourceUrls = useDebouncedCallback((index, url) => {
+  //   const newResources = [...resources];
+  //   newResources[index].debouncedUrl = url;
+  // }, 3000);
+
+  // console.log(debouncedResourceUrls);
+
+  // the below line doesn't work because useDebounce cannot be called inside a callback
+  // const [debouncedResourceUrls] = resources.map((res) => useDebounce(res.url, 1000));
+
+  // console.log(`debounced urls: ${debouncedResourceUrls}`)
+
+  // const checkURLActive = useCallback(
+  //   debounce(checkURLActive, 500),
+  //   [checkURLActive]
+  // );
 
   useEffect(() => {
-    resources.forEach((resource, index) => {
-      if (resource.url && validateURL(resource.url)) {
-        debouncedcheckURLActive(resource.url)
-          .then((isActive) => {
-            setUrlIsActive((prevStatus) => ({ ...prevStatus, [index]: isActive }));
-          })
-          .catch(() => {
-                      setUrlIsActive((prevStatus) => ({ ...prevStatus, [index]: false }));
-          });
-      } else {
-              // URL is empty, set isActive to true 
-              setUrlIsActive((prevStatus) => ({ ...prevStatus, [index]: true }));
+
+    mounted.current = true;
+    console.log(`resources array: ${JSON.stringify(resources)}`)
+
+    // debouncedResources.forEach...
+    resources.forEach((resource) => {
+       // Check if the URL is not empty and valid
+      if (resource.url && resource.debouncedUrl && validateURL(resource.url)) {
+
+        console.log(`Checking activity for URL: ${resource.url}`);
+        checkURLActive(resource.debouncedUrl)
+          .then((response) => {
+
+            // Log the entire response for debugging
+            console.log(`Response from checkURLActive for ${resource.debouncedUrl}:`, response);
+
+            const isActive = response.data; 
+
+
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: isActive }));
+
+              // Log based on the isActive value
+              if (isActive) {
+                console.log(`URL found active: ${resource.url}`);
+              } else {
+                console.log(`URL found inactive: ${resource.url}`);
+              }
             }
+          )
+      } else if (!resource.url || !validateURL(resource.url)) {
+        // Handles both invalid and empty URLs
+
+          setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: false }));
+          console.log(`URL is invalid or empty, marked as inactive: ${resource.url}`);
+        
+      }
     });
-  }, [resources, debouncedcheckURLActive]);
+
+    return () => {
+      mounted.current = false;
+    };
+  }, [resources, checkURLActive, debouncedResourceUrls ]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
@@ -64,6 +106,8 @@ const Resources = ({ updateResources, resources, disabled }) => {
 
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
+
+  console.log(`url is active object: ${JSON.stringify(urlIsActive)}`)
 
   return (
     <div>
@@ -128,9 +172,9 @@ const Resources = ({ updateResources, resources, disabled }) => {
                 <TextField
                   helperText={
                     (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
-                    || (urlIsActive[i] && urlIsActive[i].data === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
+                    || (resourceItem.url && urlIsActive[resourceItem.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
                   }
-                  error={!urlIsValid || (urlIsActive[i] && urlIsActive[i].data === false)}
+                  error={!urlIsValid || (resourceItem.url && urlIsActive[resourceItem.url] === false)}
                   label="URL"
                   value={resourceItem.url}
                   onChange={handleResourceChange("url")}
