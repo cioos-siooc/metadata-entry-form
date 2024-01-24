@@ -118,6 +118,7 @@ const PlatformTab = ({
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}
+
             />
           </Grid>
         </Grid>

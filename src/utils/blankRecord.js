@@ -78,9 +78,9 @@ function getBlankInstrument() {
 }
 
 const blankPlatform = {
-  platform: "",
-  platformID: "",
-  platformDescription: "",
+  type: "",
+  id: "",
+  description: { en: "", fr: "" },
 };
 
 function getBlankPlatform() {

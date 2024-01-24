@@ -6,7 +6,8 @@ import { I18n } from "../I18n";
 
 // creates text from an platform in the form
 // <platformName> - <platformType>
-function getInstrumentTitleFromNames(platform) {
+function getPlatformTitleFromNames(platform) {
+    console.log(platform)
     const { id, type } = platform;
     const titleParts = [type, id];
 
@@ -17,12 +18,12 @@ function getInstrumentTitleFromNames(platform) {
         .join(" - ");
 }
 
-function InstrumentTitle({ platform }) {
+function PlatformTitle({ platform }) {
     return (
-        getInstrumentTitleFromNames(platform) || (
+        getPlatformTitleFromNames(platform) || (
             <I18n en="New platform" fr="Nouvel platform" />
         )
     );
 }
 
-export default InstrumentTitle;
+export default PlatformTitle;

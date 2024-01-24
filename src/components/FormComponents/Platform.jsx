@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-import {TextField, Grid, Tooltip, Paper} from "@material-ui/core";
+import {TextField, Grid, Tooltip} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { OpenInNew } from "@material-ui/icons";
 
@@ -33,14 +33,6 @@ const Platform = ({
       };
     }
 
-  function removePlatform() {
-    updatePlatforms(
-      platforms.filter((e, index) => index !== activePlatform)
-    );
-    if (platforms.length) setActivePlatform(platforms.length - 2);
-  }
-
-
   const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
   );
@@ -65,7 +57,7 @@ const Platform = ({
         </Grid>
 
 
-
+        { platform && (
       <Grid item xs>
         <Grid container direction="column">
         <QuestionText>
@@ -103,8 +95,8 @@ const Platform = ({
           </SupplementalText>
         </QuestionText>
         <SelectInput
-          value={platform.platform}
-          onChange={updatePlatformField("platformId")}
+          value={platform.type}
+          onChange={updatePlatformField("type")}
           optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
           optionTooltips={sortedPlatformTypes.map(
             (e) => `${e[`definition_${language}`]}`
@@ -155,8 +147,8 @@ const Platform = ({
 
         <TextField
           label={<I18n en="Platform ID" fr="ID de plateforme" />}
-          value={platform.platformID}
-          onChange={updatePlatformField("platformID")}
+          value={platform.id}
+          onChange={updatePlatformField("id")}
           fullWidth
           disabled={disabled}
         />
@@ -181,15 +173,15 @@ const Platform = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
-          value={platform.platformDescription}
-          onChange={updatePlatformField("platformDescription")}
+          value={platform.description}
+          onChange={updatePlatformField("description")}
           multiline
           disabled={disabled}
         />
       </Grid>
       </Grid>
-      </Grid>
-
+      )}
+    </Grid>
 
     </div>
   );

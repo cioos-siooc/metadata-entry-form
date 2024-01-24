@@ -33,13 +33,6 @@ const PlatformEditor = ({
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
   );
 
-
-
-  const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
-  const versionLabel = <I18n en="Version" fr="Version" />;
-  const typeLabel = <I18n en="Type" fr="Type" />;
-  const descriptionLabel = <I18n en="Description" fr="Description" />;
-
   const platform = { ...getBlankPlatform(), ...value };
 
   return (
@@ -85,7 +78,7 @@ const PlatformEditor = ({
           </SupplementalText>
         </QuestionText>
         <SelectInput
-          value={platform.platform}
+          value={platform.type}
           onChange={updatePlatformEvent("platformId")}
           optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
           optionTooltips={sortedPlatformTypes.map(
@@ -131,13 +124,12 @@ const PlatformEditor = ({
                 , utilisez cet identifiant
               </Fr>
             </I18n>
-            <RequiredMark passes={platform.platformID} />
+            <RequiredMark passes={platform.id} />
           </SupplementalText>
         </QuestionText>
-
         <TextField
           label={<I18n en="Platform ID" fr="ID de plateforme" />}
-          value={platform.platformID}
+          value={platform.id}
           onChange={updatePlatformEvent("platformID")}
           fullWidth
           disabled={disabled}

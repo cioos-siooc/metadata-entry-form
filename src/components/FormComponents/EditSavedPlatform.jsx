@@ -15,8 +15,6 @@ class EditPlatform extends FormClassTemplate {
     super(props);
     this.state = {
       id: "",
-      manufacturer: "",
-      version: "",
       type: { en: "", fr: "" },
       description: { en: "", fr: "" },
     };
