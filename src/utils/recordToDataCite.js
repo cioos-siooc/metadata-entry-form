@@ -212,11 +212,13 @@ function recordToDataCite(metadata, language, region) {
     };
 
     // Link related works to this record via relatedIdentifiers datacire field
-    mappedDataCiteObject.data.attributes.relatedIdentifiers = metadata.associated_resources.map(([authority, code, association_type]) => ({
-      relatedIdentifier: code,
-      relatedIdentifierType: authority,
-      relationType: association_type
-    }));
+    if (metadata.associated_resources) {
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = metadata.associated_resources.map(([authority, code, association_type]) => ({
+        relatedIdentifier: code,
+        relatedIdentifierType: authority,
+        relationType: association_type
+      }));
+    }
 
     // Generate URL element
     mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
