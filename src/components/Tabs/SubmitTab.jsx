@@ -41,10 +41,6 @@ const SubmitTab = ({ record, submitRecord }) => {
 
     mounted.current = true
 
-    // some good info https://devtrium.com/posts/async-functions-useeffect
-
-    // we could move this function outside of useEffect if we wrap it in a useCallback
-    // see https://devtrium.com/posts/async-functions-useeffect#what-if-you-need-to-extract-the-function-outside-useeffect
     const getUrlWarningsByTab = async (recordObj) => {
       const fields = Object.keys(warnings);
 
