@@ -30,7 +30,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
     const response = await checkURLActive(resource.url)
     console.log(response.data);
     setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
-  }, 3000);
+  }, 1000);
 
   useEffect( () => {
 
