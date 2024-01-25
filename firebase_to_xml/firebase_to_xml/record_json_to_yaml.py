@@ -100,6 +100,8 @@ def record_json_to_yaml(record):
                 float(record.get("verticalExtentMin")),
                 float(record.get("verticalExtentMax")),
             ],
+            "description": record["map"].get("description"),
+            "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
         },
         "identification": {
             "title": record.get("title"),

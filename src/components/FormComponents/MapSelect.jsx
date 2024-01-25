@@ -1,6 +1,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import { TextField, Grid, Typography } from "@material-ui/core";
 import L from "leaflet";
@@ -20,6 +21,7 @@ import { I18n, En, Fr } from "../I18n";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
+import BilingualTextInput from "../FormComponents/BilingualTextInput";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   // On map clear?
@@ -30,6 +32,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       east: "",
       west: "",
       polygon: "",
+      description: "",
+      descriptionIdentifier: uuidv4()
     };
 
     updateMap(emptySpatial);
@@ -349,6 +353,49 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         type="text"
         fullWidth
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
+      />
+
+
+      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
+        <I18n>
+          <En>And optionally</En>
+          <Fr>Et en option</Fr>
+        </I18n>
+      </Typography>
+
+      <QuestionText>
+        <I18n>
+          <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
+          <Fr>Décrivez l'étendue géographique de l'ensemble de données. Obligatoire pour les ensembles de données biologiques</Fr>
+        </I18n>
+        {/* <RequiredMark passes={validateField(record, "title")} />  Reuired in biological dataset */}
+        <SupplementalText>
+          <I18n>
+            <En>
+              <p>
+                Optionally you can include a text description of the geographic 
+                area covered by this dataset or study. This field is required 
+                when filling out biological datasets but is optional for all 
+                other dataset types.
+              </p>
+            </En>
+            <Fr>
+              <p>
+                Vous pouvez éventuellement inclure une description textuelle 
+                de la zone géographique. zone couverte par cet ensemble de 
+                données ou cette étude. Ce champ est obligatoire lors du 
+                remplissage d'ensembles de données biologiques, mais est 
+                facultatif pour tous d’autres types d’ensembles de données.
+              </p>
+            </Fr>
+          </I18n>
+        </SupplementalText>
+      </QuestionText>
+
+      <BilingualTextInput
+        value={mapData.description}
+        onChange={handleChange("description")}
+        disabled={disabled}
       />
     </div>
   );
