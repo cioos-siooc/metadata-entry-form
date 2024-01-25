@@ -22,6 +22,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
   const mounted = useRef(false);
   const { checkURLActive } = useContext(UserContext);
   const [urlIsActive, setUrlIsActive] = useState({});
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
 
@@ -30,23 +31,44 @@ const Resources = ({ updateResources, resources, disabled }) => {
     const response = await checkURLActive(resource.url)
     if (mounted.current)
       setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
-  }, 500);
+  }, 3000);
 
   useEffect( () => {
     mounted.current = true
 
-    resources.forEach( (resource) => {
+    const checkURLStatus = async (resource) => {
+      const response = await checkURLActive(resource.url);
+      if (mounted.current)
+        setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }));
+    };
 
-      if (resource.url && validateURL(resource.url)) {
-        debounced(resource);
-      }
+    // if its not initial load, use debounced function
+    if (!isInitialLoad) {
+      resources.forEach((resource) => {
+        if (resource.url && validateURL(resource.url)) {
+          debounced(resource);
+        }
+      });
+    }
+  
+    // After the first render, set isInitialLoad to false
+    if (isInitialLoad) {
 
-    });
+      // if initial load, don't use debounce
+      resources.forEach((resource) => {
+        if (resource.url && validateURL(resource.url)) {
+          checkURLStatus(resource);
+        }
+      });
+
+      setIsInitialLoad(false);
+
+    }
 
     return () => {
       mounted.current = false;
     };
-  }, [resources, checkURLActive, debounced]);
+  }, [resources, checkURLActive, debounced, isInitialLoad]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
