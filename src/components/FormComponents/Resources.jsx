@@ -26,66 +26,35 @@ const Resources = ({ updateResources, resources, disabled }) => {
 
 
   // Debounce callback for URL updates
-  // const debouncedResourceUrls = useDebouncedCallback((index, url) => {
-  //   const newResources = [...resources];
-  //   newResources[index].debouncedUrl = url;
-  // }, 3000);
+  const debounced = useDebouncedCallback(async (resource) => {
+    const response = await checkURLActive(resource.url)
+    console.log(response.data);
+    setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
+  }, 3000);
 
-  // console.log(debouncedResourceUrls);
-
-  // the below line doesn't work because useDebounce cannot be called inside a callback
-  // const [debouncedResourceUrls] = resources.map((res) => useDebounce(res.url, 1000));
-
-  // console.log(`debounced urls: ${debouncedResourceUrls}`)
-
-  // const checkURLActive = useCallback(
-  //   debounce(checkURLActive, 500),
-  //   [checkURLActive]
-  // );
-
-  useEffect(() => {
+  useEffect( () => {
 
     mounted.current = true;
     console.log(`resources array: ${JSON.stringify(resources)}`)
 
-    // debouncedResources.forEach...
-    resources.forEach((resource) => {
+    resources.forEach( (resource) => {
        // Check if the URL is not empty and valid
-      if (resource.url && resource.debouncedUrl && validateURL(resource.url)) {
-
-        console.log(`Checking activity for URL: ${resource.url}`);
-        checkURLActive(resource.debouncedUrl)
-          .then((response) => {
-
-            // Log the entire response for debugging
-            console.log(`Response from checkURLActive for ${resource.debouncedUrl}:`, response);
-
-            const isActive = response.data; 
-
-
-              setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: isActive }));
-
-              // Log based on the isActive value
-              if (isActive) {
-                console.log(`URL found active: ${resource.url}`);
-              } else {
-                console.log(`URL found inactive: ${resource.url}`);
-              }
-            }
-          )
-      } else if (!resource.url || !validateURL(resource.url)) {
-        // Handles both invalid and empty URLs
-
-          setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: false }));
-          console.log(`URL is invalid or empty, marked as inactive: ${resource.url}`);
-        
+      if (resource.url && validateURL(resource.url)) {
+        debounced(resource);
       }
+      //  else if (!resource.url || !validateURL(resource.url)) {
+      //   // Handles both invalid and empty URLs
+
+      //     setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: false }));
+      //     console.log(`URL is invalid or empty, marked as inactive: ${resource.url}`);
+        
+      // }
     });
 
     return () => {
       mounted.current = false;
     };
-  }, [resources, checkURLActive, debouncedResourceUrls ]);
+  }, [resources, checkURLActive, debounced]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
