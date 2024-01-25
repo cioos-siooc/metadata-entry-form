@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import {
   Paper,
@@ -27,6 +27,7 @@ import tabs from "../../utils/tabs";
 import GetRegionInfo from "../FormComponents/Regions";
 
 const SubmitTab = ({ record, submitRecord }) => {
+  const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
 
@@ -37,6 +38,9 @@ const SubmitTab = ({ record, submitRecord }) => {
   const regionInfo = GetRegionInfo();
 
   useEffect(() => {
+
+    mounted.current = true
+
     // some good info https://devtrium.com/posts/async-functions-useeffect
 
     // we could move this function outside of useEffect if we wrap it in a useCallback
@@ -71,11 +75,16 @@ const SubmitTab = ({ record, submitRecord }) => {
         },
         {}
       );
-
-      setValidationWarnings(fieldWarningInfoReduced);
+      if (mounted.current)
+        setValidationWarnings(fieldWarningInfoReduced);
     };
 
     getUrlWarningsByTab(record);
+
+    return () => {
+      mounted.current = false;
+    };
+
   }, [record]);
 
   return (

@@ -29,11 +29,12 @@ const Resources = ({ updateResources, resources, disabled }) => {
   const debounced = useDebouncedCallback(async (resource) => {
     const response = await checkURLActive(resource.url)
     console.log(response.data);
-    setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
+    if (mounted.current)
+      setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
   }, 1000);
 
   useEffect( () => {
-
+    mounted.current = true
     mounted.current = true;
     console.log(`resources array: ${JSON.stringify(resources)}`)
 
