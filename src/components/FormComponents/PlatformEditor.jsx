@@ -3,7 +3,6 @@ import React from "react";
 import {
   Grid, Paper,
   TextField, Tooltip,
-  Typography,
 } from "@material-ui/core";
 import {OpenInNew} from "@material-ui/icons";
 import {useParams} from "react-router-dom";
@@ -15,7 +14,6 @@ import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
 import {QuestionText, SupplementalText} from "./QuestionStyles";
-import {validateField} from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
 
