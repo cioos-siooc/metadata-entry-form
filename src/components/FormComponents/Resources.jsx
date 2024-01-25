@@ -31,7 +31,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
     console.log(response.data);
     if (mounted.current)
       setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
-  }, 1000);
+  }, 500);
 
   useEffect( () => {
     mounted.current = true
