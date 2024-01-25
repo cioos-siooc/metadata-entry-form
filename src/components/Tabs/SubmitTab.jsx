@@ -16,7 +16,7 @@ import { useParams } from "react-router-dom";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
-import { getErrorsByTab, recordIsValid } from "../../utils/validate";
+import { getErrorsByTab, recordIsValid, getUrlWarningsByTab } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
@@ -27,8 +27,11 @@ const SubmitTab = ({ record, submitRecord }) => {
   const { language } = useParams();
 
   const validationErrors = getErrorsByTab(record);
+  const validationWarnings = getUrlWarningsByTab(record);
   const submitted = record.status === "submitted";
   const regionInfo = GetRegionInfo();
+
+  console.log(validationWarnings)
 
   return (
     <Paper style={paperClass}>
