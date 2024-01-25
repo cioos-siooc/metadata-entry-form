@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Paper,
@@ -16,22 +16,55 @@ import { useParams } from "react-router-dom";
 import { paperClass } from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
-import { getErrorsByTab, recordIsValid, getUrlWarningsByTab } from "../../utils/validate";
+import { getErrorsByTab, recordIsValid, warnings, validateFieldWarning } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
 const SubmitTab = ({ record, submitRecord }) => {
   const [isSubmitting, setSubmitting] = useState(false);
+  const [validationWarnings, setValidationWarnings] = useState(false);
 
   const { language } = useParams();
 
   const validationErrors = getErrorsByTab(record);
-  const validationWarnings = getUrlWarningsByTab(record);
   const submitted = record.status === "submitted";
   const regionInfo = GetRegionInfo();
 
-  console.log(validationWarnings)
+  useEffect(() => {
+    // some good info https://devtrium.com/posts/async-functions-useeffect
+
+    // we could move this function outside of useEffect if we wrap it in a useCallback
+    // see https://devtrium.com/posts/async-functions-useeffect#what-if-you-need-to-extract-the-function-outside-useeffect
+    const getUrlWarningsByTab = async (record) => {
+      const fields = Object.keys(warnings);
+      const validatedFields = {};
+      for (const field of fields) {
+        const res = await validateFieldWarning(record, field);
+        validatedFields[field]= res;
+      };
+      const inactiveUrls = fields.filter((field) => {
+        return validatedFields[field]}
+        );
+      const fieldWarningInfo = inactiveUrls.map((field) => {
+        const { error, tab } = warnings[field];
+        return { error, tab };
+      });
+
+      console.log(`inactive urls: ${JSON.stringify(inactiveUrls)}`);
+      
+      const fieldWarningInfoReduced = fieldWarningInfo.reduce((acc, { error, tab }) => {
+        if (!acc[tab]) acc[tab] = [];
+        acc[tab].push(error);
+        return acc;
+      }, {});
+
+      setValidationWarnings(fieldWarningInfoReduced);
+    }
+
+    getUrlWarningsByTab(record);
+
+  }, [record])
 
   return (
     <Paper style={paperClass}>
@@ -160,8 +193,54 @@ const SubmitTab = ({ record, submitRecord }) => {
                 </Grid>
               </>
             )}
+
+              {validationWarnings && Object.keys(validationWarnings).length > 0 ? (
+              <>
+                <Grid item xs>
+                  <Typography>
+                    <I18n>
+                      <En>
+                        Some warnings were generated for the following fields.
+                        Please review and fix the warnings as needed befor submitting 
+                        the record.
+                      </En>
+                      <Fr>
+                          Certains avertissements ont été générés pour les champs suivants.
+                          Veuillez examiner et corriger les avertissements si nécessaire 
+                          avant de soumettre l'enregistrement.
+                      </Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+
+                <Grid item xs>
+                    {Object.keys(validationWarnings).map((tab) => (
+                    <div key={tab}>
+                      <Typography variant="h6">
+                        {tabs[tab][language]}
+                      </Typography>
+                      <List>
+                          {validationWarnings[tab].map(
+                          ({ [language]: error }, i) => (
+                            <ListItem key={i}>
+                              <ListItemText primary={error} />
+                            </ListItem>
+                          )
+                        )}
+                      </List>
+                    </div>
+                  ))}
+                </Grid>
+              </>
+
+            ):
+            (" ")}
           </>
         )}
+
+
+
+
       </Grid>
     </Paper>
   );

@@ -6,14 +6,6 @@ export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
 
 const checkURLActive = firebase.functions().httpsCallable('checkURLActive');
-checkURLActive('www.google.com')
-  .then((result) => {
-    const {data} = result.data;
-    console.log(data)
-  })
-  .catch((err) => {
-    console.log(err)
-  })
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
@@ -248,29 +240,6 @@ const validators = {
   },
 };
 
-  const warnings = {
-    distribution: {
-      tab: "resources",
-      validation: (val) =>
-        Array.isArray(val) &&
-        val.filter( async (dist) => { 
-          if (dist.url || validator.isURL(dist.url))          
-            {const status = await checkURLActive(dist.url)
-              console.log(`warnings status log: ${JSON.stringify(status)}`)
-            return !status}
-          return true
-        }) > 0,
-          
-  
-      error: {
-        en:
-          "Must have at least one resource. If a URL is included it must be valid.",
-        fr:
-          "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
-      },
-    },
-  };
-
 export const validateField = (record, fieldName) => {
   const valueToValidate = record[fieldName];
   // if no validator funciton exists, then it is not a required field
@@ -295,28 +264,40 @@ export const getErrorsByTab = (record) => {
   }, {});
 };
 
-export const validateFieldWarning = (record, fieldName) => {
-  const valueToValidate = record[fieldName];
 
-  console.log(`validateFieldWarning: ${JSON.stringify(valueToValidate)}`)
+export const warnings = {
+  distribution: {
+    tab: "resources",
+    validation: async (val) => {
+      val = await Promise.all(
+        val.map(async (dist) => {
+          const res = await checkURLActive(dist.url);
+          return {...dist, status:res.data};
+      }));
+      const filterVal = val.filter((dist) => !dist.status)
+      return filterVal.length
+    },
+    error: {
+      en:
+        "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
+      fr:
+        "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
+    },
+  },
+};
+
+
+export const validateFieldWarning = async (record, fieldName) => {
+  const valueToValidate = record[fieldName];
   // if no validator funciton exists, then it is not a required field
   const validationFunction =
     (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
-
-  return validationFunction && validationFunction(valueToValidate, record);
+  
+  const res = await validationFunction(valueToValidate, record);
+  return validationFunction && res;
 };
 
-// needs to be async...
-export const getUrlWarningsByTab = (record) => {
 
-  // get warnings
-  const fieldWarnings = Object.keys(warnings);
-  // get inactive urls - maybe from validateField function or write a similar function?
-  const inactiveUrls = fieldWarnings.filter( async (field) => { const urlWarning = await validateFieldWarning(record, field)
-   return urlWarning;});
-  console.log(`inactive urls: ${JSON.stringify(inactiveUrls)}`);
-  return inactiveUrls;
-}
 
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
