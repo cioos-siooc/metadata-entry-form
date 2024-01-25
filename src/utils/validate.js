@@ -269,12 +269,13 @@ export const warnings = {
   distribution: {
     tab: "resources",
     validation: async (val) => {
-      val = await Promise.all(
+      const processedVal = await Promise.all(
         val.map(async (dist) => {
           const res = await checkURLActive(dist.url);
           return {...dist, status:res.data};
-      }));
-      const filterVal = val.filter((dist) => !dist.status)
+        })
+      );
+      const filterVal = processedVal.filter((dist) => !dist.status)
       return filterVal.length
     },
     error: {
