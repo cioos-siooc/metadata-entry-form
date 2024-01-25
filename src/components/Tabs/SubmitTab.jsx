@@ -36,11 +36,11 @@ const SubmitTab = ({ record, submitRecord }) => {
 
     // we could move this function outside of useEffect if we wrap it in a useCallback
     // see https://devtrium.com/posts/async-functions-useeffect#what-if-you-need-to-extract-the-function-outside-useeffect
-    const getUrlWarningsByTab = async (record) => {
+    const getUrlWarningsByTab = async (recordObj) => {
       const fields = Object.keys(warnings);
       const validatedFields = {};
       for (const field of fields) {
-        const res = await validateFieldWarning(record, field);
+        const res = await validateFieldWarning(recordObj, field);
         validatedFields[field]= res;
       };
       const inactiveUrls = fields.filter((field) => {
