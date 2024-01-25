@@ -28,28 +28,19 @@ const Resources = ({ updateResources, resources, disabled }) => {
   // Debounce callback for URL updates
   const debounced = useDebouncedCallback(async (resource) => {
     const response = await checkURLActive(resource.url)
-    console.log(response.data);
     if (mounted.current)
       setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
   }, 500);
 
   useEffect( () => {
     mounted.current = true
-    mounted.current = true;
-    console.log(`resources array: ${JSON.stringify(resources)}`)
 
     resources.forEach( (resource) => {
-       // Check if the URL is not empty and valid
+
       if (resource.url && validateURL(resource.url)) {
         debounced(resource);
       }
-      //  else if (!resource.url || !validateURL(resource.url)) {
-      //   // Handles both invalid and empty URLs
 
-      //     setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: false }));
-      //     console.log(`URL is invalid or empty, marked as inactive: ${resource.url}`);
-        
-      // }
     });
 
     return () => {
@@ -76,8 +67,6 @@ const Resources = ({ updateResources, resources, disabled }) => {
 
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
-
-  console.log(`url is active object: ${JSON.stringify(urlIsActive)}`)
 
   return (
     <div>
