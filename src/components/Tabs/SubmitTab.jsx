@@ -174,6 +174,16 @@ const SubmitTab = ({ record, submitRecord }) => {
               </>
             ) : (
               <>
+                {/* Errors Section */}
+                <Grid item xs>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>Errors</En>
+                      <Fr>Erreurs</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+
                 <Grid item xs>
                   <Typography>
                     <I18n>
@@ -214,6 +224,16 @@ const SubmitTab = ({ record, submitRecord }) => {
             {validationWarnings &&
             Object.keys(validationWarnings).length > 0 ? (
               <>
+                {/* Warnings Section Heading */}
+                <Grid item xs>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>Warnings</En>
+                      <Fr>Avertissements</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                
                 <Grid item xs>
                   <Typography>
                     <I18n>
