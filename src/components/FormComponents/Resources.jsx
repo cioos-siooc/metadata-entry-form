@@ -22,32 +22,29 @@ const Resources = ({ updateResources, resources, disabled }) => {
   const mounted = useRef(false);
   const { checkURLActive } = useContext(UserContext);
   const [urlIsActive, setUrlIsActive] = useState({});
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
   const debouncePool = useRef({});
-  // Debounce callback for URL updates
 
   useEffect( () => {
+
     mounted.current = true
-    resources.forEach( (resource, idx, arr) => {
+
+    resources.forEach( (resource, idx) => {
+      
       if (resource.url && validateURL(resource.url)) {
         if (!debouncePool.current[idx]){
-          debouncePool.current[idx] = debounce( async (resource) => {
-            const response = await checkURLActive(resource.url)
+          debouncePool.current[idx] = debounce( async (innerResource) => {
+            const response = await checkURLActive(innerResource.url)
             if (mounted.current){
-              setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [innerResource.url]: response.data }))
             }
           }, 500);
         }
         debouncePool.current[idx](resource);
       }
     });
-
-      setIsInitialLoad(false);
-
-    }
-
+    
     return () => {
       mounted.current = false;
     };
