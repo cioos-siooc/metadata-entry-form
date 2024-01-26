@@ -7,7 +7,7 @@ import {
 } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
-import { useDebouncedCallback } from 'use-debounce';
+import debounce from "just-debounce-it";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
@@ -24,29 +24,29 @@ const Resources = ({ updateResources, resources, disabled }) => {
   const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
-
+  const debouncePool = useRef({});
   // Debounce callback for URL updates
-  const debounced = useDebouncedCallback(async (resource) => {
-    const response = await checkURLActive(resource.url)
-    if (mounted.current)
-      setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
-  }, 500);
 
   useEffect( () => {
     mounted.current = true
-
-    resources.forEach( (resource) => {
-
+    resources.forEach( (resource, idx, arr) => {
       if (resource.url && validateURL(resource.url)) {
-        debounced(resource);
+        if (!debouncePool.current[idx]){
+          debouncePool.current[idx] = debounce( async (resource) => {
+            const response = await checkURLActive(resource.url)
+            if (mounted.current){
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
+            }
+          }, 500);
+        }
+        debouncePool.current[idx](resource);
       }
-
     });
 
     return () => {
       mounted.current = false;
     };
-  }, [resources, checkURLActive, debounced]);
+  }, [resources, checkURLActive]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
