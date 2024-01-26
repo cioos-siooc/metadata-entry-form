@@ -7,7 +7,7 @@ import {
 } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
-import { useDebouncedCallback } from 'use-debounce';
+import debounce from "just-debounce-it";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
@@ -25,41 +25,24 @@ const Resources = ({ updateResources, resources, disabled }) => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
 
-
+  const debouncePool = useRef({});
   // Debounce callback for URL updates
-  const debounced = useDebouncedCallback(async (resource) => {
-    const response = await checkURLActive(resource.url)
-    if (mounted.current)
-      setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
-  }, 500);
 
   useEffect( () => {
     mounted.current = true
-
-    const checkURLStatus = async (resource) => {
-      const response = await checkURLActive(resource.url);
-      if (mounted.current)
-        setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }));
-    };
-
-    // if its not initial load, use debounced function
-    if (!isInitialLoad) {
-      resources.forEach((resource) => {
-        if (resource.url && validateURL(resource.url)) {
-          debounced(resource);
+    resources.forEach( (resource, idx, arr) => {
+      if (resource.url && validateURL(resource.url)) {
+        if (!debouncePool.current[idx]){
+          debouncePool.current[idx] = debounce( async (resource) => {
+            const response = await checkURLActive(resource.url)
+            if (mounted.current){
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [resource.url]: response.data }))
+            }
+          }, 500);
         }
-      });
-    }
-  
-    // After the first render, set isInitialLoad to false
-    if (isInitialLoad) {
-
-      // if initial load, don't use debounce
-      resources.forEach((resource) => {
-        if (resource.url && validateURL(resource.url)) {
-          checkURLStatus(resource);
-        }
-      });
+        debouncePool.current[idx](resource);
+      }
+    });
 
       setIsInitialLoad(false);
 
@@ -68,7 +51,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
     return () => {
       mounted.current = false;
     };
-  }, [resources, checkURLActive, debounced, isInitialLoad]);
+  }, [resources, checkURLActive]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
