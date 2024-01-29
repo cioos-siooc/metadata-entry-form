@@ -50,7 +50,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
     updateResources(updatedResources);
   };
 
-  const handleTranslateVerifyChange = (resourceIndex, field) => {
+  const handleResourceTranslateVerifyChange = (resourceIndex, field) => {
     return (e) => {
       const { checked } = e.target;
       const updatedResources = resources.map((resource, index) => {
@@ -99,7 +99,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   fullWidth
                   disabled={disabled}
                   translateChecked={dist.nameTranslationVerified || false}
-                  translateOnChange={handleTranslateVerifyChange(i, "name")}
+                  translateOnChange={handleResourceTranslateVerifyChange(i, "name")}
                 />
               </Grid>
               <Grid item xs>
@@ -158,7 +158,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   onTranslateComplete={handleResourceTranslationComplete(i, "description", "Resource description text translated using the Amazon translate service / Texte de description de la ressource traduit à l'aide du service de traduction Amazon")}
                   disabled={disabled}
                   translateChecked={dist.descriptionTranslationVerified || false}
-                  translateOnChange={handleTranslateVerifyChange(i, "description")}
+                  translateOnChange={handleResourceTranslateVerifyChange(i, "description")}
                 />
               </Grid>
               <Grid item xs>

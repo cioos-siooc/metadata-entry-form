@@ -236,6 +236,13 @@ class MetadataForm extends FormClassTemplate {
     this.updateRecord(translationMethodField)(translateMessage);
   };
 
+  handleTranslateVerifyChange = (fieldName) => {
+    return (e) => {
+      const { checked } = e.target;
+      this.updateRecord(fieldName)(checked);
+    };
+  }
+
   saveUpdateContact(contact) {
     const { contactID } = contact;
     const { match } = this.props;
@@ -384,6 +391,7 @@ class MetadataForm extends FormClassTemplate {
       handleUpdateRecord: this.handleUpdateRecord,
       updateRecord: this.updateRecord,
       handleTranslationComplete: this.handleTranslationComplete,
+      handleTranslateVerifyChange: this.handleTranslateVerifyChange,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
     return loading ? (

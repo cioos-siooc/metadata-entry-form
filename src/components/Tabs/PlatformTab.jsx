@@ -12,6 +12,7 @@ const PlatformTab = ({
   record,
   handleUpdateRecord,
   handleTranslationComplete,
+  handleTranslateVerifyChange,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
@@ -89,7 +90,7 @@ const PlatformTab = ({
                   record={record}
                   handleUpdateRecord={handleUpdateRecord}
                   handleTranslationComplete={handleTranslationComplete}
-                  updateRecord={updateRecord}
+                  handleTranslateVerifyChange={handleTranslateVerifyChange}
                   disabled={disabled}
                 />
               </>

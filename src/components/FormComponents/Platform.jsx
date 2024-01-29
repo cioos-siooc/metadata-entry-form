@@ -12,7 +12,7 @@ import { validateField } from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platforms from "../../platforms.json";
 
-const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, disabled, updateRecord }) => {
+const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, handleTranslateVerifyChange, disabled }) => {
   const { language = "en" } = useParams();
 
   const platformsSorted = Object.values(platforms).sort((a, b) =>
@@ -140,15 +140,8 @@ const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, disab
           onTranslateComplete={handleTranslationComplete("platformDescription", "Platform Description text translated using the Amazon translate service / Texte de description de la plateforme traduit à l'aide du service de traduction Amazon")}
           multiline
           disabled={disabled}
-          translateChecked={
-                        record.translationVerifiedPlatformDescription || false
-                      }
-          translateOnChange={(e) => {
-                        const { checked } = e.target;
-                        updateRecord("translationVerifiedPlatformDescription")(
-                          checked
-                        );
-                      }}
+          translateChecked={record.translationVerifiedPlatformDescription || false}
+          translateOnChange={handleTranslateVerifyChange("translationVerifiedPlatformDescription")}
         />
       </Grid>
     </div>

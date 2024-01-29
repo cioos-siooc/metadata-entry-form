@@ -41,6 +41,7 @@ const IdentificationTab = ({
   handleUpdateRecord,
   updateRecord,
   handleTranslationComplete,
+  handleTranslateVerifyChange,
   projects,
 }) => {
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
@@ -284,15 +285,8 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("title")}
           onTranslateComplete={handleTranslationComplete("title", "Title text translated using the Amazon translate service / Texte du titre traduit à l’aide du service de traduction Amazon")}
           disabled={disabled}
-          translateChecked={
-                        record.translationVerifiedTitle || false
-                      }
-          translateOnChange={(e) => {
-                        const { checked } = e.target;
-                        updateRecord("translationVerifiedTitle")(
-                          checked
-                        );
-                      }}
+          translateChecked={record.translationVerifiedTitle || false}
+          translateOnChange={handleTranslateVerifyChange("translationVerifiedTitle")}
         />
       </Paper>
 
@@ -439,15 +433,8 @@ const IdentificationTab = ({
           onTranslateComplete={handleTranslationComplete("abstract", "Abstract text translated using the Amazon translate service / Texte abstrait traduit à l'aide du service de traduction Amazon")}
           disabled={disabled}
           multiline
-          translateChecked={
-                        record.translationVerifiedAbstract || false
-                      }
-          translateOnChange={(e) => {
-                        const { checked } = e.target;
-                        updateRecord("translationVerifiedAbstract")(
-                          checked
-                        );
-                      }}
+          translateChecked={record.translationVerifiedAbstract || false}
+          translateOnChange={handleTranslateVerifyChange("translationVerifiedAbstract")}
         />
       </Paper>
 
@@ -1010,15 +997,8 @@ const IdentificationTab = ({
           onTranslateComplete={handleTranslationComplete("limitations", "Limitations text translated using the Amazon translate service / Texte des limitations traduit à l'aide du service de traduction Amazon")}
           multiline
           disabled={disabled}
-          translateChecked={
-                        record.translationVerifiedLimitations || false
-                      }
-          translateOnChange={(e) => {
-                        const { checked } = e.target;
-                        updateRecord("translationVerifiedLimitations")(
-                          checked
-                        );
-                      }}
+          translateChecked={record.translationVerifiedLimitations || false}
+          translateOnChange={handleTranslateVerifyChange("translationVerifiedLimitations")}
         />
       </Paper>
     </div>
