@@ -130,7 +130,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   onTranslateComplete={handleResourceTranslationComplete(i, "name", "Resource name text translated using the Amazon translate service / Texte du nom de la ressource traduit à l'aide du service de traduction Amazon")}
                   fullWidth
                   disabled={disabled}
-                  translateChecked={dist.nameTranslationVerified || false}
+                  translateChecked={resourceItem.nameTranslationVerified || false}
                   translateOnChange={handleResourceTranslateVerifyChange(i, "name")}
                 />
               </Grid>
@@ -191,7 +191,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   onChange={handleResourceChange("description")}
                   onTranslateComplete={handleResourceTranslationComplete(i, "description", "Resource description text translated using the Amazon translate service / Texte de description de la ressource traduit à l'aide du service de traduction Amazon")}
                   disabled={disabled}
-                  translateChecked={dist.descriptionTranslationVerified || false}
+                  translateChecked={resourceItem.descriptionTranslationVerified || false}
                   translateOnChange={handleResourceTranslateVerifyChange(i, "description")}
                 />
               </Grid>
