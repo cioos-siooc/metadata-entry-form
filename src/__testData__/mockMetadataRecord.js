@@ -34,7 +34,7 @@ const mockMetadataRecord = {
     "verticalExtentMax": "",
     "datePublished": "2023-10-26T19:00:00.000Z",
     "dateRevised": null,
-    "edition": "",
+    "edition": "1.1",
     "recordID": "-Nhi6_2lQjNwKkzdv_Qu",
     "instruments": [],
     "platform": "",
@@ -80,6 +80,7 @@ const mockMetadataRecord = {
         {
             "role": [
                 "publisher",
+                "funder",
             ],
             "orgName": "Royal Roads University",
             "orgEmail": "",
