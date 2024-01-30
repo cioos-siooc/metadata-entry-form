@@ -1,14 +1,16 @@
 const baseUrl = "https://api.datacite.org/dois/";
-const { DATACITE_AUTH_HASH } = process.env;
+// const { DATACITE_AUTH_HASH } = process.env;
 const functions = require("firebase-functions");
 const axios = require("axios");
+
+const dataciteAuthHash = functions.config().DATACITE_AUTH_HASH;
 
 exports.createDraftDoi = functions.https.onCall(async (record) => {
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${DATACITE_AUTH_HASH}`,
+      'Authorization': `Basic ${dataciteAuthHash}`,
       'Content-Type': 'application/json',
     },
   });
