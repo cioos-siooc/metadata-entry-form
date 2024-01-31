@@ -18,7 +18,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
 
-const StartTab = ({ disabled }) => {
+const StartTab = ({ disabled, handleUpdateRecord }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
 
@@ -135,6 +135,7 @@ const StartTab = ({ disabled }) => {
       </Paper>
       <Paper style={paperClass}>
         {/* Radio Buttons here for Resource Type selection */}
+        {/* TO DO: ADD STATE UPDATE FOR SELECTION */}
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
@@ -148,6 +149,7 @@ const StartTab = ({ disabled }) => {
             aria-labelledby="resource-type"
             defaultValue=""
             name="resource-type"
+            onChange={handleUpdateRecord("resourceType")}
           >
             <FormControlLabel
               value="oceanographic"
@@ -159,7 +161,11 @@ const StartTab = ({ disabled }) => {
               control={<Radio />}
               label="Biological"
             />
-            <FormControlLabel value="model" control={<Radio />} label="Model" />
+            <FormControlLabel 
+              value="model"  
+              control={<Radio />} 
+              label="Model" 
+            />
           </RadioGroup>
         </FormControl>
       </Paper>
