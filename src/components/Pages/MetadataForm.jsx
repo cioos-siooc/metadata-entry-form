@@ -29,6 +29,7 @@ import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
 import LineageTab from "../Tabs/LineageTab"
+import TaxaTab from "../Tabs/TaxaTab"
 
 import { auth } from "../../auth";
 import firebase from "../../firebase";
@@ -454,6 +455,12 @@ class MetadataForm extends FormClassTemplate {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
+                label={tabs.taxa[language]}
+                value="taxa"
+              /> 
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
                 label={tabs.spatial[language]}
                 value="spatial"
               />
@@ -475,12 +482,12 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.platform[language]}
                 value="platform"
               />
-                <Tab
-                  fullWidth
-                  classes={{ root: classes.tabRoot }}
-                  label={tabs.lineage[language]}
-                  value="lineage"
-                /> 
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
+                label={tabs.lineage[language]}
+                value="lineage"
+              /> 
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
@@ -526,6 +533,9 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="identification">
           <IdentificationTab {...tabProps} projects={projects} />
         </TabPanel>
+        <TabPanel value={tabIndex} index="taxa">
+            <TaxaTab {...tabProps} />
+        </TabPanel>
         <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />
         </TabPanel>
@@ -535,9 +545,9 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
         </TabPanel>
-          <TabPanel value={tabIndex} index="lineage">
-            <LineageTab {...tabProps} />
-          </TabPanel>
+        <TabPanel value={tabIndex} index="lineage">
+          <LineageTab {...tabProps} />
+        </TabPanel>
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
             {...tabProps}
