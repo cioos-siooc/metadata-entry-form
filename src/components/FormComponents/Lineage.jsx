@@ -15,7 +15,7 @@ import { metadataScopeCodes } from "../../isoCodeLists";
 import RequiredMark from "./RequiredMark";
 import AdditionalDocumentation from "./LineageAdditionalDocumentation"
 import LineageSource from "./LineageSource";
-import ProcessingStep from "./ProcessingStep";
+import ProcessingStep from "./LineageProcessingStep";
 import SelectInput from "./SelectInput";
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";

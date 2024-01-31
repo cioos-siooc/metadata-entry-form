@@ -80,7 +80,7 @@ const LineageSource = ({
       <Grid container item direction="row" spacing={1}>
       <Grid item xs={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid item xs spacing={1}>
+            <Grid item xs>
 
               <List spacing={1}>
               {sources.map((sourceItem, i) => {
