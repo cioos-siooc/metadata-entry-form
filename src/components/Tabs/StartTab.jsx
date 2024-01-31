@@ -134,15 +134,13 @@ const StartTab = ({ disabled, handleUpdateRecord }) => {
         </ul>
       </Paper>
       <Paper style={paperClass}>
-        {/* Radio Buttons here for Resource Type selection */}
-        {/* TO DO: ADD STATE UPDATE FOR SELECTION */}
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the resource type of the dataset?</En>
               <Fr>Quel est le type de ressource de l'ensemble de données?</Fr>
             </I18n>
-            {/* TO DO: ADD VALIDATION FOR RESOURCE TYPE BEING SELECTED */}
+            {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark  />
           </QuestionText>
           <RadioGroup
