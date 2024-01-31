@@ -22,7 +22,6 @@ import { Paper,
 import { ArrowDownward, Delete } from "@material-ui/icons";
 import { capitalize } from '@material-ui/core';
 import { deepEquals } from "../../utils/misc";
-
 import { En, Fr, I18n } from "../I18n";
 import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -113,7 +112,7 @@ const TaxaTab = ({
             console.log(error);
             requestInProgress.current = false;
         });
-    }, 3000);
+    }, 500);
 
     React.useEffect(() => {
         mounted.current = true;
@@ -202,13 +201,13 @@ const TaxaTab = ({
 
                 <Grid container direction="row" >
                     <Grid item xs={5}>
-                        <Grid item xs style={{ margin: "10px" }}>
+                        <Grid style={{ margin: "10px" }}>
                             <Typography variant="h6">
                                 Taxa
                             </Typography>
                         </Grid>
 
-                        <Box item xs={7} border={1} borderRadius="4px" borderColor="#ababab" margin="10px" >
+                        <Box border={1} borderRadius="4px" borderColor="#ababab" margin="10px" >
                             <List>
                                 <Container
                                     lockAxis="y"
@@ -265,12 +264,12 @@ const TaxaTab = ({
                     </Grid>
 
                     <Grid item xs={7}>
-                        <Grid item xs style={{ margin: "10px" }} >
+                        <Grid style={{ margin: "10px" }} >
                             <Typography variant="h6">
                                 Details
                             </Typography>
                         </Grid>
-                        <Box item xs border={1} borderRadius="4px" borderColor="#ababab" margin="10px" minHeight="48px">
+                        <Box border={1} borderRadius="4px" borderColor="#ababab" margin="10px" minHeight="48px">
                             {taxa[activeTaxa] ? (
                             <TableContainer component={Paper}>
                                         <Table  size="small" aria-label="simple table">
@@ -282,8 +281,8 @@ const TaxaTab = ({
                                                 key={key}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                     >
-                                                <TableCell component="th" scope="row" variant="head">
-                                                    {capitalize(key)}
+                                                <TableCell component="th" scope="row" variant="head" align="left" style={{width:"146px"}}>
+                                                    {capitalize(key)}:
                                                         </TableCell>
                                                 <TableCell align="left">{value}</TableCell>
                                                     </TableRow>
