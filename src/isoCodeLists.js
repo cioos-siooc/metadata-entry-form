@@ -219,6 +219,37 @@ export const depthDirections = {
 };
 
 export const metadataScopeCodes = {
+  collection: {
+    title: {
+      en: "collection",
+      fr: ""
+    },
+    text: {
+      en: "Information applies to an unstructured set of resources described as a group; its parts may also be separately described.",
+      fr: ""
+    },
+  },
+  collectionHardware: {
+    title: {
+      en: "collection hardware",
+      fr: ""
+    },
+    text: {
+      en: "Information applies to description of instruments and platforms used to collect data",
+      fr: ""
+    },
+  },
+  // Required for biological datasets
+  collectionSession: {
+    title: {
+      en: "data collection (sampling)",
+      fr: ""
+    },
+    text: {
+      en: "information applies to the dataset",
+      fr: ""
+    },
+  },
   dataset: {
     title: {
       en: "dataset",
