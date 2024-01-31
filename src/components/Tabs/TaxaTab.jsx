@@ -107,7 +107,7 @@ const TaxaTab = ({
             if (mounted.current) {
                 setData([...response.data]);
             }
-            console.log([...response.data]);
+            //console.log([...response.data]);
             requestInProgress.current = false;
         }).catch((error) => {
             console.log(error);
@@ -118,12 +118,7 @@ const TaxaTab = ({
     React.useEffect(() => {
         mounted.current = true;
 
-        console.log("inputValue");        
-        console.log(inputValue);
-        console.log("value");
-        console.log(value);
         if (inputValue.length > 2 && !value && !requestInProgress.current){
-            console.log("make the call");
             gbifSearch(inputValue);
         }
 
@@ -171,9 +166,6 @@ const TaxaTab = ({
                         // }
                         loading={!requestInProgress.current}
                         onChange={(event, newValue) => {
-                            console.log("aotocomplete onChange");
-                            console.log(typeof newValue);
-                            console.log(newValue);
                             if (typeof newValue === "object") {
                                 setValue(newValue);
                             }
@@ -219,7 +211,6 @@ const TaxaTab = ({
                         <Box item xs={7} border={1} borderRadius="4px" borderColor="#ababab" margin="10px" >
                             <List>
                                 <Container
-                                    // dragHandleSelector=".drag-handle"
                                     lockAxis="y"
                                     onDrop={onDrop}
                                 >
@@ -273,13 +264,13 @@ const TaxaTab = ({
                         </Box>
                     </Grid>
 
-                    <Grid item xs={"7"}>
+                    <Grid item xs={7}>
                         <Grid item xs style={{ margin: "10px" }} >
                             <Typography variant="h6">
                                 Details
                             </Typography>
                         </Grid>
-                        <Box item xs border={1} borderRadius="4px" borderColor="#ababab" margin="10px">
+                        <Box item xs border={1} borderRadius="4px" borderColor="#ababab" margin="10px" minHeight="48px">
                             {taxa[activeTaxa] ? (
                             <TableContainer component={Paper}>
                                         <Table  size="small" aria-label="simple table">
