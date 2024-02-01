@@ -58,20 +58,22 @@ const ProcessingStep = ({
     <Grid container spacing={0}>
       <Grid item>
         <QuestionText>
-          Source:
+          <I18n>
+            <En>Processing or Method Step:</En>
+            <Fr>Étape de traitement ou de méthode:</Fr>
+          </I18n>
+          
           <SupplementalText>
             <I18n>
               <En>
-                Information about the input used in creating the resource specified by the scope. Provide
-                citations to the input data. This is especially valuable for processed satellite data and
-                model data. For model data, it is suggested to describe the model and its input, especially
-                if their is no publication cited above to describe the model.
+                A general description of how the resource was developed or an event associated with the 
+                resource. This can be a summary of the workflow or steps to create the resource subsequent 
+                to initial data collection.
               </En>
               <Fr>
-                Informations sur l'entrée utilisée lors de la création de la ressource spécifiée par la portée. Fournir
-                citations aux données d’entrée. Ceci est particulièrement utile pour les données satellitaires traitées et
-                données du modèle. Pour les données de modèle, il est suggéré de décrire le modèle et ses entrées, en particulier
-                s'il n'y a pas de publication citée ci-dessus pour décrire le modèle.
+                Une description générale de la façon dont la ressource a été développée ou d'un événement associé à la
+                Ressource. Il peut s'agir d'un résumé du flux de travail ou des étapes de création ultérieure de la ressource.
+                à la collecte initiale des données.
               </Fr>
             </I18n>
           </SupplementalText>
@@ -80,7 +82,7 @@ const ProcessingStep = ({
       <Grid container item direction="row" spacing={1}>
       <Grid item xs={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid item xs spacing={1}>
+            <Grid item xs>
 
               <List spacing={1}>
               {sources.map((sourceItem, i) => {
@@ -118,8 +120,8 @@ const ProcessingStep = ({
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
-                <En>Add Processing/Method Step</En>
-                <Fr>Ajouter une étape de traitement/méthode</Fr>
+                <En>Add Step</En>
+                <Fr>Ajouter une étape</Fr>
               </I18n>
             </Button>
           </Grid>
