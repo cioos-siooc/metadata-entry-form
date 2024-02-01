@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   TextField,
@@ -14,7 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const emptyDocumentation = {
   title: "",
@@ -31,10 +31,11 @@ const LineageAdditionalDocumentation = ({
 }) => {
   const [activeDocumentation, setActiveDocumentation] = useState(0);
 
-  function addDocumentation() {
+  const addDocumentation = useCallback( () => {
     updateDocumentations(documentations.concat(deepCopy(emptyDocumentation)));
     setActiveDocumentation(documentations.length);
-  }
+  }, []);
+
   function updateDocumentationField(key) {
     return (e) => {
       const documentationsCopy = [...documentations];
@@ -42,12 +43,12 @@ const LineageAdditionalDocumentation = ({
       updateDocumentations(documentationsCopy);
     };
   }
-  function removeDocumentation() {
+  const removeDocumentation = useCallback( () => {
     updateDocumentations(
       documentations.filter((e, index) => index !== activeDocumentation)
     );
     if (documentations.length) setActiveDocumentation(documentations.length - 2);
-  }
+  },[]);
 
 
 
@@ -79,7 +80,7 @@ const LineageAdditionalDocumentation = ({
         <Grid item xs={4}>
           <Grid container direction="column" spacing={1}>
             <Grid item xs>
-              <List spacing={1}>
+              <List>
               {documentations.map((documentationItem, i) => {
                 return (
                   <ListItem
@@ -96,7 +97,7 @@ const LineageAdditionalDocumentation = ({
                         >
                           {i + 1}. {
                             (documentationItem.title[language] ?? '').length <= 50 ?
-                              (documentationItem.title[language] ?? '') : documentationItem.title[language].substring(0, 50) + '...'
+                              (documentationItem.title[language] ?? '') : `${documentationItem.title[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }

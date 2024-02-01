@@ -226,7 +226,6 @@ class MetadataForm extends FormClassTemplate {
   // generic state updater creator
   updateRecord = (key) => (value) => {
     const changes = { [key]: value };
-
     this.setState(({ record }) => ({
       record: { ...record, ...changes },
       saveDisabled: false,

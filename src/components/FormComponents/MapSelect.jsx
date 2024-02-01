@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-underscore-dangle */
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { TextField, Grid, Typography } from "@material-ui/core";
@@ -21,23 +21,22 @@ import { I18n, En, Fr } from "../I18n";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
-import BilingualTextInput from "../FormComponents/BilingualTextInput";
+import BilingualTextInput from "./BilingualTextInput";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   // On map clear?
-  function handleMapClear() {
+  const handleMapClear = (() => {
     const emptySpatial = {
+      ...mapData,
       north: "",
       south: "",
       east: "",
       west: "",
       polygon: "",
-      description: "",
-      descriptionIdentifier: uuidv4()
+      descriptionIdentifier: uuidv4(),
     };
-
     updateMap(emptySpatial);
-  }
+  });
 
   const [editableFG, setEditableFG] = useState(null);
   const [, setLayerError] = useState(null);
@@ -63,40 +62,21 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     }
   }
   // update a mapData property using an event
-  function handleChange(key) {
+  function handleBBoxChange(key) {
     return (e) => {
       const drawnItems = editableFG.leafletElement._layers;
       clearExtraLayers(drawnItems);
-
       const newData = { ...mapData, [key]: e.target.value };
-
       updateMap(newData);
     };
   }
-  // update the polygon property using an event
-  function handleChangePoly(e) {
-    const drawnItems = editableFG.leafletElement._layers;
-    clearExtraLayers(drawnItems);
 
-    const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' }
-    try {
-      const bounds = L.latLngBounds(parsePolyString(e.target.value))
-      const { lat: north, lng: east } = bounds.getNorthEast();
-      const { lat: south, lng: west } = bounds.getSouthWest();
-
-      newData.north = limitDecimals(north);
-      newData.south = limitDecimals(south);
-      newData.east = limitDecimals(east);
-      newData.west = limitDecimals(west);
-    } catch (ignore) {
-      // ignore bounds errors as a missing or invalid polygon string should not take down the app
-    }
-
-    updateMap(newData);
-  }
-
-  function limitDecimals(x) {
-    return Number.parseFloat(x).toPrecision(4);
+  // update a mapData property using an event
+  function handleDescriptionChange(key) {
+    return (e) => {
+      const newData = { ...mapData, [key]: e.target.value };
+      updateMap(newData);
+    };
   }
 
   function parsePolyString(polygonList) {
@@ -115,23 +95,53 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     return coordList;
   }
 
+  function limitDecimals(x) {
+    return Number.parseFloat(x).toPrecision(4);
+  }
+
+  // update the polygon property using an event
+  function handleChangePoly()  {
+    return (e) => {
+      if (editableFG) {
+        const drawnItems = editableFG.leafletElement._layers;
+        clearExtraLayers(drawnItems);
+      }
+
+      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' }
+      try {
+        const bounds = L.latLngBounds(parsePolyString(e.target.value))
+        const { lat: north, lng: east } = bounds.getNorthEast();
+        const { lat: south, lng: west } = bounds.getSouthWest();
+
+        newData.north = limitDecimals(north);
+        newData.south = limitDecimals(south);
+        newData.east = limitDecimals(east);
+        newData.west = limitDecimals(west);
+      } catch (ignore) {
+        // ignore bounds errors as a missing or invalid polygon string should not take down the app
+      }
+
+      updateMap(newData);
+    }
+  };
+
   const hasBoundingBox = (
-    test_n = mapData.north,
-    test_s = mapData.south,
-    test_e = mapData.east,
-    test_w = mapData.west
+    testN = mapData.north,
+    testS = mapData.south,
+    testE = mapData.east,
+    testW = mapData.west
   ) => {
     const test =
-      coordTest.test(test_n) &&
-      coordTest.test(test_s) &&
-      coordTest.test(test_e) &&
-      coordTest.test(test_w);
+      coordTest.test(testN) &&
+      coordTest.test(testS) &&
+      coordTest.test(testE) &&
+      coordTest.test(testW);
 
     return test;
   };
 
-  const hasPolygon = (test_string = mapData.polygon) => {
-    return polyTest.test(test_string);
+  const hasPolygon = (testString = mapData.polygon) => {
+    return polyTest.test(testString);
   };
 
   const onCreated = (e) => {
@@ -159,7 +169,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         east = limitDecimals(east);
         west = limitDecimals(west);
 
-        updateMap({ polygon, north, south, east, west });
+        const newValue = { ...mapData, polygon, north, south, east, west };
+        updateMap(newValue);
       }
         break;
 
@@ -175,7 +186,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         east = limitDecimals(east);
         west = limitDecimals(west);
 
-        const newValue = { north, south, east, west };
+        const newValue = { ...mapData, north, south, east, west };
         updateMap(newValue);
       }
     }
@@ -285,7 +296,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             label={<I18n en="North" fr="Nord" />}
             value={mapData.north || ""}
             inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            onChange={handleChange("north")}
+            onChange={handleBBoxChange("north")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
           />
@@ -294,7 +305,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <TextField
             label={<I18n en="South" fr="Sud" />}
             value={mapData.south || ""}
-            onChange={handleChange("south")}
+            onChange={handleBBoxChange("south")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
           />
@@ -303,7 +314,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <TextField
             label={<I18n en="East" fr="Est" />}
             value={mapData.east || ""}
-            onChange={handleChange("east")}
+            onChange={handleBBoxChange("east")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
           />
@@ -312,7 +323,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <TextField
             value={mapData.west || ""}
             label={<I18n en="West" fr="Ouest" />}
-            onChange={handleChange("west")}
+            onChange={handleBBoxChange("west")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
           />
@@ -349,7 +360,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       </QuestionText>
       <TextField
         value={mapData.polygon || ""}
-        onChange={handleChangePoly}
+        onChange={handleChangePoly()}
         type="text"
         fullWidth
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
@@ -394,7 +405,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
       <BilingualTextInput
         value={mapData.description}
-        onChange={handleChange("description")}
+        onChange={handleDescriptionChange("description")}
+        name="description"
         disabled={disabled}
       />
     </div>

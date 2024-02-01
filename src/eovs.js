@@ -1,5 +1,4 @@
-{
-  "eovCategories": {
+export const eovCategories = {
     "Biogeochemical": {
       "en": "Biogeochemical",
       "fr": "Biogéochimie"
@@ -20,8 +19,9 @@
       "en": "Other",
       "fr": "Autre"
     }
-  },
-  "eovs": [
+  };
+
+export const eovs = [
     {
       "category": "Biogeochemical",
       "value": "oxygen",
@@ -354,5 +354,5 @@
       "icon": "ocean-bottom-pressure.svg",
       "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=32488"
     }
-  ]
-}
+  ];
+

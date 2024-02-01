@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import { Container, Draggable } from "react-smooth-dnd";
 
@@ -40,7 +40,7 @@ const ContactLeftList = ({
   }
   //  removedIndex is dragStart
   //  addedIndex is dragEnd
-  function onDrop({ removedIndex, addedIndex }) {
+  const onDrop = useCallback(({ removedIndex, addedIndex }) => {
     if (removedIndex === activeContact) setActiveContact(addedIndex);
     else if (addedIndex <= activeContact && removedIndex > activeContact)
       setActiveContact(activeContact + 1);
@@ -52,12 +52,13 @@ const ContactLeftList = ({
     );
 
     updateContacts(reorderedContacts);
-  }
+  }, [activeContact, currentContacts]);
 
   function removeItem(itemIndex) {
     updateContacts(contacts.filter((e, index) => index !== itemIndex));
     if (contacts.length) setActiveContact(contacts.length - 2);
   }
+
   function duplicateContact(contactIndex) {
     const duplicatedContact = deepCopy(contacts[contactIndex]);
     if (duplicatedContact.lastName) duplicatedContact.lastName += " (Copy)";
@@ -68,7 +69,7 @@ const ContactLeftList = ({
 
   const contactList = Object.values(userContacts || {});
 
-  function handleAddFromSavedContacts(e) {
+  const handleAddFromSavedContacts = useCallback((e) => {
     const index = e.target.value;
     const { role, ...contact } = contactList[index];
 
@@ -76,12 +77,12 @@ const ContactLeftList = ({
       contacts.concat(deepCopy({ ...getBlankContact(), ...contact }))
     );
     setActiveContact(contacts.length);
-  }
+  }, [contacts]);
 
-  function handleAddNewContact() {
+  const handleAddNewContact = useCallback(() => {
     updateContacts(contacts.concat(getBlankContact()));
     setActiveContact(contacts.length);
-  }
+  }, [contacts]);
 
   return (
     <Paper style={paperClass}>

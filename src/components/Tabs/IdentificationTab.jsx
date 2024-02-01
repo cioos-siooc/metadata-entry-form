@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs.json";
+import { eovs, eovCategories } from "../../eovs.js";
 
 import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";

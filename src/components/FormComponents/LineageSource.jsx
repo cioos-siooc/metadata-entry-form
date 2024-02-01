@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   TextField,
@@ -14,7 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const emptySource = {
   description: "",
@@ -32,10 +32,11 @@ const LineageSource = ({
 }) => {
   const [activeSource, setActiveSource] = useState(0);
 
-  function addSource() {
+  const addSource = useCallback( () => {
     updateSources(sources.concat(deepCopy(emptySource)));
     setActiveSource(sources.length);
-  }
+  },[]);
+
   function updateSourceField(key) {
     return (e) => {
       const sourcesCopy = [...sources];
@@ -43,12 +44,13 @@ const LineageSource = ({
       updateSources(sourcesCopy);
     };
   }
-  function removeSource() {
+
+  const removeSource = useCallback(() =>{
     updateSources(
       sources.filter((e, index) => index !== activeSource)
     );
     if (sources.length) setActiveSource(sources.length - 2);
-  }
+  },[]);
 
 
 
@@ -99,7 +101,7 @@ const LineageSource = ({
                         >
                           {i + 1}. {
                             (sourceItem.description[language] ?? '').length <= 50 ?
-                              (sourceItem.description[language] ?? '') : sourceItem.description[language].substring(0, 50) + '...'
+                              (sourceItem.description[language] ?? '') : `${sourceItem.description[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
