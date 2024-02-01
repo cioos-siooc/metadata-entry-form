@@ -5,12 +5,22 @@ const axios = require("axios");
 
 const dataciteAuthHash = defineString('DATACITE_AUTH_HASH');
 
+// Helper function to decide between GitHub Actions env var and Firebase parameter config
+const getDataciteAuthHash = () => {
+  // Check if the environment variable is set (e.g., in GitHub Actions)
+  if (process.env.DATACITE_AUTH_HASH) {
+    return process.env.DATACITE_AUTH_HASH;
+  }
+  // Otherwise, use the Firebase parameter (e.g., in local development)
+  return dataciteAuthParam.value();
+}
+
 exports.createDraftDoi = functions.https.onCall(async (record) => {
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${dataciteAuthHash.value()}`,
+      'Authorization': `Basic ${getDataciteAuthHash()}`,
       'Content-Type': 'application/json',
     },
   });
@@ -53,7 +63,7 @@ exports.updateDraftDoi = functions.https.onCall(async (data) => {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
-        'Authorization': `Basic ${dataciteAuthHash.value()}`,
+        'Authorization': `Basic ${getDataciteAuthHash()}`,
         'Content-Type': "application/json",
       },
     });
@@ -98,7 +108,7 @@ exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
   try {
     const url = `${baseUrl}${draftDoi}/`;
     const response = await axios.delete(url, {
-    headers: { 'Authorization': `Basic ${dataciteAuthHash.value()}` },
+    headers: { 'Authorization': `Basic ${getDataciteAuthHash()}` },
   });
   return response.status;
   } catch (err) {
