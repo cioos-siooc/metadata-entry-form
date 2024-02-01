@@ -1,12 +1,15 @@
 const functions = require("firebase-functions");
+const { defineString } = require('firebase-functions/params');
 const AWS = require("aws-sdk");
 
-const { AWS_REGION, AWS_ACCESSKEYID, AWS_SECRETACCESSKEY } = process.env;
+const awsRegion = defineString('AWS_REGION');
+const awsAccessKeyId = defineString('AWS_ACCESSKEYID');
+const awsSecretAccessKey = defineString('AWS_SECRETACCESSKEY');
 
 const awsAuth = {
-  region: AWS_REGION,
-  accessKeyId: AWS_ACCESSKEYID,
-  secretAccessKey: AWS_SECRETACCESSKEY,
+  region: awsRegion.value(),
+  accessKeyId: awsAccessKeyId.value(),
+  secretAccessKey: awsSecretAccessKey.value(),
 };
 
 AWS.config = new AWS.Config(awsAuth);
