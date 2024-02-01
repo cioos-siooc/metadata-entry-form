@@ -101,7 +101,7 @@ const ProcessingStep = ({
                         >
                           {i + 1}. {
                             (sourceItem.description[language] ?? '').length <= 50 ?
-                              (sourceItem.description[language] ?? '') : sourceItem.description[language].substring(0, 50) + '...'
+                              (sourceItem.description[language] ?? '') : `${sourceItem.description[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
