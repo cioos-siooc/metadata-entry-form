@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import {
   TextField,
@@ -55,6 +55,7 @@ const ContactEditor = ({
   const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
   const [rorOptions, setRorOptions] = useState([]);
   const [rorSearchActive, setRorSearchActive] = useState(false);
+  const mounted = useRef(false);
 
   // eslint-disable-next-line no-param-reassign
   value = { ...getBlankContact(), ...value };
@@ -68,15 +69,19 @@ const ContactEditor = ({
     } else {
       fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
         .then((response) => response.json())
-        .then((response) => setRorOptions(response.items))
+        .then((response) => {if (mounted.current) setRorOptions(response.items)})
         .then(() => setRorSearchActive(false));
     }
   }
 
   useEffect(() => {
+    mounted.current = true;
     if (debouncedRorInputValue) {
       updateRorOptions(debouncedRorInputValue);
     }
+    return () => {
+      mounted.current = false;
+    };
   }, [debouncedRorInputValue]);
 
   return (

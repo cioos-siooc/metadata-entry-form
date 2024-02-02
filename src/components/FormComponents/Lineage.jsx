@@ -128,7 +128,7 @@ const Lineage = ({
                         <Button
                             disabled={disabled}
                             startIcon={<Add />}
-                            onClick={addLineage}
+                            onClick={() => addLineage()}
                             style={{ height: "56px", marginLeft: "10px" }}
                         >
                             <I18n>
@@ -229,11 +229,11 @@ const Lineage = ({
                                     <Button
                                         startIcon={<Delete />}
                                         disabled={disabled}
-                                        onClick={removeLineage}
+                                        onClick={() => removeLineage()}
                                     >
                                         <I18n>
-                                            <En>Remove item</En>
-                                            <Fr>Supprimer l'instrument</Fr>
+                                            <En>Remove Lineage</En>
+                                            <Fr>Supprimer une lignée</Fr>
                                         </I18n>
                                     </Button>
                                 </Grid>

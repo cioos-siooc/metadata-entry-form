@@ -17,18 +17,19 @@ import { Paper,
     Box,
     ListItemSecondaryAction,
     Tooltip,
-    IconButton
+    IconButton,
+    capitalize,
 } from "@material-ui/core";
 import { ArrowDownward, Delete } from "@material-ui/icons";
-import { capitalize } from '@material-ui/core';
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import axios from "axios";
+import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";
 import { En, Fr, I18n } from "../I18n";
 import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import axios from "axios";
-import {useDebouncedCallback} from "use-debounce";
+
 
 const TaxaTab = ({
     record,
@@ -40,7 +41,7 @@ const TaxaTab = ({
     const [activeTaxa, setActiveTaxa] = useState(0);
 
     const [inputValue, setInputValue] = useState("");
-    const [value, setValue] = useState("");
+    const [SearchValue, setSearchValue] = useState("");
 
     const [data, setData] = useState([]);
     const mounted = useRef(false);
@@ -53,10 +54,10 @@ const TaxaTab = ({
     }
    
     function handleAdd() {
-        if (value) {
-            updateTaxa(taxa.concat(value))
+        if (SearchValue) {
+            updateTaxa(taxa.concat(SearchValue))
             setActiveTaxa(taxa.length);
-            setValue("");
+            setSearchValue("");
             setInputValue("");
         }
     }
@@ -84,21 +85,21 @@ const TaxaTab = ({
 
     function getActiveTaxaDetails() {
         if (taxa[activeTaxa]){
-            const { rank, kingdom, phylum, class: Class, order, family, genus, species, scientificName, canonicalName, parent, } = taxa[activeTaxa]
-            const details = { rank, kingdom, phylum, Class, order, family, genus, species, scientificName, canonicalName, parent, }
+            const { rank, kingdom, phylum, class: Class, order, family, genus, species, scientificName, canonicalName, parent } = taxa[activeTaxa]
+            const details = { rank, kingdom, phylum, Class, order, family, genus, species, scientificName, canonicalName, parent }
             return details
         }
         return {}
 
     }
 
-    const gbifSearch = useDebouncedCallback((value) => {
-        var config = {
+    const gbifSearch = useDebouncedCallback((searchStr) => {
+        const config = {
             method: "get",
             url: "https://api.gbif.org/v1/species/suggest",
             params: {
-                q: value
-            }
+                q: searchStr,
+            },
         };
         requestInProgress.current = true;
         axios(config).then((response) => {
@@ -106,10 +107,10 @@ const TaxaTab = ({
             if (mounted.current) {
                 setData([...response.data]);
             }
-            //console.log([...response.data]);
             requestInProgress.current = false;
         }).catch((error) => {
-            console.log(error);
+            /* eslint-disable no-console */
+            console.error(error);
             requestInProgress.current = false;
         });
     }, 500);
@@ -117,14 +118,14 @@ const TaxaTab = ({
     React.useEffect(() => {
         mounted.current = true;
 
-        if (inputValue.length > 2 && !value && !requestInProgress.current){
+        if (inputValue.length > 2 && !SearchValue && !requestInProgress.current){
             gbifSearch(inputValue);
         }
 
         return () => {
             mounted.current = false;
         };
-    }, [inputValue, value, gbifSearch]);
+    }, [inputValue, SearchValue, gbifSearch]);
 
     return (
         <Grid>
@@ -166,10 +167,10 @@ const TaxaTab = ({
                         loading={!requestInProgress.current}
                         onChange={(event, newValue) => {
                             if (typeof newValue === "object") {
-                                setValue(newValue);
+                                setSearchValue(newValue);
                             }
                         }}
-                        value={value}
+                        value={SearchValue}
                         freeSolo
                         options={data}
                         fullWidth
@@ -187,10 +188,10 @@ const TaxaTab = ({
                     <Button
                         disabled={
                             disabled ||
-                            (!value && !inputValue)
+                            (!SearchValue && !inputValue)
                         }
                         startIcon={<ArrowDownward />}
-                        onClick={handleAdd}
+                        onClick={() => handleAdd}
                     >
                         <I18n>
                             <En>Add</En>
@@ -211,7 +212,7 @@ const TaxaTab = ({
                             <List>
                                 <Container
                                     lockAxis="y"
-                                    onDrop={onDrop}
+                                    onDrop={(d) => onDrop(d)}
                                 >
                                     {taxa.map((taxaItem, i) => {
                                         return (

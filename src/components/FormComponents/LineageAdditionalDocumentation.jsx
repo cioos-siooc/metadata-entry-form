@@ -112,7 +112,7 @@ const LineageAdditionalDocumentation = ({
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addDocumentation}
+              onClick={() => addDocumentation()}
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
@@ -164,10 +164,10 @@ const LineageAdditionalDocumentation = ({
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeDocumentation}
+                    onClick={() => removeDocumentation()}
                   >
                     <I18n>
-                      <En>Remove item</En>
+                      <En>Remove documentation</En>
                       <Fr>Supprimer l'documentation</Fr>
                     </I18n>
                   </Button>

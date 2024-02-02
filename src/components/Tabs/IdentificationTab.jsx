@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs.js";
+import { eovs, eovCategories } from "../../eovs";
 
 import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -227,9 +227,11 @@ const IdentificationTab = ({
       }
       getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
         .then(response => {
-          updateRecord("doiCreationStatus")(response.data)
+          if (mounted.current)
+            updateRecord("doiCreationStatus")(response.data)
         })
         .catch(err => {
+          /* eslint-disable no-console */
           console.error(err)
         });
     }
@@ -754,7 +756,7 @@ const IdentificationTab = ({
         </QuestionText>
         {showGenerateDoi && (
           <Button
-            onClick={handleGenerateDOI}
+            onClick={() => handleGenerateDOI}
             disabled={generateDoiDisabled}
             style={{ display: "inline" }}
           >
@@ -772,7 +774,7 @@ const IdentificationTab = ({
         )}
         {showUpdateDoi && (
           <Button
-            onClick={handleUpdateDraftDOI}
+            onClick={() => handleUpdateDraftDOI}
             disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
@@ -790,7 +792,7 @@ const IdentificationTab = ({
         )}
         {showDeleteDoi && (
           <Button
-            onClick={handleDeleteDOI}
+            onClick={() => handleDeleteDOI}
             disabled={record.doiCreationStatus !== 'draft'}
             style={{ display: "inline" }}
           >

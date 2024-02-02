@@ -1,24 +1,24 @@
 export const eovCategories = {
     "Biogeochemical": {
       "en": "Biogeochemical",
-      "fr": "Biogéochimie"
+      "fr": "Biogéochimie",
     },
     "Biology and Ecosystems": {
       "en": "Biological and Ecosystem",
-      "fr": "Biologie et écosystèmes"
+      "fr": "Biologie et écosystèmes",
     },
     "Cross-disciplinary": {
       "en": "Cross-disciplinary",
-      "fr": "Interdisciplinaire"
+      "fr": "Interdisciplinaire",
     },
     "Physical": {
       "en": "Physical",
-      "fr": "Physique"
+      "fr": "Physique",
     },
     "Other": {
       "en": "Other",
-      "fr": "Autre"
-    }
+      "fr": "Autre",
+    },
   };
 
 export const eovs = [
@@ -30,7 +30,7 @@ export const eovs = [
       "definition EN": "The amount of dissolved oxygen in seawater.",
       "definition FR": "Concentration d'oxygène dissous dans l'eau de mer",
       "icon": "dissolved-oxygen.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17473"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17473",
     },
     {
       "category": "Biogeochemical",
@@ -40,7 +40,7 @@ export const eovs = [
       "definition EN": "The amount of inorganic nutrients in seawater",
       "definition FR": "Concentration des nutriments inorganiques dissous dans l'eau de mer [NO₃, NO₂, PO₄, NH₄, Si(OH)₄]",
       "icon": "nutrients.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17474"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17474",
     },
     {
       "category": "Biogeochemical",
@@ -50,7 +50,7 @@ export const eovs = [
       "definition EN": "Total amount of inorganic carbon dissolved in sea water [CO₂, HCO₃-, CO₃²-]",
       "definition FR": "Quantité totale de carbone inorganique dissous dans l'eau de mer [CO₂, HCO₃-, CO₃²-]",
       "icon": "inorganic-carbon.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17475"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17475",
     },
     {
       "category": "Biogeochemical",
@@ -60,7 +60,7 @@ export const eovs = [
       "definition EN": "The amount of dissolved carbon dioxide in seawater",
       "definition FR": "Concentration de carbone organique dissous dans l'eau de mer",
       "icon": "dissolved-organic-carbon.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17480"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17480",
     },
     {
       "category": "Physical",
@@ -70,7 +70,7 @@ export const eovs = [
       "definition EN": "The altitude of mean sea level relative to the Earth's geode.",
       "definition FR": "Correspond au niveau d'eau mesuré. Les niveaux sont variables en fonction des saisons et des évènements climatique",
       "icon": "sea-level.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17465"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17465",
     },
     {
       "category": "Physical",
@@ -81,7 +81,7 @@ export const eovs = [
       "definition FR": "La concentration en couverture de glace sur une zone et une étendue spécifiées",
       "icon": "sea-ice.svg",
 
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17464"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17464",
     },
     {
       "category": "Physical",
@@ -91,7 +91,7 @@ export const eovs = [
       "definition EN": "Sea State is the characterization of wave and swell, typically in terms of height, wavelength, period, and directional wave energy flux.",
       "definition FR": "L'état de la mer est la caractérisation des vagues et de la houle, généralement en termes de hauteur, de longueur d'onde, de période, et le flux d'énergie des ondes directionnelles",
       "icon": "sea-state.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17462"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17462",
     },
     {
       "category": "Physical",
@@ -101,7 +101,7 @@ export const eovs = [
       "definition EN": "The concentration of dissolved salts in surface seawater.",
       "definition FR": "La concentration de sel dissous dans l'eau de mer de surface",
       "icon": "salinity.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17470"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17470",
     },
     {
       "category": "Physical",
@@ -111,7 +111,7 @@ export const eovs = [
       "definition EN": "The temperature of surface seawater.",
       "definition FR": "La température de l'eau de mer en surface",
       "icon": "temperature.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17466"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17466",
     },
     {
       "category": "Physical",
@@ -121,7 +121,7 @@ export const eovs = [
       "definition EN": "The concentration of dissolved salts in subsurface seawater.",
       "definition FR": "La concentration de sel dissous dans l'eau de mer sous la surface",
       "icon": "salinity.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17471"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17471",
     },
     {
       "category": "Physical",
@@ -131,7 +131,7 @@ export const eovs = [
       "definition EN": "The temperature of subsurface seawater.",
       "definition FR": "La température de l'eau de mer sous la surface",
       "icon": "temperature.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17467"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17467",
     },
     {
       "category": "Physical",
@@ -141,7 +141,7 @@ export const eovs = [
       "definition EN": "The velocity of sea water in surface",
       "definition FR": "Vitesse et débit de l'eau en surface",
       "icon": "currents.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17468"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17468",
     },
     {
       "category": "Physical",
@@ -151,7 +151,7 @@ export const eovs = [
       "definition EN": "",
       "definition FR": "",
       "icon": "currents.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17469"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17469",
     },
     {
       "category": "Other",
@@ -160,7 +160,7 @@ export const eovs = [
       "label FR": "Autre",
       "definition EN": "All data that does not correspond to the current EOVs.",
       "definition FR": "Toutes les données qui ne correspondent pas aux EOVs actuels.",
-      "icon": "eov_other.svg"
+      "icon": "eov_other.svg",
     },
     {
       "category": "Biogeochemical",
@@ -170,7 +170,7 @@ export const eovs = [
       "definition EN": "Transient tracers are man-made chemical compounds released to the atmosphere at known quantities that can be used in the ocean to quantify ventilation, transit time distribution and transport time-scales",
       "definition FR": "Les traceurs transitoires sont des composés chimiques artificiels rejetés dans l'atmosphère en quantités connues qui peuvent être utilisés dans l'océan pour quantifier la ventilation, la distribution des temps de transit et les échelles de temps de transport.",
       "icon": "transient-tracers.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17476"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17476",
     },
     {
       "category": "Biogeochemical",
@@ -180,7 +180,7 @@ export const eovs = [
       "definition EN": "Total amount of particles (organic & inorganic) suspended in sea water",
       "definition FR": "Quantité totale de particules (organiques et inorganiques) en suspension dans l'eau de mer",
       "icon": "particulate-matter.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17477"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17477",
     },
     {
       "category": "Biogeochemical",
@@ -190,7 +190,7 @@ export const eovs = [
       "definition EN": "Nitrous oxide (N2O) is an important climate-relevant trace gas in the Earth’s atmosphere. The ocean-including its coastal areassuch as continental shelves, estuaries and upwelling areas is a major source of N2O and contributesabout 30% to the atmospheric N2O budget.",
       "definition FR": "Le protoxyde d'azote ou azote nitreux (N2O) est un important gaz traceur du climat dans l'atmosphère terrestre. L'océan, y compris ses zones côtières telles que les plateaux continentaux, les estuaires et les zones d'upwelling, est une source majeure de N2O. Elle contribue à environ 30 % du bilan atmosphérique en protoxyde d'azote.",
       "icon": "nitrous-oxide.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17478"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17478",
     },
     {
       "category": "Biogeochemical",
@@ -200,7 +200,7 @@ export const eovs = [
       "definition EN": "The utility of carbon-13 isotope (δ13C, the carbon-13 to carbon-12 isotope ratio; 13C/12C) as a tracer of the ocean’s carbon cycle.",
       "definition FR": "L’utilité de l’isotope du carbone-13 (δ13C, le rapport des isotopes du carbone-13 au carbone-12; 13C/12C) comme traceur du cycle du carbone de l’océan.",
       "icon": "stable-carbon-isotopes.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17479"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17479",
     },
 
     {
@@ -211,7 +211,7 @@ export const eovs = [
       "definition EN": "Characterization of the biological diversity of phytoplankton, their phenology, vertical distribution, and community composition, and their role in ocean biogeochemistry and ecosystem services.",
       "definition FR": "Caractérisation de la diversité biologique du phytoplancton, de sa phénologie, de sa distribution verticale et de sa composition communautaire, ainsi que le rôle dans la biogéochimie des océans et les services écosystémiques.",
       "icon": "phytoplankton.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17507"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17507",
     },
     {
       "category": "Biology and Ecosystems",
@@ -221,7 +221,7 @@ export const eovs = [
       "definition EN": "Zooplankton diversity refers to the number of zooplankton species, taxonomic composition, or community structure within a region. Zooplankton diversity influences ecosystem health and productivity through trophic links.",
       "definition FR": "La diversité du zooplancton fait référence au nombre d'espèces de zooplancton, à la composition taxonomique ou à la structure communautaire au sein d'une région. La diversité du zooplancton influence la santé et la productivité de l'écosystème par le biais de liens trophiques.",
       "icon": "zooplankton.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17509"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17509",
     },
     {
       "category": "Biology and Ecosystems",
@@ -231,7 +231,7 @@ export const eovs = [
       "definition EN": "Fish abundance describes the biomass or numbers of fish in the ocean. It can be reported in terms of species or taxonomic or functional groups (e.g., small pelagic fish, mesopelagic fish, and tunalike species) in an assemblage, population, stock or area, or globally",
       "definition FR": "L'abondance des poissons décrit la biomasse ou le nombre de poissons dans l'océan. Il peut être rapporté en termes d'espèces ou de groupes taxonomiques ou fonctionnels (par exemple, petits poissons pélagiques, poissons mésopélagiques et espèces tunal) dans un assemblage, une population, un stock ou une zone, ou à l'échelle mondiale",
       "icon": "fish.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17510"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17510",
     },
     {
       "category": "Biology and Ecosystems",
@@ -241,7 +241,7 @@ export const eovs = [
       "definition EN": "Abundance refers to the number of individuals (turtles, birds or marine mammals) within a population while distribution refers to\nthe geographic or spatial extent of habitats used by individuals in the population.",
       "definition FR": "L'abondance se réfère au nombre d'individus (tortues, oiseaux ou mammifères marins) au sein d'une population tandis que la distribution se réfère à\nl'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
       "icon": "birds-mammals.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511",
     },
     {
       "category": "Biology and Ecosystems",
@@ -251,7 +251,7 @@ export const eovs = [
       "definition EN": "Live hard coral cover and the areal extent of a reef are the most important indicators of whether a reef is in a coral-dominated state or not; the composition and diversity of coral taxa is an important index of reef health; coral condition (e.g. bleaching, disease) gives fundamental information on the health of a reef; the size class structure (and recruitment) of hard corals gives fundamental information on the resilience, disturbance history and recovery potential of a reef.",
       "definition FR": "La couverture de coraux durs vivants et l'étendue spatiale des récifs sont les indicateurs les plus importants pour savoir si le récif est ou non dominé par les coraux.  La composition et la diversité des taxons coralliens sont un indice important de la santé du récif ; l'état des coraux (par exemple le blanchissement, les maladies) donne des informations fondamentales sur la santé du récif ; la structure des classes de taille (et le recrutement) des coraux durs donne des informations fondamentales sur la résilience, l'historique des perturbations et le potentiel de récupération du récif.",
       "icon": "birds-mammals.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17512"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17512",
     },
     {
       "category": "Biology and Ecosystems",
@@ -261,7 +261,7 @@ export const eovs = [
       "definition EN": "Characterization of seagrass beds according to species and their cover linked to a spatial distribution.",
       "definition FR": "Caractérisation des herbiers marins en fonction des espèces et de leur couverture selon une distribution spatiale.",
       "icon": "seagrass.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17513"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17513",
     },
     {
       "category": "Biology and Ecosystems",
@@ -271,7 +271,7 @@ export const eovs = [
       "definition EN": "Characterization of macroalgal forest according to species and their cover linked to a spatial distribution.",
       "definition FR": "Caractérisation des macroalgues en fonction des espèces et de leur couvert selon une distribution spatiale.",
       "icon": "macroalgal-canopy.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17515"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17515",
     },
     {
       "category": "Biology and Ecosystems",
@@ -281,7 +281,7 @@ export const eovs = [
       "definition EN": "The abundance of invertebrate species describes the biomass or number of individuals in an assemblage and according to a spatial distribution.",
       "definition FR": "L'abondance d'espèces invertébrées décrit la biomasse ou le nombre d'individus dans un assemblage et selon une distribution spatiale.",
       "icon": "invertebrates.svg",
-      "emerging": true
+      "emerging": true,
     },
     {
       "category": "Biology and Ecosystems",
@@ -291,7 +291,7 @@ export const eovs = [
       "definition EN": "",
       "definition FR": "",
       "icon": "microbes.svg",
-      "emerging": true
+      "emerging": true,
     },
     {
       "category": "Cross-disciplinary",
@@ -301,7 +301,7 @@ export const eovs = [
       "definition EN": "The term \"ocean colour\" refers to the result of absorption and scattering of spectral radiation emanating from the sun. Light interacts with water and suspended or dissolved matter and encompasses a multitude of biological, biogeochemical and ecological factors that form the colour of water.",
       "definition FR": "Le terme «couleur de l'océan» se réfère au résultat de l'absorption et de la diffusion du rayonnement spectral émanant du soleil. La lumière interagit avec l'eau et les matières en suspension ou dissoutes et englobe une multitude de facteurs biologiques, biogéochimiques et écologiques qui forment la couleur de l'eau.",
       "icon": "ocean-color.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=19959"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=19959",
     },
     {
       "category": "Cross-disciplinary",
@@ -311,7 +311,7 @@ export const eovs = [
       "definition EN": "",
       "definition FR": "",
       "icon": "ocean-sound.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=22567"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=22567",
     },
     {
       "category": "Cross-disciplinary",
@@ -322,7 +322,7 @@ export const eovs = [
       "definition FR": "",
       "icon": "",
       "emerging": true,
-      "url": ""
+      "url": "",
     },
     {
       "category": "Physical",
@@ -332,7 +332,7 @@ export const eovs = [
       "definition EN": "Surface heat flux is the rate of heat exchange, per unit area, passing through the sea surface to the atmosphere. The net heat flux is the sum of the turbulent fluxes (latent and sensitive) and the radiative flux (short and long waves).",
       "definition FR": "Le flux de chaleur de surface est le taux d'échange de chaleur, par unité de surface, traversant la surface de la mer jusqu'à l'atmosphère. Le flux de chaleur net est la somme des flux turbulents (latents et sensibles) et du flux radiatif (ondes courtes et longues).",
       "icon": "ocean-surface-heat-flux.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17472"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17472",
     },
     {
       "category": "Physical",
@@ -342,7 +342,7 @@ export const eovs = [
       "definition EN": "Ocean stress is related to lower atmosphere drag and ocean surface dynamics. The magnitude of the stress influences the exchange of energy between the ocean and the atmosphere (evaporation, oxygen, carbon dioxide and other gases).",
       "definition FR": "Le stress océanique est lié à la trainée de la basse atmosphère et à la dynamique de surface de l'océan. L'ampleur du stress influence l'échange d'énergie entre l'océan et l'atmosphère (évaporation, oxygène, dioxyde de carbon et gaz autres).",
       "icon": "sea-surface-stress.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17463"
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17463",
     },
     {
       "category": "Physical",
@@ -352,7 +352,7 @@ export const eovs = [
       "definition EN": "Ocean bottom pressure is the total pressure resulting from the weight or mass of the column of seawater and the overlaying atmosphere.",
       "definition FR": "La pression au fond de l'océan est la pression totale résultant du poids ou de la masse de la colonne d'eau de mer et de l'atmosphère qui la recouvre.",
       "icon": "ocean-bottom-pressure.svg",
-      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=32488"
-    }
+      "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=32488",
+    },
   ];
 

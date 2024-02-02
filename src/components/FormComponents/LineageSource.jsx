@@ -184,7 +184,7 @@ const LineageSource = ({
                     onClick={removeSource}
                   >
                     <I18n>
-                      <En>Remove item</En>
+                      <En>Remove source</En>
                       <Fr>Supprimer l'source</Fr>
                     </I18n>
                   </Button>
