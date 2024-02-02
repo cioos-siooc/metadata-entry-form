@@ -38,6 +38,11 @@ const expectedDataCiteStructure = {
                 },
             ],
             "publisher": "Royal Roads University",
+            "fundingReferences": [
+                {
+                  "funderName": "Royal Roads University",
+                },
+              ],
             "publicationYear": 2023,
             "subjects": [
                 {
@@ -49,6 +54,7 @@ const expectedDataCiteStructure = {
                     "subject": "abondance et biomasse",
                 },
             ],
+            "version": "1.1",
             "dates": [
                 {
                     "date": "2023-10-01T19:00:00.000Z",

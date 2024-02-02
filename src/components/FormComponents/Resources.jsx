@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Add,
   Delete,
@@ -7,17 +7,48 @@ import {
 } from "@material-ui/icons";
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import validator from "validator";
+import debounce from "just-debounce-it";
 import { En, Fr, I18n } from "../I18n";
 
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy } from "../../utils/misc";
+import { validateURL } from "../../utils/validate";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
-
-const validateURL = (url) => !url || validator.isURL(url);
+import { UserContext } from "../../providers/UserProvider";
 
 const Resources = ({ updateResources, resources, disabled }) => {
+
+  const mounted = useRef(false);
+  const { checkURLActive } = useContext(UserContext);
+  const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
+
+  const debouncePool = useRef({});
+
+  useEffect( () => {
+
+    mounted.current = true
+
+    resources.forEach( (resource, idx) => {
+      
+      if (resource.url && validateURL(resource.url)) {
+        if (!debouncePool.current[idx]){
+          debouncePool.current[idx] = debounce( async (innerResource) => {
+            const response = await checkURLActive(innerResource.url)
+            if (mounted.current){
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [innerResource.url]: response.data }))
+            }
+          }, 500);
+        }
+        debouncePool.current[idx](resource);
+      }
+    });
+    
+    return () => {
+      mounted.current = false;
+    };
+  }, [resources, checkURLActive]);
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
@@ -35,13 +66,15 @@ const Resources = ({ updateResources, resources, disabled }) => {
     resources.splice(newIndex, 0, element);
     updateResources(resources);
   }
+
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
   return (
     <div>
-      {resources.map((dist = deepCopy(emptyResource), i) => {
-        const urlIsValid = !dist.url || validateURL(dist.url);
+      {resources.map((resourceItem = deepCopy(emptyResource), i) => {
+        const urlIsValid = !resourceItem.url || validateURL(resourceItem.url);
+        
         function handleResourceChange(key) {
           return (e) => {
             const newValue = [...resources];
@@ -58,11 +91,11 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     <En>Enter a name for the resource</En>
                     <Fr>Entrez un titre pour la ressource</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.name?.en || dist.name?.fr} />
+                  <RequiredMark passes={resourceItem.name?.en || resourceItem.name?.fr} />
                 </QuestionText>
                 <BilingualTextInput
                   label={nameLabel}
-                  value={dist.name}
+                  value={resourceItem.name}
                   onChange={handleResourceChange("name")}
                   fullWidth
                   disabled={disabled}
@@ -75,7 +108,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     <Fr>Entrez l'URL de la ressource</Fr>
                   </I18n>
 
-                  <RequiredMark passes={validator.isURL(dist.url)} />
+                  <RequiredMark passes={validator.isURL(resourceItem.url)} />
                   <SupplementalText>
                     <I18n>
                       <En>
@@ -99,11 +132,13 @@ const Resources = ({ updateResources, resources, disabled }) => {
 
                 <TextField
                   helperText={
-                    !urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />
+                    (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
+                    || (resourceItem.url && urlIsActive[resourceItem.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
+                    || (resourceItem.url && urlIsActive[resourceItem.url] === true && <I18n en="URL is active" fr="L'URL est active" />)
                   }
                   error={!urlIsValid}
                   label="URL"
-                  value={dist.url}
+                  value={resourceItem.url}
                   onChange={handleResourceChange("url")}
                   fullWidth
                   disabled={disabled}
@@ -119,7 +154,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                 <BilingualTextInput
                   name="description"
                   label={descriptionLabel}
-                  value={dist.description}
+                  value={resourceItem.description}
                   onChange={handleResourceChange("description")}
                   disabled={disabled}
                 />
