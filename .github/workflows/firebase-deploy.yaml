@@ -22,7 +22,6 @@ jobs:
         working-directory: firebase-functions/functions
       - name: Create .env file
         run: |
-          echo "FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }}" > .env
           echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
           echo "GMAIL_PASS=${{ secrets.GMAIL_PASS }}" >> .env
           echo "DATACITE_AUTH_HASH=${{ secrets.DATACITE_AUTH_HASH }}" >> .env
