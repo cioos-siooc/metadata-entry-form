@@ -1,19 +1,19 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const { defineString } = require('firebase-functions/params');
 const nodemailer = require("nodemailer");
 const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
 const createIssue = require("./issue");
+const { getConfigVar } = require('.serverUtils');
 
 /**
  * Here we're using Gmail to send
  */
-const gmailUser = defineString('GMAIL_USER');
-const gmailPass = defineString('GMAIL_PASS');
+// const gmailUser = defineString('GMAIL_USER');
+// const gmailPass = defineString('GMAIL_PASS');
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: gmailUser.value(), pass: gmailPass.value() },
+  auth: { user: getConfigVar('GMAIL_USER'), pass: getConfigVar('GMAIL_PASS') },
 });
 /*
 Email the reviewers for the region when a form is submitted for review

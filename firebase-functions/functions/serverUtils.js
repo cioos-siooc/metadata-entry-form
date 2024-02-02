@@ -1,5 +1,21 @@
 const functions = require("firebase-functions");
+const { defineString } = require('firebase-functions/params');
 const fetch = require('node-fetch');
+
+// Helper function to decide between GitHub Actions secret and Firebase parameter config
+export const getConfigVar = (paramName) => {
+
+    // Define the Firebase parameter using defineString
+    const firebaseParam = defineString(paramName);
+
+    // Check if the environment variable is set
+    if (process.env[paramName]) {
+        return process.env[paramName];
+    }
+
+    // Otherwise fallback to the Firebase parameter
+    return firebaseParam.value();
+  }
 
 // Function to check if a given URL is active
 exports.checkURLActive = functions.https.onCall(async (data) => {
