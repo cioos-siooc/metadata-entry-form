@@ -7,13 +7,13 @@ const dataciteAuthHash = defineString('DATACITE_AUTH_HASH');
 
 exports.createDraftDoi = functions.https.onCall(async (record) => {
 
-  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
 
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${dataciteCred}`,
+      'Authorization': `Basic ${dataciteAuthHash}`,
       'Content-Type': 'application/json',
     },
   });
