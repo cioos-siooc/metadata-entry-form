@@ -25,7 +25,7 @@ jobs:
         with:
           args: deploy --only functions
         env:
-          # FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           # GMAIL_USER: ${{ secrets.GMAIL_USER }}
           # GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           DATACITE_AUTH_HASH: ${{ secrets.DATACITE_AUTH_HASH }}
