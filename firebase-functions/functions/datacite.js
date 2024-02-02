@@ -6,14 +6,15 @@ const axios = require("axios");
 const dataciteAuthHash = defineString('DATACITE_AUTH_HASH');
 
 exports.createDraftDoi = functions.https.onCall(async (record) => {
-
-  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  // Fallback to process.env.DATACITE_AUTH_HASH for local dev or deployment-specific configurations,
+  // otherwise use Firebase's parameterized configuration at runtime.
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
 
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${dataciteAuthHash}`,
+      'Authorization': `Basic ${dataciteCred}`,
       'Content-Type': 'application/json',
     },
   });
