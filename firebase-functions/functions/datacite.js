@@ -6,7 +6,8 @@ const axios = require("axios");
 const dataciteAuthHash = defineString('DATACITE_AUTH_HASH');
 
 exports.createDraftDoi = functions.https.onCall(async (record) => {
-
+  // Fallback to process.env.DATACITE_AUTH_HASH for local dev or deployment-specific configurations,
+  // otherwise use Firebase's parameterized configuration at runtime.
   const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
 
   try{

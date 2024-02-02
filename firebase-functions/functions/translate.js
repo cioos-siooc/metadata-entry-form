@@ -6,10 +6,14 @@ const awsRegion = defineString('AWS_REGION');
 const awsAccessKeyId = defineString('AWS_ACCESSKEYID');
 const awsSecretAccessKey = defineString('AWS_SECRETACCESSKEY');
 
+const awsRegionCred = process.env.AWS_REGION || awsRegion.value()
+const awsAccessKeyIdCred = process.env.AWS_ACCESSKEYID || awsAccessKeyId.value()
+const awsSecretAccessKeyCred = process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value()
+
 const awsAuth = {
-  region: awsRegion.value(),
-  accessKeyId: awsAccessKeyId.value(),
-  secretAccessKey: awsSecretAccessKey.value(),
+  region: awsRegionCred,
+  accessKeyId: awsAccessKeyIdCred,
+  secretAccessKey: awsSecretAccessKeyCred,
 };
 
 AWS.config = new AWS.Config(awsAuth);

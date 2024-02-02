@@ -3,6 +3,8 @@ const fs = require("fs");
 const { defineString } = require('firebase-functions/params');
 
 const githubAuth = defineString('GITHUB_AUTH');
+const githubAuthCred = process.env.GITHUB_AUTH || githubAuth.value()
+
 function readIssueText(filename) {
   try {
     return fs.readFileSync(filename, "utf8");
@@ -14,7 +16,7 @@ function readIssueText(filename) {
 
 async function createIssue(title, url) {
   const octokit = new Octokit({
-    auth: githubAuth.value(),
+    auth: githubAuthCred,
   });
   const issueText = readIssueText("dataset-name.md");
   const input = {

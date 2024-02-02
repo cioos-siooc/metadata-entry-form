@@ -11,9 +11,12 @@ const createIssue = require("./issue");
 const gmailUser = defineString('GMAIL_USER');
 const gmailPass = defineString('GMAIL_PASS');
 
+const gmailUserCred = process.env.GMAIL_USER || gmailUser.value()
+const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value()
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: gmailUser.value(), pass: gmailPass.value() },
+  auth: { user: gmailUserCred, pass: gmailPassCred },
 });
 /*
 Email the reviewers for the region when a form is submitted for review

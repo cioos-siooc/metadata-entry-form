@@ -20,17 +20,27 @@ jobs:
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions/functions
+      - name: Create .env file
+        run: |
+          echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
+          echo "GMAIL_PASS=${{ secrets.GMAIL_PASS }}" >> .env
+          echo "DATACITE_AUTH_HASH=${{ secrets.DATACITE_AUTH_HASH }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
+          echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
+          echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
+        working-directory: firebase-functions/functions
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          # GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          # GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           DATACITE_AUTH_HASH: ${{ secrets.DATACITE_AUTH_HASH }}
-          # AWS_REGION: ${{ secrets.AWS_REGION }}
-          # AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
-          # AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
-          # GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
+          AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
+          GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
           PROJECT_PATH: ./firebase-functions
