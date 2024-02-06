@@ -18,6 +18,9 @@ import { unique } from "../../utils/misc";
 const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
 const Admin = (props) => {
+  const { match } = props;
+  const { region } = match.params;
+
   const [state, setState] = useState({
     admins: [],
     projects: [],
@@ -25,16 +28,13 @@ const Admin = (props) => {
     loading: false,
   })
 
-  const { match } = props;
-  const { region } = match.params;
-
   useEffect(() => {
 
     // Before initiating any async operations, the component's state is updated to indicate loading is in progress.
     setState((prevState) => ({ ...prevState, loading: true }));
 
     // subscribe to auth state changes
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // Reference to the region in the database
         const regionRef = firebase.database().ref(region);
@@ -59,14 +59,17 @@ const Admin = (props) => {
           }));
         });
 
-        // For cleanup
+        // Cleanup function for permissionsRef listener
         return () => permissionsRef.off('value', unsubscribePermissions);
       }
     return () => {};
     });
     // Cleanup function for the entire useEffect hook
+    // This is to clean up the auth listener when the component unmounts
   return () => {
-    unsubscribe();
+    if (unsubscribeAuth) {
+      unsubscribeAuth();
+    }
   };
   }, [region]);
 
