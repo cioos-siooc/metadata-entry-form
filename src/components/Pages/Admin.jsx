@@ -202,8 +202,51 @@ const Admin = (props) => {
           <Grid item xs>
             <Typography>
               <I18n>
-                <En>Datacite Prefix Eg, '10.0000'</En>
+                <En>Select which Region/Organization</En>
+                <Fr>Sélectionnez quelle région/organisation</Fr>
+              </I18n>
+            </Typography>
+          </Grid>
+          {/* TO DO - ADD DROPDOWN LIST OF ALL AVAILABLE REGIONS AND ORGANIZATIONS */}
+          <Grid item xs>
+            <Typography>
+              <I18n>
+                <En>Datacite Prefix For example, '10.0000'</En>
                 <Fr>Préfixe Datacite par exemple, '10.0000'</Fr>
+              </I18n>
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <TextField
+              multiline
+              fullWidth
+              onChange={(e) =>
+              console.log(e.target.value)
+              }
+            />
+          </Grid>
+          <Grid item xs>
+            <Typography>
+              <I18n>
+                <En>Datacite account ID</En>
+                <Fr>Identifiant du compte Datacite</Fr>
+              </I18n>
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <TextField
+              multiline
+              fullWidth
+              onChange={(e) =>
+              console.log(e.target.value)
+              }
+            />
+          </Grid>
+          <Grid item xs>
+            <Typography>
+              <I18n>
+                <En>Datacite account Password</En>
+                <Fr>Mot de passe du compte Datacite</Fr>
               </I18n>
             </Typography>
           </Grid>
