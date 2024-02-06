@@ -50,12 +50,13 @@ const Admin = (props) => {
           const reviewers = permissions.reviewers.split(",");
 
           // Update state with fetched data
-          setState({
+          setState(prevState => ({
+            ...prevState,
             projects,
             admins,
             reviewers,
             loading: false,
-          });
+          }));
         });
 
         // For cleanup
@@ -98,12 +99,10 @@ const Admin = (props) => {
         </Typography>
         <Typography>
           <I18n>
-            <En>
-              Add each admin or reviewer's email address on it's own line
-            </En>
+            <En>Add each admin or reviewer's email address on it's own line</En>
             <Fr>
-              Ajouter l'adresse e-mail de chaque administrateur ou réviseur
-              sur sa propre ligne
+              Ajouter l'adresse e-mail de chaque administrateur ou réviseur sur
+              sa propre ligne
             </Fr>
           </I18n>
         </Typography>
@@ -127,7 +126,10 @@ const Admin = (props) => {
               fullWidth
               value={projects.join("\n")}
               onChange={(e) =>
-                setState({ projects: e.target.value.split("\n") })
+                setState((prevState) => ({
+                  ...prevState,
+                  projects: e.target.value.split("\n"),
+                }))
               }
             />
           </Grid>
@@ -144,8 +146,11 @@ const Admin = (props) => {
               multiline
               fullWidth
               value={admins.join("\n")}
-              onChange={(e) =>
-                setState({ admins: e.target.value.split("\n") })
+              onChange={(e) => 
+                setState(prevState => ({
+                  ...prevState,
+                  admins: e.target.value.split("\n"),
+                }))
               }
             />
           </Grid>
@@ -163,9 +168,10 @@ const Admin = (props) => {
               fullWidth
               value={reviewers.join("\n")}
               onChange={(e) =>
-                setState({
-                  reviewers: e.target.value.split("\n"),
-                })
+                setState(prevState => ({
+                ...prevState,
+                reviewers: e.target.value.split("\n"),
+                }))
               }
             />
           </Grid>
