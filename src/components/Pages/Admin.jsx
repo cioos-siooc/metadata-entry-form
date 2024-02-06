@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Typography,
   Button,
@@ -20,6 +20,7 @@ const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 const Admin = (props) => {
   const { match } = props;
   const { region } = match.params;
+  const mounted = useRef(false);
 
   const [state, setState] = useState({
     admins: [],
@@ -29,19 +30,24 @@ const Admin = (props) => {
   })
 
   useEffect(() => {
+    mounted.current = true;
+    let projects;
 
     // Before initiating any async operations, the component's state is updated to indicate loading is in progress.
     setState((prevState) => ({ ...prevState, loading: true }));
 
     // subscribe to auth state changes
-    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // Reference to the region in the database
         const regionRef = firebase.database().ref(region);
         // Reference to permissions
         const permissionsRef = regionRef.child('permissions');
         // fetch projects for the region
-        const projects = await getRegionProjects(region);
+        if (mounted.current) {
+          projects = await getRegionProjects(region);
+        }
+        
         // Listen for changes to permissions
         const unsubscribePermissions = permissionsRef.on('value', (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
@@ -67,9 +73,8 @@ const Admin = (props) => {
     // Cleanup function for the entire useEffect hook
     // This is to clean up the auth listener when the component unmounts
   return () => {
-    if (unsubscribeAuth) {
-      unsubscribeAuth();
-    }
+      mounted.current = false;
+      unsubscribe();
   };
   }, [region]);
 
@@ -175,6 +180,39 @@ const Admin = (props) => {
                 ...prevState,
                 reviewers: e.target.value.split("\n"),
                 }))
+              }
+            />
+          </Grid>
+          <Grid item xs>
+        <Typography variant="h5">
+          <I18n>
+            <En>Enable DOI Creation</En>
+            <Fr>Activer la création de DOI</Fr>
+          </I18n>
+        </Typography>
+        <Typography>
+          <I18n>
+            <En>Enter the region's DataCite Prefix and Authentication Credentials</En>
+            <Fr>
+                Entrez le préfixe DataCite et les informations d'authentification de la région.
+            </Fr>
+          </I18n>
+        </Typography>
+      </Grid>
+          <Grid item xs>
+            <Typography>
+              <I18n>
+                <En>Datacite Prefix Eg, '10.0000'</En>
+                <Fr>Préfixe Datacite par exemple, '10.0000'</Fr>
+              </I18n>
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <TextField
+              multiline
+              fullWidth
+              onChange={(e) =>
+              console.log(e.target.value)
               }
             />
           </Grid>
