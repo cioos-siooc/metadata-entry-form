@@ -39,8 +39,8 @@ class Admin extends FormClassTemplate {
     this.unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // Reference to the regionAdmin in the database
-        const adminRef = firebase.database().ref("admin")
-        const regionAdminRef = adminRef.child(region)
+        const adminRef = firebase.database().ref("admin");
+        const regionAdminRef = adminRef.child(region);
         const permissionsRef = regionAdminRef.child("permissions");
         const projects = await getRegionProjects(region);
         permissionsRef.on("value", (permissionsFirebase) => {
@@ -69,8 +69,8 @@ class Admin extends FormClassTemplate {
     const { reviewers, admins, projects } = this.state;
 
     if (auth.currentUser) {
-      const regionAdminRef = firebase.database().ref('admin').child(region)
-      const permissionsRef = regionAdminRef.child('permissions');
+      const regionAdminRef = firebase.database().ref("admin").child(region);
+      const permissionsRef = regionAdminRef.child("permissions");
       const projectsRef = regionAdminRef.child("projects");
 
       permissionsRef.child("admins").set(cleanArr(admins).join());
@@ -82,7 +82,7 @@ class Admin extends FormClassTemplate {
 
   render() {
     const { loading, reviewers, admins, projects } = this.state;
-    
+
     return (
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
@@ -163,6 +163,71 @@ class Admin extends FormClassTemplate {
                     reviewers: e.target.value.split("\n"),
                   })
                 }
+              />
+            </Grid>
+            <Grid item xs>
+              <Typography variant="h5">
+                <I18n>
+                  <En>Enable DOI Creation</En>
+                  <Fr>Activer la création de DOI</Fr>
+                </I18n>
+              </Typography>
+              <Typography>
+                <I18n>
+                  <En>
+                    Enter the region's DataCite Prefix and Authentication
+                    Credentials
+                  </En>
+                  <Fr>
+                    Entrez le préfixe DataCite et les informations
+                    d'authentification de la région.
+                  </Fr>
+                </I18n>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Typography>
+                <I18n>
+                  <En>Datacite Prefix For example, '10.0000'</En>
+                  <Fr>Préfixe Datacite par exemple, '10.0000'</Fr>
+                </I18n>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                multiline
+                fullWidth
+                onChange={(e) => console.log(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs>
+              <Typography>
+                <I18n>
+                  <En>Datacite account ID</En>
+                  <Fr>Identifiant du compte Datacite</Fr>
+                </I18n>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                multiline
+                fullWidth
+                onChange={(e) => console.log(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs>
+              <Typography>
+                <I18n>
+                  <En>Datacite account Password</En>
+                  <Fr>Mot de passe du compte Datacite</Fr>
+                </I18n>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                multiline
+                fullWidth
+                onChange={(e) => console.log(e.target.value)}
               />
             </Grid>
             <Grid item xs>
