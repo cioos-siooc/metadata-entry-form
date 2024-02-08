@@ -39,8 +39,9 @@ class Admin extends FormClassTemplate {
     this.unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // Reference to the regionAdmin in the database
-        const regionAdminRef = firebase.database().ref('admin').child(region)
-        const permissionsRef = regionAdminRef.child('permissions');
+        const adminRef = firebase.database().ref("admin")
+        const regionAdminRef = adminRef.child(region)
+        const permissionsRef = regionAdminRef.child("permissions");
         const projects = await getRegionProjects(region);
         permissionsRef.on("value", (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
@@ -81,6 +82,7 @@ class Admin extends FormClassTemplate {
 
   render() {
     const { loading, reviewers, admins, projects } = this.state;
+    
     return (
       <Grid container direction="column" spacing={3}>
         <Grid item xs>
