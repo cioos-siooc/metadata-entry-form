@@ -42,9 +42,9 @@ const Admin = (props) => {
     // subscribe to auth state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
+        // Reference to the regionAdmin in the database
         const regionAdminRef = firebase.database().ref('admin').child(region)
-        // Reference to the region in the database
-        // const regionAdminRef = admin.child('admin');
+        
         // Reference to permissions
         const permissionsRef = regionAdminRef.child('permissions');
         // fetch projects for the region
