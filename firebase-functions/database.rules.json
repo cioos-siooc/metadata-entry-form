@@ -1,35 +1,33 @@
 {
-  "rules": {
-    "$region": {
-      ".read": "auth.uid != null",
-      "users": {
-        "$userid": {
-          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)"    
-        }
-      }
-    },
-    "admin": {
-        "$regionAdmin": {
-            "projects": {
-                ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
-                ".read": "auth.uid != null"
-                },
-            "permissions": {
-                "admins": {
-                ".write": "root.child($region).child('permissions').child('admins').val().contains(auth.email)",
-                ".read": "root.child($region).child('permissions').child('admins').val().contains(auth.email)"
-        
-                },
-                "reviewers": {
-                ".write": "root.child($region).child('permissions').child('admins').val().contains(auth.email)",
-                ".read": "root.child($region).child('permissions').child('admins').val().contains(auth.email)"
+    "rules": {
+        "$region": {
+            ".read": "auth.uid != null",
+            "users": {
+                "$userid": {
+                    ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)"
                 }
-            },
-            "dataciteCredentials": {
-                ".write": "root.child($region).child('permissions').child('admins').val().contains(auth.email)",
-                ".read": "root.child($region).child('permissions').child('admins').val().contains(auth.email)"
+            }
+        },
+        "admin": {
+            "$regionAdmin": {
+                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+                "projects": {
+                    ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+                    ".read": "auth.uid != null"
+                },
+                "permissions": {
+                    "admins": {
+                        ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                    },
+                    "reviewers": {
+                        ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                    }
+                },
+                "dataciteCredentials": {
+                    ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                    ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
+                }
             }
         }
     }
-  }
 }
