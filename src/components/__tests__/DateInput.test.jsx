@@ -7,7 +7,7 @@ import { KeyboardDatePicker } from "@material-ui/pickers";
 import DateInput from "../FormComponents/DateInput";
 
 configure({ adapter: new Adapter() });
-const mockEventValue = new Date("2021-09-08T19:00:00.000Z");
+const mockEventValue = new Date("2021-09-08T12:00:00.000Z");
 const mockComponentName = "date";
 const mockOnChange = jest.fn();
 
