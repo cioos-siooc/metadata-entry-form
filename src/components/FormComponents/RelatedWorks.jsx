@@ -95,7 +95,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <I18n>
-                    <En>Enter the title of the related work</En>
+                    <En>Enter the title of the related resource</En>
                     <Fr>Entrez le titre de l'œuvre concernée</Fr>
                   </I18n>
                   <RequiredMark passes={dist.title?.en || dist.title?.fr} />
@@ -111,7 +111,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
               <Grid item xs>
                 <QuestionText>
                   <I18n>
-                    <En>Enter the identifier for the related work</En>
+                    <En>Enter the identifier for the related resource</En>
                     <Fr>Saisissez l'identifiant de l'œuvre concernée</Fr>
                   </I18n>
 
