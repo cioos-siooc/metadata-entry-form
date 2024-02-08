@@ -4,14 +4,14 @@
       ".read": "auth.uid != null",
       "users": {
         "$userid": {
-          ".write": "(auth.uid == $userid) || root.child($region).child('permissions').child('reviewers').val().contains(auth.email)"    
+          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)"    
         }
       }
     },
     "admin": {
         "$regionAdmin": {
             "projects": {
-                ".write": "root.child($region).child('permissions').child('reviewers').val().contains(auth.email)",
+                ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
                 ".read": "auth.uid != null"
                 },
             "permissions": {
