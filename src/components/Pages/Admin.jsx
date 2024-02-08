@@ -22,6 +22,7 @@ const Admin = (props) => {
   const { region } = match.params;
   const mounted = useRef(false);
 
+  // const [regions, setRegions] = useState([]);
   const [state, setState] = useState({
     admins: [],
     projects: [],
@@ -29,6 +30,8 @@ const Admin = (props) => {
     loading: false,
   })
 
+
+  // sets up auth listeners
   useEffect(() => {
     mounted.current = true;
     let projects;
@@ -39,10 +42,11 @@ const Admin = (props) => {
     // subscribe to auth state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
+        const regionAdminRef = firebase.database().ref('admin').child(region)
         // Reference to the region in the database
-        const regionRef = firebase.database().ref(region);
+        // const regionAdminRef = admin.child('admin');
         // Reference to permissions
-        const permissionsRef = regionRef.child('permissions');
+        const permissionsRef = regionAdminRef.child('permissions');
         // fetch projects for the region
         if (mounted.current) {
           projects = await getRegionProjects(region);
@@ -77,6 +81,13 @@ const Admin = (props) => {
       unsubscribe();
   };
   }, [region]);
+
+  // fetch the available regions on component mount
+  // useEffect(() => {
+  //   const fetchRegions = async () => {
+  //     const regionsRef = firebase.database().ref('regions');
+  //   }
+  // })
 
   const save = () => {
 
