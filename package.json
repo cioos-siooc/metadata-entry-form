@@ -3,6 +3,11 @@
   "homepage": "https://cioos-siooc.github.io/metadata-entry-form/",
   "version": "0.1.0",
   "private": true,
+  "jest": {
+    "moduleNameMapper": {
+      "^axios$": "axios/dist/node/axios.cjs"
+    }
+  },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@citation-js/date": "^0.4.4",
@@ -13,7 +18,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@sentry/react": "^5.30.0",
     "@sentry/tracing": "^5.30.0",
-    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/user-event": "^7.1.2",
     "array-move": "^3.0.1",
     "axios": "^1.6.7",
@@ -22,7 +27,7 @@
     "crypto-browserify": "^3.12.0",
     "date-fns": "^2.0.0-beta.5",
     "file-saver": "^2.0.5",
-    "firebase": "^10.7.2",
+    "firebase": "^10.8.0",
     "firebase-admin": "^11.5.0",
     "firebase-functions": "^4.2.1",
     "https-browserify": "^1.0.0",

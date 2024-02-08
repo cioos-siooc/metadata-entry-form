@@ -162,7 +162,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
       })}
 
       <Paper style={paperClass}>
-        <Button startIcon={<Add />} disabled={disabled} onClick={() => addResource}>
+        <Button startIcon={<Add />} disabled={disabled} onClick={() => addResource()}>
           <I18n>
             <En>Add item</En>
             <Fr>Ajouter une ressource</Fr>

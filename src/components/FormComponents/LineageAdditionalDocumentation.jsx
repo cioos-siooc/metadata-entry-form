@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   TextField,
@@ -31,10 +31,10 @@ const LineageAdditionalDocumentation = ({
 }) => {
   const [activeDocumentation, setActiveDocumentation] = useState(0);
 
-  const addDocumentation = useCallback( () => {
+  function addDocumentation() {
     updateDocumentations(documentations.concat(deepCopy(emptyDocumentation)));
     setActiveDocumentation(documentations.length);
-  }, []);
+  };
 
   function updateDocumentationField(key) {
     return (e) => {
@@ -43,12 +43,12 @@ const LineageAdditionalDocumentation = ({
       updateDocumentations(documentationsCopy);
     };
   }
-  const removeDocumentation = useCallback( () => {
+  function removeDocumentation() {
     updateDocumentations(
       documentations.filter((e, index) => index !== activeDocumentation)
     );
     if (documentations.length) setActiveDocumentation(documentations.length - 2);
-  },[]);
+  };
 
 
 

@@ -7,10 +7,11 @@ import {
   Grid,
 } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
+import { getDatabase, ref, child, onValue, set } from "firebase/database";
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
@@ -33,15 +34,16 @@ class Admin extends FormClassTemplate {
   async componentDidMount() {
     const { match } = this.props;
     const { region } = match.params;
+    const database = getDatabase(firebase);
 
     this.setState({ loading: true });
 
-    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase) , async (user) => {
       if (user) {
-        const regionRef = firebase.database().ref(region);
-        const permissionsRef = regionRef.child("permissions");
+        const regionRef = ref(database, region);
+        const permissionsRef = child(regionRef, "permissions");
         const projects = await getRegionProjects(region);
-        permissionsRef.on("value", (permissionsFirebase) => {
+        onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
           // const projects = permissions.projects.split(",");
@@ -65,16 +67,17 @@ class Admin extends FormClassTemplate {
     const { region } = match.params;
 
     const { reviewers, admins, projects } = this.state;
+    const database = getDatabase(firebase);
 
     if (auth.currentUser) {
-      const regionRef = firebase.database().ref(region);
-      const permissionsRef = regionRef.child("permissions");
-      const projectsRef = regionRef.child("projects");
+      const regionRef = ref(database, region);
+      const permissionsRef = child(regionRef,"permissions");
+      const projectsRef = child(regionRef, "projects");
 
-      permissionsRef.child("admins").set(cleanArr(admins).join());
+      set(child(permissionsRef,"admins"), cleanArr(admins).join());
 
-      projectsRef.set(cleanArr(projects));
-      permissionsRef.child("reviewers").set(cleanArr(reviewers).join());
+      set(projectsRef, cleanArr(projects));
+      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
     }
   }
 

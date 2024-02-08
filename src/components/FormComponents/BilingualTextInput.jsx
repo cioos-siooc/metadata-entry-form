@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Button,
   InputAdornment,
@@ -27,11 +27,11 @@ const BilingualTextInput = ({
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
 
-  const handleEvent = useCallback((e) => {
+  function handleEvent(e) {
     const newData = { ...value, [e.target.name]: e.target.value };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
-  },[]);
+  };
   
   const { language } = useParams();
   let languages;
@@ -49,7 +49,7 @@ const BilingualTextInput = ({
             name={lang}
             fullWidth
             value={value?.[lang] || ""}
-            onChange={handleEvent}
+            onChange={(e) => handleEvent(e)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

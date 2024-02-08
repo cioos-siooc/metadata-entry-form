@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import { getDatabase, ref, child, set, get, remove, push } from "firebase/database";
+
 import firebase from "../firebase";
 
 import { getBlankRecord, getBlankContact } from "./blankRecord";
@@ -10,15 +12,11 @@ export async function cloneRecord(
   destinationUserID,
   region
 ) {
-  const sourceUserRecordsRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(sourceUserID)
-    .child("records");
+  const database = getDatabase(firebase);
+  const sourceUserRecordsRef = ref(database, `${region}/users/${sourceUserID}/records`);
 
   const record = (
-    await sourceUserRecordsRef.child(recordID).once("value")
+    await get(child(sourceUserRecordsRef, recordID), "value")
   ).val();
 
   // reset record details
@@ -34,14 +32,9 @@ export async function cloneRecord(
   record.identifier = uuidv4();
   record.created = new Date().toISOString();
 
-  const destinationUserRecordsRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(destinationUserID)
-    .child("records");
+  const destinationUserRecordsRef = ref(database, `${region}/users/${destinationUserID}/records`);
 
-  destinationUserRecordsRef.push(record);
+  push(destinationUserRecordsRef, record);
 }
 export function standardizeContact(contact) {
   return {
@@ -84,35 +77,23 @@ export function loadRegionRecords(regionRecords, statusFilter) {
 }
 
 export async function submitRecord(region, userID, key, status, record) {
-  const recordRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("records")
-    .child(key);
+  const database = getDatabase(firebase);
+  const recordRef = ref(database, `${region}/users/${userID}records/${key}`)
 
-  await recordRef.child("status").set(status);
+  await set(child(recordRef,"status"), status);
   if (status === "published")
-    await recordRef.child("timeFirstPublished").set(new Date().toISOString());
+    await set(child(recordRef, "timeFirstPublished"), new Date().toISOString());
 
   if (record && !record.filename) {
     const filename = getRecordFilename(record);
-    await recordRef.child("filename").set(filename);
+    await set(child(recordRef, "filename"), filename);
   }
 }
 
 export function deleteRecord(region, userID, key) {
+  const database = getDatabase(firebase);
   return (
-    firebase
-      .database()
-      .ref(region)
-      .child("users")
-      // this can be any user id
-      .child(userID)
-      .child("records")
-      .child(key)
-      .remove()
+    remove(ref(database, `${region}/users/${userID}records/${key}`))
   );
 }
 
@@ -122,8 +103,9 @@ export async function transferRecord(
   sourceUserID,
   region
 ) {
-  const regionUsersRef = firebase.database().ref(region).child("users");
-  const regionUsers = (await regionUsersRef.once("value")).val();
+  const database = getDatabase(firebase);
+  const regionUsersRef = ref(database, `${region}/users`);
+  const regionUsers = (await get(regionUsersRef, "value")).val();
 
   // get mapping like [["sdfssf32fwwfe","sdf@sdef.ca"]]
   const userIDToEmailMapping = Object.entries(
@@ -137,17 +119,11 @@ export async function transferRecord(
   if (userMatch) {
     const [matchingUserID] = userMatch;
 
-    const recordRef = regionUsersRef
-      .child(sourceUserID)
-      .child("records")
-      .child(recordID);
+    const recordRef = child(regionUsersRef, `${sourceUserID})/records/${recordID}`);
 
-    const record = (await recordRef.once("value")).val();
+    const record = (await get(recordRef, "value")).val();
 
-    const newRecordRef = await regionUsersRef
-      .child(matchingUserID)
-      .child("records")
-      .push(record);
+    const newRecordRef = await child(regionUsersRef, `${matchingUserID}/records/${record}`);
     const newRecordID = newRecordRef.key;
 
     record.recordID = newRecordID;
@@ -161,20 +137,15 @@ export async function transferRecord(
 }
 
 export function returnRecordToDraft(region, userID, key) {
-  return firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("records")
-    .child(key)
-    .child("status")
-    .set("");
+  const database = getDatabase(firebase);
+  return set(ref(database, `${region})/users/${userID}/records/${key}/status`), "");
 }
+
 export async function getRegionProjects(region) {
+  const database = getDatabase(firebase);
   const projects = Object.values(
     (
-      await firebase.database().ref(region).child("projects").once("value")
+      await get(ref(database, `${region}/projects`), "value")
     ).toJSON() || {}
   );
   return projects;

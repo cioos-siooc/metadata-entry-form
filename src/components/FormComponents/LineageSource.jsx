@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   TextField,
@@ -32,10 +32,10 @@ const LineageSource = ({
 }) => {
   const [activeSource, setActiveSource] = useState(0);
 
-  const addSource = useCallback( () => {
+  function addSource() {
     updateSources(sources.concat(deepCopy(emptySource)));
     setActiveSource(sources.length);
-  },[]);
+  };
 
   function updateSourceField(key) {
     return (e) => {
@@ -45,12 +45,12 @@ const LineageSource = ({
     };
   }
 
-  const removeSource = useCallback(() =>{
+  function removeSource() {
     updateSources(
       sources.filter((e, index) => index !== activeSource)
     );
     if (sources.length) setActiveSource(sources.length - 2);
-  },[]);
+  };
 
 
 
@@ -116,7 +116,7 @@ const LineageSource = ({
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addSource}
+              onClick={() => addSource()}
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
@@ -181,7 +181,7 @@ const LineageSource = ({
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeSource}
+                    onClick={() => removeSource()}
                   >
                     <I18n>
                       <En>Remove source</En>

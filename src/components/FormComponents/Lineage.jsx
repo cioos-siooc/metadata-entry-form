@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
     Grid,
@@ -38,10 +38,10 @@ const Lineage = ({
 
     const [activeLineage, setActiveLineage] = useState(0);
 
-    const addLineage = useCallback(() => {
+    function addLineage() {
         updateLineage(history.concat(deepCopy(emptyLineage)));
         setActiveLineage(history.length);
-    }, [history]);
+    };
 
     function updateLineageField(key) {
         return (e) => {
@@ -59,12 +59,12 @@ const Lineage = ({
         };
     }
 
-    const removeLineage = useCallback(() => {
+    function removeLineage() {
         updateLineage(
             history.filter((e, index) => index !== activeLineage)
         );
         if (history.length) setActiveLineage(history.length - 2);
-    }, [history]);
+    };
 
     if (typeof history === "string") {
         const item = deepCopy(emptyLineage)
