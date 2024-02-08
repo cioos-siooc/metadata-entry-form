@@ -10,7 +10,7 @@
         },
         "admin": {
             "$regionAdmin": {
-                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
                 "projects": {
                     ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
                     ".read": "auth.uid != null"
@@ -18,9 +18,11 @@
                 "permissions": {
                     "admins": {
                         ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                        ".read": "auth.uid != null"
                     },
                     "reviewers": {
                         ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                        ".read": "auth.uid != null"
                     }
                 },
                 "dataciteCredentials": {
