@@ -172,25 +172,27 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <I18n>
                       <En>
                         <p>
-                          Specify the relationship from the perspective of (A) the related resource; to (B) the primary resource in the metadata record you are creating. For example:
+                          Specify the relationship from (A) the primary resource; to (B) the related resource. For example:
                         </p>
                         <ul>
-                          <li>Use 'Revision of' to indicate the primary resource described (A) is a new version of (B) the related work.</li>
-                          <li>Use 'Larger Work Citation' to indicate the primary resource described in this metadata record (A) is a subset of (B) the related larger work.</li>
-                          <li>Use 'Is Composed Of' to indicate the primary resource described (A) is the larger work that includes (B) the related work.</li>
-                          <li>Use the 'Cross Reference' to identify related datasets.</li>
+                          <li>Use 'Is New Version Of' to indicate the primary resource described in this metadata record (A) is a new version of (B) the related resource.</li>
+                          <li>Use 'Is Part of' to indicate the primary resource (A) is a subset of (B) the related larger resource.</li>
+                          <li>Use 'Has Part' to indicate the primary resource (A) is the larger work that includes (B) the related resource.</li>
+                          <li>Use 'Cites' to indicate that (A) cites (B).</li>
+                          <li>Use 'Is Cited by to indicate that (B) cites (A)</li>
                         </ul>
 
                       </En>
                       <Fr>
                         <p>
-                          Spécifiez la relation du point de vue de (A) la ressource associée ; à (B) la ressource principale dans l'enregistrement de métadonnées que vous créez. Par exemple:
+                          Spécifiez la relation à partir de (A) la ressource principale ; à (B) la ressource associée. Par exemple:
                         </p>
                         <ul>
-                          <li>Utilisez "Révision de" pour indiquer que la ressource principale décrite (A) est une nouvelle version de (B) l'œuvre associée.</li>
-                          <li>Utilisez "Citation de travail plus important" pour indiquer que la ressource principale décrite dans cet enregistrement de métadonnées (A) est un sous-ensemble de (B) le travail plus important associé.</li>
-                          <li>Utilisez "Est composé de" pour indiquer que la ressource principale décrite (A) est le travail le plus important qui comprend (B) le travail associé.</li>
-                          <li>Utilisez les "Références croisées" pour identifier les ensembles de données associés.</li>
+                          <li>Utilisez "Est une nouvelle version de" pour indiquer que la ressource principale décrite dans cet enregistrement de métadonnées (A) est une nouvelle version de (B) la ressource associée.</li>
+                          <li>Utilisez "Fait partie de" pour indiquer que la ressource principale (A) est un sous-ensemble de (B) la ressource plus grande associée.</li>
+                          <li>Utilisez "A une partie" pour indiquer que la ressource principale (A) est le travail le plus important qui comprend (B) la ressource associée.</li>
+                          <li>Utilisez "Cites" pour indiquer que (A) cite (B).</li>
+                          <li>Utilisez "Est cité par" pour indiquer que (B) cite (A)</li>
                         </ul>
 
                       </Fr>
