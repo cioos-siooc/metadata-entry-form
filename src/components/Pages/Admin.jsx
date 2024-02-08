@@ -5,8 +5,10 @@ import {
   CircularProgress,
   TextField,
   Grid,
+  InputAdornment,
+  IconButton,
 } from "@material-ui/core";
-import { Save } from "@material-ui/icons";
+import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
@@ -27,6 +29,7 @@ class Admin extends FormClassTemplate {
       projects: [],
       reviewers: [],
       loading: false,
+      showPassword: false,
     };
   }
 
@@ -62,6 +65,18 @@ class Admin extends FormClassTemplate {
     });
   }
 
+  handleClickShowPassword = () => {
+    this.setState(prevState => ({
+        showPassword: !prevState.showPassword,
+    }),
+    console.log(this.state.showPassword));
+};
+
+handleMouseDownPassword = (event) => {
+  event.preventDefault();
+};
+
+
   save() {
     const { match } = this.props;
     const { region } = match.params;
@@ -81,7 +96,7 @@ class Admin extends FormClassTemplate {
   }
 
   render() {
-    const { loading, reviewers, admins, projects } = this.state;
+    const { loading, reviewers, admins, projects, showPassword } = this.state;
 
     return (
       <Grid container direction="column" spacing={3}>
@@ -195,8 +210,7 @@ class Admin extends FormClassTemplate {
             </Grid>
             <Grid item xs>
               <TextField
-                multiline
-                fullWidth
+                label="Prefix"
                 onChange={(e) => console.log(e.target.value)}
               />
             </Grid>
@@ -210,8 +224,7 @@ class Admin extends FormClassTemplate {
             </Grid>
             <Grid item xs>
               <TextField
-                multiline
-                fullWidth
+                label="AccountID"
                 onChange={(e) => console.log(e.target.value)}
               />
             </Grid>
@@ -224,10 +237,22 @@ class Admin extends FormClassTemplate {
               </Typography>
             </Grid>
             <Grid item xs>
-              <TextField
-                multiline
-                fullWidth
-                onChange={(e) => console.log(e.target.value)}
+            <TextField
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              InputProps={{
+                endAdornment:
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={this.handleClickShowPassword}
+                      onMouseDown={this.handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>,
+                }}
               />
             </Grid>
             <Grid item xs>
