@@ -191,7 +191,7 @@ const TaxaTab = ({
                             (!SearchValue && !inputValue)
                         }
                         startIcon={<ArrowDownward />}
-                        onClick={() => handleAdd}
+                        onClick={() => handleAdd()}
                     >
                         <I18n>
                             <En>Add</En>

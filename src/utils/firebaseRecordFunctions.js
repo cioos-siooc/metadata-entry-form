@@ -92,9 +92,7 @@ export async function submitRecord(region, userID, key, status, record) {
 
 export function deleteRecord(region, userID, key) {
   const database = getDatabase(firebase);
-  return (
-    remove(ref(database, `${region}/users/${userID}records/${key}`))
-  );
+  return remove(ref(database, `${region}/users/${userID}/records/${key}`));
 }
 
 export async function transferRecord(
