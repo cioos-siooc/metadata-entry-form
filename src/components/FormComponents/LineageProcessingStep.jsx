@@ -101,7 +101,7 @@ const ProcessingStep = ({
                         >
                           {i + 1}. {
                             (sourceItem.description[language] ?? '').length <= 50 ?
-                              (sourceItem.description[language] ?? '') : sourceItem.description[language].substring(0, 50) + '...'
+                              (sourceItem.description[language] ?? '') : `${sourceItem.description[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -116,7 +116,7 @@ const ProcessingStep = ({
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addSource}
+              onClick={() => addSource()}
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
@@ -181,7 +181,7 @@ const ProcessingStep = ({
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeSource}
+                    onClick={() => removeSource()}
                   >
                     <I18n>
                       <En>Remove step</En>

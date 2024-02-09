@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -8,18 +9,20 @@ export function deepEquals(obj1, obj2) {
 /* recursively convert objects with the first key == 0 to arrays */
 function objectToArray(obj) {
   if (typeof obj === "object" && Object.keys(obj)[0] === "0") {
-    obj = Object.entries(obj).map(([, v]) => {
+    const newObj = Object.entries(obj).map(([, v]) => {
       Object.keys(v).forEach((key) => {
         try {
           v[key] = objectToArray(v[key]);
         }
         catch (error) {
           if (error instanceof TypeError)
-            return;
+            return v[key];
         }
+        return v[key];
       })
       return v
     })
+    return newObj
   }
   return obj
 }

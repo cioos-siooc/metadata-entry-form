@@ -18,7 +18,7 @@ import LineageSource from "./LineageSource";
 import ProcessingStep from "./LineageProcessingStep";
 import SelectInput from "./SelectInput";
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const emptyLineage = {
     statement: "",
@@ -41,7 +41,8 @@ const Lineage = ({
     function addLineage() {
         updateLineage(history.concat(deepCopy(emptyLineage)));
         setActiveLineage(history.length);
-    }
+    };
+
     function updateLineageField(key) {
         return (e) => {
 
@@ -57,21 +58,22 @@ const Lineage = ({
             updateLineage(lineageCopy);
         };
     }
+
     function removeLineage() {
         updateLineage(
             history.filter((e, index) => index !== activeLineage)
         );
         if (history.length) setActiveLineage(history.length - 2);
-    }
+    };
 
     if (typeof history === "string") {
         const item = deepCopy(emptyLineage)
         if (history !== '') {
-            item['statement'] = {
+            item.statement = {
                 en: history, fr: history,
             }
         }
-        history = [deepCopy(item)];
+        updateLineage([deepCopy(item)]);
     }
 
     // const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
@@ -110,7 +112,7 @@ const Lineage = ({
                                                 >
                                                     {i + 1}. {
                                                         (lineageItem.statement[language] ?? '').length <= 50 ?
-                                                            (lineageItem.statement[language] ?? '') : lineageItem.statement[language].substring(0, 50) + '...'
+                                                            (lineageItem.statement[language] ?? '') : `${lineageItem.statement[language].substring(0, 50)}...`
 
                                                     }
                                                 </Typography>
@@ -126,7 +128,7 @@ const Lineage = ({
                         <Button
                             disabled={disabled}
                             startIcon={<Add />}
-                            onClick={addLineage}
+                            onClick={() => addLineage()}
                             style={{ height: "56px", marginLeft: "10px" }}
                         >
                             <I18n>
@@ -227,11 +229,11 @@ const Lineage = ({
                                     <Button
                                         startIcon={<Delete />}
                                         disabled={disabled}
-                                        onClick={removeLineage}
+                                        onClick={() => removeLineage()}
                                     >
                                         <I18n>
-                                            <En>Remove item</En>
-                                            <Fr>Supprimer l'instrument</Fr>
+                                            <En>Remove Lineage</En>
+                                            <Fr>Supprimer une lignée</Fr>
                                         </I18n>
                                     </Button>
                                 </Grid>

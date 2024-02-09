@@ -14,7 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const emptyDocumentation = {
   title: "",
@@ -34,7 +34,8 @@ const LineageAdditionalDocumentation = ({
   function addDocumentation() {
     updateDocumentations(documentations.concat(deepCopy(emptyDocumentation)));
     setActiveDocumentation(documentations.length);
-  }
+  };
+
   function updateDocumentationField(key) {
     return (e) => {
       const documentationsCopy = [...documentations];
@@ -47,7 +48,7 @@ const LineageAdditionalDocumentation = ({
       documentations.filter((e, index) => index !== activeDocumentation)
     );
     if (documentations.length) setActiveDocumentation(documentations.length - 2);
-  }
+  };
 
 
 
@@ -79,7 +80,7 @@ const LineageAdditionalDocumentation = ({
         <Grid item xs={4}>
           <Grid container direction="column" spacing={1}>
             <Grid item xs>
-              <List spacing={1}>
+              <List>
               {documentations.map((documentationItem, i) => {
                 return (
                   <ListItem
@@ -96,7 +97,7 @@ const LineageAdditionalDocumentation = ({
                         >
                           {i + 1}. {
                             (documentationItem.title[language] ?? '').length <= 50 ?
-                              (documentationItem.title[language] ?? '') : documentationItem.title[language].substring(0, 50) + '...'
+                              (documentationItem.title[language] ?? '') : `${documentationItem.title[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -111,7 +112,7 @@ const LineageAdditionalDocumentation = ({
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addDocumentation}
+              onClick={() => addDocumentation()}
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
@@ -163,10 +164,10 @@ const LineageAdditionalDocumentation = ({
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeDocumentation}
+                    onClick={() => removeDocumentation()}
                   >
                     <I18n>
-                      <En>Remove item</En>
+                      <En>Remove documentation</En>
                       <Fr>Supprimer l'documentation</Fr>
                     </I18n>
                   </Button>

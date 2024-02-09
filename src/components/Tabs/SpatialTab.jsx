@@ -95,7 +95,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
         <MapSelect
           mapData={record.map}
           updateMap={updateRecord("map")}
-          handleUpdateMap={updateRecord("map")}
+          handleUpdateMap={handleUpdateRecord("map")}
           disabled={disabled}
           record={record}
         />

@@ -58,6 +58,12 @@ def fix_lat_long_polygon(polygon):
         fixed.append(",".join([long, lat]))
     return " ".join(fixed)
 
+def format_taxa(taxa):
+    taxaKeywords = []
+    for t in taxa:
+        taxaKeywords.append(",".join([t.get("kingdom"), t.get("phylum"), t.get("class"), t.get("order"), t.get("family"), t.get("genus"), t.get("species")]))
+    return ','.join(taxaKeywords)
+
 
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
@@ -115,6 +121,7 @@ def record_json_to_yaml(record):
             "keywords": {
                 "default": strip_keywords(record.get("keywords", {"en": [], "fr": []})),
                 "eov": {"en": record.get("eov"), "fr": eovs_to_fr(record.get("eov"))},
+                "taxa": {"en": format_taxa(record.get("taxa")), "fr": format_taxa(record.get("taxa"))}
             },
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),

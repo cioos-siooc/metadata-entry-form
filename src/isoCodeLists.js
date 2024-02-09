@@ -222,81 +222,81 @@ export const metadataScopeCodes = {
   collection: {
     title: {
       en: "collection",
-      fr: ""
+      fr: "",
     },
     text: {
       en: "Information applies to an unstructured set of resources described as a group; its parts may also be separately described.",
-      fr: ""
+      fr: "",
     },
   },
   collectionHardware: {
     title: {
       en: "collection hardware",
-      fr: ""
+      fr: "",
     },
     text: {
       en: "Information applies to description of instruments and platforms used to collect data",
-      fr: ""
+      fr: "",
     },
   },
   // Required for biological datasets
   collectionSession: {
     title: {
       en: "data collection (sampling)",
-      fr: ""
+      fr: "",
     },
     text: {
       en: "information applies to the dataset",
-      fr: ""
+      fr: "",
     },
   },
   dataset: {
     title: {
       en: "dataset",
-      fr: "Ensembles de données"
+      fr: "Ensembles de données",
     },
     text: {
       en: "information applies to the dataset",
-      fr: "l'information s'applique à l'ensemble de données"
+      fr: "l'information s'applique à l'ensemble de données",
     },
   },
   document: {
     title: {
       en: "document",
-      fr: "document"
+      fr: "document",
     },
     text: {
       en: "information applies to a document",
-      fr: "l'information s'applique à un document"
+      fr: "l'information s'applique à un document",
     },
   },
   model: {
     title: {
       en: "model",
-      fr: "modèle"
+      fr: "modèle",
     },
     text: {
       en: "information applies to a copy or imitation of an existing or hypothetical object",
-      fr: "l'information s'applique à une copie ou à une imitation d'un objet existant ou hypothétique"
+      fr: "l'information s'applique à une copie ou à une imitation d'un objet existant ou hypothétique",
     },
   },
   service: {
     title: {
       en: "service",
-      fr: "service"
+      fr: "service",
     },
     text: {
       en: "information applies to a capability which a service provider entity makes available to a service user entity through a set of interfaces that define a behaviour, such as a use case",
-      fr: "les informations s'appliquent à une capacité qu'une entité fournisseur de services met à la disposition d'une entité utilisatrice de services par l'intermédiaire d'un ensemble d'interfaces qui définissent un comportement, tel qu'un cas d'utilisation"
+      fr: "les informations s'appliquent à une capacité qu'une entité fournisseur de services met à la disposition d'une entité utilisatrice de services par l'intermédiaire d'un ensemble d'interfaces qui définissent un comportement, tel qu'un cas d'utilisation",
     },
   },
   software: {
     title: {
-        en: "software", fr: "logiciel"
+        en: "software", fr: "logiciel",
       },
       text: {
         en: "information applies to a computer program or routine",
-        fr: "l'information s'applique à un programme informatique ou à une routine"
+        fr: "l'information s'applique à un programme informatique ou à une routine",
     },
   },
 };

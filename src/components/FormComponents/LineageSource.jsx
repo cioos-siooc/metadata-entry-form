@@ -14,7 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 
 const emptySource = {
   description: "",
@@ -35,7 +35,8 @@ const LineageSource = ({
   function addSource() {
     updateSources(sources.concat(deepCopy(emptySource)));
     setActiveSource(sources.length);
-  }
+  };
+
   function updateSourceField(key) {
     return (e) => {
       const sourcesCopy = [...sources];
@@ -43,12 +44,13 @@ const LineageSource = ({
       updateSources(sourcesCopy);
     };
   }
+
   function removeSource() {
     updateSources(
       sources.filter((e, index) => index !== activeSource)
     );
     if (sources.length) setActiveSource(sources.length - 2);
-  }
+  };
 
 
 
@@ -99,7 +101,7 @@ const LineageSource = ({
                         >
                           {i + 1}. {
                             (sourceItem.description[language] ?? '').length <= 50 ?
-                              (sourceItem.description[language] ?? '') : sourceItem.description[language].substring(0, 50) + '...'
+                              (sourceItem.description[language] ?? '') : `${sourceItem.description[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -114,7 +116,7 @@ const LineageSource = ({
             <Button
               disabled={disabled}
               startIcon={<Add />}
-              onClick={addSource}
+              onClick={() => addSource()}
               style={{ height: "56px", marginLeft: "10px" }}
             >
               <I18n>
@@ -179,10 +181,10 @@ const LineageSource = ({
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
-                    onClick={removeSource}
+                    onClick={() => removeSource()}
                   >
                     <I18n>
-                      <En>Remove item</En>
+                      <En>Remove source</En>
                       <Fr>Supprimer l'source</Fr>
                     </I18n>
                   </Button>

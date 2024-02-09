@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
+import { getDatabase, ref, onValue, push, child, update } from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -32,12 +33,8 @@ class EditContact extends FormClassTemplate {
 
     const { region } = match.params;
 
-    this.contactsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("contacts");
+    const database = getDatabase(firebase);
+    this.contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
   }
 
   async componentDidMount() {
@@ -47,8 +44,8 @@ class EditContact extends FormClassTemplate {
 
     if (auth.currentUser && contactID) {
       this.setState({ contactID });
-      const contactRef = this.contactsRef.child(contactID);
-      contactRef.on("value", (contact) => this.setState(contact.toJSON()));
+      const contactRef = child(this.contactsRef, contactID);
+      onValue(contactRef, (contact) => this.setState(contact.toJSON()));
       this.listenerRefs.push(contactRef);
     }
   }
@@ -104,9 +101,9 @@ class EditContact extends FormClassTemplate {
     const { region, language, contactID } = match.params;
 
     // update
-    if (contactID) this.contactsRef.child(contactID).update(this.state);
+    if (contactID) update(child(this.contactsRef, contactID), this.state);
     // create
-    else this.contactsRef.push(this.state);
+    else push(this.contactsRef, this.state);
 
     history.push(`/${language}/${region}/contacts`);
   }
