@@ -12,6 +12,7 @@ import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
+import { getDatacitePrefix } from "../../utils/firebaseEnableDoiCreation";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -28,6 +29,9 @@ class Admin extends FormClassTemplate {
       admins: [],
       projects: [],
       reviewers: [],
+      datacitePrefix: "",
+      dataciteAccountId: "",
+      datacitePass: "",
       loading: false,
       showPassword: false,
     };
@@ -45,7 +49,9 @@ class Admin extends FormClassTemplate {
         const adminRef = firebase.database().ref("admin");
         const regionAdminRef = adminRef.child(region);
         const permissionsRef = regionAdminRef.child("permissions");
+
         const projects = await getRegionProjects(region);
+        const datacitePrefix = await getDatacitePrefix(region);
         permissionsRef.on("value", (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
@@ -58,6 +64,7 @@ class Admin extends FormClassTemplate {
             admins,
             reviewers,
             loading: false,
+            datacitePrefix,
           });
         });
         this.listenerRefs.push(permissionsRef);
@@ -65,38 +72,45 @@ class Admin extends FormClassTemplate {
     });
   }
 
-  handleClickShowPassword = () => {
-    this.setState(prevState => ({
-        showPassword: !prevState.showPassword,
-    }),
-    console.log(this.state.showPassword));
-};
+  handleClickShowPassword = () =>
+    this.setState((prevState) => ({
+      showPassword: !prevState.showPassword,
+    }));
 
-handleMouseDownPassword = (event) => {
-  event.preventDefault();
-};
-
+  handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   save() {
     const { match } = this.props;
     const { region } = match.params;
 
-    const { reviewers, admins, projects } = this.state;
+    const { reviewers, admins, projects, datacitePrefix, dataciteAccountId, datacitePass } = this.state;
+
+    const bufferObj = Buffer.from(`${dataciteAccountId}:${datacitePass}`, "utf8");
+    const base64String = bufferObj.toString("base64"); 
 
     if (auth.currentUser) {
       const regionAdminRef = firebase.database().ref("admin").child(region);
       const permissionsRef = regionAdminRef.child("permissions");
       const projectsRef = regionAdminRef.child("projects");
+      const dataciteRef = regionAdminRef.child("dataciteCredentials");
 
       permissionsRef.child("admins").set(cleanArr(admins).join());
 
       projectsRef.set(cleanArr(projects));
       permissionsRef.child("reviewers").set(cleanArr(reviewers).join());
+      dataciteRef.child("prefix").set(datacitePrefix);
+      dataciteRef.child("dataciteHash").set(base64String);
+
+      this.setState({
+        datacitePass: "",
+      });
     }
   }
 
   render() {
-    const { loading, reviewers, admins, projects, showPassword } = this.state;
+    const { loading, reviewers, admins, projects, showPassword, datacitePrefix } = this.state;
 
     return (
       <Grid container direction="column" spacing={3}>
@@ -211,7 +225,10 @@ handleMouseDownPassword = (event) => {
             <Grid item xs>
               <TextField
                 label="Prefix"
-                onChange={(e) => console.log(e.target.value)}
+                value={datacitePrefix}
+                onChange={(e) =>
+                  this.setState({ datacitePrefix: e.target.value })
+                }
               />
             </Grid>
             <Grid item xs>
@@ -225,7 +242,9 @@ handleMouseDownPassword = (event) => {
             <Grid item xs>
               <TextField
                 label="AccountID"
-                onChange={(e) => console.log(e.target.value)}
+                onChange={(e) =>
+                  this.setState({ dataciteAccountId: e.target.value })
+                }
               />
             </Grid>
             <Grid item xs>
@@ -237,21 +256,25 @@ handleMouseDownPassword = (event) => {
               </Typography>
             </Grid>
             <Grid item xs>
-            <TextField
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              InputProps={{
-                endAdornment:
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={this.handleClickShowPassword}
-                      onMouseDown={this.handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>,
+              <TextField
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                onChange={(e) =>
+                  this.setState({ datacitePass: e.target.value })
+                }
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={this.handleClickShowPassword}
+                        onMouseDown={this.handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid>
