@@ -31,3 +31,10 @@ export async function deleteDataciteAccount(region, credentialKey) {
   // Return a message indicating success, or handle errors as needed
   return { success: true, message: "Datacite account deleted successfully." };
 }
+
+export async function getDatacitePrefix(region) {
+    const prefix = 
+        (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+        
+    return prefix;
+  }
