@@ -7,11 +7,11 @@ export async function newDataciteAccount(region, prefix, authHash) {
         .child(region)
         .child("dataciteCredentials");
     
-    // Setting prefix and authHash directly under dataciteCredentials
-    const newNode = await dataciteRef.push({
-        prefix,
-        authHash,
-    });
+    // Overwriting prefix and authHash directly under dataciteCredentials
+    await dataciteRef.set({
+      prefix,
+      authHash,
+  });
 
     return newNode.key;
 }
