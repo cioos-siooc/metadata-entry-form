@@ -38,6 +38,7 @@ class Admin extends FormClassTemplate {
       projects: [],
       reviewers: [],
       datacitePrefix: "",
+      datacitePrefixValid: true,
       dataciteAccountId: "",
       datacitePass: "",
       loading: false,
@@ -223,8 +224,17 @@ class Admin extends FormClassTemplate {
 
   handleChange = (event) => {
     const { name, value } = event.target;
-    this.setState({ [name]: value });
+    this.setState({ [name]: value }, () => {
+      if (name === "datacitePrefix") {
+        this.validateDatacitePrefix(value);
+      }
+    });
   };
+
+  validateDatacitePrefix = (prefix) => {
+  const isValid = /^10\.\d+/.test(prefix);
+  this.setState({ datacitePrefixValid: isValid });
+};
 
   render() {
     const {
@@ -401,6 +411,8 @@ class Admin extends FormClassTemplate {
                         value={datacitePrefix || ""}
                         onChange={this.handleChange}
                         fullWidth
+                        error={!this.state.datacitePrefixValid}
+                        helperText={!this.state.datacitePrefixValid && "Prefix must start with '10.' followed by numbers."}
                       />
                     </Grid>
                     <Grid item xs={12}>
