@@ -16,20 +16,26 @@ export async function newDataciteAccount(region, prefix, authHash) {
     return newNode.key;
 }
 
-export async function deleteDataciteAccount(region, credentialKey) {
-  // Reference to the specific dataciteCredentials entry using the credentialKey
-  const credentialRef = await firebase
-    .database()
-    .ref("admin")
-    .child(region)
-    .child("dataciteCredentials")
+export async function deleteAllDataciteCredentials(region) {
+  try {
+    // Reference to the dataciteCredentials node for the specified region
+    const dataciteCredentialsRef = firebase
+      .database()
+      .ref("admin")
+      .child(region)
+      .child("dataciteCredentials");
     .child(credentialKey);
 
-  // Deleting the specified entry
-  await credentialRef.remove();
+    // Deleting the dataciteCredentials node and all its children
+    await dataciteCredentialsRef.remove();
 
-  // Return a message indicating success, or handle errors as needed
-  return { success: true, message: "Datacite account deleted successfully." };
+    // Return a message indicating success
+    return { success: true, message: "All Datacite credentials deleted successfully." };
+  } catch (error) {
+    // Log and return an error message
+    console.error("Error deleting Datacite credentials:", error);
+    return { success: false, message: "Failed to delete Datacite credentials." };
+  }
 }
 
 export async function getDatacitePrefix(region) {
