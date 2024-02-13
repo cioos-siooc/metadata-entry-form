@@ -12,8 +12,6 @@ export async function newDataciteAccount(region, prefix, authHash) {
       prefix,
       authHash,
   });
-
-    return newNode.key;
 }
 
 export async function deleteAllDataciteCredentials(region) {
@@ -24,7 +22,6 @@ export async function deleteAllDataciteCredentials(region) {
       .ref("admin")
       .child(region)
       .child("dataciteCredentials");
-    .child(credentialKey);
 
     // Deleting the dataciteCredentials node and all its children
     await dataciteCredentialsRef.remove();
