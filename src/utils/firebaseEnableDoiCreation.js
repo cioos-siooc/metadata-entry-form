@@ -44,3 +44,21 @@ export async function getDatacitePrefix(region) {
         
     return prefix;
   }
+
+export async function getCredentialsStored(region) {
+
+  try {
+    // Reference to the region's dataciteCredentials in the Firebase database
+    const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
+
+    // Get the authHash and prefix values from the database
+    const authHash = (await credentialsRef.child("authHash").once("value")).val();
+
+    const prefix = (await credentialsRef.child("prefix").once("value")).val();
+
+    return authHash !== null && prefix !== null;
+  } catch (error) {
+    console.error("Error checking Datacite credentials:", error);
+    return false; // Assume credentials are not stored if there's an error
+  }
+}
