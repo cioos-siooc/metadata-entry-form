@@ -16,8 +16,8 @@ import RequiredMark from "./RequiredMark";
 import SelectInput from "./SelectInput";
 import { deepCopy } from "../../utils/misc";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
-
 import associationTypeToIso from "../../associationTypeMapping"
+
 const validateURL = (url) => !url || validator.isURL(url);
 
 const RelatedWorks = ({ updateResources, resources, disabled }) => {
@@ -57,33 +57,30 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
         }
 
         function handleAssociationTypeChange() {
-          let key = "association_type";
-          console.log("In handleAssociationTypeChange")
           return (e) => {
             const newValue = [...resources];
-            newValue[i]["association_type_iso"] = associationTypeToIso[e.target.value];
-            newValue[i][key] = e.target.value;
+            newValue[i].association_type_iso = associationTypeToIso[e.target.value];
+            newValue[i].association_type = e.target.value;
             updateResources(newValue);
           };
         }
+
         function handleIdentifierChange(key) {
           return (e) => {
 
             const newValue = [...resources];
             newValue[i][key] = e.target.value;
 
-            let s = newValue[i]['code']
+            const s = newValue[i].code
             switch (true) {
-              case urlIsValid(newValue[i]['code']) && /^http.?:\/\/doi\.org\//i.test(s):
-                newValue[i]['authority'] = 'DOI'
-                console.log('MATCH DOI')
+              case urlIsValid(newValue[i].code) && /^http.?:\/\/doi\.org\//i.test(s):
+                newValue[i].authority = 'DOI'
                 break;
-              case urlIsValid(newValue[i]['code']):
-                newValue[i]['authority'] = 'URL'
-                console.log('MATCH URL')
+              case urlIsValid(newValue[i].code):
+                newValue[i].authority = 'URL'
                 break;
               default:
-                newValue[i]['authority'] = ''
+                newValue[i].authority = ''
                 break;
             }
             updateResources(newValue);
@@ -252,7 +249,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
       })}
 
       <Paper style={paperClass}>
-        <Button startIcon={<Add />} disabled={disabled} onClick={addResource}>
+        <Button startIcon={<Add />} disabled={disabled} onClick={() => addResource()}>
           <I18n>
             <En>Add item</En>
             <Fr>Ajouter une ressource</Fr>

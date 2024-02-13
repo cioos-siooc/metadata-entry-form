@@ -205,7 +205,7 @@ const ContactLeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Duplicate contact" />
+                            <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
                           }
                         >
                           <span>

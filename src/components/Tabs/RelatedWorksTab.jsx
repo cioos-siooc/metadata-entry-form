@@ -1,7 +1,5 @@
 import React from "react";
-
 import { Paper } from "@material-ui/core";
-
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
