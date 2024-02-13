@@ -75,14 +75,16 @@ class UserProvider extends FormClassTemplate {
 
   render() {
     const { children } = this.props;
-    const functions = getFunctions();
-    const translate = httpsCallable(functions, "translate");
-    const regenerateXMLforRecord = httpsCallable(functions, "regenerateXMLforRecord");
-    const downloadRecord = httpsCallable(functions, "downloadRecord");
-    const createDraftDoi = httpsCallable(functions, "createDraftDoi");
-    const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
-    const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
-    const getDoiStatus = httpsCallable(functions, "getDoiStatus");
+    const translate = firebase.functions().httpsCallable("translate");
+    const regenerateXMLforRecord = firebase
+      .functions()
+      .httpsCallable("regenerateXMLforRecord");
+    const downloadRecord = firebase.functions().httpsCallable("downloadRecord");
+    const createDraftDoi = firebase.functions().httpsCallable("createDraftDoi");
+    const updateDraftDoi = firebase.functions().httpsCallable("updateDraftDoi");
+    const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
+    const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
+    const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
 
     return (
       <UserContext.Provider
@@ -95,6 +97,7 @@ class UserProvider extends FormClassTemplate {
           updateDraftDoi,
           deleteDraftDoi,
           getDoiStatus,
+          checkURLActive,
         }}
       >
         {children}

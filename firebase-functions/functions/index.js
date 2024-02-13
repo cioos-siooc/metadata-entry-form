@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const { translate } = require("./translate");
+const { checkURLActive } = require("./serverUtils");
 const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = require("./datacite");
 const { notifyReviewer, notifyUser } = require("./notify");
 const {
@@ -24,3 +25,4 @@ exports.createDraftDoi = createDraftDoi;
 exports.deleteDraftDoi = deleteDraftDoi;
 exports.updateDraftDoi = updateDraftDoi;
 exports.getDoiStatus = getDoiStatus;
+exports.checkURLActive = checkURLActive;

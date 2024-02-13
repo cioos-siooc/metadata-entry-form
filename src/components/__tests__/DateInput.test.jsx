@@ -38,9 +38,16 @@ describe("<DateInput />", () => {
       />
     );
 
-    wrapper.find(KeyboardDatePicker).props().onChange(mockEventValue);
+    // Simulate selecting a new date as a Date object
+    const newDate = new Date("2021-10-08T22:23:52.468Z");
+    wrapper.find(KeyboardDatePicker).props().onChange(newDate);
+
+    // The expected value should be an ISO string after being processed by your component
+    const expectedValue = newDate.toISOString();
+
+     // Assert that onChange was called with the correct value
     expect(mockOnChange).toHaveBeenCalledWith({
-      target: { value: mockEventValue, name: mockComponentName },
+      target: { value: expectedValue, name: mockComponentName },
     });
   });
 });

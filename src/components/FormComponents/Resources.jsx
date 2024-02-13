@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Add,
   Delete,
@@ -20,18 +20,21 @@ import {
   Tooltip,
  } from "@material-ui/core";
 import validator from "validator";
+import debounce from "just-debounce-it";
 import arrayMove from "array-move";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy, deepEquals } from "../../utils/misc";
+import { validateURL } from "../../utils/validate";
 import { 
   QuestionText, 
   paperClass, 
   SupplementalText,
 } from "./QuestionStyles";
+import { UserContext } from "../../providers/UserProvider";
 
-const validateURL = (url) => !url || validator.isURL(url);
+const Resources = ({ updateResources, resources, disabled }) => {
 
 const Resources = ({ 
   updateResources, 
@@ -39,9 +42,38 @@ const Resources = ({
   language, 
   disabled,
 }) => {
+  const mounted = useRef(false);
+  const { checkURLActive } = useContext(UserContext);
+  const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
   const [activeResource, setActiveResource] = useState(0);
   const [currentResources, setResourceItems] = useState(resources);
+
+  const debouncePool = useRef({});
+
+  useEffect( () => {
+
+    mounted.current = true
+
+    resources.forEach( (resource, idx) => {
+      
+      if (resource.url && validateURL(resource.url)) {
+        if (!debouncePool.current[idx]){
+          debouncePool.current[idx] = debounce( async (innerResource) => {
+            const response = await checkURLActive(innerResource.url)
+            if (mounted.current){
+              setUrlIsActive((prevStatus) => ({ ...prevStatus, [innerResource.url]: response.data }))
+            }
+          }, 500);
+        }
+        debouncePool.current[idx](resource);
+      }
+    });
+    
+    return () => {
+      mounted.current = false;
+    };
+  }, [resources, checkURLActive]);
 
   if (!deepEquals(currentResources, resources)) {
     setResourceItems(resources);
@@ -269,7 +301,9 @@ const Resources = ({
 
                 <TextField
                   helperText={
-                    !urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />
+                    (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
+                    || (resourceItem.url && urlIsActive[resourceItem.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
+                    || (resourceItem.url && urlIsActive[resourceItem.url] === true && <I18n en="URL is active" fr="L'URL est active" />)
                   }
                   error={!urlIsValid}
                   label="URL"

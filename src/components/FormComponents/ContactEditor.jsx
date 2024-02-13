@@ -45,6 +45,7 @@ const ContactEditor = ({
   updateContactRor,
   updateContactOrcid,
 }) => {
+  const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
   const orgURLValid = validateURL(value.orgURL);
@@ -65,20 +66,23 @@ const ContactEditor = ({
       newInputValue.startsWith("http") &&
       !newInputValue.includes("ror.org")
     ) {
-      setRorSearchActive(false);
+       if (mounted.current) setRorSearchActive(false);
     } else {
       fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
         .then((response) => response.json())
         .then((response) => {if (mounted.current) setRorOptions(response.items)})
-        .then(() => setRorSearchActive(false));
+        .then(() => {if (mounted.current) setRorSearchActive(false)});
     }
   }
 
   useEffect(() => {
+
     mounted.current = true;
+
     if (debouncedRorInputValue) {
       updateRorOptions(debouncedRorInputValue);
     }
+
     return () => {
       mounted.current = false;
     };
