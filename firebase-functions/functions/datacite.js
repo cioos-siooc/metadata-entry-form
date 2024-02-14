@@ -1,14 +1,20 @@
 const baseUrl = "https://api.datacite.org/dois/";
-const { DATACITE_AUTH_HASH } = process.env;
 const functions = require("firebase-functions");
+const { defineString } = require('firebase-functions/params');
 const axios = require("axios");
 
+const dataciteAuthHash = defineString('DATACITE_AUTH_HASH');
+
 exports.createDraftDoi = functions.https.onCall(async (record) => {
+  // Fallback to process.env.DATACITE_AUTH_HASH for local dev or deployment-specific configurations,
+  // otherwise use Firebase's parameterized configuration at runtime.
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${DATACITE_AUTH_HASH}`,
+      'Authorization': `Basic ${dataciteCred}`,
       'Content-Type': 'application/json',
     },
   });
@@ -47,11 +53,14 @@ exports.createDraftDoi = functions.https.onCall(async (record) => {
 });
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
+
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
-        'Authorization': `Basic ${DATACITE_AUTH_HASH}`,
+        'Authorization': `Basic ${dataciteCred}`,
         'Content-Type': "application/json",
       },
     });
@@ -93,10 +102,13 @@ exports.updateDraftDoi = functions.https.onCall(async (data) => {
 });
 
 exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
+
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try {
     const url = `${baseUrl}${draftDoi}/`;
     const response = await axios.delete(url, {
-    headers: { 'Authorization': `Basic ${DATACITE_AUTH_HASH}` },
+    headers: { 'Authorization': `Basic ${dataciteCred}` },
   });
   return response.status;
   } catch (err) {
@@ -131,12 +143,15 @@ exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
 });
 
 exports.getDoiStatus = functions.https.onCall(async (data) => {
+
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try {
     const url = `${baseUrl}${data.doi}/`;
     // TODO: limit response to just the state field. elasticsearch query syntax?
     const response = await axios.get(url, {
       headers: {
-        'Authorization': `Basic ${DATACITE_AUTH_HASH}`
+        'Authorization': `Basic ${dataciteCred}`
       },
     });
     return response.data.data.attributes.state;
