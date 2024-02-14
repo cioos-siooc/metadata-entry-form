@@ -22,6 +22,7 @@ import {
 import validator from "validator";
 import debounce from "just-debounce-it";
 import arrayMove from "array-move";
+import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
@@ -37,11 +38,11 @@ import { UserContext } from "../../providers/UserProvider";
 const Resources = ({ 
   updateResources, 
   resources, 
-  language, 
   disabled,
 }) => {
   const mounted = useRef(false);
   const { checkURLActive } = useContext(UserContext);
+  const { language } = useParams();
   const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
   const [activeResource, setActiveResource] = useState(0);

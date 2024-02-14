@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useState  } from "react";
 import {
   Add,
   Delete,
-  ArrowUpwardSharp,
-  ArrowDownwardSharp,
+  FileCopy,
+  DragHandle,
 } from "@material-ui/icons";
-import { Button, Grid, Paper, TextField } from "@material-ui/core";
+import { Container, Draggable } from "react-smooth-dnd";
+import {
+  Button,
+  Grid,
+  Paper,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Typography,
+  Tooltip,
+} from "@material-ui/core";
 import validator from "validator";
+import arrayMove from "array-move";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { associationTypeCode, identifierType } from "../../isoCodeLists";
@@ -14,80 +28,231 @@ import { associationTypeCode, identifierType } from "../../isoCodeLists";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import SelectInput from "./SelectInput";
-import { deepCopy } from "../../utils/misc";
+import { deepCopy, deepEquals } from "../../utils/misc";
 import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
 import associationTypeToIso from "../../associationTypeMapping"
 
 const validateURL = (url) => !url || validator.isURL(url);
 
-const RelatedWorks = ({ updateResources, resources, disabled }) => {
+const RelatedWorks = ({ 
+  updateResources, 
+  resources,
+  disabled }) => {
 
   const emptyResource = { title: { en: "", fr: "" }, authority: "", code: "", association_type: "", association_type_iso: ""};
   const { language } = useParams();
+  const [activeResource, setActiveResource] = useState(0);
+  const [currentResources, setCurrentResources] = useState(resources);
+  const resourceStep = resources.length > 0 && resources[activeResource];
+ 
+  if (!deepEquals(currentResources, resources)) {
+    setCurrentResources(resources);
+  }
+
+  //  removedIndex is dragStart
+  //  addedIndex is dragEnd
+  const onDrop = ({ removedIndex, addedIndex }) => {
+    if (removedIndex === activeResource) setActiveResource(addedIndex);
+    else if (addedIndex <= activeResource && removedIndex > activeResource)
+      setActiveResource(activeResource + 1);
+
+    const reorderedContacts = arrayMove(
+      currentResources,
+      removedIndex,
+      addedIndex
+    );
+    updateResources(reorderedContacts);
+  };
 
   function addResource() {
     updateResources(resources.concat(deepCopy(emptyResource)));
+    setActiveResource(resources.length);
   }
 
   // removes the resource section from the list at index i
   function removeResource(i) {
     updateResources(resources.filter((e, index) => index !== i));
+    if (resources.length) setActiveResource(resources.length - 2);
   }
 
-  // move the resource section
-  function moveResource(i, newIndex) {
-    if (newIndex < 0 || newIndex >= resources.length) return;
-    const element = resources.splice(i, 1)[0];
-    resources.splice(newIndex, 0, element);
-    updateResources(resources);
+  function duplicateResource(i) {
+    const duplicatedResource = deepCopy(resources[i]);
+    if (duplicatedResource.title?.en) {
+      duplicatedResource.title.en += " (Copy)";
+    }
+    if (duplicatedResource.title?.fr) {
+      duplicatedResource.title.fr += " (Copie)";
+    }
+    updateResources(resources.concat(duplicatedResource));
   }
 
+  function handleResourceChange(key) {
+    return (e) => {
+      const newValue = [...resources];
+      newValue[activeResource][key] = e.target.value;
+      updateResources(newValue);
+    };
+  }
+
+  function handleAssociationTypeChange() {
+    return (e) => {
+      const newValue = [...resources];
+      newValue[activeResource].association_type_iso = associationTypeToIso[e.target.value];
+      newValue[activeResource].association_type = e.target.value;
+      updateResources(newValue);
+    };
+  }
+
+  function urlIsValid(url) {
+    return !url || validateURL(url);
+  }
+
+  function handleIdentifierChange(key) {
+    return (e) => {
+
+      const newValue = [...resources];
+      newValue[activeResource][key] = e.target.value;
+
+      const s = newValue[activeResource].code
+      switch (true) {
+        case urlIsValid(newValue[activeResource].code) && /^http.?:\/\/doi\.org\//i.test(s):
+          newValue[activeResource].authority = 'DOI'
+          break;
+        case urlIsValid(newValue[activeResource].code):
+          newValue[activeResource].authority = 'URL'
+          break;
+        default:
+          newValue[activeResource].authority = ''
+          break;
+      }
+      updateResources(newValue);
+    };
+  }
   return (
-    <div>
-      {resources.map((dist = deepCopy(emptyResource), i) => {
-        function urlIsValid(url) {
-          return !url || validateURL(url);
-        }
-        function handleResourceChange(key) {
-          return (e) => {
-            const newValue = [...resources];
-            newValue[i][key] = e.target.value;
-            updateResources(newValue);
-          };
-        }
+    <Paper style={paperClass}>
+      <Grid container direction="row" spacing={1}>
+        <Grid item xs={4}>
+          <Grid container direction="column" spacing={2}>
+            <Grid item xs>
+              <QuestionText>
+                <I18n>
+                  <En>Related Works:</En>
+                  <Fr>Travaux connexes:</Fr>
+                </I18n>
+              </QuestionText>
+              <List>
+                <Container
+                  dragHandleSelector=".drag-handle"
+                  lockAxis="y"
+                  onDrop={onDrop}
+                >
+                  {resources.map((resourceItem, idx) => {
+                    return (
+                      <Draggable key={idx}>
+                        <ListItem
+                          key={idx}
+                          button
+                          onClick={() => setActiveResource(idx)}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                style={{
+                                  fontWeight: activeResource === idx ? "bold" : "",
+                                  marginRight: "72px",
+                                }}
+                              >
+                                {idx + 1}. {
+                                  (resourceItem.title[language] ?? '').length <= 50 ?
+                                    (resourceItem.title[language] ?? '') : `${resourceItem.title[language].substring(0, 50)}...`
 
-        function handleAssociationTypeChange() {
-          return (e) => {
-            const newValue = [...resources];
-            newValue[i].association_type_iso = associationTypeToIso[e.target.value];
-            newValue[i].association_type = e.target.value;
-            updateResources(newValue);
-          };
-        }
+                                }
+                              </Typography>
+                            }
+                          />
+                          <ListItemSecondaryAction>
+                            <Tooltip
+                              title={
+                                <I18n
+                                  en="Duplicate contact"
+                                  fr="Duplicate contact"
+                                />
+                              }
+                            >
+                              <span>
+                                <IconButton
+                                  onClick={() => duplicateResource(idx)}
+                                  edge="end"
+                                  aria-label="clone"
+                                  disabled={disabled}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              title={
+                                <I18n
+                                  en="Remove from this record"
+                                  fr="Supprimer de cet enregistrement"
+                                />
+                              }
+                            >
+                              <span>
+                                <IconButton
+                                  onClick={() => removeResource(idx)}
+                                  edge="end"
+                                  aria-label="clone"
+                                  disabled={disabled}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              title={
+                                <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
+                              }
+                            >
+                              <span>
+                                <IconButton
+                                  className="drag-handle"
+                                  edge="end"
+                                  aria-label="clone"
+                                  disabled={disabled}
+                                >
+                                  <DragHandle />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      </Draggable>
+                    );
+                  })}
+                </Container>
+              </List>
+            </Grid>
 
-        function handleIdentifierChange(key) {
-          return (e) => {
+            <Grid item xs>
+              <Button
+                disabled={disabled}
+                startIcon={<Add />}
+                onClick={() => addResource()}
+                style={{ height: "56px", marginLeft: "10px" }}
+              >
+                <I18n>
+                  <En>Add resource</En>
+                  <Fr>Ajouter une ressource</Fr>
+                </I18n>
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
 
-            const newValue = [...resources];
-            newValue[i][key] = e.target.value;
-
-            const s = newValue[i].code
-            switch (true) {
-              case urlIsValid(newValue[i].code) && /^http.?:\/\/doi\.org\//i.test(s):
-                newValue[i].authority = 'DOI'
-                break;
-              case urlIsValid(newValue[i].code):
-                newValue[i].authority = 'URL'
-                break;
-              default:
-                newValue[i].authority = ''
-                break;
-            }
-            updateResources(newValue);
-          };
-        }
-        return (
-          <Paper key={i} style={paperClass}>
+        <Grid item xs>
+          {resourceStep && (
+          <Paper variant="outlined" style={{ padding: 10 }}>
             <Grid container direction="column" spacing={3}>
               <Grid item xs>
                 <QuestionText>
@@ -95,12 +260,12 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <En>Enter the title of the related resource</En>
                     <Fr>Entrez le titre de l'œuvre concernée</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.title?.en || dist.title?.fr} />
+                  <RequiredMark passes={resourceStep.title?.en || resourceStep.title?.fr} />
                 </QuestionText>{" "}
                 <BilingualTextInput
                   name="title"
                   label={<I18n en="Title" fr="Titre" />}
-                  value={dist.title}
+                  value={resourceStep.title}
                   onChange={handleResourceChange("title")}
                   disabled={disabled}
                 />
@@ -112,7 +277,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <Fr>Saisissez l'identifiant de l'œuvre concernée</Fr>
                   </I18n>
 
-                  <RequiredMark passes={dist.code} />
+                  <RequiredMark passes={resourceStep.code} />
                   <SupplementalText>
                     <I18n>
                       <En>
@@ -132,7 +297,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                 </QuestionText>
                 <TextField
                   label={<I18n en="Identifier" fr="identifiant" />}
-                  value={dist.code}
+                  value={resourceStep.code}
                   onChange={handleIdentifierChange("code")}
                   fullWidth
                   disabled={disabled}
@@ -144,11 +309,11 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <En>Enter the identifier type</En>
                     <Fr>Entrez le type d'identifiant</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.authority} />
+                  <RequiredMark passes={resourceStep.authority} />
                 </QuestionText>
 
                 <SelectInput
-                  value={dist.authority}
+                  value={resourceStep.authority}
                   onChange={handleResourceChange("authority")}
                   options={identifierType}
                   optionLabels={identifierType}
@@ -164,7 +329,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     <Fr>
                       Quel est le type de relation?</Fr>
                   </I18n>
-                  <RequiredMark passes={dist.association_type} />
+                  <RequiredMark passes={resourceStep.association_type} />
                   <SupplementalText>
                     <I18n>
                       <En>
@@ -197,7 +362,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                   </SupplementalText>
                 </QuestionText>
                 <SelectInput
-                  value={dist.association_type}
+                  value={resourceStep.association_type}
                   onChange={handleAssociationTypeChange()}
                   options={Object.keys(associationTypeCode)}
                   optionLabels={Object.values(associationTypeCode).map(
@@ -211,52 +376,12 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                   fullWidth={false}
                 />
               </Grid>
-              <Grid item xs>
-                <Button
-                  startIcon={<Delete />}
-                  disabled={disabled}
-                  onClick={() => removeResource(i)}
-                >
-                  <I18n>
-                    <En>Remove item</En>
-                    <Fr>Supprimer la ressource</Fr>
-                  </I18n>
-                </Button>
-                <Button
-                  startIcon={<ArrowUpwardSharp />}
-                  disabled={disabled || i - 1 < 0}
-                  onClick={() => moveResource(i, i - 1)}
-                >
-                  <I18n>
-                    <En>Move up</En>
-                    <Fr>Déplacer vers le haut</Fr>
-                  </I18n>
-                </Button>
-                <Button
-                  startIcon={<ArrowDownwardSharp />}
-                  disabled={disabled || i + 1 >= resources.length}
-                  onClick={() => moveResource(i, i + 1)}
-                >
-                  <I18n>
-                    <En>Move down</En>
-                    <Fr>Déplacer vers le bas</Fr>
-                  </I18n>
-                </Button>
-              </Grid>
+              
             </Grid>
-          </Paper>
-        );
-      })}
-
-      <Paper style={paperClass}>
-        <Button startIcon={<Add />} disabled={disabled} onClick={() => addResource()}>
-          <I18n>
-            <En>Add item</En>
-            <Fr>Ajouter une ressource</Fr>
-          </I18n>
-        </Button>
-      </Paper>
-    </div>
+          </Paper>)}
+        </Grid> 
+      </Grid>
+    </Paper>
   );
 };
 
