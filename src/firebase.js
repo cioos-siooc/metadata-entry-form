@@ -1,8 +1,8 @@
-import firebase from "firebase/app";
-import "firebase/database";
-import "firebase/auth";
-import "firebase/functions";
-import "firebase/firestore";
+import { initializeApp }from 'firebase/app'
+// import "firebase/compat/database";
+// import { useEmulator} from "firebase/auth";
+// import { useFunctionsEmulator} from "firebase/functions";
+// import "firebase/compat/firestore";
 
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
@@ -23,14 +23,17 @@ const config = {
 };
 
 if (window.location.hostname === "localhost" && deployedOnTestServer) {
-  config['databaseURL'] = "http://localhost:9001?ns=cioos-metadata-form"
+  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
 }
 
-firebase.initializeApp(config);
+const App = initializeApp(config);
+
 // uncomment below to use firebase emulator for local development
 // if (window.location.hostname === "localhost" && deployedOnTestServer) {
 //   firebase.functions().useFunctionsEmulator("http://127.0.0.1:5002");
-  // firebase.auth().useEmulator("http://localhost:9099");
-// }
+//   // firebase.auth().useEmulator("http://localhost:9099");
+//  }
 
-export default firebase;
+
+export default App;
+

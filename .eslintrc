@@ -21,6 +21,5 @@
       }
     ],
     "react/prop-types": 0
-  },
-  "ignorePatterns": "*.test.js"
+  }
 }

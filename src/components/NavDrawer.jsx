@@ -197,7 +197,7 @@ export default function MiniDrawer({ children }) {
           {region && (
             <IconButton
               aria-label="open drawer"
-              onClick={handleDrawerOpen}
+              onClick={() => handleDrawerOpen()}
               edge="start"
               className={clsx(classes.menuButton, {
                 [classes.hide]: open,
@@ -258,7 +258,7 @@ export default function MiniDrawer({ children }) {
           }}
         >
           <div className={classes.toolbar}>
-            <IconButton onClick={handleDrawerClose}>
+            <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>

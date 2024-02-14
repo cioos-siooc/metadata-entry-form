@@ -1,11 +1,12 @@
 import validator from "validator";
-
-import firebase from "../firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
+// eslint-disable-next-line no-unused-vars
+import firebase from "../firebase"; // this is needed to make the test pass.
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
-
-const checkURLActive = firebase.functions().httpsCallable('checkURLActive');
+const functions = getFunctions();
+const checkURLActive = httpsCallable(functions, 'checkURLActive');
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
@@ -220,6 +221,21 @@ const validators = {
         "Must have at least one resource. If a URL is included it must be valid.",
       fr:
         "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
+    },
+  },
+  associated_resources: {
+    tab: "relatedworks",
+    validation: (val) =>
+      !val ||
+      (val &&
+        val.every(
+          (work) => work.title && work.title.en && work.title.fr && work.authority && work.code && work.association_type
+        )),
+    error: {
+      en:
+        "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
+      fr:
+        "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
     },
   },
   platformID: {

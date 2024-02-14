@@ -31,7 +31,8 @@ const BilingualTextInput = ({
     const newData = { ...value, [e.target.name]: e.target.value };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
-  }
+  };
+  
   const { language } = useParams();
   let languages;
 
@@ -48,7 +49,7 @@ const BilingualTextInput = ({
             name={lang}
             fullWidth
             value={value?.[lang] || ""}
-            onChange={handleEvent}
+            onChange={(e) => handleEvent(e)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

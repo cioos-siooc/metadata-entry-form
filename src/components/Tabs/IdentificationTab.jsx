@@ -11,9 +11,11 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
+import { getDatabase, ref, child, update } from "firebase/database";
+
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes, metadataScopeCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs.json";
+import { eovs, eovCategories } from "../../eovs";
 
 import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -83,6 +85,7 @@ const IdentificationTab = ({
 
   async function handleGenerateDOI() {
     setLoadingDoi(true);
+    const database = getDatabase(firebase);
 
     try {
       const mappedDataCiteObject = recordToDataCite(record, language, region);
@@ -103,17 +106,10 @@ const IdentificationTab = ({
           };
 
           // Save the updated record to the Firebase database
-          const recordsRef = firebase
-            .database()
-            .ref(region)
-            .child("users")
-            .child(userID)
-            .child("records");
+          const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
           if (record.recordID) {
-            await recordsRef
-              .child(record.recordID)
-              .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+            await update(child(recordsRef, record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
           }
 
           setDoiGenerated(true);
@@ -165,6 +161,7 @@ const IdentificationTab = ({
 
   async function handleDeleteDOI() {
     setLoadingDoiDelete(true);
+    const database = getDatabase(firebase);
 
     try {
       // Extract DOI from the full URL
@@ -186,17 +183,10 @@ const IdentificationTab = ({
             };
 
             // Save the updated record to the Firebase database
-            const recordsRef = firebase
-              .database()
-              .ref(region)
-              .child("users")
-              .child(userID)
-              .child("records");
+            const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
             if (record.recordID) {
-              await recordsRef
-                .child(record.recordID)
-                .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+              await update(child(recordsRef,record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
             }
 
             setDoiGenerated(false);
@@ -227,9 +217,11 @@ const IdentificationTab = ({
       }
       getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
         .then(response => {
-          updateRecord("doiCreationStatus")(response.data)
+          if (mounted.current)
+            updateRecord("doiCreationStatus")(response.data)
         })
         .catch(err => {
+          /* eslint-disable no-console */
           console.error(err)
         });
     }
@@ -778,7 +770,7 @@ const IdentificationTab = ({
         </QuestionText>
         {showGenerateDoi && (
           <Button
-            onClick={handleGenerateDOI}
+            onClick={() => handleGenerateDOI}
             disabled={generateDoiDisabled}
             style={{ display: "inline" }}
           >
@@ -796,7 +788,7 @@ const IdentificationTab = ({
         )}
         {showUpdateDoi && (
           <Button
-            onClick={handleUpdateDraftDOI}
+            onClick={() => handleUpdateDraftDOI}
             disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
@@ -814,7 +806,7 @@ const IdentificationTab = ({
         )}
         {showDeleteDoi && (
           <Button
-            onClick={handleDeleteDOI}
+            onClick={() => handleDeleteDOI}
             disabled={record.doiCreationStatus !== 'draft'}
             style={{ display: "inline" }}
           >

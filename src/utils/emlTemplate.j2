@@ -89,6 +89,40 @@
                     </endDate>
                 </rangeOfDates>
             </temporalCoverage>
+
+            <taxonomicCoverage>
+                {% for taxa in record.taxa %}
+                <taxonomicClassification>
+                    <taxonRankName>kingdom</taxonRankName>
+                    <taxonRankValue>{{ taxa.kingdom }}</taxonRankValue>
+                    <taxonomicClassification>
+                        <taxonRankName>phylum</taxonRankName>
+                        <taxonRankValue>{{ taxa.phylum }}</taxonRankValue>
+                        <taxonomicClassification>
+                            <taxonRankName>class</taxonRankName>
+                            <taxonRankValue>{{ taxa.class }}</taxonRankValue>
+                            <taxonomicClassification>
+                                <taxonRankName>order</taxonRankName>
+                                <taxonRankValue>{{ taxa.order }}</taxonRankValue>
+                                <taxonomicClassification>
+                                    <taxonRankName>family</taxonRankName>
+                                    <taxonRankValue>{{ taxa.family }}</taxonRankValue>
+                                    <taxonomicClassification>
+                                        <taxonRankName>genus</taxonRankName>
+                                        <taxonRankValue>{{ taxa.genus }}</taxonRankValue>
+                                        <taxonomicClassification>
+                                            <taxonRankName>species</taxonRankName>
+                                            <taxonRankValue>{{ taxa.species }}</taxonRankValue>
+                                        </taxonomicClassification>
+                                    </taxonomicClassification>
+                                </taxonomicClassification>
+                            </taxonomicClassification>
+                        </taxonomicClassification>
+                    </taxonomicClassification>
+                </taxonomicClassification>
+                {% endfor %}
+            </taxonomicCoverage>
+
         </coverage>
 
     <maintenance>
