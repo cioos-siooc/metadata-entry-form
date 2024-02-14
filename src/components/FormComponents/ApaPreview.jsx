@@ -9,6 +9,7 @@ export function generateCitation(record, language, format) {
     created,
     contacts = [],
     datePublished,
+    dateRevised,
   } = record;
 
   const publishers = contacts
@@ -46,7 +47,7 @@ export function generateCitation(record, language, format) {
           // seems that only individuals gets cited? Wasnt sure how to get organization name in there
           return { family: contact.orgName };
         }),
-      issued: { "date-parts": [[datePublished || created]] },
+      issued: { "date-parts": [[dateRevised || datePublished || created]] },
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
       version: `v${record.edition}`,

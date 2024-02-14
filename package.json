@@ -23,6 +23,7 @@
     "firebase-admin": "^11.5.0",
     "firebase-functions": "^4.2.1",
     "javascript-time-ago": "^2.3.4",
+    "just-debounce-it": "1.0.1",
     "leaflet": "^1.6.0",
     "leaflet-draw": "^1.0.4",
     "nunjucks": "^3.2.3",
