@@ -36,10 +36,13 @@ export async function deleteAllDataciteCredentials(region) {
 }
 
 export async function getDatacitePrefix(region) {
-    const prefix = 
-        (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
-        
-    return prefix;
+    try {
+      const prefix = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+      return prefix;
+  } catch (error) {
+      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
+      return null;
+  }
   }
 
 export async function getCredentialsStored(region) {
