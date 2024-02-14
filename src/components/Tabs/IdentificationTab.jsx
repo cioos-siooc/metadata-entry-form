@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs.json";
+import { eovs, eovCategories } from "../../eovs";
 
 import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -281,12 +281,10 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="title"
           value={record.title}
           onChange={handleUpdateRecord("title")}
-          onTranslateComplete={handleTranslationComplete("title", "Title text translated using the Amazon translate service / Texte du titre traduit à l’aide du service de traduction Amazon")}
           disabled={disabled}
-          translateChecked={record.translationVerifiedTitle || false}
-          translateOnChange={handleTranslateVerifyChange("translationVerifiedTitle")}
         />
       </Paper>
 
@@ -428,13 +426,11 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="abstract"
           value={record.abstract}
           onChange={handleUpdateRecord("abstract")}
-          onTranslateComplete={handleTranslationComplete("abstract", "Abstract text translated using the Amazon translate service / Texte abstrait traduit à l'aide du service de traduction Amazon")}
           disabled={disabled}
           multiline
-          translateChecked={record.translationVerifiedAbstract || false}
-          translateOnChange={handleTranslateVerifyChange("translationVerifiedAbstract")}
         />
       </Paper>
 
@@ -992,13 +988,11 @@ const IdentificationTab = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="limitations"
           value={record.limitations}
           onChange={handleUpdateRecord("limitations")}
-          onTranslateComplete={handleTranslationComplete("limitations", "Limitations text translated using the Amazon translate service / Texte des limitations traduit à l'aide du service de traduction Amazon")}
           multiline
           disabled={disabled}
-          translateChecked={record.translationVerifiedLimitations || false}
-          translateOnChange={handleTranslateVerifyChange("translationVerifiedLimitations")}
         />
       </Paper>
     </div>

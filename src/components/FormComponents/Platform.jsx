@@ -135,13 +135,11 @@ const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, handl
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="platformDescription"
           value={record.platformDescription}
           onChange={handleUpdateRecord("platformDescription")}
-          onTranslateComplete={handleTranslationComplete("platformDescription", "Platform Description text translated using the Amazon translate service / Texte de description de la plateforme traduit à l'aide du service de traduction Amazon")}
           multiline
           disabled={disabled}
-          translateChecked={record.translationVerifiedPlatformDescription || false}
-          translateOnChange={handleTranslateVerifyChange("translationVerifiedPlatformDescription")}
         />
       </Grid>
     </div>

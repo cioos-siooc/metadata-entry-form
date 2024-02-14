@@ -67,36 +67,6 @@ const Resources = ({ updateResources, resources, disabled }) => {
     updateResources(resources);
   }
 
-  const handleResourceTranslationComplete = (resourceIndex, fieldName, translateMessage) => () => {
-    const updatedResources = resources.map((resource, index) => {
-      if (index === resourceIndex) {
-        return {
-          ...resource,
-          [`${fieldName}TranslationMethod`]: translateMessage,
-        };
-      }
-      return resource;
-    });
-
-    updateResources(updatedResources);
-  };
-
-  const handleResourceTranslateVerifyChange = (resourceIndex, field) => {
-    return (e) => {
-      const { checked } = e.target;
-      const updatedResources = resources.map((resource, index) => {
-        if (index === resourceIndex) {
-          return {
-            ...resource,
-            [`${field}TranslationVerified`]: checked,
-          };
-        }
-        return resource;
-      });
-      updateResources(updatedResources);
-    };
-  }
-
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
 
@@ -124,14 +94,12 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   <RequiredMark passes={resourceItem.name?.en || resourceItem.name?.fr} />
                 </QuestionText>
                 <BilingualTextInput
+                  name="name"
                   label={nameLabel}
                   value={resourceItem.name}
                   onChange={handleResourceChange("name")}
-                  onTranslateComplete={handleResourceTranslationComplete(i, "name", "Resource name text translated using the Amazon translate service / Texte du nom de la ressource traduit à l'aide du service de traduction Amazon")}
                   fullWidth
                   disabled={disabled}
-                  translateChecked={resourceItem.nameTranslationVerified || false}
-                  translateOnChange={handleResourceTranslateVerifyChange(i, "name")}
                 />
               </Grid>
               <Grid item xs>
@@ -189,10 +157,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   label={descriptionLabel}
                   value={resourceItem.description}
                   onChange={handleResourceChange("description")}
-                  onTranslateComplete={handleResourceTranslationComplete(i, "description", "Resource description text translated using the Amazon translate service / Texte de description de la ressource traduit à l'aide du service de traduction Amazon")}
                   disabled={disabled}
-                  translateChecked={resourceItem.descriptionTranslationVerified || false}
-                  translateOnChange={handleResourceTranslateVerifyChange(i, "description")}
                 />
               </Grid>
               <Grid item xs>

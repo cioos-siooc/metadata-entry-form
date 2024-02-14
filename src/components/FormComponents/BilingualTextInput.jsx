@@ -25,18 +25,41 @@ const BilingualTextInput = ({
   disabled,
   error,
   translationButonDisabled = false,
-  translateChecked,
-  translateOnChange,
-  onTranslateComplete,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
 
+
   function handleEvent(e) {
-    const newData = { ...value, [e.target.name]: e.target.value };
+
+    const { translations, ...rest } = { ...value};
+    const newData = { ...rest, [e.target.name]: e.target.value, 
+      ...( e.target.name === alternateLanguage && 
+        e.target.value && 
+        { translations: value.translations || setTranslationData({}, false) }) 
+      };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
   }
+
+  function setTranslationData(translations, checked) {
+    return {
+      ...translations, [alternateLanguage]: {
+        'verified': checked, 
+        ...(!checked && {'message': `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`})
+      }
+    }
+  }
+  
+  function handleTranslateCheckEvent(e) {
+    const { checked } = e.target;
+    const newData = { 
+      ...value, 'translations': setTranslationData(value['translations'], checked)
+    };
+    const newDataEvent = { target: { name, value: newData } };
+    onChange(newDataEvent);
+  }
+
   const { language } = useParams();
   let languages;
 
@@ -45,6 +68,9 @@ const BilingualTextInput = ({
 
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
+  const alternateLanguage = languages[1];
+  const translateChecked = value?.translations?.[alternateLanguage]?.verified || false
+
   return (
     <div>
       {languages.map((lang, i) => (
@@ -53,7 +79,7 @@ const BilingualTextInput = ({
             name={lang}
             fullWidth
             value={value?.[lang] || ""}
-            onChange={handleEvent}
+            onChange={(e) => handleEvent(e)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -92,7 +118,6 @@ const BilingualTextInput = ({
                     textTooBig
                   }
                   onClick={() => {
-                    const alternateLanguage = languages[1];
                     setAwaitingTranslation(true);
 
                     translate({ text: value[lang], fromLang: lang }).then(
@@ -105,7 +130,7 @@ const BilingualTextInput = ({
                             value: translation,
                           },
                         });
-                        onTranslateComplete();
+                        // onTranslateComplete();
                       }
                     );
                   }}
@@ -115,12 +140,12 @@ const BilingualTextInput = ({
                     <Fr>Traduire</Fr>
                   </I18n>
                 </Button>
-                {translateOnChange && (
+                {value?.[alternateLanguage] && (
                   <FormControlLabel
                   control={
                     <Checkbox
                       checked={translateChecked}
-                      onChange={translateOnChange}
+                      onChange={(e) => handleTranslateCheckEvent(e)}
                       color="primary"
                     />
                   }
