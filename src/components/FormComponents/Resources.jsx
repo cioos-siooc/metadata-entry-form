@@ -34,8 +34,6 @@ import {
 } from "./QuestionStyles";
 import { UserContext } from "../../providers/UserProvider";
 
-const Resources = ({ updateResources, resources, disabled }) => {
-
 const Resources = ({ 
   updateResources, 
   resources, 
@@ -47,7 +45,7 @@ const Resources = ({
   const [urlIsActive, setUrlIsActive] = useState({});
   const emptyResource = { url: "", name: "", description: { en: "", fr: "" } };
   const [activeResource, setActiveResource] = useState(0);
-  const [currentResources, setResourceItems] = useState(resources);
+  const [currentResources, setCurrentResources] = useState(resources);
 
   const debouncePool = useRef({});
 
@@ -76,7 +74,7 @@ const Resources = ({
   }, [resources, checkURLActive]);
 
   if (!deepEquals(currentResources, resources)) {
-    setResourceItems(resources);
+    setCurrentResources(resources);
   }
 
   const nameLabel = <I18n en="Name" fr="Titre" />;
@@ -302,8 +300,8 @@ const Resources = ({
                 <TextField
                   helperText={
                     (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
-                    || (resourceItem.url && urlIsActive[resourceItem.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
-                    || (resourceItem.url && urlIsActive[resourceItem.url] === true && <I18n en="URL is active" fr="L'URL est active" />)
+                      || (resourceStep.url && urlIsActive[resourceStep.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
+                      || (resourceStep.url && urlIsActive[resourceStep.url] === true && <I18n en="URL is active" fr="L'URL est active" />)
                   }
                   error={!urlIsValid}
                   label="URL"

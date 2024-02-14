@@ -7,7 +7,7 @@ import { KeyboardDatePicker } from "@material-ui/pickers";
 import DateInput from "../FormComponents/DateInput";
 
 configure({ adapter: new Adapter() });
-const mockEventValue = new Date("2021-09-08T12:00:00.000Z");
+const mockEventValue = new Date("2021-10-08T19:00:00.000Z");
 const mockComponentName = "date";
 const mockOnChange = jest.fn();
 
@@ -21,7 +21,7 @@ jest.mock("react-router-dom", () => ({
 
 beforeAll(() => {
   jest.useFakeTimers('modern');
-  jest.setSystemTime(new Date("2021-09-08T19:00:00.000Z"));
+  jest.setSystemTime(new Date("2021-10-08T19:00:00.000Z"));
 });
 
 afterAll(() => {
@@ -39,7 +39,7 @@ describe("<DateInput />", () => {
     );
 
     // Simulate selecting a new date as a Date object
-    const newDate = new Date("2021-10-08T22:23:52.468Z");
+    const newDate = new Date("2021-10-08T19:00:00.000Z");
     wrapper.find(KeyboardDatePicker).props().onChange(newDate);
 
     // The expected value should be an ISO string after being processed by your component

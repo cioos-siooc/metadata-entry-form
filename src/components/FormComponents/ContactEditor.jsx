@@ -56,7 +56,6 @@ const ContactEditor = ({
   const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
   const [rorOptions, setRorOptions] = useState([]);
   const [rorSearchActive, setRorSearchActive] = useState(false);
-  const mounted = useRef(false);
 
   // eslint-disable-next-line no-param-reassign
   value = { ...getBlankContact(), ...value };
