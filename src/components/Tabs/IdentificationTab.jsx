@@ -12,7 +12,7 @@ import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
-import { progressCodes } from "../../isoCodeLists";
+import { progressCodes, metadataScopeCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs.json";
 
 import firebase from "../../firebase";
@@ -584,6 +584,30 @@ const IdentificationTab = ({
             />
           </Grid>
         </Grid>
+      </Paper>
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the dataset type?</En>
+            <Fr>Quel est le type de jeu de données ?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "metadataScope")} />
+
+        </QuestionText>
+        <SelectInput
+          value={record.metadataScope || ""}
+          onChange={handleUpdateRecord("metadataScope")}
+          options={Object.keys(metadataScopeCodes)}
+          optionLabels={Object.values(metadataScopeCodes).map(
+            ({ title }) => title[language]
+          )}
+          optionTooltips={Object.values(metadataScopeCodes).map(
+            ({ text }) => text[language]
+          )}
+          disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
+        />
       </Paper>
       <Paper style={paperClass}>
         <QuestionText>
