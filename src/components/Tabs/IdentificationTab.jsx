@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import {
   Paper,
   TextField,
@@ -8,6 +8,7 @@ import {
   Button,
 } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
@@ -41,7 +42,7 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { createDraftDoi, updateDraftDoi, deleteDraftDoi } = useContext(UserContext);
+  const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -49,6 +50,7 @@ const IdentificationTab = ({
   const languageUpperCase = language.toUpperCase();
   const [doiGenerated, setDoiGenerated] = useState(false);
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
+  const [debouncedDoiIdValue] = useDebounce(record.datasetIdentifier, 1000);
   const [loadingDoi, setLoadingDoi] = useState(false);
   const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
   const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
@@ -56,8 +58,10 @@ const IdentificationTab = ({
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = regionInfo.datacitePrefix;
-  const showUpdateDoi = record.doiCreationStatus !== "";
-  const showDeleteDoi = record.doiCreationStatus !== "" && !doiErrorFlag && regionInfo.datacitePrefix;
+  const showDoiStatus = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
+  const showUpdateDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const showDeleteDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const mounted = useRef(false);
 
   const CatalogueLink = ({ lang }) => (
     <a
@@ -210,6 +214,30 @@ const IdentificationTab = ({
       throw err;
     }
   }
+
+  useEffect(() => {
+    mounted.current = true;
+    if (debouncedDoiIdValue === '') {
+      updateRecord("doiCreationStatus")('')
+    }
+    else if (debouncedDoiIdValue && regionInfo.datacitePrefix && doiIsValid) {
+      let id = debouncedDoiIdValue
+      if (debouncedDoiIdValue.includes('doi.org/')) {
+        id = debouncedDoiIdValue.split('doi.org/').pop();
+      }
+      getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
+        .then(response => {
+          updateRecord("doiCreationStatus")(response.data)
+        })
+        .catch(err => {
+          console.error(err)
+        });
+    }
+
+    return () => {
+      mounted.current = false;
+    };
+  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, regionInfo.datacitePrefix])
 
   return (
     <div>
@@ -769,6 +797,7 @@ const IdentificationTab = ({
         {showUpdateDoi && (
           <Button
             onClick={handleUpdateDraftDOI}
+            disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -783,23 +812,25 @@ const IdentificationTab = ({
             </div>
           </Button>
         )}
-      {showDeleteDoi && (
-        <Button
-          onClick={handleDeleteDOI}
-          style={{ display: "inline" }}
-        >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {loadingDoiDelete ? (
-              <>
+        {showDeleteDoi && (
+          <Button
+            onClick={handleDeleteDOI}
+            disabled={record.doiCreationStatus !== 'draft'}
+            style={{ display: "inline" }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {loadingDoiDelete ? (
+                <>
                   <CircularProgress size={24} style={{ marginRight: "8px" }} />
                   Loading...
-              </>
-            ) : (
-              "Delete DOI"
-            )}
-          </div>
-        </Button>
-      )}
+                </>
+              ) : (
+                "Delete DOI"
+              )}
+            </div>
+          </Button>
+        )} 
+
         {doiErrorFlag && (
           <span>
             <I18n
@@ -821,12 +852,13 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           name="datasetIdentifier"
           helperText={
-            doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />
+            (doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />)
+            || (showDoiStatus && <I18n en={`DOI Status: ${record.doiCreationStatus}`} fr={`Statut DOI: ${record.doiCreationStatus}`} />)
           }
           error={!doiIsValid}
           value={record.datasetIdentifier}
           onChange={handleUpdateRecord("datasetIdentifier")}
-          disabled={record.doiCreationStatus === "draft"}
+          disabled={disabled}
           fullWidth
         />
       </Paper>

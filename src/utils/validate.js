@@ -1,7 +1,11 @@
 import validator from "validator";
 
+import firebase from "../firebase";
+
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
+
+const checkURLActive = firebase.functions().httpsCallable('checkURLActive');
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
@@ -243,6 +247,7 @@ const validators = {
     },
   },
 };
+
 export const validateField = (record, fieldName) => {
   const valueToValidate = record[fieldName];
   // if no validator funciton exists, then it is not a required field
@@ -266,6 +271,42 @@ export const getErrorsByTab = (record) => {
     return acc;
   }, {});
 };
+
+
+export const warnings = {
+  distribution: {
+    tab: "resources",
+    validation: async (val) => {
+      const processedVal = await Promise.all(
+        val.map(async (dist) => {
+          const res = await checkURLActive(dist.url);
+          return {...dist, status:res.data};
+        })
+      );
+      const filterVal = processedVal.filter((dist) => !dist.status)
+      return filterVal.length
+    },
+    error: {
+      en:
+        "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
+      fr:
+        "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
+    },
+  },
+};
+
+
+export const validateFieldWarning = async (record, fieldName) => {
+  const valueToValidate = record[fieldName];
+  // if no validator funciton exists, then it is not a required field
+  const validationFunction =
+    (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
+  
+  const res = await validationFunction(valueToValidate, record);
+  return validationFunction && res;
+};
+
+
 
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
