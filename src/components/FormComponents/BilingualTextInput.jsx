@@ -6,6 +6,8 @@ import {
   CircularProgress,
   Tooltip,
 } from "@material-ui/core";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import TranslateIcon from "@material-ui/icons/Translate";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { useParams } from "react-router-dom";
@@ -27,12 +29,37 @@ const BilingualTextInput = ({
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
 
+
   function handleEvent(e) {
-    const newData = { ...value, [e.target.name]: e.target.value };
+
+    const { translations, ...rest } = { ...value};
+    const newData = { ...rest, [e.target.name]: e.target.value, 
+      ...( e.target.name === alternateLanguage && 
+        e.target.value && 
+        { translations: value.translations || setTranslationData({}, false) }) 
+      };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
-  };
+  }
+
+  function setTranslationData(translations, checked) {
+    return {
+      ...translations, [alternateLanguage]: {
+        'verified': checked, 
+        ...(!checked && {'message': `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`})
+      }
+    }
+  }
   
+  function handleTranslateCheckEvent(e) {
+    const { checked } = e.target;
+    const newData = { 
+      ...value, 'translations': setTranslationData(value['translations'], checked)
+    };
+    const newDataEvent = { target: { name, value: newData } };
+    onChange(newDataEvent);
+  }
+
   const { language } = useParams();
   let languages;
 
@@ -41,6 +68,9 @@ const BilingualTextInput = ({
 
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
+  const alternateLanguage = languages[1];
+  const translateChecked = value?.translations?.[alternateLanguage]?.verified || false
+
   return (
     <div>
       {languages.map((lang, i) => (
@@ -88,7 +118,6 @@ const BilingualTextInput = ({
                     textTooBig
                   }
                   onClick={() => {
-                    const alternateLanguage = languages[1];
                     setAwaitingTranslation(true);
 
                     translate({ text: value[lang], fromLang: lang }).then(
@@ -101,6 +130,7 @@ const BilingualTextInput = ({
                             value: translation,
                           },
                         });
+                        // onTranslateComplete();
                       }
                     );
                   }}
@@ -110,6 +140,24 @@ const BilingualTextInput = ({
                     <Fr>Traduire</Fr>
                   </I18n>
                 </Button>
+                {value?.[alternateLanguage] && (
+                  <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={translateChecked}
+                      onChange={(e) => handleTranslateCheckEvent(e)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <I18n>
+                      <En>I have verified this translation</En>
+                      <Fr>J'ai vérifié cette traduction</Fr>
+                    </I18n>
+                  }
+                />
+                )}
+                
                 {textTooBig && (
                   <I18n>
                     <En>

@@ -262,6 +262,7 @@ const Resources = ({
                     <RequiredMark passes={resourceStep.name?.en || resourceStep.name?.fr} />
                 </QuestionText>
                 <BilingualTextInput
+                  name="name"
                   label={nameLabel}
                   value={resourceStep.name}
                   onChange={handleResourceChange("name")}

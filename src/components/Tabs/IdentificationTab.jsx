@@ -42,6 +42,8 @@ const IdentificationTab = ({
   record,
   handleUpdateRecord,
   updateRecord,
+  handleTranslationComplete,
+  handleTranslateVerifyChange,
   projects,
 }) => {
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
@@ -271,6 +273,7 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="title"
           value={record.title}
           onChange={handleUpdateRecord("title")}
           disabled={disabled}
@@ -415,6 +418,7 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="abstract"
           value={record.abstract}
           onChange={handleUpdateRecord("abstract")}
           disabled={disabled}
@@ -755,13 +759,12 @@ const IdentificationTab = ({
             <SupplementalText>
               <I18n>
                 <En>
-                  <p>
-                    Please save the form before generating a draft DOI.
-                  </p>
+                  <p>Please save the form before generating a draft DOI.</p>
                 </En>
                 <Fr>
                   <p>
-                  Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                    Veuillez enregistrer le formulaire avant de générer un
+                    brouillon de DOI.
                   </p>
                 </Fr>
               </I18n>
@@ -795,8 +798,8 @@ const IdentificationTab = ({
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiUpdate ? (
                 <>
-                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                    Loading...
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
                 </>
               ) : (
                 "Update DOI"
@@ -833,10 +836,7 @@ const IdentificationTab = ({
         )}
         {doiUpdateFlag && (
           <span>
-            <I18n
-              en="DOI has been updated"
-              fr="Le DOI a été mis à jour"
-            />
+            <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
           </span>
         )}
 
@@ -1004,6 +1004,7 @@ const IdentificationTab = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="limitations"
           value={record.limitations}
           onChange={handleUpdateRecord("limitations")}
           multiline
