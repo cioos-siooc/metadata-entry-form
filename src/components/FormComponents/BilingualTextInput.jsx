@@ -30,46 +30,47 @@ const BilingualTextInput = ({
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
 
 
-  function handleEvent(e) {
+  const { language } = useParams();
+  let languages;
+  if (language === "en") languages = ["en", "fr"];
+  else languages = ["fr", "en"];
+  const alternateLanguage = languages[1];
 
-    const { translations, ...rest } = { ...value};
-    const newData = { ...rest, [e.target.name]: e.target.value, 
-      ...( e.target.name === alternateLanguage && 
-        e.target.value && 
-        { translations: value.translations || setTranslationData({}, false) }) 
-      };
-    const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
-  }
+  const textSizeByes = new Blob([value?.[language]]).size;
+  const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
+  const translateChecked = value?.translations?.[alternateLanguage]?.verified || false
 
   function setTranslationData(translations, checked) {
     return {
       ...translations, [alternateLanguage]: {
-        'verified': checked, 
-        ...(!checked && {'message': `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`})
-      }
-    }
+        'verified': checked,
+        ...(!checked && { 'message': `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon` }),
+      }}
+  }
+
+  function handleEvent(e) {
+    const { translations, ...rest } = { ...value};
+    const newData = { ...rest, [e.target.name]: e.target.value, 
+      ...( e.target.name === alternateLanguage && 
+        e.target.value && 
+        { translations: value.translations || setTranslationData({}, false) }), 
+      };
+    const newDataEvent = { target: { name, value: newData } };
+    onChange(newDataEvent);
   }
   
   function handleTranslateCheckEvent(e) {
     const { checked } = e.target;
     const newData = { 
-      ...value, 'translations': setTranslationData(value['translations'], checked)
+      ...value, 'translations': setTranslationData(value.translations, checked),
     };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
   }
 
-  const { language } = useParams();
-  let languages;
 
-  const textSizeByes = new Blob([value?.[language]]).size;
-  const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
 
-  if (language === "en") languages = ["en", "fr"];
-  else languages = ["fr", "en"];
-  const alternateLanguage = languages[1];
-  const translateChecked = value?.translations?.[alternateLanguage]?.verified || false
+ 
 
   return (
     <div>

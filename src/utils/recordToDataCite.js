@@ -224,6 +224,7 @@ function recordToDataCite(metadata, language, region) {
     mappedDataCiteObject.data.attributes.rightsList = rightsList;
 
     // Add descriptions from the abstract field
+    // eslint-disable-next-line no-param-reassign
     delete metadata.abstract.translations
     mappedDataCiteObject.data.attributes.descriptions = Object.entries(
       metadata.abstract

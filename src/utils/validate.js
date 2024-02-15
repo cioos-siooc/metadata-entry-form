@@ -240,7 +240,7 @@ const validators = {
   },
   platformID: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
+    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
       en: "Missing platform ID",
       fr: "ID de la plateforme manquant",
@@ -248,7 +248,7 @@ const validators = {
   },
   platform: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
+    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
       en: "Missing platform type",
       fr: "Type de plateforme manquant",

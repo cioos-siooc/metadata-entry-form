@@ -42,8 +42,6 @@ const IdentificationTab = ({
   record,
   handleUpdateRecord,
   updateRecord,
-  handleTranslationComplete,
-  handleTranslateVerifyChange,
   projects,
 }) => {
   const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
