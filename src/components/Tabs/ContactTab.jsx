@@ -96,7 +96,7 @@ const ContactTab = ({
                 Owner for this dataset that can work with{" "}
                 {regions[region].title[language]} Staff to finalize this
                 Metadata Record. You also must select at least one contact to
-                appear in the citation.
+                appear in the citation. One contact can occupy multiple roles.
               </En>
               <Fr>
                 Veuillez saisir au moins un Dépositaire des métadonnées ET un
@@ -104,7 +104,7 @@ const ContactTab = ({
                 être appelées à collaborer avec le personnel
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
                 informations. Vous devez également sélectionner au moins un
-                contact pour apparaître dans la citation.
+                contact pour apparaître dans la citation. Un contact peut occuper plusieurs rôles.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
