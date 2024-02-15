@@ -1,5 +1,6 @@
 const baseUrl = "https://api.datacite.org/dois/";
 const functions = require("firebase-functions");
+const { defineString } = require('firebase-functions/params');
 const axios = require("axios");
 
 exports.createDraftDoi = functions.https.onCall(async (data) => {
@@ -51,6 +52,9 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 });
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
+
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
@@ -137,6 +141,9 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
 });
 
 exports.getDoiStatus = functions.https.onCall(async (data) => {
+
+  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+
   try {
     const url = `${baseUrl}${data.doi}/`;
     // TODO: limit response to just the state field. elasticsearch query syntax?
