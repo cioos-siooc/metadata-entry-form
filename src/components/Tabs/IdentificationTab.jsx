@@ -25,7 +25,7 @@ import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import recordToDataCite from "../../utils/recordToDataCite";
 import { validateField, validateDOI } from "../../utils/validate";
-import { getDatacitePrefix } from "../../utils/firebaseEnableDoiCreation";
+import { getDatacitePrefix, getAuthHash } from "../../utils/firebaseEnableDoiCreation";
 
 import {
   QuestionText,
@@ -58,6 +58,8 @@ const IdentificationTab = ({
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
   const [datacitePrefix, setDatacitePrefix] = useState('');
   const [loadingPrefix, setLoadingPrefix] = useState(true);
+  const [dataciteAuthHash, setDataciteAuthHash] = useState('');
+  const [loadingAuthHash, setLoadingAuthHash] = useState(true);
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const showGenerateDoi = !loadingPrefix && Boolean(datacitePrefix);
@@ -88,8 +90,13 @@ const IdentificationTab = ({
     setLoadingDoi(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
-      await createDraftDoi(mappedDataCiteObject)
+      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+      if(!loadingAuthHash && dataciteAuthHash) {
+
+        await createDraftDoi({
+          record: mappedDataCiteObject, 
+          authHash: dataciteAuthHash,
+        })
         .then((response) => {
           return response.data.data.attributes;
         })
@@ -124,19 +131,20 @@ const IdentificationTab = ({
         .finally(() => {
           setLoadingDoi(false);
         });
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error("Error in handleGenerateDOI:", err);
       setDoiErrorFlag(true);
       throw err;
-    }
+    } 
   }
 
   async function handleUpdateDraftDOI() {
     setLoadingDoiUpdate(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
+      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
@@ -146,6 +154,7 @@ const IdentificationTab = ({
       const dataObject = {
         doi,
         data: mappedDataCiteObject,
+        dataciteAuthHash,
       }
 
       const response = await updateDraftDoi( dataObject );
@@ -173,7 +182,7 @@ const IdentificationTab = ({
       // Extract DOI from the full URL
       const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      deleteDraftDoi(doi)
+      deleteDraftDoi({doi, dataciteAuthHash})
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
@@ -227,7 +236,15 @@ const IdentificationTab = ({
       setLoadingPrefix(false);
     };
 
+    const fetchAuthHash = async () => {
+      setLoadingAuthHash(true);
+      const authHash = await getAuthHash(region);
+      setDataciteAuthHash(authHash);
+      setLoadingAuthHash(false);
+    };
+
     fetchPrefix();
+    fetchAuthHash();
   }, [region]);
 
   useEffect(() => {
@@ -235,12 +252,12 @@ const IdentificationTab = ({
     if (debouncedDoiIdValue === '') {
       updateRecord("doiCreationStatus")('')
     }
-    else if (debouncedDoiIdValue && !loadingPrefix && datacitePrefix && doiIsValid) {
+    else if (debouncedDoiIdValue && !loadingPrefix && datacitePrefix && doiIsValid && !loadingAuthHash && dataciteAuthHash) {
       let id = debouncedDoiIdValue
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
       }
-      getDoiStatus({ doi: id, prefix: datacitePrefix })
+      getDoiStatus({ doi: id, prefix: datacitePrefix, authHash: dataciteAuthHash })
         .then(response => {
           updateRecord("doiCreationStatus")(response.data)
         })
@@ -252,7 +269,7 @@ const IdentificationTab = ({
     return () => {
       mounted.current = false;
     };
-  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, datacitePrefix, loadingPrefix])
+  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, datacitePrefix, loadingPrefix, dataciteAuthHash, loadingAuthHash])
 
   return (
     <div>

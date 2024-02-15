@@ -1,14 +1,18 @@
 const baseUrl = "https://api.datacite.org/dois/";
-const { DATACITE_AUTH_HASH } = process.env;
 const functions = require("firebase-functions");
 const axios = require("axios");
 
-exports.createDraftDoi = functions.https.onCall(async (record) => {
+exports.createDraftDoi = functions.https.onCall(async (data) => {
+
+  const { record, authHash } = data;
+
+  functions.logger.log(authHash);
+
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
     headers: {
-      'Authorization': `Basic ${DATACITE_AUTH_HASH}`,
+      'Authorization': `Basic ${authHash}`,
       'Content-Type': 'application/json',
     },
   });
@@ -51,7 +55,7 @@ exports.updateDraftDoi = functions.https.onCall(async (data) => {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
-        'Authorization': `Basic ${DATACITE_AUTH_HASH}`,
+        'Authorization': `Basic ${data.dataciteAuthHash}`,
         'Content-Type': "application/json",
       },
     });
@@ -92,11 +96,13 @@ exports.updateDraftDoi = functions.https.onCall(async (data) => {
   }
 });
 
-exports.deleteDraftDoi = functions.https.onCall(async (draftDoi) => {
+exports.deleteDraftDoi = functions.https.onCall(async (data) => {
+
+  const { doi, dataciteAuthHash } = data;
   try {
-    const url = `${baseUrl}${draftDoi}/`;
+    const url = `${baseUrl}${doi}/`;
     const response = await axios.delete(url, {
-    headers: { 'Authorization': `Basic ${DATACITE_AUTH_HASH}` },
+    headers: { 'Authorization': `Basic ${dataciteAuthHash}` },
   });
   return response.status;
   } catch (err) {
@@ -136,7 +142,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
     // TODO: limit response to just the state field. elasticsearch query syntax?
     const response = await axios.get(url, {
       headers: {
-        'Authorization': `Basic ${DATACITE_AUTH_HASH}`
+        'Authorization': `Basic ${data.authHash}`
       },
     });
     return response.data.data.attributes.state;
