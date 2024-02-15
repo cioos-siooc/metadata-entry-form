@@ -204,9 +204,9 @@ const validators = {
       val.filter(contactIsFilled).find((contact) => contact.inCitation),
     error: {
       en:
-        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
+        "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
       fr:
-        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation",
+        "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation.",
     },
   },
   distribution: {
