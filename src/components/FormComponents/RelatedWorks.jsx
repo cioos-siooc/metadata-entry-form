@@ -29,7 +29,7 @@ import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import SelectInput from "./SelectInput";
 import { deepCopy, deepEquals } from "../../utils/misc";
-import { QuestionText, paperClass, SupplementalText } from "./QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 import associationTypeToIso from "../../associationTypeMapping"
 
 const validateURL = (url) => !url || validator.isURL(url);
@@ -129,9 +129,9 @@ const RelatedWorks = ({
     };
   }
   return (
-    <Paper style={paperClass}>
+    <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <Grid container direction="column" spacing={2}>
             <Grid item xs>
               {/* <QuestionText>
@@ -249,7 +249,6 @@ const RelatedWorks = ({
             </Grid>
           </Grid>
         </Grid>
-
         <Grid item xs>
           {resourceStep && (
           <Paper variant="outlined" style={{ padding: 10 }}>
@@ -268,6 +267,7 @@ const RelatedWorks = ({
                   value={resourceStep.title}
                   onChange={handleResourceChange("title")}
                   disabled={disabled}
+                  fullWidth
                 />
               </Grid>
               <Grid item xs>

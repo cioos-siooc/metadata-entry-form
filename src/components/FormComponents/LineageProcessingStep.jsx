@@ -158,7 +158,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                {/* <Grid item xs>
                   <TextField
                     label={<I18n en="Authority" fr="Autorité" />}
                     name="authority"
@@ -167,10 +167,10 @@ const ProcessingStep = ({
                     fullWidth
                     disabled={disabled}
                   />{" "}
-                </Grid>
+                </Grid> */}
                 <Grid item xs>
                   <TextField
-                    label="Code"
+                    label="Identifier or URL"
                     value={source.code}
                     onChange={updateSourceField("code")}
                     fullWidth

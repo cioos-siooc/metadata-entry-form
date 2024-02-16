@@ -141,7 +141,7 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                {/* <Grid item xs>
                   <TextField
                     label={<I18n en="Authority" fr="Autorité" />}
                     name="authority"
@@ -150,10 +150,10 @@ const LineageAdditionalDocumentation = ({
                     fullWidth
                     disabled={disabled}
                   />{" "}
-                </Grid>
+                </Grid> */}
                 <Grid item xs>
                   <TextField
-                    label="Code"
+                    label="Identifier or URL"
                     value={documentation.code}
                     onChange={updateDocumentationField("code")}
                     fullWidth
