@@ -1,7 +1,12 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Paper, Box, Tab, Grid } from "@material-ui/core";
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
+import { 
+  Grid,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@material-ui/core";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import Resources from "../FormComponents/Resources";
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import Lineage from "../FormComponents/Lineage";
@@ -10,6 +15,7 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import {
   paperClass,
   QuestionText,
+  HeadingText,
   SupplementalText,
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
@@ -17,27 +23,32 @@ import { validateField } from "../../utils/validate";
 
 
 const ResourcesTab = ({ disabled, record, updateRecord }) => {
-  const [value, setValue] = React.useState("resources");
+  // const [value, setValue] = React.useState("resources");
   const { language } = useParams() 
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  // const handleChange = (event, newValue) => {
+  //   setValue(newValue);
+  // };
 
   return (
     <div>
 
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example" centered>
-            <Tab label="Resources" value="resources" />
-            <Tab label="Related Works" value="relatedWorks" />
-            <Tab label="Lineage" value="lineage" />
-          </TabList>
-        </Box>
-        <TabPanel value="resources">
-
-          <Paper style={paperClass}>
+      <Accordion style={{ width:'90%', margin:20}}>
+        <AccordionSummary
+          expandIcon={<ArrowDownwardIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+          style={{ backgroundColor: '#00000015' }}
+        >
+          <HeadingText>
+            <I18n>
+              <En>Resource:</En>
+              <Fr>La ressource:</Fr>
+            </I18n>
+          </HeadingText>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid>
             <QuestionText>
               <En>Enter one or more links to the primary resource described by this
                 metadata record. Resources added here should not already have their
@@ -82,18 +93,31 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 </I18n>
               </SupplementalText>
             </QuestionText>
-          </Paper>
-          <Resources
-            paperClass={paperClass}
-            resources={record.distribution || []}
-            updateResources={updateRecord("distribution")}
-            language={language}
-            disabled={disabled}
-          />
-        </TabPanel>
-        
-        <TabPanel value="relatedWorks">
-          <Paper style={paperClass}>
+            <Resources
+              resources={record.distribution || []}
+              updateResources={updateRecord("distribution")}
+              language={language}
+              disabled={disabled}
+            />
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion style={{ width: '90%', margin: 20 }}>
+        <AccordionSummary
+          expandIcon={<ArrowDownwardIcon />}
+          aria-controls="panel2a-content"
+          id="panel2a-header"
+          style={{ backgroundColor: '#00000015' }}
+        >
+          <HeadingText>
+            <I18n>
+              <En>Related Works:</En>
+              <Fr>Travaux connexes:</Fr>
+            </I18n>
+          </HeadingText>
+        </AccordionSummary>
+        <AccordionDetails> 
+          <Grid>
             <QuestionText>
               <En>Enter links to other metadata records, publications or works that are
                 related to the primary resources this metadata record describes.
@@ -140,18 +164,31 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 </I18n>
               </SupplementalText>
             </QuestionText>
-          </Paper>
-          <RelatedWorks
-            paperClass={paperClass}
-            resources={record.associated_resources || []}
-            updateResources={updateRecord("associated_resources")}
-            language={language}
-            disabled={disabled}
-          />
-        </TabPanel>
-
-        <TabPanel value="lineage">
-          <Paper style={paperClass}>
+            <RelatedWorks
+              resources={record.associated_resources || []}
+              updateResources={updateRecord("associated_resources")}
+              language={language}
+              disabled={disabled}
+            />
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion style={{ width: '90%', margin: 20 }}>
+        <AccordionSummary
+          expandIcon={<ArrowDownwardIcon />}
+          aria-controls="panel3a-content"
+          id="panel3a-header"
+          style={{ backgroundColor: '#00000015' }}
+        >
+          <HeadingText>
+            <I18n>
+              <En>Lineage:</En>
+              <Fr>Lignée:</Fr>
+            </I18n>
+          </HeadingText>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid>
             <QuestionText>
               <En>
                 Data processing history (provenance) for the resource.
@@ -171,23 +208,16 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 </I18n>
               </SupplementalText>
             </QuestionText>
-          </Paper>
-
-          <Paper style={paperClass}>
-            <Grid container direction="column" spacing={0}>
-
-              <Lineage
-                history={record.history}
-                updateLineage={updateRecord("history")}
-                disabled={disabled}
-                paperClass={paperClass}
-                language={language}
-              />
-
-            </Grid>
-          </Paper>
-        </TabPanel>
-      </TabContext>
+            <Lineage
+              history={record.history}
+              updateLineage={updateRecord("history")}
+              disabled={disabled}
+              paperClass={paperClass}
+              language={language}
+            />
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
     </div>
   );
 };

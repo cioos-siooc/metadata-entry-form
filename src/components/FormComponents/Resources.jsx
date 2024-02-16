@@ -30,7 +30,7 @@ import { deepCopy, deepEquals } from "../../utils/misc";
 import { validateURL } from "../../utils/validate";
 import { 
   QuestionText, 
-  paperClass, 
+  // paperClass, 
   SupplementalText,
 } from "./QuestionStyles";
 import { UserContext } from "../../providers/UserProvider";
@@ -129,17 +129,17 @@ const Resources = ({
   }
 
   return (
-    <Paper style={paperClass}>
+    <Paper variant="outlined" style={{ padding: 10 }}>
     <Grid container direction="row" spacing={1}>
       <Grid item xs={4}>
         <Grid container direction="column" spacing={2}>
           <Grid item xs>
-            <QuestionText>
+            {/* <QuestionText>
               <I18n>
                 <En>Resource:</En>
                 <Fr>La ressource:</Fr>
               </I18n>
-            </QuestionText>
+            </QuestionText> */}
             <List>
                 <Container
                   dragHandleSelector=".drag-handle"
