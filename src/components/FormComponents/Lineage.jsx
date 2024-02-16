@@ -1,16 +1,26 @@
 import React, { useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import {
+    Add,
+    Delete,
+    FileCopy,
+    DragHandle,
+} from "@material-ui/icons";
+import { Container, Draggable } from "react-smooth-dnd";
 import {
     Grid,
-    Typography,
     Button,
     Paper,
     List,
     ListItem,
     ListItemText,
+    ListItemSecondaryAction,
+    IconButton,
+    Typography,
+    Tooltip,
 } from "@material-ui/core";
+import arrayMove from "array-move";
 import { En, Fr, I18n } from "../I18n";
-import { deepCopy } from "../../utils/misc";
+import { deepCopy, deepEquals } from "../../utils/misc";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import RequiredMark from "./RequiredMark";
 import AdditionalDocumentation from "./LineageAdditionalDocumentation"
@@ -37,6 +47,7 @@ const Lineage = ({
 }) => {
 
     const [activeLineage, setActiveLineage] = useState(0);
+    const [currentLineage, setCurrentLineage] = useState(history);
 
     function addLineage() {
         updateLineage(history.concat(deepCopy(emptyLineage)));
@@ -59,9 +70,9 @@ const Lineage = ({
         };
     }
 
-    function removeLineage() {
+    function removeLineage(i) {
         updateLineage(
-            history.filter((e, index) => index !== activeLineage)
+            history.filter((e, index) => index !== i)
         );
         if (history.length) setActiveLineage(history.length - 2);
     };
@@ -75,18 +86,43 @@ const Lineage = ({
         }
         updateLineage([deepCopy(item)]);
     }
+    
+    function duplicateLineage(i) {
+        const newLineage = deepCopy(history[i]);
+        if (newLineage.name?.en) {
+            newLineage.name.en += " (Copy)";
+        }
+        if (newLineage.name?.fr) {
+            newLineage.name.fr += " (Copie)";
+        }
+        updateLineage(history.concat(newLineage));
+    }
 
-    // const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
-    // const versionLabel = <I18n en="Version" fr="Version" />;
-    // const typeLabel = <I18n en="Type" fr="Type" />;
-    // const descriptionLabel = <I18n en="Description" fr="Description" />;
+    //  removedIndex is dragStart
+    //  addedIndex is dragEnd
+    const onDrop = ({ removedIndex, addedIndex }) => {
+        if (removedIndex === activeLineage) setActiveLineage(addedIndex);
+        else if (addedIndex <= activeLineage && removedIndex > activeLineage)
+            setActiveLineage(activeLineage + 1);
+
+        const reorderedContacts = arrayMove(
+            currentLineage,
+            removedIndex,
+            addedIndex
+        );
+        updateLineage(reorderedContacts);
+    };
+
+    if (!deepEquals(currentLineage, history)) {
+        setCurrentLineage(history);
+    }
     const lineageStep = history.length > 0 && history[activeLineage];
 
     return (
 
 
-        <Grid container direction="row" spacing={3}>
-            <Grid item xs={3}>
+        <Grid container direction="row" spacing={1}>
+            <Grid item xs={4}>
                 <Grid container direction="column" spacing={2}>
                     <Grid item xs>
                         <QuestionText>
@@ -96,8 +132,14 @@ const Lineage = ({
                         </I18n>
                         </QuestionText>
                         <List>
+                            <Container
+                                dragHandleSelector=".drag-handle"
+                                lockAxis="y"
+                                onDrop={onDrop}
+                            >
                             {history.map((lineageItem, i) => {
                                 return (
+                                    <Draggable key={i}>
                                     <ListItem
                                         key={i}
                                         button
@@ -108,6 +150,7 @@ const Lineage = ({
                                                 <Typography
                                                     style={{
                                                         fontWeight: activeLineage === i ? "bold" : "",
+                                                        marginRight: "72px",
                                                     }}
                                                 >
                                                     {i + 1}. {
@@ -118,9 +161,67 @@ const Lineage = ({
                                                 </Typography>
                                             }
                                         />
+                                        <ListItemSecondaryAction>
+                                            <Tooltip
+                                                title={
+                                                    <I18n
+                                                        en="Duplicate contact"
+                                                        fr="Duplicate contact"
+                                                    />
+                                                }
+                                            >
+                                                <span>
+                                                    <IconButton
+                                                        onClick={() => duplicateLineage(i)}
+                                                        edge="end"
+                                                        aria-label="clone"
+                                                        disabled={disabled}
+                                                    >
+                                                        <FileCopy />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                            <Tooltip
+                                                title={
+                                                    <I18n
+                                                        en="Remove from this record"
+                                                        fr="Supprimer de cet enregistrement"
+                                                    />
+                                                }
+                                            >
+                                                <span>
+                                                    <IconButton
+                                                        onClick={() => removeLineage(i)}
+                                                        edge="end"
+                                                        aria-label="clone"
+                                                        disabled={disabled}
+                                                    >
+                                                        <Delete />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                            <Tooltip
+                                                title={
+                                                    <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
+                                                }
+                                            >
+                                                <span>
+                                                    <IconButton
+                                                        className="drag-handle"
+                                                        edge="end"
+                                                        aria-label="clone"
+                                                        disabled={disabled}
+                                                    >
+                                                        <DragHandle />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </ListItemSecondaryAction>
                                     </ListItem>
+                                    </Draggable>
                                 );
                             })}
+                            </Container>
                         </List>
                     </Grid>
 
@@ -150,7 +251,7 @@ const Lineage = ({
                                         <En>Lineage Description</En>
                                         <Fr>Description de la lignée</Fr>
                                     </I18n>
-                                    <RequiredMark passes={lineageStep.statement} />
+                                        <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
                                         <SupplementalText>
                                             <I18n>
                                                 <En>
@@ -227,18 +328,6 @@ const Lineage = ({
                                         paperClass={paperClass}
                                         language={language}
                                     />
-                                </Grid>
-                                <Grid item xs>
-                                    <Button
-                                        startIcon={<Delete />}
-                                        disabled={disabled}
-                                        onClick={() => removeLineage()}
-                                    >
-                                        <I18n>
-                                            <En>Remove Lineage</En>
-                                            <Fr>Supprimer une lignée</Fr>
-                                        </I18n>
-                                    </Button>
                                 </Grid>
                             </Grid>
                         </Paper>
