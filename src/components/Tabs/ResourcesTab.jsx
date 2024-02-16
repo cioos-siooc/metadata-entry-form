@@ -159,7 +159,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
               <Fr>
                 Historique du traitement des données (provenance) pour la ressource.
               </Fr>
-              <RequiredMark passes={validateField(record, "distribution")} />
+              <RequiredMark passes={validateField(record, "history")} />
               <SupplementalText>
                 <I18n>
                   <En>

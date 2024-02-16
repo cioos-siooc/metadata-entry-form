@@ -30,7 +30,7 @@ const emptyLineage = {
 
 const Lineage = ({
     updateLineage,
-    history = [],
+    history,
     disabled,
     paperClass,
     language,

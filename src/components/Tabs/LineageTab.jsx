@@ -24,7 +24,7 @@ const LineageTab = ({
           <Fr>
             Historique du traitement des données (provenance) pour la ressource.
           </Fr>
-          <RequiredMark passes={validateField(record, "distribution")} />
+          <RequiredMark passes={validateField(record, "history")} />
           <SupplementalText>
             <I18n>
               <En>
@@ -42,7 +42,7 @@ const LineageTab = ({
         <Grid container direction="column" spacing={0}>
 
           <Lineage
-            history={record.history}
+            history={record.history || []}
             updateLineage={updateRecord("history")}
             disabled={disabled}
             paperClass={paperClass}

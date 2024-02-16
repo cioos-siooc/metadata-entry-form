@@ -245,35 +245,35 @@ const validators = {
   // if lineageStep.processingStep length > 0 then title and description are required
   history: {
     tab: "lineage",
-    validation: (val) =>(
+    validation: (val) =>
       !val ||
-      (val && 
-      val.every(
-        (lineageStep) => 
-          !lineageStep.processingStep || 
-          ( 
-            lineageStep.processingStep &&
-            lineageStep.processingStep.every( (pStep) => pStep.title && pStep.description)
-          )
-      ) &&
-      val.every(
-        (lineageStep) =>
-          !lineageStep.source ||
-          (
-            lineageStep.source &&
-            lineageStep.source.every((pStep) => pStep.title && pStep.description)
-          )
-      ) &&
-      val.every(
-        (lineageStep) => 
-          lineageStep.scope !== 'collectionSession' ||
-          (
-            lineageStep.scope === 'collectionSession' &&
-            lineageStep.statement.en && lineageStep.statement.fr
-          )
-      ))
-    ),
-        
+      (
+        Array.isArray(val) &&
+        val.every(
+          (lineageStep) =>
+            !lineageStep.processingStep ||
+            (
+              lineageStep.processingStep &&
+              lineageStep.processingStep.every((pStep) => pStep.title && pStep.description)
+            )
+        ) &&
+        val.every(
+          (lineageStep) =>
+            !lineageStep.source ||
+            (
+              lineageStep.source &&
+              lineageStep.source.every((pStep) => pStep.title && pStep.description)
+            )
+        ) &&
+        val.every(
+          (lineageStep) =>
+            lineageStep.scope !== 'collectionSession' ||
+            (
+              lineageStep.scope === 'collectionSession' &&
+              lineageStep.statement.en && lineageStep.statement.fr
+            )
+        )
+      ),
     error: {
       en:
         "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
