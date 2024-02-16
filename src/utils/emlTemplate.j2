@@ -70,95 +70,99 @@
                 <url function="information">{{ record.datasetIdentifier }}</url>
             </online>
         </distribution>
-        <coverage>
-            <geographicCoverage>
-                <boundingCoordinates>
-                    <westBoundingCoordinate>{{ record.map.west }}</westBoundingCoordinate>
-                    <eastBoundingCoordinate>{{ record.map.east }}</eastBoundingCoordinate>
-                    <northBoundingCoordinate>{{ record.map.north }}</northBoundingCoordinate>
-                    <southBoundingCoordinate>{{ record.map.south }}</southBoundingCoordinate>
-                </boundingCoordinates>
-            </geographicCoverage>
-            <temporalCoverage>
-                <rangeOfDates>
-                    <beginDate>
-                        <calendarDate>{{ record.dateStart }}</calendarDate>
-                    </beginDate>
-                    <endDate>
-                        <calendarDate>{{ record.dateEnd }}</calendarDate>
-                    </endDate>
-                </rangeOfDates>
-            </temporalCoverage>
 
-            <taxonomicCoverage>
-                {% for taxa in record.taxa %}
-                <taxonomicClassification>
-                    <taxonRankName>kingdom</taxonRankName>
-                    <taxonRankValue>{{ taxa.kingdom }}</taxonRankValue>
-                    <taxonomicClassification>
-                        <taxonRankName>phylum</taxonRankName>
-                        <taxonRankValue>{{ taxa.phylum }}</taxonRankValue>
-                        <taxonomicClassification>
-                            <taxonRankName>class</taxonRankName>
-                            <taxonRankValue>{{ taxa.class }}</taxonRankValue>
-                            <taxonomicClassification>
-                                <taxonRankName>order</taxonRankName>
-                                <taxonRankValue>{{ taxa.order }}</taxonRankValue>
-                                <taxonomicClassification>
-                                    <taxonRankName>family</taxonRankName>
-                                    <taxonRankValue>{{ taxa.family }}</taxonRankValue>
-                                    <taxonomicClassification>
-                                        <taxonRankName>genus</taxonRankName>
-                                        <taxonRankValue>{{ taxa.genus }}</taxonRankValue>
-                                        <taxonomicClassification>
-                                            <taxonRankName>species</taxonRankName>
-                                            <taxonRankValue>{{ taxa.species }}</taxonRankValue>
-                                        </taxonomicClassification>
-                                    </taxonomicClassification>
-                                </taxonomicClassification>
-                            </taxonomicClassification>
-                        </taxonomicClassification>
-                    </taxonomicClassification>
-                </taxonomicClassification>
-                {% endfor %}
-            </taxonomicCoverage>
+        {% include 'emlCoverage.j2' %}
 
-        </coverage>
-
-    <maintenance>
-      <description>
-        <para/>
-      </description>
-      <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
-    </maintenance>
+        <maintenance>
+        <description>
+            <para/>
+        </description>
+        <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
+        </maintenance>
 
 
-    {% for contact in record.contacts %}
-    {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
-    <contact>
-        <individualName>
-            <givenName>{{ contact.givenNames}}</givenName>
-            <surName>{{ contact.lastName}}</surName>
-        </individualName>
-        <organizationName>{{ contact.orgName}}</organizationName>
-        <positionName>{{ contact.indPosition}}</positionName>
-        <address>
-            <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
-            <city>{{ contact.orgCity}}</city>
-            <!-- <administrativeArea></administrativeArea> -->
-            <!-- <postalCode></postalCode> -->
-            <country>{{contact.orgCountry}}</country>
-        </address>
-        <!-- <phone></phone> -->
-        <electronicMailAddress>{{contact.indEmail}}</electronicMailAddress>
-        <onlineURL>{{ contact.orgURL}}</onlineURL>
-        <!-- <role> is used by associatedParty, buts its a single item not a list -->
-        <!-- <role></role> -->
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
+        <contact>
+            <individualName>
+                <givenName>{{ contact.givenNames}}</givenName>
+                <surName>{{ contact.lastName}}</surName>
+            </individualName>
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{ contact.indPosition}}</positionName>
+            <address>
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <city>{{ contact.orgCity}}</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>{{contact.orgCountry}}</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>{{contact.indEmail}}</electronicMailAddress>
+            <onlineURL>{{ contact.orgURL}}</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
 
-        <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
-    </contact>
-    {% endif %}
-    {% endfor %}
+            <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
+        </contact>
+        {% endif %}
+        {% endfor %}
+
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(['publisher'],contact.role) %}
+        <publisher>
+            {% if contact.lastName %}
+            <individualName>
+                <givenName>{{ contact.givenNames}}</givenName>
+                <surName>{{ contact.lastName}}</surName>
+            </individualName>
+            {% endif %}
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{ contact.indPosition}}</positionName>
+            <address>
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <city>{{ contact.orgCity}}</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>{{contact.orgCountry}}</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>{{contact.indEmail}}</electronicMailAddress>
+            <onlineURL>{{ contact.orgURL}}</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
+
+            <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
+        </publisher>
+        {% endif %}
+        {% endfor %}
+
+        {% if record.history %}
+        <methods>
+        {% for lineageStep in record.history %}
+            <methodStep>
+                <description>
+                {% for  method in lineageStep.processingStep %}
+                    <section>
+                        <title>{{method.title.en}}</title>
+                        <para>{{method.description.en}}</para>
+                    </section>
+                </description>
+            </methodStep>
+
+            {% if arrayOverlap(['collectionSession'],lineageStep.scope) %}
+            <sampling>
+                <studyExtent>
+                    {% include 'emlCoverage.j2' %}
+                </studyExtent>
+                <samplingDescription>
+                    <para>{{ lineageStep.statement.en }}</para>
+                </samplingDescription>
+            </sampling>
+            {% endif %}
+
+        </methods>
+        {% endif %}
 
     </dataset>
     <additionalMetadata>

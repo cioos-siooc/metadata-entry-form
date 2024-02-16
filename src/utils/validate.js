@@ -132,13 +132,13 @@ const validators = {
       fr: "L'information géographique est manquante",
     },
     tab: "spatial",
-    validation: (val) => {
+    validation: (val, record) => {
       if (!val) return false;
       const north = parseFloat(val.north);
       const south = parseFloat(val.south);
       const east = parseFloat(val.east);
       const west = parseFloat(val.west);
-      const { polygon } = val;
+      const { polygon, description } = val;
 
       return (
         (north &&
@@ -151,7 +151,8 @@ const validators = {
           validateLatitude(south) &&
           validateLongitude(east) &&
           validateLongitude(west)) ||
-        (polygon && polygonIsValid(polygon))
+        (polygon && polygonIsValid(polygon)) ||
+        (record.resourceType === "biological" && description)
       );
     },
   },
@@ -236,6 +237,33 @@ const validators = {
         "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
       fr:
         "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+    },
+  },
+
+ // TODO:
+  // if lineageStep.scope == 'collectionSession' then statment is required
+  // if lineageStep.processingStep length > 0 then title and description are required
+  // if biological data then geographic description is required
+  // 
+  history: {
+    tab: "lineage",
+    validation: (val) =>
+      (val &&(
+        val.every(
+          (lineageStep) => lineageStep.processingStep &&
+            lineageStep.processingStep.every( (pStep) => pStep.title && pStep.description
+        ))) ||
+
+        val.every(
+          (lineageStep) => lineageStep.scope === 'collectionSession' &&
+            lineageStep.statment
+            )),
+        
+    error: {
+      en:
+        "Lineage must contain a title and description for each processing step. If lineage scope is set to 'data collection' then lineage statement is required",
+      fr:
+        "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
     },
   },
   platformID: {
