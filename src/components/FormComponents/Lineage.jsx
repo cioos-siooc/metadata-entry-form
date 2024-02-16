@@ -147,17 +147,20 @@ const Lineage = ({
                                 <Grid item xs>
                                     <QuestionText>
                                     <I18n>
-                                        <En>Lineage Statement</En>
-                                        <Fr>Déclaration de lignée</Fr>
+                                        <En>Lineage Description</En>
+                                        <Fr>Description de la lignée</Fr>
                                     </I18n>
                                     <RequiredMark passes={lineageStep.statement} />
                                         <SupplementalText>
                                             <I18n>
                                                 <En>
-                                                    General explanation of the level of knowledge or lack thereof about the lineage.
+                                                    General explanation of the lineage step or sampling methods. For detailed 
+                                                    processing steps or methods use the processing and method step question
                                                 </En>
                                                 <Fr>
-                                                    Explication générale du niveau de connaissance ou du manque de connaissances sur la lignée.
+                                                    Explication générale de l'étape de lignage ou des méthodes d'échantillonnage. 
+                                                    Pour des étapes ou des méthodes de traitement détaillées, utilisez 
+                                                    la question sur les étapes de traitement et de méthode.
                                                 </Fr>
                                             </I18n>
                                         </SupplementalText>

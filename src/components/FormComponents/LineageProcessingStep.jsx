@@ -100,8 +100,8 @@ const ProcessingStep = ({
                           }}
                         >
                           {i + 1}. {
-                            (sourceItem.description[language] ?? '').length <= 50 ?
-                              (sourceItem.description[language] ?? '') : `${sourceItem.description[language].substring(0, 50)}...`
+                            (sourceItem.title[language] ?? '').length <= 50 ?
+                              (sourceItem.title[language] ?? '') : `${sourceItem.title[language].substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -134,6 +134,19 @@ const ProcessingStep = ({
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <I18n>
+                    <En>Title</En>
+                    <Fr>Titre</Fr>
+                  </I18n>
+                    <RequiredMark passes={source.title?.en || source.title?.fr} />
+                  <BilingualTextInput
+                    value={source.title}
+                    onChange={updateSourceField("title")}
+                    fullWidth
+                    disabled={disabled}
+                  />
+                </Grid>
+                <Grid item xs>
+                  <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
                   </I18n>
@@ -141,19 +154,6 @@ const ProcessingStep = ({
                   <BilingualTextInput
                     value={source.description}
                     onChange={updateSourceField("description")}
-                    fullWidth
-                    disabled={disabled}
-                  />
-                </Grid>
-
-                <Grid item xs>
-                  <I18n>
-                    <En>Title</En>
-                    <Fr>Titre</Fr>
-                  </I18n>
-                  <BilingualTextInput
-                    value={source.title}
-                    onChange={updateSourceField("title")}
                     fullWidth
                     disabled={disabled}
                   />

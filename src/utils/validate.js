@@ -126,6 +126,7 @@ const validators = {
       fr: "Veuillez sélectionner une licence pour le jeu de données",
     },
   },
+  // if biological data then geographic description is required
   map: {
     error: {
       en: "Spatial information is missing",
@@ -240,28 +241,42 @@ const validators = {
     },
   },
 
- // TODO:
   // if lineageStep.scope == 'collectionSession' then statment is required
   // if lineageStep.processingStep length > 0 then title and description are required
-  // if biological data then geographic description is required
-  // 
   history: {
     tab: "lineage",
-    validation: (val) =>
-      (val &&(
-        val.every(
-          (lineageStep) => lineageStep.processingStep &&
-            lineageStep.processingStep.every( (pStep) => pStep.title && pStep.description
-        ))) ||
-
-        val.every(
-          (lineageStep) => lineageStep.scope === 'collectionSession' &&
-            lineageStep.statment
-            )),
+    validation: (val) =>(
+      !val ||
+      (val && 
+      val.every(
+        (lineageStep) => 
+          !lineageStep.processingStep || 
+          ( 
+            lineageStep.processingStep &&
+            lineageStep.processingStep.every( (pStep) => pStep.title && pStep.description)
+          )
+      ) &&
+      val.every(
+        (lineageStep) =>
+          !lineageStep.source ||
+          (
+            lineageStep.source &&
+            lineageStep.source.every((pStep) => pStep.title && pStep.description)
+          )
+      ) &&
+      val.every(
+        (lineageStep) => 
+          lineageStep.scope !== 'collectionSession' ||
+          (
+            lineageStep.scope === 'collectionSession' &&
+            lineageStep.statement.en && lineageStep.statement.fr
+          )
+      ))
+    ),
         
     error: {
       en:
-        "Lineage must contain a title and description for each processing step. If lineage scope is set to 'data collection' then lineage statement is required",
+        "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
       fr:
         "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
     },
