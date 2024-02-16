@@ -26,12 +26,10 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import StartTab from "../Tabs/StartTab";
 import ContactTab from "../Tabs/ContactTab";
 import ResourcesTab from "../Tabs/ResourcesTab";
-import RelatedWorksTab from "../Tabs/RelatedWorksTab";
 import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
-import LineageTab from "../Tabs/LineageTab"
 import TaxaTab from "../Tabs/TaxaTab"
 
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -450,12 +448,14 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.dataID[language]}
                 value="identification"
               />
+              {(!record.resourceType || record.resourceType === 'biological') && (
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
                 label={tabs.taxa[language]}
                 value="taxa"
               /> 
+              )}
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
@@ -474,20 +474,14 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                  label={tabs.relatedworks[language]}
-                value="related"
-              />
-                {(!record.metadataScope || record.metadataScope === 'dataset') && (
-                  <Tab
-                    fullWidth
-                    classes={{ root: classes.tabRoot }}
-                    label={tabs.platform[language]}
-                    value="platform"
-                  />
-                )}
+                {!(['model'].includes(record.metadataScope) || ['model'].includes(record.resourceType)) && (
+                <Tab
+                  fullWidth
+                  classes={{ root: classes.tabRoot }}
+                  label={tabs.platform[language]}
+                  value="platform"
+                />
+              )}
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
@@ -544,12 +538,6 @@ class MetadataForm extends FormClassTemplate {
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
-        </TabPanel>
-          <TabPanel value={tabIndex} index="related">
-            <RelatedWorksTab {...tabProps} />
-          </TabPanel>
-        <TabPanel value={tabIndex} index="lineage">
-          <LineageTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab

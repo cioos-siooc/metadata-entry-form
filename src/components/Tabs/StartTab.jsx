@@ -18,7 +18,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
 
-const StartTab = ({ disabled, handleUpdateRecord }) => {
+const StartTab = ({ disabled, record, handleUpdateRecord }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
 
@@ -137,16 +137,17 @@ const StartTab = ({ disabled, handleUpdateRecord }) => {
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
-              <En>What is the resource type of the dataset?</En>
-              <Fr>Quel est le type de ressource de l'ensemble de données?</Fr>
+              <En>What is the theme of this record?</En>
+              <Fr>Quel est le thème de ce disque?</Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
-            <RequiredMark  />
+            <RequiredMark passes={record.resourceType} />
           </QuestionText>
           <RadioGroup
             aria-labelledby="resource-type"
-            defaultValue=""
+            defaultValue="oceanographic"
             name="resource-type"
+            value={record.resourceType}
             onChange={handleUpdateRecord("resourceType")}
           >
             <FormControlLabel
