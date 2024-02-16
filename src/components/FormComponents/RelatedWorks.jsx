@@ -134,12 +134,12 @@ const RelatedWorks = ({
         <Grid item xs={4}>
           <Grid container direction="column" spacing={2}>
             <Grid item xs>
-              <QuestionText>
+              {/* <QuestionText>
                 <I18n>
                   <En>Related Works:</En>
                   <Fr>Travaux connexes:</Fr>
                 </I18n>
-              </QuestionText>
+              </QuestionText> */}
               <List>
                 <Container
                   dragHandleSelector=".drag-handle"

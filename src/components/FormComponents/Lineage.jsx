@@ -119,18 +119,17 @@ const Lineage = ({
     const lineageStep = history.length > 0 && history[activeLineage];
 
     return (
-
-
-        <Grid container direction="row" spacing={1}>
+      <Paper variant="outlined" style={{ padding: 10 }}>
+      <Grid container direction="row" spacing={1}>
             <Grid item xs={4}>
                 <Grid container direction="column" spacing={2}>
                     <Grid item xs>
-                        <QuestionText>
+                        {/* <QuestionText>
                         <I18n>
                             <En>Lineage:</En>
                             <Fr>Lignée:</Fr>
                         </I18n>
-                        </QuestionText>
+                        </QuestionText> */}
                         <List>
                             <Container
                                 dragHandleSelector=".drag-handle"
@@ -334,10 +333,8 @@ const Lineage = ({
                     )}
                 </Grid>
             </Grid>
-        </Grid>
-
-
-
+      </Grid>
+      </Paper>
     );
 };
 export default Lineage;
