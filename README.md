@@ -58,7 +58,6 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 
 - `GMAIL_USER`
 - `GMAIL_PASS`
-- `DATACITE_AUTH_HASH`
 - `AWS_REGION`
 - `AWS_ACCESSKEYID`
 - `AWS_SECRETACCESSKEY`
