@@ -20,5 +20,8 @@
       "port": 8081
     },
     "singleProjectMode": true
+  },
+  "database": {
+    "rules": "database.rules.json"
   }
 }
