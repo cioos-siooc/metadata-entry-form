@@ -100,8 +100,8 @@ const LineageSource = ({
                           }}
                         >
                           {i + 1}. {
-                            (sourceItem.title[language] ?? '').length <= 50 ?
-                              (sourceItem.title[language] ?? '') : `${sourceItem.title[language].substring(0, 50)}...`
+                            ((sourceItem.title[language] || sourceItem.description[language]) ?? '').length <= 50 ?
+                              ((sourceItem.title[language] || sourceItem.description[language]) ?? '') : `${(sourceItem.title[language] || sourceItem.description[language]).substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -134,19 +134,6 @@ const LineageSource = ({
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <I18n>
-                    <En>Title</En>
-                    <Fr>Titre</Fr>
-                  </I18n>
-                    <RequiredMark passes={source.title?.en || source.title?.fr} />
-                  <BilingualTextInput
-                    value={source.title}
-                    onChange={updateSourceField("title")}
-                    fullWidth
-                    disabled={disabled}
-                  />
-                </Grid>
-                <Grid item xs>
-                  <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
                   </I18n>
@@ -158,16 +145,29 @@ const LineageSource = ({
                     disabled={disabled}
                   />
                 </Grid>
-                {/* <Grid item xs>
-                  <TextField
-                    label={<I18n en="Authority" fr="Autorité" />}
-                    name="authority"
-                    value={source.authority}
-                    onChange={updateSourceField("authority")}
+                <Grid item xs>
+                  <Typography variant="body1" component="div" style={{ marginTop: "10px" }}>
+                    <I18n>
+                      <En>Or link to reference documentation</En>
+                      <Fr>Ou lien vers la documentation de référence</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid item xs>
+                  <I18n>
+                    <En>Title</En>
+                    <Fr>Titre</Fr>
+                  </I18n>
+                  {source?.code && (
+                    <RequiredMark passes={source.title?.en || source.title?.fr} />
+                  )}
+                  <BilingualTextInput
+                    value={source.title}
+                    onChange={updateSourceField("title")}
                     fullWidth
                     disabled={disabled}
-                  />{" "}
-                </Grid> */}
+                  />
+                </Grid>
                 <Grid item xs>
                   <TextField
                       label="Identifier or URL"

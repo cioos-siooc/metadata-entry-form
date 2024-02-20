@@ -9,6 +9,8 @@ import {
   List,
   ListItem,
   ListItemText,
+  // Box,
+
 } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
@@ -100,8 +102,8 @@ const ProcessingStep = ({
                           }}
                         >
                           {i + 1}. {
-                            (sourceItem.title[language] ?? '').length <= 50 ?
-                              (sourceItem.title[language] ?? '') : `${sourceItem.title[language].substring(0, 50)}...`
+                            ((sourceItem.title[language] || sourceItem.description[language]) ?? '').length <= 50 ?
+                              ((sourceItem.title[language] || sourceItem.description[language]) ?? '') : `${(sourceItem.title[language] || sourceItem.description[language]).substring(0, 50)}...`
                           }
                         </Typography>
                       }
@@ -134,19 +136,6 @@ const ProcessingStep = ({
               <Grid container direction="column" spacing={2}>
                 <Grid item xs>
                   <I18n>
-                    <En>Title</En>
-                    <Fr>Titre</Fr>
-                  </I18n>
-                    <RequiredMark passes={source.title?.en || source.title?.fr} />
-                  <BilingualTextInput
-                    value={source.title}
-                    onChange={updateSourceField("title")}
-                    fullWidth
-                    disabled={disabled}
-                  />
-                </Grid>
-                <Grid item xs>
-                  <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
                   </I18n>
@@ -158,25 +147,46 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                {/* <Grid item xs>
-                  <TextField
-                    label={<I18n en="Authority" fr="Autorité" />}
-                    name="authority"
-                    value={source.authority}
-                    onChange={updateSourceField("authority")}
-                    fullWidth
-                    disabled={disabled}
-                  />{" "}
-                </Grid> */}
                 <Grid item xs>
-                  <TextField
-                    label="Identifier or URL"
-                    value={source.code}
-                    onChange={updateSourceField("code")}
+                  <Typography variant="body1" component="div" style={{ marginTop: "10px" }}>
+                    <I18n>
+                      <En>Or link to reference documentation</En>
+                      <Fr>Ou lien vers la documentation de référence</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid item xs>
+                  <I18n>
+                    <En>Title</En>
+                    <Fr>Titre</Fr>
+                  </I18n>
+                  {source?.code && (
+                  <RequiredMark passes={source.title?.en || source.title?.fr} />
+                  )}
+                  <BilingualTextInput
+                    value={source.title}
+                    onChange={updateSourceField("title")}
                     fullWidth
                     disabled={disabled}
                   />
                 </Grid>
+
+{/* 
+
+- Need to indicate that title and code are for a link to reference material. only description describes the actual processing step.
+- use title || description for step title in left list. 
+- description is required as is title if linking */}
+
+                  <Grid item xs>
+                    <TextField
+                      label="Identifier or URL"
+                      value={source.code}
+                      onChange={updateSourceField("code")}
+                      fullWidth
+                      disabled={disabled}
+                    />
+                  </Grid>
+
                 <Grid item xs>
                   <Button
                     startIcon={<Delete />}

@@ -5,7 +5,8 @@ const tabs = {
   taxa: { en: "Taxonomic Classification", fr: "Classification Taxonomique" },
   spatial: { en: "Spatial", fr: "Spatial" },
   contacts: { en: "Contacts", fr: "Contacts" },
-  resources: { en: "Resources", fr: "Ressources" },
+  resources: { en: "Data and Documentation", fr: "Données et documentation" },
+  // resources: { en: "Resources", fr: "Ressources" },
   relatedworks: { en: "Related Works", fr: "Travaux connexes" },
   platform: { en: "Platform", fr: "Plateforme" },
   platformInstruments: {
