@@ -10,7 +10,7 @@ export async function newDataciteAccount(region, prefix, authHash) {
     // Overwriting prefix and authHash directly under dataciteCredentials
     await dataciteRef.set({
       prefix,
-      authHash,
+      dataciteHash: authHash,
   });
 }
 
@@ -62,7 +62,7 @@ export async function getCredentialsStored(region) {
     const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
 
     // Get the authHash and prefix values from the database
-    const authHash = (await credentialsRef.child("authHash").once("value")).val();
+    const authHash = (await credentialsRef.child("dataciteHash").once("value")).val();
 
     const prefix = (await credentialsRef.child("prefix").once("value")).val();
 
