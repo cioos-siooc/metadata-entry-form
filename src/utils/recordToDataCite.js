@@ -276,7 +276,7 @@ function recordToDataCite(metadata, language, region) {
                 {
                   relatedIdentifier: code,
                   relatedIdentifierType: authority,
-                  relationType: 'Cites',
+                  relationType: 'isDerivedFrom',
                 })),
               ...processingStep.map(({authority, code}) => (
                 {
