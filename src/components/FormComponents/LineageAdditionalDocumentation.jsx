@@ -10,11 +10,16 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
+import validator from "validator";
+import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
+import { identifierType } from "../../isoCodeLists";
+
+const validateURL = (url) => !url || validator.isURL(url);
 
 const emptyDocumentation = {
   title: "",
@@ -50,7 +55,31 @@ const LineageAdditionalDocumentation = ({
     if (documentations.length) setActiveDocumentation(documentations.length - 2);
   };
 
+  function urlIsValid(url) {
+    return !url || validateURL(url);
+  }
 
+  function handleIdentifierChange(key) {
+    return (e) => {
+
+      const newValue = [...documentations];
+      newValue[activeDocumentation][key] = e.target.value;
+
+      const s = newValue[activeDocumentation].code
+      switch (true) {
+        case urlIsValid(newValue[activeDocumentation].code) && /^http.?:\/\/doi\.org\//i.test(s):
+          newValue[activeDocumentation].authority = 'DOI'
+          break;
+        case urlIsValid(newValue[activeDocumentation].code):
+          newValue[activeDocumentation].authority = 'URL'
+          break;
+        default:
+          newValue[activeDocumentation].authority = ''
+          break;
+      }
+      updateDocumentations(newValue);
+    };
+  }
 
   const documentation = documentations.length > 0 && documentations[activeDocumentation];
 
@@ -141,23 +170,34 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                {/* <Grid item xs>
-                  <TextField
-                    label={<I18n en="Authority" fr="Autorité" />}
-                    name="authority"
-                    value={documentation.authority}
-                    onChange={updateDocumentationField("authority")}
-                    fullWidth
-                    disabled={disabled}
-                  />{" "}
-                </Grid> */}
                 <Grid item xs>
                   <TextField
                     label="Identifier or URL"
                     value={documentation.code}
-                    onChange={updateDocumentationField("code")}
+                    onChange={handleIdentifierChange("code")}
                     fullWidth
                     disabled={disabled}
+                  />
+                </Grid>
+                <Grid item xs>
+                  <QuestionText>
+                    <I18n>
+                      <En>Enter the identifier type</En>
+                      <Fr>Entrez le type d'identifiant</Fr>
+                    </I18n>
+                    {documentation?.code && (
+                      <RequiredMark passes={documentation.authority} />
+                    )}
+                  </QuestionText>
+
+                  <SelectInput
+                    value={documentation.authority}
+                    onChange={updateDocumentationField("authority")}
+                    options={identifierType}
+                    optionLabels={identifierType}
+                    disabled={disabled}
+                    label={< I18n en="Identifier Type" fr="Type d'identifiant" />}
+                    fullWidth={false}
                   />
                 </Grid>
                 <Grid item xs>

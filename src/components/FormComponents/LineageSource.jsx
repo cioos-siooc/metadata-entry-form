@@ -10,11 +10,16 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
+import validator from "validator";
+import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy } from "../../utils/misc";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
+import { identifierType } from "../../isoCodeLists";
+
+const validateURL = (url) => !url || validator.isURL(url);
 
 const emptySource = {
   description: "",
@@ -52,7 +57,31 @@ const LineageSource = ({
     if (sources.length) setActiveSource(sources.length - 2);
   };
 
+  function urlIsValid(url) {
+    return !url || validateURL(url);
+  }
 
+  function handleIdentifierChange(key) {
+    return (e) => {
+
+      const newValue = [...sources];
+      newValue[activeSource][key] = e.target.value;
+
+      const s = newValue[activeSource].code
+      switch (true) {
+        case urlIsValid(newValue[activeSource].code) && /^http.?:\/\/doi\.org\//i.test(s):
+          newValue[activeSource].authority = 'DOI'
+          break;
+        case urlIsValid(newValue[activeSource].code):
+          newValue[activeSource].authority = 'URL'
+          break;
+        default:
+          newValue[activeSource].authority = ''
+          break;
+      }
+      updateSources(newValue);
+    };
+  }
 
   const source = sources.length > 0 && sources[activeSource];
 
@@ -172,9 +201,30 @@ const LineageSource = ({
                   <TextField
                       label="Identifier or URL"
                     value={source.code}
-                    onChange={updateSourceField("code")}
+                    onChange={handleIdentifierChange("code")}
                     fullWidth
                     disabled={disabled}
+                  />
+                </Grid>
+                <Grid item xs>
+                  <QuestionText>
+                    <I18n>
+                      <En>Enter the identifier type</En>
+                      <Fr>Entrez le type d'identifiant</Fr>
+                    </I18n>
+                      {source?.code && (
+                        <RequiredMark passes={source.authority} />
+                      )}
+                  </QuestionText>
+
+                  <SelectInput
+                    value={source.authority}
+                    onChange={updateSourceField("authority")}
+                    options={identifierType}
+                    optionLabels={identifierType}
+                    disabled={disabled}
+                    label={< I18n en="Identifier Type" fr="Type d'identifiant" />}
+                    fullWidth={false}
                   />
                 </Grid>
                 <Grid item xs>
