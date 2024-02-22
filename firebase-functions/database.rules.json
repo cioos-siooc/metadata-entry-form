@@ -16,8 +16,8 @@
       },
       "admin": { // Section of the database dedicated to admin configurations.
           "$regionAdmin": {
-            // Allow read access if the authenticated user's email is listed as an admin in the permissions for the region.
-                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            // Allow read access if the authenticated user's email is listed as a reviewer in the permissions for the region.
+                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
               "projects": {
                   // Allow write access to projects if the authenticated user's email is listed as a reviewer in the permissions for the region.
                   ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
