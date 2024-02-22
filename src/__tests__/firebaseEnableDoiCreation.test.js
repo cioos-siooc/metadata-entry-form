@@ -59,10 +59,10 @@ describe('Datacite Credentials Management', () => {
 
     const region = 'hakai';
     const prefix = '10.1234';
-    const authHash = 'abcd1234hash';
+    const dataciteHash = 'abcd1234hash';
 
 
-    await dataciteFunctions.newDataciteAccount(region, prefix, authHash);
+    await dataciteFunctions.newDataciteAccount(region, prefix, dataciteHash);
 
     // Assert: Verify that the Firebase database was interacted with as expected.
     expect(mockRef).toHaveBeenCalledWith("admin");
@@ -70,7 +70,7 @@ describe('Datacite Credentials Management', () => {
     expect(mockChild).toHaveBeenCalledTimes(2); // Assuming two 'child' calls.
     expect(mockChild).toHaveBeenNthCalledWith(1, region);
     expect(mockChild).toHaveBeenNthCalledWith(2, "dataciteCredentials");
-    expect(mockSet).toHaveBeenCalledWith({ prefix, authHash });
+    expect(mockSet).toHaveBeenCalledWith({ prefix, dataciteHash });
   });
 
   it('should delete all Datacite credentials for a region', async () => {
@@ -127,13 +127,15 @@ describe('Datacite Credentials Management', () => {
   it('should check if credentials are stored for a region', async () => {
     const region = 'hakai';
     const prefix = '10.1234';
-    const authHash = 'abcd1234hash';
+    const dataciteHash = 'abcd1234hash';
 
-    mockValues[`admin.${region}.dataciteCredentials.prefix`] = prefix;
-    mockValues[`admin.${region}.dataciteCredentials.authHash`] = authHash;
+    mockValues = {
+      dataciteHash: dataciteHash,
+      prefix: prefix
+  };
 
     // Simulate setting data before fetch attempt
-    await dataciteFunctions.newDataciteAccount(region, prefix, authHash);
+    await dataciteFunctions.newDataciteAccount(region, prefix, dataciteHash);
 
     const credentialsStored = await dataciteFunctions.getCredentialsStored(region);
     expect(credentialsStored).toBe(true);

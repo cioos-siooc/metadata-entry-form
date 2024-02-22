@@ -65,7 +65,7 @@ export async function getCredentialsStored(region) {
     const prefix = prefixSnapshot.val();
 
     // Check for non-null and non-empty
-    return authHash && authHash.trim() !== "" && prefix && prefix.trim() !== "";
+    return authHash && authHash !== "" && prefix && prefix !== "";
   } catch (error) {
     console.error("Error checking Datacite credentials:", error);
     return false;
