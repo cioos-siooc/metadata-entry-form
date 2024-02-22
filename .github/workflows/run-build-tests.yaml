@@ -1,5 +1,6 @@
 name: Run Build and Tests
-on: push:
+on: 
+    push:
     workflow_dispatch:
 
 jobs:
