@@ -66,6 +66,7 @@ class Admin extends FormClassTemplate {
         const projects = await getRegionProjects(region);
         const datacitePrefix = await getDatacitePrefix(region);
         const credentialsStored = await getCredentialsStored(region);
+
         permissionsRef.on("value", (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
@@ -80,11 +81,22 @@ class Admin extends FormClassTemplate {
             loading: false,
             datacitePrefix,
             credentialsStored,
+            isDoiCreationEnabled: credentialsStored,
           });
         });
         this.listenerRefs.push(permissionsRef);
       }
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if credentialsStored state has changed
+    if (prevState.credentialsStored !== this.state.credentialsStored) {
+      if (this.state.credentialsStored) {
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({ isDoiCreationEnabled: true });
+      }
+    }
   }
 
   handleClickShowPassword = () =>
@@ -357,7 +369,7 @@ class Admin extends FormClassTemplate {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={isDoiCreationEnabled}
+                          checked={this.state.isDoiCreationEnabled || false}
                           onChange={this.handleToggleDoiCreation}
                         />
                       }

@@ -56,19 +56,18 @@ export async function getAuthHash(region) {
 }
 
 export async function getCredentialsStored(region) {
-
   try {
-    // Reference to the region's dataciteCredentials in the Firebase database
     const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
+    const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
+    const prefixSnapshot = await credentialsRef.child("prefix").once("value");
 
-    // Get the authHash and prefix values from the database
-    const authHash = (await credentialsRef.child("dataciteHash").once("value")).val();
+    const authHash = authHashSnapshot.val();
+    const prefix = prefixSnapshot.val();
 
-    const prefix = (await credentialsRef.child("prefix").once("value")).val();
-
-    return authHash !== null && prefix !== null;
+    // Check for non-null and non-empty
+    return authHash && authHash.trim() !== "" && prefix && prefix.trim() !== "";
   } catch (error) {
     console.error("Error checking Datacite credentials:", error);
-    return false; // Assume credentials are not stored if there's an error
+    return false;
   }
 }
