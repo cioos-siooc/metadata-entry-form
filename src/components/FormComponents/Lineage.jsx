@@ -49,6 +49,8 @@ const Lineage = ({
   const [activeLineage, setActiveLineage] = useState(0);
   const [currentLineage, setCurrentLineage] = useState(history);
 
+
+
   function addLineage() {
     updateLineage(history.concat(deepCopy(emptyLineage)));
     setActiveLineage(history.length);
@@ -117,6 +119,12 @@ const Lineage = ({
     setCurrentLineage(history);
   }
   const lineageStep = history.length > 0 && history[activeLineage];
+
+  if (typeof history === 'string' || history instanceof String) {
+    // eslint-disable-next-line no-param-reassign
+    history = []
+    
+  }
 
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
