@@ -304,238 +304,238 @@ export const associationTypeCode = {
   IsCitedBy: {
     title: { en: "Is Cited By", fr: "Est cité par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is cited by B", fr: "A est cité par B",
     },
     isoValue: "crossReference",
   },
   Cites: {
     title: { en: "Cites", fr: "Cites" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A cites B", fr: "A cite B",
     },
     isoValue: "crossReference",
   },
   IsSupplementTo: {
     title: { en: "Is Supplement To", fr: "Est un supplément à" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is supplement to B", fr: "A est un complément à B",
     },
     isoValue: "crossReference",
   },
   IsSupplementedBy: {
     title: { en: "Is Supplemented By", fr: "Est complété par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is supplemented by B", fr: "A est complété par B",
     },
     isoValue: "crossReference",
   },
   IsContinuedBy: {
     title: { en: "Is Continued By", fr: "Est continué par" },
     text: {
-      en: "mapped to ISO value 'series'", fr: "mappé à la valeur ISO 'series'",
+      en: "A is continued by B", fr: "A est continué par B",
     },
     isoValue: "series",
   },
   Continues: {
     title: { en: "Continues", fr: "Continue" },
     text: {
-      en: "mapped to ISO value 'series'", fr: "mappé à la valeur ISO 'series'",
+      en: "A continues B", fr: "A continue B",
     },
     isoValue: "series",
   },
   IsDescribedBy: {
     title: { en: "Is Described By", fr: "Est décrit par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is described by B", fr: "A est décrit par B",
     },
     isoValue: "crossReference",
   },
   Describes: {
     title: { en: "Describes", fr: "Décrit" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A describes B", fr: "A décrit B",
     },
     isoValue: "crossReference",
   },
   HasMetadata: {
     title: { en: "Has Metadata", fr: "Possède des métadonnées" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A has metadata B", fr: "A a des métadonnées B",
     },
     isoValue: "crossReference",
   },
   IsMetadataFor: {
     title: { en: "Is Metadata For", fr: "Les métadonnées sont-elles destinées" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is metadata for B", fr: "A est une métadonnée pour B",
     },
     isoValue: "crossReference",
   },
   HasVersion: {
     title: { en: "Has Version", fr: "A une version" },
     text: {
-      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+      en: "A has version B", fr: "A a la version B",
     },
     isoValue: "revisionOf",
   },
   IsVersionOf: {
     title: { en: "Is Version Of", fr: "Est la version de" },
     text: {
-      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+      en: "A is version of B", fr: "A est la version de B",
     },
     isoValue: "revisionOf",
   },
   IsNewVersionOf: {
     title: { en: "Is New Version Of", fr: "Est-ce une nouvelle version de" },
     text: {
-      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+      en: "A is new version of B", fr: "A est une nouvelle version de B",
     },
     isoValue: "revisionOf",
   },
   PreviousVersionOf: {
     title: { en: "Previous Version Of", fr: "Version précédente de" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is previous version of B", fr: "A est la version précédente de B",
     },
     isoValue: "crossReference",
   },
   IsPartOf: {
     title: { en: "Is Part Of", fr: "Fait partie de" },
     text: {
-      en: "mapped to ISO value 'largerWorkCitation'", fr: "mappé à la valeur ISO 'largerWorkCitation'",
+      en: "A is part of B", fr: "A fait partie de B",
     },
     isoValue: "largerWorkCitation",
   },
   HasPart: {
     title: { en: "Has Part", fr: "A une partie" },
     text: {
-      en: "mapped to ISO value 'isComposedOf'", fr: "mappé à la valeur ISO 'isComposedOf'",
+      en: "A has part B", fr: "A a la partie B",
     },
     isoValue: "isComposedOf",
   },
   IsPublishedIn: {
     title: { en: "Is Published In", fr: "Est publié dans" },
     text: {
-      en: "mapped to ISO value 'largerWorkCitation'", fr: "mappé à la valeur ISO 'largerWorkCitation'",
+      en: "A is published in B", fr: "A est publié dans B",
     },
     isoValue: "largerWorkCitation",
   },
   IsReferencedBy: {
     title: { en: "Is Referenced By", fr: "Est référencé par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is referenced by B", fr: "A est référencé par B",
     },
     isoValue: "crossReference",
   },
   References: {
     title: { en: "References", fr: "Les références" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A references B", fr: "A références B",
     },
     isoValue: "crossReference",
   },
   IsDocumentedBy: {
     title: { en: "Is Documented By", fr: "Est documenté par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is documented by B", fr: "A est documenté par B",
     },
     isoValue: "crossReference",
   },
   Documents: {
     title: { en: "Documents", fr: "Documents" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A documents B", fr: "Un document B",
     },
     isoValue: "crossReference",
   },
   IsCompiledBy: {
     title: { en: "Is Compiled By", fr: "Est compilé par" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A is compiled by B", fr: "A est compilé par B",
     },
     isoValue: "dependency",
   },
   Compiles: {
     title: { en: "Compiles", fr: "Compile" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A compiles B", fr: "A compile B",
     },
     isoValue: "dependency",
   },
   IsVariantFormOf: {
     title: { en: "Is Variant Form Of", fr: "Est une forme variante de" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is variant form of B", fr: "A est une variante de B",
     },
     isoValue: "crossReference",
   },
   IsOriginalFormOf: {
     title: { en: "Is Original Form Of", fr: "Est la forme originale de" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is original form of B", fr: "A est la forme originale de B",
     },
     isoValue: "crossReference",
   },
   IsIdenticalTo: {
     title: { en: "Is Identical To", fr: "Est identique à" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is identical to B", fr: "A est identique à B",
     },
     isoValue: "crossReference",
   },
   IsReviewedBy: {
     title: { en: "Is Reviewed By", fr: "Est révisé par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is reviewed by B", fr: "A est examiné par B",
     },
     isoValue: "crossReference",
   },
   Reviews: {
     title: { en: "Reviews", fr: "Commentaires" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A reviews B", fr: "A avis B",
     },
     isoValue: "crossReference",
   },
   IsDerivedFrom: {
     title: { en: "Is Derived From", fr: "Dérive de" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A is derived from B", fr: "A est dérivé de B",
     },
     isoValue: "dependency",
   },
   IsSourceOf: {
     title: { en: "Is Source Of", fr: "est la source de" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A is source of B", fr: "A est la source de B",
     },
     isoValue: "dependency",
   },
   Requires: {
     title: { en: "Requires", fr: "A besoin" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A requires B", fr: "A nécessite B",
     },
     isoValue: "dependency",
   },
   IsRequiredBy: {
     title: { en: "Is Required By", fr: "Est requis par" },
     text: {
-      en: "mapped to ISO value 'dependency'", fr: "mappé à la valeur ISO 'dependency'",
+      en: "A is required by B", fr: "A est requis par B",
     },
     isoValue: "dependency",
   },
   IsObsoletedBy: {
     title: { en: "Is Obsoleted By", fr: "Est obsolète par" },
     text: {
-      en: "mapped to ISO value 'crossReference'", fr: "mappé à la valeur ISO 'crossReference'",
+      en: "A is obsoleted by B", fr: "A est obsolète par B",
     },
     isoValue: "crossReference",
   },
   Obsoletes: {
     title: { en: "Obsoletes", fr: "Obsolètes" },
     text: {
-      en: "mapped to ISO value 'revisionOf'", fr: "mappé à la valeur ISO 'revisionOf'",
+      en: "A obsoletes B", fr: "A rend obsolète B",
     },
     isoValue: "revisionOf",
   },
