@@ -12,7 +12,7 @@ import { validateField } from "../../utils/validate";
 import SelectInput from "./SelectInput";
 import platforms from "../../platforms.json";
 
-const Platform = ({ record, handleUpdateRecord, handleTranslationComplete, handleTranslateVerifyChange, disabled }) => {
+const Platform = ({ record, handleUpdateRecord, disabled }) => {
   const { language = "en" } = useParams();
 
   const platformsSorted = Object.values(platforms).sort((a, b) =>
