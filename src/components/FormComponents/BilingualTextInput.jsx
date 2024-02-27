@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Button,
   InputAdornment,
@@ -29,37 +29,6 @@ const BilingualTextInput = ({
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
 
-
-  function handleEvent(e) {
-
-    const { translations, ...rest } = { ...value};
-    const newData = { ...rest, [e.target.name]: e.target.value, 
-      ...( e.target.name === alternateLanguage && 
-        e.target.value && 
-        { translations: value.translations || setTranslationData({}, false) }) 
-      };
-    const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
-  }
-
-  function setTranslationData(translations, checked) {
-    return {
-      ...translations, [alternateLanguage]: {
-        'verified': checked, 
-        ...(!checked && {'message': `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`})
-      }
-    }
-  }
-  
-  function handleTranslateCheckEvent(e) {
-    const { checked } = e.target;
-    const newData = { 
-      ...value, 'translations': setTranslationData(value['translations'], checked)
-    };
-    const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
-  }
-
   const { language } = useParams();
   let languages;
 
@@ -69,7 +38,64 @@ const BilingualTextInput = ({
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
   const alternateLanguage = languages[1];
-  const translateChecked = value?.translations?.[alternateLanguage]?.verified || false
+  const translateChecked =
+    value?.translations?.[alternateLanguage]?.verified || false;
+
+  function setTranslationData(translations, checked) {
+    return {
+      ...translations,
+      [alternateLanguage]: {
+        verified: checked,
+        ...(!checked && {
+          message: `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`,
+        }),
+      },
+    };
+  }
+
+  function handleEvent(e) {
+    const { translations, ...rest } = { ...value };
+    const newData = {
+      ...rest,
+      [e.target.name]: e.target.value,
+      ...(e.target.name === alternateLanguage &&
+        e.target.value && {
+          translations: value.translations || setTranslationData({}, false),
+        }),
+    };
+    const newDataEvent = { target: { name, value: newData } };
+    onChange(newDataEvent);
+  }
+
+  function handleTranslateCheckEvent(e) {
+    const { checked } = e.target;
+    const newData = {
+      ...value,
+      translations: setTranslationData(value.translations, checked),
+    };
+    const newDataEvent = { target: { name, value: newData } };
+    onChange(newDataEvent);
+  }
+
+  // Ensure translations field exists on component mount/load
+  useEffect(() => {
+    if (value && !value.translations) {
+      const hasTranslations = value.en && value.fr;
+      if (hasTranslations) {
+        const updatedValue = {
+          ...value,
+          translations: {
+            fr: {
+              verified: false,
+              message:
+                "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            },
+          },
+        };
+        onChange({ target: { name, value: updatedValue } });
+      }
+    }
+  }, []);
 
   return (
     <div>
@@ -142,22 +168,22 @@ const BilingualTextInput = ({
                 </Button>
                 {value?.[alternateLanguage] && (
                   <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={translateChecked}
-                      onChange={(e) => handleTranslateCheckEvent(e)}
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <I18n>
-                      <En>I have verified this translation</En>
-                      <Fr>J'ai vérifié cette traduction</Fr>
-                    </I18n>
-                  }
-                />
+                    control={
+                      <Checkbox
+                        checked={translateChecked}
+                        onChange={(e) => handleTranslateCheckEvent(e)}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <I18n>
+                        <En>I have verified this translation</En>
+                        <Fr>J'ai vérifié cette traduction</Fr>
+                      </I18n>
+                    }
+                  />
                 )}
-                
+
                 {textTooBig && (
                   <I18n>
                     <En>
