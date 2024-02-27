@@ -8,7 +8,7 @@ import regions from "../../regions";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass } from "../FormComponents/QuestionStyles";
+import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
 
 const StartTab = ({ disabled }) => {
   const { region } = useParams();
@@ -18,7 +18,7 @@ const StartTab = ({ disabled }) => {
     <Grid item xs>
       <Paper style={paperClass}>
         {disabled && (
-          <Typography>
+          <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>
                 <b>
@@ -33,7 +33,7 @@ const StartTab = ({ disabled }) => {
                 </b>
               </Fr>
             </I18n>
-          </Typography>
+            </QuestionText>
         )}
         <Typography variant="body1">
           <I18n>
@@ -124,6 +124,18 @@ const StartTab = ({ disabled }) => {
             </I18n>
           </li>
         </ul>
+      </Paper>
+      <Paper style={paperClass}>
+        <Typography>
+          <I18n>
+            <En>
+              If you would like to share editing of this record with another user, select their email from the dropdown...
+            </En>
+            <Fr>
+              Si vous souhaitez partager la modification de cet enregistrement avec un autre utilisateur, sélectionnez son adresse e-mail dans la liste déroulante...
+            </Fr>
+          </I18n>
+        </Typography>
       </Paper>
     </Grid>
   );
