@@ -95,7 +95,7 @@ const BilingualTextInput = ({
         onChange({ target: { name, value: updatedValue } });
       }
     }
-  }, []);
+  }, [name, onChange, value]);
 
   return (
     <div>
