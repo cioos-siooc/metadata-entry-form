@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
 import { Typography, Paper, Grid } from "@material-ui/core";
@@ -9,10 +9,41 @@ import regions from "../../regions";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
+import {
+  loadRegionUsers,
+} from "../../utils/firebaseRecordFunctions";
 
 const StartTab = ({ disabled }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
+  const [userEmails, setUserEmails] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchRegionUsers = async () => {
+      try {
+        const regionUsers = await loadRegionUsers(region);
+
+        if (isMounted) {
+          setUserEmails(regionUsers);
+        }
+        
+      } catch (error) {
+        console.error('Error loading region users:', error);
+      }
+    }
+
+    fetchRegionUsers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [region])
+
+  useEffect(() => {
+    console.log(userEmails); // For debugging purposes
+  }, [userEmails]);
 
   return (
     <Grid item xs>
@@ -129,10 +160,10 @@ const StartTab = ({ disabled }) => {
         <Typography>
           <I18n>
             <En>
-              If you would like to share editing of this record with another user, select their email from the dropdown...
+              To share editing access with another user, start typing their email address and select from the suggestions.
             </En>
             <Fr>
-              Si vous souhaitez partager la modification de cet enregistrement avec un autre utilisateur, sélectionnez son adresse e-mail dans la liste déroulante...
+              Pour partager l'accès en modification avec un autre utilisateur, commencez à saisir son adresse e-mail et sélectionnez parmi les suggestions.
             </Fr>
           </I18n>
         </Typography>

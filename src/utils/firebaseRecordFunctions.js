@@ -83,6 +83,28 @@ export function loadRegionRecords(regionRecords, statusFilter) {
   return records;
 }
 
+export async function loadRegionUsers(region) {
+  try {
+    const regionUsersRef = firebase.database().ref(region).child("users");
+    const regionUsers = (await regionUsersRef.once("value")).val();
+    const userEmails = []
+
+    if (regionUsers) {
+      Object.keys(regionUsers).forEach(key => {
+        const userEmail = regionUsers[key].userinfo?.email;
+        if (userEmail) {
+          userEmails.push(userEmail);
+        }
+      });
+    }
+
+    return userEmails
+  } catch (error) {
+    console.error(`Error fetching user emails for region ${region}:`, error);
+    return null
+  }
+}
+
 export async function submitRecord(region, userID, key, status, record) {
   const recordRef = firebase
     .database()
