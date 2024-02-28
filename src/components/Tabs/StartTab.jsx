@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
-import { Typography, Paper, Grid } from "@material-ui/core";
+import { Typography, Paper, Grid, TextField } from "@material-ui/core";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+
 import { useParams } from "react-router-dom";
 
 import regions from "../../regions";
@@ -24,9 +26,10 @@ const StartTab = ({ disabled }) => {
     const fetchRegionUsers = async () => {
       try {
         const regionUsers = await loadRegionUsers(region);
+        const sortedUsers = regionUsers.sort((a, b) => a.localeCompare(b));
 
         if (isMounted) {
-          setUserEmails(regionUsers);
+          setUserEmails(sortedUsers);
         }
         
       } catch (error) {
@@ -40,10 +43,6 @@ const StartTab = ({ disabled }) => {
       isMounted = false;
     };
   }, [region])
-
-  useEffect(() => {
-    console.log(userEmails); // For debugging purposes
-  }, [userEmails]);
 
   return (
     <Grid item xs>
@@ -167,6 +166,22 @@ const StartTab = ({ disabled }) => {
             </Fr>
           </I18n>
         </Typography>
+        <Autocomplete
+          multiple
+          id="share-with-emails"
+          options={userEmails}
+          fullWidth
+          filterSelectedOptions
+          renderInput={(params) => (
+    <TextField 
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...params}
+      label="Share with" 
+      variant="outlined"
+      style={{ marginTop: '16px' }} 
+    />
+  )}
+        />
       </Paper>
     </Grid>
   );
