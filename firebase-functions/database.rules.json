@@ -15,7 +15,11 @@
 					  "records": {
 							// Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
 							".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
-						}
+						},
+            "sharedWithMe": {
+              // Allow write access to any authenticated user.
+              ".write": "auth.uid != null"
+            }
           }
         }
       },
