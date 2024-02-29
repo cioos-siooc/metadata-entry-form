@@ -87,18 +87,9 @@ export async function loadRegionUsers(region) {
   try {
     const regionUsersRef = firebase.database().ref(region).child("users");
     const regionUsers = (await regionUsersRef.once("value")).val();
-    const userEmails = []
 
-    if (regionUsers) {
-      Object.keys(regionUsers).forEach(key => {
-        const userEmail = regionUsers[key].userinfo?.email;
-        if (userEmail) {
-          userEmails.push(userEmail);
-        }
-      });
-    }
-
-    return userEmails
+    return regionUsers
+    
   } catch (error) {
     console.error(`Error fetching user emails for region ${region}:`, error);
     return null
