@@ -16,18 +16,19 @@ import { loadRegionUsers } from "../../utils/firebaseRecordFunctions";
 const StartTab = ({ disabled, updateRecord, record }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
+  const [users, setUsers] = useState({});
   const [userEmails, setUserEmails] = useState([]);
 
+  // fetching users based on region
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true; 
 
     const fetchRegionUsers = async () => {
       try {
         const regionUsers = await loadRegionUsers(region);
-        const sortedUsers = regionUsers.sort((a, b) => a.localeCompare(b));
 
         if (isMounted) {
-          setUserEmails(sortedUsers);
+          setUsers(regionUsers);
         }
       } catch (error) {
         console.error("Error loading region users:", error);
@@ -41,8 +42,25 @@ const StartTab = ({ disabled, updateRecord, record }) => {
     };
   }, [region]);
 
-  console.log(record)
+  // processing user emails after users are fetched
+  useEffect(() => {
 
+    const userEmailsList = []
+
+    if (users) {
+      Object.keys(users).forEach(key => {
+        const userEmail = users[key].userinfo?.email;
+        if (userEmail) {
+          userEmailsList.push(userEmail);
+        }
+      });
+    }
+
+    const sortedEmailsList = userEmailsList.sort((a, b) => a.localeCompare(b));
+
+    setUserEmails(sortedEmailsList);
+  }, [users]);
+  
   return (
     <Grid item xs>
       <Paper style={paperClass}>
