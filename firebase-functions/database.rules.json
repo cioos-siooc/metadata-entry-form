@@ -9,12 +9,13 @@
         ".read": "auth.uid != null",
         "users": {
           "$userid": {
-            // Allow write access if the authenticated user is the user specified by $userid 
-		    // Allow write access if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
-            ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",  
-					  "records": {
-							// Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
+            // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
+            ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",    
+          	"records": {
+              "$recordid": {
+                // Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
 							".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
+              }
 						},
             "sharedWithMe": {
               // Allow write access to any authenticated user.
