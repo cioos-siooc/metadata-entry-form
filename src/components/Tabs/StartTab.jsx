@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
 import { Typography, Paper, Grid, TextField } from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { useParams } from "react-router-dom";
 
@@ -11,17 +11,15 @@ import regions from "../../regions";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
-import {
-  loadRegionUsers,
-} from "../../utils/firebaseRecordFunctions";
+import { loadRegionUsers } from "../../utils/firebaseRecordFunctions";
 
-const StartTab = ({ disabled }) => {
+const StartTab = ({ disabled, updateRecord, record }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
   const [userEmails, setUserEmails] = useState([]);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     const fetchRegionUsers = async () => {
       try {
@@ -31,18 +29,19 @@ const StartTab = ({ disabled }) => {
         if (isMounted) {
           setUserEmails(sortedUsers);
         }
-        
       } catch (error) {
-        console.error('Error loading region users:', error);
+        console.error("Error loading region users:", error);
       }
-    }
+    };
 
     fetchRegionUsers();
 
     return () => {
       isMounted = false;
     };
-  }, [region])
+  }, [region]);
+
+  console.log(record)
 
   return (
     <Grid item xs>
@@ -63,7 +62,7 @@ const StartTab = ({ disabled }) => {
                 </b>
               </Fr>
             </I18n>
-            </QuestionText>
+          </QuestionText>
         )}
         <Typography variant="body1">
           <I18n>
@@ -159,10 +158,13 @@ const StartTab = ({ disabled }) => {
         <Typography>
           <I18n>
             <En>
-              To share editing access with another user, start typing their email address and select from the suggestions.
+              To share editing access with another user, start typing their
+              email address and select from the suggestions.
             </En>
             <Fr>
-              Pour partager l'accès en modification avec un autre utilisateur, commencez à saisir son adresse e-mail et sélectionnez parmi les suggestions.
+              Pour partager l'accès en modification avec un autre utilisateur,
+              commencez à saisir son adresse e-mail et sélectionnez parmi les
+              suggestions.
             </Fr>
           </I18n>
         </Typography>
@@ -170,17 +172,19 @@ const StartTab = ({ disabled }) => {
           multiple
           id="share-with-emails"
           options={userEmails}
+          value={record.sharedWith || []}
           fullWidth
           filterSelectedOptions
+          onChange={(event, value) => updateRecord('sharedWith')(value)}
           renderInput={(params) => (
-    <TextField 
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...params}
-      label="Share with" 
-      variant="outlined"
-      style={{ marginTop: '16px' }} 
-    />
-  )}
+            <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...params}
+              label="Share with"
+              variant="outlined"
+              style={{ marginTop: "16px" }}
+            />
+          )}
         />
       </Paper>
     </Grid>
