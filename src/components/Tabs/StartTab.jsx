@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-import { Save } from "@material-ui/icons";
-import { Typography, Paper, Grid, TextField } from "@material-ui/core";
+import { Save, Add, Delete } from "@material-ui/icons";
+import {
+  Typography,
+  Paper,
+  Grid,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  ListItemSecondaryAction,
+} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { useParams } from "react-router-dom";
@@ -11,17 +22,19 @@ import regions from "../../regions";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
-import { loadRegionUsers } from "../../utils/firebaseRecordFunctions";
+import { loadRegionUsers, storeSharedRecord } from "../../utils/firebaseRecordFunctions";
 
 const StartTab = ({ disabled, updateRecord, record }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
   const [users, setUsers] = useState({});
   const [userEmails, setUserEmails] = useState([]);
+  const [currentEmail, setCurrentEmail] = useState(null);
+  const [sharedWithEmails, setSharedWithEmails] = useState([]);
 
   // fetching users based on region
   useEffect(() => {
-    let isMounted = true; 
+    let isMounted = true;
 
     const fetchRegionUsers = async () => {
       try {
@@ -44,11 +57,10 @@ const StartTab = ({ disabled, updateRecord, record }) => {
 
   // processing user emails after users are fetched
   useEffect(() => {
-
-    const userEmailsList = []
+    const userEmailsList = [];
 
     if (users) {
-      Object.keys(users).forEach(key => {
+      Object.keys(users).forEach((key) => {
         const userEmail = users[key].userinfo?.email;
         if (userEmail) {
           userEmailsList.push(userEmail);
@@ -60,7 +72,35 @@ const StartTab = ({ disabled, updateRecord, record }) => {
 
     setUserEmails(sortedEmailsList);
   }, [users]);
-  
+
+  // Synchronize sharedWithEmails with record.sharedWith
+  useEffect(() => {
+    setSharedWithEmails(record.sharedWith || []);
+  }, [record.sharedWith]);
+  console.log(sharedWithEmails)
+  // Function to add an email to the sharedWith list
+  const addEmailToSharedWith = (email) => {
+    
+    if (!sharedWithEmails.includes(email)) {
+      const updatedSharedWith = [...sharedWithEmails, email];
+      console.log(`adding ${email} to list`);
+      setSharedWithEmails(updatedSharedWith); 
+      updateRecord("sharedWith")(updatedSharedWith);
+      storeSharedRecord(updatedSharedWith, users, record.recordID, region)
+    }
+  };
+
+  // Function to remove an email from the sharedWith list
+  const removeEmailFromSharedWith = (email) => {
+    const updatedSharedWith = sharedWithEmails.filter((e) => e !== email);
+    setSharedWithEmails(updatedSharedWith); 
+    updateRecord("sharedWith", updatedSharedWith);
+  };
+
+  console.log(record);
+  console.log(currentEmail);
+  console.log(sharedWithEmails);
+  console.log(users)
   return (
     <Grid item xs>
       <Paper style={paperClass}>
@@ -173,37 +213,89 @@ const StartTab = ({ disabled, updateRecord, record }) => {
         </ul>
       </Paper>
       <Paper style={paperClass}>
-        <Typography>
-          <I18n>
-            <En>
-              To share editing access with another user, start typing their
-              email address and select from the suggestions.
-            </En>
-            <Fr>
-              Pour partager l'accès en modification avec un autre utilisateur,
-              commencez à saisir son adresse e-mail et sélectionnez parmi les
-              suggestions.
-            </Fr>
-          </I18n>
-        </Typography>
-        <Autocomplete
-          multiple
-          id="share-with-emails"
-          options={userEmails}
-          value={record.sharedWith || []}
-          fullWidth
-          filterSelectedOptions
-          onChange={(event, value) => updateRecord('sharedWith')(value)}
-          renderInput={(params) => (
-            <TextField
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...params}
-              label="Share with"
-              variant="outlined"
-              style={{ marginTop: "16px" }}
-            />
-          )}
-        />
+        <Grid item xs style={{ margin: "10px" }}>
+          <Typography>
+            <I18n>
+              <En>
+                To share editing access with another user, start typing their
+                email address and select from the suggestions.
+              </En>
+              <Fr>
+                Pour partager l'accès en modification avec un autre utilisateur,
+                commencez à saisir son adresse e-mail et sélectionnez parmi les
+                suggestions.
+              </Fr>
+            </I18n>
+          </Typography>
+          <Autocomplete
+            id="share-with-emails"
+            options={userEmails}
+            value={currentEmail}
+            onChange={(event, newValue) => setCurrentEmail(newValue)}
+            fullWidth
+            filterSelectedOptions
+            renderInput={(params) => (
+              <TextField
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...params}
+                label="Share with"
+                variant="outlined"
+                style={{ marginTop: "16px" }}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs style={{ margin: "10px" }}>
+          <Button
+            startIcon={<Add />}
+            disabled={disabled}
+            onClick={() => {
+              if (currentEmail) {
+                addEmailToSharedWith(currentEmail);
+                setCurrentEmail(null);
+              }
+            }}
+            style={{ height: "56px", justifyContent: "center" }}
+          >
+            <Typography>
+              <I18n>
+                <En>Share Record</En>
+                <Fr>Partager l'enregistrement</Fr>
+              </I18n>
+            </Typography>
+          </Button>
+        </Grid>
+        <Grid container direction="column" justifyContent="flex-start">
+          <Grid item xs style={{ margin: "10px" }}>
+            <Typography>
+              {sharedWithEmails.length > 0 && (
+                <I18n>
+                  <En>Users this record is shared with:</En>
+                  <Fr>
+                    Utilisateurs avec lesquels cet enregistrement est partagé :
+                  </Fr>
+                </I18n>
+              )}
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <List>
+              {sharedWithEmails.map((email, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={<Typography>{email}</Typography>} />
+                  <ListItemSecondaryAction >
+                    <IconButton
+                      aria-label="delete"
+                      onClick={() => removeEmailFromSharedWith(email)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          </Grid>
+        </Grid>
       </Paper>
     </Grid>
   );
