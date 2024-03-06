@@ -83,19 +83,6 @@ export function loadRegionRecords(regionRecords, statusFilter) {
   return records;
 }
 
-export async function loadRegionUsers(region) {
-  try {
-    const regionUsersRef = firebase.database().ref(region).child("users");
-    const regionUsers = (await regionUsersRef.once("value")).val();
-
-    return regionUsers
-    
-  } catch (error) {
-    console.error(`Error fetching user emails for region ${region}:`, error);
-    return null
-  }
-}
-
 export async function submitRecord(region, userID, key, status, record) {
   const recordRef = firebase
     .database()
@@ -200,3 +187,62 @@ export const multipleFirebaseToJSObject = (multiple) => {
     return acc;
   }, {});
 };
+
+// fetches a region's users
+export async function loadRegionUsers(region) {
+  try {
+    const regionUsersRef = firebase.database().ref(region).child("users");
+    const regionUsers = (await regionUsersRef.once("value")).val();
+
+    return regionUsers
+    
+  } catch (error) {
+    console.error(`Error fetching user emails for region ${region}:`, error);
+    return null
+  }
+}
+
+/**
+ * Asynchronously shares a record with multiple users by updating the 'shares' node in Firebase for each user.
+ * This function identifies the users to share with based on their email addresses.
+ * It sets the specified record ID as a key under the 'shares' node for each user
+ * 
+ * @param {string[]} sharedWith - An array of email addresses for the users to share the record with.
+ * @param {Object} users - An object mapping userIDs to user information, including their email addresses.
+ * @param {string} recordID
+ * @param {string} region
+ */
+export async function storeSharedRecord(sharedWith, users, recordID, region) {
+
+  // Convert the 'users' into an array of { userID, email } objects for easier processing
+  const userEmails = Object.entries(users).map(([userID, userInfo]) => ({
+    userID,
+    email: userInfo.userinfo ? userInfo.userinfo.email : null,
+  }));
+
+  console.log(sharedWith)
+
+  // Filter out users whose emails are in the sharedWith array
+  const usersToShareWith = userEmails.filter(userShare => sharedWith.includes(userShare.email));
+
+  console.log(usersToShareWith)
+
+  // Create a Promise for each user to update their 'sharedWithMe' node in Firebase
+  const sharePromises = usersToShareWith.map(({ userID }) => {
+    const sharesRef = firebase
+      .database()
+      .ref(region)
+      .child("shares")
+      .child(userID)
+      .child(recordID);
+
+    // Set the record ID under the user's 'shares' node to true
+    return sharesRef.set(true)
+      .then(() => console.log(`Record ${recordID} shared with user ${userID}`))
+      .catch(error => console.error(`Error updating 'sharedWithMe' for user ${userID}:`, error));
+  });
+
+  // Wait for all the share operations to complete
+  await Promise.all(sharePromises).catch(error => console.error('Error in sharing records with all users:', error));
+
+}
