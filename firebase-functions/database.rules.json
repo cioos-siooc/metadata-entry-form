@@ -7,6 +7,13 @@
       "$region": {
          // Allow read access to any authenticated user.
         ".read": "auth.uid != null",
+        "shares": {
+          "$userid": {
+            // Allow write access to any authenticated user. 
+            // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
+            ".write": "auth.uid != null",
+          }
+        },
         "users": {
           "$userid": {
             // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
@@ -16,11 +23,7 @@
                 // Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
 							".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
               }
-						},
-            "sharedWithMe": {
-              // Allow write access to any authenticated user.
-              ".write": "auth.uid != null"
-            }
+						}
           }
         }
       },
