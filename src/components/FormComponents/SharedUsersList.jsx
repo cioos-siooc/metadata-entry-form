@@ -56,11 +56,11 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     Object.keys(record.sharedWith || {}).forEach((userID) => {
       const email = users[userID]?.userinfo?.email;
       if (email) {
-        sharedWithDetails[userID] = { email }; // Or just true if you only need to flag presence
+        sharedWithDetails[userID] = { email };
       }
     });
 
-    setSharedWithUsers(sharedWithDetails); // Update state to hold { userID, email }
+    setSharedWithUsers(sharedWithDetails);
   }, [record.sharedWith, users]);
 
   // Function to add an email to the sharedWith list
@@ -108,7 +108,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
   const shareWithOptions = Object.entries(users)
     .map(([userID, userInfo]) => ({
-      label: userInfo.userinfo?.email, // Use optional chaining in case userinfo is not defined
+      label: userInfo.userinfo?.email,
       userID,
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
@@ -195,7 +195,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                     <ListItemSecondaryAction>
                       <IconButton
                         aria-label="delete"
-                        onClick={() => removeUserFromSharedWith(userID)} // Use userID for removal
+                        onClick={() => removeUserFromSharedWith(userID)} 
                       >
                         <Delete />
                       </IconButton>
