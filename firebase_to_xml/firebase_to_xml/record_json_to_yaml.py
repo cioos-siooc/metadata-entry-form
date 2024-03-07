@@ -30,6 +30,10 @@ def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
     return [eov_translations.get(eov,"") for eov in eovs_en if eov]
 
+def verify_translation(verified, message):
+    if not verified:
+        return message
+    return ""
 
 def strip_keywords(keywords):
     """Strips whitespace from each keyword in either language"""
@@ -73,6 +77,7 @@ def record_json_to_yaml(record):
             + "https://cioos-siooc.github.io/metadata-entry-form",
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
+                "limitationsTranslationMethod":  verify_translation(record.get("translationVerifiedLimitations"), record.get("limitationsTranslationMethod")),
                 "licence": licenses.get(
                     record.get(
                         "license",
@@ -103,8 +108,10 @@ def record_json_to_yaml(record):
         },
         "identification": {
             "title": record.get("title"),
+            "titleTranslationMethod":  verify_translation(record.get("translationVerifiedTitle"), record.get("titleTranslationMethod")),
             "identifier": record.get("datasetIdentifier"),
             "abstract": record.get("abstract"),
+            "abstractTranslationMethod":  verify_translation(record.get("translationVerifiedAbstract"), record.get("abstractTranslationMethod")),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
                 "publication": date_from_datetime_str(record.get("datePublished")),
@@ -158,6 +165,7 @@ def record_json_to_yaml(record):
         record_yaml["platform"] = {
             "id": record.get("platformID"),
             "description": record.get("platformDescription"),
+            "platformDescriptionTranslationMethod":  verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod")),
             "type": record.get("platform"),
         }
 

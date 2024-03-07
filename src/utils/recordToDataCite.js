@@ -224,6 +224,7 @@ function recordToDataCite(metadata, language, region) {
     mappedDataCiteObject.data.attributes.rightsList = rightsList;
 
     // Add descriptions from the abstract field
+    delete metadata.abstract.translations
     mappedDataCiteObject.data.attributes.descriptions = Object.entries(
       metadata.abstract
     ).map(([lang, description]) => ({
