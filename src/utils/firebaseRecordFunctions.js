@@ -206,10 +206,10 @@ export async function loadRegionUsers(region) {
  * Asynchronously shares or unshares a record with a single user by updating the 'shares' node in Firebase.
  * This function directly uses the userID to share or unshare the record.
  * 
- * @param {string} userID - The ID of the user to share the record with or unshare from.
+ * @param {string} userID 
  * @param {string} recordID
  * @param {string} region
- * @param {boolean} share - True to share the record with the user, false to unshare.
+ * @param {boolean} share
  */
 export async function updateSharedRecord(userID, recordID, region, share) {
 
