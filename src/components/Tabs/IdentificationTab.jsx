@@ -11,8 +11,10 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
+import { getDatabase, ref, child, update } from "firebase/database";
+
 import { En, Fr, I18n } from "../I18n";
-import { progressCodes } from "../../isoCodeLists";
+import { progressCodes, metadataScopeCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";
 
 import firebase from "../../firebase";
@@ -83,6 +85,7 @@ const IdentificationTab = ({
 
   async function handleGenerateDOI() {
     setLoadingDoi(true);
+    const database = getDatabase(firebase);
 
     try {
       const mappedDataCiteObject = recordToDataCite(record, language, region);
@@ -103,17 +106,10 @@ const IdentificationTab = ({
           };
 
           // Save the updated record to the Firebase database
-          const recordsRef = firebase
-            .database()
-            .ref(region)
-            .child("users")
-            .child(userID)
-            .child("records");
+          const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
           if (record.recordID) {
-            await recordsRef
-              .child(record.recordID)
-              .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+            await update(child(recordsRef, record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
           }
 
           setDoiGenerated(true);
@@ -165,6 +161,7 @@ const IdentificationTab = ({
 
   async function handleDeleteDOI() {
     setLoadingDoiDelete(true);
+    const database = getDatabase(firebase);
 
     try {
       // Extract DOI from the full URL
@@ -186,17 +183,10 @@ const IdentificationTab = ({
             };
 
             // Save the updated record to the Firebase database
-            const recordsRef = firebase
-              .database()
-              .ref(region)
-              .child("users")
-              .child(userID)
-              .child("records");
+            const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
             if (record.recordID) {
-              await recordsRef
-                .child(record.recordID)
-                .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+              await update(child(recordsRef,record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
             }
 
             setDoiGenerated(false);
@@ -227,9 +217,11 @@ const IdentificationTab = ({
       }
       getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
         .then(response => {
-          updateRecord("doiCreationStatus")(response.data)
+          if (mounted.current)
+            updateRecord("doiCreationStatus")(response.data)
         })
         .catch(err => {
+          /* eslint-disable no-console */
           console.error(err)
         });
     }
@@ -590,6 +582,30 @@ const IdentificationTab = ({
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
+            <En>What is the dataset type?</En>
+            <Fr>Quel est le type de jeu de données ?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "metadataScope")} />
+
+        </QuestionText>
+        <SelectInput
+          value={record.metadataScope || ""}
+          onChange={handleUpdateRecord("metadataScope")}
+          options={Object.keys(metadataScopeCodes)}
+          optionLabels={Object.values(metadataScopeCodes).map(
+            ({ title }) => title[language]
+          )}
+          optionTooltips={Object.values(metadataScopeCodes).map(
+            ({ text }) => text[language]
+          )}
+          disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
+        />
+      </Paper>
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
             <En>What is the status of this dataset?</En>
             <Fr>Quel est l'état de ce jeu de données?</Fr>
           </I18n>
@@ -755,7 +771,7 @@ const IdentificationTab = ({
         </QuestionText>
         {showGenerateDoi && (
           <Button
-            onClick={handleGenerateDOI}
+            onClick={() => handleGenerateDOI}
             disabled={generateDoiDisabled}
             style={{ display: "inline" }}
           >
@@ -773,7 +789,7 @@ const IdentificationTab = ({
         )}
         {showUpdateDoi && (
           <Button
-            onClick={handleUpdateDraftDOI}
+            onClick={() => handleUpdateDraftDOI}
             disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
@@ -791,7 +807,7 @@ const IdentificationTab = ({
         )}
         {showDeleteDoi && (
           <Button
-            onClick={handleDeleteDOI}
+            onClick={() => handleDeleteDOI}
             disabled={record.doiCreationStatus !== 'draft'}
             style={{ display: "inline" }}
           >

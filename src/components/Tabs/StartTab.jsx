@@ -1,16 +1,24 @@
 import React from "react";
 
 import { Save } from "@material-ui/icons";
-import { Typography, Paper, Grid } from "@material-ui/core";
+import {
+  Typography,
+  Paper,
+  Grid,
+  FormControl,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from "@material-ui/core";
 import { useParams } from "react-router-dom";
 
 import regions from "../../regions";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass } from "../FormComponents/QuestionStyles";
+import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
 
-const StartTab = ({ disabled }) => {
+const StartTab = ({ disabled, record, handleUpdateRecord }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
 
@@ -124,6 +132,41 @@ const StartTab = ({ disabled }) => {
             </I18n>
           </li>
         </ul>
+      </Paper>
+      <Paper style={paperClass}>
+        <FormControl>
+          <QuestionText style={{ paddingBottom: "15px" }}>
+            <I18n>
+              <En>What is the theme of this record?</En>
+              <Fr>Quel est le thème de ce disque?</Fr>
+            </I18n>
+            {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
+            <RequiredMark passes={record.resourceType} />
+          </QuestionText>
+          <RadioGroup
+            aria-labelledby="resource-type"
+            defaultValue="oceanographic"
+            name="resource-type"
+            value={record.resourceType}
+            onChange={handleUpdateRecord("resourceType")}
+          >
+            <FormControlLabel
+              value="oceanographic"
+              control={<Radio />}
+              label="Oceanographic"
+            />
+            <FormControlLabel
+              value="biological"
+              control={<Radio />}
+              label="Biological"
+            />
+            <FormControlLabel 
+              value="model"  
+              control={<Radio />} 
+              label="Model" 
+            />
+          </RadioGroup>
+        </FormControl>
       </Paper>
     </Grid>
   );

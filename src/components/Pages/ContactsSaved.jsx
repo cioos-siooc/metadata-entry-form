@@ -20,8 +20,9 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@material-ui/icons";
+import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import {
   newContact,
   cloneContact,
@@ -49,15 +50,11 @@ class Contacts extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (user) => {
       if (user) {
-        const contactsRef = firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(user.uid)
-          .child("contacts");
-        contactsRef.on("value", (records) =>
+        const database = getDatabase(firebase);
+        const contactsRef = ref(database, `${region}/users/${user.uid}/contacts`);
+        onValue(contactsRef, (records) =>
           this.setState({ contacts: records.toJSON(), loading: false })
         );
         this.listenerRefs.push(contactsRef);

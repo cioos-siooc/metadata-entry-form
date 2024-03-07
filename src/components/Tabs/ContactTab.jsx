@@ -177,10 +177,10 @@ const ContactTab = ({
                       showRolePicker
                       value={contact}
                       handleClear={(key) => updateContact(key)("")}
-                      updateContactEvent={updateContactEvent}
-                      updateContact={updateContact}
-                      updateContactRor={updateOrgFromRor}
-                      updateContactOrcid={updateIndFromOrcid}
+                      updateContactEvent={(key) => updateContactEvent(key)}
+                      updateContact={(key) => updateContact(key)}
+                      updateContactRor={(payload) => updateOrgFromRor(payload)}
+                      updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
                       disabled={disabled}
                     />
                   </Grid>

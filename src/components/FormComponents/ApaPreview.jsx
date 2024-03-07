@@ -10,6 +10,7 @@ export function generateCitation(record, language, format) {
     contacts = [],
     datePublished,
     dateRevised,
+    metadataScope,
   } = record;
 
   const publishers = contacts
@@ -51,6 +52,7 @@ export function generateCitation(record, language, format) {
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
       version: `v${record.edition}`,
+      type: metadataScope,
     },
   ];
 

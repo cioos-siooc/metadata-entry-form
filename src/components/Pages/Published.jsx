@@ -1,8 +1,9 @@
 import React from "react";
 import { Typography, List, CircularProgress } from "@material-ui/core";
+import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import {
   cloneRecord,
   loadRegionRecords,
@@ -29,11 +30,12 @@ class Published extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
-    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
-        const usersRef = firebase.database().ref(region).child("users");
+        const database = getDatabase(firebase);
+        const usersRef = ref(database, `${region}/users`);
 
-        usersRef.on("value", (regionRecordsFB) => {
+        onValue(usersRef, (regionRecordsFB) => {
           const records = loadRegionRecords(regionRecordsFB, ["published"]);
           this.setState({ records, loading: false });
         });

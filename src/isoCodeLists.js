@@ -217,3 +217,446 @@ export const depthDirections = {
   heightPositive: { en: "Depth Positive", fr: "Profondeur positive" },
   depthPositive: { en: "Height Positive", fr: "Hauteur positive" },
 };
+
+export const metadataScopeCodes = {
+  collection: {
+    title: {
+      en: "collection",
+      fr: "",
+    },
+    text: {
+      en: "Information applies to an unstructured set of resources described as a group; its parts may also be separately described.",
+      fr: "",
+    },
+  },
+  collectionHardware: {
+    title: {
+      en: "collection hardware",
+      fr: "",
+    },
+    text: {
+      en: "Information applies to description of instruments and platforms used to collect data",
+      fr: "",
+    },
+  },
+  // Required for biological datasets
+  collectionSession: {
+    title: {
+      en: "data collection (sampling)",
+      fr: "",
+    },
+    text: {
+      en: "information applies to the dataset",
+      fr: "",
+    },
+  },
+  dataset: {
+    title: {
+      en: "dataset",
+      fr: "Ensembles de données",
+    },
+    text: {
+      en: "information applies to the dataset",
+      fr: "l'information s'applique à l'ensemble de données",
+    },
+  },
+  document: {
+    title: {
+      en: "document",
+      fr: "document",
+    },
+    text: {
+      en: "information applies to a document",
+      fr: "l'information s'applique à un document",
+    },
+  },
+  model: {
+    title: {
+      en: "model",
+      fr: "modèle",
+    },
+    text: {
+      en: "information applies to a copy or imitation of an existing or hypothetical object",
+      fr: "l'information s'applique à une copie ou à une imitation d'un objet existant ou hypothétique",
+    },
+  },
+  service: {
+    title: {
+      en: "service",
+      fr: "service",
+    },
+    text: {
+      en: "information applies to a capability which a service provider entity makes available to a service user entity through a set of interfaces that define a behaviour, such as a use case",
+      fr: "les informations s'appliquent à une capacité qu'une entité fournisseur de services met à la disposition d'une entité utilisatrice de services par l'intermédiaire d'un ensemble d'interfaces qui définissent un comportement, tel qu'un cas d'utilisation",
+    },
+  },
+  software: {
+    title: {
+        en: "software", fr: "logiciel",
+      },
+      text: {
+        en: "information applies to a computer program or routine",
+        fr: "l'information s'applique à un programme informatique ou à une routine",
+    },
+  },
+};
+export const associationTypeCode = {
+  IsCitedBy: {
+    title: { en: "Is Cited By", fr: "Est cité par" },
+    text: {
+      en: "A is cited by B", fr: "A est cité par B",
+    },
+    isoValue: "crossReference",
+  },
+  Cites: {
+    title: { en: "Cites", fr: "Cites" },
+    text: {
+      en: "A cites B", fr: "A cite B",
+    },
+    isoValue: "crossReference",
+  },
+  IsSupplementTo: {
+    title: { en: "Is Supplement To", fr: "Est un supplément à" },
+    text: {
+      en: "A is supplement to B", fr: "A est un complément à B",
+    },
+    isoValue: "crossReference",
+  },
+  IsSupplementedBy: {
+    title: { en: "Is Supplemented By", fr: "Est complété par" },
+    text: {
+      en: "A is supplemented by B", fr: "A est complété par B",
+    },
+    isoValue: "crossReference",
+  },
+  IsContinuedBy: {
+    title: { en: "Is Continued By", fr: "Est continué par" },
+    text: {
+      en: "A is continued by B", fr: "A est continué par B",
+    },
+    isoValue: "series",
+  },
+  Continues: {
+    title: { en: "Continues", fr: "Continue" },
+    text: {
+      en: "A continues B", fr: "A continue B",
+    },
+    isoValue: "series",
+  },
+  IsDescribedBy: {
+    title: { en: "Is Described By", fr: "Est décrit par" },
+    text: {
+      en: "A is described by B", fr: "A est décrit par B",
+    },
+    isoValue: "crossReference",
+  },
+  Describes: {
+    title: { en: "Describes", fr: "Décrit" },
+    text: {
+      en: "A describes B", fr: "A décrit B",
+    },
+    isoValue: "crossReference",
+  },
+  HasMetadata: {
+    title: { en: "Has Metadata", fr: "Possède des métadonnées" },
+    text: {
+      en: "A has metadata B", fr: "A a des métadonnées B",
+    },
+    isoValue: "crossReference",
+  },
+  IsMetadataFor: {
+    title: { en: "Is Metadata For", fr: "Les métadonnées sont-elles destinées" },
+    text: {
+      en: "A is metadata for B", fr: "A est une métadonnée pour B",
+    },
+    isoValue: "crossReference",
+  },
+  HasVersion: {
+    title: { en: "Has Version", fr: "A une version" },
+    text: {
+      en: "A has version B", fr: "A a la version B",
+    },
+    isoValue: "revisionOf",
+  },
+  IsVersionOf: {
+    title: { en: "Is Version Of", fr: "Est la version de" },
+    text: {
+      en: "A is version of B", fr: "A est la version de B",
+    },
+    isoValue: "revisionOf",
+  },
+  IsNewVersionOf: {
+    title: { en: "Is New Version Of", fr: "Est-ce une nouvelle version de" },
+    text: {
+      en: "A is new version of B", fr: "A est une nouvelle version de B",
+    },
+    isoValue: "revisionOf",
+  },
+  PreviousVersionOf: {
+    title: { en: "Previous Version Of", fr: "Version précédente de" },
+    text: {
+      en: "A is previous version of B", fr: "A est la version précédente de B",
+    },
+    isoValue: "crossReference",
+  },
+  IsPartOf: {
+    title: { en: "Is Part Of", fr: "Fait partie de" },
+    text: {
+      en: "A is part of B", fr: "A fait partie de B",
+    },
+    isoValue: "largerWorkCitation",
+  },
+  HasPart: {
+    title: { en: "Has Part", fr: "A une partie" },
+    text: {
+      en: "A has part B", fr: "A a la partie B",
+    },
+    isoValue: "isComposedOf",
+  },
+  IsPublishedIn: {
+    title: { en: "Is Published In", fr: "Est publié dans" },
+    text: {
+      en: "A is published in B", fr: "A est publié dans B",
+    },
+    isoValue: "largerWorkCitation",
+  },
+  IsReferencedBy: {
+    title: { en: "Is Referenced By", fr: "Est référencé par" },
+    text: {
+      en: "A is referenced by B", fr: "A est référencé par B",
+    },
+    isoValue: "crossReference",
+  },
+  References: {
+    title: { en: "References", fr: "Les références" },
+    text: {
+      en: "A references B", fr: "A références B",
+    },
+    isoValue: "crossReference",
+  },
+  IsDocumentedBy: {
+    title: { en: "Is Documented By", fr: "Est documenté par" },
+    text: {
+      en: "A is documented by B", fr: "A est documenté par B",
+    },
+    isoValue: "crossReference",
+  },
+  Documents: {
+    title: { en: "Documents", fr: "Documents" },
+    text: {
+      en: "A documents B", fr: "Un document B",
+    },
+    isoValue: "crossReference",
+  },
+  IsCompiledBy: {
+    title: { en: "Is Compiled By", fr: "Est compilé par" },
+    text: {
+      en: "A is compiled by B", fr: "A est compilé par B",
+    },
+    isoValue: "dependency",
+  },
+  Compiles: {
+    title: { en: "Compiles", fr: "Compile" },
+    text: {
+      en: "A compiles B", fr: "A compile B",
+    },
+    isoValue: "dependency",
+  },
+  IsVariantFormOf: {
+    title: { en: "Is Variant Form Of", fr: "Est une forme variante de" },
+    text: {
+      en: "A is variant form of B", fr: "A est une variante de B",
+    },
+    isoValue: "crossReference",
+  },
+  IsOriginalFormOf: {
+    title: { en: "Is Original Form Of", fr: "Est la forme originale de" },
+    text: {
+      en: "A is original form of B", fr: "A est la forme originale de B",
+    },
+    isoValue: "crossReference",
+  },
+  IsIdenticalTo: {
+    title: { en: "Is Identical To", fr: "Est identique à" },
+    text: {
+      en: "A is identical to B", fr: "A est identique à B",
+    },
+    isoValue: "crossReference",
+  },
+  IsReviewedBy: {
+    title: { en: "Is Reviewed By", fr: "Est révisé par" },
+    text: {
+      en: "A is reviewed by B", fr: "A est examiné par B",
+    },
+    isoValue: "crossReference",
+  },
+  Reviews: {
+    title: { en: "Reviews", fr: "Commentaires" },
+    text: {
+      en: "A reviews B", fr: "A avis B",
+    },
+    isoValue: "crossReference",
+  },
+  IsDerivedFrom: {
+    title: { en: "Is Derived From", fr: "Dérive de" },
+    text: {
+      en: "A is derived from B", fr: "A est dérivé de B",
+    },
+    isoValue: "dependency",
+  },
+  IsSourceOf: {
+    title: { en: "Is Source Of", fr: "est la source de" },
+    text: {
+      en: "A is source of B", fr: "A est la source de B",
+    },
+    isoValue: "dependency",
+  },
+  Requires: {
+    title: { en: "Requires", fr: "A besoin" },
+    text: {
+      en: "A requires B", fr: "A nécessite B",
+    },
+    isoValue: "dependency",
+  },
+  IsRequiredBy: {
+    title: { en: "Is Required By", fr: "Est requis par" },
+    text: {
+      en: "A is required by B", fr: "A est requis par B",
+    },
+    isoValue: "dependency",
+  },
+  IsObsoletedBy: {
+    title: { en: "Is Obsoleted By", fr: "Est obsolète par" },
+    text: {
+      en: "A is obsoleted by B", fr: "A est obsolète par B",
+    },
+    isoValue: "crossReference",
+  },
+  Obsoletes: {
+    title: { en: "Obsoletes", fr: "Obsolètes" },
+    text: {
+      en: "A obsoletes B", fr: "A rend obsolète B",
+    },
+    isoValue: "revisionOf",
+  },
+};
+
+
+
+export const initiativeTypeCode = {
+  campaign: {
+    title: { en: "campaign", fr: "" },
+    text: {
+      en: "series of organized planned actions", fr: "",
+    },
+  },
+  collection: {
+    title: { en: "collection", fr: "" },
+    text: {
+      en: "accumulation of datasets assembled for a specific purpose", fr: "",
+    },
+  },
+  exercise: {
+    title: { en: "exercise", fr: "" },
+    text: {
+      en: "specific performance of a function or group of functions", fr: "",
+    },
+  },
+  experiment: {
+    title: { en: "experiment", fr: "" },
+    text: {
+      en: "process designed to find if something is effective or valid", fr: "",
+    },
+  },
+  investigation: {
+    title: { en: "investigation", fr: "" },
+    text: {
+      en: "search or systematic inquiry", fr: "",
+    },
+  },
+  mission: {
+    title: { en: "mission", fr: "" },
+    text: {
+      en: "specific operation of a data collection system", fr: "",
+    },
+  },
+  operation: {
+    title: { en: "operation", fr: "" },
+    text: {
+      en: "action that is part of a series of actions", fr: "",
+    },
+  },
+  platform: {
+    title: { en: "platform", fr: "" },
+    text: {
+      en: "vehicle or other support base that holds a sensor", fr: "",
+    },
+  },
+  process: {
+    title: { en: "process", fr: "" },
+    text: {
+      en: "method of doing something involving a number of steps", fr: "",
+    },
+  },
+  program: {
+    title: { en: "program", fr: "" },
+    text: {
+      en: "specific planned activity", fr: "",
+    },
+  },
+  project: {
+    title: { en: "project", fr: "" },
+    text: {
+      en: "organized undertaking, research, or development", fr: "",
+    },
+  },
+  sensor: {
+    title: { en: "sensor", fr: "" },
+    text: {
+      en: "device or piece of equipment which detects or records", fr: "",
+    },
+  },
+  study: {
+    title: { en: "study", fr: "" },
+    text: {
+      en: "examination or investigation", fr: "",
+    },
+  },
+  task: {
+    title: { en: "task", fr: "" },
+    text: {
+      en: "piece of work", fr: "",
+    },
+  },
+  trial: {
+    title: { en: "trial", fr: "" },
+    text: {
+      en: "process of testing to discover or demonstrate somethin", fr: "",
+    },
+  },
+
+};
+
+export const identifierType = [
+  "ARK",
+  "arXiv",
+  "bibcode",
+  "ca.cioos",
+  "DOI",
+  "EAN13",
+  "EISSN",
+  "Handle",
+  "IGSN",
+  "ISBN",
+  "ISSN",
+  "ISTC",
+  "LISSN",
+  "LSID",
+  "PMID",
+  "PURL",
+  "UPC",
+  "URL",
+  "URN",
+  "w3id",
+]
+

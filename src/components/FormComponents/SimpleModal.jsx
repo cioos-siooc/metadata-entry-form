@@ -74,7 +74,7 @@ export default function SimpleModal({
               <Fr>Oui</Fr>
             </I18n>
           </button>
-          <button type="button" onClick={onClose}>
+          <button type="button" onClick={() => onClose()}>
             <I18n>
               <En>No</En>
               <Fr>Non</Fr>

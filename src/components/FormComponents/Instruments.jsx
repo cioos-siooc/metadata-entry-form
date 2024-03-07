@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   TextField,
@@ -32,23 +32,26 @@ const Instruments = ({
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
 
-  function addInstrument() {
+  const addInstrument = useCallback(() => {
     updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
     setActiveInstrument(instruments.length);
-  }
-  function updateInstrumentField(key) {
+  }, [instruments]);
+
+
+  const updateInstrumentField = useCallback((key) => {
     return (e) => {
       const instrumentsCopy = [...instruments];
       instrumentsCopy[activeInstrument][key] = e.target.value;
       updateInstruments(instrumentsCopy);
     };
-  }
-  function removeInstrument() {
+  }, [instruments]);
+
+  const removeInstrument = useCallback(() => {
     updateInstruments(
       instruments.filter((e, index) => index !== activeInstrument)
     );
     if (instruments.length) setActiveInstrument(instruments.length - 2);
-  }
+  }, [instruments]);
 
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
   const versionLabel = <I18n en="Version" fr="Version" />;

@@ -1,12 +1,15 @@
 {
   "presets": [[
     "@babel/preset-env", {
-      "useBuiltIns": "entry"
+      "useBuiltIns": "entry",
+      "loose": true
     }],
     "@babel/preset-react"],
   "plugins": [
-    "@babel/plugin-proposal-class-properties",
+    ["@babel/plugin-transform-class-properties",{"loose": true}],
     "@babel/plugin-proposal-export-default-from",
-    "react-hot-loader/babel"
+    "react-hot-loader/babel",
+    ["@babel/plugin-transform-private-methods",{"loose": true}],
+    ["@babel/plugin-transform-private-property-in-object",{"loose": true}]
   ]
 }

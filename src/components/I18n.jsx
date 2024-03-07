@@ -24,7 +24,7 @@ export const Fr = spanInLanguage("fr");
 */
 
 export const I18n = (props) => {
-  const { en, fr } = props;
+  const { en, fr, children } = props;
   const { language = "en" } = useParams();
 
   // If this component used via attributes
@@ -35,10 +35,10 @@ export const I18n = (props) => {
     return null;
   }
 
-  if (Array.isArray(props.children) && props.children.length !== 2) {
+  if (Array.isArray(children) && children.length !== 2) {
     // eslint-disable-next-line no-console
     console.error(props, "Tag missing french or english!");
   }
 
-  return props.children;
+  return children;
 };

@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { off } from "firebase/database";
 
 class FormClassTemplate extends Component {
   constructor() {
@@ -24,7 +25,7 @@ class FormClassTemplate extends Component {
   unsubscribeAndCloseListeners() {
     if (this.unsubscribe) this.unsubscribe();
     if (this.listenerRefs.length) {
-      this.listenerRefs.forEach((ref) => ref.off());
+      this.listenerRefs.forEach((ref) => off(ref));
     }
   }
 }

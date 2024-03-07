@@ -14,10 +14,11 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
 
 import CheckBoxList from "../FormComponents/CheckBoxList";
@@ -166,10 +167,12 @@ class Reviewer extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
-    this.unsubscribe = auth.onAuthStateChanged((authUser) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (authUser) => {
       if (authUser) {
-        const usersRef = firebase.database().ref(region).child("users");
-        usersRef.on("value", (regionUsersRaw) => {
+        const database = getDatabase(firebase);
+        const usersRef = ref(database, `${region}/users`);
+
+        onValue(usersRef, (regionUsersRaw) => {
           const records = loadRegionRecords(regionUsersRaw, [
             "",
             "submitted",

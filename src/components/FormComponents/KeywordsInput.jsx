@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
@@ -62,7 +62,7 @@ const KeywordsInput = ({
       });
     };
   }
-  function handleHelperChange() {
+  const handleHelperChange = useCallback(() => {
     const keyword = selectedKeyword || inputValue;
     if (keyword || selectedKeywordAltLang) {
       const newValue = { en: value.en, fr: value.fr };
@@ -87,7 +87,7 @@ const KeywordsInput = ({
     setKeyword("");
     setSelectedKeywordAltLang("");
     setInputValue("");
-  }
+  }, [selectedKeyword, inputValue, selectedKeywordAltLang, language]);
 
   return (
     <Grid container spacing={3} direction="column">

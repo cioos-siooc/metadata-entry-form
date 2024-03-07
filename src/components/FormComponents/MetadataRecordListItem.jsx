@@ -186,7 +186,7 @@ const MetadataRecordListItem = ({
           >
             <span>
               <IconButton
-                onClick={onViewEditClick}
+                onClick={() => onViewEditClick()}
                 edge="end"
                 aria-label="Edit record"
               >
@@ -200,7 +200,7 @@ const MetadataRecordListItem = ({
           <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
             <span>
               <IconButton
-                onClick={onDeleteClick}
+                onClick={() => onDeleteClick()}
                 edge="end"
                 aria-label="delete"
               >
@@ -213,7 +213,7 @@ const MetadataRecordListItem = ({
           <Tooltip title={<I18n en="Publish" fr="Publier" />}>
             <span>
               <IconButton
-                onClick={onSubmitClick}
+                onClick={() => onSubmitClick()}
                 edge="end"
                 aria-label="delete"
               >
@@ -240,7 +240,7 @@ const MetadataRecordListItem = ({
             >
               <span>
                 <IconButton
-                  onClick={onSubmitClick}
+                  onClick={() => onSubmitClick()}
                   edge="end"
                   aria-label="submit"
                   disabled={!isValidRecord}
@@ -260,7 +260,7 @@ const MetadataRecordListItem = ({
             >
               <span>
                 <IconButton
-                  onClick={onSubmitClick}
+                  onClick={() => onSubmitClick()}
                   edge="end"
                   aria-label="delete"
                 >
@@ -273,7 +273,7 @@ const MetadataRecordListItem = ({
           <Tooltip title={<I18n en="Un-publish" fr="De-Publier" />}>
             <span>
               <IconButton
-                onClick={onUnPublishClick}
+                onClick={() => onUnPublishClick()}
                 edge="end"
                 aria-label="delete"
               >
@@ -285,7 +285,7 @@ const MetadataRecordListItem = ({
         {showCloneAction && (
           <Tooltip title={<I18n en="Clone" fr="Cloner" />}>
             <span>
-              <IconButton onClick={onCloneClick} edge="end" aria-label="clone">
+              <IconButton onClick={() => onCloneClick()} edge="end" aria-label="clone">
                 <FileCopy />
               </IconButton>
             </span>
@@ -297,7 +297,7 @@ const MetadataRecordListItem = ({
           >
             <span>
               <IconButton
-                onClick={onUnSubmitClick}
+                onClick={() => onUnSubmitClick()}
                 edge="end"
                 aria-label="delete"
               >

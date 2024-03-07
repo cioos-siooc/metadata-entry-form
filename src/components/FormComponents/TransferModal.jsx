@@ -119,11 +119,11 @@ export default function TransferModal({
                 disabled={!email || !emailIsValid || isTransferring}
                 onClick={async () => {
                   setIsTransferring(true);
-                  const transferResult = await onAccept();
+                  const res = await onAccept();
 
-                  setTransferResult(transferResult);
+                  setTransferResult(res);
                   setIsTransferring(false);
-                  if (transferResult) onClose();
+                  if (res) onClose();
                 }}
               >
                 <I18n>

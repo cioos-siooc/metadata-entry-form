@@ -38,6 +38,7 @@ const expectedDataCiteStructure = {
                 },
             ],
             "publisher": "Royal Roads University",
+            "relatedIdentifiers": [],
             "fundingReferences": [
                 {
                   "funderName": "Royal Roads University",
