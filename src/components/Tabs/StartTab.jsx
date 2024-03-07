@@ -22,15 +22,17 @@ import regions from "../../regions";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
-import { loadRegionUsers, storeSharedRecord } from "../../utils/firebaseRecordFunctions";
+import {
+  loadRegionUsers,
+  updateSharedRecord,
+} from "../../utils/firebaseRecordFunctions";
 
 const StartTab = ({ disabled, updateRecord, record }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
   const [users, setUsers] = useState({});
-  const [userEmails, setUserEmails] = useState([]);
-  const [currentEmail, setCurrentEmail] = useState(null);
-  const [sharedWithEmails, setSharedWithEmails] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [sharedWithUsers, setSharedWithUsers] = useState({});
 
   // fetching users based on region
   useEffect(() => {
@@ -55,52 +57,76 @@ const StartTab = ({ disabled, updateRecord, record }) => {
     };
   }, [region]);
 
-  // processing user emails after users are fetched
   useEffect(() => {
-    const userEmailsList = [];
 
-    if (users) {
-      Object.keys(users).forEach((key) => {
-        const userEmail = users[key].userinfo?.email;
-        if (userEmail) {
-          userEmailsList.push(userEmail);
-        }
-      });
-    }
+    const sharedWithDetails = {};
+    Object.keys(record.sharedWith || {}).forEach(userID => {
+      const email = users[userID]?.userinfo?.email;
+      if (email) {
+          sharedWithDetails[userID] = { email }; // Or just true if you only need to flag presence
+      }
+  });
+  
+    setSharedWithUsers(sharedWithDetails); // Update state to hold { userID, email }
+  }, [record.sharedWith, users]);
 
-    const sortedEmailsList = userEmailsList.sort((a, b) => a.localeCompare(b));
 
-    setUserEmails(sortedEmailsList);
-  }, [users]);
-
-  // Synchronize sharedWithEmails with record.sharedWith
-  useEffect(() => {
-    setSharedWithEmails(record.sharedWith || []);
-  }, [record.sharedWith]);
-  console.log(sharedWithEmails)
   // Function to add an email to the sharedWith list
-  const addEmailToSharedWith = (email) => {
+  const addUserToSharedWith = (userID) => {
+ 
+    const updatedSharedWith = {
+      ...record.sharedWith, 
+      [userID]: true,
+    };
+
+    console.log(`adding ${userID} to list`);
+
+    setSharedWithUsers(updatedSharedWith);
+
+    updateRecord("sharedWith")(updatedSharedWith);
+
+    const shareRecordAsync = async () => {
+      try {
+        await updateSharedRecord(userID, record.recordID, region, true);
+      } catch (error) {
+        console.error("Failed to update shared record:", error);
+      }
+    };
+
+    shareRecordAsync();
     
-    if (!sharedWithEmails.includes(email)) {
-      const updatedSharedWith = [...sharedWithEmails, email];
-      console.log(`adding ${email} to list`);
-      setSharedWithEmails(updatedSharedWith); 
-      updateRecord("sharedWith")(updatedSharedWith);
-      storeSharedRecord(updatedSharedWith, users, record.recordID, region)
-    }
   };
 
   // Function to remove an email from the sharedWith list
-  const removeEmailFromSharedWith = (email) => {
-    const updatedSharedWith = sharedWithEmails.filter((e) => e !== email);
-    setSharedWithEmails(updatedSharedWith); 
-    updateRecord("sharedWith", updatedSharedWith);
+  const removeUserFromSharedWith = (userID) => {
+    if (record.sharedWith && record.sharedWith[userID]) {
+      const updatedSharedWith = { ...record.sharedWith };
+      delete updatedSharedWith[userID];
+      updateRecord("sharedWith")(updatedSharedWith);
+
+      const unshareRecordAsync = async () => {
+        try {
+          await updateSharedRecord(userID, record.recordID, region, false);
+        } catch (error) {
+          console.error("Failed to unshare the record:", error);
+        }
+      };
+
+      unshareRecordAsync();
+    }
   };
 
-  console.log(record);
-  console.log(currentEmail);
-  console.log(sharedWithEmails);
-  console.log(users)
+  const shareWithOptions = Object.entries(users)
+    .map(([userID, userInfo]) => ({
+      label: userInfo.userinfo?.email, // Use optional chaining in case userinfo is not defined
+      userID,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // console.log(record.sharedWith);
+  // console.log(currentEmail);
+  // console.log(sharedWithEmails);
+  // console.log(users)
   return (
     <Grid item xs>
       <Paper style={paperClass}>
@@ -229,9 +255,11 @@ const StartTab = ({ disabled, updateRecord, record }) => {
           </Typography>
           <Autocomplete
             id="share-with-emails"
-            options={userEmails}
-            value={currentEmail}
-            onChange={(event, newValue) => setCurrentEmail(newValue)}
+            options={shareWithOptions}
+            getOptionLabel={(option) => option.label}
+            getOptionSelected={(option, value) => option.userID === value.userID}
+            value={currentUser}
+            onChange={(event, newValue) => setCurrentUser(newValue)}
             fullWidth
             filterSelectedOptions
             renderInput={(params) => (
@@ -250,9 +278,9 @@ const StartTab = ({ disabled, updateRecord, record }) => {
             startIcon={<Add />}
             disabled={disabled}
             onClick={() => {
-              if (currentEmail) {
-                addEmailToSharedWith(currentEmail);
-                setCurrentEmail(null);
+              if (currentUser) {
+                addUserToSharedWith(currentUser.userID);
+                setCurrentUser(null);
               }
             }}
             style={{ height: "56px", justifyContent: "center" }}
@@ -268,7 +296,7 @@ const StartTab = ({ disabled, updateRecord, record }) => {
         <Grid container direction="column" justifyContent="flex-start">
           <Grid item xs style={{ margin: "10px" }}>
             <Typography>
-              {sharedWithEmails.length > 0 && (
+              {Object.keys(sharedWithUsers).length > 0 && (
                 <I18n>
                   <En>Users this record is shared with:</En>
                   <Fr>
@@ -280,13 +308,13 @@ const StartTab = ({ disabled, updateRecord, record }) => {
           </Grid>
           <Grid item xs>
             <List>
-              {sharedWithEmails.map((email, index) => (
+              {Object.entries(sharedWithUsers).map(([userID, userDetails], index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={<Typography>{email}</Typography>} />
-                  <ListItemSecondaryAction >
+                  <ListItemText primary={<Typography>{userDetails.email}</Typography>} />
+                  <ListItemSecondaryAction>
                     <IconButton
                       aria-label="delete"
-                      onClick={() => removeEmailFromSharedWith(email)}
+                      onClick={() => removeUserFromSharedWith(userID)} // Use userID for removal
                     >
                       <Delete />
                     </IconButton>
