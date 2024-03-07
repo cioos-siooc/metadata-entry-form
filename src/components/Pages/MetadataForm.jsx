@@ -309,6 +309,8 @@ class MetadataForm extends FormClassTemplate {
     // having userID down here makes it easier to transfer records
     record.userID = userID;
 
+    record.region = region;
+
     record.lastEditedBy = editorInfo;
     let recordID;
     if (record.recordID) {

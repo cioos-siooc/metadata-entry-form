@@ -66,6 +66,15 @@ def fix_lat_long_polygon(polygon):
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
+    user_id = record.get("userID")
+    record_id = record.get("recordID")
+    language = record.get("language")
+    region = record.get("region")
+    
+    base_url = "https://cioos-siooc.github.io/metadata-entry-form#"
+    full_url = f"{base_url}/{language}/{region}/{user_id}/{record_id}"
+
+
     polygon = record.get("map", {}).get("polygon", "")
 
     record_yaml = {
@@ -74,7 +83,7 @@ def record_json_to_yaml(record):
             "identifier": record.get("identifier"),
             "language": record.get("language"),
             "maintenance_note": "Generated from "
-            + "https://cioos-siooc.github.io/metadata-entry-form",
+            + full_url,
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
                 "limitationsTranslationMethod":  verify_translation(record.get("translationVerifiedLimitations"), record.get("limitationsTranslationMethod")),
