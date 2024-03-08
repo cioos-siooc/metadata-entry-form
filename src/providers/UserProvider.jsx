@@ -17,6 +17,7 @@ class UserProvider extends FormClassTemplate {
       reviewers: [],
       isReviewer: false,
       loggedIn: false,
+      hasSharedRecords: false,
     };
   }
 
@@ -67,7 +68,20 @@ class UserProvider extends FormClassTemplate {
             loggedIn: true,
           });
         });
+
         this.listenerRefs.push(permissionsRef);
+
+        // check for shared records
+        firebase
+          .database()
+          .ref(region)
+          .child("shares")
+          .child(uid)
+          .once('value', snapshot => {
+            const hasSharedRecords = snapshot.exists();
+            this.setState({ hasSharedRecords, authIsLoading: false });
+          });
+
       } else {
         this.setState({
           loggedIn: false,
