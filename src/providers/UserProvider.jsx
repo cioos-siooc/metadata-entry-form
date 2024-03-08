@@ -46,7 +46,8 @@ class UserProvider extends FormClassTemplate {
 
         const permissionsRef = firebase
           .database()
-          .ref(region)
+          .ref("admin")
+          .child(region)
           .child(`permissions`);
 
         permissionsRef.on("value", (permissionsFB) => {
