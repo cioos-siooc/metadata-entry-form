@@ -14,7 +14,7 @@ jobs:
           id=$(echo ${{github.event.pull_request.head.ref}} | cut -c 1-20)
           echo "id=$id" >> $GITHUB_OUTPUT
       - name: Delete Preview Channel on Firebase
-        uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@v13.2.1
         with:
           args: hosting:channel:delete pr${{github.event.number}}-${{steps.get-short-name.outputs.id}} --force
         env:
