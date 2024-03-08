@@ -31,7 +31,7 @@ jobs:
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
         working-directory: firebase-functions/functions
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@v13.2.1
         with:
           args: deploy --only functions
         env:
