@@ -71,7 +71,6 @@ const regions = {
 
   iys: {
     title: { en: "IYS", fr: "IYS" },
-    datacitePrefix: "10.21966",
     catalogueTitle: {
       fr: "Catalogue de données du IYS",
       en: "IYS Data Catalogue",
@@ -87,7 +86,6 @@ const regions = {
   },
   hakai: {
     title: { en: "Hakai", fr: "Hakai" },
-    datacitePrefix: "10.21966",
     catalogueTitle: {
       fr: "Catalogue de données du Hakai",
       en: "Hakai Data Catalogue",

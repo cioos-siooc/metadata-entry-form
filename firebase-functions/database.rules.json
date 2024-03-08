@@ -1,0 +1,48 @@
+{
+    "rules": {
+      // Firebase security rules cascade, meaning that if a user is granted read or write permissions 
+      // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level. 
+      // This design requires careful structuring of rules (and data) to ensure appropriate access control 
+      // throughout the database hierarchy.
+      "$region": {
+         // Allow read access to any authenticated user.
+        ".read": "auth.uid != null",
+        "users": {
+          "$userid": {
+            // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
+            ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)"    
+          }
+        }
+      },
+      "admin": { // Section of the database dedicated to admin configurations.
+          "$regionAdmin": {
+            // Allow read access if the authenticated user's email is listed as a reviewer in the permissions for the region.
+                ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+              "projects": {
+                  // Allow write access to projects if the authenticated user's email is listed as a reviewer in the permissions for the region.
+                  ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+                  // Allow read access to any authenticated user.
+                  ".read": "auth.uid != null"
+                  },
+              "permissions": {
+                  "admins": {
+                  // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
+                  ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                  // Allow read access to any authenticated user.
+                  ".read": "auth.uid != null",
+                  },
+                  "reviewers": {
+                  // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
+                  ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                  // Allow read access to any authenticated user.
+                  ".read": "auth.uid != null",
+                  }
+              },
+              "dataciteCredentials": {
+                  // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
+                  ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+              }
+          }
+      }
+    }
+  }

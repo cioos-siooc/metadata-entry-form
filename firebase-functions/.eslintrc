@@ -23,5 +23,6 @@
       }
     ],
     "react/prop-types": 0
-  }
+  },
+  "ignorePatterns": ["database.rules.json"]
 }
