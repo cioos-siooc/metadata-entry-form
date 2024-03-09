@@ -149,7 +149,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                   <TextField
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
-                    label="Share with"
+                    label={<I18n en="Share with..." fr="Partager avec..." />}
                     variant="outlined"
                     style={{ marginTop: "16px" }}
                   />
