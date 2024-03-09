@@ -354,7 +354,7 @@ export default function MiniDrawer({ children }) {
                     <ListItem
                       button
                       key="SharedWithMe"
-                      onClick={() => history.push(`${baseURL}/contacts`)}
+                      onClick={() => history.push(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
