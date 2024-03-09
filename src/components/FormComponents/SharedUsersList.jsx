@@ -11,16 +11,16 @@ import {
   ListItemText,
   IconButton,
   ListItemSecondaryAction,
+  Box,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { paperClass } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
 import {
-    loadRegionUsers,
-    updateSharedRecord,
-  } from "../../utils/firebaseRecordFunctions";
-
+  loadRegionUsers,
+  updateSharedRecord,
+} from "../../utils/firebaseRecordFunctions";
 
 const SharedUsersList = ({ record, updateRecord, region }) => {
   const [users, setUsers] = useState({});
@@ -130,80 +130,88 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
               </Fr>
             </I18n>
           </Typography>
-          <Autocomplete
-            id="share-with-emails"
-            options={shareWithOptions}
-            getOptionLabel={(option) => option.label}
-            getOptionSelected={(option, value) =>
-              option.userID === value.userID
-            }
-            value={currentUser}
-            onChange={(event, newValue) => setCurrentUser(newValue)}
-            fullWidth
-            filterSelectedOptions
-            renderInput={(params) => (
-              <TextField
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...params}
-                label="Share with"
-                variant="outlined"
-                style={{ marginTop: "16px" }}
-              />
-            )}
-          />
         </Grid>
         <Grid item xs style={{ margin: "10px" }}>
-          <Button
-            startIcon={<Add />}
-            onClick={() => {
-              if (currentUser) {
-                addUserToSharedWith(currentUser.userID);
-                setCurrentUser(null);
-              }
-            }}
-            style={{ height: "56px", justifyContent: "center" }}
-          >
-            <Typography>
-              <I18n>
-                <En>Share Record</En>
-                <Fr>Partager l'enregistrement</Fr>
-              </I18n>
-            </Typography>
-          </Button>
-        </Grid>
-        <Grid container direction="column" justifyContent="flex-start">
-          <Grid item xs style={{ margin: "10px" }}>
-            <Typography>
-              {Object.keys(sharedWithUsers).length > 0 && (
-                <I18n>
-                  <En>Users this record is shared with:</En>
-                  <Fr>
-                    Utilisateurs avec lesquels cet enregistrement est partagé :
-                  </Fr>
-                </I18n>
-              )}
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <List>
-              {Object.entries(sharedWithUsers).map(
-                ([userID, userDetails], index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={<Typography>{userDetails.email}</Typography>}
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => removeUserFromSharedWith(userID)} 
-                      >
-                        <Delete />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                )
-              )}
-            </List>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Autocomplete
+                id="share-with-emails"
+                options={shareWithOptions}
+                getOptionLabel={(option) => option.label}
+                getOptionSelected={(option, value) =>
+                  option.userID === value.userID
+                }
+                value={currentUser}
+                onChange={(event, newValue) => setCurrentUser(newValue)}
+                fullWidth
+                filterSelectedOptions
+                renderInput={(params) => (
+                  <TextField
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...params}
+                    label="Share with"
+                    variant="outlined"
+                    style={{ marginTop: "16px" }}
+                  />
+                )}
+              />
+              <Button
+                startIcon={<Add />}
+                onClick={() => {
+                  if (currentUser) {
+                    addUserToSharedWith(currentUser.userID);
+                    setCurrentUser(null);
+                  }
+                }}
+                style={{
+                  height: "46px",
+                  justifyContent: "center",
+                  marginTop: "15px",
+                }}
+              >
+                <Typography>
+                  <I18n>
+                    <En>Share Record</En>
+                    <Fr>Partager l'enregistrement</Fr>
+                  </I18n>
+                </Typography>
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Box style={{ margin: "10px" }}>
+                <Typography style={{ fontWeight: "bold" }}>
+                  {Object.keys(sharedWithUsers).length > 0 && (
+                    <I18n>
+                      <En>Users this record is shared with:</En>
+                      <Fr>
+                        Utilisateurs avec lesquels cet enregistrement est
+                        partagé :
+                      </Fr>
+                    </I18n>
+                  )}
+                </Typography>
+                <List>
+                  {Object.entries(sharedWithUsers).map(
+                    ([userID, userDetails], index) => (
+                      <ListItem key={index}>
+                        <ListItemText
+                          primary={<Typography>{userDetails.email}</Typography>}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton
+                            aria-label="delete"
+                            style={{ marginRight: "90px" }}
+                            onClick={() => removeUserFromSharedWith(userID)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    )
+                  )}
+                </List>
+              </Box>
+            </Grid>
           </Grid>
         </Grid>
       </Paper>
