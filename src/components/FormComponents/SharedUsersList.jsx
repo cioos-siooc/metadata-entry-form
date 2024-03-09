@@ -177,7 +177,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={6} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {Object.keys(sharedWithUsers).length > 0 && (
@@ -200,7 +200,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                         <ListItemSecondaryAction>
                           <IconButton
                             aria-label="delete"
-                            style={{ marginRight: "90px" }}
+                            style={{ marginRight: "60px" }}
                             onClick={() => removeUserFromSharedWith(userID)}
                           >
                             <Delete />
