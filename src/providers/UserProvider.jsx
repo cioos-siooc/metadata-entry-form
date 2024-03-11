@@ -71,16 +71,19 @@ class UserProvider extends FormClassTemplate {
 
         this.listenerRefs.push(permissionsRef);
 
-        // check for shared records
-        firebase
+        // real-time listener for shared records
+        const sharesRef = firebase
           .database()
           .ref(region)
           .child("shares")
-          .child(uid)
-          .once('value', snapshot => {
+          .child(uid);
+
+          sharesRef.on('value', snapshot => {
             const hasSharedRecords = snapshot.exists();
             this.setState({ hasSharedRecords, authIsLoading: false });
           });
+
+          this.listenerRefs.push(sharesRef);
 
       } else {
         this.setState({
