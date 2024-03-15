@@ -25,11 +25,11 @@
                   ".read": "auth.uid != null"
                   },
               "permissions": {
+                // Allow read access to any authenticated user.
+                ".read": "auth.uid != null",
                   "admins": {
                   // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
                   ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-                  // Allow read access to any authenticated user.
-                  ".read": "auth.uid != null",
                   },
                   "reviewers": {
                   // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
