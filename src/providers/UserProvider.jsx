@@ -29,6 +29,7 @@ class UserProvider extends FormClassTemplate {
     this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
+        this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
 
         Sentry.configureScope((scope) => {
           scope.setUser({
@@ -65,7 +66,6 @@ class UserProvider extends FormClassTemplate {
             reviewers,
             isAdmin,
             isReviewer,
-            loggedIn: true,
           });
         });
 
