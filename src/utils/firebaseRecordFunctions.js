@@ -208,22 +208,23 @@ export async function loadRegionUsers(region) {
  * 
  * @param {string} userID 
  * @param {string} recordID
+ * @param {string} authorID - The ID of the author of the record, included when the record is shared.
  * @param {string} region
  * @param {boolean} share
  */
-export async function updateSharedRecord(userID, recordID, region, share) {
+export async function updateSharedRecord(userID, recordID, authorID, region, share) {
 
-  const sharesRef = firebase.database().ref(region).child("shares").child(userID).child(recordID);
+  const sharesRef = firebase.database().ref(region).child("shares").child(userID).child(authorID).child(recordID);
 
   if (share) {
-    // Share the record with the user
-    await sharesRef.set(true)
-      .then(() => console.log(`Record ${recordID} shared with user ${userID}`))
-      .catch(error => console.error(`Error sharing record with user ${userID}:`, error));
+    // Share the record with the user by setting it directly under the authorID node
+    await sharesRef.set({ shared: true })
+      .then(() => console.log(`Record ${recordID} shared by author ${authorID} with user ${userID}`))
+      .catch(error => console.error(`Error sharing record by author ${authorID} with user ${userID}:`, error));
   } else {
     // Unshare the record from the user
     await sharesRef.remove()
-      .then(() => console.log(`Record ${recordID} unshared from user ${userID}`))
-      .catch(error => console.error(`Error unsharing record from user ${userID}:`, error));
+      .then(() => console.log(`Record ${recordID} unshared by author ${authorID} from user ${userID}`))
+      .catch(error => console.error(`Error unsharing record by author ${authorID} from user ${userID}:`, error));
   }
 }
