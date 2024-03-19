@@ -77,7 +77,7 @@ const PlatformEditor = ({
         </QuestionText>
         <SelectInput
           value={platform.type}
-          onChange={updatePlatformEvent("platformId")}
+          onChange={updatePlatformEvent("type")}
           optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
           optionTooltips={sortedPlatformTypes.map(
             (e) => `${e[`definition_${language}`]}`
@@ -128,7 +128,7 @@ const PlatformEditor = ({
         <TextField
           label={<I18n en="Platform ID" fr="ID de plateforme" />}
           value={platform.id}
-          onChange={updatePlatformEvent("platformID")}
+          onChange={updatePlatformEvent("id")}
           fullWidth
           disabled={disabled}
         />
@@ -154,7 +154,7 @@ const PlatformEditor = ({
         </QuestionText>
         <BilingualTextInput
           value={platform.platformDescription}
-          onChange={updatePlatformEvent("platformDescription")}
+          onChange={updatePlatformEvent("description")}
           multiline
           disabled={disabled}
         />
