@@ -26,6 +26,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   const [users, setUsers] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [sharedWithUsers, setSharedWithUsers] = useState({});
+  const authorID = record.userID
 
   // fetching users based on region
   useEffect(() => {
@@ -78,7 +79,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
     const shareRecordAsync = async () => {
       try {
-        await updateSharedRecord(userID, record.recordID, region, true);
+        await updateSharedRecord(userID, record.recordID, authorID, region, true);
       } catch (error) {
         console.error("Failed to update shared record:", error);
       }
