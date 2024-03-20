@@ -369,8 +369,6 @@ class MetadataForm extends FormClassTemplate {
       projects,
     } = this.state;
 
-    console.log(this.state.record)
-
     if (!record) {
       return <NotFound />;
     }
@@ -386,6 +384,7 @@ class MetadataForm extends FormClassTemplate {
       updateRecord: this.updateRecord,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
+  
     return loading ? (
       <CircularProgress />
     ) : (

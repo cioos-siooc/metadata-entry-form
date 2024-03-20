@@ -20,10 +20,10 @@
             ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",    
           	"records": {
               "$recordid": {
-                // Allow read access if the authenticated users's email is listed in the 'shared with' list for the record
-							".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
-                // Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
-							".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
+                // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
+							".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
+              // Allow write access if the authenticated users's uid exists in the 'shared with' object for the record
+            ".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
               }
 						}
           }
