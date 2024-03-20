@@ -20,6 +20,8 @@
             ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",    
           	"records": {
               "$recordid": {
+                // Allow read access if the authenticated users's email is listed in the 'shared with' list for the record
+							".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
                 // Allow write access if the authenticated users's email is listed in the 'shared with' list for the record
 							".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').val().contains(auth.email)",
               }
@@ -43,6 +45,8 @@
                   "admins": {
                   // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
                   ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+                  // Allow read access to any authenticated user.
+                  ".read": "auth.uid != null",
                   },
                   "reviewers": {
                   // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
