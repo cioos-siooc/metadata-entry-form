@@ -185,8 +185,10 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
+            const loggedInUserIsSharedWith = record.sharedWith && record.sharedWith[loggedInUserID] === true;
+
             const loggedInUserCanEditRecord =
-              isReviewer || loggedInUserOwnsRecord;
+              isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
             this.setState({
               record: standardizeRecord(record, null, null, recordID),
@@ -366,6 +368,8 @@ class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen,
       projects,
     } = this.state;
+
+    console.log(this.state.record)
 
     if (!record) {
       return <NotFound />;
