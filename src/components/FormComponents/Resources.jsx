@@ -94,6 +94,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                   <RequiredMark passes={resourceItem.name?.en || resourceItem.name?.fr} />
                 </QuestionText>
                 <BilingualTextInput
+                  name="name"
                   label={nameLabel}
                   value={resourceItem.name}
                   onChange={handleResourceChange("name")}

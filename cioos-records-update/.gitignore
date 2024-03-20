@@ -1,0 +1,6 @@
+__pycache__
+venv
+xml
+key.json
+deploy.sh
+record.json

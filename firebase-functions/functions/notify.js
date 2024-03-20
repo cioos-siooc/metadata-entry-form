@@ -29,7 +29,7 @@ exports.notifyReviewer = functions.database
     // Don't notify if going from published to submitted
     if (after.val() === "submitted" && !before.val()) {
       const reviewersFirebase = await db
-        .ref(`/${region}/permissions/reviewers`)
+        .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
 
       const reviewers = reviewersFirebase.val().split(",");
@@ -97,7 +97,7 @@ exports.notifyUser = functions.database
     const { region, userID, recordID } = context.params;
     if (after.val() === "published") {
       const reviewersFirebase = await db
-        .ref(`/${region}/permissions/reviewers`)
+        .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
 
       const reviewers = reviewersFirebase.val().split(",");

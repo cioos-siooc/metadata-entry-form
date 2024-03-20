@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs.json";
+import { eovs, eovCategories } from "../../eovs";
 
 import firebase from "../../firebase";
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -25,6 +25,7 @@ import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import recordToDataCite from "../../utils/recordToDataCite";
 import { validateField, validateDOI } from "../../utils/validate";
+import { getDatacitePrefix, getAuthHash } from "../../utils/firebaseEnableDoiCreation";
 
 import {
   QuestionText,
@@ -55,12 +56,16 @@ const IdentificationTab = ({
   const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
   const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
+  const [datacitePrefix, setDatacitePrefix] = useState('');
+  const [loadingPrefix, setLoadingPrefix] = useState(true);
+  const [dataciteAuthHash, setDataciteAuthHash] = useState('');
+  const [loadingAuthHash, setLoadingAuthHash] = useState(true);
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
-  const showGenerateDoi = regionInfo.datacitePrefix;
-  const showDoiStatus = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
-  const showUpdateDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
-  const showDeleteDoi = doiIsValid && regionInfo.datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(regionInfo.datacitePrefix);
+  const showGenerateDoi = !loadingPrefix && Boolean(datacitePrefix);
+  const showDoiStatus = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
+  const showUpdateDoi = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
+  const showDeleteDoi = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(datacitePrefix);
   const mounted = useRef(false);
 
   const CatalogueLink = ({ lang }) => (
@@ -85,8 +90,13 @@ const IdentificationTab = ({
     setLoadingDoi(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
-      await createDraftDoi(mappedDataCiteObject)
+      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+      if(!loadingAuthHash && dataciteAuthHash) {
+
+        await createDraftDoi({
+          record: mappedDataCiteObject, 
+          authHash: dataciteAuthHash,
+        })
         .then((response) => {
           return response.data.data.attributes;
         })
@@ -121,19 +131,20 @@ const IdentificationTab = ({
         .finally(() => {
           setLoadingDoi(false);
         });
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error("Error in handleGenerateDOI:", err);
       setDoiErrorFlag(true);
       throw err;
-    }
+    } 
   }
 
   async function handleUpdateDraftDOI() {
     setLoadingDoiUpdate(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
+      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
@@ -143,6 +154,7 @@ const IdentificationTab = ({
       const dataObject = {
         doi,
         data: mappedDataCiteObject,
+        dataciteAuthHash,
       }
 
       const response = await updateDraftDoi( dataObject );
@@ -170,7 +182,7 @@ const IdentificationTab = ({
       // Extract DOI from the full URL
       const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      deleteDraftDoi(doi)
+      deleteDraftDoi({doi, dataciteAuthHash})
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
@@ -215,17 +227,37 @@ const IdentificationTab = ({
     }
   }
 
+  // Fetch Datacite Prefix when component mounts or region changes
+  useEffect(() => {
+    const fetchPrefix = async () => {
+      setLoadingPrefix(true);
+      const prefix = await getDatacitePrefix(region);
+      setDatacitePrefix(prefix);
+      setLoadingPrefix(false);
+    };
+
+    const fetchAuthHash = async () => {
+      setLoadingAuthHash(true);
+      const authHash = await getAuthHash(region);
+      setDataciteAuthHash(authHash);
+      setLoadingAuthHash(false);
+    };
+
+    fetchPrefix();
+    fetchAuthHash();
+  }, [region]);
+
   useEffect(() => {
     mounted.current = true;
     if (debouncedDoiIdValue === '') {
       updateRecord("doiCreationStatus")('')
     }
-    else if (debouncedDoiIdValue && regionInfo.datacitePrefix && doiIsValid) {
+    else if (debouncedDoiIdValue && !loadingPrefix && datacitePrefix && doiIsValid && !loadingAuthHash && dataciteAuthHash) {
       let id = debouncedDoiIdValue
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
       }
-      getDoiStatus({ doi: id, prefix: regionInfo.datacitePrefix })
+      getDoiStatus({ doi: id, prefix: datacitePrefix, authHash: dataciteAuthHash })
         .then(response => {
           updateRecord("doiCreationStatus")(response.data)
         })
@@ -237,7 +269,7 @@ const IdentificationTab = ({
     return () => {
       mounted.current = false;
     };
-  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, regionInfo.datacitePrefix])
+  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, datacitePrefix, loadingPrefix, dataciteAuthHash, loadingAuthHash])
 
   return (
     <div>
@@ -279,6 +311,7 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="title"
           value={record.title}
           onChange={handleUpdateRecord("title")}
           disabled={disabled}
@@ -423,6 +456,7 @@ const IdentificationTab = ({
         </QuestionText>
 
         <BilingualTextInput
+          name="abstract"
           value={record.abstract}
           onChange={handleUpdateRecord("abstract")}
           disabled={disabled}
@@ -739,13 +773,12 @@ const IdentificationTab = ({
             <SupplementalText>
               <I18n>
                 <En>
-                  <p>
-                    Please save the form before generating a draft DOI.
-                  </p>
+                  <p>Please save the form before generating a draft DOI.</p>
                 </En>
                 <Fr>
                   <p>
-                  Veuillez enregistrer le formulaire avant de générer un brouillon de DOI.
+                    Veuillez enregistrer le formulaire avant de générer un
+                    brouillon de DOI.
                   </p>
                 </Fr>
               </I18n>
@@ -779,8 +812,8 @@ const IdentificationTab = ({
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiUpdate ? (
                 <>
-                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                    Loading...
+                  <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                  Loading...
                 </>
               ) : (
                 "Update DOI"
@@ -817,10 +850,7 @@ const IdentificationTab = ({
         )}
         {doiUpdateFlag && (
           <span>
-            <I18n
-              en="DOI has been updated"
-              fr="Le DOI a été mis à jour"
-            />
+            <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
           </span>
         )}
 
@@ -988,6 +1018,7 @@ const IdentificationTab = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="limitations"
           value={record.limitations}
           onChange={handleUpdateRecord("limitations")}
           multiline

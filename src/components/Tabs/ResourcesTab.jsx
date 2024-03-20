@@ -14,6 +14,7 @@ import { validateField } from "../../utils/validate";
 
 const ResourcesTab = ({ disabled, record, updateRecord }) => {
   const updateResources = updateRecord("distribution");
+
   return (
     <div>
       <Paper style={paperClass}>

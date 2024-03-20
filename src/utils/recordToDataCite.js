@@ -2,7 +2,7 @@ import licenses from "./licenses";
 import regions from "../regions";
 
 
-function recordToDataCite(metadata, language, region) {
+function recordToDataCite(metadata, language, region, datacitePrefix) {
 
     // Reduce contacts to a list of creators
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
@@ -152,7 +152,7 @@ function recordToDataCite(metadata, language, region) {
       data: {
         type: "dois",
         attributes: {
-          prefix: regions[region].datacitePrefix,
+          prefix: datacitePrefix,
           creators,
           // Initialize an empty array for titles
           titles: [],
@@ -224,6 +224,7 @@ function recordToDataCite(metadata, language, region) {
     mappedDataCiteObject.data.attributes.rightsList = rightsList;
 
     // Add descriptions from the abstract field
+    delete metadata.abstract.translations
     mappedDataCiteObject.data.attributes.descriptions = Object.entries(
       metadata.abstract
     ).map(([lang, description]) => ({

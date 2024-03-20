@@ -135,6 +135,7 @@ const Platform = ({ record, handleUpdateRecord, disabled }) => {
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="platformDescription"
           value={record.platformDescription}
           onChange={handleUpdateRecord("platformDescription")}
           multiline
