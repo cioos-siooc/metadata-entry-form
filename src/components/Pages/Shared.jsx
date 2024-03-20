@@ -114,13 +114,10 @@ class Shared extends FormClassTemplate {
     this.loadSharedRecords();
   }
 
-  editRecord(key) {
+  editRecord(key, authorID) {
     const { match, history } = this.props;
     const { language, region } = match.params;
-    const { currentUser } = auth;
-    // TO DO: need to fix the following to get the correct author ID from the record
-    //        Trace the record data in this component
-    history.push(`/${language}/${region}/${currentUser.uid}/${key}`);
+    history.push(`/${language}/${region}/${authorID}/${key}`);
   }
 
   render() {
@@ -179,7 +176,7 @@ class Shared extends FormClassTemplate {
                         onCloneClick={() => this.cloneRecord(key)}
                         showEditAction
                         showPercentComplete
-                        onViewEditClick={() => this.editRecord(key)}
+                        onViewEditClick={() => this.editRecord(key, record.userID)}
                       />
                     );
                   })}
