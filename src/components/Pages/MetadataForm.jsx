@@ -42,6 +42,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
+import recordToDataCite from "../../utils/recordToDataCite";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -93,7 +94,11 @@ const styles = (theme) => ({
     right: theme.spacing(2),
   },
 });
+
+
 class MetadataForm extends FormClassTemplate {
+
+
   constructor(props) {
     super(props);
 
@@ -254,6 +259,42 @@ class MetadataForm extends FormClassTemplate {
     return contactsRef.push(contact).getKey();
   }
 
+  async handleUpdateDraftDOI() {
+    const { match } = this.props;
+    const { region, language } = match.params;
+    const { record } = this.state;
+
+    try {
+      const mappedDataCiteObject = recordToDataCite(record, language, region);
+      delete mappedDataCiteObject.data.type;
+      delete mappedDataCiteObject.data.attributes.prefix;
+
+      // Extract DOI from the full URL
+      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+
+      const dataObject = {
+        doi,
+        data: mappedDataCiteObject,
+      }
+
+      const response = await firebase.functions().httpsCallable("updateDraftDoi")( dataObject );
+      const statusCode = response.data.status;
+
+      if (statusCode === 200) {
+        // setDoiUpdateFlag(true);
+      } else {
+        // setDoiErrorFlag(true);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating draft DOI: ', err);
+      // setDoiErrorFlag(true);
+      throw err;
+    } finally {
+      // setLoadingDoiUpdate(false);
+    }
+  }
+
   async handleSubmitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;
@@ -265,6 +306,8 @@ class MetadataForm extends FormClassTemplate {
     const recordUserID = isNewRecord ? loggedInUserID : userID;
 
     const recordID = await this.handleSaveClick();
+    await this.handleUpdateDraftDOI()
+
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
