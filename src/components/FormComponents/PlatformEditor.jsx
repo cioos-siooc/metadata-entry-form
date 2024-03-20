@@ -153,7 +153,7 @@ const PlatformEditor = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
-          value={platform.platformDescription}
+          value={platform.description}
           onChange={updatePlatformEvent("description")}
           multiline
           disabled={disabled}
