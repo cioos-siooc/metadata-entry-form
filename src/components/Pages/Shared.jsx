@@ -4,10 +4,14 @@ import { Typography, CircularProgress, List } from "@material-ui/core";
 import { I18n, En, Fr } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
+import {
+  multipleFirebaseToJSObject,
+
+} from "../../utils/firebaseRecordFunctions";
+
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
-import { multipleFirebaseToJSObject } from "../../utils/firebaseRecordFunctions";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 class Shared extends FormClassTemplate {
@@ -24,24 +28,72 @@ class Shared extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
+    // Set up a listener for changes in authentication state
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        const SharesRef = firebase
+        // Reference to the 'shares' node for the current user in the specified region
+        const sharesRef = firebase
           .database()
           .ref(region)
           .child("shares")
           .child(user.uid);
 
-        SharesRef.on("value", (records) => {
-          const allUsersSharedRecords = records.toJSON();
+        // Listen for changes in the shares data
+        sharesRef.on("value", async (snapshot) => {
+          // Snapshot of the user's shares
+          const sharesSnapshot = snapshot.val();
 
+          // Initialize an array to hold promises for fetching each shared record
+          const recordsPromises = [];
+
+          // Iterate over each shared record, organized by authorID under the user's ID
+          Object.entries(sharesSnapshot || {}).forEach(
+            ([authorID, recordsByAuthor]) => {
+              // Iterate over each recordID shared by this author
+              Object.keys(recordsByAuthor || {}).forEach((recordID) => {
+                // Construct the path to the actual record data based on its authorID and recordID
+                const recordPath = `${region}/users/${authorID}/records/${recordID}`;
+                // Fetch the record's details and store the promise in the array
+                const recordPromise = firebase
+                  .database()
+                  .ref(recordPath)
+                  .once("value")
+                  .then((recordSnapshot) => {
+                    const recordDetails = recordSnapshot.val();
+                    if (recordDetails) {
+                      // Return the complete record details, ensuring all data fields are included
+                      return {
+                        ...recordDetails, // Include all fields of the record
+                      };
+                    }
+                    // Log and return null if no details are found - this replaces the else block
+                    console.error(
+                      `No details found for record ${recordID} by author ${authorID}`
+                    );
+                    return null;
+                  });
+                recordsPromises.push(recordPromise); // Collect the promise
+              });
+            }
+          );
+
+          // Await the resolution of all record detail promises
+          const records = await Promise.all(recordsPromises);
+          // Accumulate the records into an object mapping record IDs to record details
+          const sharedRecords = records.reduce((acc, record) => {
+            acc[record.recordID] = record; // Map each record by its ID
+            return acc;
+          }, {});
+
+          // Update the component state with the fetched shared records and set loading to false
           this.setState({
-            sharedRecords: multipleFirebaseToJSObject(allUsersSharedRecords),
+            sharedRecords: multipleFirebaseToJSObject(sharedRecords),
             loading: false,
           });
         });
 
-        this.listenerRefs.push(SharesRef);
+        // Keep a reference to the listener to remove it when the component unmounts
+        this.listenerRefs.push(sharesRef);
       }
     });
   }
@@ -66,6 +118,8 @@ class Shared extends FormClassTemplate {
     const { match, history } = this.props;
     const { language, region } = match.params;
     const { currentUser } = auth;
+    // TO DO: need to fix the following to get the correct author ID from the record
+    //        Trace the record data in this component
     history.push(`/${language}/${region}/${currentUser.uid}/${key}`);
   }
 
@@ -89,7 +143,7 @@ class Shared extends FormClassTemplate {
         ) : (
           <span>
             <div>
-              <Typography style={{ marginTop: "20px"}}>
+              <Typography style={{ marginTop: "20px" }}>
                 <I18n>
                   <En>
                     The following records have been shared with you for editing.
