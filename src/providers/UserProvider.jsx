@@ -31,6 +31,7 @@ class UserProvider extends FormClassTemplate {
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), (userAuth) => {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
+        this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
 
         Sentry.configureScope((scope) => {
           scope.setUser({
@@ -41,9 +42,10 @@ class UserProvider extends FormClassTemplate {
 
         const database = getDatabase(firebase);
 
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
 
-        const permissionsRef = ref(database, `${region}/permissions`)
+        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
+        
+        const permissionsRef = ref(database, `admin/${region}/permissions`)
 
         onValue(permissionsRef, (permissionsFB) => {
           const permissions = permissionsFB.toJSON();
@@ -59,7 +61,6 @@ class UserProvider extends FormClassTemplate {
             reviewers,
             isAdmin,
             isReviewer,
-            loggedIn: true,
           });
         });
         this.listenerRefs.push(permissionsRef);

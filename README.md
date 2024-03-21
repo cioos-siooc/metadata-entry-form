@@ -66,7 +66,6 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 
 - `GMAIL_USER`
 - `GMAIL_PASS`
-- `DATACITE_AUTH_HASH`
 - `AWS_REGION`
 - `AWS_ACCESSKEYID`
 - `AWS_SECRETACCESSKEY`
@@ -90,3 +89,60 @@ The use of GitHub Secrets and the creation of a virtual `.env` file during the w
 
 - **Exclude `.env` Files from Version Control**: Ensure `.env` files are not included in version control to prevent exposure of sensitive data.
 - **Temporary `.env` Files**: The `.env` file created during the GitHub Actions workflow is virtual and transient. It exists only for the duration of the workflow run and is not committed to the repository.
+
+## Deploying Firebase Realtime Database Security Rules
+
+### Overview
+
+Deploying Firebase Realtime Database security rules via the Firebase CLI is recommended to facilitate version control and consistency across development workflows.
+
+### Setting Up Rules
+
+- **Edit Rules**: Modify the Realtime Database security rules directly in the `database.rules.json` file.
+- **Version Control**: Ensure the rules file is tracked in git to maintain a history of changes.
+
+### Define targets
+
+This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev` (dev). 
+Use Firebase CLI targets to manage rules deployment:
+
+```bash
+firebase target:apply database prod cioos-metadata-form
+firebase target:apply database dev cioos-metadata-form-dev
+```
+
+### Configure firebase.json
+
+Update your `firebase.json` to map `.rules` files to your targets.
+```json
+{
+  "database": [
+    {
+      "target": "prod",
+      "rules": "database.rules.json"
+    },
+    {
+      "target": "dev",
+      "rules": "database.rules.json"
+    }
+  ]
+}
+```
+
+### Deployment
+
+Deploy your database rules using the Firebase CLI:
+
+```bash
+# Deploy to a specific environment
+firebase deploy --only database:dev  # For development
+firebase deploy --only database:prod # For production
+```
+
+#### Important Considerations
+
+- **Deployment Overrides**: Deploying via the Firebase CLI overwrites any existing rules in the Firebase console. Ensure the `.rules` file reflects the latest ruleset. Keep the rules file in sync with any console edits to avoid unintended overwrites.
+- **Version Control**: Use version control to track changes and collaborate on rule development.
+- **Testing**: Thoroughly test your rules in a development or staging environment before deploying to production.
+
+Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.

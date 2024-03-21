@@ -85,7 +85,7 @@ const BilingualTextInput = ({
         const updatedValue = {
           ...value,
           translations: {
-            fr: {
+            [alternateLanguage]: {
               verified: false,
               message:
                 "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
@@ -95,7 +95,7 @@ const BilingualTextInput = ({
         onChange({ target: { name, value: updatedValue } });
       }
     }
-  }, [name, onChange, value]);
+  }, [name, onChange, value, alternateLanguage]);
 
   return (
     <div>

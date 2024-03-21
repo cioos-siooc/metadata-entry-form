@@ -6,11 +6,12 @@ import expectedDataCiteStructure from '../__testData__/expectedDataCiteStructure
 
 const language = 'en';
 const region = 'hakai';
+const datacitePrefix = "10.21966"
 
 describe('recordToDataCite', () => {
     it('should correctly map metadata record to DataCite format', () => {
 
-        const testResult = recordToDataCite(mockMetadataRecord, language, region);
+        const testResult = recordToDataCite(mockMetadataRecord, language, region, datacitePrefix);
 
         // Assert that the output matches the expected structure
         expect(testResult).toEqual(expectedDataCiteStructure);
