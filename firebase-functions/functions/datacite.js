@@ -187,7 +187,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
 });
 
 
-exports.createDraftDoi_PR78 = functions.https.onCall(async (data) => {
+exports.createDraftDoiPR78 = functions.https.onCall(async (data) => {
 
   const { record, region } = data;
 
@@ -252,7 +252,7 @@ exports.createDraftDoi_PR78 = functions.https.onCall(async (data) => {
   }
 });
 
-exports.updateDraftDoi_PR78 = functions.https.onCall(async (data) => {
+exports.updateDraftDoiPR78 = functions.https.onCall(async (data) => {
 
   try {
     authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
@@ -306,7 +306,7 @@ exports.updateDraftDoi_PR78 = functions.https.onCall(async (data) => {
   }
 });
 
-exports.deleteDraftDoi_PR78 = functions.https.onCall(async (data) => {
+exports.deleteDraftDoiPR78 = functions.https.onCall(async (data) => {
 
   const { doi, region } = data;
 
@@ -354,7 +354,7 @@ exports.deleteDraftDoi_PR78 = functions.https.onCall(async (data) => {
   }
 });
 
-exports.getDoiStatus_PR78 = functions.https.onCall(async (data) => {
+exports.getDoiStatusPR78 = functions.https.onCall(async (data) => {
 
   let prefix;
   let authHash
