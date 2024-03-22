@@ -28,13 +28,13 @@ import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import recordToERDDAP from "../../utils/recordToERDDAP";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
+import licenses from "../../utils/licenses"
 
 const MetadataRecordListItem = ({
   record,
@@ -60,7 +60,7 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { downloadRecord } = useContext(UserContext);
+  const { downloadRecord, recordToDataCite } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -102,7 +102,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = [JSON.stringify(recordToDataCite(record, language, region), null, 2)];
+        data = await [JSON.stringify(recordToDataCite({metadata: record, language, regions, region, licenses}), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);

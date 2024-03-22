@@ -23,7 +23,6 @@ import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { validateField, validateDOI } from "../../utils/validate";
 import { getDatacitePrefix, getAuthHash } from "../../utils/firebaseEnableDoiCreation";
 
@@ -43,7 +42,7 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
+  const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, recordToDataCite } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -90,7 +89,7 @@ const IdentificationTab = ({
     setLoadingDoi(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+      const mappedDataCiteObject = await recordToDataCite({metadata: record, language, regions, region, licenses});
       if(!loadingAuthHash && dataciteAuthHash) {
 
         await createDraftDoi({
@@ -144,7 +143,7 @@ const IdentificationTab = ({
     setLoadingDoiUpdate(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+      const mappedDataCiteObject = await recordToDataCite({metadata: record, language, regions, region, licenses});
       delete mappedDataCiteObject.data.type;
       delete mappedDataCiteObject.data.attributes.prefix;
 
