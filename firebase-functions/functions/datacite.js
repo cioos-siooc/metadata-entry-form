@@ -6,7 +6,24 @@ const axios = require("axios");
 
 exports.createDraftDoi = functions.https.onCall(async (data) => {
 
-  const { record, authHash } = data;
+  const { record, region } = data;
+
+  let prefix;
+  let authHash
+
+  try {
+    prefix = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
+      return null;
+  }
+
+  try {
+    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      return null;
+  } 
 
   functions.logger.log(authHash);
 

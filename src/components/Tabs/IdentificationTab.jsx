@@ -94,7 +94,7 @@ const IdentificationTab = ({
 
         await createDraftDoi({
           record: mappedDataCiteObject, 
-          authHash: dataciteAuthHash,
+          region,
         })
         .then((response) => {
           return response.data.data.attributes;
