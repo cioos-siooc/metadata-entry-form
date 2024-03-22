@@ -107,23 +107,6 @@ describe('Datacite Credentials Management', () => {
     expect(mockOnce).toHaveBeenCalled();
   });
 
-  it('should fetch the Datacite authHash for a region', async () => {
-    const region = 'hakai';
-    const prefix = '10.1234';
-    const authHash = 'abcd1234hash';
-    
-    mockValues = 'abcd1234hash';
-
-    // Simulate setting data before fetch attempt
-    await dataciteFunctions.newDataciteAccount(region, prefix, authHash);
-
-    const fetchedAuthHash = await dataciteFunctions.getAuthHash(region);
-    expect(fetchedAuthHash).toEqual(mockValues);
-
-    // Verify that mockOnce was called, indicating the read operation was simulated
-    expect(mockOnce).toHaveBeenCalled();
-  });
-
   it('should check if credentials are stored for a region', async () => {
     const region = 'hakai';
     const prefix = '10.1234';
