@@ -153,7 +153,7 @@ const IdentificationTab = ({
       const dataObject = {
         doi,
         data: mappedDataCiteObject,
-        dataciteAuthHash,
+        region,
       }
 
       const response = await updateDraftDoi( dataObject );

@@ -71,13 +71,18 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
 
-  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  try {
+    authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      return null;
+  } 
 
   try {
     const url = `${baseUrl}${data.doi}/`;
     const response = await axios.put(url, data.data, {
       headers: {
-        'Authorization': `Basic ${data.dataciteAuthHash}`,
+        'Authorization': `Basic ${authHash}`,
         'Content-Type': "application/json",
       },
     });
