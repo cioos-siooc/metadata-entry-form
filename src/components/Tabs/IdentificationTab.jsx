@@ -42,7 +42,7 @@ const IdentificationTab = ({
   projects,
 }) => {
   // eslint-disable-next-line camelcase
-  const { getDoiStatus, recordToDataCite, createDraftDoi_PR78, updateDraftDoi_PR78, deleteDraftDoi_PR78 } = useContext(UserContext);
+  const { getDoiStatus, recordToDataCite, createDraftDoiPR78, updateDraftDoiPR78, deleteDraftDoiPR78 } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -88,7 +88,7 @@ const IdentificationTab = ({
     try {
       const mappedDataCiteObject = await recordToDataCite({metadata: record, language, regions, region, licenses});
 
-      await createDraftDoi_PR78({
+      await createDraftDoiPR78({
         record: mappedDataCiteObject, 
         region,
       })
@@ -151,7 +151,7 @@ const IdentificationTab = ({
         region,
       }
 
-      const response = await updateDraftDoi_PR78( dataObject );
+      const response = await updateDraftDoiPR78( dataObject );
       const statusCode = response.data.status;
 
       if (statusCode === 200) {
@@ -176,7 +176,7 @@ const IdentificationTab = ({
       // Extract DOI from the full URL
       const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      deleteDraftDoi_PR78({doi, region})
+      deleteDraftDoiPR78({doi, region})
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
@@ -244,6 +244,8 @@ const IdentificationTab = ({
       mounted.current = false;
     };
   }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord])
+
+  console.log(record)
 
   return (
     <div>
@@ -780,7 +782,7 @@ const IdentificationTab = ({
         {showUpdateDoi && (
           <Button
             onClick={handleUpdateDraftDOI}
-            disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
+            // disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -798,7 +800,7 @@ const IdentificationTab = ({
         {showDeleteDoi && (
           <Button
             onClick={handleDeleteDOI}
-            disabled={record.doiCreationStatus !== 'draft'}
+            // disabled={record.doiCreationStatus !== 'draft'}
             style={{ display: "inline" }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
