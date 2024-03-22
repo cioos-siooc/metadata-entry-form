@@ -311,7 +311,7 @@ exports.deleteDraftDoiPR78 = functions.https.onCall(async (data) => {
   const { doi, region } = data;
 
   try {
-    authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
       console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
@@ -359,17 +359,19 @@ exports.getDoiStatusPR78 = functions.https.onCall(async (data) => {
   let prefix;
   let authHash
 
+  functions.logger.log(data);
+
   try {
-    prefix = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+    prefix = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("prefix").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
+      console.error(`Error fetching Datacite Prefix for region ${data.region}:`, error);
       return null;
   }
 
   try {
-    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+    authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      console.error(`Error fetching Datacite Auth Hash for region ${data.region}:`, error);
       return null;
   } 
 

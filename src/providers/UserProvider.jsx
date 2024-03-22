@@ -112,6 +112,7 @@ class UserProvider extends FormClassTemplate {
     const createDraftDoiPR78 = firebase.functions().httpsCallable("createDraftDoiPR78");
     const updateDraftDoiPR78 = firebase.functions().httpsCallable("updateDraftDoiPR78");
     const deleteDraftDoiPR78 = firebase.functions().httpsCallable("deleteDraftDoiPR78");
+    const getDoiStatusPR78 = firebase.functions().httpsCallable("getDoiStatusPR78");
 
     return (
       <UserContext.Provider
@@ -129,6 +130,7 @@ class UserProvider extends FormClassTemplate {
           createDraftDoiPR78,
           updateDraftDoiPR78,
           deleteDraftDoiPR78,
+          getDoiStatusPR78,
         }}
       >
         {children}

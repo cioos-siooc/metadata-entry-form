@@ -41,8 +41,7 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  // eslint-disable-next-line camelcase
-  const { getDoiStatus, recordToDataCite, createDraftDoiPR78, updateDraftDoiPR78, deleteDraftDoiPR78 } = useContext(UserContext);
+  const { getDoiStatus, recordToDataCite, createDraftDoiPR78, updateDraftDoiPR78, deleteDraftDoiPR78, getDoiStatusPR78 } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -231,7 +230,7 @@ const IdentificationTab = ({
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
       }
-      getDoiStatus({ doi: id })
+      getDoiStatusPR78({ doi: id, region })
         .then(response => {
           updateRecord("doiCreationStatus")(response.data)
         })
@@ -243,9 +242,7 @@ const IdentificationTab = ({
     return () => {
       mounted.current = false;
     };
-  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord])
-
-  console.log(record)
+  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, getDoiStatusPR78, region])
 
   return (
     <div>
@@ -782,7 +779,7 @@ const IdentificationTab = ({
         {showUpdateDoi && (
           <Button
             onClick={handleUpdateDraftDOI}
-            // disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
+            disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
             style={{ display: 'inline' }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -800,7 +797,7 @@ const IdentificationTab = ({
         {showDeleteDoi && (
           <Button
             onClick={handleDeleteDOI}
-            // disabled={record.doiCreationStatus !== 'draft'}
+            disabled={record.doiCreationStatus !== 'draft'}
             style={{ display: "inline" }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
