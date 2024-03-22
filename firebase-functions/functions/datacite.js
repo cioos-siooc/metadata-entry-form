@@ -173,14 +173,29 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
 
 exports.getDoiStatus = functions.https.onCall(async (data) => {
 
-  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  let prefix;
+  let authHash
+
+  try {
+    prefix = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
+      return null;
+  }
+
+  try {
+    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      return null;
+  } 
 
   try {
     const url = `${baseUrl}${data.doi}/`;
     // TODO: limit response to just the state field. elasticsearch query syntax?
     const response = await axios.get(url, {
       headers: {
-        'Authorization': `Basic ${data.authHash}`
+        'Authorization': `Basic ${authHash}`
       },
     });
     return response.data.data.attributes.state;
@@ -194,7 +209,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
     }
     // if the error is a 404, throw a HttpsError with the code 'not-found'
     if (err.response && err.response.status === 404) {
-      if (data.doi.startsWith(`${data.prefix}/`)) {
+      if (data.doi.startsWith(`${prefix}/`)) {
         return 'not found'
       }
       return 'unknown'

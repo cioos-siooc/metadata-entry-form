@@ -256,7 +256,7 @@ const IdentificationTab = ({
       if (debouncedDoiIdValue.includes('doi.org/')) {
         id = debouncedDoiIdValue.split('doi.org/').pop();
       }
-      getDoiStatus({ doi: id, prefix: datacitePrefix, authHash: dataciteAuthHash })
+      getDoiStatus({ doi: id })
         .then(response => {
           updateRecord("doiCreationStatus")(response.data)
         })
