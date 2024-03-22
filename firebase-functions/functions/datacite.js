@@ -125,11 +125,19 @@ exports.updateDraftDoi = functions.https.onCall(async (data) => {
 
 exports.deleteDraftDoi = functions.https.onCall(async (data) => {
 
-  const { doi, dataciteAuthHash } = data;
+  const { doi, region } = data;
+
+  try {
+    authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+  } catch (error) {
+      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      return null;
+  } 
+
   try {
     const url = `${baseUrl}${doi}/`;
     const response = await axios.delete(url, {
-    headers: { 'Authorization': `Basic ${dataciteAuthHash}` },
+    headers: { 'Authorization': `Basic ${authHash}` },
   });
   return response.status;
   } catch (err) {

@@ -181,7 +181,7 @@ const IdentificationTab = ({
       // Extract DOI from the full URL
       const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      deleteDraftDoi({doi, dataciteAuthHash})
+      deleteDraftDoi({doi, region})
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {
