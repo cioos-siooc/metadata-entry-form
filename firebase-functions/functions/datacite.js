@@ -54,7 +54,7 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 
 exports.updateDraftDoi = functions.https.onCall(async (data) => {
 
-  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
 
   try {
     const url = `${baseUrl}${data.doi}/`;
@@ -143,7 +143,7 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
 
 exports.getDoiStatus = functions.https.onCall(async (data) => {
 
-  const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
+  // const dataciteCred = process.env.DATACITE_AUTH_HASH || dataciteAuthHash.value()
 
   try {
     const url = `${baseUrl}${data.doi}/`;
@@ -185,6 +185,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
   }
 
 });
+
 
 exports.createDraftDoi_PR78 = functions.https.onCall(async (data) => {
 
