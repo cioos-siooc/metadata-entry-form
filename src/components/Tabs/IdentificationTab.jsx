@@ -41,7 +41,8 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, recordToDataCite } = useContext(UserContext);
+  // eslint-disable-next-line camelcase
+  const { getDoiStatus, recordToDataCite, createDraftDoi_PR78, updateDraftDoi_PR78, deleteDraftDoi_PR78 } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -87,7 +88,7 @@ const IdentificationTab = ({
     try {
       const mappedDataCiteObject = await recordToDataCite({metadata: record, language, regions, region, licenses});
 
-      await createDraftDoi({
+      await createDraftDoi_PR78({
         record: mappedDataCiteObject, 
         region,
       })
@@ -150,7 +151,7 @@ const IdentificationTab = ({
         region,
       }
 
-      const response = await updateDraftDoi( dataObject );
+      const response = await updateDraftDoi_PR78( dataObject );
       const statusCode = response.data.status;
 
       if (statusCode === 200) {
@@ -175,7 +176,7 @@ const IdentificationTab = ({
       // Extract DOI from the full URL
       const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      deleteDraftDoi({doi, region})
+      deleteDraftDoi_PR78({doi, region})
         .then((response) => response.data)
         .then(async (statusCode) => {
           if (statusCode === 204) {

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { createContext } from "react";
 import { withRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
@@ -108,6 +109,9 @@ class UserProvider extends FormClassTemplate {
     const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
     const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
     const recordToDataCite = firebase.functions().httpsCallable("recordToDataCite");
+    const createDraftDoi_PR78 = firebase.functions().httpsCallable("createDraftDoi_PR78");
+    const updateDraftDoi_PR78 = firebase.functions().httpsCallable("updateDraftDoi_PR78");
+    const deleteDraftDoi_PR78 = firebase.functions().httpsCallable("deleteDraftDoi_PR78");
 
     return (
       <UserContext.Provider
@@ -122,6 +126,9 @@ class UserProvider extends FormClassTemplate {
           getDoiStatus,
           checkURLActive,
           recordToDataCite,
+          createDraftDoi_PR78,
+          updateDraftDoi_PR78,
+          deleteDraftDoi_PR78,
         }}
       >
         {children}
