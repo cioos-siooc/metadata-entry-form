@@ -23,10 +23,13 @@ const StartTab = ({ disabled, updateRecord, record, userID }) => {
   const [showShareRecord, setShowShareRecord] = useState(false)
 
   useEffect(() => {
-    if (userID === record.userID) {
+
+    const isNewRecord = !record.recordID;
+
+    if (userID === record.userID || isNewRecord) {
       setShowShareRecord(true);
     }
-  }, [userID, record.userID]);
+  }, [userID, record.userID, record.recordID]);
 
   return (
     <Grid item xs>
