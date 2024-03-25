@@ -109,6 +109,7 @@ class UserProvider extends FormClassTemplate {
     const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
     const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
     const recordToDataCite = firebase.functions().httpsCallable("recordToDataCite");
+    const getCredentialsStored = firebase.functions().httpsCallable("getCredentialsStored");
     const createDraftDoiPR78 = firebase.functions().httpsCallable("createDraftDoiPR78");
     const updateDraftDoiPR78 = firebase.functions().httpsCallable("updateDraftDoiPR78");
     const deleteDraftDoiPR78 = firebase.functions().httpsCallable("deleteDraftDoiPR78");
@@ -127,6 +128,7 @@ class UserProvider extends FormClassTemplate {
           getDoiStatus,
           checkURLActive,
           recordToDataCite,
+          getCredentialsStored,
           createDraftDoiPR78,
           updateDraftDoiPR78,
           deleteDraftDoiPR78,

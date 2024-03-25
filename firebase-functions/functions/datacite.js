@@ -416,6 +416,23 @@ exports.getDoiStatusPR78 = functions.https.onCall(async (data) => {
 
 });
 
+exports.getCredentialsStored = functions.https.onCall(async (data) => {
+  try {
+    const credentialsRef = admin.database().ref('admin').child(data).child("dataciteCredentials");
+    const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
+    const prefixSnapshot = await credentialsRef.child("prefix").once("value");
+
+    const authHash = authHashSnapshot.val();
+    const prefix = prefixSnapshot.val();
+
+    // Check for non-null and non-empty
+    return authHash && authHash !== "" && prefix && prefix !== "";
+  } catch (error) {
+    console.error("Error checking Datacite credentials:", error);
+    return false;
+  }
+});
+
 exports.recordToDataCite = functions.https.onCall(async (data) => {
 
   const { metadata, language, regions, region, licenses } = data;
