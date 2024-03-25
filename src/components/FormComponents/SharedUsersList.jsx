@@ -54,7 +54,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     return () => {
       isMounted = false;
     };
-  }, [region]);
+  }, [region, record.recordID]);
 
   // Updates state with user emails for each userID in record.sharedWith, to track which users a record is shared with.
   useEffect(() => {
