@@ -54,6 +54,7 @@ const IdentificationTab = ({
   const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
   const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
+  const [doiDeleteFlag, setDoiDeleteFlag] = useState(false);
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
   const [showGenerateDoi, setShowGenerateDoi] = useState(false);
@@ -120,6 +121,7 @@ const IdentificationTab = ({
         }
 
         setDoiGenerated(true);
+        setDoiDeleteFlag(false);
       })
       .finally(() => {
         setLoadingDoi(false);
@@ -181,6 +183,9 @@ const IdentificationTab = ({
             // Update the record object with datasetIdentifier and doiCreationStatus
             updateRecord("datasetIdentifier")("");
             updateRecord("doiCreationStatus")("");
+
+            setDoiUpdateFlag(false);
+            setDoiDeleteFlag(true);
 
             // Create a new object with updated properties
             const updatedRecord = {
@@ -770,7 +775,7 @@ const IdentificationTab = ({
           <Button
             onClick={handleGenerateDOI}
             disabled={generateDoiDisabled}
-            style={{ display: "inline" }}
+            style={{ display: "inline", marginRight: "8px" }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoi ? (
@@ -788,7 +793,7 @@ const IdentificationTab = ({
           <Button
             onClick={handleUpdateDraftDOI}
             disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
-            style={{ display: 'inline' }}
+            style={{ display: 'inline', marginRight: "8px" }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiUpdate ? (
@@ -806,7 +811,7 @@ const IdentificationTab = ({
           <Button
             onClick={handleDeleteDOI}
             disabled={record.doiCreationStatus !== 'draft'}
-            style={{ display: "inline" }}
+            style={{ display: "inline", marginRight: "8px" }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
               {loadingDoiDelete ? (
@@ -834,6 +839,11 @@ const IdentificationTab = ({
             <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
           </span>
         )}
+        {doiDeleteFlag && (
+        <span>
+          <I18n en="DOI has been deleted" fr="Le DOI a été supprimé" />
+        </span>
+      )}
 
         <TextField
           style={{ marginTop: "10px" }}
