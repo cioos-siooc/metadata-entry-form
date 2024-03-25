@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
-import { paperClass } from "./QuestionStyles";
+import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
 import {
   loadRegionUsers,
@@ -26,11 +26,16 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   const [users, setUsers] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [sharedWithUsers, setSharedWithUsers] = useState({});
+  const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
   const authorID = record.userID
 
   // fetching users based on region
   useEffect(() => {
     let isMounted = true;
+
+    if (record.recordID) {
+      setShareRecordDisabled(false)
+    }
 
     const fetchRegionUsers = async () => {
       try {
@@ -131,6 +136,18 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
               </Fr>
             </I18n>
           </Typography>
+          <SupplementalText>
+              <I18n>
+                <En>
+                  <p>Please save the form before sharing access.</p>
+                </En>
+                <Fr>
+                  <p>
+                  Veuillez enregistrer le formulaire avant de partager l'accès.
+                  </p>
+                </Fr>
+              </I18n>
+            </SupplementalText>
         </Grid>
         <Grid item xs style={{ margin: "10px" }}>
           <Grid container spacing={2}>
@@ -157,6 +174,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 )}
               />
               <Button
+                disabled={shareRecordDisabled}
                 startIcon={<Add />}
                 onClick={() => {
                   if (currentUser) {
