@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
 import {
@@ -17,9 +17,16 @@ import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
 import SharedUsersList from "../FormComponents/SharedUsersList";
 
 
-const StartTab = ({ disabled, updateRecord, record }) => {
+const StartTab = ({ disabled, updateRecord, record, userID }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
+  const [showShareRecord, setShowShareRecord] = useState(false)
+
+  useEffect(() => {
+    if (userID === record.userID) {
+      setShowShareRecord(true);
+    }
+  }, [userID, record.userID]);
 
   return (
     <Grid item xs>
@@ -132,11 +139,13 @@ const StartTab = ({ disabled, updateRecord, record }) => {
           </li>
         </ul>
       </Paper>
-      <SharedUsersList
+      {showShareRecord && (
+        <SharedUsersList
         region={region}
         updateRecord={updateRecord}
         record={record}
       />
+      )}
     </Grid>
   );
 };

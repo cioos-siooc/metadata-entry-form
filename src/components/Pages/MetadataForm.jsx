@@ -134,7 +134,7 @@ class MetadataForm extends FormClassTemplate {
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
 
-        this.setState({ projects: await getRegionProjects(region) });
+        this.setState({ projects: await getRegionProjects(region), loggedInUserID: user.uid });
         let editorInfo;
         // get info of the person openeing the record
         const editorDataRef = firebase
@@ -367,6 +367,7 @@ class MetadataForm extends FormClassTemplate {
       loggedInUserCanEditRecord,
       saveIncompleteRecordModalOpen,
       projects,
+      loggedInUserID,
     } = this.state;
 
     if (!record) {
@@ -382,6 +383,7 @@ class MetadataForm extends FormClassTemplate {
       record,
       handleUpdateRecord: this.handleUpdateRecord,
       updateRecord: this.updateRecord,
+      userID:loggedInUserID,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
   
