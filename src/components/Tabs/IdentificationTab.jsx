@@ -41,7 +41,7 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { getDoiStatus, recordToDataCite, createDraftDoiPR78, updateDraftDoiPR78, deleteDraftDoiPR78, getDoiStatusPR78 } = useContext(UserContext);
+  const { getDoiStatus, getCredentialsStored, recordToDataCite, createDraftDoiPR78, updateDraftDoiPR78, deleteDraftDoiPR78, getDoiStatusPR78 } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
@@ -56,8 +56,7 @@ const IdentificationTab = ({
   const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
 
   const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
-  // const showGenerateDoi = !loadingPrefix && Boolean(datacitePrefix);
-  const showGenerateDoi = true;
+  const [showGenerateDoi, setShowGenerateDoi] = useState(false);
   const showDoiStatus = doiIsValid  && record.doiCreationStatus && record.doiCreationStatus !== ""
   const showUpdateDoi = doiIsValid && record.doiCreationStatus !== "";
   const showDeleteDoi = doiIsValid && record.doiCreationStatus !== "";
@@ -243,6 +242,15 @@ const IdentificationTab = ({
       mounted.current = false;
     };
   }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, getDoiStatusPR78, region])
+
+  useEffect(() => {
+    const checkCredentials = async () => {
+      const credentialsStored = await getCredentialsStored(region);
+      setShowGenerateDoi(credentialsStored);
+    };
+
+    checkCredentials();
+  }, [region, getCredentialsStored]); 
 
   return (
     <div>
