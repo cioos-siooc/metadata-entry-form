@@ -6,6 +6,7 @@ import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
+import Shared from "./Pages/Shared"
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
@@ -55,6 +56,7 @@ const Pages = ({ match }) => {
                   component={EditContact}
                 />
                 <Route path={`${match.path}/contacts`} component={Contacts} />
+                <Route path={`${match.path}/shared`} component={Shared} />
                 <Route
                   path={`${match.path}/:userID/:recordID`}
                   component={MetadataForm}

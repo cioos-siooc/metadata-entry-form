@@ -1,24 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
-import { Typography, Paper, Grid } from "@material-ui/core";
+import {
+  Typography,
+  Paper,
+  Grid,
+} from "@material-ui/core";
+
 import { useParams } from "react-router-dom";
 
 import regions from "../../regions";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass } from "../FormComponents/QuestionStyles";
+import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
+import SharedUsersList from "../FormComponents/SharedUsersList";
 
-const StartTab = ({ disabled }) => {
+
+const StartTab = ({ disabled, updateRecord, record, userID }) => {
   const { region } = useParams();
   const regionInfo = regions[region];
+  const [showShareRecord, setShowShareRecord] = useState(false)
+
+  useEffect(() => {
+
+    const isNewRecord = !record.recordID;
+
+    if (userID === record.userID || isNewRecord) {
+      setShowShareRecord(true);
+    }
+  }, [userID, record.userID, record.recordID]);
 
   return (
     <Grid item xs>
       <Paper style={paperClass}>
         {disabled && (
-          <Typography>
+          <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>
                 <b>
@@ -33,7 +50,7 @@ const StartTab = ({ disabled }) => {
                 </b>
               </Fr>
             </I18n>
-          </Typography>
+          </QuestionText>
         )}
         <Typography variant="body1">
           <I18n>
@@ -125,6 +142,13 @@ const StartTab = ({ disabled }) => {
           </li>
         </ul>
       </Paper>
+      {showShareRecord && (
+        <SharedUsersList
+        region={region}
+        updateRecord={updateRecord}
+        record={record}
+      />
+      )}
     </Grid>
   );
 };

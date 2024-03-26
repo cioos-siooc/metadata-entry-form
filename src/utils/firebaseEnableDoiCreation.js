@@ -44,30 +44,3 @@ export async function getDatacitePrefix(region) {
       return null;
   }
 }
-
-export async function getAuthHash(region) {
-  try {
-    const authHash = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
-    return authHash;
-} catch (error) {
-    console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
-    return null;
-} 
-}
-
-export async function getCredentialsStored(region) {
-  try {
-    const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
-    const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
-    const prefixSnapshot = await credentialsRef.child("prefix").once("value");
-
-    const authHash = authHashSnapshot.val();
-    const prefix = prefixSnapshot.val();
-
-    // Check for non-null and non-empty
-    return authHash && authHash !== "" && prefix && prefix !== "";
-  } catch (error) {
-    console.error("Error checking Datacite credentials:", error);
-    return false;
-  }
-}

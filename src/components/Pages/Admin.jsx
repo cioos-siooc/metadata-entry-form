@@ -18,7 +18,8 @@ import CancelIcon from '@material-ui/icons/Cancel';
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
-import { getDatacitePrefix, getCredentialsStored, deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
+import { UserContext } from "../../providers/UserProvider";
+import { getDatacitePrefix, deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -53,6 +54,7 @@ class Admin extends FormClassTemplate {
   async componentDidMount() {
     const { match } = this.props;
     const { region } = match.params;
+    const { getCredentialsStored } = this.context;
 
     this.setState({ loading: true });
 
@@ -497,4 +499,5 @@ class Admin extends FormClassTemplate {
   }
 }
 
+Admin.contextType = UserContext;
 export default Admin;

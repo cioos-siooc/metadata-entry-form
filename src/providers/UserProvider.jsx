@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { createContext } from "react";
 import { withRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
@@ -17,6 +18,7 @@ class UserProvider extends FormClassTemplate {
       reviewers: [],
       isReviewer: false,
       loggedIn: false,
+      hasSharedRecords: false,
     };
   }
 
@@ -67,7 +69,23 @@ class UserProvider extends FormClassTemplate {
             isReviewer,
           });
         });
+
         this.listenerRefs.push(permissionsRef);
+
+        // real-time listener for shared records
+        const sharesRef = firebase
+          .database()
+          .ref(region)
+          .child("shares")
+          .child(uid);
+
+          sharesRef.on('value', snapshot => {
+            const hasSharedRecords = snapshot.exists();
+            this.setState({ hasSharedRecords, authIsLoading: false });
+          });
+
+          this.listenerRefs.push(sharesRef);
+
       } else {
         this.setState({
           loggedIn: false,
@@ -90,6 +108,12 @@ class UserProvider extends FormClassTemplate {
     const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
     const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
     const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
+    const recordToDataCite = firebase.functions().httpsCallable("recordToDataCite");
+    const getCredentialsStored = firebase.functions().httpsCallable("getCredentialsStored");
+    const createDraftDoiPR78 = firebase.functions().httpsCallable("createDraftDoiPR78");
+    const updateDraftDoiPR78 = firebase.functions().httpsCallable("updateDraftDoiPR78");
+    const deleteDraftDoiPR78 = firebase.functions().httpsCallable("deleteDraftDoiPR78");
+    const getDoiStatusPR78 = firebase.functions().httpsCallable("getDoiStatusPR78");
 
     return (
       <UserContext.Provider
@@ -103,6 +127,12 @@ class UserProvider extends FormClassTemplate {
           deleteDraftDoi,
           getDoiStatus,
           checkURLActive,
+          recordToDataCite,
+          getCredentialsStored,
+          createDraftDoiPR78,
+          updateDraftDoiPR78,
+          deleteDraftDoiPR78,
+          getDoiStatusPR78,
         }}
       >
         {children}
