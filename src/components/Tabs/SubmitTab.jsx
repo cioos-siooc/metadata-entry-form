@@ -26,10 +26,11 @@ import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
-const SubmitTab = ({ record, submitRecord }) => {
+const SubmitTab = ({ record, submitRecord, userID }) => {
   const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
 
   const { language } = useParams();
 
@@ -38,8 +39,11 @@ const SubmitTab = ({ record, submitRecord }) => {
   const regionInfo = GetRegionInfo();
 
   useEffect(() => {
+    mounted.current = true;
 
-    mounted.current = true
+    if (userID === record.userID) {
+      setShowSubmitButton(true);
+    }
 
     const getUrlWarningsByTab = async (recordObj) => {
       const fields = Object.keys(warnings);
@@ -71,8 +75,7 @@ const SubmitTab = ({ record, submitRecord }) => {
         },
         {}
       );
-      if (mounted.current)
-        setValidationWarnings(fieldWarningInfoReduced);
+      if (mounted.current) setValidationWarnings(fieldWarningInfoReduced);
     };
 
     getUrlWarningsByTab(record);
@@ -80,8 +83,7 @@ const SubmitTab = ({ record, submitRecord }) => {
     return () => {
       mounted.current = false;
     };
-
-  }, [record]);
+  }, [record, userID]);
 
   return (
     <Paper style={paperClass}>
@@ -152,9 +154,8 @@ const SubmitTab = ({ record, submitRecord }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  {isSubmitting ? (
-                    <CircularProgress />
-                  ) : (
+                  {isSubmitting && <CircularProgress />}
+                  {!isSubmitting && showSubmitButton && (
                     <Button
                       onClick={() => {
                         setSubmitting(true);
@@ -233,7 +234,7 @@ const SubmitTab = ({ record, submitRecord }) => {
                     </I18n>
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs>
                   <Typography>
                     <I18n>
