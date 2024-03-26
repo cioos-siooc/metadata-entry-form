@@ -102,7 +102,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
       const unshareRecordAsync = async () => {
         try {
-          await updateSharedRecord(userID, record.recordID, region, false);
+          await updateSharedRecord(userID, record.recordID, authorID, region, false);
         } catch (error) {
           console.error("Failed to unshare the record:", error);
         }
