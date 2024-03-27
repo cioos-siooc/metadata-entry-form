@@ -285,7 +285,7 @@ class MetadataForm extends FormClassTemplate {
   }
 
   handleSaveUpdateInstrument(instrument) {
-    const { instrumentID } = instrument;
+    const { id } = instrument;
     const { match } = this.props;
 
     const { region } = match.params;
@@ -298,17 +298,19 @@ class MetadataForm extends FormClassTemplate {
       .child("instruments");
 
     // existing instrument
-    if (instrumentID) {
-      instrumentsRef.child(instrumentID).update(instrument);
-      return instrumentID;
+    if (id) {
+      instrumentsRef.child(id).update(instrument);
+      return id;
     }
     // new instrument
+    // eslint-disable-next-line no-debugger
+    debugger
 
     return instrumentsRef.push(instrument).getKey();
   }
 
   handleSaveUpdatePlatform(platform) {
-    const { platformID } = platform;
+    const { id } = platform;
     const { match } = this.props;
 
     const { region } = match.params;
@@ -321,9 +323,9 @@ class MetadataForm extends FormClassTemplate {
       .child("platforms");
 
     // existing instrument
-    if (platformID) {
-      platformRef.child(platformID).update(platform);
-      return platformID;
+    if (id) {
+      platformRef.child(id).update(platform);
+      return id;
     }
     // new instrument
 

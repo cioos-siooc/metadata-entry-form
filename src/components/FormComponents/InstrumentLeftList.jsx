@@ -60,8 +60,7 @@ const InstrumentLeftList = ({
   }
   function duplicateInstrument(instrumentIndex) {
     const duplicatedInstrument = deepCopy(instruments[instrumentIndex]);
-    if (duplicatedInstrument.lastName) duplicatedInstrument.lastName += " (Copy)";
-    else duplicatedInstrument.orgName += " (Copy)";
+    if (duplicatedInstrument.id) duplicatedInstrument.id += " (Copy)";
 
     updateInstruments(instruments.concat(duplicatedInstrument));
   }
@@ -179,10 +178,6 @@ const InstrumentLeftList = ({
                             <IconButton
                               onClick={() => {
                                 const instrument = deepCopy(instruments[i]);
-
-                                // at this point the instrument object could have
-                                // a role field, which shouldn't be saved
-                                delete instrument.role;
 
                                 instrument.instrumentID = saveUpdateInstrument(instrument);
 

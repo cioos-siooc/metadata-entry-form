@@ -60,8 +60,7 @@ const PlatformLeftList = ({
   }
   function duplicatePlatform(platformIndex) {
     const duplicatedPlatform = deepCopy(platforms[platformIndex]);
-    if (duplicatedPlatform.lastName) duplicatedPlatform.lastName += " (Copy)";
-    else duplicatedPlatform.orgName += " (Copy)";
+    if (duplicatedPlatform.id) duplicatedPlatform.id += " (Copy)";
 
     updatePlatforms(platforms.concat(duplicatedPlatform));
   }
@@ -180,11 +179,7 @@ const PlatformLeftList = ({
                               onClick={() => {
                                 const platform = deepCopy(platforms[i]);
 
-                                // at this point the platform object could have
-                                // a role field, which shouldn't be saved
-                                delete platform.role;
-
-                                platform.platformID = saveUpdatePlatform(platform);
+                                platform.id = saveUpdatePlatform(platform);
 
                                 setItems(platforms);
                               }}
