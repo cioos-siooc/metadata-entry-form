@@ -92,7 +92,7 @@ const Platform = ({
                       </Tooltip>
                     </a>
 
-                    <RequiredMark passes={validateField(record, "platform")} />
+                    <RequiredMark passes={platform.type} />
                   </SupplementalText>
                 </QuestionText>
                 <SelectInput
@@ -142,7 +142,7 @@ const Platform = ({
                         , utilisez cet identifiant
                       </Fr>
                     </I18n>
-                    <RequiredMark passes={validateField(record, "platformID")} />
+                    <RequiredMark passes={platform.id} />
                   </SupplementalText>
                 </QuestionText>
 

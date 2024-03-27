@@ -214,20 +214,12 @@ const validators = {
         "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
     },
   },
-  platformID: {
+  platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
+    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id),
     error: {
-      en: "Missing platform ID",
-      fr: "ID de la plateforme manquant",
-    },
-  },
-  platform: {
-    tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
-    error: {
-      en: "Missing platform type",
-      fr: "Type de plateforme manquant",
+      en: "Missing platform type or ID",
+      fr: "Type ou ID de plateforme manquant",
     },
   },
   instruments: {
@@ -293,7 +285,7 @@ export const validateFieldWarning = async (record, fieldName) => {
   // if no validator funciton exists, then it is not a required field
   const validationFunction =
     (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
-  
+
   const res = await validationFunction(valueToValidate, record);
   return validationFunction && res;
 };
