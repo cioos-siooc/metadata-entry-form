@@ -174,6 +174,7 @@ const Platform = ({
           </SupplementalText>
         </QuestionText>
         <BilingualTextInput
+          name="platformDescription"
           value={platform.description}
           onChange={updatePlatformField("description")}
           multiline

@@ -174,7 +174,7 @@ export function returnRecordToDraft(region, userID, key) {
 export async function getRegionProjects(region) {
   const projects = Object.values(
     (
-      await firebase.database().ref(region).child("projects").once("value")
+      await firebase.database().ref('admin').child(region).child("projects").once("value")
     ).toJSON() || {}
   );
   return projects;

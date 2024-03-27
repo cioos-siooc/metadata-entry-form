@@ -219,12 +219,16 @@ class MetadataForm extends FormClassTemplate {
               record: standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
             });
+
             this.setState({ loading: false });
           });
           this.listenerRefs.push(ref);
         }
       }
     });
+
+
+
   }
 
   toggleModal = (modalName, state, key = "", userID) => {
@@ -380,6 +384,8 @@ class MetadataForm extends FormClassTemplate {
 
     // having userID down here makes it easier to transfer records
     record.userID = userID;
+
+    record.region = region;
 
     record.lastEditedBy = editorInfo;
     let recordID;

@@ -2,7 +2,7 @@ import licenses from "./licenses";
 import regions from "../regions";
 
 
-function recordToDataCite(metadata, language, region) {
+function recordToDataCite(metadata, language, region, datacitePrefix) {
 
     // Reduce contacts to a list of creators
     const creators = metadata.contacts ? metadata.contacts.reduce((creatorList, contact) => {
@@ -58,12 +58,20 @@ function recordToDataCite(metadata, language, region) {
     const publisher = metadata.contacts.find((contact) =>
       contact.role.includes("publisher")
     );
+
+    // Filter all contacts with the role of 'funder'
+    const funders = metadata.contacts.filter((contact) => 
+      contact.role.includes("funder")
+    );
   
-    // Get the publication year from the datePublished field
+    // Get the publication year from the datePublished field, if dateRevised contains value use dateRevised as publication year
     let publicationYear;
-    if (metadata.datePublished) {
-      const year = parseInt(metadata.datePublished.slice(0, 4), 10)
-      publicationYear = Number.isNaN(year) ? undefined : year;
+    if (metadata.dateRevised) {
+      const revisedYear = parseInt(metadata.dateRevised.slice(0, 4), 10);
+      publicationYear = Number.isNaN(revisedYear) ? undefined : revisedYear;
+    } else if (metadata.datePublished) {
+      const publishedYear = parseInt(metadata.datePublished.slice(0, 4), 10)
+      publicationYear = Number.isNaN(publishedYear) ? undefined : publishedYear;
     } else {
       publicationYear = undefined;
     }
@@ -104,7 +112,7 @@ function recordToDataCite(metadata, language, region) {
         dateInformation: "Date when the data was last revised",
       });
     }
-  
+
     // Look up the license information
     const licenseInfo = licenses[metadata.license];
   
@@ -144,7 +152,7 @@ function recordToDataCite(metadata, language, region) {
       data: {
         type: "dois",
         attributes: {
-          prefix: regions[region].datacitePrefix,
+          prefix: datacitePrefix,
           creators,
           // Initialize an empty array for titles
           titles: [],
@@ -174,6 +182,23 @@ function recordToDataCite(metadata, language, region) {
         publisher.orgName || publisher.indName;
     }
 
+    // Add funders list if it exists
+    if (funders && funders.length > 0) {
+      mappedDataCiteObject.data.attributes.fundingReferences = funders.map(funder => {
+        const fundingReference = {
+          funderName: funder.orgName,
+        };
+
+        // Add ROR information if available
+        if (funder.orgRor) {
+          fundingReference.funderIdentifier = funder.orgRor;
+          fundingReference.funderIdentifierType = "ROR";
+        }
+
+        return fundingReference;
+      });
+    }    
+
     // Add publication year if it exists
     if (metadata.datePublished) {
       mappedDataCiteObject.data.attributes.publicationYear = publicationYear;
@@ -184,6 +209,12 @@ function recordToDataCite(metadata, language, region) {
       mappedDataCiteObject.data.attributes.subjects = subjects;
     }
 
+    // add Version if it exists
+    if (metadata.edition) {
+      mappedDataCiteObject.data.attributes.version = metadata.edition;
+    }
+  
+
     // Add dates if they exist
     if (dates.length > 0) {
       mappedDataCiteObject.data.attributes.dates = dates;
@@ -193,6 +224,7 @@ function recordToDataCite(metadata, language, region) {
     mappedDataCiteObject.data.attributes.rightsList = rightsList;
 
     // Add descriptions from the abstract field
+    delete metadata.abstract.translations
     mappedDataCiteObject.data.attributes.descriptions = Object.entries(
       metadata.abstract
     ).map(([lang, description]) => ({

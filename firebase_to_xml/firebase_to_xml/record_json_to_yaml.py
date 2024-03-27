@@ -30,6 +30,10 @@ def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
     return [eov_translations.get(eov,"") for eov in eovs_en if eov]
 
+def verify_translation(verified, message):
+    if not verified:
+        return message
+    return ""
 
 def strip_keywords(keywords):
     """Strips whitespace from each keyword in either language"""
@@ -62,6 +66,15 @@ def fix_lat_long_polygon(polygon):
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
+    user_id = record.get("userID")
+    record_id = record.get("recordID")
+    language = record.get("language")
+    region = record.get("region")
+
+    base_url = "https://cioos-siooc.github.io/metadata-entry-form#"
+    full_url = f"{base_url}/{language}/{region}/{user_id}/{record_id}"
+
+
     polygon = record.get("map", {}).get("polygon", "")
 
     record_yaml = {
@@ -70,9 +83,10 @@ def record_json_to_yaml(record):
             "identifier": record.get("identifier"),
             "language": record.get("language"),
             "maintenance_note": "Generated from "
-            + "https://cioos-siooc.github.io/metadata-entry-form",
+            + full_url,
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
+                "limitationsTranslationMethod":  verify_translation(record.get("translationVerifiedLimitations"), record.get("limitationsTranslationMethod")),
                 "licence": licenses.get(
                     record.get(
                         "license",
@@ -103,8 +117,10 @@ def record_json_to_yaml(record):
         },
         "identification": {
             "title": record.get("title"),
+            "titleTranslationMethod":  verify_translation(record.get("translationVerifiedTitle"), record.get("titleTranslationMethod")),
             "identifier": record.get("datasetIdentifier"),
             "abstract": record.get("abstract"),
+            "abstractTranslationMethod":  verify_translation(record.get("translationVerifiedAbstract"), record.get("abstractTranslationMethod")),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
                 "publication": date_from_datetime_str(record.get("datePublished")),
@@ -162,6 +178,7 @@ def record_json_to_yaml(record):
         if len(record.get("platform")) == 1:
             record["platform"][0]["instruments"] = instruments
             record_yaml["platform"] = record["platforms"][0]
+            record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
         # If platforms has more than one element, add all platforms and match instruments by platform ID
         else:
             for platform in platformList:
@@ -171,6 +188,8 @@ def record_json_to_yaml(record):
                         instruments.append(instrument)
                 if instruments.length > 0:
                     platform["instruments"] = instrument
+                platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
+
             record_yaml["platforms"] = record["platforms"]
 
     # If there's no distributor set, set it to the data contact (owner)

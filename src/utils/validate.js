@@ -1,7 +1,11 @@
 import validator from "validator";
 
+import firebase from "../firebase";
+
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
+
+const checkURLActive = firebase.functions().httpsCallable('checkURLActive');
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
@@ -191,9 +195,9 @@ const validators = {
       val.filter(contactIsFilled).find((contact) => contact.inCitation),
     error: {
       en:
-        "Every contact must have at least one role checked, and  'Data contact' or 'Metadata contact' must be added to at least one contact. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
+        "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
       fr:
-        "Assurez-vous que chaque contact a un rôle qui lui est attribué. Assurez-vous également d'avoir une personne ressource pour les métadonnées et un personne ressource pour les données. Les adresses e-mail doivent être sous la forme de user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation",
+        "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation.",
     },
   },
   distribution: {
@@ -235,6 +239,7 @@ const validators = {
     },
   },
 };
+
 export const validateField = (record, fieldName) => {
   const valueToValidate = record[fieldName];
   // if no validator funciton exists, then it is not a required field
@@ -258,6 +263,42 @@ export const getErrorsByTab = (record) => {
     return acc;
   }, {});
 };
+
+
+export const warnings = {
+  distribution: {
+    tab: "resources",
+    validation: async (val) => {
+      const processedVal = await Promise.all(
+        val.map(async (dist) => {
+          const res = await checkURLActive(dist.url);
+          return {...dist, status:res.data};
+        })
+      );
+      const filterVal = processedVal.filter((dist) => !dist.status)
+      return filterVal.length
+    },
+    error: {
+      en:
+        "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
+      fr:
+        "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
+    },
+  },
+};
+
+
+export const validateFieldWarning = async (record, fieldName) => {
+  const valueToValidate = record[fieldName];
+  // if no validator funciton exists, then it is not a required field
+  const validationFunction =
+    (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
+  
+  const res = await validationFunction(valueToValidate, record);
+  return validationFunction && res;
+};
+
+
 
 export const percentValid = (record) => {
   const fields = Object.keys(validators);

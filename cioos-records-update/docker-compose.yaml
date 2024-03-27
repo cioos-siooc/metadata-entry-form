@@ -1,0 +1,11 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "8091:8000"
+    volumes:
+      - /var/www/html/dev/metadata:/usr/src/app/xml
+    environment:
+      FLASK_ENV: production
+    restart: always

@@ -103,6 +103,7 @@ const Instruments = ({
                     </I18n>
                   </Typography>
                   <BilingualTextInput
+                    name="type"
                     label={typeLabel}
                     value={instrument.type}
                     onChange={updateInstrumentField("type")}
@@ -112,6 +113,7 @@ const Instruments = ({
                 <Grid item xs>
                   <Typography>Description</Typography>
                   <BilingualTextInput
+                    name="description"
                     label={descriptionLabel}
                     value={instrument.description}
                     onChange={updateInstrumentField("description")}

@@ -28,6 +28,7 @@ class UserProvider extends FormClassTemplate {
     this.unsubscribe = auth.onAuthStateChanged((userAuth) => {
       if (userAuth) {
         const { displayName, email, uid } = userAuth;
+        this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
 
         Sentry.configureScope((scope) => {
           scope.setUser({
@@ -46,7 +47,8 @@ class UserProvider extends FormClassTemplate {
 
         const permissionsRef = firebase
           .database()
-          .ref(region)
+          .ref("admin")
+          .child(region)
           .child(`permissions`);
 
         permissionsRef.on("value", (permissionsFB) => {
@@ -63,7 +65,6 @@ class UserProvider extends FormClassTemplate {
             reviewers,
             isAdmin,
             isReviewer,
-            loggedIn: true,
           });
         });
         this.listenerRefs.push(permissionsRef);
@@ -87,6 +88,8 @@ class UserProvider extends FormClassTemplate {
     const createDraftDoi = firebase.functions().httpsCallable("createDraftDoi");
     const updateDraftDoi = firebase.functions().httpsCallable("updateDraftDoi");
     const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
+    const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
+    const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
 
     return (
       <UserContext.Provider
@@ -98,6 +101,8 @@ class UserProvider extends FormClassTemplate {
           createDraftDoi,
           updateDraftDoi,
           deleteDraftDoi,
+          getDoiStatus,
+          checkURLActive,
         }}
       >
         {children}
