@@ -19,8 +19,10 @@ import { Paper,
     Tooltip,
     IconButton,
     capitalize,
+    FormControlLabel, 
+    Checkbox,
 } from "@material-ui/core";
-import { ArrowDownward, Delete } from "@material-ui/icons";
+import { ArrowDownward, Delete} from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
@@ -127,6 +129,8 @@ const TaxaTab = ({
         };
     }, [inputValue, SearchValue, gbifSearch]);
 
+    const noTaxa = record.noTaxa && record.noTaxa !== "false";
+
     return (
         <Grid>
             <Paper style={paperClass}>
@@ -149,8 +153,29 @@ const TaxaTab = ({
                         </I18n>
                     </SupplementalText>
                 </QuestionText>
-            </Paper>
 
+                <FormControlLabel
+                    disabled={disabled}
+                    control={
+                        <Checkbox
+                            name="noTaxa"
+                            checked={noTaxa}
+                            onChange={(e) => {
+                                const { checked } = e.target;
+
+                                updateRecord("noTaxa")(checked);
+                            }}
+                        />
+                    }
+                    label={
+                        <I18n>
+                            <En>This dataset does not contain any taxonomic classification</En>
+                            <Fr>Cet ensemble de données ne contient aucune classification taxonomique</Fr>
+                        </I18n>
+                    }
+                />
+            </Paper>
+            {!noTaxa ? (
             <Paper style={paperClass}>
                 <Grid container direction="column" spacing={0}>
 
@@ -303,6 +328,7 @@ const TaxaTab = ({
 
 
             </Paper>
+            ) : ("")}
         </Grid>
     );
 };

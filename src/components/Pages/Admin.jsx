@@ -169,7 +169,7 @@ class Admin extends FormClassTemplate {
     const base64String = bufferObj.toString("base64");
 
     if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin\${{region}}`);
+      const regionAdminRef = ref(database, `admin/${region}`);
       const permissionsRef = child(regionAdminRef, "permissions");
       const projectsRef = child(regionAdminRef, "projects");
       const dataciteRef = child(regionAdminRef, "dataciteCredentials");

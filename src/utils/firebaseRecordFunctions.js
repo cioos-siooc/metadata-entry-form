@@ -143,7 +143,7 @@ export async function getRegionProjects(region) {
   const database = getDatabase(firebase);
   const projects = Object.values(
     (
-      await firebase.database().ref('admin').child(region).child("projects").once("value")
+      await get(ref(database, `admin/${region}/projects`), "value")
     ).toJSON() || {}
   );
   return projects;

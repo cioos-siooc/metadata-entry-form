@@ -1,4 +1,11 @@
-import { Paper, TextField, Grid, Tooltip, IconButton } from "@material-ui/core";
+import {
+  Paper, 
+  TextField, 
+  Grid, 
+  Tooltip, 
+  IconButton, 
+  FormControlLabel, 
+  Checkbox } from "@material-ui/core";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -41,6 +48,7 @@ const OpenEPSGDefn = ({ url }) => {
 };
 const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
   const { language } = useParams();
+  const noVerticalExtent = record.noVerticalExtent && record.noVerticalExtent !== "false";
 
   return (
     <Grid>
@@ -162,6 +170,27 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             </div>
           </SupplementalText>
         </QuestionText>
+        <FormControlLabel
+          disabled={disabled}
+          control={
+            <Checkbox
+              name="noVerticalExtent"
+              checked={noVerticalExtent}
+              onChange={(e) => {
+                const { checked } = e.target;
+
+                updateRecord("noVerticalExtent")(checked);
+              }}
+            />
+          }
+          label={
+            <I18n>
+              <En>This dataset does not have a depth or height, value will be set to zero</En>
+              <Fr>Cet ensemble de données n'a ni profondeur ni hauteur, la valeur sera définie sur zéro</Fr>
+            </I18n>
+          }
+        />
+        {!noVerticalExtent ? (
         <Grid
           container
           direction="row"
@@ -201,6 +230,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             />
           </Grid>
         </Grid>
+        ) : ("")}
       </Paper>
     </Grid>
   );

@@ -44,6 +44,7 @@ const Lineage = ({
   disabled,
   paperClass,
   language,
+  resourceType,
 }) => {
 
   const [activeLineage, setActiveLineage] = useState(0);
@@ -248,8 +249,8 @@ const Lineage = ({
                 <Grid item xs>
                   <QuestionText>
                     <I18n>
-                      <En>Lineage Description</En>
-                      <Fr>Description de la lignée</Fr>
+                      <En>Lineage Title</En>
+                      <Fr>Titre de la lignée</Fr>
                     </I18n>
                     <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
                     <SupplementalText>
@@ -292,6 +293,7 @@ const Lineage = ({
                   </QuestionText>
                   <SelectInput
                     value={lineageStep.scope}
+                    defaultValue={resourceType}
                     onChange={updateLineageField("scope")}
                     options={Object.keys(metadataScopeCodes)}
                     optionLabels={Object.values(metadataScopeCodes).map(

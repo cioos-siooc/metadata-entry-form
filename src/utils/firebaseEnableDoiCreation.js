@@ -1,11 +1,9 @@
+import { getDatabase, ref, child, get } from "firebase/database";
 import firebase from "../firebase";
 
 export async function newDataciteAccount(region, prefix, authHash) {
-    const dataciteRef = await firebase
-        .database()
-        .ref("admin")
-        .child(region)
-        .child("dataciteCredentials");
+    const database = getDatabase(firebase);
+    const dataciteRef = ref(database, `admin/${region}/dataciteCredentials`);
     
     // Overwriting prefix and authHash directly under dataciteCredentials
     await dataciteRef.set({
@@ -17,11 +15,8 @@ export async function newDataciteAccount(region, prefix, authHash) {
 export async function deleteAllDataciteCredentials(region) {
   try {
     // Reference to the dataciteCredentials node for the specified region
-    const dataciteCredentialsRef = firebase
-      .database()
-      .ref("admin")
-      .child(region)
-      .child("dataciteCredentials");
+    const database = getDatabase(firebase);
+    const dataciteCredentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
 
     // Deleting the dataciteCredentials node and all its children
     await dataciteCredentialsRef.remove();
@@ -37,7 +32,8 @@ export async function deleteAllDataciteCredentials(region) {
 
 export async function getDatacitePrefix(region) {
     try {
-      const prefix = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+      const database = getDatabase(firebase);
+      const prefix = (await get(ref(database, `admin/${region}/dataciteCredentials/prefix`), "value")).val();
       return prefix;
   } catch (error) {
       console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
@@ -47,7 +43,8 @@ export async function getDatacitePrefix(region) {
 
 export async function getAuthHash(region) {
   try {
-    const authHash = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+    const database = getDatabase(firebase);
+    const authHash = (await get(ref(database, `admin/${region}/dataciteCredentials/dataciteHash`), "value")).val();
     return authHash;
 } catch (error) {
     console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
@@ -57,9 +54,10 @@ export async function getAuthHash(region) {
 
 export async function getCredentialsStored(region) {
   try {
-    const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
-    const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
-    const prefixSnapshot = await credentialsRef.child("prefix").once("value");
+    const database = getDatabase(firebase);
+    const credentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
+    const authHashSnapshot = await get(child(credentialsRef, "dataciteHash"), "value");
+    const prefixSnapshot = await get(child(credentialsRef, "prefix"), "value");
 
     const authHash = authHashSnapshot.val();
     const prefix = prefixSnapshot.val();

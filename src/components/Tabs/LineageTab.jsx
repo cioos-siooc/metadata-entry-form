@@ -47,6 +47,7 @@ const LineageTab = ({
             disabled={disabled}
             paperClass={paperClass}
             language={language}
+            resourceType={record.resourceType}
           />
 
         </Grid>

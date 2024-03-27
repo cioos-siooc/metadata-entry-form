@@ -1,7 +1,7 @@
 const tabs = {
   // Submit section
   start: { en: "Start", fr: "Accueil" },
-  dataID: { en: "Data Identification", fr: "Identification des données" },
+  dataID: { en: "Resource Identification", fr: "Identification des ressources" },
   taxa: { en: "Taxonomic Classification", fr: "Classification Taxonomique" },
   spatial: { en: "Spatial", fr: "Spatial" },
   contacts: { en: "Contacts", fr: "Contacts" },

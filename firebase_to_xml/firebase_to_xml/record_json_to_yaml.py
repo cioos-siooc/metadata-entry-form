@@ -118,9 +118,12 @@ def record_json_to_yaml(record):
             else "",
             "polygon": fix_lat_long_polygon(polygon),
             "vertical": [
-                float(record.get("verticalExtentMin")),
-                float(record.get("verticalExtentMax")),
+                0 if record.get("noVerticalExtent") else float(
+                    record.get("verticalExtentMin")),
+                0 if record.get("noVerticalExtent") else float(
+                    record.get("verticalExtentMax")),
             ],
+            "vertical_positive": "up" if record.get("noVerticalExtent") else record.get("verticalExtentDirection"),
             "description": record["map"].get("description"),
             "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
         },

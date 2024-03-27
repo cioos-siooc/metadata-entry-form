@@ -6,17 +6,17 @@ import {
   Paper,
   Grid,
   FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 
 import regions from "../../regions";
 
+import DOIInput from "../FormComponents/DOIInput";
+
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
+import CheckBoxList from "../FormComponents/CheckBoxList";
 
 const StartTab = ({ disabled, record, handleUpdateRecord }) => {
   const { region } = useParams();
@@ -143,31 +143,27 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />
           </QuestionText>
-          <RadioGroup
+          <CheckBoxList
             aria-labelledby="resource-type"
-            defaultValue="oceanographic"
             name="resource-type"
-            value={record.resourceType}
+            value={record.resourceType || []}
+            labelSize={6}
+            defaultValue="oceanographic"
             onChange={handleUpdateRecord("resourceType")}
-          >
-            <FormControlLabel
-              value="oceanographic"
-              control={<Radio />}
-              label="Oceanographic"
-            />
-            <FormControlLabel
-              value="biological"
-              control={<Radio />}
-              label="Biological"
-            />
-            <FormControlLabel 
-              value="model"  
-              control={<Radio />} 
-              label="Model" 
-            />
-          </RadioGroup>
+            options={["oceanographic", "biological", "other"]}
+            optionLabels={["Oceanographic", "Biological", "Other"]}
+            disabled={disabled}
+          />
         </FormControl>
       </Paper>
+
+      <DOIInput
+        record={record}
+        handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
+        handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
+        disabled={disabled}
+      />
+      
     </Grid>
   );
 };
