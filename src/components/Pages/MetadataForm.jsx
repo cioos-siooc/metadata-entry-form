@@ -170,6 +170,33 @@ class MetadataForm extends FormClassTemplate {
         });
         this.listenerRefs.push(editorContactsRef);
 
+        // get instruments
+        const editorInstrumentsRef = editorDataRef.child("instruments");
+
+        editorInstrumentsRef.on("value", (instrumentsFB) => {
+          const userInstruments = instrumentsFB.toJSON();
+          Object.entries(userInstruments || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userInstruments });
+        });
+        this.listenerRefs.push(editorInstrumentsRef);
+
+        // get platforms
+        const editorPlatformsRef = editorDataRef.child("platforms");
+
+        editorPlatformsRef.on("value", (platformsFB) => {
+          const userPlatforms = platformsFB.toJSON();
+          Object.entries(userPlatforms || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userPlatforms });
+        });
+        this.listenerRefs.push(editorPlatformsRef);
+
+
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
@@ -223,12 +250,15 @@ class MetadataForm extends FormClassTemplate {
   // a second genereric handler components that dont use onChange
   // generic state updater creator
   updateRecord = (key) => (value) => {
+    console.log("Updating Record")
+    console.log('key, value: ', key, value);
     const changes = { [key]: value };
 
     this.setState(({ record }) => ({
       record: { ...record, ...changes },
       saveDisabled: false,
     }));
+    console.log('this.state.record: ', this.state.record);
   };
 
   saveUpdateContact(contact) {
@@ -252,6 +282,54 @@ class MetadataForm extends FormClassTemplate {
     // new contact
 
     return contactsRef.push(contact).getKey();
+  }
+
+  handleSaveUpdateInstrument(instrument) {
+    const { id } = instrument;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const instrumentsRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("instruments");
+
+    // existing instrument
+    if (id) {
+      instrumentsRef.child(id).update(instrument);
+      return id;
+    }
+    // new instrument
+    // eslint-disable-next-line no-debugger
+    debugger
+
+    return instrumentsRef.push(instrument).getKey();
+  }
+
+  handleSaveUpdatePlatform(platform) {
+    const { id } = platform;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const platformRef = firebase
+      .database()
+      .ref(region)
+      .child("users")
+      .child(auth.currentUser.uid)
+      .child("platforms");
+
+    // existing instrument
+    if (id) {
+      platformRef.child(id).update(platform);
+      return id;
+    }
+    // new instrument
+
+    return platformRef.push(platform).getKey();
   }
 
   async handleSubmitRecord() {
@@ -357,6 +435,8 @@ class MetadataForm extends FormClassTemplate {
 
     const {
       userContacts,
+      userInstruments,
+      userPlatforms,
       tabIndex,
       record,
       saveDisabled,
@@ -525,7 +605,12 @@ class MetadataForm extends FormClassTemplate {
           <SpatialTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="platform">
-          <PlatformTab {...tabProps} />
+          <PlatformTab
+          userInstruments={userInstruments}
+          saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+          userPlatforms={userPlatforms}
+          saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
+          {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />

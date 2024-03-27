@@ -10,10 +10,14 @@ import { En, Fr, I18n } from "../I18n";
 const PlatformTab = ({
   disabled,
   record,
-  handleUpdateRecord,
+  userPlatforms,
+  saveUpdatePlatform,
+  userInstruments,
+  saveUpdateInstrument,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
+
 
   return (
     <div>
@@ -85,9 +89,13 @@ const PlatformTab = ({
             {!noPlatform ? (
               <>
                 <Platform
+                  platforms={record.platforms}
+                  userPlatforms={userPlatforms}
+                  saveUpdatePlatform={saveUpdatePlatform}
                   record={record}
-                  handleUpdateRecord={handleUpdateRecord}
+                  updatePlatforms={updateRecord("platforms")}
                   disabled={disabled}
+                  paperClass={paperClass}
                 />
               </>
             ) : (
@@ -105,9 +113,12 @@ const PlatformTab = ({
             <Instruments
               instruments={record.instruments}
               updateInstruments={updateRecord("instruments")}
+              saveUpdateInstrument={saveUpdateInstrument}
+              userInstruments={userInstruments}
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}
+              platformList={record.platforms}
             />
           </Grid>
         </Grid>
