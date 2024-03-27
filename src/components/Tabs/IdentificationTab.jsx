@@ -60,50 +60,7 @@ const IdentificationTab = ({
 
   return (
     <div>
-      <Paper style={paperClass}>
-        <QuestionText>
-          <I18n>
-            <En>What is the dataset title? Required in English and French.</En>
-            <Fr>
-              Quel est le titre du jeu de données? Obligatoire dans les deux
-              langues.
-            </Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "title")} />
-          <SupplementalText>
-            <I18n>
-              <En>
-                <p>Recommended title includes: What, Where, When.</p>
-                <p>
-                  Title should be precise enough so that the user will not have
-                  to open the dataset to understand its contents. Title should
-                  not have acronyms, special characters, or use specialized
-                  nomenclature. This will appear as the title that is shown for
-                  this dataset in the {regionInfo.catalogueTitle.en}.
-                </p>
-              </En>
-              <Fr>
-                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
-                <p>
-                  Le titre doit être suffisamment précis pour que l'utilisateur
-                  n'ait pas à ouvrir le ensemble de données pour comprendre son
-                  contenu. Le titre ne doit pas avoir des acronymes, des
-                  caractères spéciaux ou utiliser une nomenclature spécialisée.
-                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
-                  {regionInfo.catalogueTitle.fr}.
-                </p>
-              </Fr>
-            </I18n>
-          </SupplementalText>
-        </QuestionText>
 
-        <BilingualTextInput
-          name="title"
-          value={record.title}
-          onChange={handleUpdateRecord("title")}
-          disabled={disabled}
-        />
-      </Paper>
 
       <Paper style={paperClass}>
         <QuestionText>
@@ -406,31 +363,6 @@ const IdentificationTab = ({
             />
           </Grid>
         </Grid>
-      </Paper>
-
-      <Paper style={paperClass}>
-        <QuestionText>
-          <I18n>
-            <En>What is the dataset type?</En>
-            <Fr>Quel est le type de jeu de données ?</Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "metadataScope")} />
-
-        </QuestionText>
-        <SelectInput
-          value={record.metadataScope || ""}
-          onChange={handleUpdateRecord("metadataScope")}
-          options={Object.keys(metadataScopeCodes)}
-          optionLabels={Object.values(metadataScopeCodes).map(
-            ({ title }) => title[language]
-          )}
-          optionTooltips={Object.values(metadataScopeCodes).map(
-            ({ text }) => text[language]
-          )}
-          disabled={disabled}
-          fullWidth={false}
-          style={{ width: "200px" }}
-        />
       </Paper>
 
       <Paper style={paperClass}>

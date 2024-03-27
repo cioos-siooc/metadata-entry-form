@@ -9,17 +9,23 @@ import {
 } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 
+import BilingualTextInput from "../FormComponents/BilingualTextInput";
+
 import regions from "../../regions";
 
 import DOIInput from "../FormComponents/DOIInput";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass, QuestionText } from "../FormComponents/QuestionStyles";
+import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { validateField } from "../../utils/validate";
+import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 
+import SelectInput from "../FormComponents/SelectInput";
+
 const StartTab = ({ disabled, record, handleUpdateRecord }) => {
-  const { region } = useParams();
+  const { language, region } = useParams();
   const regionInfo = regions[region];
 
   return (
@@ -133,6 +139,32 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
           </li>
         </ul>
       </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the resource type?</En>
+            <Fr>Quel est le type de ressource?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "metadataScope")} />
+
+        </QuestionText>
+        <SelectInput
+          value={record.metadataScope || ""}
+          onChange={handleUpdateRecord("metadataScope")}
+          options={Object.keys(metadataScopeCodes)}
+          optionLabels={Object.values(metadataScopeCodes).map(
+            ({ title }) => title[language]
+          )}
+          optionTooltips={Object.values(metadataScopeCodes).map(
+            ({ text }) => text[language]
+          )}
+          disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
+        />
+      </Paper>
+
       <Paper style={paperClass}>
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
@@ -156,6 +188,53 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
           />
         </FormControl>
       </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the dataset title? Required in English and French.</En>
+            <Fr>
+              Quel est le titre du jeu de données? Obligatoire dans les deux
+              langues.
+            </Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "title")} />
+          <SupplementalText>
+            <I18n>
+              <En>
+                <p>Recommended title includes: What, Where, When.</p>
+                <p>
+                  Title should be precise enough so that the user will not have
+                  to open the dataset to understand its contents. Title should
+                  not have acronyms, special characters, or use specialized
+                  nomenclature. This will appear as the title that is shown for
+                  this dataset in the {regionInfo.catalogueTitle.en}.
+                </p>
+              </En>
+              <Fr>
+                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
+                <p>
+                  Le titre doit être suffisamment précis pour que l'utilisateur
+                  n'ait pas à ouvrir le ensemble de données pour comprendre son
+                  contenu. Le titre ne doit pas avoir des acronymes, des
+                  caractères spéciaux ou utiliser une nomenclature spécialisée.
+                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
+                  {regionInfo.catalogueTitle.fr}.
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
+        </QuestionText>
+        <BilingualTextInput
+          name="title"
+          value={record.title}
+          onChange={handleUpdateRecord("title")}
+          disabled={disabled}
+        />
+      </Paper>
+
+
+
 
       <DOIInput
         record={record}

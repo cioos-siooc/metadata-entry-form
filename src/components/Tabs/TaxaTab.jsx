@@ -145,10 +145,10 @@ const TaxaTab = ({
                     <SupplementalText>
                         <I18n>
                             <En>
-                                Enter Information about the events or source data used in constructing the data specified by the scope.
+                                Please enter the metadata about the taxonomic areas covered by the resource.
                             </En>
                             <Fr>
-                                Entrez des informations sur les événements ou les données sources utilisées dans la construction des données spécifiées par la portée.
+                                Veuillez saisir les métadonnées sur les domaines taxonomiques couverts par la ressource.
                             </Fr>
                         </I18n>
                     </SupplementalText>
