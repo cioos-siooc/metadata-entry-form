@@ -311,7 +311,7 @@ class MetadataForm extends FormClassTemplate {
     const recordID = await this.handleSaveClick();
     await this.handleUpdateDraftDOI()
 
-    // return submitRecord(region, recordUserID, recordID, "submitted", record);
+    return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
   // userOKedRecordDemotion - user has clicked that they understand that their record will be
