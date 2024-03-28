@@ -6,7 +6,7 @@ export async function newDataciteAccount(region, prefix, authHash) {
         .ref("admin")
         .child(region)
         .child("dataciteCredentials");
-    
+
     // Overwriting prefix and authHash directly under dataciteCredentials
     await dataciteRef.set({
       prefix,
@@ -38,6 +38,7 @@ export async function deleteAllDataciteCredentials(region) {
 export async function getDatacitePrefix(region) {
     try {
       const prefix = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+      console.log('PREFIX FOUND: ', prefix);
       return prefix;
   } catch (error) {
       console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
@@ -52,7 +53,7 @@ export async function getAuthHash(region) {
 } catch (error) {
     console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
     return null;
-} 
+}
 }
 
 export async function getCredentialsStored(region) {

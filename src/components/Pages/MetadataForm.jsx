@@ -43,6 +43,7 @@ import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import recordToDataCite from "../../utils/recordToDataCite";
+import {getAuthHash} from "../../utils/firebaseEnableDoiCreation";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -122,6 +123,8 @@ class MetadataForm extends FormClassTemplate {
       editorInfo: { email: "", displayName: "" },
       loggedInUserCanEditRecord: false,
       saveIncompleteRecordModalOpen: false,
+      doiUpdated: false,
+      doiError: false,
     };
   }
 
@@ -263,6 +266,7 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record } = this.state;
+    const dataciteAuthHash = await getAuthHash(region);
 
     try {
       const mappedDataCiteObject = recordToDataCite(record, language, region);
@@ -275,23 +279,22 @@ class MetadataForm extends FormClassTemplate {
       const dataObject = {
         doi,
         data: mappedDataCiteObject,
+        dataciteAuthHash,
       }
 
       const response = await firebase.functions().httpsCallable("updateDraftDoi")( dataObject );
       const statusCode = response.data.status;
 
       if (statusCode === 200) {
-        // setDoiUpdateFlag(true);
+        this.state.doiUpdated = true
       } else {
-        // setDoiErrorFlag(true);
+        this.state.doiError = true
       }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Error updating draft DOI: ', err);
-      // setDoiErrorFlag(true);
+      this.state.doiError = true
       throw err;
-    } finally {
-      // setLoadingDoiUpdate(false);
     }
   }
 
@@ -308,7 +311,7 @@ class MetadataForm extends FormClassTemplate {
     const recordID = await this.handleSaveClick();
     await this.handleUpdateDraftDOI()
 
-    return submitRecord(region, recordUserID, recordID, "submitted", record);
+    // return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
   // userOKedRecordDemotion - user has clicked that they understand that their record will be
@@ -577,6 +580,8 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
             {...tabProps}
+            doiUpdated={this.state.doiUpdated}
+            doiError={this.state.doiError}
             submitRecord={() => this.handleSubmitRecord()}
           />
         </TabPanel>
