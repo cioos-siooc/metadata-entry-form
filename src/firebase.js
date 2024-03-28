@@ -32,7 +32,7 @@ const devConfig = {
   appId: "1:392401521083:web:45d1539f9d284f446d5c9e",
 }
 
-const config = process.env.REACT_APP_ENVIRONMENT === "production" && !deployedOnTestSserver
+const config = process.env.NODE_ENV === "production" && !deployedOnTestSserver
   ? prodConfig
   : devConfig;
 

@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "cioos-metadata-form"
+    "default": "cioos-metadata-form",
+    "development": "cioos-metadata-form-dev"
   },
   "targets": {
     "cioos-metadata-form": {
