@@ -9,7 +9,7 @@ import {
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@material-ui/icons";
 import { En, Fr, I18n } from "../I18n";
-import { progressCodes, metadataScopeCodes } from "../../isoCodeLists";
+import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -207,7 +207,7 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
-
+      {(!record.resourceType || !record.resourceType.includes('other')) && (
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -297,7 +297,7 @@ const IdentificationTab = ({
             </div>
           );
         })}
-      </Paper>
+        </Paper>)}
 
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">
