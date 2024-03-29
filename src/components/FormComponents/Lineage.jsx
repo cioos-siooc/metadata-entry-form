@@ -44,7 +44,7 @@ const Lineage = ({
   disabled,
   paperClass,
   language,
-  resourceType,
+  metadataScope,
 }) => {
 
   const [activeLineage, setActiveLineage] = useState(0);
@@ -120,6 +120,9 @@ const Lineage = ({
     setCurrentLineage(history);
   }
   const lineageStep = history.length > 0 && history[activeLineage];
+  if (lineageStep && !lineageStep.scope){
+    lineageStep.scope = metadataScope;
+  }
 
   if (typeof history === 'string' || history instanceof String) {
     // eslint-disable-next-line no-param-reassign
@@ -293,7 +296,7 @@ const Lineage = ({
                   </QuestionText>
                   <SelectInput
                     value={lineageStep.scope}
-                    defaultValue={resourceType}
+                    defaultValue={metadataScope}
                     onChange={updateLineageField("scope")}
                     options={Object.keys(metadataScopeCodes)}
                     optionLabels={Object.values(metadataScopeCodes).map(
