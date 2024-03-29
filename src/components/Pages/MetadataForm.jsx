@@ -436,14 +436,12 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.dataID[language]}
                 value="identification"
               />
-              {(!record.resourceType || record.resourceType === 'biological') && (
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
                 label={tabs.taxa[language]}
                 value="taxa"
               /> 
-              )}
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
@@ -462,7 +460,7 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-                {!(['model'].includes(record.metadataScope) || ['model'].includes(record.resourceType)) && (
+                {!(['model'].includes(record.metadataScope)) && (
                 <Tab
                   fullWidth
                   classes={{ root: classes.tabRoot }}
