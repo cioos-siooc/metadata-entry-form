@@ -5,6 +5,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Chip,
 } from "@material-ui/core";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import Resources from "../FormComponents/Resources";
@@ -19,6 +20,7 @@ import {
   SupplementalText,
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
+
 
 
 
@@ -42,8 +44,9 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
         >
           <HeadingText>
             <I18n>
-              <En>Resource:</En>
-              <Fr>La ressource:</Fr>
+              <En>Resource</En>
+              <Fr>La ressource</Fr>
+              {record.distribution && record.distribution.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.distribution.length} variant="outlined" />)}    
             </I18n>
           </HeadingText>
         </AccordionSummary>
@@ -111,8 +114,9 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
         >
           <HeadingText>
             <I18n>
-              <En>Related Works:</En>
-              <Fr>Travaux connexes:</Fr>
+              <En>Related Works</En>
+              <Fr>Travaux connexes</Fr>
+              {record.associated_resources && record.associated_resources.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.associated_resources.length} variant="outlined" />)}     
             </I18n>
           </HeadingText>
         </AccordionSummary>
@@ -164,12 +168,15 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           id="panel3a-header"
           style={{ backgroundColor: '#00000015' }}
         >
-          <HeadingText>
+          
+          <HeadingText>            
             <I18n>
-              <En>Lineage:</En>
-              <Fr>Lignée:</Fr>
+              <En>Lineage</En>
+              <Fr>Lignée</Fr>
             </I18n>
+            {record.history && record.history.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.history.length} variant="outlined" />)}            
           </HeadingText>
+
         </AccordionSummary>
         <AccordionDetails>
           <Grid>
@@ -198,6 +205,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
               disabled={disabled}
               paperClass={paperClass}
               language={language}
+              metadataScope={record.metadataScope}
             />
           </Grid>
         </AccordionDetails>
