@@ -24,9 +24,25 @@ import CheckBoxList from "../FormComponents/CheckBoxList";
 
 import SelectInput from "../FormComponents/SelectInput";
 
-const StartTab = ({ disabled, record, handleUpdateRecord }) => {
+const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCodes;
+
+const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
+  
+  const updateResourceType = (value) => {
+    if(Array.isArray(value) && value.length === 1 && value.includes('other')){
+      if (Array.isArray(record.eov)){
+          if(!record.eov.includes('other')){
+            updateRecord("eov")([...record.eov, "other"])
+          }
+        else{
+            updateRecord("eov")(["other"])
+        }
+      }
+    }
+    updateRecord("resourceType")(value);
+  };
 
   return (
     <Grid item xs>
@@ -152,11 +168,11 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
         <SelectInput
           value={record.metadataScope || ""}
           onChange={handleUpdateRecord("metadataScope")}
-          options={Object.keys(metadataScopeCodes)}
-          optionLabels={Object.values(metadataScopeCodes).map(
+          options={Object.keys(filtereMetadataScopeCodes)}
+          optionLabels={Object.values(filtereMetadataScopeCodes).map(
             ({ title }) => title[language]
           )}
-          optionTooltips={Object.values(metadataScopeCodes).map(
+          optionTooltips={Object.values(filtereMetadataScopeCodes).map(
             ({ text }) => text[language]
           )}
           disabled={disabled}
@@ -181,7 +197,7 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
             value={record.resourceType || []}
             labelSize={6}
             defaultValue="oceanographic"
-            onChange={handleUpdateRecord("resourceType")}
+            onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
             optionLabels={["Oceanographic", "Biological", "Other"]}
             disabled={disabled}
@@ -232,9 +248,6 @@ const StartTab = ({ disabled, record, handleUpdateRecord }) => {
           disabled={disabled}
         />
       </Paper>
-
-
-
 
       <DOIInput
         record={record}
