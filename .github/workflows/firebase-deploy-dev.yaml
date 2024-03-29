@@ -29,6 +29,8 @@ jobs:
           echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
           echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
+          echo "GOOGLE_CLOUD_API_KEY=${{ secrets.GOOGLE_CLOUD_API_KEY }}" >> .env
+          echo "GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
         working-directory: firebase-functions/functions
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.2.1
