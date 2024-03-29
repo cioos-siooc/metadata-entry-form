@@ -55,10 +55,18 @@ const contactIsFilled = (contact) =>
 const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
-    tab: "dataID",
+    tab: "start",
     error: {
       en: "Missing title in French or English",
       fr: "Titre manquant en français ou en anglais",
+    },
+  },
+  resourceType: {
+    validation: (val) => val,
+    tab: "start",
+    error: {
+      en: "Please select a theme for this record",
+      fr: "Veuillez sélectionner un thème pour cet enregistrement",
     },
   },
   abstract: {
@@ -88,18 +96,18 @@ const validators = {
   datasetIdentifier: {
     validation: validateDOI,
     optional: true,
-    tab: "dataID",
+    tab: "start",
     error: {
       en: "Invalid DOI",
       fr: "DOI non valide",
     },
   },
   metadataScope: {
-    tab: "dataID",
+    tab: "start",
     validation: (val) => val,
     error: {
-      en: "Please select a dataset type",
-      fr: "Veuillez sélectionner un type d'ensemble de données",
+      en: "Please select a resource type",
+      fr: "Veuillez sélectionner un type de ressources",
     },
   },
   progress: {
@@ -153,7 +161,8 @@ const validators = {
           validateLongitude(east) &&
           validateLongitude(west)) ||
         (polygon && polygonIsValid(polygon)) ||
-        (record.resourceType === "biological" && description)
+        !record.resourceType  ||
+        (Array.isArray(record.resourceType) && record.resourceType.includes("biological") && description)
       );
     },
   },
