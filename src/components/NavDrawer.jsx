@@ -14,7 +14,7 @@ import {
   RateReview,
   SupervisorAccount,
   Menu,
-  AssignmentTurnedIn,
+  AssignmentTurnedIn, DirectionsBoatSharp
 } from "@material-ui/icons";
 
 import {
@@ -165,6 +165,7 @@ export default function MiniDrawer({ children }) {
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
+    whatsNew: <I18n en="What's New" fr="Quoi de Neuf" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
@@ -340,6 +341,22 @@ export default function MiniDrawer({ children }) {
                       <Contacts />
                     </ListItemIcon>
                     <ListItemText primary={translations.contacts} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="whatsNew"
+                    onClick={() => history.push(`${baseURL}/whatsNew`)}
+                  >
+                    <ListItemIcon disabled>
+                      <DirectionsBoatSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.whatsNew} />
                   </ListItem>
                 </Tooltip>
 
