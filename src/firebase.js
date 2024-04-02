@@ -10,7 +10,7 @@ const productionDB = "https://cioos-metadata-form.firebaseio.com";
 const devDB = "https://cioos-metadata-form-dev.firebaseio.com";
 
 const config = {
-  apiKey: "AIzaSyAdlELZS5Lbea5NquotMT8amwO-Lc_7ogc",
+  apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY,
   authDomain: "cioos-metadata-form.firebaseapp.com",
   databaseURL:
     process.env.NODE_ENV === "production" && !deployedOnTestServer
