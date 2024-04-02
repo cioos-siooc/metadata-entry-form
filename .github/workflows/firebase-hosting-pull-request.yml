@@ -17,6 +17,8 @@ jobs:
           NODE_OPTIONS: --openssl-legacy-provider
           REACT_APP_DEV_DEPLOYMENT: true
           PUBLIC_URL: /
+          GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
+          GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.GOOGLE_CLOUD_API_KEY_DEV }}
         run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
