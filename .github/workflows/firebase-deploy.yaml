@@ -29,8 +29,8 @@ jobs:
           echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
           echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
-          echo "GOOGLE_CLOUD_API_KEY=${{ secrets.GOOGLE_CLOUD_API_KEY }}" >> .env
-          echo "GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
+          echo "REACT_APP_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
+          echo "REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
         working-directory: firebase-functions/functions
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.2.1
@@ -45,6 +45,6 @@ jobs:
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
-          GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
-          GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.GOOGLE_CLOUD_API_KEY_DEV }}
+          REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
+          REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
