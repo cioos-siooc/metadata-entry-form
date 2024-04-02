@@ -9,6 +9,8 @@ import { En, Fr, I18n } from "../I18n";
 
 import PlatformEditor from "./PlatformEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
+import { paperClass } from "./QuestionStyles";
+
 
 class EditPlatform extends FormClassTemplate {
   constructor(props) {
@@ -82,6 +84,7 @@ class EditPlatform extends FormClassTemplate {
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
             updatePlatformEvent={(key) => this.handleChange(key)}
+            paperClass={paperClass}
           />
         </Grid>
 

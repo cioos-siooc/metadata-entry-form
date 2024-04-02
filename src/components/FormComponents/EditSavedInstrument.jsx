@@ -9,6 +9,7 @@ import { En, Fr, I18n } from "../I18n";
 
 import InstrumentEditor from "./InstrumentEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
+import { paperClass } from "./QuestionStyles";
 
 class EditInstrument extends FormClassTemplate {
   constructor(props) {
@@ -84,6 +85,7 @@ class EditInstrument extends FormClassTemplate {
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
             updateInstrumentEvent={(key) => this.handleChange(key)}
+            paperClass={paperClass}
           />
         </Grid>
 
