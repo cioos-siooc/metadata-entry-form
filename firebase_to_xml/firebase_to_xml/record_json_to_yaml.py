@@ -105,7 +105,7 @@ def record_json_to_yaml(record):
                 "revision": record.get("created"),
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
-            "scope": record.get("metadataScope"),
+            "scope": record.get("metadataScopeIso"),
         },
         "spatial": {
             "bbox": [

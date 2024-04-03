@@ -44,6 +44,14 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
     updateRecord("resourceType")(value);
   };
 
+  const handleMetadataScopeChange = () => {
+    return (e) => {
+      const newEvent = { target: { value: metadataScopeCodes[e.target.value].isoValue }};
+      handleUpdateRecord("metadataScopeIso")(newEvent);
+      handleUpdateRecord("metadataScope")(e);
+    };
+  }
+
   return (
     <Grid item xs>
       <Paper style={paperClass}>
@@ -167,7 +175,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
         </QuestionText>
         <SelectInput
           value={record.metadataScope || ""}
-          onChange={handleUpdateRecord("metadataScope")}
+          onChange={handleMetadataScopeChange()}
           options={Object.keys(filtereMetadataScopeCodes)}
           optionLabels={Object.values(filtereMetadataScopeCodes).map(
             ({ title }) => title[language]

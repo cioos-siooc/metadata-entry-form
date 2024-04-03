@@ -116,6 +116,14 @@ const Lineage = ({
     updateLineage(reorderedContacts);
   };
 
+  const handleLineageScopeChange = () => {
+    return (e) => {
+      const newEvent = { target: { value: metadataScopeCodes[e.target.value].isoValue } };
+      updateLineageField("scopeIso")(newEvent);
+      updateLineageField("scope")(e);
+    };
+  }
+
   if (!deepEquals(currentLineage, history)) {
     setCurrentLineage(history);
   }
@@ -297,7 +305,7 @@ const Lineage = ({
                   <SelectInput
                     value={lineageStep.scope}
                     defaultValue={metadataScope}
-                    onChange={updateLineageField("scope")}
+                    onChange={handleLineageScopeChange()}
                     options={Object.keys(metadataScopeCodes)}
                     optionLabels={Object.values(metadataScopeCodes).map(
                       ({ title }) => title[language]
