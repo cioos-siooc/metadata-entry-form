@@ -42,8 +42,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
-import recordToDataCite from "../../utils/recordToDataCite";
-import {getAuthHash} from "../../utils/firebaseEnableDoiCreation";
+import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -266,24 +265,9 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record } = this.state;
-    const dataciteAuthHash = await getAuthHash(region);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
-      delete mappedDataCiteObject.data.type;
-      delete mappedDataCiteObject.data.attributes.prefix;
-
-      // Extract DOI from the full URL
-      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
-
-      const dataObject = {
-        doi,
-        data: mappedDataCiteObject,
-        dataciteAuthHash,
-      }
-
-      const response = await firebase.functions().httpsCallable("updateDraftDoi")( dataObject );
-      const statusCode = response.data.status;
+      const statusCode = await performUpdateDraftDoi(record, region, language);
 
       if (statusCode === 200) {
         this.state.doiUpdated = true
