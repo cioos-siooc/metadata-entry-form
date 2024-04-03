@@ -24,9 +24,7 @@ export async function deleteAllDataciteCredentials(region) {
     // Return a message indicating success
     return { success: true, message: "All Datacite credentials deleted successfully." };
   } catch (error) {
-    // Log and return an error message
-    console.error("Error deleting Datacite credentials:", error);
-    return { success: false, message: "Failed to delete Datacite credentials." };
+    throw new Error(`Failed to delete Datacite credentials.: ${error}`);    
   }
 }
 
@@ -36,8 +34,7 @@ export async function getDatacitePrefix(region) {
       const prefix = (await get(ref(database, `admin/${region}/dataciteCredentials/prefix`), "value")).val();
       return prefix;
   } catch (error) {
-      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
-      return null;
+      throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
   }
 }
 
@@ -47,8 +44,7 @@ export async function getAuthHash(region) {
     const authHash = (await get(ref(database, `admin/${region}/dataciteCredentials/dataciteHash`), "value")).val();
     return authHash;
 } catch (error) {
-    console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
-    return null;
+    throw new Error(`Error fetching Datacite Auth Hash for region  ${region}: ${error}`);
 } 
 }
 
@@ -65,7 +61,6 @@ export async function getCredentialsStored(region) {
     // Check for non-null and non-empty
     return authHash && authHash !== "" && prefix && prefix !== "";
   } catch (error) {
-    console.error("Error checking Datacite credentials:", error);
-    return false;
+    throw new Error(`Error checking Datacite credentials: ${error}`);
   }
 }

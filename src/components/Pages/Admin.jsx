@@ -137,7 +137,7 @@ class Admin extends FormClassTemplate {
         showDeletionDialog: false,
       });
     } catch (error) {
-      console.error("Failed to delete DataCite credentials:", error);
+      throw new Error(`Failed to delete DataCite credentials: ${error}`);
     }
   };
 

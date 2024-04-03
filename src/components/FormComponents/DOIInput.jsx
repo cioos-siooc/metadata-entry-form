@@ -94,10 +94,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     });
             }
         } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error("Error in handleGenerateDOI:", err);
             setDoiErrorFlag(true);
-            throw err;
+            throw new Error(`Error in handleGenerateDOI: ${err}`);
         }
     }
 

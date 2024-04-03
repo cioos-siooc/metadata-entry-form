@@ -1,4 +1,5 @@
-import { initializeApp }from 'firebase/app'
+import { initializeApp } from 'firebase/app'
+// import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 // import "firebase/compat/database";
 // import { useEmulator} from "firebase/auth";
 // import { useFunctionsEmulator} from "firebase/functions";
@@ -30,9 +31,11 @@ const App = initializeApp(config);
 
 // uncomment below to use firebase emulator for local development
 // if (window.location.hostname === "localhost" && deployedOnTestServer) {
-//   firebase.functions().useFunctionsEmulator("http://127.0.0.1:5002");
-//   // firebase.auth().useEmulator("http://localhost:9099");
-//  }
+//   const functions = getFunctions(App);
+//   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+//   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
+// //   // firebase.auth().useEmulator("http://localhost:9099");
+// }
 
 
 export default App;
