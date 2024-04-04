@@ -56,12 +56,15 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:
 
-- `GMAIL_USER`
-- `GMAIL_PASS`
-- `AWS_REGION`
-- `AWS_ACCESSKEYID`
-- `AWS_SECRETACCESSKEY`
-- `GITHUB_AUTH`
+- `GMAIL_USER` notifications
+- `GMAIL_PASS` notifications
+- `AWS_REGION` used for amazon translate service access
+- `AWS_ACCESSKEYID` used for amazon translate service access
+- `AWS_SECRETACCESSKEY` used for amazon translate service access
+- `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
+- `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
+- `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
+- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
 
 ### Using Parameterized Configuration in Firebase Functions
 
