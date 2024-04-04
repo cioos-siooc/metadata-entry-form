@@ -20,7 +20,18 @@ import {En, Fr, I18n} from "../I18n";
 import ContactTitle from "./ContactTitle";
 import SelectInput from "./SelectInput";
 
+// TODO: move this out of this class for encapsulation.
+const itemTypes = {
+    contact: {
+        uid_fields: [
+            "lastName",
+            "orgName",
+        ],
+        blankItem: getBlankContact,
+    }};
+
 const LeftList = ({
+    itemType,
     items,
     updateItems,
     activeItem,
@@ -30,6 +41,11 @@ const LeftList = ({
     saveItem,
 }) => {
     const [currentItems, setItems] = useState(items)
+    if (!(itemType in itemTypes)){
+        throw Error("Invalid target for LeftList");
+    }
+
+    const itemContextHelper = itemTypes[itemType];
 
     if (!deepEquals(currentItems, items)){
         setItems(items)
@@ -61,9 +77,8 @@ const LeftList = ({
     function duplicateItem(itemIndex) {
         const duplicatedItem = deepCopy(items[itemIndex]);
 
-        // TODO: find a way to define UID fields for each model
-        if (duplicatedItem.lastName) duplicatedItem.lastName += " (Copy)";
-        else duplicatedItem.orgName += " (Copy)";
+        const uidField = itemContextHelper.uid_fields.find(fieldName => duplicatedItem[fieldName])
+        duplicatedItem[uidField] += " (Copy)";
 
         updateItems(items.concat(duplicatedItem));
       }
@@ -75,15 +90,14 @@ const LeftList = ({
     const { role, ...contact } = savedUserItemList[index];
 
     updateItems(
-      items.concat(deepCopy({ ...getBlankContact(), ...contact }))
+      items.concat(deepCopy({ ...itemContextHelper.blankItem(), ...contact }))
     );
     // TODO: Apply UID check for duplicates before adding to list
     setActiveItem(items.length);
   }
 
   function handleAddNewBlankItem() {
-    // TODO: get blank items dynamically
-    updateItems(items.concat(getBlankContact()));
+    updateItems(items.concat(itemContextHelper.blankItem()));
     setActiveItem(items.length);
   }
 
