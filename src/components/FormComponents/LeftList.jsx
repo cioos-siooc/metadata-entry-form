@@ -1,8 +1,4 @@
 import React, {useState} from "react";
-import {deepCopy} from "../../utils/misc";
-import {getBlankContact} from "../../utils/blankRecord";
-import {paperClass} from "./QuestionStyles";
-import {En, Fr, I18n} from "../I18n";
 import {
     Button,
     Grid, IconButton,
@@ -12,11 +8,16 @@ import {
     ListItemText,
     Paper,
     Tooltip,
-    Typography
+    Typography,
 } from "@material-ui/core";
 import {Container, Draggable} from "react-smooth-dnd";
-import ContactTitle from "./ContactTitle";
 import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
+import arrayMove from "array-move";
+import {deepCopy, deepEquals} from "../../utils/misc";
+import {getBlankContact} from "../../utils/blankRecord";
+import {paperClass} from "./QuestionStyles";
+import {En, Fr, I18n} from "../I18n";
+import ContactTitle from "./ContactTitle";
 import SelectInput from "./SelectInput";
 
 const LeftList = ({
@@ -30,17 +31,21 @@ const LeftList = ({
 }) => {
     const [currentItems, setItems] = useState(items)
 
-    function onDrop({ removedIndex, addedIndex }) {
-        if (removedIndex === activeItem) {
-            setActiveItem(addedIndex);
-        } else {
+    if (!deepEquals(currentItems, items)){
+        setItems(items)
+    }
+
+    function onDrop({ removedIndex: dragStartIndex, addedIndex: dragEndIndex }) {
+        if (dragStartIndex === activeItem) {
+            setActiveItem(dragEndIndex);
+        } else if (dragEndIndex <= activeItem && dragStartIndex > activeItem){
             setActiveItem(activeItem + 1)
         }
 
         const reorderedItems = arrayMove(
             currentItems,
-            removedIndex,
-            addedIndex
+            dragStartIndex,
+            dragEndIndex
         )
 
         updateItems(reorderedItems)
@@ -72,11 +77,12 @@ const LeftList = ({
     updateItems(
       items.concat(deepCopy({ ...getBlankContact(), ...contact }))
     );
+    // TODO: Apply UID check for duplicates before adding to list
     setActiveItem(items.length);
   }
 
   function handleAddNewBlankItem() {
-       // TODO: streamline getting blank items
+    // TODO: get blank items dynamically
     updateItems(items.concat(getBlankContact()));
     setActiveItem(items.length);
   }
@@ -257,3 +263,5 @@ const LeftList = ({
   )
 
 }
+
+export default LeftList;

@@ -21,6 +21,7 @@ import { validateField } from "../../utils/validate";
 import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
+import LeftList from "../FormComponents/LeftList";
 
 const ContactTab = ({
   disabled,
@@ -157,15 +158,24 @@ const ContactTab = ({
 
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
         <Grid item xs={5}>
-          <ContactLeftList
-            contacts={contacts}
-            updateContacts={updateContacts}
-            setActiveContact={setActiveContact}
-            activeContact={activeContact}
+          <LeftList
+            items={contacts}
+            updateItems={updateContacts}
+            setActiveItem={setActiveContact}
+            activeItem={activeContact}
             disabled={disabled}
-            userContacts={userContacts}
-            saveToContacts={saveToContacts}
+            savedUserItems={userContacts}
+            saveItem={saveToContacts}
           />
+          {/*<ContactLeftList*/}
+          {/*  contacts={contacts}*/}
+          {/*  updateContacts={updateContacts}*/}
+          {/*  setActiveContact={setActiveContact}*/}
+          {/*  activeContact={activeContact}*/}
+          {/*  disabled={disabled}*/}
+          {/*  userContacts={userContacts}*/}
+          {/*  saveToContacts={saveToContacts}*/}
+          {/*/>*/}
         </Grid>
         {contact && (
           <Grid item xs>
