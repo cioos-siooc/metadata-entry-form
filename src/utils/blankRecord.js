@@ -38,6 +38,7 @@ const blankRecord = {
   organization: "",
   timeFirstPublished: "",
   history: [],
+  associated_resources: [],
 };
 
 function getBlankRecord() {

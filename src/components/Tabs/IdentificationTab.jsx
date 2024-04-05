@@ -61,24 +61,6 @@ const IdentificationTab = ({
   return (
     <div>
 
-
-      <Paper style={paperClass}>
-        <QuestionText>
-          <I18n>
-            <En>What is the primary language of the dataset?</En>
-            <Fr>Quelle est la langue principale du jeu de données?</Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "language")} />
-        </QuestionText>
-        <SelectInput
-          value={record.language}
-          onChange={handleUpdateRecord("language")}
-          options={["en", "fr"]}
-          optionLabels={["English", "Français"]}
-          disabled={disabled}
-        />
-      </Paper>
-
       {projects.length ? (
         <Paper style={paperClass}>
           <QuestionText>

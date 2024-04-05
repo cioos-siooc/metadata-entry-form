@@ -133,6 +133,7 @@ const Resources = ({
       <Grid container direction="row" spacing={1}>
         <Grid item xs={3}>
           <Grid container direction="column" spacing={2}>
+            {resources && resources.length > 0 && (
             <Grid item xs>
               <List>
                 <Container
@@ -227,6 +228,7 @@ const Resources = ({
                 </Container>
               </List>
             </Grid>
+            )}
 
             <Grid item xs>
               <Button

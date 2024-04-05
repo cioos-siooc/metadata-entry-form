@@ -138,6 +138,7 @@ const Lineage = ({
     setCurrentLineage(history);
   }
   const lineageStep = history.length > 0 && history[activeLineage];
+
   if (lineageStep && !lineageStep.scope){
     lineageStep.scope = metadataScope;
   }
@@ -153,6 +154,7 @@ const Lineage = ({
       <Grid container direction="row" spacing={1}>
         <Grid item xs={3}>
           <Grid container direction="column" spacing={2}>
+            {history && history.length > 0 && (
             <Grid item xs>
               <List>
                 <Container
@@ -247,6 +249,7 @@ const Lineage = ({
                 </Container>
               </List>
             </Grid>
+            )}
 
             <Grid item xs>
               <Button
@@ -314,7 +317,6 @@ const Lineage = ({
                   </QuestionText>
                   <SelectInput
                     value={lineageStep.scope}
-                    defaultValue={metadataScope}
                     onChange={handleLineageScopeChange()}
                     options={Object.keys(filteredMetadataScopeCodes)}
                     optionLabels={Object.values(filteredMetadataScopeCodes)

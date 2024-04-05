@@ -133,13 +133,8 @@ const RelatedWorks = ({
       <Grid container direction="row" spacing={1}>
         <Grid item xs={3}>
           <Grid container direction="column" spacing={2}>
+            {resources && resources.length > 0 && (
             <Grid item xs>
-              {/* <QuestionText>
-                <I18n>
-                  <En>Related Works:</En>
-                  <Fr>Travaux connexes:</Fr>
-                </I18n>
-              </QuestionText> */}
               <List>
                 <Container
                   dragHandleSelector=".drag-handle"
@@ -233,6 +228,7 @@ const RelatedWorks = ({
                 </Container>
               </List>
             </Grid>
+            )}
 
             <Grid item xs>
               <Button

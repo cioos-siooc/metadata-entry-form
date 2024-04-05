@@ -35,7 +35,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
   return (
     <div>
 
-      <Accordion style={{ width:'90%', margin:20}}>
+      <Accordion defaultExpanded={record.distribution && record.distribution.length === 0} style={{ width:'90%', margin:20}}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel1a-content"
@@ -105,7 +105,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion style={{ width: '90%', margin: 20 }}>
+      <Accordion defaultExpanded={record.associated_resources && record.associated_resources.length === 0} style={{ width: '90%', margin: 20 }}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel2a-content"
@@ -161,7 +161,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion style={{ width: '90%', margin: 20 }}>
+      <Accordion defaultExpanded={record.history && record.history.length === 0} style={{ width: '90%', margin: 20 }}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel3a-content"

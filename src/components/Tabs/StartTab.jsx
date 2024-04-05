@@ -52,6 +52,10 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
     };
   }
 
+  if (!record.language) {
+    handleUpdateRecord("language")({ target: {value: language}});
+  }
+
   return (
     <Grid item xs>
       <Paper style={paperClass}>
@@ -212,6 +216,24 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
           />
         </FormControl>
       </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the primary language of the dataset?</En>
+            <Fr>Quelle est la langue principale du jeu de données?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "language")} />
+        </QuestionText>
+        <SelectInput
+          value={record.language}
+          onChange={handleUpdateRecord("language")}
+          options={["en", "fr"]}
+          optionLabels={["English", "Français"]}
+          disabled={disabled}
+        />
+      </Paper>
+
 
       <Paper style={paperClass}>
         <QuestionText>
