@@ -50,6 +50,16 @@ const Lineage = ({
   const [activeLineage, setActiveLineage] = useState(0);
   const [currentLineage, setCurrentLineage] = useState(history);
 
+  const filteredMetadataScopeCodes = Object.keys(metadataScopeCodes)
+    .filter(key => ["DataCollectionSampling", metadataScope].includes(key))
+    .reduce((obj, key) => {
+      return {
+        ...obj,
+        [key]: metadataScopeCodes[key],
+      };
+    }, {});
+
+
 
 
   function addLineage() {
@@ -118,7 +128,7 @@ const Lineage = ({
 
   const handleLineageScopeChange = () => {
     return (e) => {
-      const newEvent = { target: { value: metadataScopeCodes[e.target.value].isoValue } };
+      const newEvent = { target: { value: metadataScopeCodes[e.target.value]?.isoValue } };
       updateLineageField("scopeIso")(newEvent);
       updateLineageField("scope")(e);
     };
@@ -306,8 +316,9 @@ const Lineage = ({
                     value={lineageStep.scope}
                     defaultValue={metadataScope}
                     onChange={handleLineageScopeChange()}
-                    options={Object.keys(metadataScopeCodes)}
-                    optionLabels={Object.values(metadataScopeCodes).map(
+                    options={Object.keys(filteredMetadataScopeCodes)}
+                    optionLabels={Object.values(filteredMetadataScopeCodes)
+                      .map(
                       ({ title }) => title[language]
                     )}
                     disabled={disabled}
