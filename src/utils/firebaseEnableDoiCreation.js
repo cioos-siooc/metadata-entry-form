@@ -1,4 +1,4 @@
-import { getDatabase, ref, child, get } from "firebase/database";
+import { getDatabase, ref, child, get, set, remove } from "firebase/database";
 import firebase from "../firebase";
 
 export async function newDataciteAccount(region, prefix, authHash) {
@@ -6,7 +6,7 @@ export async function newDataciteAccount(region, prefix, authHash) {
     const dataciteRef = ref(database, `admin/${region}/dataciteCredentials`);
     
     // Overwriting prefix and authHash directly under dataciteCredentials
-    await dataciteRef.set({
+    await set(dataciteRef,{
       prefix,
       dataciteHash: authHash,
   });
@@ -16,10 +16,9 @@ export async function deleteAllDataciteCredentials(region) {
   try {
     // Reference to the dataciteCredentials node for the specified region
     const database = getDatabase(firebase);
-    const dataciteCredentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
 
     // Deleting the dataciteCredentials node and all its children
-    await dataciteCredentialsRef.remove();
+    await remove(ref(database, `admin/${region}/dataciteCredentials`));
 
     // Return a message indicating success
     return { success: true, message: "All Datacite credentials deleted successfully." };
