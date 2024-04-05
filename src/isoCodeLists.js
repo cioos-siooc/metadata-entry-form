@@ -219,14 +219,14 @@ export const depthDirections = {
 };
 
 export const metadataScopeCodes = {
-  Audiovisual: {
-    title: { en: "Audiovisual", fr: "Audio - visuel" },
-    text: {
-      en: "A series of visual representations imparting an impression of motion when shown in succession.May or may not include sound.",
-      fr: "Une série de représentations visuelles donnant une impression de mouvement lorsqu'elles sont présentées successivement. Peut inclure ou non du son.",
-    },
-    isoValue: "dataset",
-  },
+  // Audiovisual: {
+  //   title: { en: "Audiovisual", fr: "Audio - visuel" },
+  //   text: {
+  //     en: "A series of visual representations imparting an impression of motion when shown in succession.May or may not include sound.",
+  //     fr: "Une série de représentations visuelles donnant une impression de mouvement lorsqu'elles sont présentées successivement. Peut inclure ou non du son.",
+  //   },
+  //   isoValue: "dataset",
+  // },
   Book: {
     title: {
       en: "Book",
@@ -238,61 +238,61 @@ export const metadataScopeCodes = {
     },
     isoValue: "document",
   },
-  BookChapter: {
-    title: {
-      en: "Book Chapter",
-      fr: "Chapitre du livre",
-    },
-    text: {
-      en: "One of the main divisions of a book.",
-      fr: "L'une des principales divisions d'un livre.",
-    },
-    isoValue: "document",
-  },
-  Collection: {
-    title: {
-      en: "Collection",
-      fr: "Collection",
-    },
-    text: {
-      en: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types.A collection is described as a group; its parts may also be separately described.",
-      fr: "Agrégation de ressources, qui peut englober des collections d'un seul type de ressource ainsi que celles de types mixtes. Une collection est décrite comme un groupe ; ses parties peuvent également être décrites séparément.",
-    },
-    isoValue: "collection",
-  },
-  ComputationalNotebook: {
-    title: {
-      en: "Computational Notebook",
-      fr: "Cahier informatique",
-    },
-    text: {
-      en: "A virtual notebook environment used for literate programming.",
-      fr: "Un environnement de bloc - notes virtuel utilisé pour la programmation compétente.",
-    },
-    isoValue: "document",
-  },
-  ConferencePaper: {
-    title: {
-      en: "Conference Paper",
-      fr: "Papier de conférence",
-    },
-    text: {
-      en: "Article that is written with the goal of being accepted to a conference.",
-      fr: "Article rédigé dans le but d’être accepté à une conférence.",
-    },
-    isoValue: "document",
-  },
-  ConferenceProceeding: {
-    title: {
-      en: "Conference Proceeding",
-      fr: "Procédure de conférence",
-    },
-    text: {
-      en: "Collection of academic papers published in the context of an academic conference.",
-      fr: "Recueil d'articles académiques publiés dans le cadre d'une conférence académique.",
-    },
-    isoValue: "document",
-  },
+  // BookChapter: {
+  //   title: {
+  //     en: "Book Chapter",
+  //     fr: "Chapitre du livre",
+  //   },
+  //   text: {
+  //     en: "One of the main divisions of a book.",
+  //     fr: "L'une des principales divisions d'un livre.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // Collection: {
+  //   title: {
+  //     en: "Collection",
+  //     fr: "Collection",
+  //   },
+  //   text: {
+  //     en: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types.A collection is described as a group; its parts may also be separately described.",
+  //     fr: "Agrégation de ressources, qui peut englober des collections d'un seul type de ressource ainsi que celles de types mixtes. Une collection est décrite comme un groupe ; ses parties peuvent également être décrites séparément.",
+  //   },
+  //   isoValue: "collection",
+  // },
+  // ComputationalNotebook: {
+  //   title: {
+  //     en: "Computational Notebook",
+  //     fr: "Cahier informatique",
+  //   },
+  //   text: {
+  //     en: "A virtual notebook environment used for literate programming.",
+  //     fr: "Un environnement de bloc - notes virtuel utilisé pour la programmation compétente.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // ConferencePaper: {
+  //   title: {
+  //     en: "Conference Paper",
+  //     fr: "Papier de conférence",
+  //   },
+  //   text: {
+  //     en: "Article that is written with the goal of being accepted to a conference.",
+  //     fr: "Article rédigé dans le but d’être accepté à une conférence.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // ConferenceProceeding: {
+  //   title: {
+  //     en: "Conference Proceeding",
+  //     fr: "Procédure de conférence",
+  //   },
+  //   text: {
+  //     en: "Collection of academic papers published in the context of an academic conference.",
+  //     fr: "Recueil d'articles académiques publiés dans le cadre d'une conférence académique.",
+  //   },
+  //   isoValue: "document",
+  // },
   DataCollectionSampling: {
     title: {
       en: "Data Collection (sampling)",
@@ -304,17 +304,17 @@ export const metadataScopeCodes = {
     },
     isoValue: "collectionSession",
   },
-  DataPaper: {
-    title: {
-      en: "Data Paper",
-      fr: "Document de données",
-    },
-    text: {
-      en: "A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.",
-      fr: "Une publication factuelle et objective dont l'intention ciblée est d'identifier et de décrire des données spécifiques, des ensembles de données ou des collections de données pour faciliter la découverte.",
-    },
-    isoValue: "document",
-  },
+  // DataPaper: {
+  //   title: {
+  //     en: "Data Paper",
+  //     fr: "Document de données",
+  //   },
+  //   text: {
+  //     en: "A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.",
+  //     fr: "Une publication factuelle et objective dont l'intention ciblée est d'identifier et de décrire des données spécifiques, des ensembles de données ou des collections de données pour faciliter la découverte.",
+  //   },
+  //   isoValue: "document",
+  // },
   Dataset: {
     title: {
       en: "Dataset",
@@ -326,83 +326,83 @@ export const metadataScopeCodes = {
     },
     isoValue: "dataset",
   },
-  Dissertation: {
-    title: {
-      en: "Dissertation",
-      fr: "Thèse",
-    },
-    text: {
-      en: "A written essay, treatise, or thesis, especially one written by a candidate for the degree of Doctor of Philosophy.",
-      fr: "Un essai écrit, un traité ou une thèse, en particulier rédigé par un candidat au diplôme de docteur en philosophie.",
-    },
-    isoValue: "document",
-  },
-  Event: {
-    title: {
-      en: "Event",
-      fr: "Événement",
-    },
-    text: {
-      en: "A non - persistent, time - based occurrence.",
-      fr: "Occurrence non persistante et temporelle.",
-    },
-    isoValue: "collectionSession",
-  },
-  Image: {
-    title: {
-      en: "Image",
-      fr: "Image",
-    },
-    text: {
-      en: "A visual representation other than text.",
-      fr: "Une représentation visuelle autre que du texte.",
-    },
-    isoValue: "dataset",
-  },
-  Instrument: {
-    title: {
-      en: "Instrument",
-      fr: "Instrument",
-    },
-    text: {
-      en: "A device, tool or apparatus used to obtain, measure and / or analyze data.",
-      fr: "Un dispositif, un outil ou un appareil utilisé pour obtenir, mesurer et / ou analyser des données.",
-    },
-    isoValue: "collectionHardware",
-  },
-  InteractiveResource: {
-    title: {
-      en: "Interactive Resource",
-      fr: "Ressource interactive",
-    },
-    text: {
-      en: "A resource requiring interaction from the user to be understood, executed, or experienced.",
-      fr: "Une ressource nécessitant une interaction de la part de l'utilisateur pour être comprise, exécutée ou expérimentée.",
-    },
-    isoValue: "application",
-  },
-  Journal: {
-    title: {
-      en: "Journal",
-      fr: "Journal",
-    },
-    text: {
-      en: "A scholarly publication consisting of articles that is published regularly throughout the year.",
-      fr: "Publication scientifique composée d'articles publiés régulièrement tout au long de l'année.",
-    },
-    isoValue: "document",
-  },
-  JournalArticle: {
-    title: {
-      en: "Journal Article",
-      fr: "Article de revue",
-    },
-    text: {
-      en: "A written composition on a topic of interest, which forms a separate part of a journal.",
-      fr: "Une composition écrite sur un sujet d’intérêt, qui constitue une partie distincte d’un journal.",
-    },
-    isoValue: "document",
-  },
+  // Dissertation: {
+  //   title: {
+  //     en: "Dissertation",
+  //     fr: "Thèse",
+  //   },
+  //   text: {
+  //     en: "A written essay, treatise, or thesis, especially one written by a candidate for the degree of Doctor of Philosophy.",
+  //     fr: "Un essai écrit, un traité ou une thèse, en particulier rédigé par un candidat au diplôme de docteur en philosophie.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // Event: {
+  //   title: {
+  //     en: "Event",
+  //     fr: "Événement",
+  //   },
+  //   text: {
+  //     en: "A non - persistent, time - based occurrence.",
+  //     fr: "Occurrence non persistante et temporelle.",
+  //   },
+  //   isoValue: "collectionSession",
+  // },
+  // Image: {
+  //   title: {
+  //     en: "Image",
+  //     fr: "Image",
+  //   },
+  //   text: {
+  //     en: "A visual representation other than text.",
+  //     fr: "Une représentation visuelle autre que du texte.",
+  //   },
+  //   isoValue: "dataset",
+  // },
+  // Instrument: {
+  //   title: {
+  //     en: "Instrument",
+  //     fr: "Instrument",
+  //   },
+  //   text: {
+  //     en: "A device, tool or apparatus used to obtain, measure and / or analyze data.",
+  //     fr: "Un dispositif, un outil ou un appareil utilisé pour obtenir, mesurer et / ou analyser des données.",
+  //   },
+  //   isoValue: "collectionHardware",
+  // },
+  // InteractiveResource: {
+  //   title: {
+  //     en: "Interactive Resource",
+  //     fr: "Ressource interactive",
+  //   },
+  //   text: {
+  //     en: "A resource requiring interaction from the user to be understood, executed, or experienced.",
+  //     fr: "Une ressource nécessitant une interaction de la part de l'utilisateur pour être comprise, exécutée ou expérimentée.",
+  //   },
+  //   isoValue: "application",
+  // },
+  // Journal: {
+  //   title: {
+  //     en: "Journal",
+  //     fr: "Journal",
+  //   },
+  //   text: {
+  //     en: "A scholarly publication consisting of articles that is published regularly throughout the year.",
+  //     fr: "Publication scientifique composée d'articles publiés régulièrement tout au long de l'année.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // JournalArticle: {
+  //   title: {
+  //     en: "Journal Article",
+  //     fr: "Article de revue",
+  //   },
+  //   text: {
+  //     en: "A written composition on a topic of interest, which forms a separate part of a journal.",
+  //     fr: "Une composition écrite sur un sujet d’intérêt, qui constitue une partie distincte d’un journal.",
+  //   },
+  //   isoValue: "document",
+  // },
   Model: {
     title: {
       en: "Model",
@@ -414,39 +414,39 @@ export const metadataScopeCodes = {
     },
     isoValue: "model",
   },
-  OutputManagementPlan: {
-    title: {
-      en: "Output Management Plan",
-      fr: "Plan de gestion des résultats",
-    },
-    text: {
-      en: "A formal document that outlines how research outputs are to be handled both during a research project and after the project is completed.",
-      fr: "Un document formel qui décrit la manière dont les résultats de la recherche doivent être traités à la fois pendant un projet de recherche et une fois le projet terminé.",
-    },
-    isoValue: "document",
-  },
-  PeerReview: {
-    title: {
-      en: "Peer Review",
-      fr: "Examen par les pairs",
-    },
-    text: {
-      en: "Evaluation of scientific, academic, or professional work by others working in the same field.",
-      fr: "Évaluation des travaux scientifiques, académiques ou professionnels par d'autres personnes travaillant dans le même domaine.",
-    },
-    isoValue: "document",
-  },
-  PhysicalObject: {
-    title: {
-      en: "Physical Object",
-      fr: "Objet physique",
-    },
-    text: {
-      en: "A physical object or substance.",
-      fr: "Un objet ou une substance physique.",
-    },
-    isoValue: "sample",
-  },
+  // OutputManagementPlan: {
+  //   title: {
+  //     en: "Output Management Plan",
+  //     fr: "Plan de gestion des résultats",
+  //   },
+  //   text: {
+  //     en: "A formal document that outlines how research outputs are to be handled both during a research project and after the project is completed.",
+  //     fr: "Un document formel qui décrit la manière dont les résultats de la recherche doivent être traités à la fois pendant un projet de recherche et une fois le projet terminé.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // PeerReview: {
+  //   title: {
+  //     en: "Peer Review",
+  //     fr: "Examen par les pairs",
+  //   },
+  //   text: {
+  //     en: "Evaluation of scientific, academic, or professional work by others working in the same field.",
+  //     fr: "Évaluation des travaux scientifiques, académiques ou professionnels par d'autres personnes travaillant dans le même domaine.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // PhysicalObject: {
+  //   title: {
+  //     en: "Physical Object",
+  //     fr: "Objet physique",
+  //   },
+  //   text: {
+  //     en: "A physical object or substance.",
+  //     fr: "Un objet ou une substance physique.",
+  //   },
+  //   isoValue: "sample",
+  // },
   Preprint: {
     title: {
       en: "Preprint",
@@ -469,17 +469,17 @@ export const metadataScopeCodes = {
     },
     isoValue: "document",
   },
-  Service: {
-    title: {
-      en: "Service",
-      fr: "Service",
-    },
-    text: {
-      en: "An organized system of apparatus, appliances, staff, etc., for supplying some function (s) required by end users.",
-      fr: "Un système organisé d'appareils, d'appareils, de personnel, etc., pour fournir certaines fonctions requises par les utilisateurs finaux.",
-    },
-    isoValue: "service",
-  },
+  // Service: {
+  //   title: {
+  //     en: "Service",
+  //     fr: "Service",
+  //   },
+  //   text: {
+  //     en: "An organized system of apparatus, appliances, staff, etc., for supplying some function (s) required by end users.",
+  //     fr: "Un système organisé d'appareils, d'appareils, de personnel, etc., pour fournir certaines fonctions requises par les utilisateurs finaux.",
+  //   },
+  //   isoValue: "service",
+  // },
   Software: {
     title: {
       en: "Software",
@@ -491,39 +491,39 @@ export const metadataScopeCodes = {
     },
     isoValue: "software",
   },
-  Sound: {
-    title: {
-      en: "Sound",
-      fr: "Son",
-    },
-    text: {
-      en: "A resource primarily intended to be heard.",
-      fr: "Une ressource avant tout destinée à être entendue.",
-    },
-    isoValue: "dataset",
-  },
-  Standard: {
-    title: {
-      en: "Standard",
-      fr: "Standard",
-    },
-    text: {
-      en: "Something established by authority, custom, or general consent as a model, example, or point of reference.",
-      fr: "Quelque chose établi par l'autorité, la coutume ou le consentement général comme modèle, exemple ou point de référence.",
-    },
-    isoValue: "document",
-  },
-  StudyRegistration: {
-    title: {
-      en: "Study Registration",
-      fr: "Inscription aux études",
-    },
-    text: {
-      en: "A detailed, time - stamped description of a research plan, often openly shared in a registry or published in a journal before the study is conducted to lend accountability and transparency in the hypothesis generating and testing process.",
-      fr: "Description détaillée et horodatée d'un plan de recherche, souvent ouvertement partagée dans un registre ou publiée dans une revue avant que l'étude ne soit menée pour garantir la responsabilité et la transparence dans le processus de génération et de test des hypothèses.",
-    },
-    isoValue: "document",
-  },
+  // Sound: {
+  //   title: {
+  //     en: "Sound",
+  //     fr: "Son",
+  //   },
+  //   text: {
+  //     en: "A resource primarily intended to be heard.",
+  //     fr: "Une ressource avant tout destinée à être entendue.",
+  //   },
+  //   isoValue: "dataset",
+  // },
+  // Standard: {
+  //   title: {
+  //     en: "Standard",
+  //     fr: "Standard",
+  //   },
+  //   text: {
+  //     en: "Something established by authority, custom, or general consent as a model, example, or point of reference.",
+  //     fr: "Quelque chose établi par l'autorité, la coutume ou le consentement général comme modèle, exemple ou point de référence.",
+  //   },
+  //   isoValue: "document",
+  // },
+  // StudyRegistration: {
+  //   title: {
+  //     en: "Study Registration",
+  //     fr: "Inscription aux études",
+  //   },
+  //   text: {
+  //     en: "A detailed, time - stamped description of a research plan, often openly shared in a registry or published in a journal before the study is conducted to lend accountability and transparency in the hypothesis generating and testing process.",
+  //     fr: "Description détaillée et horodatée d'un plan de recherche, souvent ouvertement partagée dans un registre ou publiée dans une revue avant que l'étude ne soit menée pour garantir la responsabilité et la transparence dans le processus de génération et de test des hypothèses.",
+  //   },
+  //   isoValue: "document",
+  // },
   Text: {
     title: {
       en: "Text",
@@ -535,17 +535,17 @@ export const metadataScopeCodes = {
     },
     isoValue: "document",
   },
-  Workflow: {
-    title: {
-      en: "Workflow",
-      fr: "Flux de travail",
-    },
-    text: {
-      en: "A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.",
-      fr: "Une série structurée d'étapes qui peuvent être exécutées pour produire un résultat final, permettant aux utilisateurs de spécifier et de mettre en œuvre leur travail de manière plus reproductible.",
-    },
-    isoValue: "document",
-  },
+  // Workflow: {
+  //   title: {
+  //     en: "Workflow",
+  //     fr: "Flux de travail",
+  //   },
+  //   text: {
+  //     en: "A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.",
+  //     fr: "Une série structurée d'étapes qui peuvent être exécutées pour produire un résultat final, permettant aux utilisateurs de spécifier et de mettre en œuvre leur travail de manière plus reproductible.",
+  //   },
+  //   isoValue: "document",
+  // },
   Other: {
     title: {
       en: "Other",
