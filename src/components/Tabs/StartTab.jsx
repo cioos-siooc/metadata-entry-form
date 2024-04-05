@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 
 import { Save } from "@material-ui/icons";
 import {
@@ -29,6 +29,7 @@ const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCode
 const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
+  const mounted = useRef(false);
   
   const updateResourceType = (value) => {
     if(Array.isArray(value) && value.length === 1 && value.includes('other')){
@@ -52,9 +53,18 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
     };
   }
 
-  if (!record.language) {
-    handleUpdateRecord("language")({ target: {value: language}});
-  }
+ 
+  useEffect(() => {
+    mounted.current = true;
+
+    if (!record.language) {
+      handleUpdateRecord("language")({ target: {value: language}});
+    }
+
+    return () => {
+      mounted.current = false;
+    };
+  }, [language]);
 
   return (
     <Grid item xs>

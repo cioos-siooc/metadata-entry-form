@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import arrayMove from "array-move";
 import { Container, Draggable } from "react-smooth-dnd";
 import { Paper,
@@ -117,7 +117,7 @@ const TaxaTab = ({
         });
     }, 500);
 
-    React.useEffect(() => {
+    useEffect(() => {
         mounted.current = true;
 
         if (inputValue.length > 2 && !SearchValue && !requestInProgress.current){
