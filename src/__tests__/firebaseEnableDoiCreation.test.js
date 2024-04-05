@@ -1,8 +1,5 @@
-// import EventEmitter from 'eventemitter3';
 import * as db from "firebase/database";
 import * as dataciteFunctions from '../utils/firebaseEnableDoiCreation';
-
-
 
 // ****************************************************************************************************************************
 // Attach to the existing firebase methods using .spyOn. This allows us to check if the method was called and to alter its 
@@ -33,23 +30,6 @@ const mockRef = jest.spyOn(db, 'ref').mockReturnThis();
 
 const mockGetDatabase = jest.spyOn(db, 'getDatabase').mockReturnThis();
 
-
-// const mockAuthEmitter = new EventEmitter();
-// let mockIsSignIn = true;
-// const user = {
-//   displayName: 'test name',
-//   email: 'redirectTest@test.com',
-//   emailVerified: true,
-//   uid: 'id123',
-//   providerData: [
-//     {
-//       email: 'redirectTest@test.com',
-//       displayName: 'redirectResultTestDisplayName',
-//       providerId: 'google',
-//     },
-//   ],
-// };
-
 jest.mock('firebase/database', () => ({
   ref: jest.fn(() => mockRef),
   set: jest.fn(() => mockSet),
@@ -61,93 +41,7 @@ jest.mock('firebase/database', () => ({
 
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
-
-  // initializeApp: jest.fn().mockReturnValue({
-  //   auth: jest.fn().mockReturnValue({
-  //     currentUser: mockIsSignIn
-  //       ? {
-  //         displayName: 'redirectResultTestDisplayName',
-  //         email: 'redirectTest@test.com',
-  //         emailVerified: true,
-  //         uid: 'id123',
-  //         providerData: [
-  //           {
-  //             email: 'redirectTest@test.com',
-  //             displayName: 'redirectResultTestDisplayName',
-  //             providerId: 'google',
-  //           },
-  //         ],
-  //         sendEmailVerification: jest.fn(),
-  //       }
-  //       : null,
-  //     signInWithRedirect: jest.fn(),
-  //     getRedirectResult: jest.fn().mockReturnValue({
-  //       credential: {
-  //         providerId: 'Google',
-  //       },
-  //       user: {
-  //         getIdToken: jest.fn().mockResolvedValue('abc1234'),
-  //       },
-  //       additionalUserInfo: {
-  //         profile: {
-  //           email: '__tests__@__tests__.com',
-  //           name: 'John Doe',
-  //         },
-  //       },
-  //     }),
-  //     onAuthStateChanged: jest.fn(fn => {
-  //       // sign user on start
-  //       fn(user);
-  //       // sign-out user on start
-  //       mockAuthEmitter.on('sign-out', fn, undefined);
-  //       mockAuthEmitter.on('sign-in', fn, user);
-  //     }),
-  //     signOut: jest.fn(() => {
-  //       mockIsSignIn = false;
-  //       mockAuthEmitter.emit('sign-out');
-  //     }),
-  //     signInWithEmailAndPassword: jest.fn(() => {
-  //       mockIsSignIn = true;
-  //       mockAuthEmitter.emit('sign-in', user);
-  //       return Promise.resolve(true);
-  //     }),
-  //     sendPasswordResetEmail: jest.fn(() => Promise.resolve(true)),
-  //     sendEmailVerification: jest.fn(() => Promise.resolve(true)),
-  //     signInWithPopup: jest.fn(() => {
-  //       mockIsSignIn = true;
-  //       mockAuthEmitter.emit('sign-in', user);
-  //       return Promise.resolve(true);
-  //     }),
-  //   }),
-    // firestore: jest.fn().mockReturnValue({
-    //   collection: jest.fn().mockReturnValue({
-    //     doc: jest.fn().mockReturnValue({
-    //       add: jest.fn().mockResolvedValue({
-    //         id: 'abc123',
-    //       }),
-    //       set: jest.fn().mockResolvedValue({
-    //         uid: 'abc123',
-    //       }),
-    //     }),
-    //   }),
-    // }),
-  // }),
-  // auth: {
-  //   GoogleAuthProvider: {
-  //     addScope: jest.fn(),
-  //   },
-  //   GithubAuthProvider: {
-  //     addScope: jest.fn(),
-  //   },
-  //   FacebookAuthProvider: {
-  //     addScope: jest.fn(),
-  //   },
-  // },
 }));
-
-
-
-
 
 
 describe('Datacite Credentials Management', () => {
