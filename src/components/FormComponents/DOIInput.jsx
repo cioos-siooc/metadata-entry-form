@@ -185,18 +185,40 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         mounted.current = true;
         const fetchPrefix = async () => {
             setLoadingPrefix(true);
-            const prefix = await getDatacitePrefix(region);
-            if (mounted.current){
-                setDatacitePrefix(prefix);
+            try{
+                const prefix = await getDatacitePrefix(region);
+                if (mounted.current){
+                    setDatacitePrefix(prefix);
+                }
+            } catch(e){
+                if ((e.message).includes('Error: Permission denied')){
+                    // ignore
+                }
+                else{
+                    throw e
+                }                           
+            }
+            if (mounted.current) {
                 setLoadingPrefix(false);
             }
         };
 
         const fetchAuthHash = async () => {
             setLoadingAuthHash(true);
-            const authHash = await getAuthHash(region);
+            try {
+                const authHash = await getAuthHash(region);
+                if (mounted.current) {
+                    setDataciteAuthHash(authHash);
+                }
+            } catch (e) {
+                if ((e.message).includes('Error: Permission denied')) {
+                    // ignore
+                }
+                else {
+                    throw e
+                }
+            }
             if (mounted.current) {
-                setDataciteAuthHash(authHash);
                 setLoadingAuthHash(false);
             }
         };
