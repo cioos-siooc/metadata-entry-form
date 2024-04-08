@@ -283,8 +283,16 @@ export default function MiniDrawer({ children }) {
                   button
                   key="Sign in"
                   onClick={async () => {
-                    await signInWithGoogle();
-                    history.push(pathname);
+                    try {
+                      await signInWithGoogle();
+                      history.push(pathname);
+                    } catch (error) {
+                      if (error.code === 'auth/cancelled-popup-request'){
+                        // ignore
+                      }else{
+                        throw error;
+                      }
+                    }
                   }}
                 >
                   <ListItemIcon>
