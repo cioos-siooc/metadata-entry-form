@@ -136,10 +136,10 @@ const TaxaTab = ({
             <Paper style={paperClass}>
                 <QuestionText>
                     <En>
-                        Data processing history (provenance) for the resource.
+                        Taxonomic Coverage
                     </En>
                     <Fr>
-                        Historique du traitement des données (provenance) pour la ressource.
+                        Couverture taxonomique
                     </Fr>
                     <RequiredMark passes={validateField(record, "distribution")} />
                     <SupplementalText>
