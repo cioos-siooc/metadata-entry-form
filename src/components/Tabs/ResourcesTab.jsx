@@ -46,8 +46,8 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
             <I18n>
               <En>Resource</En>
               <Fr>La ressource</Fr>
-              {record.distribution && record.distribution.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.distribution.length} variant="outlined" />)}    
             </I18n>
+            {record.distribution && record.distribution.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.distribution.length} variant="outlined" />)}
           </HeadingText>
         </AccordionSummary>
         <AccordionDetails>
@@ -116,8 +116,8 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
             <I18n>
               <En>Related Works</En>
               <Fr>Travaux connexes</Fr>
-              {record.associated_resources && record.associated_resources.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.associated_resources.length} variant="outlined" />)}     
             </I18n>
+            {record.associated_resources && record.associated_resources.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.associated_resources.length} variant="outlined" />)}
           </HeadingText>
         </AccordionSummary>
         <AccordionDetails> 
