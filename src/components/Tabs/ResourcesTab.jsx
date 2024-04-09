@@ -32,10 +32,24 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
   //   setValue(newValue);
   // };
 
+  const [AccordionDefaultExpanded] = React.useState([
+    (record.distribution && record.distribution.length === 0),
+    (record.associated_resources && record.associated_resources.length === 0),
+    (record.history && record.history.length === 0),
+  ]);
+
+  // const handleDrawerOpen = () => {
+  //   setOpen(true);
+  // };
+
+  // const handleDrawerClose = () => {
+  //   setOpen(false);
+  // };
+
   return (
     <div>
 
-      <Accordion defaultExpanded={record.distribution && record.distribution.length === 0} style={{ width:'90%', margin:20}}>
+      <Accordion defaultExpanded={AccordionDefaultExpanded[0]} style={{ width:'90%', margin:20}}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel1a-content"
@@ -105,7 +119,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion defaultExpanded={record.associated_resources && record.associated_resources.length === 0} style={{ width: '90%', margin: 20 }}>
+      <Accordion defaultExpanded={AccordionDefaultExpanded[1]} style={{ width: '90%', margin: 20 }}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel2a-content"
@@ -161,7 +175,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion defaultExpanded={record.history && record.history.length === 0} style={{ width: '90%', margin: 20 }}>
+      <Accordion defaultExpanded={AccordionDefaultExpanded[2]} style={{ width: '90%', margin: 20 }}>
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel3a-content"
