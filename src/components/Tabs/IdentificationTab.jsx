@@ -35,6 +35,7 @@ import {
 
 import regions from "../../regions";
 import { UserContext } from "../../providers/UserProvider";
+import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const IdentificationTab = ({
   disabled,
@@ -43,11 +44,11 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
+  const { createDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
   const { language, region, userID } = useParams();
   const regionInfo = regions[region];
   const doiIsValid =validateDOI(record.datasetIdentifier)
-  
+
   const languageUpperCase = language.toUpperCase();
   const [doiGenerated, setDoiGenerated] = useState(false);
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
@@ -94,7 +95,7 @@ const IdentificationTab = ({
       if(!loadingAuthHash && dataciteAuthHash) {
 
         await createDraftDoi({
-          record: mappedDataCiteObject, 
+          record: mappedDataCiteObject,
           authHash: dataciteAuthHash,
         })
         .then((response) => {
@@ -137,28 +138,14 @@ const IdentificationTab = ({
       console.error("Error in handleGenerateDOI:", err);
       setDoiErrorFlag(true);
       throw err;
-    } 
+    }
   }
 
   async function handleUpdateDraftDOI() {
     setLoadingDoiUpdate(true);
 
     try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-      delete mappedDataCiteObject.data.type;
-      delete mappedDataCiteObject.data.attributes.prefix;
-
-      // Extract DOI from the full URL
-      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
-
-      const dataObject = {
-        doi,
-        data: mappedDataCiteObject,
-        dataciteAuthHash,
-      }
-
-      const response = await updateDraftDoi( dataObject );
-      const statusCode = response.data.status;
+      const statusCode = await performUpdateDraftDoi(record, region, language)
 
       if (statusCode === 200) {
         setDoiUpdateFlag(true);
@@ -838,7 +825,7 @@ const IdentificationTab = ({
               )}
             </div>
           </Button>
-        )} 
+        )}
 
         {doiErrorFlag && (
           <span>

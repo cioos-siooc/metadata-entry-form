@@ -6,7 +6,7 @@ export async function newDataciteAccount(region, prefix, authHash) {
         .ref("admin")
         .child(region)
         .child("dataciteCredentials");
-    
+
     // Overwriting prefix and authHash directly under dataciteCredentials
     await dataciteRef.set({
       prefix,
@@ -52,7 +52,7 @@ export async function getAuthHash(region) {
 } catch (error) {
     console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
     return null;
-} 
+}
 }
 
 export async function getCredentialsStored(region) {
