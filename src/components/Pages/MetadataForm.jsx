@@ -45,6 +45,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
+import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -96,7 +97,11 @@ const styles = (theme) => ({
     right: theme.spacing(2),
   },
 });
+
+
 class MetadataForm extends FormClassTemplate {
+
+
   constructor(props) {
     super(props);
 
@@ -120,6 +125,8 @@ class MetadataForm extends FormClassTemplate {
       editorInfo: { email: "", displayName: "" },
       loggedInUserCanEditRecord: false,
       saveIncompleteRecordModalOpen: false,
+      doiUpdated: false,
+      doiError: false,
     };
   }
 
@@ -244,6 +251,27 @@ class MetadataForm extends FormClassTemplate {
     return push(contactsRef, contact).getKey();
   }
 
+  async handleUpdateDraftDOI() {
+    const { match } = this.props;
+    const { region, language } = match.params;
+    const { record } = this.state;
+
+    try {
+      const statusCode = await performUpdateDraftDoi(record, region, language);
+
+      if (statusCode === 200) {
+        this.state.doiUpdated = true
+      } else {
+        this.state.doiError = true
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating draft DOI: ', err);
+      this.state.doiError = true
+      throw err;
+    }
+  }
+
   async handleSubmitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;
@@ -255,6 +283,8 @@ class MetadataForm extends FormClassTemplate {
     const recordUserID = isNewRecord ? loggedInUserID : userID;
 
     const recordID = await this.handleSaveClick();
+    await this.handleUpdateDraftDOI()
+
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
@@ -528,6 +558,8 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
             {...tabProps}
+            doiUpdated={this.state.doiUpdated}
+            doiError={this.state.doiError}
             submitRecord={() => this.handleSubmitRecord()}
           />
         </TabPanel>

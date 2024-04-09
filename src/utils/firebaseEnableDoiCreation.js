@@ -46,6 +46,7 @@ export async function getAuthHash(region) {
     throw new Error(`Error fetching Datacite Auth Hash for region  ${region}: ${error}`);
 } 
 }
+}
 
 export async function getCredentialsStored(region) {
   try {
