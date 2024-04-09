@@ -379,7 +379,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
           <Fr>Décrivez l'étendue géographique de l'ensemble de données. Obligatoire pour les ensembles de données biologiques</Fr>
         </I18n>
-        {/* <RequiredMark passes={validateField(record, "title")} />  Reuired in biological dataset */}
+        {record.resourceType && record.resourceType.includes("biological") && (
+          <RequiredMark passes={Boolean(mapData.description)} /> 
+        )}
         <SupplementalText>
           <I18n>
             <En>
