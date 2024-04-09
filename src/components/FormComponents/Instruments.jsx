@@ -5,10 +5,10 @@ import {En, Fr, I18n} from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
-import InstrumentLeftList from "./InstrumentLeftList";
 import {SupplementalText} from "./QuestionStyles";
 import PlatformTitle from "./PlatformTitle";
 import SelectInput from "./SelectInput";
+import LeftList from "./LeftList";
 
 const Instruments = ({
   updateInstruments,
@@ -47,15 +47,26 @@ const Instruments = ({
     <Grid container direction="row" style={{ marginLeft: "5px" }}>
     <Grid item xs={5}>
 
-    <InstrumentLeftList
-              instruments={instruments}
-              updateInstruments={updateInstruments}
-              activeInstrument={activeInstrument}
-              setActiveInstrument={setActiveInstrument}
+      <LeftList
+              itemType='instrument'
+              items={instruments}
+              updateItems={updateInstruments}
+              activeItem={activeInstrument}
+              setActiveItem={setActiveInstrument}
               disabled={disabled}
-              userInstruments={userInstruments}
-              saveUpdateInstrument={saveUpdateInstrument}
+              savedUserItems={userInstruments}
+              saveItem={saveUpdateInstrument}
               />
+
+    {/*<InstrumentLeftList*/}
+    {/*          instruments={instruments}*/}
+    {/*          updateInstruments={updateInstruments}*/}
+    {/*          activeInstrument={activeInstrument}*/}
+    {/*          setActiveInstrument={setActiveInstrument}*/}
+    {/*          disabled={disabled}*/}
+    {/*          userInstruments={userInstruments}*/}
+    {/*          saveUpdateInstrument={saveUpdateInstrument}*/}
+    {/*          />*/}
     </Grid>
       <Grid item xs>
         <Grid container direction="column">

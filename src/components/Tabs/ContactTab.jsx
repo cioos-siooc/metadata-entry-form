@@ -6,7 +6,6 @@ import { Paper, Grid } from "@material-ui/core";
 import DragHandleIcon from "@material-ui/icons/DragHandle";
 
 import EditContact from "../FormComponents/ContactEditor";
-import ContactLeftList from "../FormComponents/ContactLeftList";
 
 import {
   QuestionText,
@@ -159,6 +158,7 @@ const ContactTab = ({
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
         <Grid item xs={5}>
           <LeftList
+            itemType="contact"
             items={contacts}
             updateItems={updateContacts}
             setActiveItem={setActiveContact}
@@ -167,15 +167,6 @@ const ContactTab = ({
             savedUserItems={userContacts}
             saveItem={saveToContacts}
           />
-          {/*<ContactLeftList*/}
-          {/*  contacts={contacts}*/}
-          {/*  updateContacts={updateContacts}*/}
-          {/*  setActiveContact={setActiveContact}*/}
-          {/*  activeContact={activeContact}*/}
-          {/*  disabled={disabled}*/}
-          {/*  userContacts={userContacts}*/}
-          {/*  saveToContacts={saveToContacts}*/}
-          {/*/>*/}
         </Grid>
         {contact && (
           <Grid item xs>

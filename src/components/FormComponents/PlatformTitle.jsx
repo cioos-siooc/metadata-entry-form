@@ -7,7 +7,6 @@ import { I18n } from "../I18n";
 // creates text from an platform in the form
 // <platformName> - <platformType>
 function getPlatformTitleFromNames(platform) {
-    console.log(platform)
     const { id, type } = platform;
     const titleParts = [type, id];
 

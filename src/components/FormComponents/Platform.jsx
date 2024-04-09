@@ -10,7 +10,7 @@ import RequiredMark from "./RequiredMark";
 import { En, Fr, I18n } from "../I18n";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
-import PlatformLeftList from "./PlatformLeftList";
+import LeftList from "./LeftList";
 
 const Platform = ({
       platforms = [],
@@ -43,15 +43,26 @@ const Platform = ({
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
         <Grid item xs={5}>
 
-        <PlatformLeftList
-                  platforms={platforms}
-                  updatePlatforms={updatePlatforms}
-                  activePlatform={activePlatform}
-                  setActivePlatform={setActivePlatform}
+        <LeftList
+                  itemType="platform"
+                  items={platforms}
+                  updateItems={updatePlatforms}
+                  activeItem={activePlatform}
+                  setActiveItem={setActivePlatform}
                   disabled={disabled}
-                  userPlatforms={userPlatforms}
-                  saveUpdatePlatform={saveUpdatePlatform}
+                  savedUserItems={userPlatforms}
+                  saveItem={saveUpdatePlatform}
                   />
+
+        {/*<PlatformLeftList*/}
+        {/*          platforms={platforms}*/}
+        {/*          updatePlatforms={updatePlatforms}*/}
+        {/*          activePlatform={activePlatform}*/}
+        {/*          setActivePlatform={setActivePlatform}*/}
+        {/*          disabled={disabled}*/}
+        {/*          userPlatforms={userPlatforms}*/}
+        {/*          saveUpdatePlatform={saveUpdatePlatform}*/}
+        {/*          />*/}
         </Grid>
 
       <Grid item xs>

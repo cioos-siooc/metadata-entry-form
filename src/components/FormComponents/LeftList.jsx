@@ -14,11 +14,13 @@ import {Container, Draggable} from "react-smooth-dnd";
 import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
 import arrayMove from "array-move";
 import {deepCopy, deepEquals} from "../../utils/misc";
-import {getBlankContact} from "../../utils/blankRecord";
+import {getBlankContact, getBlankInstrument, getBlankPlatform} from "../../utils/blankRecord";
 import {paperClass} from "./QuestionStyles";
 import {En, Fr, I18n} from "../I18n";
 import ContactTitle from "./ContactTitle";
 import SelectInput from "./SelectInput";
+import InstrumentTitle from "./InstrumentTitle";
+import PlatformTitle from "./PlatformTitle";
 
 // TODO: move this out of this class for encapsulation.
 const itemTypes = {
@@ -27,8 +29,31 @@ const itemTypes = {
             "lastName",
             "orgName",
         ],
+        unsaved_fields: [
+            "role",
+        ],
         blankItem: getBlankContact,
-    }};
+        titleComponent:ContactTitle,
+    },
+    instrument: {
+        uid_fields: [
+            "id",
+        ],
+        blankItem: getBlankInstrument,
+        titleComponent: InstrumentTitle,
+    },
+    platform: {
+        uid_fields: [
+            "id",
+        ],
+        blankItem: getBlankPlatform,
+        titleComponent: PlatformTitle,
+    },
+};
+
+const capitalize = (arg) => {
+    return arg.charAt(0).toUpperCase() + arg.slice(1);
+}
 
 const LeftList = ({
     itemType,
@@ -42,7 +67,7 @@ const LeftList = ({
 }) => {
     const [currentItems, setItems] = useState(items)
     if (!(itemType in itemTypes)){
-        throw Error("Invalid target for LeftList");
+        throw Error("Invalid itemType for LeftList");
     }
 
     const itemContextHelper = itemTypes[itemType];
@@ -108,13 +133,13 @@ const LeftList = ({
           <Typography>
               {items.length ? (
               <I18n>
-                <En>Contacts in this record:</En>
-                <Fr>Contacts dans cet enregistrement:</Fr>
+                <En>{capitalize(itemType)}s in this record:</En>
+                <Fr>{capitalize(itemType)}s dans cet enregistrement:</Fr>
               </I18n>
             ) : (
               <I18n>
-                <En>There are no contacts in this record.</En>
-                <Fr>Il n'y a aucun contact dans cet enregistrement.</Fr>
+                <En>There are no {itemType}s in this record.</En>
+                <Fr>Il n'y a aucun {itemType} dans cet enregistrement.</Fr>
               </I18n>
             )}
           </Typography>
@@ -150,8 +175,8 @@ const LeftList = ({
                         <Tooltip
                           title={
                             <I18n
-                              en="Duplicate contact"
-                              fr="Duplicate contact"
+                              en="Duplicate {itemType}"
+                              fr="Duplicate {itemType}"
                             />
                           }
                         >
@@ -188,21 +213,23 @@ const LeftList = ({
                         <Tooltip
                           title={
                             <I18n
-                              en="Add to saved contacts"
-                              fr="Ajouter aux contacts enregistrés"
+                              en="Add to saved {itemType}s"
+                              fr="Ajouter aux {itemType}s enregistrés"
                             />
                           }
                         >
                           <span>
                             <IconButton
                               onClick={() => {
-                                const contact = deepCopy(items[i]);
+                                const toSave = deepCopy(items[i]);
 
                                 // at this point the contact object could have
                                 // a role field, which shouldn't be saved
-                                delete contact.role;
+                                itemContextHelper.unsaved_fields.forEach((fieldName) => {
+                                    delete toSave[fieldName];
+                                })
 
-                                contact.contactID = saveItem(contact);
+                                toSave.contactID = saveItem(toSave);
 
                                 setItems(items);
                               }}
@@ -222,7 +249,7 @@ const LeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Duplicate contact" />
+                            <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
                           }
                         >
                           <span>
@@ -253,8 +280,8 @@ const LeftList = ({
           >
             <Typography>
               <I18n>
-                <En>Add new contact</En>
-                <Fr>Ajouter un contact</Fr>
+                <En>Add new {itemType}</En>
+                <Fr>Ajouter un {itemType}</Fr>
               </I18n>
             </Typography>
           </Button>
