@@ -101,7 +101,6 @@ const styles = (theme) => ({
 
 class MetadataForm extends FormClassTemplate {
 
-
   constructor(props) {
     super(props);
 
@@ -254,15 +253,18 @@ class MetadataForm extends FormClassTemplate {
   async handleUpdateDraftDOI() {
     const { match } = this.props;
     const { region, language } = match.params;
-    const { record } = this.state;
+    const { record} = this.state;
+    const { datacitePrefix, dataciteAuthHash } = this.context;
 
     try {
-      const statusCode = await performUpdateDraftDoi(record, region, language);
+      if (datacitePrefix && dataciteAuthHash){
+        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash);
 
       if (statusCode === 200) {
         this.state.doiUpdated = true
       } else {
         this.state.doiError = true
+        }
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -277,6 +279,7 @@ class MetadataForm extends FormClassTemplate {
     const { region, userID } = match.params;
     const isNewRecord = match.url.endsWith("new");
     const { record } = this.state;
+    
     // Bit of logic here to decide if this is a user submitting their own form
     // or a reviewer submitting it
     const loggedInUserID = auth.currentUser.uid;

@@ -15,7 +15,6 @@ import { En, Fr, I18n } from "../I18n";
 import firebase from "../../firebase";
 import recordToDataCite from "../../utils/recordToDataCite";
 import { validateDOI } from "../../utils/validate";
-import { getDatacitePrefix, getAuthHash } from "../../utils/firebaseEnableDoiCreation";
 
 import {
     QuestionText,
@@ -23,17 +22,14 @@ import {
     paperClass,
 } from "./QuestionStyles";
 
-// import regions from "../../regions";
 import { UserContext } from "../../providers/UserProvider";
+import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
+    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteAuthHash } = useContext(UserContext);
     const { language, region, userID } = useParams();
-    // const regionInfo = regions[region];
     const doiIsValid = validateDOI(record.datasetIdentifier)
-
-    // const languageUpperCase = language.toUpperCase();
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
     const [debouncedDoiIdValue] = useDebounce(record.datasetIdentifier, 1000);
@@ -41,16 +37,12 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
     const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
     const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
-    const [datacitePrefix, setDatacitePrefix] = useState('');
-    const [loadingPrefix, setLoadingPrefix] = useState(true);
-    const [dataciteAuthHash, setDataciteAuthHash] = useState('');
-    const [loadingAuthHash, setLoadingAuthHash] = useState(true);
 
     const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
-    const showGenerateDoi = !loadingPrefix && Boolean(datacitePrefix);
-    const showDoiStatus = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
-    const showUpdateDoi = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
-    const showDeleteDoi = doiIsValid && !loadingPrefix && datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(datacitePrefix);
+    const showGenerateDoi = Boolean(datacitePrefix);
+    const showDoiStatus = doiIsValid && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
+    const showUpdateDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
+    const showDeleteDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(datacitePrefix);
     const mounted = useRef(false);
 
     async function handleGenerateDOI() {
@@ -59,7 +51,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
         try {
             const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-            if (!loadingAuthHash && dataciteAuthHash) {
+            if (dataciteAuthHash) {
 
                 await createDraftDoi({
                     record: mappedDataCiteObject,
@@ -103,34 +95,23 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         setLoadingDoiUpdate(true);
 
         try {
-            const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-            delete mappedDataCiteObject.data.type;
-            delete mappedDataCiteObject.data.attributes.prefix;
-
-            // Extract DOI from the full URL
-            const doi = record.datasetIdentifier.replace('https://doi.org/', '');
-
-            const dataObject = {
-                doi,
-                data: mappedDataCiteObject,
-                dataciteAuthHash,
-            }
-
-            const response = await updateDraftDoi(dataObject);
-            const statusCode = response.data.status;
+            const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash)
 
             if (statusCode === 200) {
                 setDoiUpdateFlag(true);
+                setDoiErrorFlag(false);
             } else {
                 setDoiErrorFlag(true);
+                setDoiUpdateFlag(false);
             }
         } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error('Error updating draft DOI: ', err);
             setDoiErrorFlag(true);
             throw err;
         } finally {
             setLoadingDoiUpdate(false);
+            setTimeout(() => {
+                setDoiUpdateFlag(false);
+            }, 3000);
         }
     }
 
@@ -179,64 +160,13 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             throw err;
         }
     }
-
-    // Fetch Datacite Prefix when component mounts or region changes
-    useEffect(() => {
-        mounted.current = true;
-        const fetchPrefix = async () => {
-            setLoadingPrefix(true);
-            try{
-                const prefix = await getDatacitePrefix(region);
-                if (mounted.current){
-                    setDatacitePrefix(prefix);
-                }
-            } catch(e){
-                if ((e.message).includes('Error: Permission denied')){
-                    // ignore
-                }
-                else{
-                    throw e
-                }                           
-            }
-            if (mounted.current) {
-                setLoadingPrefix(false);
-            }
-        };
-
-        const fetchAuthHash = async () => {
-            setLoadingAuthHash(true);
-            try {
-                const authHash = await getAuthHash(region);
-                if (mounted.current) {
-                    setDataciteAuthHash(authHash);
-                }
-            } catch (e) {
-                if ((e.message).includes('Error: Permission denied')) {
-                    // ignore
-                }
-                else {
-                    throw e
-                }
-            }
-            if (mounted.current) {
-                setLoadingAuthHash(false);
-            }
-        };
-
-        fetchPrefix();
-        fetchAuthHash();
-
-        return () => {
-            mounted.current = false;
-        };
-    }, [region]);
-
+   
     useEffect(() => {
         mounted.current = true;
         if (debouncedDoiIdValue === '') {
             handleUpdateDoiCreationStatus({ target: { name, value: "" } });
         }
-        else if (debouncedDoiIdValue && !loadingPrefix && datacitePrefix && doiIsValid && !loadingAuthHash && dataciteAuthHash) {
+        else if (debouncedDoiIdValue && datacitePrefix && doiIsValid && dataciteAuthHash) {
             let id = debouncedDoiIdValue
             if (debouncedDoiIdValue.includes('doi.org/')) {
                 id = debouncedDoiIdValue.split('doi.org/').pop();
@@ -255,7 +185,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         return () => {
             mounted.current = false;
         };
-    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, datacitePrefix, loadingPrefix, dataciteAuthHash, loadingAuthHash])
+    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, datacitePrefix, dataciteAuthHash])
 
 
 
@@ -286,7 +216,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             {
                 showGenerateDoi && (
                     <Button
-                        onClick={() => handleGenerateDOI}
+                        onClick={() => handleGenerateDOI()}
                         disabled={generateDoiDisabled}
                         style={{ display: "inline" }}
                     >
@@ -306,7 +236,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             {
                 showUpdateDoi && (
                     <Button
-                        onClick={() => handleUpdateDraftDOI}
+                        onClick={() => handleUpdateDraftDOI()}
                         disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
                         style={{ display: 'inline' }}
                     >
@@ -326,7 +256,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             {
                 showDeleteDoi && (
                     <Button
-                        onClick={() => handleDeleteDOI}
+                        onClick={() => handleDeleteDOI()}
                         disabled={record.doiCreationStatus !== 'draft'}
                         style={{ display: "inline" }}
                     >
@@ -364,7 +294,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
             <TextField
                 style={{ marginTop: "10px" }}
-                name="datasetIdentifier"
+                name={name || "datasetIdentifier"}
                 helperText={
                     (doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />)
                     || (showDoiStatus && <I18n en={`DOI Status: ${record.doiCreationStatus}`} fr={`Statut DOI: ${record.doiCreationStatus}`} />)

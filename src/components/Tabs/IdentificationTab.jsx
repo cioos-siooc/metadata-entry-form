@@ -28,8 +28,6 @@ import {
 } from "../FormComponents/QuestionStyles";
 
 import regions from "../../regions";
-import { UserContext } from "../../providers/UserProvider";
-import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const IdentificationTab = ({
   disabled,
@@ -38,10 +36,8 @@ const IdentificationTab = ({
   updateRecord,
   projects,
 }) => {
-  const { language, region, userID } = useParams();
-  const { createDraftDoi, deleteDraftDoi, getDoiStatus } = useContext(UserContext);
+  const { language, region } = useParams();
   const regionInfo = regions[region];
-  const doiIsValid =validateDOI(record.datasetIdentifier)
 
   const languageUpperCase = language.toUpperCase();
 
@@ -62,177 +58,6 @@ const IdentificationTab = ({
       language
     )
   );
-
-  async function handleGenerateDOI() {
-    setLoadingDoi(true);
-
-    try {
-      const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-      if(!loadingAuthHash && dataciteAuthHash) {
-
-        await createDraftDoi({
-          record: mappedDataCiteObject,
-          authHash: dataciteAuthHash,
-        })
-        .then((response) => {
-          return response.data.data.attributes;
-        })
-        .then(async (attributes) => {
-          // Update the record object with datasetIdentifier and doiCreationStatus
-          updateRecord("datasetIdentifier")(`https://doi.org/${attributes.doi}`);
-          updateRecord("doiCreationStatus")("draft");
-
-          // Create a new object with updated properties
-          const updatedRecord = {
-            ...record,
-            datasetIdentifier: `https://doi.org/${attributes.doi}`,
-            doiCreationStatus: "draft",
-          };
-
-          // Save the updated record to the Firebase database
-          const recordsRef = firebase
-            .database()
-            .ref(region)
-            .child("users")
-            .child(userID)
-            .child("records");
-
-          if (record.recordID) {
-            await recordsRef
-              .child(record.recordID)
-              .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
-          }
-
-          setDoiGenerated(true);
-        })
-        .finally(() => {
-          setLoadingDoi(false);
-        });
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("Error in handleGenerateDOI:", err);
-      setDoiErrorFlag(true);
-      throw err;
-    }
-  }
-
-  async function handleUpdateDraftDOI() {
-    setLoadingDoiUpdate(true);
-
-    try {
-      const statusCode = await performUpdateDraftDoi(record, region, language)
-
-      if (statusCode === 200) {
-        setDoiUpdateFlag(true);
-      } else {
-        setDoiErrorFlag(true);
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Error updating draft DOI: ', err);
-      setDoiErrorFlag(true);
-      throw err;
-    } finally {
-      setLoadingDoiUpdate(false);
-    }
-  }
-
-  async function handleDeleteDOI() {
-    setLoadingDoiDelete(true);
-
-    try {
-      // Extract DOI from the full URL
-      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
-
-      deleteDraftDoi({doi, dataciteAuthHash})
-        .then((response) => response.data)
-        .then(async (statusCode) => {
-          if (statusCode === 204) {
-            // Update the record object with datasetIdentifier and doiCreationStatus
-            updateRecord("datasetIdentifier")("");
-            updateRecord("doiCreationStatus")("");
-
-            // Create a new object with updated properties
-            const updatedRecord = {
-              ...record,
-              datasetIdentifier: "",
-              doiCreationStatus: "",
-            };
-
-            // Save the updated record to the Firebase database
-            const recordsRef = firebase
-              .database()
-              .ref(region)
-              .child("users")
-              .child(userID)
-              .child("records");
-
-            if (record.recordID) {
-              await recordsRef
-                .child(record.recordID)
-                .update({ datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
-            }
-
-            setDoiGenerated(false);
-          } else {
-            setDoiErrorFlag(true);
-          }
-        })
-        .finally(() => {
-          setLoadingDoiDelete(false);
-        });
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      setDoiErrorFlag(true);
-      throw err;
-    }
-  }
-
-  // Fetch Datacite Prefix when component mounts or region changes
-  useEffect(() => {
-    const fetchPrefix = async () => {
-      setLoadingPrefix(true);
-      const prefix = await getDatacitePrefix(region);
-      setDatacitePrefix(prefix);
-      setLoadingPrefix(false);
-    };
-
-    const fetchAuthHash = async () => {
-      setLoadingAuthHash(true);
-      const authHash = await getAuthHash(region);
-      setDataciteAuthHash(authHash);
-      setLoadingAuthHash(false);
-    };
-
-    fetchPrefix();
-    fetchAuthHash();
-  }, [region]);
-
-  useEffect(() => {
-    mounted.current = true;
-    if (debouncedDoiIdValue === '') {
-      updateRecord("doiCreationStatus")('')
-    }
-    else if (debouncedDoiIdValue && !loadingPrefix && datacitePrefix && doiIsValid && !loadingAuthHash && dataciteAuthHash) {
-      let id = debouncedDoiIdValue
-      if (debouncedDoiIdValue.includes('doi.org/')) {
-        id = debouncedDoiIdValue.split('doi.org/').pop();
-      }
-      getDoiStatus({ doi: id, prefix: datacitePrefix, authHash: dataciteAuthHash })
-        .then(response => {
-          updateRecord("doiCreationStatus")(response.data)
-        })
-        .catch(err => {
-          console.error(err)
-        });
-    }
-
-    return () => {
-      mounted.current = false;
-    };
-  }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, updateRecord, datacitePrefix, loadingPrefix, dataciteAuthHash, loadingAuthHash])
 
   return (
     <div>

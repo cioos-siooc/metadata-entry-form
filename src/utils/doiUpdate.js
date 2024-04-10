@@ -1,25 +1,25 @@
+import { getFunctions, httpsCallable } from "firebase/functions";
 import recordToDataCite from "./recordToDataCite";
-import firebase from "../firebase";
-import {getAuthHash} from "./firebaseEnableDoiCreation";
 
-async function performUpdateDraftDoi(record, region, language) {
-     const dataciteAuthHash = await getAuthHash(region);
+async function performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash) {
+  const functions = getFunctions();
+  const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
 
-      const mappedDataCiteObject = recordToDataCite(record, language, region);
-      delete mappedDataCiteObject.data.type;
-      delete mappedDataCiteObject.data.attributes.prefix;
+  const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+  delete mappedDataCiteObject.data.type;
+  delete mappedDataCiteObject.data.attributes.prefix;
 
-      // Extract DOI from the full URL
-      const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+  // Extract DOI from the full URL
+  const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-      const dataObject = {
-        doi,
-        data: mappedDataCiteObject,
-        dataciteAuthHash,
-      }
+  const dataObject = {
+    doi,
+    data: mappedDataCiteObject,
+    dataciteAuthHash,
+  }
 
-      const response = await firebase.functions().httpsCallable("updateDraftDoi")(dataObject);
-      return response.data.status;
-    }
+  const response = await updateDraftDoi(dataObject);
+  return response.data.status;
+}
 
 export default performUpdateDraftDoi;

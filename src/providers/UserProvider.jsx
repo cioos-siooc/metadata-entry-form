@@ -41,6 +41,21 @@ class UserProvider extends FormClassTemplate {
         });
 
         const database = getDatabase(firebase);
+        // should be replaced with getDatacitePrefix but can't as this function is not async
+        const prefixRef = ref(database, `admin/${region}/dataciteCredentials/prefix`);
+        onValue(prefixRef, (prefix) => {
+          this.setState({
+            datacitePrefix: prefix.val(),
+          });
+        });
+
+        // should be replaced with getDataciteAuthHash but can't as this function is not async
+        const authHashRef = ref(database, `admin/${region}/dataciteCredentials/dataciteHash`);
+        onValue(authHashRef, (authHash) => {
+          this.setState({
+            dataciteAuthHash: authHash.val(),
+          });
+        });
 
 
         update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
