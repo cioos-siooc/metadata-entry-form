@@ -78,7 +78,7 @@ export function loadRegionRecords(regionRecords, statusFilter) {
 
 export async function submitRecord(region, userID, key, status, record) {
   const database = getDatabase(firebase);
-  const recordRef = ref(database, `${region}/users/${userID}records/${key}`)
+  const recordRef = ref(database, `${region}/users/${userID}/records/${key}`)
 
   await set(child(recordRef,"status"), status);
   if (status === "published")
@@ -88,6 +88,7 @@ export async function submitRecord(region, userID, key, status, record) {
     const filename = getRecordFilename(record);
     await set(child(recordRef, "filename"), filename);
   }
+
 }
 
 export function deleteRecord(region, userID, key) {
