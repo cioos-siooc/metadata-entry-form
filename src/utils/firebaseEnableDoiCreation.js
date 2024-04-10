@@ -42,10 +42,9 @@ export async function getAuthHash(region) {
     const database = getDatabase(firebase);
     const authHash = (await get(ref(database, `admin/${region}/dataciteCredentials/dataciteHash`), "value")).val();
     return authHash;
-} catch (error) {
-    throw new Error(`Error fetching Datacite Auth Hash for region  ${region}: ${error}`);
-} 
-}
+  } catch (error) {
+      throw new Error(`Error fetching Datacite Auth Hash for region  ${region}: ${error}`);
+  } 
 }
 
 export async function getCredentialsStored(region) {
