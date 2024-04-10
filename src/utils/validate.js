@@ -314,6 +314,14 @@ const validators = {
       fr: "L'identifiant de l'instrument est requis",
     },
   },
+  taxa: {
+    tab: "taxa",
+    validation: (val, record) => record.noTaxa || val,
+    error: {
+      en: "Missing Taxonomic Coverage",
+      fr: "Couverture taxonomique manquante",
+    },
+  },
 };
 
 export const validateField = (record, fieldName) => {

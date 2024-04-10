@@ -141,7 +141,7 @@ const TaxaTab = ({
                     <Fr>
                         Couverture taxonomique
                     </Fr>
-                    <RequiredMark passes={validateField(record, "distribution")} />
+                    <RequiredMark passes={validateField(record, "taxa")} />
                     <SupplementalText>
                         <I18n>
                             <En>
@@ -159,7 +159,7 @@ const TaxaTab = ({
                     control={
                         <Checkbox
                             name="noTaxa"
-                            checked={noTaxa}
+                            checked={record.noTaxa}
                             onChange={(e) => {
                                 const { checked } = e.target;
 
