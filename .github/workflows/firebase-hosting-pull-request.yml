@@ -31,8 +31,6 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
-          DATACITE_USER: ${{ secrets.DATACITE_USER }}
-          DATACITE_PASS: ${{ secrets.DATACITE_PASS }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
