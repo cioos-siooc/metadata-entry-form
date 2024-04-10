@@ -118,22 +118,12 @@ class UserProvider extends FormClassTemplate {
     const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
     const getDoiStatus = httpsCallable(functions, "getDoiStatus");
     const checkURLActive = httpsCallable(functions, "checkURLActive");
-    const translate = firebase.functions().httpsCallable("translate");
-    const regenerateXMLforRecord = firebase
-      .functions()
-      .httpsCallable("regenerateXMLforRecord");
-    const downloadRecord = firebase.functions().httpsCallable("downloadRecord");
-    const createDraftDoi = firebase.functions().httpsCallable("createDraftDoi");
-    const updateDraftDoi = firebase.functions().httpsCallable("updateDraftDoi");
-    const deleteDraftDoi = firebase.functions().httpsCallable("deleteDraftDoi");
-    const getDoiStatus = firebase.functions().httpsCallable("getDoiStatus");
-    const checkURLActive = firebase.functions().httpsCallable("checkURLActive");
-    const recordToDataCite = firebase.functions().httpsCallable("recordToDataCite");
-    const getCredentialsStored = firebase.functions().httpsCallable("getCredentialsStored");
-    const createDraftDoiPR78 = firebase.functions().httpsCallable("createDraftDoiPR78");
-    const updateDraftDoiPR78 = firebase.functions().httpsCallable("updateDraftDoiPR78");
-    const deleteDraftDoiPR78 = firebase.functions().httpsCallable("deleteDraftDoiPR78");
-    const getDoiStatusPR78 = firebase.functions().httpsCallable("getDoiStatusPR78");
+    const recordToDataCite = httpsCallable(functions, "recordToDataCite");
+    const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
+    const createDraftDoiPR78 = httpsCallable(functions, "createDraftDoiPR78");
+    const updateDraftDoiPR78 = httpsCallable(functions, "updateDraftDoiPR78");
+    const deleteDraftDoiPR78 = httpsCallable(functions, "deleteDraftDoiPR78");
+    const getDoiStatusPR78 = httpsCallable(functions, "getDoiStatusPR78");
 
     return (
       <UserContext.Provider
