@@ -8,16 +8,25 @@
   },
   "emulators": {
     "functions": {
-      "port": 5002
+      "port": 5002,
+      "host": "0.0.0.0"
     },
     "database": {
-      "port": 9001
+      "port": 9001,
+      "host": "0.0.0.0"
     },
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "host": "0.0.0.0",
+      "port": "4000"
     },
     "firestore": {
-      "port": 8081
+      "port": 8081,
+      "host": "0.0.0.0"
+    },
+    "auth": {
+      "port": 9099,
+      "host": "0.0.0.0"
     },
     "singleProjectMode": true
   },

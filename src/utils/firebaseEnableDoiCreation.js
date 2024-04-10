@@ -1,14 +1,12 @@
+import { getDatabase, ref, child, get, set, remove } from "firebase/database";
 import firebase from "../firebase";
 
 export async function newDataciteAccount(region, prefix, authHash) {
-    const dataciteRef = await firebase
-        .database()
-        .ref("admin")
-        .child(region)
-        .child("dataciteCredentials");
+    const database = getDatabase(firebase);
+    const dataciteRef = ref(database, `admin/${region}/dataciteCredentials`);
     
     // Overwriting prefix and authHash directly under dataciteCredentials
-    await dataciteRef.set({
+    await set(dataciteRef,{
       prefix,
       dataciteHash: authHash,
   });
@@ -17,30 +15,24 @@ export async function newDataciteAccount(region, prefix, authHash) {
 export async function deleteAllDataciteCredentials(region) {
   try {
     // Reference to the dataciteCredentials node for the specified region
-    const dataciteCredentialsRef = firebase
-      .database()
-      .ref("admin")
-      .child(region)
-      .child("dataciteCredentials");
+    const database = getDatabase(firebase);
 
     // Deleting the dataciteCredentials node and all its children
-    await dataciteCredentialsRef.remove();
+    await remove(ref(database, `admin/${region}/dataciteCredentials`));
 
     // Return a message indicating success
     return { success: true, message: "All Datacite credentials deleted successfully." };
   } catch (error) {
-    // Log and return an error message
-    console.error("Error deleting Datacite credentials:", error);
-    return { success: false, message: "Failed to delete Datacite credentials." };
+    throw new Error(`Failed to delete Datacite credentials.: ${error}`);    
   }
 }
 
 export async function getDatacitePrefix(region) {
     try {
-      const prefix = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+      const database = getDatabase(firebase);
+      const prefix = (await get(ref(database, `admin/${region}/dataciteCredentials/prefix`), "value")).val();
       return prefix;
   } catch (error) {
-      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
-      return null;
+      throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
   }
 }

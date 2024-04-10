@@ -15,12 +15,13 @@ import {
 import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
+import { getDatabase, ref, child, onValue, set } from "firebase/database";
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { getDatacitePrefix, deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 
@@ -55,21 +56,22 @@ class Admin extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
     const { getCredentialsStored } = this.context;
+    const database = getDatabase(firebase);
 
     this.setState({ loading: true });
 
-    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase) , async (user) => {
       if (user) {
         // Reference to the regionAdmin in the database
-        const adminRef = firebase.database().ref("admin");
-        const regionAdminRef = adminRef.child(region);
-        const permissionsRef = regionAdminRef.child("permissions");
+        const adminRef = ref(database, "admin");
+        const regionAdminRef = child(adminRef, region);
+        const permissionsRef = child(regionAdminRef, "permissions");
 
         const projects = await getRegionProjects(region);
         const datacitePrefix = await getDatacitePrefix(region);
         const credentialsStored = await getCredentialsStored(region);
 
-        permissionsRef.on("value", (permissionsFirebase) => {
+        onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
           // const projects = permissions.projects.split(",");
@@ -137,7 +139,7 @@ class Admin extends FormClassTemplate {
         showDeletionDialog: false,
       });
     } catch (error) {
-      console.error("Failed to delete DataCite credentials:", error);
+      throw new Error(`Failed to delete DataCite credentials: ${error}`);
     }
   };
 
@@ -154,6 +156,7 @@ class Admin extends FormClassTemplate {
       datacitePass,
       isDoiCreationEnabled,
     } = this.state;
+    const database = getDatabase(firebase);
 
     // Check if DOI creation is enabled but credentials are not stored
     if (isDoiCreationEnabled && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
@@ -168,17 +171,17 @@ class Admin extends FormClassTemplate {
     const base64String = bufferObj.toString("base64");
 
     if (auth.currentUser) {
-      const regionAdminRef = firebase.database().ref("admin").child(region);
-      const permissionsRef = regionAdminRef.child("permissions");
-      const projectsRef = regionAdminRef.child("projects");
-      const dataciteRef = regionAdminRef.child("dataciteCredentials");
+      const regionAdminRef = ref(database, `admin/${region}`);
+      const permissionsRef = child(regionAdminRef, "permissions");
+      const projectsRef = child(regionAdminRef, "projects");
+      const dataciteRef = child(regionAdminRef, "dataciteCredentials");
 
-      permissionsRef.child("admins").set(cleanArr(admins).join());
+      set(child(permissionsRef,"admins"), cleanArr(admins).join());
 
-      projectsRef.set(cleanArr(projects));
-      permissionsRef.child("reviewers").set(cleanArr(reviewers).join());
-      dataciteRef.child("prefix").set(datacitePrefix);
-      dataciteRef.child("dataciteHash").set(base64String);
+      set(projectsRef, cleanArr(projects));
+      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
+      set(child(dataciteRef, "prefix"), datacitePrefix);
+      set(child(dataciteRef, "dataciteHash"), base64String);
 
       this.setState({
         datacitePass: "",

@@ -26,7 +26,7 @@ import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
-const SubmitTab = ({ record, submitRecord, userID }) => {
+const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
@@ -134,6 +134,31 @@ const SubmitTab = ({ record, submitRecord, userID }) => {
                 </Fr>
               </I18n>
             </Typography>
+            {doiUpdated && (<Typography>
+            <b>
+              <I18n>
+                <En>
+                  DOI has successfully been updated with the submitted changes.
+                </En>
+                <Fr>
+                  DOI a été mis à jour avec succès avec les modifications soumises.
+                </Fr>
+              </I18n>
+            </b>
+                  </Typography>)}
+              {doiError && (
+                  <Typography>
+                    <b>
+                      <I18n>
+                        <En>
+                          Error occurred when updating DOI.
+                        </En>
+                        <Fr>
+                          Une erreur s'est produite lors de la mise à jour du DOI
+                        </Fr>
+                      </I18n>
+                    </b>
+                  </Typography>)}
           </Grid>
         ) : (
           <>

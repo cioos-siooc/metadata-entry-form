@@ -1,11 +1,12 @@
 import validator from "validator";
-
-import firebase from "../firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
+// eslint-disable-next-line no-unused-vars
+import firebase from "../firebase"; // this is needed to make the test pass.
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
-
-const checkURLActive = firebase.functions().httpsCallable('checkURLActive');
+const functions = getFunctions();
+const checkURLActive = httpsCallable(functions, 'checkURLActive');
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
@@ -54,10 +55,18 @@ const contactIsFilled = (contact) =>
 const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
-    tab: "dataID",
+    tab: "start",
     error: {
       en: "Missing title in French or English",
       fr: "Titre manquant en français ou en anglais",
+    },
+  },
+  resourceType: {
+    validation: (val) => val,
+    tab: "start",
+    error: {
+      en: "Please select a theme for this record",
+      fr: "Veuillez sélectionner un thème pour cet enregistrement",
     },
   },
   abstract: {
@@ -87,10 +96,18 @@ const validators = {
   datasetIdentifier: {
     validation: validateDOI,
     optional: true,
-    tab: "dataID",
+    tab: "start",
     error: {
       en: "Invalid DOI",
       fr: "DOI non valide",
+    },
+  },
+  metadataScope: {
+    tab: "start",
+    validation: (val) => val,
+    error: {
+      en: "Please select a resource type",
+      fr: "Veuillez sélectionner un type de ressources",
     },
   },
   progress: {
@@ -117,19 +134,20 @@ const validators = {
       fr: "Veuillez sélectionner une licence pour le jeu de données",
     },
   },
+  // if biological data then geographic description is required
   map: {
     error: {
       en: "Spatial information is missing",
       fr: "L'information géographique est manquante",
     },
     tab: "spatial",
-    validation: (val) => {
+    validation: (val, record) => {
       if (!val) return false;
       const north = parseFloat(val.north);
       const south = parseFloat(val.south);
       const east = parseFloat(val.east);
       const west = parseFloat(val.west);
-      const { polygon } = val;
+      const { polygon, description } = val;
 
       return (
         (north &&
@@ -142,7 +160,9 @@ const validators = {
           validateLatitude(south) &&
           validateLongitude(east) &&
           validateLongitude(west)) ||
-        (polygon && polygonIsValid(polygon))
+        (polygon && polygonIsValid(polygon)) ||
+        !record.resourceType  ||
+        (Array.isArray(record.resourceType) && record.resourceType.includes("biological") && description)
       );
     },
   },
@@ -214,9 +234,65 @@ const validators = {
         "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
     },
   },
+  associated_resources: {
+    tab: "relatedworks",
+    validation: (val) =>
+      !val ||
+      (val &&
+        val.every(
+          (work) => work.title && work.title.en && work.title.fr && work.authority && work.code && work.association_type
+        )),
+    error: {
+      en:
+        "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
+      fr:
+        "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+    },
+  },
+
+  // if lineageStep.scope == 'collectionSession' then statment is required
+  // if lineageStep.processingStep length > 0 then title and description are required
+  history: {
+    tab: "lineage",
+    validation: (val) =>
+      !val ||
+      (
+        Array.isArray(val) &&
+        val.every(
+          (lineageStep) =>
+            !lineageStep.processingStep ||
+            (
+              lineageStep.processingStep &&
+              lineageStep.processingStep.every((pStep) => pStep.title && pStep.description)
+            )
+        ) &&
+        val.every(
+          (lineageStep) =>
+            !lineageStep.source ||
+            (
+              lineageStep.source &&
+              lineageStep.source.every((pStep) => pStep.title && pStep.description)
+            )
+        ) &&
+        val.every(
+          (lineageStep) =>
+            lineageStep.scope !== 'collectionSession' ||
+            (
+              lineageStep.scope === 'collectionSession' &&
+              lineageStep.statement.en && lineageStep.statement.fr
+            )
+        )
+      ),
+    error: {
+      en:
+        "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
+      fr:
+        "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
+    },
+  },
   platformID: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
+    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
       en: "Missing platform ID",
       fr: "ID de la plateforme manquant",
@@ -224,7 +300,7 @@ const validators = {
   },
   platform: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val,
+    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
       en: "Missing platform type",
       fr: "Type de plateforme manquant",
@@ -236,6 +312,14 @@ const validators = {
     error: {
       en: "Instrument ID is required",
       fr: "L'identifiant de l'instrument est requis",
+    },
+  },
+  taxa: {
+    tab: "taxa",
+    validation: (val, record) => record.noTaxa || val,
+    error: {
+      en: "Missing Taxonomic Coverage",
+      fr: "Couverture taxonomique manquante",
     },
   },
 };

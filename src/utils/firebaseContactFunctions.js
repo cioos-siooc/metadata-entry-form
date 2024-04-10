@@ -1,39 +1,25 @@
+import { getDatabase, ref, child, get, remove, push } from "firebase/database";
 import firebase from "../firebase";
 
 export async function cloneContact(region, userID, contactID) {
-  const contactsRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("contacts");
+  const database = getDatabase(firebase);
+  const contactsRef = ref(database, `${region}/users/${userID}/contacts`);
 
-  const contact = (await contactsRef.child(contactID).once("value")).val();
+  const contact = (await get(child(contactsRef, contactID), "value")).val();
 
   if (contact.lastName) contact.lastName += " (Copy)";
   else contact.orgName += " (Copy)";
-  contactsRef.push(contact);
+  push(contactsRef, contact);
 }
 
 export function deleteContact(region, userID, contactID) {
-  return firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("contacts")
-    .child(contactID)
-    .remove();
+  const database = getDatabase(firebase);
+  return remove(ref(database, `${region}/users/${userID}/contacts/${contactID}`));
 }
 
 export async function newContact(region, userID) {
-  const newNode = await firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("contacts")
-    .push({});
+  const database = getDatabase(firebase);
+  const newNode = await push(ref(database, `${region}/users/${userID}/contacts`), {});
 
   return newNode.key;
 }

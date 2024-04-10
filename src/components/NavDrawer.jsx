@@ -200,7 +200,7 @@ export default function MiniDrawer({ children }) {
           {region && (
             <IconButton
               aria-label="open drawer"
-              onClick={handleDrawerOpen}
+              onClick={() => handleDrawerOpen()}
               edge="start"
               className={clsx(classes.menuButton, {
                 [classes.hide]: open,
@@ -261,7 +261,7 @@ export default function MiniDrawer({ children }) {
           }}
         >
           <div className={classes.toolbar}>
-            <IconButton onClick={handleDrawerClose}>
+            <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
@@ -286,8 +286,16 @@ export default function MiniDrawer({ children }) {
                   button
                   key="Sign in"
                   onClick={async () => {
-                    await signInWithGoogle();
-                    history.push(pathname);
+                    try {
+                      await signInWithGoogle();
+                      history.push(pathname);
+                    } catch (error) {
+                      if (error.code === 'auth/cancelled-popup-request'){
+                        // ignore
+                      }else{
+                        throw error;
+                      }
+                    }
                   }}
                 >
                   <ListItemIcon>

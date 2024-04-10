@@ -60,6 +60,12 @@
                   ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
               }
           }
+        },
+        "dataciteCredentials": {
+          // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
+          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+        }
       }
     }
   }
+}

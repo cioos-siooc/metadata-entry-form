@@ -3,10 +3,11 @@ import React from "react";
 import { Typography, List, CircularProgress, Button } from "@material-ui/core";
 
 import { Add } from "@material-ui/icons";
+import { getDatabase, ref, onValue, off } from "firebase/database";
 import FormClassTemplate from "./FormClassTemplate";
-
 import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged  }from "../../auth";
+
 
 import { Fr, En, I18n } from "../I18n";
 import {
@@ -41,16 +42,12 @@ class Submissions extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (user) => {
       if (user) {
-        const recordsRef = firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(user.uid)
-          .child("records");
+        const database = getDatabase(firebase);
+        const recordsRef = ref(database, `${region}/users/${user.uid}/records`);
 
-        recordsRef.on("value", (records) => {
+        onValue(recordsRef, (records) => {
           const allUsersRecords = records.toJSON();
 
           this.setState({
@@ -72,7 +69,7 @@ class Submissions extends FormClassTemplate {
   unsubscribeAndCloseListeners() {
     if (this.unsubscribe) this.unsubscribe();
     if (this.listenerRefs.length) {
-      this.listenerRefs.forEach((ref) => ref.off());
+      this.listenerRefs.forEach((refListener) => off(refListener));
     }
   }
 
