@@ -11,6 +11,11 @@ export const QuestionText = ({ children }) => (
     {children}
   </Typography>
 );
+export const HeadingText = ({ children }) => (
+  <Typography variant="h6" component="div">
+    {children}
+  </Typography>
+);
 export const paperClass = {
   padding: "10px",
   margin: "20px",

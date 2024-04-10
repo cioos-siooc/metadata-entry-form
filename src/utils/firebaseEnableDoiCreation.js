@@ -1,14 +1,12 @@
+import { getDatabase, ref, child, get, set, remove } from "firebase/database";
 import firebase from "../firebase";
 
 export async function newDataciteAccount(region, prefix, authHash) {
-    const dataciteRef = await firebase
-        .database()
-        .ref("admin")
-        .child(region)
-        .child("dataciteCredentials");
-
+    const database = getDatabase(firebase);
+    const dataciteRef = ref(database, `admin/${region}/dataciteCredentials`);
+    
     // Overwriting prefix and authHash directly under dataciteCredentials
-    await dataciteRef.set({
+    await set(dataciteRef,{
       prefix,
       dataciteHash: authHash,
   });
@@ -17,49 +15,44 @@ export async function newDataciteAccount(region, prefix, authHash) {
 export async function deleteAllDataciteCredentials(region) {
   try {
     // Reference to the dataciteCredentials node for the specified region
-    const dataciteCredentialsRef = firebase
-      .database()
-      .ref("admin")
-      .child(region)
-      .child("dataciteCredentials");
+    const database = getDatabase(firebase);
 
     // Deleting the dataciteCredentials node and all its children
-    await dataciteCredentialsRef.remove();
+    await remove(ref(database, `admin/${region}/dataciteCredentials`));
 
     // Return a message indicating success
     return { success: true, message: "All Datacite credentials deleted successfully." };
   } catch (error) {
-    // Log and return an error message
-    console.error("Error deleting Datacite credentials:", error);
-    return { success: false, message: "Failed to delete Datacite credentials." };
+    throw new Error(`Failed to delete Datacite credentials.: ${error}`);    
   }
 }
 
 export async function getDatacitePrefix(region) {
     try {
-      const prefix = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
+      const database = getDatabase(firebase);
+      const prefix = (await get(ref(database, `admin/${region}/dataciteCredentials/prefix`), "value")).val();
       return prefix;
   } catch (error) {
-      console.error(`Error fetching Datacite Prefix for region ${region}:`, error);
-      return null;
+      throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
   }
 }
 
 export async function getAuthHash(region) {
   try {
-    const authHash = (await firebase.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+    const database = getDatabase(firebase);
+    const authHash = (await get(ref(database, `admin/${region}/dataciteCredentials/dataciteHash`), "value")).val();
     return authHash;
-} catch (error) {
-    console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
-    return null;
-}
+  } catch (error) {
+      throw new Error(`Error fetching Datacite Auth Hash for region  ${region}: ${error}`);
+  } 
 }
 
 export async function getCredentialsStored(region) {
   try {
-    const credentialsRef = firebase.database().ref('admin').child(region).child("dataciteCredentials");
-    const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
-    const prefixSnapshot = await credentialsRef.child("prefix").once("value");
+    const database = getDatabase(firebase);
+    const credentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
+    const authHashSnapshot = await get(child(credentialsRef, "dataciteHash"), "value");
+    const prefixSnapshot = await get(child(credentialsRef, "prefix"), "value");
 
     const authHash = authHashSnapshot.val();
     const prefix = prefixSnapshot.val();
@@ -67,7 +60,6 @@ export async function getCredentialsStored(region) {
     // Check for non-null and non-empty
     return authHash && authHash !== "" && prefix && prefix !== "";
   } catch (error) {
-    console.error("Error checking Datacite credentials:", error);
-    return false;
+    throw new Error(`Error checking Datacite credentials: ${error}`);
   }
 }
