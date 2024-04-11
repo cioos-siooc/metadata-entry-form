@@ -59,11 +59,6 @@ const Platform = ({
                   getBlankItem={getBlankPlatform}
                   addSavedItemLabel={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATEFORME" />}
                   itemTitle={PlatformTitle}
-                  itemValidator={(contact) => !(
-                                  contact.orgName?.length ||
-                                  contact.givenNames?.length ||
-                                  contact.lastName?.length
-                                )}
                   />
 
         </Grid>

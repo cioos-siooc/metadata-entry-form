@@ -171,6 +171,11 @@ const ContactTab = ({
             getBlankItem={getBlankContact}
             addSavedItemLabel={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />}
             uidFields={["lastName", "orgName"]}
+            itemValidator={(currentContact) => !(
+                                  currentContact.orgName?.length ||
+                                  currentContact.givenNames?.length ||
+                                  currentContact.lastName?.length
+                                )}
           />
         </Grid>
         {contact && (
