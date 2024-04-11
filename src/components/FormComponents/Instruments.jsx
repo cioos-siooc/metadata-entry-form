@@ -18,6 +18,8 @@ import {SupplementalText} from "./QuestionStyles";
 import PlatformTitle from "./PlatformTitle";
 import SelectInput from "./SelectInput";
 import LeftList from "./LeftList";
+import InstrumentTitle from "./InstrumentTitle";
+import {getBlankInstrument} from "../../utils/blankRecord";
 
 const Instruments = ({
   updateInstruments,
@@ -72,17 +74,14 @@ const Instruments = ({
               disabled={disabled}
               savedUserItems={userInstruments}
               saveItem={saveUpdateInstrument}
+              leftListHeader={<I18n><En>Instruments in this record:</En><Fr>Instruments dans cet enregistrement:</Fr></I18n>}
+              leftListEmptyHeader={<I18n><En>There are no instruments in this record.</En><Fr>Il n'y a aucun instruments dans cet enregistrement.</Fr></I18n>}
+              addSavedItemLabel={<I18n><En>ADD SAVED INSTRUMENT</En><Fr>Ajouter un instrument enregistré</Fr></I18n>}
+              addNewItemText={<I18n><En>ADD NEW INSTRUMENT</En><Fr>Ajouter un instrument</Fr></I18n>}
+              getBlankItem={getBlankInstrument}
+              itemTitle={(instrumentItem) => InstrumentTitle({instrumentItem})}
               />
 
-    {/*<InstrumentLeftList*/}
-    {/*          instruments={instruments}*/}
-    {/*          updateInstruments={updateInstruments}*/}
-    {/*          activeInstrument={activeInstrument}*/}
-    {/*          setActiveInstrument={setActiveInstrument}*/}
-    {/*          disabled={disabled}*/}
-    {/*          userInstruments={userInstruments}*/}
-    {/*          saveUpdateInstrument={saveUpdateInstrument}*/}
-    {/*          />*/}
     </Grid>
       <Grid item xs>
         <Grid container direction="column">
@@ -177,7 +176,7 @@ const Instruments = ({
                               label={platformLabel}
                               name="platform"
                               value={instrument.platform}
-                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform} />))}
+                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform.platform} />))}
                               options={platformList.map((platform) => platform.id)}
                               onChange={updateInstrumentField("platform")}
                               fullWidth

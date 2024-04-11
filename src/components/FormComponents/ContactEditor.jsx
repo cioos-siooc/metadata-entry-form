@@ -91,7 +91,7 @@ const ContactEditor = ({
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
         <Typography variant="h6">
-          <ContactTitle contact={value} />
+          {ContactTitle(value)}
         </Typography>
       </Grid>
       <Grid item xs>

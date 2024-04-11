@@ -252,14 +252,11 @@ class MetadataForm extends FormClassTemplate {
   // a second genereric handler components that dont use onChange
   // generic state updater creator
   updateRecord = (key) => (value) => {
-    console.log("Updating Record")
-    console.log('key, value: ', key, value);
     const changes = { [key]: value };
     this.setState(({ record }) => ({
       record: { ...record, ...changes },
       saveDisabled: false,
     }));
-    console.log('this.state.record: ', this.state.record);
   };
 
   saveUpdateContact(contact) {

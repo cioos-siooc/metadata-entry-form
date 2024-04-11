@@ -14,49 +14,11 @@ import {Container, Draggable} from "react-smooth-dnd";
 import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
 import arrayMove from "array-move";
 import {deepCopy, deepEquals} from "../../utils/misc";
-import {getBlankContact, getBlankInstrument, getBlankPlatform} from "../../utils/blankRecord";
 import {paperClass} from "./QuestionStyles";
 import {En, Fr, I18n} from "../I18n";
-import ContactTitle from "./ContactTitle";
 import SelectInput from "./SelectInput";
-import InstrumentTitle from "./InstrumentTitle";
-import PlatformTitle from "./PlatformTitle";
-
-// TODO: move this out of this class for encapsulation.
-const itemTypes = {
-    contact: {
-        uid_fields: [
-            "lastName",
-            "orgName",
-        ],
-        unsaved_fields: [
-            "role",
-        ],
-        blankItem: getBlankContact,
-        titleComponent:ContactTitle,
-    },
-    instrument: {
-        uid_fields: [
-            "id",
-        ],
-        blankItem: getBlankInstrument,
-        titleComponent: InstrumentTitle,
-    },
-    platform: {
-        uid_fields: [
-            "id",
-        ],
-        blankItem: getBlankPlatform,
-        titleComponent: PlatformTitle,
-    },
-};
-
-const capitalize = (arg) => {
-    return arg.charAt(0).toUpperCase() + arg.slice(1);
-}
 
 const LeftList = ({
-    itemType,
     items,
     updateItems,
     activeItem,
@@ -64,14 +26,18 @@ const LeftList = ({
     disabled,
     savedUserItems,
     saveItem,
+    getBlankItem,
+    fieldsNotSavedInFirebase,
+    addNewItemText,
+    addSavedItemLabel,
+    leftListHeader,
+    leftListEmptyHeader,
+    itemTitle,
+    itemValidator,
+    uidFields,
 }) => {
+    console.log('LeftList itemTitle: ', itemTitle);
     const [currentItems, setItems] = useState(items)
-    if (!(itemType in itemTypes)){
-        throw Error("Invalid itemType for LeftList");
-    }
-
-    const itemContextHelper = itemTypes[itemType];
-
     if (!deepEquals(currentItems, items)){
         setItems(items)
     }
@@ -101,8 +67,9 @@ const LeftList = ({
 
     function duplicateItem(itemIndex) {
         const duplicatedItem = deepCopy(items[itemIndex]);
+        const fieldsToAppend = uidFields || ["id"]
 
-        const uidField = itemContextHelper.uid_fields.find(fieldName => duplicatedItem[fieldName])
+        const uidField = fieldsToAppend.find(fieldName => duplicatedItem[fieldName])
         duplicatedItem[uidField] += " (Copy)";
 
         updateItems(items.concat(duplicatedItem));
@@ -115,14 +82,14 @@ const LeftList = ({
     const { role, ...contact } = savedUserItemList[index];
 
     updateItems(
-      items.concat(deepCopy({ ...itemContextHelper.blankItem(), ...contact }))
+      items.concat(deepCopy({ ...getBlankItem(), ...contact }))
     );
     // TODO: Apply UID check for duplicates before adding to list
     setActiveItem(items.length);
   }
 
   function handleAddNewBlankItem() {
-    updateItems(items.concat(itemContextHelper.blankItem()));
+    updateItems(items.concat(getBlankItem()));
     setActiveItem(items.length);
   }
 
@@ -131,17 +98,17 @@ const LeftList = ({
       <Grid container direction="column" justifyContent="flex-start">
         <Grid item xs style={{ margin: "10px" }}>
           <Typography>
-              {items.length ? (
+              {items.length ? (leftListHeader ||(
               <I18n>
-                <En>{capitalize(itemType)}s in this record:</En>
-                <Fr>{capitalize(itemType)}s dans cet enregistrement:</Fr>
+                <En>Items in this record:</En>
+                <Fr>Articles dans cet enregistrement:</Fr>
               </I18n>
-            ) : (
+            )) : (leftListEmptyHeader || (
               <I18n>
-                <En>There are no {itemType}s in this record.</En>
-                <Fr>Il n'y a aucun {itemType} dans cet enregistrement.</Fr>
+                <En>There are no items in this record.</En>
+                <Fr>Il n'y a aucun articles dans cet enregistrement.</Fr>
               </I18n>
-            )}
+            ))}
           </Typography>
         </Grid>
           <Grid item xs>
@@ -167,7 +134,7 @@ const LeftList = ({
                               width: "80%",
                             }}
                           >
-                            <ContactTitle contact={itemEntry} />
+                              {itemTitle(itemEntry) || (<I18n en="New item" fr="Nouveau article" />)}
                           </Typography>
                         }
                       />
@@ -175,8 +142,8 @@ const LeftList = ({
                         <Tooltip
                           title={
                             <I18n
-                              en="Duplicate {itemType}"
-                              fr="Duplicate {itemType}"
+                              en="Duplicate entry"
+                              fr="Duplicate entrée"
                             />
                           }
                         >
@@ -213,8 +180,8 @@ const LeftList = ({
                         <Tooltip
                           title={
                             <I18n
-                              en="Add to saved {itemType}s"
-                              fr="Ajouter aux {itemType}s enregistrés"
+                              en="Add to saved items"
+                              fr="Ajouter aux articles enregistrés"
                             />
                           }
                         >
@@ -225,7 +192,7 @@ const LeftList = ({
 
                                 // at this point the contact object could have
                                 // a role field, which shouldn't be saved
-                                itemContextHelper.unsaved_fields.forEach((fieldName) => {
+                                fieldsNotSavedInFirebase.forEach((fieldName) => {
                                     delete toSave[fieldName];
                                 })
 
@@ -234,11 +201,7 @@ const LeftList = ({
                                 setItems(items);
                               }}
                               disabled={
-                                !(
-                                  items[i].orgName?.length ||
-                                  items[i].givenNames?.length ||
-                                  items[i].lastName?.length
-                                )
+                                  ((itemValidator && itemValidator(itemEntry)) || itemEntry.id?.length === 0)
                               }
                               edge="end"
                               aria-label="clone"
@@ -279,10 +242,10 @@ const LeftList = ({
             style={{ height: "56px", justifyContent: "emptyContact" }}
           >
             <Typography>
-              <I18n>
-                <En>Add new {itemType}</En>
-                <Fr>Ajouter un {itemType}</Fr>
-              </I18n>
+                {addNewItemText || <I18n>
+                    <En>Add new item</En>
+                    <Fr>Ajouter un item</Fr>
+                </I18n>}
             </Typography>
           </Button>
         </Grid>
@@ -291,18 +254,23 @@ const LeftList = ({
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedUserItem}
-            optionLabels={savedUserItemList.map((contactItem) => (
-              <ContactTitle contact={contactItem} />
-            ))}
+            optionLabels={savedUserItemList.map((savedItem) => {
+                console.log("itemtitle " + itemTitle)
+                return (itemTitle(savedItem))
+            })}
             options={savedUserItemList.map((v, i) => i)}
             disabled={!savedUserItemList.length || disabled}
-            label={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT" />}
+            label={addSavedItemLabel || (<I18n en="ADD SAVED ITEM" fr="AJOUTER UN ÉLÉMENT ENREGISTRÉ" />)}
           />
         </Grid>
       </Grid>
       </Paper>
   )
 
+}
+
+LeftList.defaultProps = {
+    fieldsNotSavedInFirebase: [],
 }
 
 export default LeftList;

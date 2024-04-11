@@ -179,7 +179,7 @@ class Instruments extends FormClassTemplate {
                         </ListItemAvatar>
 
                         <ListItemText
-                          primary={<InstrumentTitle instrument={val} />}
+                          primary={InstrumentTitle(val)}
                         />
                         <ListItemSecondaryAction>
                           <Tooltip title={<I18n en="Edit" fr="Éditer" />}>

@@ -16,11 +16,10 @@ function getInstrumentTitleFromNames(instrument) {
         .join(" - ");
 }
 
-function InstrumentTitle({ instrument }) {
+function InstrumentTitle(instrument) {
     return (
-        getInstrumentTitleFromNames(instrument) || (
-            <I18n en="New instrument" fr="Nouvel instrument" />
-        )
+        getInstrumentTitleFromNames(instrument) ||
+        (<I18n en="New instrument" fr="Nouvel instrument" />)
     );
 }
 

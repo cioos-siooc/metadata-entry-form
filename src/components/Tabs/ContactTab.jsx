@@ -21,6 +21,8 @@ import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
 import LeftList from "../FormComponents/LeftList";
+import ContactTitle from "../FormComponents/ContactTitle";
+import {getBlankContact} from "../../utils/blankRecord";
 
 const ContactTab = ({
   disabled,
@@ -158,7 +160,6 @@ const ContactTab = ({
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
         <Grid item xs={5}>
           <LeftList
-            itemType="contact"
             items={contacts}
             updateItems={updateContacts}
             setActiveItem={setActiveContact}
@@ -166,6 +167,10 @@ const ContactTab = ({
             disabled={disabled}
             savedUserItems={userContacts}
             saveItem={saveToContacts}
+            itemTitle={ContactTitle}
+            getBlankItem={getBlankContact}
+            addSavedItemLabel={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />}
+            uidFields={["lastName", "orgName"]}
           />
         </Grid>
         {contact && (

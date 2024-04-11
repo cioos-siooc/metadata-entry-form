@@ -11,6 +11,8 @@ import { En, Fr, I18n } from "../I18n";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
 import LeftList from "./LeftList";
+import PlatformTitle from "./PlatformTitle";
+import {getBlankPlatform} from "../../utils/blankRecord";
 
 const Platform = ({
       platforms = [],
@@ -30,6 +32,8 @@ const Platform = ({
         updatePlatforms(platformsCopy);
       };
     }
+
+
 
   const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
     a[`label_${language}`].localeCompare(b[`label_${language}`], language)
@@ -52,17 +56,16 @@ const Platform = ({
                   disabled={disabled}
                   savedUserItems={userPlatforms}
                   saveItem={saveUpdatePlatform}
+                  getBlankItem={getBlankPlatform}
+                  addSavedItemLabel={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATEFORME" />}
+                  itemTitle={PlatformTitle}
+                  itemValidator={(contact) => !(
+                                  contact.orgName?.length ||
+                                  contact.givenNames?.length ||
+                                  contact.lastName?.length
+                                )}
                   />
 
-        {/*<PlatformLeftList*/}
-        {/*          platforms={platforms}*/}
-        {/*          updatePlatforms={updatePlatforms}*/}
-        {/*          activePlatform={activePlatform}*/}
-        {/*          setActivePlatform={setActivePlatform}*/}
-        {/*          disabled={disabled}*/}
-        {/*          userPlatforms={userPlatforms}*/}
-        {/*          saveUpdatePlatform={saveUpdatePlatform}*/}
-        {/*          />*/}
         </Grid>
 
       <Grid item xs>
