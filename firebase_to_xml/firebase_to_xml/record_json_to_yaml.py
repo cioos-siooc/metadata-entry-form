@@ -62,6 +62,12 @@ def fix_lat_long_polygon(polygon):
         fixed.append(",".join([long, lat]))
     return " ".join(fixed)
 
+def format_taxa(taxa):
+    taxaKeywords = []
+    for t in taxa:
+        taxaKeywords.append(",".join([t.get("kingdom"), t.get("phylum"), t.get("class"), t.get("order"), t.get("family"), t.get("genus"), t.get("species")]))
+    return ','.join(taxaKeywords)
+
 
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
@@ -99,6 +105,7 @@ def record_json_to_yaml(record):
                 "revision": record.get("created"),
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
+            "scope": record.get("metadataScopeIso"),
         },
         "spatial": {
             "bbox": [
@@ -111,9 +118,14 @@ def record_json_to_yaml(record):
             else "",
             "polygon": fix_lat_long_polygon(polygon),
             "vertical": [
-                float(record.get("verticalExtentMin")),
-                float(record.get("verticalExtentMax")),
+                0 if record.get("noVerticalExtent") else float(
+                    record.get("verticalExtentMin")),
+                0 if record.get("noVerticalExtent") else float(
+                    record.get("verticalExtentMax")),
             ],
+            "vertical_positive": "up" if record.get("noVerticalExtent") else record.get("verticalExtentDirection"),
+            "description": record["map"].get("description"),
+            "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
         },
         "identification": {
             "title": record.get("title"),
@@ -121,6 +133,7 @@ def record_json_to_yaml(record):
             "identifier": record.get("datasetIdentifier"),
             "abstract": record.get("abstract"),
             "abstractTranslationMethod":  verify_translation(record.get("translationVerifiedAbstract"), record.get("abstractTranslationMethod")),
+            "associated_resources": record.get("associated_resources", []),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
                 "publication": date_from_datetime_str(record.get("datePublished")),
@@ -129,6 +142,7 @@ def record_json_to_yaml(record):
             "keywords": {
                 "default": strip_keywords(record.get("keywords", {"en": [], "fr": []})),
                 "eov": {"en": record.get("eov"), "fr": eovs_to_fr(record.get("eov"))},
+                "taxa": {"en": format_taxa(record.get("taxa")), "fr": format_taxa(record.get("taxa"))}
             },
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),

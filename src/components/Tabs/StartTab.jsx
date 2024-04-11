@@ -1,18 +1,74 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 
 import { Save } from "@material-ui/icons";
-import { Typography, Paper, Grid } from "@material-ui/core";
+import {
+  Typography,
+  Paper,
+  Grid,
+  FormControl,
+} from "@material-ui/core";
 import { useParams } from "react-router-dom";
+
+import BilingualTextInput from "../FormComponents/BilingualTextInput";
 
 import regions from "../../regions";
 
+import DOIInput from "../FormComponents/DOIInput";
+
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass } from "../FormComponents/QuestionStyles";
+import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import { validateField } from "../../utils/validate";
+import { metadataScopeCodes } from "../../isoCodeLists";
+import CheckBoxList from "../FormComponents/CheckBoxList";
 
-const StartTab = ({ disabled }) => {
-  const { region } = useParams();
+import SelectInput from "../FormComponents/SelectInput";
+
+const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCodes;
+
+const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
+  const { language, region } = useParams();
   const regionInfo = regions[region];
+  const mounted = useRef(false);
+  
+  const updateResourceType = (value) => {
+    if(Array.isArray(value) && value.length === 1 && value.includes('other')){
+      if (Array.isArray(record.eov)){
+          if(!record.eov.includes('other')){
+            updateRecord("eov")([...record.eov, "other"])
+          }
+        else{
+            updateRecord("eov")(["other"])
+        }
+      }
+    }
+    updateRecord("resourceType")(value);
+  };
+
+  const handleMetadataScopeChange = () => {
+    return (e) => {
+      const newEvent = { target: { value: metadataScopeCodes[e.target.value]?.isoValue }};
+      handleUpdateRecord("metadataScopeIso")(newEvent);
+      handleUpdateRecord("metadataScope")(e);
+    };
+  }
+
+ 
+  useEffect(() => {
+    mounted.current = true;
+
+    if (!record.language) {
+      handleUpdateRecord("language")({ target: {value: language}});
+    }
+
+    if (!record.metadataScope) {
+      handleUpdateRecord("metadataScope")({ target: { value: 'Dataset' } });
+    }
+
+    return () => {
+      mounted.current = false;
+    };
+  }, [language]);
 
   return (
     <Grid item xs>
@@ -125,6 +181,124 @@ const StartTab = ({ disabled }) => {
           </li>
         </ul>
       </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the dataset title? Required in English and French.</En>
+            <Fr>
+              Quel est le titre du jeu de données? Obligatoire dans les deux
+              langues.
+            </Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "title")} />
+          <SupplementalText>
+            <I18n>
+              <En>
+                <p>Recommended title includes: What, Where, When.</p>
+                <p>
+                  Title should be precise enough so that the user will not have
+                  to open the dataset to understand its contents. Title should
+                  not have acronyms, special characters, or use specialized
+                  nomenclature. This will appear as the title that is shown for
+                  this dataset in the {regionInfo.catalogueTitle.en}.
+                </p>
+              </En>
+              <Fr>
+                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
+                <p>
+                  Le titre doit être suffisamment précis pour que l'utilisateur
+                  n'ait pas à ouvrir le ensemble de données pour comprendre son
+                  contenu. Le titre ne doit pas avoir des acronymes, des
+                  caractères spéciaux ou utiliser une nomenclature spécialisée.
+                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
+                  {regionInfo.catalogueTitle.fr}.
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
+        </QuestionText>
+        <BilingualTextInput
+          name="title"
+          value={record.title}
+          onChange={handleUpdateRecord("title")}
+          disabled={disabled}
+        />
+      </Paper>
+      
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the resource type?</En>
+            <Fr>Quel est le type de ressource?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "metadataScope")} />
+
+        </QuestionText>
+        <SelectInput
+          value={record.metadataScope || ""}
+          onChange={handleMetadataScopeChange()}
+          options={Object.keys(filtereMetadataScopeCodes)}
+          optionLabels={Object.values(filtereMetadataScopeCodes).map(
+            ({ title }) => title[language]
+          )}
+          optionTooltips={Object.values(filtereMetadataScopeCodes).map(
+            ({ text }) => text[language]
+          )}
+          disabled={disabled}
+          fullWidth={false}
+          style={{ width: "200px" }}
+        />
+      </Paper>
+
+      <Paper style={paperClass}>
+        <FormControl>
+          <QuestionText style={{ paddingBottom: "15px" }}>
+            <I18n>
+              <En>What is the theme of this record?</En>
+              <Fr>Quel est le thème de ce disque?</Fr>
+            </I18n>
+            {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
+            <RequiredMark passes={record.resourceType} />
+          </QuestionText>
+          <CheckBoxList
+            aria-labelledby="resource-type"
+            name="resource-type"
+            value={record.resourceType || []}
+            labelSize={6}
+            defaultValue="oceanographic"
+            onChange={(v) => updateResourceType(v)}
+            options={["oceanographic", "biological", "other"]}
+            optionLabels={["Oceanographic", "Biological", "Other"]}
+            disabled={disabled}
+          />
+        </FormControl>
+      </Paper>
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>What is the primary language of the dataset?</En>
+            <Fr>Quelle est la langue principale du jeu de données?</Fr>
+          </I18n>
+          <RequiredMark passes={validateField(record, "language")} />
+        </QuestionText>
+        <SelectInput
+          value={record.language}
+          onChange={handleUpdateRecord("language")}
+          options={["en", "fr"]}
+          optionLabels={["English", "Français"]}
+          disabled={disabled}
+        />
+      </Paper>
+
+      <DOIInput
+        record={record}
+        handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
+        handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
+        disabled={disabled}
+      />
+      
     </Grid>
   );
 };

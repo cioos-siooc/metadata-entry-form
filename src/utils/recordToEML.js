@@ -10,9 +10,10 @@ function arrayOverlap(a, b) {
 }
 
 function translateRole(isoRoles) {
-  console.log(isoRoles);
+  // console.log(isoRoles);
   return isoRoles;
 }
+
 const roleMapping = {
   creator: ["author", "originator"],
   metadataProvider: ["distributor", "custodian"],

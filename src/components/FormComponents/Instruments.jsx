@@ -1,7 +1,16 @@
-import React, {useState} from "react";
-import {Delete} from "@material-ui/icons";
-import {Button, Grid, Paper, TextField, Typography,} from "@material-ui/core";
-import {En, Fr, I18n} from "../I18n";
+import React, { useCallback, useState } from "react";
+import { Add, Delete } from "@material-ui/icons";
+import {
+  TextField,
+  Grid,
+  Typography,
+  Button,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+} from "@material-ui/core";
+import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
@@ -21,19 +30,26 @@ const Instruments = ({
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
 
-  function updateInstrumentField(key) {
+  const addInstrument = useCallback(() => {
+    updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
+    setActiveInstrument(instruments.length);
+  }, [instruments]);
+
+
+  const updateInstrumentField = useCallback((key) => {
     return (e) => {
       const instrumentsCopy = [...instruments];
       instrumentsCopy[activeInstrument][key] = e.target.value;
       updateInstruments(instrumentsCopy);
     };
-  }
-  function removeInstrument() {
+  }, [instruments]);
+
+  const removeInstrument = useCallback(() => {
     updateInstruments(
       instruments.filter((e, index) => index !== activeInstrument)
     );
     if (instruments.length) setActiveInstrument(instruments.length - 2);
-  }
+  }, [instruments]);
 
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
   const versionLabel = <I18n en="Version" fr="Version" />;
