@@ -1,14 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Delete } from "@material-ui/icons";
 import {
   TextField,
   Grid,
   Typography,
   Button,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
 } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
@@ -31,12 +28,6 @@ const Instruments = ({
   platformList,
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
-
-  const addInstrument = useCallback(() => {
-    updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
-    setActiveInstrument(instruments.length);
-  }, [instruments]);
-
 
   const updateInstrumentField = useCallback((key) => {
     return (e) => {

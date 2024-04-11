@@ -36,7 +36,6 @@ const LeftList = ({
     itemValidator,
     uidFields,
 }) => {
-    console.log('LeftList itemTitle: ', itemTitle);
     const [currentItems, setItems] = useState(items)
     if (!deepEquals(currentItems, items)){
         setItems(items)
@@ -237,7 +236,7 @@ const LeftList = ({
         <Grid item xs style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
-            onClick={handleAddNewBlankItem}
+            onClick={() => handleAddNewBlankItem()}
             fullWidth
             style={{ height: "56px", justifyContent: "emptyContact" }}
           >
@@ -255,7 +254,6 @@ const LeftList = ({
             labelId="add-existing"
             onChange={handleAddFromSavedUserItem}
             optionLabels={savedUserItemList.map((savedItem) => {
-                console.log("itemtitle " + itemTitle)
                 return (itemTitle(savedItem))
             })}
             options={savedUserItemList.map((v, i) => i)}
