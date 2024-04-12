@@ -12,6 +12,16 @@
           "cioos-metadata-form-dev"
         ]
       }
+    },
+    "development": {
+      "database": {
+        "prod": [
+          "cioos-metadata-form"
+        ],
+        "dev": [
+          "cioos-metadata-form-dev"
+        ]
+      }
     }
   },
   "etags": {}
