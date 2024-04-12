@@ -1,4 +1,4 @@
-import { getDatabase, ref, child, get, set, remove } from "firebase/database";
+import { getDatabase, ref, set, remove } from "firebase/database";
 import firebase from "../firebase";
 
 export async function newDataciteAccount(region, prefix, authHash) {
@@ -24,15 +24,5 @@ export async function deleteAllDataciteCredentials(region) {
     return { success: true, message: "All Datacite credentials deleted successfully." };
   } catch (error) {
     throw new Error(`Failed to delete Datacite credentials.: ${error}`);    
-  }
-}
-
-export async function getDatacitePrefix(region) {
-    try {
-      const database = getDatabase(firebase);
-      const prefix = (await get(ref(database, `admin/${region}/dataciteCredentials/prefix`), "value")).val();
-      return prefix;
-  } catch (error) {
-      throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
   }
 }

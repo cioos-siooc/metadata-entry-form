@@ -256,11 +256,11 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record} = this.state;
-    const { datacitePrefix, dataciteAuthHash } = this.context;
+    const { datacitePrefix } = this.context;
 
     try {
-      if (datacitePrefix && dataciteAuthHash){
-        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash);
+      if (datacitePrefix){
+        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix);
 
       if (statusCode === 200) {
         this.state.doiUpdated = true

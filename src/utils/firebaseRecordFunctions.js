@@ -160,15 +160,15 @@ export const multipleFirebaseToJSObject = (multiple) => {
 
 // fetches a region's users
 export async function loadRegionUsers(region) {
+  const database = getDatabase(firebase);
   try {
-    const regionUsersRef = firebase.database().ref(region).child("users");
-    const regionUsers = (await regionUsersRef.once("value")).val();
+    const regionUsersRef = ref(database, `${region}/users`);
+    const regionUsers = (await get(regionUsersRef, "value")).val();
 
     return regionUsers
     
   } catch (error) {
-    console.error(`Error fetching user emails for region ${region}:`, error);
-    return null
+    throw new Error(`Error fetching user emails for region ${region}: ${error}`);
   }
 }
 
@@ -183,18 +183,16 @@ export async function loadRegionUsers(region) {
  * @param {boolean} share
  */
 export async function updateSharedRecord(userID, recordID, authorID, region, share) {
-
-  const sharesRef = firebase.database().ref(region).child("shares").child(userID).child(authorID).child(recordID);
+  const database = getDatabase(firebase);
+  const sharesRef = ref(database, `${region}/shares/${userID}/${authorID}/${recordID}`);
 
   if (share) {
     // Share the record with the user by setting it directly under the authorID node
-    await sharesRef.set({ shared: true })
-      .then(() => console.log(`Record ${recordID} shared by author ${authorID} with user ${userID}`))
-      .catch(error => console.error(`Error sharing record by author ${authorID} with user ${userID}:`, error));
+    await set(sharesRef, { shared: true })
+      .catch(error => {throw new Error(`Error sharing record by author ${authorID} with user ${userID}: ${error}`)});
   } else {
     // Unshare the record from the user
-    await sharesRef.remove()
-      .then(() => console.log(`Record ${recordID} unshared by author ${authorID} from user ${userID}`))
-      .catch(error => console.error(`Error unsharing record by author ${authorID} from user ${userID}:`, error));
+    await remove(sharesRef)
+      .catch(error => { throw new Error(`Error unsharing record by author ${authorID} with user ${userID}: ${error}`) });
   }
 }
