@@ -111,10 +111,6 @@ class UserProvider extends FormClassTemplate {
     const recordToDataCite = httpsCallable(functions, "recordToDataCite");
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
-    const createDraftDoiPR78 = httpsCallable(functions, "createDraftDoiPR78");
-    const updateDraftDoiPR78 = httpsCallable(functions, "updateDraftDoiPR78");
-    const deleteDraftDoiPR78 = httpsCallable(functions, "deleteDraftDoiPR78");
-    const getDoiStatusPR78 = httpsCallable(functions, "getDoiStatusPR78");
 
     return (
       <UserContext.Provider
@@ -131,10 +127,6 @@ class UserProvider extends FormClassTemplate {
           recordToDataCite,
           getCredentialsStored,
           getDatacitePrefix,
-          createDraftDoiPR78,
-          updateDraftDoiPR78,
-          deleteDraftDoiPR78,
-          getDoiStatusPR78,
         }}
       >
         {children}
