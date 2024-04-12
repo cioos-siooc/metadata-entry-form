@@ -168,8 +168,7 @@ export async function loadRegionUsers(region) {
     return regionUsers
     
   } catch (error) {
-    console.error(`Error fetching user emails for region ${region}:`, error);
-    return null
+    throw new Error(`Error fetching user emails for region ${region}: ${error}`);
   }
 }
 
@@ -189,13 +188,11 @@ export async function updateSharedRecord(userID, recordID, authorID, region, sha
 
   if (share) {
     // Share the record with the user by setting it directly under the authorID node
-    await sharesRef.set({ shared: true })
-      .then(() => console.log(`Record ${recordID} shared by author ${authorID} with user ${userID}`))
-      .catch(error => console.error(`Error sharing record by author ${authorID} with user ${userID}:`, error));
+    await set(sharesRef, { shared: true })
+      .catch(error => {throw new Error(`Error sharing record by author ${authorID} with user ${userID}: ${error}`)});
   } else {
     // Unshare the record from the user
-    await sharesRef.remove()
-      .then(() => console.log(`Record ${recordID} unshared by author ${authorID} from user ${userID}`))
-      .catch(error => console.error(`Error unsharing record by author ${authorID} from user ${userID}:`, error));
+    await remove(sharesRef)
+      .catch(error => { throw new Error(`Error unsharing record by author ${authorID} with user ${userID}: ${error}`) });
   }
 }

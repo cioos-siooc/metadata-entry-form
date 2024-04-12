@@ -45,7 +45,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
           setUsers(regionUsers);
         }
       } catch (error) {
-        console.error("Error loading region users:", error);
+        throw new Error(`Error loading region users: ${error}`);
       }
     };
 
@@ -76,8 +76,6 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
       [userID]: true,
     };
 
-    console.log(`adding ${userID} to list`);
-
     setSharedWithUsers(updatedSharedWith);
 
     updateRecord("sharedWith")(updatedSharedWith);
@@ -86,7 +84,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
       try {
         await updateSharedRecord(userID, record.recordID, authorID, region, true);
       } catch (error) {
-        console.error("Failed to update shared record:", error);
+        throw new Error(`Failed to update shared record: ${error}`);
       }
     };
 
@@ -104,7 +102,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
         try {
           await updateSharedRecord(userID, record.recordID, authorID, region, false);
         } catch (error) {
-          console.error("Failed to unshare the record:", error);
+          throw new Error(`Failed to unshare the record: ${error}`);
         }
       };
 

@@ -67,10 +67,7 @@ class Shared extends FormClassTemplate {
                       };
                     }
                     // Log and return null if no details are found - this replaces the else block
-                    console.error(
-                      `No details found for record ${recordID} by author ${authorID}`
-                    );
-                    return null;
+                    throw new Error(`No details found for record ${recordID} by author ${authorID}`);
                   });
                 recordsPromises.push(recordPromise); // Collect the promise
               });
