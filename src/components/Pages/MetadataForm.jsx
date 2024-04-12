@@ -14,6 +14,8 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { withRouter } from "react-router-dom";
+import { getDatabase, ref, child, onValue, update, push } from "firebase/database";
+
 import FormClassTemplate from "./FormClassTemplate";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
@@ -28,8 +30,9 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import TaxaTab from "../Tabs/TaxaTab"
 
-import { auth } from "../../auth";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import firebase from "../../firebase";
 import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
 import {
@@ -42,6 +45,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
+import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -93,7 +97,10 @@ const styles = (theme) => ({
     right: theme.spacing(2),
   },
 });
+
+
 class MetadataForm extends FormClassTemplate {
+
   constructor(props) {
     super(props);
 
@@ -117,14 +124,17 @@ class MetadataForm extends FormClassTemplate {
       editorInfo: { email: "", displayName: "" },
       loggedInUserCanEditRecord: false,
       saveIncompleteRecordModalOpen: false,
+      doiUpdated: false,
+      doiError: false,
     };
   }
 
   componentDidMount() {
     const { match } = this.props;
     this.setState({ loading: true });
+    const database = getDatabase(firebase);
 
-    this.unsubscribe = auth.onAuthStateChanged(async (user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
         const { region, recordID } = match.params;
         const isNewRecord = match.url.endsWith("new");
@@ -137,13 +147,9 @@ class MetadataForm extends FormClassTemplate {
         this.setState({ projects: await getRegionProjects(region) });
         let editorInfo;
         // get info of the person openeing the record
-        const editorDataRef = firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(loggedInUserID);
-        const userinfoRef = editorDataRef.child("userinfo");
-        userinfoRef.on("value", (userinfo) => {
+        const editorDataRef = child(ref(database, `${region}/users`), loggedInUserID);
+        const userinfoRef = child(editorDataRef, "userinfo");
+        onValue(userinfoRef, (userinfo) => {
           editorInfo = userinfo.toJSON();
 
           this.setState({ editorInfo });
@@ -151,16 +157,12 @@ class MetadataForm extends FormClassTemplate {
         this.listenerRefs.push(userinfoRef);
 
         // get info of the original author of record
-        const userDataRef = firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(recordUserID);
+        const userDataRef = ref(database, `${region}/users/${recordUserID}`);
 
         // get contacts
-        const editorContactsRef = editorDataRef.child("contacts");
+        const editorContactsRef = child(editorDataRef, "contacts");
 
-        editorContactsRef.on("value", (contactsFB) => {
+        onValue(editorContactsRef, (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).forEach(([k, v]) => {
             // eslint-disable-next-line no-param-reassign
@@ -174,8 +176,8 @@ class MetadataForm extends FormClassTemplate {
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
         } else {
-          const ref = userDataRef.child("records").child(recordID);
-          ref.on("value", (recordFireBase) => {
+          const recRef = child(userDataRef, `records/${recordID}`);
+          onValue(recRef, (recordFireBase) => {
             // Record not found, eg a bad link
             const recordFireBaseObj = recordFireBase.toJSON();
             if (!recordFireBaseObj) {
@@ -195,7 +197,7 @@ class MetadataForm extends FormClassTemplate {
 
             this.setState({ loading: false });
           });
-          this.listenerRefs.push(ref);
+          this.listenerRefs.push(recRef);
         }
       }
     });
@@ -224,7 +226,6 @@ class MetadataForm extends FormClassTemplate {
   // generic state updater creator
   updateRecord = (key) => (value) => {
     const changes = { [key]: value };
-
     this.setState(({ record }) => ({
       record: { ...record, ...changes },
       saveDisabled: false,
@@ -234,24 +235,43 @@ class MetadataForm extends FormClassTemplate {
   saveUpdateContact(contact) {
     const { contactID } = contact;
     const { match } = this.props;
-
     const { region } = match.params;
+    const database = getDatabase(firebase);
 
-    const contactsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("contacts");
+    const contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
 
     // existing contact
     if (contactID) {
-      contactsRef.child(contactID).update(contact);
+      update(child(contactsRef, contactID), contact);
       return contactID;
     }
     // new contact
 
-    return contactsRef.push(contact).getKey();
+    return push(contactsRef, contact).getKey();
+  }
+
+  async handleUpdateDraftDOI() {
+    const { match } = this.props;
+    const { region, language } = match.params;
+    const { record} = this.state;
+    const { datacitePrefix, dataciteAuthHash } = this.context;
+
+    try {
+      if (datacitePrefix && dataciteAuthHash){
+        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash);
+
+      if (statusCode === 200) {
+        this.state.doiUpdated = true
+      } else {
+        this.state.doiError = true
+        }
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating draft DOI: ', err);
+      this.state.doiError = true
+      throw err;
+    }
   }
 
   async handleSubmitRecord() {
@@ -259,12 +279,15 @@ class MetadataForm extends FormClassTemplate {
     const { region, userID } = match.params;
     const isNewRecord = match.url.endsWith("new");
     const { record } = this.state;
+    
     // Bit of logic here to decide if this is a user submitting their own form
     // or a reviewer submitting it
     const loggedInUserID = auth.currentUser.uid;
     const recordUserID = isNewRecord ? loggedInUserID : userID;
 
     const recordID = await this.handleSaveClick();
+    await this.handleUpdateDraftDOI()
+
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
 
@@ -273,15 +296,10 @@ class MetadataForm extends FormClassTemplate {
   async handleSaveClick(userOKedRecordDemotion = false) {
     const { match, history } = this.props;
     const { language, region } = match.params;
-
     const userID = match.params.userID || auth.currentUser.uid;
+    const database = getDatabase(firebase);
 
-    const recordsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(userID)
-      .child("records");
+    const recordsRef = ref(database,`${region}/users/${userID}/records`);
 
     // remove userContacts since they get saved elsewhere
     const { editorInfo } = this.state;
@@ -315,16 +333,15 @@ class MetadataForm extends FormClassTemplate {
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
-      await recordsRef
-        .child(record.recordID)
-        // using blankRecord here in case there are new fields that the old record didnt have
-        .update({ ...getBlankRecord(), ...record });
+      await update(child(recordsRef,record.recordID),
+        // using blankRecord here in case there are new fields that the old record didn't have
+        { ...getBlankRecord(), ...record });
     } else {
       // new record
-      const newNode = await recordsRef.push(record);
+      const newNode = await push(recordsRef, record);
 
       // cheesy workaround to the issue of push() not saving dates
-      await newNode.update(record);
+      await update(newNode, record);
       recordID = newNode.key;
       this.setState({
         record: { ...record, recordID },
@@ -455,6 +472,12 @@ class MetadataForm extends FormClassTemplate {
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
+                label={tabs.taxa[language]}
+                value="taxa"
+              /> 
+              <Tab
+                fullWidth
+                classes={{ root: classes.tabRoot }}
                 label={tabs.spatial[language]}
                 value="spatial"
               />
@@ -470,12 +493,14 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.platform[language]}
-                value="platform"
-              />
+                {!(['model'].includes(record.metadataScope)) && (
+                <Tab
+                  fullWidth
+                  classes={{ root: classes.tabRoot }}
+                  label={tabs.platform[language]}
+                  value="platform"
+                />
+              )}
               {loggedInUserCanEditRecord && (
                 <Tab
                   fullWidth
@@ -521,6 +546,9 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="identification">
           <IdentificationTab {...tabProps} projects={projects} />
         </TabPanel>
+        <TabPanel value={tabIndex} index="taxa">
+            <TaxaTab {...tabProps} />
+        </TabPanel>
         <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />
         </TabPanel>
@@ -530,10 +558,11 @@ class MetadataForm extends FormClassTemplate {
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
         </TabPanel>
-
         <TabPanel value={tabIndex} index="submit">
           <SubmitTab
             {...tabProps}
+            doiUpdated={this.state.doiUpdated}
+            doiError={this.state.doiError}
             submitRecord={() => this.handleSubmitRecord()}
           />
         </TabPanel>

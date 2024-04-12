@@ -17,20 +17,36 @@ CIOOS Metadata entry form
 
 This will start a hot-reloading dev server. Click on the link that it outputs to open in your browser.
 
+## Monitoring
+
+Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://hakai-institute.sentry.io/projects/cioos-metadata-entry-form/) project.
+
 ### Running the Firebase emulator
+
+#### Local Install Alternative
 
 Install firebase CLI [as described here](https://firebase.google.com/docs/emulator-suite/install_and_configure).
 
 Run `firebase emulators:start` from the `firebase-functions/functions` directory.
 Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
 
-## Deploy to testing site at GitHub pages
+#### Docker Alternative
+Using the firebase emulator in docker will preload some data into a local realtime database and emulate cloud functions and the realtime database
+
+docker-compose up -d --build
+Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
+
+## Deploy to production site at GitHub pages
 
 Pushes to master automatically deploy to <https://cioos-siooc.github.io/metadata-entry-form/>
 
 Or manually deploy any branch with
 
 `npm run deploy`
+
+## Deploy to dev preview sites
+
+firebase hosted preview sites are created for all pull requests. Once a pull request is generated, check the pull request comments on github for the link to the preview site. Deployment is handled by the `firebase-hosting-pull-request.yml` github action. Preview sites are deleted during a pull request close event or after 30 days of inactivity on the pull request. Any commit to the pull request branch will reset the timer.
 
 ## Deployment and Configuration of Firebase Functions
 
@@ -56,12 +72,15 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:
 
-- `GMAIL_USER`
-- `GMAIL_PASS`
-- `AWS_REGION`
-- `AWS_ACCESSKEYID`
-- `AWS_SECRETACCESSKEY`
-- `GITHUB_AUTH`
+- `GMAIL_USER` notifications
+- `GMAIL_PASS` notifications
+- `AWS_REGION` used for amazon translate service access
+- `AWS_ACCESSKEYID` used for amazon translate service access
+- `AWS_SECRETACCESSKEY` used for amazon translate service access
+- `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
+- `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
+- `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
+- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
 
 ### Using Parameterized Configuration in Firebase Functions
 

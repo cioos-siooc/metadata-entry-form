@@ -9,10 +9,13 @@ class ErrorBoundary extends Component {
   }
 
   static getDerivedStateFromError(error) {
+    /* eslint-disable no-console */
+    console.error(error)
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
+    /* eslint-disable no-console */
     console.error(error, errorInfo);
     Sentry.captureException(error);
   }

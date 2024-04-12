@@ -224,6 +224,7 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
     mappedDataCiteObject.data.attributes.rightsList = rightsList;
 
     // Add descriptions from the abstract field
+    // eslint-disable-next-line no-param-reassign
     delete metadata.abstract.translations
     mappedDataCiteObject.data.attributes.descriptions = Object.entries(
       metadata.abstract
@@ -240,9 +241,65 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
 
     // Auto-populate Datacite Resource type general  as 'dataset'
     mappedDataCiteObject.data.attributes.types = {
-      resourceTypeGeneral: "Dataset",
+      resourceTypeGeneral: "Dataset", // TODO: change this to reflect resource type in form
     };
 
+    // link data download resources to this record via relatedIdentifiers datacite field
+    if (metadata.distribution){
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = 
+        metadata.distribution.map(({ url }) => ({
+          relatedIdentifier: url,
+          relatedIdentifierType: 'URL',
+          relationType: 'IsMetadataFor',
+        }))
+    }
+
+    // Link related works to this record via relatedIdentifiers datacite field
+    if (metadata.associated_resources) {
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = 
+        [
+          ...mappedDataCiteObject.data.attributes.relatedIdentifiers,
+          ...metadata.associated_resources.map(({ authority, code, association_type: associationType }) => ({
+            relatedIdentifier: code,
+            relatedIdentifierType: authority,
+            relationType: associationType,
+          })
+        )];
+    }
+
+    // link lineage source, processing step documents, and additional documentation to this record
+    // via relatedIdentifiers datacite field
+    if (metadata.history) {
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = 
+        [ ...mappedDataCiteObject.data.attributes.relatedIdentifiers, 
+          ...metadata.history.flatMap( ({ source, processingStep, additionalDocumentation }) => (
+            [ ...source.map( ({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'isDerivedFrom',
+                })),
+              ...processingStep.map(({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'IsDocumentedBy',
+                })),
+              ...additionalDocumentation.map(({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'IsDocumentedBy',
+                }))]     
+          ))]
+    }
+    // filter out any entries that do not have code and authority set
+    // this can happen if only the description is populated for a processing step, for example
+    if (mappedDataCiteObject.data.attributes.relatedIdentifiers){
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = 
+        mappedDataCiteObject.data.attributes.relatedIdentifiers.filter((ident) => (ident.relatedIdentifier && ident.relatedIdentifierType))
+    }
+    
     // Generate URL element
     mappedDataCiteObject.data.attributes.url = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${metadata.identifier}`;
 

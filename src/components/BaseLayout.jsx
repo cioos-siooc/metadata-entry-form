@@ -112,6 +112,11 @@ const BaseLayout = ({ match }) => {
           },
         },
       },
+      MuiAccordionDetails: {
+        root: {
+          flexDirection: 'column',
+        },
+      },
     },
     palette: {
       primary: {
