@@ -117,6 +117,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
       label: userInfo.userinfo?.email,
       userID,
     }))
+    .filter((x) => x.label)
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (

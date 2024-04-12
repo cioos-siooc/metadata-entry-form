@@ -160,9 +160,10 @@ export const multipleFirebaseToJSObject = (multiple) => {
 
 // fetches a region's users
 export async function loadRegionUsers(region) {
+  const database = getDatabase(firebase);
   try {
-    const regionUsersRef = firebase.database().ref(region).child("users");
-    const regionUsers = (await regionUsersRef.once("value")).val();
+    const regionUsersRef = ref(database, `${region}/users`);
+    const regionUsers = (await get(regionUsersRef, "value")).val();
 
     return regionUsers
     
@@ -183,8 +184,8 @@ export async function loadRegionUsers(region) {
  * @param {boolean} share
  */
 export async function updateSharedRecord(userID, recordID, authorID, region, share) {
-
-  const sharesRef = firebase.database().ref(region).child("shares").child(userID).child(authorID).child(recordID);
+  const database = getDatabase(firebase);
+  const sharesRef = ref(database, `${region}/shares/${userID}/${authorID}/${recordID}`);
 
   if (share) {
     // Share the record with the user by setting it directly under the authorID node

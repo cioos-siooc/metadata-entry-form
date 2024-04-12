@@ -27,7 +27,7 @@ import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteAuthHash } = useContext(UserContext);
+    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix } = useContext(UserContext);
     const { language, region, userID } = useParams();
     const doiIsValid = validateDOI(record.datasetIdentifier)
     const [doiGenerated, setDoiGenerated] = useState(false);
@@ -51,40 +51,40 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
         try {
             const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-            if (dataciteAuthHash) {
 
-                await createDraftDoi({
-                    record: mappedDataCiteObject,
-                    authHash: dataciteAuthHash,
+            await createDraftDoi({
+                record: mappedDataCiteObject,
+                region,
+            })
+                .then((response) => {
+                    return response.data.data.attributes;
                 })
-                    .then((response) => {
-                        return response.data.data.attributes;
-                    })
-                    .then(async (attributes) => {
-                        // Update the record object with datasetIdentifier and doiCreationStatus
-                        handleUpdateDatasetIdentifier({ target: { name, value: `https://doi.org/${attributes.doi}` }});
-                        handleUpdateDoiCreationStatus({ target: { name, value: "draft" }});
+                .then(async (attributes) => {
+                    // Update the record object (local state) with datasetIdentifier and doiCreationStatus
+                    handleUpdateDatasetIdentifier({ target: { value: `https://doi.org/${attributes.doi}` }});
+                    handleUpdateDoiCreationStatus({ target: { value: "draft" }});
 
-                        // Create a new object with updated properties
-                        const updatedRecord = {
-                            ...record,
-                            datasetIdentifier: `https://doi.org/${attributes.doi}`,
-                            doiCreationStatus: "draft",
-                        };
+                    // Save doi values to database now without waiting for the user to press save
+                    // Create a new object with updated properties
+                    const updatedRecord = {
+                        ...record,
+                        datasetIdentifier: `https://doi.org/${attributes.doi}`,
+                        doiCreationStatus: "draft",
+                    };
 
-                        // Save the updated record to the Firebase database
-                        const recordsRef = ref(database, `${region}/users/${userID}/records`);
+                    // Save the updated record to the Firebase database
+                    const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
-                        if (record.recordID) {
-                            await update(child(recordsRef, record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
-                        }
+                    if (record.recordID) {
+                        await update(child(recordsRef, record.recordID), { datasetIdentifier: updatedRecord.datasetIdentifier, doiCreationStatus: updatedRecord.doiCreationStatus });
+                    }
 
-                        setDoiGenerated(true);
-                    })
-                    .finally(() => {
-                        setLoadingDoi(false);
-                    });
-            }
+                    setDoiGenerated(true);
+                })
+                .finally(() => {
+                    setLoadingDoi(false);
+                });
+            
         } catch (err) {
             setDoiErrorFlag(true);
             throw new Error(`Error in handleGenerateDOI: ${err}`);
@@ -93,9 +93,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleUpdateDraftDOI() {
         setLoadingDoiUpdate(true);
-
         try {
-            const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash)
+            const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix)
 
             if (statusCode === 200) {
                 setDoiUpdateFlag(true);
@@ -123,7 +122,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             // Extract DOI from the full URL
             const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
-            deleteDraftDoi({ doi, dataciteAuthHash })
+            deleteDraftDoi({ doi, region })
                 .then((response) => response.data)
                 .then(async (statusCode) => {
                     if (statusCode === 204) {
@@ -166,12 +165,12 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         if (debouncedDoiIdValue === '') {
             handleUpdateDoiCreationStatus({ target: { name, value: "" } });
         }
-        else if (debouncedDoiIdValue && datacitePrefix && doiIsValid && dataciteAuthHash) {
+        else if (debouncedDoiIdValue && datacitePrefix && doiIsValid) {
             let id = debouncedDoiIdValue
             if (debouncedDoiIdValue.includes('doi.org/')) {
                 id = debouncedDoiIdValue.split('doi.org/').pop();
             }
-            getDoiStatus({ doi: id, prefix: datacitePrefix, authHash: dataciteAuthHash })
+            getDoiStatus({ doi: id, region })
                 .then(response => {
                     if (mounted.current)
                         handleUpdateDoiCreationStatus({ target: { name, value: response.data } });
@@ -185,7 +184,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         return () => {
             mounted.current = false;
         };
-    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, datacitePrefix, dataciteAuthHash])
+    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid])
 
 
 

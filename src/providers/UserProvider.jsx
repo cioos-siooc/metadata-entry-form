@@ -42,24 +42,18 @@ class UserProvider extends FormClassTemplate {
           });
         });
 
-        const database = getDatabase(firebase);
+
         // should be replaced with getDatacitePrefix but can't as this function is not async
-        const prefixRef = ref(database, `admin/${region}/dataciteCredentials/prefix`);
-        onValue(prefixRef, (prefix) => {
-          this.setState({
-            datacitePrefix: prefix.val(),
+        const functions = getFunctions();
+        const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
+        getDatacitePrefix(region)
+          .then((prefix) => {
+            this.setState({
+              datacitePrefix: prefix?.data,
+            });
           });
-        });
 
-        // should be replaced with getDataciteAuthHash but can't as this function is not async
-        const authHashRef = ref(database, `admin/${region}/dataciteCredentials/dataciteHash`);
-        onValue(authHashRef, (authHash) => {
-          this.setState({
-            dataciteAuthHash: authHash.val(),
-          });
-        });
-
-
+        const database = getDatabase(firebase);
         update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
         
         const permissionsRef = ref(database, `admin/${region}/permissions`)
@@ -84,18 +78,14 @@ class UserProvider extends FormClassTemplate {
         this.listenerRefs.push(permissionsRef);
 
         // real-time listener for shared records
-        const sharesRef = firebase
-          .database()
-          .ref(region)
-          .child("shares")
-          .child(uid);
+        const sharesRef = ref(database, `${region}/shares/${uid}`);
 
-          sharesRef.on('value', snapshot => {
+        onValue(sharesRef, (snapshot) => {
             const hasSharedRecords = snapshot.exists();
             this.setState({ hasSharedRecords, authIsLoading: false });
           });
 
-          this.listenerRefs.push(sharesRef);
+        this.listenerRefs.push(sharesRef);
 
       } else {
         this.setState({
@@ -120,6 +110,7 @@ class UserProvider extends FormClassTemplate {
     const checkURLActive = httpsCallable(functions, "checkURLActive");
     const recordToDataCite = httpsCallable(functions, "recordToDataCite");
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
+    const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const createDraftDoiPR78 = httpsCallable(functions, "createDraftDoiPR78");
     const updateDraftDoiPR78 = httpsCallable(functions, "updateDraftDoiPR78");
     const deleteDraftDoiPR78 = httpsCallable(functions, "deleteDraftDoiPR78");
@@ -139,6 +130,7 @@ class UserProvider extends FormClassTemplate {
           checkURLActive,
           recordToDataCite,
           getCredentialsStored,
+          getDatacitePrefix,
           createDraftDoiPR78,
           updateDraftDoiPR78,
           deleteDraftDoiPR78,

@@ -20,7 +20,7 @@ import { getDatabase, ref, child, onValue, set } from "firebase/database";
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
-import { getDatacitePrefix, deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
+import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -55,7 +55,7 @@ class Admin extends FormClassTemplate {
   async componentDidMount() {
     const { match } = this.props;
     const { region } = match.params;
-    const { getCredentialsStored } = this.context;
+    const { getCredentialsStored, getDatacitePrefix } = this.context;
     const database = getDatabase(firebase);
 
     this.setState({ loading: true });
