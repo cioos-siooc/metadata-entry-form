@@ -20,6 +20,7 @@ import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 import { getDatabase, ref, child, onValue, set } from "firebase/database";
+import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
 import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
