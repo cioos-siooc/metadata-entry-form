@@ -10,11 +10,15 @@ import {
   Checkbox,
   Paper,
   FormControlLabel,
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@material-ui/core";
 import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import CancelIcon from '@material-ui/icons/Cancel';
+import CancelIcon from "@material-ui/icons/Cancel";
 import { getDatabase, ref, child, onValue, set } from "firebase/database";
 
 import firebase from "../../firebase";
@@ -60,7 +64,7 @@ class Admin extends FormClassTemplate {
 
     this.setState({ loading: true });
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase) , async (user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
         // Reference to the regionAdmin in the database
         const adminRef = ref(database, "admin");
@@ -68,12 +72,16 @@ class Admin extends FormClassTemplate {
         const permissionsRef = child(regionAdminRef, "permissions");
 
         const projects = await getRegionProjects(region);
-        const datacitePrefix = await getDatacitePrefix(region).then((response) => {
-          return response.data;
-        });
-        const credentialsStored = await getCredentialsStored(region).then((response) => {
-          return response.data;
-        });
+        const datacitePrefix = await getDatacitePrefix(region).then(
+          (response) => {
+            return response.data;
+          }
+        );
+        const credentialsStored = await getCredentialsStored(region).then(
+          (response) => {
+            return response.data;
+          }
+        );
 
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
@@ -131,7 +139,7 @@ class Admin extends FormClassTemplate {
 
   handleDisableDoiCreation = async () => {
     const { region } = this.props.match.params;
-  
+
     try {
       await deleteAllDataciteCredentials(region);
       this.setState({
@@ -151,22 +159,33 @@ class Admin extends FormClassTemplate {
     const { match } = this.props;
     const { region } = match.params;
 
+    const { reviewers, admins, projects } = this.state;
+    const database = getDatabase(firebase);
+
+    if (auth.currentUser) {
+      const regionAdminRef = ref(database, `admin/${region}`);
+      const permissionsRef = child(regionAdminRef, "permissions");
+      const projectsRef = child(regionAdminRef, "projects");
+
+      set(child(permissionsRef, "admins"), cleanArr(admins).join());
+
+      set(projectsRef, cleanArr(projects));
+      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
+    }
+  }
+
+  saveDoiCredentials() {
+    const { match } = this.props;
+    const { region } = match.params;
+
     const {
-      reviewers,
-      admins,
-      projects,
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
       isDoiCreationEnabled,
     } = this.state;
-    const database = getDatabase(firebase);
 
-    // Check if DOI creation is enabled but credentials are not stored
-    if (isDoiCreationEnabled && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
-      this.setState({ showCredentialsMissingDialog: true });
-      return; 
-    }
+    const database = getDatabase(firebase);
 
     const bufferObj = Buffer.from(
       `${dataciteAccountId}:${datacitePass}`,
@@ -174,16 +193,19 @@ class Admin extends FormClassTemplate {
     );
     const base64String = bufferObj.toString("base64");
 
+    // Check if DOI creation is enabled but credentials are not stored
+    if (
+      isDoiCreationEnabled &&
+      (!datacitePrefix || !dataciteAccountId || !datacitePass)
+    ) {
+      this.setState({ showCredentialsMissingDialog: true });
+      return;
+    }
+
     if (auth.currentUser) {
       const regionAdminRef = ref(database, `admin/${region}`);
-      const permissionsRef = child(regionAdminRef, "permissions");
-      const projectsRef = child(regionAdminRef, "projects");
       const dataciteRef = child(regionAdminRef, "dataciteCredentials");
 
-      set(child(permissionsRef,"admins"), cleanArr(admins).join());
-
-      set(projectsRef, cleanArr(projects));
-      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
       set(child(dataciteRef, "prefix"), datacitePrefix);
       set(child(dataciteRef, "dataciteHash"), base64String);
 
@@ -202,17 +224,27 @@ class Admin extends FormClassTemplate {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Delete Datacite Credentials?</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          Delete Datacite Credentials?
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Disabling DOI creation will delete the stored credentials. Are you sure you want to proceed?
+            Disabling DOI creation will delete the stored credentials. Are you
+            sure you want to proceed?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => this.setState({ showDeletionDialog: false })} color="primary">
+          <Button
+            onClick={() => this.setState({ showDeletionDialog: false })}
+            color="primary"
+          >
             Cancel
           </Button>
-          <Button onClick={() => this.handleDisableDoiCreation()} color="primary" autoFocus>
+          <Button
+            onClick={() => this.handleDisableDoiCreation()}
+            color="primary"
+            autoFocus
+          >
             Delete Credentials
           </Button>
         </DialogActions>
@@ -228,14 +260,22 @@ class Admin extends FormClassTemplate {
         aria-labelledby="credentials-missing-dialog-title"
         aria-describedby="credentials-=missing-dialog-description"
       >
-        <DialogTitle id="credentials-missing-dialog-title">Missing DataCite Credentials</DialogTitle>
+        <DialogTitle id="credentials-missing-dialog-title">
+          Missing DataCite Credentials
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="credentials-missing-dialog-description">
             Please add DataCite credentials before saving.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => this.setState({ showCredentialsMissingDialog: false })} color="primary" autoFocus>
+          <Button
+            onClick={() =>
+              this.setState({ showCredentialsMissingDialog: false })
+            }
+            color="primary"
+            autoFocus
+          >
             OK
           </Button>
         </DialogActions>
@@ -253,9 +293,9 @@ class Admin extends FormClassTemplate {
   };
 
   validateDatacitePrefix = (prefix) => {
-  const isValid = /^10\.\d+/.test(prefix);
-  this.setState({ datacitePrefixValid: isValid });
-};
+    const isValid = /^10\.\d+/.test(prefix);
+    this.setState({ datacitePrefixValid: isValid });
+  };
 
   render() {
     const {
@@ -295,67 +335,67 @@ class Admin extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-          <Paper style={paperClass}>
-            <Grid item xs>
-              <Typography>
-                <I18n>
-                  <En>Projects</En>
-                  <Fr>Projets</Fr>
-                </I18n>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <TextField
-                multiline
-                fullWidth
-                value={projects.join("\n")}
-                onChange={(e) =>
-                  this.setState({ projects: e.target.value.split("\n") })
-                }
-              />
-            </Grid>
+            <Paper style={paperClass}>
+              <Grid item xs>
+                <Typography>
+                  <I18n>
+                    <En>Projects</En>
+                    <Fr>Projets</Fr>
+                  </I18n>
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <TextField
+                  multiline
+                  fullWidth
+                  value={projects.join("\n")}
+                  onChange={(e) =>
+                    this.setState({ projects: e.target.value.split("\n") })
+                  }
+                />
+              </Grid>
             </Paper>
             <Paper style={paperClass}>
-            <Grid item xs>
-              <Typography>
-                <I18n>
-                  <En>Admins</En>
-                  <Fr>Administrateurs</Fr>
-                </I18n>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <TextField
-                multiline
-                fullWidth
-                value={admins.join("\n")}
-                onChange={(e) =>
-                  this.setState({ admins: e.target.value.split("\n") })
-                }
-              />
-            </Grid>
+              <Grid item xs>
+                <Typography>
+                  <I18n>
+                    <En>Admins</En>
+                    <Fr>Administrateurs</Fr>
+                  </I18n>
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <TextField
+                  multiline
+                  fullWidth
+                  value={admins.join("\n")}
+                  onChange={(e) =>
+                    this.setState({ admins: e.target.value.split("\n") })
+                  }
+                />
+              </Grid>
             </Paper>
             <Paper style={paperClass}>
-            <Grid item xs>
-              <Typography>
-                <I18n>
-                  <En>Reviewers</En>
-                  <Fr>Réviseurs</Fr>
-                </I18n>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <TextField
-                multiline
-                fullWidth
-                value={reviewers.join("\n")}
-                onChange={(e) =>
-                  this.setState({
-                    reviewers: e.target.value.split("\n"),
-                  })
-                }
-              />
-            </Grid>
+              <Grid item xs>
+                <Typography>
+                  <I18n>
+                    <En>Reviewers</En>
+                    <Fr>Réviseurs</Fr>
+                  </I18n>
+                </Typography>
+              </Grid>
+              <Grid item xs>
+                <TextField
+                  multiline
+                  fullWidth
+                  value={reviewers.join("\n")}
+                  onChange={(e) =>
+                    this.setState({
+                      reviewers: e.target.value.split("\n"),
+                    })
+                  }
+                />
+              </Grid>
             </Paper>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
@@ -394,7 +434,13 @@ class Admin extends FormClassTemplate {
                     <Grid item container spacing={2} alignItems="center">
                       <Grid item>
                         <Typography variant="body1">
-                        <CheckCircleIcon style={{ color: 'green', marginRight: 4, fontSize: '1.4rem' }} />
+                          <CheckCircleIcon
+                            style={{
+                              color: "green",
+                              marginRight: 4,
+                              fontSize: "1.4rem",
+                            }}
+                          />
                           <I18n>
                             <En>Credentials Stored</En>
                             <Fr>Identifiants Enregistrés</Fr>
@@ -407,7 +453,13 @@ class Admin extends FormClassTemplate {
                     <Grid item container spacing={2} alignItems="center">
                       <Grid item>
                         <Typography variant="body1">
-                        <CancelIcon style={{ color: 'red', marginRight: 4, fontSize: '1.4rem' }} />
+                          <CancelIcon
+                            style={{
+                              color: "red",
+                              marginRight: 4,
+                              fontSize: "1.4rem",
+                            }}
+                          />
                           <I18n>
                             <En>Please Add DataCite Credentials</En>
                             <Fr>Identifiants Enregistrés</Fr>
@@ -433,7 +485,10 @@ class Admin extends FormClassTemplate {
                         onChange={this.handleChange}
                         fullWidth
                         error={!this.state.datacitePrefixValid}
-                        helperText={!this.state.datacitePrefixValid && "Prefix must start with '10.' followed by numbers."}
+                        helperText={
+                          !this.state.datacitePrefixValid &&
+                          "Prefix must start with '10.' followed by numbers."
+                        }
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -482,6 +537,20 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   </>
                 )}
+                {this.state.isDoiCreationEnabled && (
+                  <Button
+                    startIcon={<Save />}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.saveDoiCredentials()}
+                    style={{ margin: 10 }}
+                  >
+                    <I18n>
+                      <En>Save DOI Settings</En>
+                      <Fr>Enregistrer les paramètres DOI</Fr>
+                    </I18n>
+                  </Button>
+                )}
               </Grid>
             </Paper>
             <Grid item xs>
@@ -499,7 +568,7 @@ class Admin extends FormClassTemplate {
             </Grid>
           </>
         )}
-        {this.renderDeletionDialog()} 
+        {this.renderDeletionDialog()}
         {this.renderCredentialsMissingDialog()}
       </Grid>
     );
