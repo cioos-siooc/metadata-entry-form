@@ -68,8 +68,12 @@ class Admin extends FormClassTemplate {
         const permissionsRef = child(regionAdminRef, "permissions");
 
         const projects = await getRegionProjects(region);
-        const datacitePrefix = await getDatacitePrefix(region);
-        const credentialsStored = await getCredentialsStored(region);
+        const datacitePrefix = await getDatacitePrefix(region).then((response) => {
+          return response.data;
+        });
+        const credentialsStored = await getCredentialsStored(region).then((response) => {
+          return response.data;
+        });
 
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
