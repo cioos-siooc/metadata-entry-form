@@ -60,9 +60,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   useEffect(() => {
     const sharedWithDetails = {};
     Object.keys(record.sharedWith || {}).forEach((userID) => {
-      const email = users[userID]?.userinfo?.email;
-      if (email) {
-        sharedWithDetails[userID] = { email };
+      const name = users[userID]?.userinfo?.displayName;
+      if (name) {
+        sharedWithDetails[userID] = { name };
       }
     });
 
@@ -112,7 +112,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
   const shareWithOptions = Object.entries(users)
     .map(([userID, userInfo]) => ({
-      label: userInfo.userinfo?.email,
+      label: userInfo.userinfo?.displayName,
       userID,
     }))
     .filter((x) => x.label)
@@ -213,7 +213,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                     ([userID, userDetails], index) => (
                       <ListItem key={index}>
                         <ListItemText
-                          primary={<Typography>{userDetails.email}</Typography>}
+                          primary={<Typography>{userDetails.name}</Typography>}
                         />
                         <ListItemSecondaryAction>
                           <IconButton
