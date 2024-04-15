@@ -398,6 +398,20 @@ class Admin extends FormClassTemplate {
                 />
               </Grid>
             </Paper>
+            <Grid item xs>
+              <Button
+                startIcon={<Save />}
+                variant="contained"
+                color="primary"
+                style={{ margin: 10 }}
+                onClick={() => this.save()}
+              >
+                <I18n>
+                  <En>Save Admin Settings</En>
+                  <Fr>Enregistrer</Fr>
+                </I18n>
+              </Button>
+            </Grid>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -554,19 +568,6 @@ class Admin extends FormClassTemplate {
                 )}
               </Grid>
             </Paper>
-            <Grid item xs>
-              <Button
-                startIcon={<Save />}
-                variant="contained"
-                color="secondary"
-                onClick={() => this.save()}
-              >
-                <I18n>
-                  <En>Save</En>
-                  <Fr>Enregistrer</Fr>
-                </I18n>
-              </Button>
-            </Grid>
           </>
         )}
         {this.renderDeletionDialog()}
