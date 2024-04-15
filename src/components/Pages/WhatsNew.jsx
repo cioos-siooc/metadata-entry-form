@@ -1,19 +1,22 @@
 import React, {useState} from "react";
 import {Typography} from "@material-ui/core";
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
 import {En, Fr, I18n} from "../I18n";
 
-const releaseNotes = require("../../releaseNotes/2024-04-01.md");
-
+const releaseNotesEn = require("../../releaseNotes/notes_en.md");
+const releaseNotesFr = require("../../releaseNotes/notes_fr.md");
 
 const WhatsNew = () => {
-    const [markdownContent, setMarkdownContent] = useState("")
+  const { language } = useParams();
+  const [markdownContent, setMarkdownContent] = useState("")
 
     React.useEffect(() => {
-        fetch(releaseNotes)
-            .then(response => response.text())
-            .then(data => setMarkdownContent(data));
-    }, []);
+      const releaseNotes = ((language === 'en') ? releaseNotesEn : releaseNotesFr)     
+      fetch(releaseNotes)
+          .then(response => response.text())
+          .then(data => setMarkdownContent(data));
+    }, [language]);
 
     return (
     <div>

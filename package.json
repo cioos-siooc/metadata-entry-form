@@ -44,6 +44,7 @@
     "react-helmet": "^6.1.0",
     "react-leaflet": "^2.7.0",
     "react-leaflet-draw": "0.19.0",
+    "react-markdown": "^7.1.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.1",
     "react-smooth-dnd": "^0.11.1",
@@ -57,9 +58,7 @@
     "util": "^0.12.5",
     "uuid": "^8.3.0",
     "validator": "^13.6.0",
-    "xml-escape": "^1.1.0",
-    "react-markdown": "^7.1.2"
-
+    "xml-escape": "^1.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
