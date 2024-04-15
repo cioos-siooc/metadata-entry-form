@@ -108,7 +108,6 @@ class UserProvider extends FormClassTemplate {
     const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
     const getDoiStatus = httpsCallable(functions, "getDoiStatus");
     const checkURLActive = httpsCallable(functions, "checkURLActive");
-    const recordToDataCite = httpsCallable(functions, "recordToDataCite");
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
 
@@ -124,7 +123,6 @@ class UserProvider extends FormClassTemplate {
           deleteDraftDoi,
           getDoiStatus,
           checkURLActive,
-          recordToDataCite,
           getCredentialsStored,
           getDatacitePrefix,
         }}

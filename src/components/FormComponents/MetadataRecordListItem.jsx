@@ -29,6 +29,7 @@ import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import recordToERDDAP from "../../utils/recordToERDDAP";
 import { recordIsValid, percentValid } from "../../utils/validate";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
@@ -60,7 +61,7 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { downloadRecord, recordToDataCite } = useContext(UserContext);
+  const { downloadRecord } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
