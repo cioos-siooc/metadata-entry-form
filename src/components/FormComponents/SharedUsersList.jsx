@@ -126,11 +126,11 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
             <I18n>
               <En>
                 To share editing access with another user, start typing their
-                email address and select from the suggestions.
+                name and select from the suggestions.
               </En>
               <Fr>
                 Pour partager l'accès en modification avec un autre utilisateur,
-                commencez à saisir son adresse e-mail et sélectionnez parmi les
+                commencez à saisir son nom et sélectionnez parmi les
                 suggestions.
               </Fr>
             </I18n>
