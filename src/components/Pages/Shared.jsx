@@ -1,16 +1,16 @@
 import React from "react";
 
 import { Typography, CircularProgress, List } from "@material-ui/core";
+import { getDatabase, ref, onValue, get, off } from "firebase/database";
 import { I18n, En, Fr } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
-
+import firebase from "../../firebase";
 import {
   multipleFirebaseToJSObject,
 
 } from "../../utils/firebaseRecordFunctions";
 
-import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { getAuth, onAuthStateChanged } from "../../auth";
 
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
@@ -21,25 +21,25 @@ class Shared extends FormClassTemplate {
       sharedRecords: {},
       loading: false,
     };
+    this.unsubscribe = null;
+    this.listenerRefs = [];
   }
 
   async loadSharedRecords() {
     this.setState({ loading: true });
     const { match } = this.props;
     const { region } = match.params;
+    const database = getDatabase();
 
     // Set up a listener for changes in authentication state
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
+    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
         // Reference to the 'shares' node for the current user in the specified region
-        const sharesRef = firebase
-          .database()
-          .ref(region)
-          .child("shares")
-          .child(user.uid);
+        const sharesRef = ref(database, `${region}/shares/${user.uid}`);
+        this.listenerRefs.push(sharesRef);
 
         // Listen for changes in the shares data
-        sharesRef.on("value", async (snapshot) => {
+        onValue(sharesRef, async (snapshot) => {
           // Snapshot of the user's shares
           const sharesSnapshot = snapshot.val();
 
@@ -47,32 +47,27 @@ class Shared extends FormClassTemplate {
           const recordsPromises = [];
 
           // Iterate over each shared record, organized by authorID under the user's ID
-          Object.entries(sharesSnapshot || {}).forEach(
-            ([authorID, recordsByAuthor]) => {
-              // Iterate over each recordID shared by this author
-              Object.keys(recordsByAuthor || {}).forEach((recordID) => {
-                // Construct the path to the actual record data based on its authorID and recordID
-                const recordPath = `${region}/users/${authorID}/records/${recordID}`;
-                // Fetch the record's details and store the promise in the array
-                const recordPromise = firebase
-                  .database()
-                  .ref(recordPath)
-                  .once("value")
-                  .then((recordSnapshot) => {
-                    const recordDetails = recordSnapshot.val();
-                    if (recordDetails) {
-                      // Return the complete record details, ensuring all data fields are included
-                      return {
-                        ...recordDetails, // Include all fields of the record
-                      };
-                    }
-                    // Log and return null if no details are found - this replaces the else block
-                    throw new Error(`No details found for record ${recordID} by author ${authorID}`);
-                  });
-                recordsPromises.push(recordPromise); // Collect the promise
+          Object.entries(sharesSnapshot || {}).forEach(([authorID, recordsByAuthor]) => {
+            // Iterate over each recordID shared by this author
+            Object.keys(recordsByAuthor || {}).forEach((recordID) => {
+              // Construct the path to the actual record data based on its authorID and recordID
+              const recordPath = `${region}/users/${authorID}/records/${recordID}`;
+              const recordRef = ref(database, recordPath);
+              // Fetch the record's details and store the promise in the array
+              const recordPromise = get(recordRef).then((recordSnapshot) => {
+                const recordDetails = recordSnapshot.val();
+                if (recordDetails) {
+                  // Return the complete record details, ensuring all data fields are included
+                  return {
+                    ...recordDetails, 
+                    recordID,
+                  };
+                }
+                throw new Error(`No details found for record ${recordID} by author ${authorID}`);
               });
-            }
-          );
+              recordsPromises.push(recordPromise); // Collect the promise
+            });
+          });
 
           // Await the resolution of all record detail promises
           const records = await Promise.all(recordsPromises);
@@ -103,7 +98,7 @@ class Shared extends FormClassTemplate {
   unsubscribeAndCloseListeners() {
     if (this.unsubscribe) this.unsubscribe();
     if (this.listenerRefs.length) {
-      this.listenerRefs.forEach((ref) => ref.off());
+      this.listenerRefs.forEach((refListener) => off(refListener));
     }
   }
 
