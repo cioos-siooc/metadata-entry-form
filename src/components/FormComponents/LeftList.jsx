@@ -41,7 +41,7 @@ const LeftList = ({
         setItems(items)
     }
 
-    function onDrop({ removedIndex: dragStartIndex, addedIndex: dragEndIndex }) {
+    const onDrop = ({ removedIndex: dragStartIndex, addedIndex: dragEndIndex }) => {
         if (dragStartIndex === activeItem) {
             setActiveItem(dragEndIndex);
         } else if (dragEndIndex <= activeItem && dragStartIndex > activeItem){
@@ -76,7 +76,7 @@ const LeftList = ({
 
    const savedUserItemList = Object.values(savedUserItems || {});
 
-   function handleAddFromSavedUserItem(e) {
+   const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
     const { role, ...contact } = savedUserItemList[index];
 
