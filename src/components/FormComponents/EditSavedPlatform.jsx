@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
+import {child, getDatabase, onValue, ref, update} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -24,12 +25,8 @@ class EditPlatform extends FormClassTemplate {
 
     const { region } = match.params;
 
-    this.platformsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("platforms");
+    const database = getDatabase(firebase)
+    this.platformsRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
   }
 
   async componentDidMount() {
@@ -39,8 +36,8 @@ class EditPlatform extends FormClassTemplate {
 
     if (auth.currentUser && platformID) {
       this.setState({ platformID });
-      const platformRef = this.platformsRef.child(platformID);
-      platformRef.on("value", (platform) => this.setState(platform.toJSON()));
+      const platformRef = child(this.platformsRef, (platformID));
+      onValue(platformRef, (platform) => this.setState(platform.toJSON()));
       this.listenerRefs.push(platformRef);
     }
   }
@@ -69,7 +66,7 @@ class EditPlatform extends FormClassTemplate {
     const { region, language, platformID } = match.params;
 
     // update
-    if (platformID) this.platformsRef.child(platformID).update(this.state);
+    if (platformID) update(child(this.platformsRef, platformID), this.state);
     // create
     else this.platformsRef.push(this.state);
 

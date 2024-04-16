@@ -173,9 +173,9 @@ class MetadataForm extends FormClassTemplate {
         this.listenerRefs.push(editorContactsRef);
 
         // get instruments
-        const editorInstrumentsRef = editorDataRef.child("instruments");
+        const editorInstrumentsRef = child(editorDataRef, "instruments");
 
-        editorInstrumentsRef.on("value", (instrumentsFB) => {
+        onValue(editorInstrumentsRef, (instrumentsFB) => {
           const userInstruments = instrumentsFB.toJSON();
           Object.entries(userInstruments || {}).forEach(([k, v]) => {
             // eslint-disable-next-line no-param-reassign
@@ -186,9 +186,9 @@ class MetadataForm extends FormClassTemplate {
         this.listenerRefs.push(editorInstrumentsRef);
 
         // get platforms
-        const editorPlatformsRef = editorDataRef.child("platforms");
+        const editorPlatformsRef = child(editorDataRef, "platforms");
 
-        editorPlatformsRef.on("value", (platformsFB) => {
+        onValue(editorPlatformsRef, (platformsFB) => {
           const userPlatforms = platformsFB.toJSON();
           Object.entries(userPlatforms || {}).forEach(([k, v]) => {
             // eslint-disable-next-line no-param-reassign
@@ -274,7 +274,7 @@ class MetadataForm extends FormClassTemplate {
     }
     // new contact
 
-    return push(contactsRef, contact).getKey();
+    return (push(contactsRef, contact)).key;
   }
 
   async handleUpdateDraftDOI() {
@@ -307,23 +307,19 @@ class MetadataForm extends FormClassTemplate {
 
     const { region } = match.params;
 
-    const instrumentsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("instruments");
+      const database = getDatabase(firebase);
+    const instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`);
 
     // existing instrument
     if (id) {
-      instrumentsRef.child(id).update(instrument);
+      update(child(instrumentsRef, id), instrument);
       return id;
     }
     // new instrument
     // eslint-disable-next-line no-debugger
     debugger
 
-    return instrumentsRef.push(instrument).getKey();
+    return push(instrumentsRef, instrument).key;
   }
 
   handleSaveUpdatePlatform(platform) {
@@ -332,21 +328,17 @@ class MetadataForm extends FormClassTemplate {
 
     const { region } = match.params;
 
-    const platformRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("platforms");
+    const database = getDatabase(firebase)
+    const platformRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
 
     // existing instrument
     if (id) {
-      platformRef.child(id).update(platform);
+      update(child(platformRef, id), platform);
       return id;
     }
     // new instrument
 
-    return platformRef.push(platform).getKey();
+    return push(platformRef, platform).key;
   }
 
   async handleSubmitRecord() {
@@ -354,7 +346,7 @@ class MetadataForm extends FormClassTemplate {
     const { region, userID } = match.params;
     const isNewRecord = match.url.endsWith("new");
     const { record } = this.state;
-    
+
     // Bit of logic here to decide if this is a user submitting their own form
     // or a reviewer submitting it
     const loggedInUserID = auth.currentUser.uid;
@@ -551,7 +543,7 @@ class MetadataForm extends FormClassTemplate {
                 classes={{ root: classes.tabRoot }}
                 label={tabs.taxa[language]}
                 value="taxa"
-              /> 
+              />
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}

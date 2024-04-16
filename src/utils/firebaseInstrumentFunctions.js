@@ -1,37 +1,23 @@
+import {child, get, getDatabase, push, ref, remove} from "firebase/database";
 import firebase from "../firebase";
 
 export async function cloneInstrument(region, userID, instrumentID) {
-  const instrumentsRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("instruments");
 
-  const instrument = (await instrumentsRef.child(instrumentID).once("value")).val();
-
-  instrumentsRef.push(instrument);
+  const database = getDatabase(firebase)
+  const instrumentsRef = ref(database, `${region}/users/${userID}/instruments/`)
+  const instrument = (await get(child(instrumentsRef, instrumentID), "value")).val();
+  if (instrument.id) instrument.id += " (Copy)";
+  push(instrumentsRef, instrument);
 }
 
 export function deleteInstrument(region, userID, instrumentID) {
-  return firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("instruments")
-    .child(instrumentID)
-    .remove();
+  const database = getDatabase(firebase)
+
+  return remove(ref(database, `${region}/users/${userID}/instruments/${instrumentID}`));
 }
 
 export async function newInstrument(region, userID) {
-  const newNode = await firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("instruments")
-    .push({});
-
+  const database = getDatabase(firebase);
+  const newNode = await push(ref(database, `${region}/users/${userID}/instruments/`), {});
   return newNode.key;
 }

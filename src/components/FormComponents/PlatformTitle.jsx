@@ -7,7 +7,6 @@ import { I18n } from "../I18n";
 // creates text from an platform in the form
 // <platformName> - <platformType>
 function getPlatformTitleFromNames(platform) {
-    console.log('platform: ', platform);
     const { id, type } = platform;
     const titleParts = [type, id];
 
@@ -19,7 +18,6 @@ function getPlatformTitleFromNames(platform) {
 }
 
 function PlatformTitle( platform ) {
-    console.log('platform: ', platform);
     return (
         getPlatformTitleFromNames(platform) ||
         (<I18n en="New platform" fr="Nouvel platform" />)

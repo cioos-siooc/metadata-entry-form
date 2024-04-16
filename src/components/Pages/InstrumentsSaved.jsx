@@ -20,6 +20,7 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@material-ui/icons";
+import {getDatabase, onValue, ref} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import {
@@ -51,13 +52,9 @@ class Instruments extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        const instrumentsRef = firebase
-          .database()
-          .ref(region)
-          .child("users")
-          .child(user.uid)
-          .child("instruments");
-        instrumentsRef.on("value", (records) =>
+        const database = getDatabase(firebase)
+        const instrumentsRef = ref(database, `${region}/users/${user.uid}/instruments`)
+        onValue(instrumentsRef, (records) =>
           this.setState({ instruments: records.toJSON(), loading: false })
         );
         this.listenerRefs.push(instrumentsRef);
@@ -179,7 +176,7 @@ class Instruments extends FormClassTemplate {
                         </ListItemAvatar>
 
                         <ListItemText
-                          primary={InstrumentTitle(val)}
+                          primary={InstrumentTitle({instrument:val})}
                         />
                         <ListItemSecondaryAction>
                           <Tooltip title={<I18n en="Edit" fr="Éditer" />}>

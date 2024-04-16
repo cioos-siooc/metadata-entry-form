@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
 import { Save } from "@material-ui/icons";
+import {child, getDatabase, onValue, ref, update} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -25,12 +26,8 @@ class EditInstrument extends FormClassTemplate {
 
     const { region } = match.params;
 
-    this.instrumentsRef = firebase
-      .database()
-      .ref(region)
-      .child("users")
-      .child(auth.currentUser.uid)
-      .child("instruments");
+    const database = getDatabase(firebase)
+    this.instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`)
   }
 
   async componentDidMount() {
@@ -40,8 +37,8 @@ class EditInstrument extends FormClassTemplate {
 
     if (auth.currentUser && instrumentID) {
       this.setState({ instrumentID });
-      const instrumentRef = this.instrumentsRef.child(instrumentID);
-      instrumentRef.on("value", (instrument) => this.setState(instrument.toJSON()));
+      const instrumentRef = child(this.instrumentsRef, instrumentID);
+      onValue(instrumentRef, (instrument) => this.setState(instrument.toJSON()));
       this.listenerRefs.push(instrumentRef);
     }
   }
@@ -70,7 +67,7 @@ class EditInstrument extends FormClassTemplate {
     const { region, language, instrumentID } = match.params;
 
     // update
-    if (instrumentID) this.instrumentsRef.child(instrumentID).update(this.state);
+    if (instrumentID) update(child(this.instrumentsRef, instrumentID), this.state);
     // create
     else this.instrumentsRef.push(this.state);
 

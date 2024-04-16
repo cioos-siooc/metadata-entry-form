@@ -70,7 +70,7 @@ const Instruments = ({
               addSavedItemLabel={<I18n><En>ADD SAVED INSTRUMENT</En><Fr>Ajouter un instrument enregistré</Fr></I18n>}
               addNewItemText={<I18n><En>ADD NEW INSTRUMENT</En><Fr>Ajouter un instrument</Fr></I18n>}
               getBlankItem={getBlankInstrument}
-              itemTitle={(instrumentItem) => InstrumentTitle({instrumentItem})}
+              itemTitle={(instrumentItem) => InstrumentTitle({instrument:instrumentItem})}
               />
 
     </Grid>

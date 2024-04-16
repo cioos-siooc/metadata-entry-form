@@ -1,37 +1,23 @@
+import {child, get, getDatabase, push, ref, remove} from "firebase/database";
 import firebase from "../firebase";
 
 export async function clonePlatform(region, userID, platformID) {
-  const platformsRef = firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("platforms");
+  const database = getDatabase(firebase)
+  const platformsRef = ref(database, `${region}/users/${userID}/platforms/`);
+  const platform = (await get(child(platformsRef, platformID), "value")).val();
 
-  const platform = (await platformsRef.child(platformID).once("value")).val();
+  if (platform.id) platform.id += " (Copy)";
 
-  platformsRef.push(platform);
+  push(platformsRef, platform);
 }
 
 export function deletePlatform(region, userID, platformID) {
-  return firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("platforms")
-    .child(platformID)
-    .remove();
+  const database = getDatabase(firebase)
+  return remove(ref(database, `${region}/users/${userID}/platforms/${platformID}`));
 }
 
 export async function newPlatform(region, userID) {
-  const newNode = await firebase
-    .database()
-    .ref(region)
-    .child("users")
-    .child(userID)
-    .child("platforms")
-    .push({});
-
+  const database = getDatabase(firebase)
+  const newNode = push(ref(database, `${region}/users/${userID}/platforms/`), {});
   return newNode.key;
 }
