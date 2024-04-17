@@ -270,28 +270,28 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
     // link lineage source, processing step documents, and additional documentation to this record
     // via relatedIdentifiers datacite field
     if (metadata.history) {
-        mappedDataCiteObject.data.attributes.relatedIdentifiers =
-            [...mappedDataCiteObject.data.attributes.relatedIdentifiers,
-            ...metadata.history.flatMap(({ source, processingStep, additionalDocumentation }) => (
-                [...source.map(({ authority, code }) => (
-                    {
-                        relatedIdentifier: code,
-                        relatedIdentifierType: authority,
-                        relationType: 'isDerivedFrom',
-                    })),
-                ...processingStep.map(({ authority, code }) => (
-                    {
-                        relatedIdentifier: code,
-                        relatedIdentifierType: authority,
-                        relationType: 'IsDocumentedBy',
-                    })),
-                ...additionalDocumentation.map(({ authority, code }) => (
-                    {
-                        relatedIdentifier: code,
-                        relatedIdentifierType: authority,
-                        relationType: 'IsDocumentedBy',
-                    }))]
-            ))]
+      mappedDataCiteObject.data.attributes.relatedIdentifiers = 
+        [ ...mappedDataCiteObject.data.attributes.relatedIdentifiers, 
+          ...metadata.history.flatMap( ({ source, processingStep, additionalDocumentation }) => (
+            [ ...(source?.map( ({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'isDerivedFrom',
+                })) || []),
+              ...(processingStep?.map(({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'IsDocumentedBy',
+                })) || []),
+              ...(additionalDocumentation?.map(({authority, code}) => (
+                {
+                  relatedIdentifier: code,
+                  relatedIdentifierType: authority,
+                  relationType: 'IsDocumentedBy',
+                })) || []) ]
+          ))]
     }
     // filter out any entries that do not have code and authority set
     // this can happen if only the description is populated for a processing step, for example

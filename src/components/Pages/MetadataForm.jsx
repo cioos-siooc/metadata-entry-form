@@ -249,7 +249,7 @@ class MetadataForm extends FormClassTemplate {
     }
     // new contact
 
-    return push(contactsRef, contact).getKey();
+    return (push(contactsRef, contact)).key;
   }
 
   async handleUpdateDraftDOI() {
