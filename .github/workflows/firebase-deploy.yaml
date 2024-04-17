@@ -34,7 +34,7 @@ jobs:
         working-directory: firebase-functions/functions
 
       - name: Set Firebase Project
-        run: firebase use default  # Use the alias for your project
+        run: firebase use default
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       - name: Deploy to Firebase
