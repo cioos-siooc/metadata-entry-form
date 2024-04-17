@@ -167,7 +167,7 @@ const Instruments = ({
                               label={platformLabel}
                               name="platform"
                               value={instrument.platform}
-                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform.platform} />))}
+                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform} />))}
                               options={platformList.map((platform) => platform.id)}
                               onChange={updateInstrumentField("platform")}
                               fullWidth

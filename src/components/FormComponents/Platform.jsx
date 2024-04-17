@@ -58,7 +58,7 @@ const Platform = ({
                   saveItem={saveUpdatePlatform}
                   getBlankItem={getBlankPlatform}
                   addSavedItemLabel={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATEFORME" />}
-                  itemTitle={PlatformTitle}
+                  itemTitle={(platformItem) => PlatformTitle({"platform":platformItem})}
                   />
 
         </Grid>

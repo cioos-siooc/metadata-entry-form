@@ -17,7 +17,8 @@ function getPlatformTitleFromNames(platform) {
         .join(" - ");
 }
 
-function PlatformTitle( platform ) {
+function PlatformTitle({platform} ) {
+    console.log('platform: ', platform);
     return (
         getPlatformTitleFromNames(platform) ||
         (<I18n en="New platform" fr="Nouvel platform" />)
