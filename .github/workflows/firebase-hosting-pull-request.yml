@@ -26,7 +26,7 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CIOOS_METADATA_FORM }}'
           expires: 30d
           entryPoint: '.'
-          projectId: cioos-metadata-form
+          projectId: cioos-metadata-form-dev
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
