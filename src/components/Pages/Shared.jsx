@@ -175,7 +175,7 @@ class Shared extends FormClassTemplate {
                         key={key}
                         record={record}
                         showCloneAction
-                        onCloneClick={() => this.handleCloneRecord(key, record.userinfo.userID)}
+                        onCloneClick={() => this.handleCloneRecord(key, record.userID)}
                         showEditAction
                         showPercentComplete
                         onViewEditClick={() => this.editRecord(key, record.userID)}
