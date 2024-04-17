@@ -18,13 +18,19 @@ const config = {
   // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we 
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
-  apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY,
-  authDomain: "cioos-metadata-form.firebaseapp.com",
+  apiKey: process.env.NODE_ENV === "production" && !deployedOnTestServer 
+      ? process.env.REACT_APP_GOOGLE_CLOUD_API_KEY
+      : process.env.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV,
+  authDomain: process.env.NODE_ENV === "production" && !deployedOnTestServer
+      ? "cioos-metadata-form.firebaseapp.com"
+      : "cioos-metadata-form-dev.firebaseapp.com",
   databaseURL:
     process.env.NODE_ENV === "production" && !deployedOnTestServer
       ? productionDB
       : devDB,
-  projectId: "cioos-metadata-form",
+  projectId: process.env.NODE_ENV === "production" && !deployedOnTestServer
+      ? "cioos-metadata-form"
+      : "cioos-metadata-form-dev",
   storageBucket: "cioos-metadata-form.appspot.com",
   messagingSenderId: "646114203434",
   appId: "1:646114203434:web:bccceadc5144270f98f053",
