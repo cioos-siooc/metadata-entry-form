@@ -17,6 +17,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions/functions
