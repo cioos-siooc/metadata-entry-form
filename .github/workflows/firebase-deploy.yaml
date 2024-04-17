@@ -35,6 +35,7 @@ jobs:
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.2.1
         with:
+          projectId: cioos-metadata-form
           args: deploy --only functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
