@@ -273,19 +273,19 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
       mappedDataCiteObject.data.attributes.relatedIdentifiers = 
         [ ...mappedDataCiteObject.data.attributes.relatedIdentifiers, 
           ...metadata.history.flatMap( ({ source, processingStep, additionalDocumentation }) => (
-            [ ...source.map( ({authority, code}) => (
+            [ ...source?.map( ({authority, code}) => (
                 {
                   relatedIdentifier: code,
                   relatedIdentifierType: authority,
                   relationType: 'isDerivedFrom',
                 })),
-              ...processingStep.map(({authority, code}) => (
+              ...processingStep?.map(({authority, code}) => (
                 {
                   relatedIdentifier: code,
                   relatedIdentifierType: authority,
                   relationType: 'IsDocumentedBy',
                 })),
-              ...additionalDocumentation.map(({authority, code}) => (
+              ...additionalDocumentation?.map(({authority, code}) => (
                 {
                   relatedIdentifier: code,
                   relatedIdentifierType: authority,
