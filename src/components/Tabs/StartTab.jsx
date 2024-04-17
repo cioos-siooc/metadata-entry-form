@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import { Save } from "@material-ui/icons";
 import {
@@ -21,14 +21,16 @@ import { paperClass, QuestionText, SupplementalText } from "../FormComponents/Qu
 import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
+import SharedUsersList from "../FormComponents/SharedUsersList";
 
 import SelectInput from "../FormComponents/SelectInput";
 
 const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCodes;
 
-const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
+const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
+  const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
   
   const updateResourceType = (value) => {
@@ -70,11 +72,20 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
     };
   }, [language]);
 
+  useEffect(() => {
+
+    const isNewRecord = !record.recordID;
+
+    if (userID === record.userID || isNewRecord) {
+      setShowShareRecord(true);
+    }
+  }, [userID, record.userID, record.recordID]);
+
   return (
     <Grid item xs>
       <Paper style={paperClass}>
         {disabled && (
-          <Typography>
+          <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>
                 <b>
@@ -89,7 +100,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
                 </b>
               </Fr>
             </I18n>
-          </Typography>
+          </QuestionText>
         )}
         <Typography variant="body1">
           <I18n>
@@ -181,7 +192,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
           </li>
         </ul>
       </Paper>
-
+      
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -299,6 +310,13 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord }) => {
         disabled={disabled}
       />
       
+      {showShareRecord && (
+        <SharedUsersList
+        region={region}
+        updateRecord={updateRecord}
+        record={record}
+      />
+      )}
     </Grid>
   );
 };

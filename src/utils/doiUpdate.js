@@ -1,7 +1,7 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import recordToDataCite from "./recordToDataCite";
 
-async function performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash) {
+async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
   const functions = getFunctions();
   const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
 
@@ -13,9 +13,9 @@ async function performUpdateDraftDoi(record, region, language, datacitePrefix, d
   const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
   const dataObject = {
-    doi,
+    doi, 
+    region,
     data: mappedDataCiteObject,
-    dataciteAuthHash,
   }
 
   const response = await updateDraftDoi(dataObject);

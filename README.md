@@ -68,6 +68,26 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 2. Select the `firebase-deploy` workflow.
 3. Click "Run workflow", select the branch to deploy, and initiate the workflow.
 
+### Deploying to Development Project
+
+To deploy updated Firebase functions to the "cioos-metadata-form-dev" development project, follow these steps:
+
+1. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev" project.
+
+    ```bash
+    firebase use cioos-metadata-form-dev
+    ```
+
+2. **Make necessary changes to your Firebase functions.**
+
+3. **Deploy the changes by running the command:**
+
+    ```bash
+    firebase deploy --only functions
+    ```
+
+This will deploy the updated functions to the development project. The GitHub Action for deploying to the preview URL is already configured to use this development project, ensuring that any previews generated from pull requests will interact with the updated dev functions instead of the production version.
+
 #### GitHub Secrets and .env File Creation
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:

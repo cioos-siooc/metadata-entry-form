@@ -5,7 +5,7 @@
     // This design requires careful structuring of rules (and data) to ensure appropriate access control 
     // throughout the database hierarchy.
     "$region": {
-      // Allow read access to any authenticated user.
+        // Allow read access to any authenticated user.
       ".read": "auth.uid != null",
       "shares": {
         "$userid": {
@@ -17,48 +17,52 @@
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
-          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",
+          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",    
           "records": {
             "$recordid": {
-              // Allow read access if the authenticated users's uid is listed in the 'shared with' list for the record
-              ".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
-              // Allow write access if the authenticated users's uid is listed in the 'shared with' list for the record
-              ".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
+              // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
+            ".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
+            // Allow write access if the authenticated users's uid exists in the 'shared with' object for the record
+          ".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
             }
-          },
+          }
         }
       }
     },
     "admin": { // Section of the database dedicated to admin configurations.
       "$regionAdmin": {
         // Allow read access if the authenticated user's email is listed as a reviewer in the permissions for the region.
-        ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-        "projects": {
-          // Allow write access to projects if the authenticated user's email is listed as a reviewer in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
-          // Allow read access to any authenticated user.
-          ".read": "auth.uid != null"
-        },
-        "permissions": {
-          // Allow read access to any authenticated user.
-          ".read": "auth.uid != null",
-          "admins": {
-            // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+          "projects": {
+              // Allow write access to projects if the authenticated user's email is listed as a reviewer in the permissions for the region.
+              ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+              // Allow read access to any authenticated user.
+              ".read": "auth.uid != null"
+              },
+          "permissions": {
             // Allow read access to any authenticated user.
-            ".read": "auth.uid != null"
+            ".read": "auth.uid != null",
+              "admins": {
+              // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
+              ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+              // Allow read access to any authenticated user.
+              ".read": "auth.uid != null",
+              },
+              "reviewers": {
+              // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
+              ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+              // Allow read access to any authenticated user.
+              ".read": "auth.uid != null",
+              },
+              "dataciteCredentials": {
+                // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
+                ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            }
           },
-          "reviewers": {
-            // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
+          "dataciteCredentials": {
+            // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
             ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-            // Allow read access to any authenticated user.
-            ".read": "auth.uid != null"
           }
-        },
-        "dataciteCredentials": {
-          // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-        }
       }
     }
   }
