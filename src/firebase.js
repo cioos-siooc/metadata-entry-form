@@ -27,7 +27,7 @@ const prodConfig = {
 const devConfig = {
   apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV,
   authDomain: "cioos-metadata-form-dev.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form-dev.firebaseio.com",
+  databaseURL: "https://cioos-metadata-form-dev-default-rtdb.firebaseio.com/",
   projectId: "cioos-metadata-form-dev",
   storageBucket: "cioos-metadata-form-dev.appspot.com",
   messagingSenderId: "392401521083",
