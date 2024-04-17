@@ -7,7 +7,7 @@ import FormClassTemplate from "./FormClassTemplate";
 import firebase from "../../firebase";
 import {
   multipleFirebaseToJSObject,
-
+  cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
 
 import { getAuth, onAuthStateChanged } from "../../auth";
@@ -23,6 +23,7 @@ class Shared extends FormClassTemplate {
     };
     this.unsubscribe = null;
     this.listenerRefs = [];
+    this.handleCloneRecord = this.handleCloneRecord.bind(this);
   }
 
   async loadSharedRecords() {
@@ -112,6 +113,15 @@ class Shared extends FormClassTemplate {
     history.push(`/${language}/${region}/${authorID}/${key}`);
   }
 
+  handleCloneRecord(recordID, authorID) {
+    const { region } = this.props.match.params;
+  
+    const { currentUser } = getAuth(firebase);
+    if (currentUser) {
+      cloneRecord(recordID, authorID, currentUser.uid, region)
+    } 
+  }
+
   render() {
     const { sharedRecords, loading } = this.state;
 
@@ -165,7 +175,7 @@ class Shared extends FormClassTemplate {
                         key={key}
                         record={record}
                         showCloneAction
-                        onCloneClick={() => this.cloneRecord(key)}
+                        onCloneClick={() => this.handleCloneRecord(key, record.userinfo.userID)}
                         showEditAction
                         showPercentComplete
                         onViewEditClick={() => this.editRecord(key, record.userID)}
