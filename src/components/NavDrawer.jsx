@@ -17,6 +17,7 @@ import {
   AssignmentTurnedIn,
   StraightenSharp,
   DirectionsBoatSharp,
+  FolderShared,
 } from "@material-ui/icons";
 
 import {
@@ -130,6 +131,7 @@ export default function MiniDrawer({ children }) {
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
     authIsLoading,
+    hasSharedRecords,
   } = useContext(UserContext);
 
   let { language = "en", region = "region-select" } = useParams();
@@ -172,6 +174,7 @@ export default function MiniDrawer({ children }) {
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
+    sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -386,6 +389,24 @@ export default function MiniDrawer({ children }) {
                     <ListItemText primary={translations.platforms} />
                   </ListItem>
                 </Tooltip>
+
+                {hasSharedRecords && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.sharedWithMe}
+                  >
+                    <ListItem
+                      button
+                      key="SharedWithMe"
+                      onClick={() => history.push(`${baseURL}/shared`)}
+                    >
+                      <ListItemIcon>
+                        <FolderShared />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.sharedWithMe} />
+                    </ListItem>
+                  </Tooltip>
+                )}
 
                 {userIsReviewer && (
                   <Tooltip

@@ -7,6 +7,7 @@ import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
 import Instruments from "./Pages/InstrumentsSaved";
+import Shared from "./Pages/Shared"
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
@@ -63,6 +64,7 @@ const Pages = ({ match }) => {
                 <Route path={`${match.path}/instruments`} component={Instruments} />
                 <Route path={`${match.path}/platforms/:platformID`} component={EditPlatform} />
                 <Route path={`${match.path}/platforms`} component={Platforms} />
+                <Route path={`${match.path}/shared`} component={Shared} />
                 <Route
                   path={`${match.path}/:userID/:recordID`}
                   component={MetadataForm}

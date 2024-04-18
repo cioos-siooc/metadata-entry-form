@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { createContext } from "react";
 import { withRouter } from "react-router-dom";
 import * as Sentry from "@sentry/react";
@@ -20,6 +21,7 @@ class UserProvider extends FormClassTemplate {
       reviewers: [],
       isReviewer: false,
       loggedIn: false,
+      hasSharedRecords: false,
     };
   }
 
@@ -40,24 +42,18 @@ class UserProvider extends FormClassTemplate {
           });
         });
 
-        const database = getDatabase(firebase);
+
         // should be replaced with getDatacitePrefix but can't as this function is not async
-        const prefixRef = ref(database, `admin/${region}/dataciteCredentials/prefix`);
-        onValue(prefixRef, (prefix) => {
-          this.setState({
-            datacitePrefix: prefix.val(),
+        const functions = getFunctions();
+        const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
+        getDatacitePrefix(region)
+          .then((prefix) => {
+            this.setState({
+              datacitePrefix: prefix?.data,
+            });
           });
-        });
 
-        // should be replaced with getDataciteAuthHash but can't as this function is not async
-        const authHashRef = ref(database, `admin/${region}/dataciteCredentials/dataciteHash`);
-        onValue(authHashRef, (authHash) => {
-          this.setState({
-            dataciteAuthHash: authHash.val(),
-          });
-        });
-
-
+        const database = getDatabase(firebase);
         update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
         
         const permissionsRef = ref(database, `admin/${region}/permissions`)
@@ -78,7 +74,19 @@ class UserProvider extends FormClassTemplate {
             isReviewer,
           });
         });
+
         this.listenerRefs.push(permissionsRef);
+
+        // real-time listener for shared records
+        const sharesRef = ref(database, `${region}/shares/${uid}`);
+
+        onValue(sharesRef, (snapshot) => {
+            const hasSharedRecords = snapshot.exists();
+            this.setState({ hasSharedRecords, authIsLoading: false });
+          });
+
+        this.listenerRefs.push(sharesRef);
+
       } else {
         this.setState({
           loggedIn: false,
@@ -100,6 +108,8 @@ class UserProvider extends FormClassTemplate {
     const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
     const getDoiStatus = httpsCallable(functions, "getDoiStatus");
     const checkURLActive = httpsCallable(functions, "checkURLActive");
+    const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
+    const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
 
     return (
       <UserContext.Provider
@@ -113,6 +123,8 @@ class UserProvider extends FormClassTemplate {
           deleteDraftDoi,
           getDoiStatus,
           checkURLActive,
+          getCredentialsStored,
+          getDatacitePrefix,
         }}
       >
         {children}

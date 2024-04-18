@@ -28,13 +28,14 @@ import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import recordToERDDAP from "../../utils/recordToERDDAP";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { recordIsValid, percentValid } from "../../utils/validate";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
+import licenses from "../../utils/licenses"
 
 const MetadataRecordListItem = ({
   record,
@@ -102,7 +103,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = [JSON.stringify(recordToDataCite(record, language, region), null, 2)];
+        data = await [JSON.stringify(recordToDataCite({metadata: record, language, regions, region, licenses}), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);

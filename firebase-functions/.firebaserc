@@ -1,9 +1,20 @@
 {
   "projects": {
-    "default": "cioos-metadata-form"
+    "default": "cioos-metadata-form",
+    "dev": "cioos-metadata-form-dev"
   },
   "targets": {
     "cioos-metadata-form": {
+      "database": {
+        "prod": [
+          "cioos-metadata-form"
+        ],
+        "dev": [
+          "cioos-metadata-form-dev"
+        ]
+      }
+    },
+    "development": {
       "database": {
         "prod": [
           "cioos-metadata-form"

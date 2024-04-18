@@ -144,7 +144,7 @@ class MetadataForm extends FormClassTemplate {
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
 
-        this.setState({ projects: await getRegionProjects(region) });
+        this.setState({ projects: await getRegionProjects(region), loggedInUserID: user.uid });
         let editorInfo;
         // get info of the person openeing the record
         const editorDataRef = child(ref(database, `${region}/users`), loggedInUserID);
@@ -214,8 +214,10 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
+            const loggedInUserIsSharedWith = record.sharedWith && record.sharedWith[loggedInUserID] === true;
+
             const loggedInUserCanEditRecord =
-              isReviewer || loggedInUserOwnsRecord;
+              isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
             this.setState({
               record: standardizeRecord(record, null, null, recordID),
@@ -281,11 +283,11 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record} = this.state;
-    const { datacitePrefix, dataciteAuthHash } = this.context;
+    const { datacitePrefix } = this.context;
 
     try {
-      if (datacitePrefix && dataciteAuthHash){
-        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix, dataciteAuthHash);
+      if (datacitePrefix){
+        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix);
 
       if (statusCode === 200) {
         this.state.doiUpdated = true
@@ -451,6 +453,7 @@ class MetadataForm extends FormClassTemplate {
       loggedInUserCanEditRecord,
       saveIncompleteRecordModalOpen,
       projects,
+      loggedInUserID,
     } = this.state;
 
     if (!record) {
@@ -466,8 +469,10 @@ class MetadataForm extends FormClassTemplate {
       record,
       handleUpdateRecord: this.handleUpdateRecord,
       updateRecord: this.updateRecord,
+      userID:loggedInUserID,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
+  
     return loading ? (
       <CircularProgress />
     ) : (
