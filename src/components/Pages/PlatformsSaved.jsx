@@ -176,7 +176,7 @@ class Platforms extends FormClassTemplate {
                         </ListItemAvatar>
 
                         <ListItemText
-                          primary={PlatformTitle(val)}
+                          primary={PlatformTitle({ "platform": val })}
                         />
                         <ListItemSecondaryAction>
                           <Tooltip title={<I18n en="Edit" fr="Éditer" />}>

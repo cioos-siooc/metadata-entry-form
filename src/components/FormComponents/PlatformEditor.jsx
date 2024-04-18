@@ -72,7 +72,7 @@ const PlatformEditor = ({
                         </Tooltip>
                       </a>
 
-                      <RequiredMark passes={platform.id} />
+                      <RequiredMark passes={platform.type} />
                     </SupplementalText>
                   </QuestionText>
                   <SelectInput

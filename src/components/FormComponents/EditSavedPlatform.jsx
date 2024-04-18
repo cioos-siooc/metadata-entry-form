@@ -18,7 +18,7 @@ class EditPlatform extends FormClassTemplate {
     super(props);
     this.state = {
       id: "",
-      type: { en: "", fr: "" },
+      type: "",
       description: { en: "", fr: "" },
     };
     const { match } = props;
