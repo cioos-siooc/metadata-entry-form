@@ -5,6 +5,14 @@
 
 CIOOS Metadata entry form
 
+## System Architecture
+
+Below is the system architecture diagram which provides an overview of the data flow and interaction between components within the application:
+
+![System Architecture Diagram](docs/systems_diagram.png)
+
+For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
+
 ## Installation
 
 1. Install [Node](https://nodejs.org/en/download/)
