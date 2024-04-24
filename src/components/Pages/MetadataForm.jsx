@@ -172,6 +172,33 @@ class MetadataForm extends FormClassTemplate {
         });
         this.listenerRefs.push(editorContactsRef);
 
+        // get instruments
+        const editorInstrumentsRef = child(editorDataRef, "instruments");
+
+        onValue(editorInstrumentsRef, (instrumentsFB) => {
+          const userInstruments = instrumentsFB.toJSON();
+          Object.entries(userInstruments || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userInstruments });
+        });
+        this.listenerRefs.push(editorInstrumentsRef);
+
+        // get platforms
+        const editorPlatformsRef = child(editorDataRef, "platforms");
+
+        onValue(editorPlatformsRef, (platformsFB) => {
+          const userPlatforms = platformsFB.toJSON();
+          Object.entries(userPlatforms || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
+            v.instrumentID = k;
+          });
+          this.setState({ userPlatforms });
+        });
+        this.listenerRefs.push(editorPlatformsRef);
+
+
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
@@ -276,12 +303,52 @@ class MetadataForm extends FormClassTemplate {
     }
   }
 
+  handleSaveUpdateInstrument(instrument) {
+    const { id } = instrument;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+      const database = getDatabase(firebase);
+    const instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`);
+
+    // existing instrument
+    if (id) {
+      update(child(instrumentsRef, id), instrument);
+      return id;
+    }
+    // new instrument
+    // eslint-disable-next-line no-debugger
+    debugger
+
+    return push(instrumentsRef, instrument).key;
+  }
+
+  handleSaveUpdatePlatform(platform) {
+    const { id } = platform;
+    const { match } = this.props;
+
+    const { region } = match.params;
+
+    const database = getDatabase(firebase)
+    const platformRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
+
+    // existing instrument
+    if (id) {
+      update(child(platformRef, id), platform);
+      return id;
+    }
+    // new instrument
+
+    return push(platformRef, platform).key;
+  }
+
   async handleSubmitRecord() {
     const { match } = this.props;
     const { region, userID } = match.params;
     const isNewRecord = match.url.endsWith("new");
     const { record } = this.state;
-    
+
     // Bit of logic here to decide if this is a user submitting their own form
     // or a reviewer submitting it
     const loggedInUserID = auth.currentUser.uid;
@@ -376,6 +443,8 @@ class MetadataForm extends FormClassTemplate {
 
     const {
       userContacts,
+      userInstruments,
+      userPlatforms,
       tabIndex,
       record,
       saveDisabled,
@@ -479,7 +548,7 @@ class MetadataForm extends FormClassTemplate {
                 classes={{ root: classes.tabRoot }}
                 label={tabs.taxa[language]}
                 value="taxa"
-              /> 
+              />
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
@@ -558,7 +627,12 @@ class MetadataForm extends FormClassTemplate {
           <SpatialTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="platform">
-          <PlatformTab {...tabProps} />
+          <PlatformTab
+          userInstruments={userInstruments}
+          saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+          userPlatforms={userPlatforms}
+          saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
+          {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />

@@ -15,6 +15,8 @@ import {
   SupervisorAccount,
   Menu,
   AssignmentTurnedIn,
+  StraightenSharp,
+  DirectionsBoatSharp,
   FolderShared,
 } from "@material-ui/icons";
 
@@ -164,6 +166,8 @@ export default function MiniDrawer({ children }) {
     home: <I18n en="Home" fr="Accueil" />,
     new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
+    instruments: <I18n en="Instruments" fr="Instruments" />,
+    platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
@@ -351,6 +355,38 @@ export default function MiniDrawer({ children }) {
                       <Contacts />
                     </ListItemIcon>
                     <ListItemText primary={translations.contacts} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="instruments"
+                    onClick={() => history.push(`${baseURL}/instruments`)}
+                  >
+                    <ListItemIcon disabled>
+                      <StraightenSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.instruments} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="Platforms"
+                    onClick={() => history.push(`${baseURL}/platforms`)}
+                  >
+                    <ListItemIcon disabled>
+                      <DirectionsBoatSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.platforms} />
                   </ListItem>
                 </Tooltip>
 

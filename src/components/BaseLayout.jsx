@@ -6,18 +6,22 @@ import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
+import Instruments from "./Pages/InstrumentsSaved";
 import Shared from "./Pages/Shared"
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
 import ErrorBoundary from "./Pages/ErrorBoundary";
 import EditContact from "./FormComponents/EditSavedContact";
+import EditInstrument from "./FormComponents/EditSavedInstrument";
 import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions from "../regions";
+import Platforms from "./Pages/PlatformsSaved";
+import EditPlatform from "./FormComponents/EditSavedPlatform";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
@@ -56,6 +60,10 @@ const Pages = ({ match }) => {
                   component={EditContact}
                 />
                 <Route path={`${match.path}/contacts`} component={Contacts} />
+                <Route path={`${match.path}/instruments/:instrumentID`} component={EditInstrument} />
+                <Route path={`${match.path}/instruments`} component={Instruments} />
+                <Route path={`${match.path}/platforms/:platformID`} component={EditPlatform} />
+                <Route path={`${match.path}/platforms`} component={Platforms} />
                 <Route path={`${match.path}/shared`} component={Shared} />
                 <Route
                   path={`${match.path}/:userID/:recordID`}

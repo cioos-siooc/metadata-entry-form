@@ -6,7 +6,6 @@ import { Paper, Grid } from "@material-ui/core";
 import DragHandleIcon from "@material-ui/icons/DragHandle";
 
 import EditContact from "../FormComponents/ContactEditor";
-import ContactLeftList from "../FormComponents/ContactLeftList";
 
 import {
   QuestionText,
@@ -21,6 +20,9 @@ import { validateField } from "../../utils/validate";
 import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
+import LeftList from "../FormComponents/LeftList";
+import ContactTitle from "../FormComponents/ContactTitle";
+import {getBlankContact} from "../../utils/blankRecord";
 
 const ContactTab = ({
   disabled,
@@ -157,14 +159,23 @@ const ContactTab = ({
 
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
         <Grid item xs={5}>
-          <ContactLeftList
-            contacts={contacts}
-            updateContacts={updateContacts}
-            setActiveContact={setActiveContact}
-            activeContact={activeContact}
+          <LeftList
+            items={contacts}
+            updateItems={updateContacts}
+            setActiveItem={setActiveContact}
+            activeItem={activeContact}
             disabled={disabled}
-            userContacts={userContacts}
-            saveToContacts={saveToContacts}
+            savedUserItems={userContacts}
+            saveItem={saveToContacts}
+            itemTitle={ContactTitle}
+            getBlankItem={getBlankContact}
+            addSavedItemLabel={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />}
+            uidFields={["lastName", "orgName"]}
+            itemValidator={(currentContact) => !(
+                                  currentContact.orgName?.length ||
+                                  currentContact.givenNames?.length ||
+                                  currentContact.lastName?.length
+                                )}
           />
         </Grid>
         {contact && (

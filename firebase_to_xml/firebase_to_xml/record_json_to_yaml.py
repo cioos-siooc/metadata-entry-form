@@ -76,7 +76,7 @@ def record_json_to_yaml(record):
     record_id = record.get("recordID")
     language = record.get("language")
     region = record.get("region")
-    
+
     base_url = "https://cioos-siooc.github.io/metadata-entry-form#"
     full_url = f"{base_url}/{language}/{region}/{user_id}/{record_id}"
 
@@ -182,18 +182,29 @@ def record_json_to_yaml(record):
             for distribution in record.get("distribution", [])
         ],
     }
+
     if record.get("noPlatform"):
         record_yaml["instruments"] = record.get("instruments")
     else:
-        record_yaml["platform"] = {
-            "id": record.get("platformID"),
-            "description": record.get("platformDescription"),
-            "platformDescriptionTranslationMethod":  verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod")),
-            "type": record.get("platform"),
-        }
+        instrumentsList = record.get("instruments")
+        platformList = record.get("platforms")
+        # If platforms has only one element, add it to the platform dict and add all instruments as a key
+        if len(record.get("platform")) == 1:
+            record["platform"][0]["instruments"] = instruments
+            record_yaml["platform"] = record["platforms"][0]
+            record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
+        # If platforms has more than one element, add all platforms and match instruments by platform ID
+        else:
+            for platform in platformList:
+                instruments = []
+                for instrument in instrumentsList:
+                    if instrument["platform"] == platform["id"]:
+                        instruments.append(instrument)
+                if instruments.length > 0:
+                    platform["instruments"] = instrument
+                platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
 
-        if record.get("instruments"):
-            record_yaml["platform"]["instruments"] = record.get("instruments")
+            record_yaml["platforms"] = record["platforms"]
 
     # If there's no distributor set, set it to the data contact (owner)
     all_roles = [contact["role"] for contact in record["contacts"]]
