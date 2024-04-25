@@ -13,7 +13,7 @@ from metadata_xml.template_functions import metadata_to_xml
 import sentry_sdk
 
 sentry_sdk.init(
-    dsn="https://fe928bc67bd34cc59516f8b7b0c6577c@o56764.ingest.sentry.io/5580451",
+    dsn="https://8fd4b6885cc447c0b11aa0cb3009b0e3@o56764.ingest.us.sentry.io/5493983",
 
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
