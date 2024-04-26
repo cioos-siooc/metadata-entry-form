@@ -141,8 +141,8 @@ def record_json_to_yaml(record):
             },
             "keywords": {
                 "default": strip_keywords(record.get("keywords", {"en": [], "fr": []})),
-                "eov": {"en": record.get("eov"), "fr": eovs_to_fr(record.get("eov"))},
-                "taxa": {"en": format_taxa(record.get("taxa")), "fr": format_taxa(record.get("taxa"))}
+                "eov": {"en": record.get("eov",[]), "fr": eovs_to_fr(record.get("eov",[]))},
+                "taxa": {"en": format_taxa(record.get("taxa",[])), "fr": format_taxa(record.get("taxa",[]))}
             },
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
