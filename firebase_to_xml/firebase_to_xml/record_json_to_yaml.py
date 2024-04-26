@@ -189,8 +189,8 @@ def record_json_to_yaml(record):
         instrumentsList = record.get("instruments")
         platformList = record.get("platforms")
         # If platforms has only one element, add it to the platform dict and add all instruments as a key
-        if len(record.get("platform")) == 1:
-            record["platform"][0]["instruments"] = instruments
+        if len(platformList) == 1:
+            record["platforms"][0]["instruments"] = instruments
             record_yaml["platform"] = record["platforms"][0]
             record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
         # If platforms has more than one element, add all platforms and match instruments by platform ID
@@ -201,7 +201,7 @@ def record_json_to_yaml(record):
                     if instrument["platform"] == platform["id"]:
                         instruments.append(instrument)
                 if instruments.length > 0:
-                    platform["instruments"] = instrument
+                    platform["instruments"] = instruments
                 platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
 
             record_yaml["platforms"] = record["platforms"]
