@@ -200,7 +200,7 @@ def record_json_to_yaml(record):
                 for instrument in instrumentsList:
                     if instrument["platform"] == platform["id"]:
                         instruments.append(instrument)
-                if instruments.length > 0:
+                if len(instruments) > 0:
                     platform["instruments"] = instruments
                 platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
 
