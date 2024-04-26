@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import Instruments from "../FormComponents/Instruments";
@@ -18,6 +18,23 @@ const PlatformTab = ({
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
 
+
+  useEffect(() => {
+    if (record.platformID){
+      updateRecord("platforms")([
+        {
+          id: record.platformID,
+          description: record.platformDescription,
+          type: record.platform,
+
+        },
+        ...record.platforms,
+      ])
+      updateRecord("platformID")(null)
+      updateRecord("platformDescription")(null)
+      updateRecord("platform")(null)
+    }
+  }, [record.platformID, record.platform, record.platformDescription]);
 
   return (
     <div>
