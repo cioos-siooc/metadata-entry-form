@@ -91,7 +91,6 @@ def record_json_to_yaml(record):
             + full_url,
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
-                "limitationsTranslationMethod":  verify_translation(record.get("translationVerifiedLimitations"), record.get("limitationsTranslationMethod")),
                 "licence": licenses.get(
                     record.get(
                         "license",
@@ -128,10 +127,8 @@ def record_json_to_yaml(record):
         },
         "identification": {
             "title": record.get("title"),
-            "titleTranslationMethod":  verify_translation(record.get("translationVerifiedTitle"), record.get("titleTranslationMethod")),
             "identifier": record.get("datasetIdentifier"),
             "abstract": record.get("abstract"),
-            "abstractTranslationMethod":  verify_translation(record.get("translationVerifiedAbstract"), record.get("abstractTranslationMethod")),
             "associated_resources": record.get("associated_resources", []),
             "dates": {
                 "creation": date_from_datetime_str(record.get("dateStart")),
@@ -191,7 +188,6 @@ def record_json_to_yaml(record):
         if len(platformList) == 1:
             record["platforms"][0]["instruments"] = instrumentsList
             record_yaml["platform"] = record["platforms"]
-            # record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
         # If platforms has more than one element, add all platforms and match instruments by platform ID
         else:
             for platform in platformList:
@@ -201,10 +197,8 @@ def record_json_to_yaml(record):
                         instruments.append(instrument)
                 if len(instruments) > 0:
                     platform["instruments"] = instruments
-                # platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
 
             record_yaml["platform"] = record["platforms"]
-            print(json.dumps(record_yaml["platform"], indent=2))
 
     # If there's no distributor set, set it to the data contact (owner)
     all_roles = [contact["role"] for contact in record["contacts"]]
