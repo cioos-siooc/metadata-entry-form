@@ -6,7 +6,6 @@ the metadata-xml module.
 """
 
 import json
-
 from firebase_to_xml.scrubbers import scrub_dict, scrub_keys, remove_nones
 import os
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -186,13 +185,13 @@ def record_json_to_yaml(record):
     if record.get("noPlatform"):
         record_yaml["instruments"] = record.get("instruments")
     else:
-        instrumentsList = record.get("instruments")
-        platformList = record.get("platforms")
+        instrumentsList = record.get("instruments",[])
+        platformList = record.get("platforms",[])
         # If platforms has only one element, add it to the platform dict and add all instruments as a key
         if len(platformList) == 1:
-            record["platforms"][0]["instruments"] = instruments
-            record_yaml["platform"] = record["platforms"][0]
-            record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
+            record["platforms"][0]["instruments"] = instrumentsList
+            record_yaml["platform"] = record["platforms"]
+            # record_yaml["platform"]["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
         # If platforms has more than one element, add all platforms and match instruments by platform ID
         else:
             for platform in platformList:
@@ -202,9 +201,10 @@ def record_json_to_yaml(record):
                         instruments.append(instrument)
                 if len(instruments) > 0:
                     platform["instruments"] = instruments
-                platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
+                # platform["platformDescriptionTranslationMethod"] = verify_translation(record.get("translationVerifiedPlatformDescription"), record.get("platformDescriptionTranslationMethod"))
 
-            record_yaml["platforms"] = record["platforms"]
+            record_yaml["platform"] = record["platforms"]
+            print(json.dumps(record_yaml["platform"], indent=2))
 
     # If there's no distributor set, set it to the data contact (owner)
     all_roles = [contact["role"] for contact in record["contacts"]]
