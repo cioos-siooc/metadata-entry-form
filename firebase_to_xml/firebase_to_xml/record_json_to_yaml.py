@@ -67,8 +67,18 @@ def format_taxa(taxa):
     if isinstance(taxa, str):
         taxa = [taxa]
     for t in taxa:
-        taxaKeywords.append(",".join(filter(None, (t.get("kingdom"), t.get("phylum"), t.get("class"), t.get("order"), t.get("family"), t.get("genus"), t.get("species")))))
-    return ','.join(filter(None, (taxaKeywords)))
+        taxaKeywords.append(
+            ",".join(filter(None, (
+                t.get("kingdom"), 
+                t.get("phylum"), 
+                t.get("class"), 
+                t.get("order"), 
+                t.get("family"), 
+                t.get("genus"), 
+                t.get("species")
+            ))).split(",")
+        )
+    return taxaKeywords
 
 
 def record_json_to_yaml(record):
