@@ -191,6 +191,9 @@ def record_json_to_yaml(record):
         ],
     }
 
+    if record.get("noTaxa") and record_yaml.get("identification",{}).get("keywords"):
+        record_yaml["identification"]["keywords"].pop("taxa", None)
+        
     if record.get("noPlatform"):
         record_yaml["instruments"] = record.get("instruments")
     else:
