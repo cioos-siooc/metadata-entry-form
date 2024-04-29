@@ -67,8 +67,7 @@ def format_taxa(taxa):
     if isinstance(taxa, str):
         taxa = [taxa]
     for t in taxa:
-        taxaKeywords.append(
-            ",".join(filter(None, (
+        taxaKeywords = taxaKeywords + ",".join(filter(None, (
                 t.get("kingdom"), 
                 t.get("phylum"), 
                 t.get("class"), 
@@ -77,7 +76,7 @@ def format_taxa(taxa):
                 t.get("genus"), 
                 t.get("species")
             ))).split(",")
-        )
+        
     return taxaKeywords
 
 
