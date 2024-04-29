@@ -64,9 +64,11 @@ def fix_lat_long_polygon(polygon):
 
 def format_taxa(taxa):
     taxaKeywords = []
+    if isinstance(taxa, str):
+        taxa = [taxa]
     for t in taxa:
-        taxaKeywords.append(",".join([t.get("kingdom"), t.get("phylum"), t.get("class"), t.get("order"), t.get("family"), t.get("genus"), t.get("species")]))
-    return ','.join(taxaKeywords)
+        taxaKeywords.append(",".join(filter(None, (t.get("kingdom"), t.get("phylum"), t.get("class"), t.get("order"), t.get("family"), t.get("genus"), t.get("species")))))
+    return ','.join(filter(None, (taxaKeywords)))
 
 
 def record_json_to_yaml(record):
