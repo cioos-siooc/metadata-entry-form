@@ -55,7 +55,8 @@ def fix_lat_long_polygon(polygon):
     if not polygon:
         return ""
     fixed = []
-    coords = polygon.split(" ")
+    cleanPolygon = polygon.replace(", ",",")
+    coords = cleanPolygon.split(" ")
     for coord in coords:
         [lat, long] = coord.split(",")
         fixed.append(",".join([long, lat]))
