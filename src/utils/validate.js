@@ -170,7 +170,7 @@ const validators = {
   verticalExtentMin: {
     tab: "spatial",
 
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Min",
       fr: "Étendue verticale manquante Min",
@@ -178,7 +178,7 @@ const validators = {
   },
   verticalExtentMax: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Max",
       fr: "Étendue verticale manquante Max",
@@ -186,7 +186,7 @@ const validators = {
   },
   verticalExtentDirection: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Direction",
       fr: "Direction de l'étendue verticale manquante",
