@@ -60,7 +60,7 @@ const BilingualTextInput = ({
       [e.target.name]: e.target.value,
       ...(e.target.name === alternateLanguage &&
         e.target.value && {
-          translations: value.translations || setTranslationData({}, false),
+          translations: translations || setTranslationData({}, false),
         }),
     };
     const newDataEvent = { target: { name, value: newData } };
