@@ -61,7 +61,7 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { downloadRecord } = useContext(UserContext);
+  const { downloadRecord, datacitePrefix } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -103,7 +103,8 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = await [JSON.stringify(recordToDataCite({metadata: record, language, regions, region, licenses}), null, 2)];
+        // data = await [JSON.stringify(recordToDataCite({metadata: record, language, regions, region, licenses}), null, 2)];
+        data = await [JSON.stringify(recordToDataCite({ metadata: record, language, regions, region, datacitePrefix }), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);
