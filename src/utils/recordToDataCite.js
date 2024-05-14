@@ -245,14 +245,16 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
     };
 
     // link data download resources to this record via relatedIdentifiers datacite field
-    if (metadata.distribution) {
-        mappedDataCiteObject.data.attributes.relatedIdentifiers =
-            metadata.distribution.map(({ url }) => ({
-                relatedIdentifier: url,
-                relatedIdentifierType: 'URL',
-                relationType: 'IsMetadataFor',
-            }))
-    }
+    // This section has been removed until datacite schema 4.5 is finialized as there is a better
+    // description of the 'distributions' field which would allow listing direct download urls under 'contentURL'
+    // if (metadata.distribution) {
+    //     mappedDataCiteObject.data.attributes.distribution =
+    //         metadata.distribution.map(({ url }) => ({
+    //             relatedIdentifier: url,
+    //             relatedIdentifierType: 'URL',
+    //             relationType: 'IsMetadataFor',
+    //         }))
+    // }
 
     // Link related works to this record via relatedIdentifiers datacite field
     if (metadata.associated_resources) {
