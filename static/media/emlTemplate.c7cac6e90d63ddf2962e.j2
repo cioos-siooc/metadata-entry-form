@@ -1,0 +1,179 @@
+
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:dc="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd" packageId="72de3af4-1572-4f2d-8006-2bfa2007065c/v1.25" system="http://gbif.org" scope="system" xml:lang="eng">
+
+    <dataset>
+        <!-- <alternateIdentifier>72de3af4-1572-4f2d-8006-2bfa2007065c</alternateIdentifier> -->
+
+        <!-- <alternateIdentifier>http://ipt.iobis.org/obiscanada/resource?r=hakai_jsp</alternateIdentifier> -->
+
+        <title xml:lang="eng">{{ record.title.en }}</title>
+
+        {% for role in roleMappingKeys %}
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(roleMapping[role],contact.role) %}
+        <{{role}}>
+        <individualName>
+                <givenName>{{ contact.givenNames }}</givenName>
+                <surName>{{ contact.lastName }}</surName>
+            </individualName>
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{contact.indPosition}}</positionName>
+            <address>
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <!-- NOTE this might not work as it's currently still referenced as contact.orgAdress -->
+                <city>{{ contact.orgCity }}</city>
+                <!-- <administrativeArea>British Columbia</administrativeArea> -->
+                <!-- <postalCode>V0P 1H0</postalCode> -->
+                <country>{{ contact.orgCountry }}</country>
+            </address>
+            <!-- <phone>6047035347</phone> -->
+            <electronicMailAddress>{{ contact.indEmail }}</electronicMailAddress>
+            <onlineUrl>{{ contact.orgURL }}</onlineUrl>
+            <!-- <role> is used by associatedParty, but its a single item not a list -->
+            <!-- <role></role> -->
+            <userId directory="https://orcid.org/"  >{{ contact.indOrcid }}</userId>
+            <!-- NOTE that we can have multiple roles per contact, just get the first -->
+        </{{role}} >
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+
+        <pubDate>
+            <!-- TODO why is this 2017 in one and 2021 in the other? -->
+            {{ record.datePublished }}
+        </pubDate>
+        <!-- TODO 2 char vs 3 char? -->
+        <language>{{ record.language }}</language>
+        <abstract>
+            <para>{{ record.abstract.en }}</para>
+        </abstract>
+        <keywordSet>
+            {% for keyword in record.keywords.en %}
+            <keyword>{{ keyword }}</keyword>
+            {% endfor %}
+            <!-- TODO GCMD and another? -->
+            <keywordThesaurus>GCMD</keywordThesaurus>
+        </keywordSet>
+        {% if record.license != "None" %}
+        <intellectualRights>
+            <para>
+                This work is licensed under
+                <ulink url="{{ licenses[record.license].url }}">
+                    <citetitle>{{ licenses[record.license].title }}</citetitle>
+                </ulink>
+                .
+            </para>
+        </intellectualRights>
+        {% endif %}
+        <distribution scope="document">
+            <online>
+                <url function="information">{{ record.datasetIdentifier }}</url>
+            </online>
+        </distribution>
+
+        {% include 'emlCoverage.j2' %}
+
+        <maintenance>
+        <description>
+            <para/>
+        </description>
+        <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
+        </maintenance>
+
+
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(['pointOfContact', 'owner', 'author'],contact.role) %}
+        <contact>
+            <individualName>
+                <givenName>{{ contact.givenNames}}</givenName>
+                <surName>{{ contact.lastName}}</surName>
+            </individualName>
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{ contact.indPosition}}</positionName>
+            <address>
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <city>{{ contact.orgCity}}</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>{{contact.orgCountry}}</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>{{contact.indEmail}}</electronicMailAddress>
+            <onlineURL>{{ contact.orgURL}}</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
+
+            <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
+        </contact>
+        {% endif %}
+        {% endfor %}
+
+        {% for contact in record.contacts %}
+        {% if arrayOverlap(['publisher'],contact.role) %}
+        <publisher>
+            {% if contact.lastName %}
+            <individualName>
+                <givenName>{{ contact.givenNames}}</givenName>
+                <surName>{{ contact.lastName}}</surName>
+            </individualName>
+            {% endif %}
+            <organizationName>{{ contact.orgName}}</organizationName>
+            <positionName>{{ contact.indPosition}}</positionName>
+            <address>
+                <deliveryPoint>{{contact.orgAddress}}</deliveryPoint>
+                <city>{{ contact.orgCity}}</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>{{contact.orgCountry}}</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>{{contact.indEmail}}</electronicMailAddress>
+            <onlineURL>{{ contact.orgURL}}</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
+
+            <userId directory="https://orcid.org">{{contact.indOrcid}}</userId>
+        </publisher>
+        {% endif %}
+        {% endfor %}
+
+        {% if record.history %}
+        <methods>
+        {% for lineageStep in record.history %}
+            <methodStep>
+                <description>
+                {% for  method in lineageStep.processingStep %}
+                    <section>
+                        <title>{{method.title.en}}</title>
+                        <para>{{method.description.en}}</para>
+                    </section>
+                {% endfor %}
+                </description>
+            </methodStep>
+
+            {% if arrayOverlap(['collectionSession'],lineageStep.scope) %}
+            <sampling>
+                <studyExtent>
+                    {% include 'emlCoverage.j2' %}
+                </studyExtent>
+                <samplingDescription>
+                    <para>{{ lineageStep.statement.en }}</para>
+                </samplingDescription>
+            </sampling>
+            {% endif %}
+        {% endfor %}
+        </methods>
+        {% endif %}
+
+    </dataset>
+    <additionalMetadata>
+        <metadata>
+            <gbif>
+                <dateStamp>{{ record.datePublished or record.created }}</dateStamp>
+                <hierarchyLevel>dataset</hierarchyLevel>
+                <citation identifier="{{ record.datasetIdentifier }}">{{citation}}</citation>
+                <edition>{{ record.edition }}</edition>
+            </gbif>
+        </metadata>
+    </additionalMetadata>
+</eml:eml>
