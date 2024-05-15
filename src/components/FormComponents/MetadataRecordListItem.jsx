@@ -35,7 +35,6 @@ import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
-import licenses from "../../utils/licenses"
 
 const MetadataRecordListItem = ({
   record,
@@ -103,8 +102,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        // data = await [JSON.stringify(recordToDataCite({metadata: record, language, regions, region, licenses}), null, 2)];
-        data = await [JSON.stringify(recordToDataCite({ metadata: record, language, regions, region, datacitePrefix }), null, 2)];
+        data = await [JSON.stringify(recordToDataCite( record, language, region, datacitePrefix ), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType });
         data = Object.values(res.data.message);

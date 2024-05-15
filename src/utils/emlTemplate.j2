@@ -147,6 +147,7 @@
                         <title>{{method.title.en}}</title>
                         <para>{{method.description.en}}</para>
                     </section>
+                {% endfor %}
                 </description>
             </methodStep>
 
@@ -160,7 +161,7 @@
                 </samplingDescription>
             </sampling>
             {% endif %}
-
+        {% endfor %}
         </methods>
         {% endif %}
 

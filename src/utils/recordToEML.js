@@ -1,4 +1,5 @@
 import templatePath from "./emlTemplate.j2";
+import emlCoveragePath from "./emlCoverage.j2";
 import { generateCitation } from "../components/FormComponents/ApaPreview";
 
 const nunjucks = require("nunjucks");
@@ -20,10 +21,11 @@ const roleMapping = {
   associatedParty: ["principalInvestigator", "editor"],
 };
 async function recordToEML(record) {
-  nunjucks.configure({ autoescape: true, web: true });
+  nunjucks.configure(window.location.origin, { autoescape: true, web: true });
 
-  const templateXML = await fetch(templatePath).then((t) => t.text());
-
+  let templateXML = await fetch(templatePath).then((t) => t.text());
+  const emlCoverageXML = await fetch(emlCoveragePath).then((t) => t.text());
+  templateXML = templateXML.replace("{% include 'emlCoverage.j2' %}", emlCoverageXML)
   return nunjucks.renderString(templateXML, {
     record,
     translateRole,

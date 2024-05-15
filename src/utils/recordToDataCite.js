@@ -260,7 +260,7 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
     if (metadata.associated_resources) {
         mappedDataCiteObject.data.attributes.relatedIdentifiers =
             [
-                ...mappedDataCiteObject.data.attributes.relatedIdentifiers,
+                // ...mappedDataCiteObject.data.attributes.relatedIdentifiers,
                 ...metadata.associated_resources.map(({ authority, code, association_type: associationType }) => ({
                     relatedIdentifier: code,
                     relatedIdentifierType: authority,
