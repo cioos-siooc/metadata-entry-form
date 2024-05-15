@@ -308,7 +308,9 @@ const MetadataRecordListItem = ({
         )}
 
         {showDownloadButton && (
-          <Tooltip title={<I18n en="Download" fr="Download" />}>
+          <Tooltip 
+            disableHoverListener={open}
+            title={<I18n en="Download" fr="Download" />}>
             <span>
               <IconButton
                 aria-label="more"
