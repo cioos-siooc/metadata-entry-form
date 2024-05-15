@@ -241,7 +241,7 @@ function recordToDataCite(metadata, language, region, datacitePrefix) {
 
     // Auto-populate Datacite Resource type general  as 'dataset'
     mappedDataCiteObject.data.attributes.types = {
-        resourceTypeGeneral: "Dataset", // TODO: change this to reflect resource type in form
+        resourceTypeGeneral: metadata.metadataScope || "Dataset", // TODO: change this to reflect resource type in form
     };
 
     // link data download resources to this record via relatedIdentifiers datacite field
