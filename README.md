@@ -36,13 +36,8 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 Install firebase CLI [as described here](https://firebase.google.com/docs/emulator-suite/install_and_configure).
 
 Run `firebase emulators:start` from the `firebase-functions/functions` directory.
-Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
+Redirect function calls to this emulator by uncommenting the call to `connectFunctionsEmulator` in [src/firebase.js](src/firebase.js).
 
-#### Docker Alternative
-Using the firebase emulator in docker will preload some data into a local realtime database and emulate cloud functions and the realtime database
-
-docker-compose up -d --build
-Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
 
 ## Deploy to production site at GitHub pages
 
