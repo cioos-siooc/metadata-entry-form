@@ -23,7 +23,7 @@ sentry_sdk.init(
 
 # on the server its run inside docker, the values of xml, key.json work for the server
 firebase_auth_key_file = "key.json"
-
+firebase_auth_key_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY')
 # this is bind mounted to /var/www/html/dev/metadata
 xml_folder = "xml"
 
@@ -82,7 +82,7 @@ def recordUpdate():
     pathComplete = region + "/users/" + userID + "/records/" + recordID
 
     recordFromFB = get_records_from_firebase(
-        "", firebase_auth_key_file, pathComplete, []
+        "", firebase_auth_key_file, pathComplete, [], firebase_auth_key_json
     )[0]
     if not recordFromFB or not "title" in recordFromFB:
         return jsonify(message="not found")
