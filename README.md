@@ -180,3 +180,18 @@ firebase deploy --only database:prod # For production
 - **Testing**: Thoroughly test your rules in a development or staging environment before deploying to production.
 
 Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.
+
+
+## Hosting on github and Authentication
+
+When hosting the application in a new place there are a couple of things to update. 
+
+- You must add your new domain to the allowed list for authenication in firebase.
+  https://console.firebase.google.com/u/0/project/cioos-metadata-form/authentication/settings
+  https://console.firebase.google.com/u/0/project/cioos-metadata-form-dev/authentication/settings
+
+- You have to allow your domain under Website restrictions for the firebase browser key
+  https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form
+  https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev
+
+  

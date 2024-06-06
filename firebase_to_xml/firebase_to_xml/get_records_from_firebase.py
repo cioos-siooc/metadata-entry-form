@@ -13,7 +13,7 @@ from google.oauth2 import service_account
 
 
 def get_records_from_firebase(
-    region, firebase_auth_key_file, record_url, record_status
+    region, firebase_auth_key_file, record_url, record_status, firebase_auth_key_json=None
 ):
     """
     Returns list of records from firebase for this region,
@@ -27,9 +27,14 @@ def get_records_from_firebase(
     ]
 
     # Authenticate a credential with the service account
-    credentials = service_account.Credentials.from_service_account_file(
-        firebase_auth_key_file, scopes=scopes
-    )
+    if firebase_auth_key_json:
+        credentials = service_account.Credentials.from_service_account_info(
+            firebase_auth_key_json, scopes=scopes
+        )
+    else:
+        credentials = service_account.Credentials.from_service_account_file(
+            firebase_auth_key_file, scopes=scopes
+        )
 
     # Use the credentials object to authenticate a Requests session.
     authed_session = AuthorizedSession(credentials)

@@ -104,7 +104,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "json") {
         data = await [JSON.stringify(recordToDataCite( record, language, region, datacitePrefix ), null, 2)];
       } else {
-        const res = await downloadRecord({ record, fileType });
+        const res = await downloadRecord({ record, fileType, region });
         data = Object.values(res.data.message);
       }
       const mimeTypes = {
