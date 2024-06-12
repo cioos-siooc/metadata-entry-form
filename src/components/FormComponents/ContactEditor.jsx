@@ -67,9 +67,15 @@ const ContactEditor = ({
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/organizations?query=${newInputValue}`)
+      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
         .then((response) => response.json())
-        .then((response) => {if (mounted.current) setRorOptions(response.items)})
+        .then((response) => {
+          if (mounted.current){
+            setRorOptions(response.items)}
+          if (response.number_of_results === 1){
+            updateContactRor(response.items[0]);
+          }
+        })
         .then(() => {if (mounted.current) setRorSearchActive(false)});
     }
   }
