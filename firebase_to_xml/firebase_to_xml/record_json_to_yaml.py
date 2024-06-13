@@ -22,8 +22,19 @@ def get_eov_translations():
             translation[eov['value']]=eov['label FR']
         return translation
 
+
+def get_epsg():
+    with open(dir + '/resources/epsg.json') as f:
+        epsgDict = {}
+        epsgJson = json.load(f)
+        if epsgJson:
+            epsgDict = {str(x['Code']): x for x in epsgJson}
+        return epsgDict
+
 licenses=get_licenses()
 eov_translations=get_eov_translations()
+epsg = get_epsg()
+
 
 def eovs_to_fr(eovs_en):
     """ Translate a list of EOVs in english to a list in french"""
@@ -133,7 +144,8 @@ def record_json_to_yaml(record):
                 0 if record.get("noVerticalExtent") else float(
                     record.get("verticalExtentMax")),
             ],
-            "vertical_positive": "up" if record.get("noVerticalExtent") else record.get("verticalExtentDirection"),
+            "vertical_positive": "heightPositive" if record.get("noVerticalExtent") else record.get("verticalExtentDirection"),
+            "vertical_epsg": epsg.get("5829") if record.get("noVerticalExtent") else epsg.get(record.get("verticalExtentEPSG")),
             "description": record["map"].get("description"),
             "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
         },

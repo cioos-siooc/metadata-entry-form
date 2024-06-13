@@ -1,0 +1,4864 @@
+[
+    {
+        "Code": 5712,
+        "Name": "AHD (Tasmania) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Australia - Tasmania mainland onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2018-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5712"
+            }
+        ]
+    },
+    {
+        "Code": 5711,
+        "Name": "AHD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Australia Christmas and Cocos - onshore",
+        "Remarks": "Appropriate for cadastral and local engineering survey including construction or mining. Only suitable onshore. AVWS height (CRS code 9458) is more accurate than AHD height for applications over distances greater than 10 km and also extends offshore.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-10-21T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5711"
+            }
+        ]
+    },
+    {
+        "Code": 5734,
+        "Name": "AIOC95 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Azerbaijan - offshore and Sangachal",
+        "Remarks": "Also used by AIOC and BP as a height system for engineering survey at Sangachal terminal (see CRS code 5797). AIOC95 datum is 1.7m above Caspian datum and 26.3m below Baltic datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5734"
+            }
+        ]
+    },
+    {
+        "Code": 5797,
+        "Name": "AIOC95 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Azerbaijan - offshore and Sangachal",
+        "Remarks": "AIOC95 datum is 1.7m above Caspian datum and 26.3m below Baltic datum. Also used by AIOC and BP as the depth system for all offshore Azerbaijan activities (see CRS code 5734).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5797"
+            }
+        ]
+    },
+    {
+        "Code": 10353,
+        "Name": "Alboran height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Alboran",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-06-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10353"
+            }
+        ]
+    },
+    {
+        "Code": 5782,
+        "Name": "Alicante height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain and Gibraltar - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-07-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5782"
+            }
+        ]
+    },
+    {
+        "Code": 5775,
+        "Name": "Antalya height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Turkey - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5775"
+            }
+        ]
+    },
+    {
+        "Code": 6643,
+        "Name": "ASVD02 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "American Samoa - Tutuila island",
+        "Remarks": "Replaces Tutuila 1962 height (CRS code 6638). Replaced by Pago Pago 2020 height after ASVD02 benchmarks destroyed by earthquake activity.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-12-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6643"
+            }
+        ]
+    },
+    {
+        "Code": 5759,
+        "Name": "Auckland 1946 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Auckland vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5759"
+            }
+        ]
+    },
+    {
+        "Code": 9458,
+        "Name": "AVWS height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Australia - GDA",
+        "Remarks": "For cadastral and local engineering applications see AHD height (CRS code 5711). AVWS is more accurate than AHD for applications over distances greater than 10 km.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-12-03T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9458"
+            }
+        ]
+    },
+    {
+        "Code": 8358,
+        "Name": "Baltic 1957 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Czechoslovakia",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8358"
+            }
+        ]
+    },
+    {
+        "Code": 8357,
+        "Name": "Baltic 1957 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Czechoslovakia",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-02-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8357"
+            }
+        ]
+    },
+    {
+        "Code": 5612,
+        "Name": "Baltic 1977 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - FSU onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5612"
+            }
+        ]
+    },
+    {
+        "Code": 5705,
+        "Name": "Baltic 1977 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - FSU onshore",
+        "Remarks": "The adjustment also included the Czech and Slovak Republics but not adopted there, with earlier 1957 adjustment remaining in use: see CRS code 8357.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-12-03T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5705"
+            }
+        ]
+    },
+    {
+        "Code": 5786,
+        "Name": "Baltic 1982 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Bulgaria - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5786"
+            }
+        ]
+    },
+    {
+        "Code": 9650,
+        "Name": "Baltic 1986 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Poland - onshore",
+        "Remarks": "Initially valid until 2019-12-31, but that extended to 2023-12-31. Will be replaced by EVRF2007-PL height (CRS 9651) after 2023-12-31.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-03-18T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9650"
+            }
+        ]
+    },
+    {
+        "Code": 5752,
+        "Name": "Bandar Abbas height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Iran - onshore",
+        "Remarks": "Replaces Fao height (CRS code 5751) for national map agency work in Iran. At time of record creation NIOC data still generally referenced to Fao.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-03-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5752"
+            }
+        ]
+    },
+    {
+        "Code": 5732,
+        "Name": "Belfast height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Northern Ireland - onshore",
+        "Remarks": "Malin Head height (CRS code 5731) used for medium and small scale topographic mapping.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5732"
+            }
+        ]
+    },
+    {
+        "Code": 9669,
+        "Name": "BGS2005 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Bulgaria - onshore",
+        "Remarks": "Adopted 2010-07-29 as official Bulgarian reference datum through decree 153, replacing Baltic 1982 system (CRS code 5786).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-12-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9669"
+            }
+        ]
+    },
+    {
+        "Code": 9451,
+        "Name": "BI height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - British Isles - UK and Ireland onshore, UKCS",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-01-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9451"
+            }
+        ]
+    },
+    {
+        "Code": 5336,
+        "Name": "Black Sea depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Georgia",
+        "Remarks": "Black Sea datum is 0.4m below Baltic datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5336"
+            }
+        ]
+    },
+    {
+        "Code": 5735,
+        "Name": "Black Sea height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Georgia - onshore",
+        "Remarks": "Black Sea datum is 0.4m below Baltic datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5735"
+            }
+        ]
+    },
+    {
+        "Code": 5760,
+        "Name": "Bluff 1955 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - South Island - Bluff vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5760"
+            }
+        ]
+    },
+    {
+        "Code": 5607,
+        "Name": "Bora Bora SAU 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Bora Bora",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5607"
+            }
+        ]
+    },
+    {
+        "Code": 9722,
+        "Name": "Cagliari 1956 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Italy - Sardinia onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-05-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9722"
+            }
+        ]
+    },
+    {
+        "Code": 10377,
+        "Name": "Cais da Figueirinha depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Terceira onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10377"
+            }
+        ]
+    },
+    {
+        "Code": 6184,
+        "Name": "Cais da Figueirinha height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Terceira onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6184"
+            }
+        ]
+    },
+    {
+        "Code": 10374,
+        "Name": "Cais da Madalena depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Pico onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10374"
+            }
+        ]
+    },
+    {
+        "Code": 6182,
+        "Name": "Cais da Madalena height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Pico onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6182"
+            }
+        ]
+    },
+    {
+        "Code": 10370,
+        "Name": "Cais da Pontinha depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Madeira and Desertas islands onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10370"
+            }
+        ]
+    },
+    {
+        "Code": 6178,
+        "Name": "Cais da Pontinha height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Madeira and Desertas islands onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6178"
+            }
+        ]
+    },
+    {
+        "Code": 10371,
+        "Name": "Cais da Vila depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Porto Santo island onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10371"
+            }
+        ]
+    },
+    {
+        "Code": 10379,
+        "Name": "Cais da Vila do Porto depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores E onshore - Santa Maria and Formigas",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10379"
+            }
+        ]
+    },
+    {
+        "Code": 6186,
+        "Name": "Cais da Vila do Porto height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores E onshore - Santa Maria and Formigas",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6186"
+            }
+        ]
+    },
+    {
+        "Code": 6179,
+        "Name": "Cais da Vila height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Porto Santo island onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6179"
+            }
+        ]
+    },
+    {
+        "Code": 10375,
+        "Name": "Cais das Velas depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - S Jorge onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10375"
+            }
+        ]
+    },
+    {
+        "Code": 6180,
+        "Name": "Cais das Velas height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - S Jorge onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6180"
+            }
+        ]
+    },
+    {
+        "Code": 10364,
+        "Name": "Cascais depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - mainland - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10364"
+            }
+        ]
+    },
+    {
+        "Code": 5780,
+        "Name": "Cascais height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - mainland - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5780"
+            }
+        ]
+    },
+    {
+        "Code": 5706,
+        "Name": "Caspian depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Asia - FSU - Caspian Sea",
+        "Remarks": "Caspian Sea water levels are now offset appreciably from this datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5706"
+            }
+        ]
+    },
+    {
+        "Code": 5611,
+        "Name": "Caspian height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Asia - FSU - Caspian Sea",
+        "Remarks": "Caspian Sea water levels are now offset appreciably from this datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5611"
+            }
+        ]
+    },
+    {
+        "Code": 9721,
+        "Name": "Catania 1965 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Italy - Sicily onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-05-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9721"
+            }
+        ]
+    },
+    {
+        "Code": 6132,
+        "Name": "CBVD61 height (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Cayman Islands - Cayman Brac",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-10-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6132"
+            }
+        ]
+    },
+    {
+        "Code": 9672,
+        "Name": "CD Norway depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Norway, Svalbard and Jan Mayen - offshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-11-04T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9672"
+            }
+        ]
+    },
+    {
+        "Code": 10151,
+        "Name": "CD UK & Ireland VORF08 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Ireland and UK offshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10151"
+            }
+        ]
+    },
+    {
+        "Code": 9402,
+        "Name": "Ceuta 2 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Ceuta",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9402"
+            }
+        ]
+    },
+    {
+        "Code": 6647,
+        "Name": "CGVD2013(CGG2013) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Canada",
+        "Remarks": "Replaces CGVD28 height (CRS code 5713). CGVD2013(CGG2013) height is realized by geoid model CGG2013 (CT code 9246). Replaced by CGVD2013a(1997 / 2002 / 2010) height. CGG2013a is identical to CGG2013 except in the western sector of Lake of the Woods.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2022-06-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6647"
+            }
+        ]
+    },
+    {
+        "Code": 20035,
+        "Name": "CGVD2013a(1997) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Canada",
+        "Remarks": "Replaces CGVD2013(CGG2013) height. Although its datum is static CGVD2013a heights change with time, primarily due to glacial isostasy. This CRS is a static snapshot at epoch 1997.0 for use with NAD83(CSRS)v2 and 3. For other epochs see CRSs 9245 & 20034.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-07-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/20035"
+            }
+        ]
+    },
+    {
+        "Code": 20034,
+        "Name": "CGVD2013a(2002) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Canada",
+        "Remarks": "Replaces CGVD2013(CGG2013) height. Although its datum is static CGVD2013a heights change with time, primarily due to glacial isostasy. This CRS is a static snapshot at epoch 2002.0 for use with NAD83(CSRS)v4. For other epochs see CRSs 9245 & 20035.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-07-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/20034"
+            }
+        ]
+    },
+    {
+        "Code": 9245,
+        "Name": "CGVD2013a(2010) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Canada",
+        "Remarks": "Replaces CGVD2013(CGG2013) height. Although its datum is static CGVD2013a heights change with time, primarily due to glacial isostasy. This CRS is a static snapshot at epoch 2010.0 for use with NAD83(CSRS)v6 and v7. For other epochs see CRSs 20034/20035.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-01-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9245"
+            }
+        ]
+    },
+    {
+        "Code": 5713,
+        "Name": "CGVD28 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Canada - CGVD28",
+        "Remarks": "From November 2013 replaced by CGVD2013 height (CRS code 6647).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5713"
+            }
+        ]
+    },
+    {
+        "Code": 5771,
+        "Name": "Chatham Island 1959 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - Chatham Island onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-06-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5771"
+            }
+        ]
+    },
+    {
+        "Code": 5781,
+        "Name": "Constanta height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Romania - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-07-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5781"
+            }
+        ]
+    },
+    {
+        "Code": 8911,
+        "Name": "DACR52 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Costa Rica - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-03-09T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8911"
+            }
+        ]
+    },
+    {
+        "Code": 5792,
+        "Name": "Danger 1950 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "St Pierre and Miquelon - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5792"
+            }
+        ]
+    },
+    {
+        "Code": 7699,
+        "Name": "DHHN12 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - onshore",
+        "Remarks": "Replaced by SNN56 and then SNN76 in East Germany and by DHHN85 in West Germany.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2015-12-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7699"
+            }
+        ]
+    },
+    {
+        "Code": 7837,
+        "Name": "DHHN2016 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany",
+        "Remarks": "Replaces DHHN92 height (CRS code 5783) from 2016-12-01.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-03-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7837"
+            }
+        ]
+    },
+    {
+        "Code": 5784,
+        "Name": "DHHN85 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - West Germany all states",
+        "Remarks": "Replaced by DNNH92 height (CRS code 5783).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5784"
+            }
+        ]
+    },
+    {
+        "Code": 5783,
+        "Name": "DHHN92 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - onshore",
+        "Remarks": "Replaces SNN76 height (CRS code 5785) and DHHN85 height (CRS code 5784). Replaced by DHHN2016 height (CRS code 7837).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-09-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5783"
+            }
+        ]
+    },
+    {
+        "Code": 10552,
+        "Name": "DKLAT depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Reference for all realizations of DKLAT depth without distinction.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10552"
+            }
+        ]
+    },
+    {
+        "Code": 10548,
+        "Name": "DKLAT(2022) depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Replaced by DKLAT(2023) depth.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10548"
+            }
+        ]
+    },
+    {
+        "Code": 10550,
+        "Name": "DKLAT(2023) depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Replaces DKLAT(2022) depth (CRS code 10548).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10550"
+            }
+        ]
+    },
+    {
+        "Code": 10551,
+        "Name": "DKMSL depth ",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Reference for all realizations of DKMSL without distinction.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10551"
+            }
+        ]
+    },
+    {
+        "Code": 10547,
+        "Name": "DKMSL(2022) depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Replaced by DKMSL(2023) depth.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10547"
+            }
+        ]
+    },
+    {
+        "Code": 10549,
+        "Name": "DKMSL(2023) depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - offshore",
+        "Remarks": "Replaces DKMSL(2022) depth (CRS code 10547).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10549"
+            }
+        ]
+    },
+    {
+        "Code": 5733,
+        "Name": "DNN height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Replaced by DVR90 height (CRS code 5799).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5733"
+            }
+        ]
+    },
+    {
+        "Code": 5750,
+        "Name": "Douglas height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Isle of Man - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5750"
+            }
+        ]
+    },
+    {
+        "Code": 5761,
+        "Name": "Dunedin 1958 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - South Island - Dunedin vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5761"
+            }
+        ]
+    },
+    {
+        "Code": 4458,
+        "Name": "Dunedin-Bluff 1960 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - South Island - Dunedin-Bluff vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/4458"
+            }
+        ]
+    },
+    {
+        "Code": 5777,
+        "Name": "Durres height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Albania - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5777"
+            }
+        ]
+    },
+    {
+        "Code": 5799,
+        "Name": "DVR90 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Reference for all realizations of DVR90 without distinction: DVR90(2000), DVR90(2002), DVR90(2013) and DVR90(2023).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5799"
+            }
+        ]
+    },
+    {
+        "Code": 10482,
+        "Name": "DVR90(2000) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Realizes DVR90 through the levelling network. Replaces Dansk Normal Null height (CRS code 5733).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10482"
+            }
+        ]
+    },
+    {
+        "Code": 10483,
+        "Name": "DVR90(2002) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Geoid-based realization to obtain DVR90 heights through GNSS. Replaced by DVR90(2013) height (CRS code 10484).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10483"
+            }
+        ]
+    },
+    {
+        "Code": 10484,
+        "Name": "DVR90(2013) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Geoid-based realization to obtain DVR90 heights through GNSS. Replaces DVR90(2002) height (CRS code 10483). Replaced by DVR90(2023) height (CRS code 10485).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10484"
+            }
+        ]
+    },
+    {
+        "Code": 10485,
+        "Name": "DVR90(2023) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Denmark - onshore",
+        "Remarks": "Geoid-based realization to obtain DVR90 heights through GNSS. Replaces DVR90(2013) height (CRS code 10484).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10485"
+            }
+        ]
+    },
+    {
+        "Code": 3855,
+        "Name": "EGM2008 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Zero-height surface resulting from the application of the EGM2008 geoid model to the WGS 84 ellipsoid. Replaces EGM96 height (CRS code 5773).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/3855"
+            }
+        ]
+    },
+    {
+        "Code": 5798,
+        "Name": "EGM84 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Zero-height surface resulting from the application of the EGM84 geoid model to the WGS 84 ellipsoid. Replaced by EGM96 height (CRS code 5773).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5798"
+            }
+        ]
+    },
+    {
+        "Code": 5773,
+        "Name": "EGM96 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Zero-height surface resulting from the application of the EGM96 geoid model to the WGS 84 ellipsoid. Replaces EGM84 height (CRS code 5798). Replaced by EGM2008 height (CRS code 3855).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5773"
+            }
+        ]
+    },
+    {
+        "Code": 9663,
+        "Name": "EH2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Estonia - onshore",
+        "Remarks": "In Estonia replaces Baltic 1977 system (CRS code 5705) from January 2018.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-02-05T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9663"
+            }
+        ]
+    },
+    {
+        "Code": 9401,
+        "Name": "El Hierro height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - El Hierro",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9401"
+            }
+        ]
+    },
+    {
+        "Code": 5787,
+        "Name": "EOMA 1980 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Hungary",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5787"
+            }
+        ]
+    },
+    {
+        "Code": 8378,
+        "Name": "EPSG example wellbore local vertical CRS",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "To be specified",
+        "Remarks": "Vertical component of wellbore cubic CRS (CRS code 8820). Depth is relative to the zero depth point used during wellbore survey (e.g. derrick floor).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-02-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8378"
+            }
+        ]
+    },
+    {
+        "Code": 8897,
+        "Name": "EPSG example wellbore local vertical CRS (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "To be specified",
+        "Remarks": "Vertical component of wellbore cubic CRS (CRS code 8821). Depth is relative to the zero depth point used during wellbore survey (e.g. derrick floor).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-02-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8897"
+            }
+        ]
+    },
+    {
+        "Code": 9274,
+        "Name": "EVRF2000 Austria height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Austria",
+        "Remarks": "Austria-specific version of EVRF using orthometric heights instead of the Normal heights used in EVRF2000 (CRS code 5730). Used for scientific purposes. See GHA height (CRS code 5778) for cadastral and other land survey purposes.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-12-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9274"
+            }
+        ]
+    },
+    {
+        "Code": 5730,
+        "Name": "EVRF2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - EVRF2000",
+        "Remarks": "Uses Normal heights. Replaced by EVRF2007 height (CRS code 5621). In Austria, orthometric heights used instead - see CRS code 9274.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-03-02T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5730"
+            }
+        ]
+    },
+    {
+        "Code": 5621,
+        "Name": "EVRF2007 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - EVRF2007",
+        "Remarks": "Uses Normal heights. Replaces EVRF2000 height (CRS code 5730). Replaced by EVRF2019 height (CRS code 9389).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-07-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5621"
+            }
+        ]
+    },
+    {
+        "Code": 9651,
+        "Name": "EVRF2007-PL height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Poland - onshore",
+        "Remarks": "Replaces Baltic 1986 height (CRS 9650) after 2023-12-31.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-03-18T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9651"
+            }
+        ]
+    },
+    {
+        "Code": 9389,
+        "Name": "EVRF2019 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - EVRF2019",
+        "Remarks": "September 2020 adjustment. Replaces 2019 adjustment and EVRF2007 height (CRS code 5621). Uses Normal heights. Zero-tide solution. See EVRF2019 mean-tide height (CRS code 9390) for solution more appropriate for oceanography and GNSS-related activities.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-01-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9389"
+            }
+        ]
+    },
+    {
+        "Code": 9390,
+        "Name": "EVRF2019 mean-tide height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - EVRF2019",
+        "Remarks": "September 2020 adjustment. Replaces 2019 adjustment. Uses Normal heights. Mean-tide solution. See EVRF2019 height (CRS code 9389) for zero-tide solution more appropriate for gravity-related activities.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-01-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9390"
+            }
+        ]
+    },
+    {
+        "Code": 5725,
+        "Name": "Fahud HD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Oman - mainland",
+        "Remarks": "Replaced by PHD93 height (CRS code 5724) from 1993.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2012-02-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5725"
+            }
+        ]
+    },
+    {
+        "Code": 5741,
+        "Name": "Fair Isle height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Fair Isle onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5741"
+            }
+        ]
+    },
+    {
+        "Code": 7446,
+        "Name": "Famagusta 1960 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Cyprus - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2015-11-03T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7446"
+            }
+        ]
+    },
+    {
+        "Code": 3886,
+        "Name": "Fao 1979 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Iraq - onshore",
+        "Remarks": "Replaces Fao height (CRS code 5751) for national map agency work in Iraq. At time of record creation some irrigation project data still referenced to Fao. Usage in oil industry is uncertain.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-03-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/3886"
+            }
+        ]
+    },
+    {
+        "Code": 5751,
+        "Name": "Fao height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Asia - Middle East -SE Iraq and SW Iran",
+        "Remarks": "Replaced by Bandar Abbas (CRS code 5752) in Iran and Fao 1979 (code 3886) in Iraq. At time of record creation NIOC data in Ahwaz area of Iran and some irrigation project data in Iraq still usually referenced to Fao. Usage in Iraqi oil industry uncertain.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-03-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5751"
+            }
+        ]
+    },
+    {
+        "Code": 5597,
+        "Name": "FCSVR10 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Fehmarnbelt inner",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-09-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5597"
+            }
+        ]
+    },
+    {
+        "Code": 5748,
+        "Name": "Flannan Isles height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Flannan Isles onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5748"
+            }
+        ]
+    },
+    {
+        "Code": 10352,
+        "Name": "Formentera height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Balearic Islands - Formentera",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-06-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10352"
+            }
+        ]
+    },
+    {
+        "Code": 5743,
+        "Name": "Foula height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Foula onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5743"
+            }
+        ]
+    },
+    {
+        "Code": 9396,
+        "Name": "Fuerteventura height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - Fuerteventura",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9396"
+            }
+        ]
+    },
+    {
+        "Code": 5317,
+        "Name": "FVR09 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Faroe Islands - onshore",
+        "Remarks": "Introduced in 2010.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-10-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5317"
+            }
+        ]
+    },
+    {
+        "Code": 6130,
+        "Name": "GCVD54 height (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Cayman Islands - Grand Cayman",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-10-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6130"
+            }
+        ]
+    },
+    {
+        "Code": 5214,
+        "Name": "Genoa 1942 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Italy - mainland and Sicily",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-05-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5214"
+            }
+        ]
+    },
+    {
+        "Code": 5778,
+        "Name": "GHA height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Austria",
+        "Remarks": "For scientific purposes see EVRF2000 Austria height (CRS code 9274).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-01-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5778"
+            }
+        ]
+    },
+    {
+        "Code": 5762,
+        "Name": "Gisborne 1926 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Gisborne vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5762"
+            }
+        ]
+    },
+    {
+        "Code": 10565,
+        "Name": "GLLMSL(2022) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Greenland - onshore",
+        "Remarks": "Collection of 77 disconnected local levelling nets each tied to local mean sea level.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2024-03-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10565"
+            }
+        ]
+    },
+    {
+        "Code": 9923,
+        "Name": "GNTRANS height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - onshore",
+        "Remarks": "Introduced in 2003. Replaces DB Netz use of DHHN12, SNN76, DHHN85 and DHHN92 as variously adopted by German states but which DB Netz used with smoothing across boundary discontinuity. Replaced by GNTRANS2016 height (CRS code 9927).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-12-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9923"
+            }
+        ]
+    },
+    {
+        "Code": 9927,
+        "Name": "GNTRANS2016 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - onshore",
+        "Remarks": "Replaces GNTRANS height [also called GNTRANS2003 height] (CRS code 9923). Approximates national DHHN2016 height system (CRS code 7837) to around 1cm in lowlands and 2cm in high mountains.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-12-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9927"
+            }
+        ]
+    },
+    {
+        "Code": 9397,
+        "Name": "Gran Canaria height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - Gran Canaria",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9397"
+            }
+        ]
+    },
+    {
+        "Code": 5795,
+        "Name": "Guadeloupe 1951 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - Grande-Terre and Basse-Terre - onshore",
+        "Remarks": "Replaced by Guadeloupe 1988 height (CRS code 5757).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5795"
+            }
+        ]
+    },
+    {
+        "Code": 5757,
+        "Name": "Guadeloupe 1988 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - Grande-Terre and Basse-Terre - onshore",
+        "Remarks": "Replaces Guadeloupe 1951 height (CRS code 5795).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5757"
+            }
+        ]
+    },
+    {
+        "Code": 6639,
+        "Name": "Guam 1963 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guam - onshore",
+        "Remarks": "Replaced by GUVD04 height (CRS code 6644).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-10-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6639"
+            }
+        ]
+    },
+    {
+        "Code": 6644,
+        "Name": "GUVD04 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guam - onshore",
+        "Remarks": "Replaces Guam 1963 height (CRS code 6639).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6644"
+            }
+        ]
+    },
+    {
+        "Code": 8266,
+        "Name": "GVR2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Greenland - 59°N to 84°N",
+        "Remarks": "Replaced by GVR2016 height (CRS code 8267). GVR2000 is realized by gravimetric geoid model 2000 (transformation code 8268) applied to GR96 (CRS code 4909).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-09-05T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8266"
+            }
+        ]
+    },
+    {
+        "Code": 8267,
+        "Name": "GVR2016 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Greenland - 58°N to 85°N",
+        "Remarks": "Replaces GVR2000 height (CRS code 8266). GVR2016 is realized by gravimetric geoid model 2016 (transformation code 8269) applied to GR96 (CRS code 4909).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-09-05T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8267"
+            }
+        ]
+    },
+    {
+        "Code": 5726,
+        "Name": "Ha Tien 1960 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Asia - Cambodia and Vietnam - mainland",
+        "Remarks": "In Vietnam replaced by Hon Dau height (CRS code 5727) from 1992.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5726"
+            }
+        ]
+    },
+    {
+        "Code": 5872,
+        "Name": "HAT height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"HAT at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5872"
+            }
+        ]
+    },
+    {
+        "Code": 5871,
+        "Name": "HHWLT height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"HHWLT at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5871"
+            }
+        ]
+    },
+    {
+        "Code": 5874,
+        "Name": "High Water height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"High Water at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5874"
+            }
+        ]
+    },
+    {
+        "Code": 5739,
+        "Name": "HKCD depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - Hong Kong - offshore",
+        "Remarks": "Chart datum is 0.15 metres below Hong Kong Principal Datum (CRS code 5738) and 1.38m below MSL at Quarry Bay.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5739"
+            }
+        ]
+    },
+    {
+        "Code": 7976,
+        "Name": "HKPD depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - Hong Kong - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7976"
+            }
+        ]
+    },
+    {
+        "Code": 5738,
+        "Name": "HKPD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - Hong Kong - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5738"
+            }
+        ]
+    },
+    {
+        "Code": 5727,
+        "Name": "Hon Dau 1992 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Vietnam - mainland",
+        "Remarks": "In Vietnam replaces Ha Tien height (CRS code 5726) from 1992.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2012-05-08T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5727"
+            }
+        ]
+    },
+    {
+        "Code": 10373,
+        "Name": "Horta depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Faial onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10373"
+            }
+        ]
+    },
+    {
+        "Code": 6181,
+        "Name": "Horta height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Faial onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6181"
+            }
+        ]
+    },
+    {
+        "Code": 9303,
+        "Name": "HS2-VRF height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - London to Birmingham and Crewe",
+        "Remarks": "HS2-VRF height is equivalent to ODN height as historically realized through OSNet v2001 and OSGM02. After the ODN realization was updated to be through OSNet v2009 and OSGM15, HS2-VRF height was introduced for backward consistency.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-01-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9303"
+            }
+        ]
+    },
+    {
+        "Code": 5605,
+        "Name": "Huahine SAU 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Huahine",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5605"
+            }
+        ]
+    },
+    {
+        "Code": 5610,
+        "Name": "HVRS71 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Croatia - onshore",
+        "Remarks": "Replaces Trieste height (CRS code 5195).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-07-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5610"
+            }
+        ]
+    },
+    {
+        "Code": 9394,
+        "Name": "Ibiza height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Balearic Islands - Ibiza",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-06-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9394"
+            }
+        ]
+    },
+    {
+        "Code": 5608,
+        "Name": "IGLD 1955 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "North America - Great Lakes basin and St Lawrence Seaway",
+        "Remarks": "Replaces several earlier systems. Replaced by IGLD 1985 (CRS code 5609).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-05-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5608"
+            }
+        ]
+    },
+    {
+        "Code": 5609,
+        "Name": "IGLD 1985 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "North America - Great Lakes basin and St Lawrence Seaway",
+        "Remarks": "Replaces IGLD 1955 (CRS code 5608).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-05-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5609"
+            }
+        ]
+    },
+    {
+        "Code": 5601,
+        "Name": "IGN 1966 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Tahiti",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5601"
+            }
+        ]
+    },
+    {
+        "Code": 5616,
+        "Name": "IGN 1988 LS height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - Les Saintes - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-10-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5616"
+            }
+        ]
+    },
+    {
+        "Code": 5617,
+        "Name": "IGN 1988 MG height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - Marie-Galante - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-10-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5617"
+            }
+        ]
+    },
+    {
+        "Code": 5619,
+        "Name": "IGN 1988 SB height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - St Barthelemy - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-10-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5619"
+            }
+        ]
+    },
+    {
+        "Code": 5620,
+        "Name": "IGN 1988 SM height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - St Martin - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-10-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5620"
+            }
+        ]
+    },
+    {
+        "Code": 5618,
+        "Name": "IGN 1992 LD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - La Desirade - onshore",
+        "Remarks": "Replaced by IGN 2008 LD height (CRS code 9130).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5618"
+            }
+        ]
+    },
+    {
+        "Code": 9130,
+        "Name": "IGN 2008 LD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Guadeloupe - La Desirade - onshore",
+        "Remarks": "Replaces IGN 1992 LD height (CRS code 5618).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9130"
+            }
+        ]
+    },
+    {
+        "Code": 9471,
+        "Name": "INAGeoid2020 v1 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Indonesia",
+        "Remarks": "Physical height component of national vertical control network (JKVN). Orthometric heights. Replaced by INAGeoid2020 v2 height (code 20036).",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2022-07-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9471"
+            }
+        ]
+    },
+    {
+        "Code": 20036,
+        "Name": "INAGeoid2020 v2 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Indonesia",
+        "Remarks": "Physical height component of national vertical control network (JKVN). Orthometric heights. Replaces INAGeoid2020 v1 height (CRS code 9471).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-07-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/20036"
+            }
+        ]
+    },
+    {
+        "Code": 5831,
+        "Name": "Instantaneous Water Level depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Depth relative to instantaneous water level uncorrected for tide. Not specific to any location or epoch.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5831"
+            }
+        ]
+    },
+    {
+        "Code": 5829,
+        "Name": "Instantaneous Water Level height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Height relative to instantaneous water level uncorrected for tide. Not specific to any location or epoch.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2012-08-10T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5829"
+            }
+        ]
+    },
+    {
+        "Code": 8089,
+        "Name": "ISH2004 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Iceland - onshore",
+        "Remarks": "National system replacing older local systems from March 2011.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-03-18T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8089"
+            }
+        ]
+    },
+    {
+        "Code": 5863,
+        "Name": "ISLW depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"ISLW at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5863"
+            }
+        ]
+    },
+    {
+        "Code": 7888,
+        "Name": "Jamestown 1971 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "St Helena - St Helena Island",
+        "Remarks": "Replaced by SHVD2016 (CRS code 7890) from 2016.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-11-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7888"
+            }
+        ]
+    },
+    {
+        "Code": 6694,
+        "Name": "JGD2000 (vertical) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Japan - onshore mainland",
+        "Remarks": "Replaced JSLD69 and JSLD72 (CRS codes 5723 and 6693) from April 2002. Replaced by JGD2011 (vertical) (CRS code 6695) with effect from 21st October 2011.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6694"
+            }
+        ]
+    },
+    {
+        "Code": 6695,
+        "Name": "JGD2011 (vertical) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Japan - onshore mainland",
+        "Remarks": "Replaces JGD2000 (vertical) (CRS code 6694) with effect from 21st October 2011.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6695"
+            }
+        ]
+    },
+    {
+        "Code": 5723,
+        "Name": "JSLD69 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Japan - onshore - Honshu, Shikoku, Kyushu",
+        "Remarks": "Replaces JSLD49. Replaced by JGD2000 (vertical) (CRS code 6694) with effect from April 2002.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2014-05-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5723"
+            }
+        ]
+    },
+    {
+        "Code": 6693,
+        "Name": "JSLD72 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Japan - onshore - Hokkaido",
+        "Remarks": "Replaced by JGD2000 (vertical) (CRS code 6694) with effect from April 2002.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-12-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6693"
+            }
+        ]
+    },
+    {
+        "Code": 7652,
+        "Name": "Kiunga height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Papua New Guinea - onshore south of 5°S and west of 144°E",
+        "Remarks": "Kiunga height = WGS 84 ellipsoid height - value of geoid undulation derived by bilinear interpolation of EGM2008 geoid model - 3.0m = EGM2008 height - 3.0m. See CRS code 3855 and transformation code 3858.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-12-12T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7652"
+            }
+        ]
+    },
+    {
+        "Code": 5790,
+        "Name": "KOC CD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Kuwait - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5790"
+            }
+        ]
+    },
+    {
+        "Code": 5789,
+        "Name": "KOC WD depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Kuwait - onshore",
+        "Remarks": "See CRS code 5614 for equivalent system in feet.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5789"
+            }
+        ]
+    },
+    {
+        "Code": 5614,
+        "Name": "KOC WD depth (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Kuwait - onshore",
+        "Remarks": "See CRS code 5789 for equivalent system in feet.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5614"
+            }
+        ]
+    },
+    {
+        "Code": 7979,
+        "Name": "KOC WD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Kuwait - onshore",
+        "Remarks": "See CRS code 5789 for equivalent depth system.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-02-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7979"
+            }
+        ]
+    },
+    {
+        "Code": 9335,
+        "Name": "KSA-VRF14 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Saudi Arabia - onshore",
+        "Remarks": "Orthometric heights.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-09-08T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9335"
+            }
+        ]
+    },
+    {
+        "Code": 7651,
+        "Name": "Kumul 34 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Papua New Guinea - PFTB",
+        "Remarks": "Kumul 34 height = WGS 84 ellipsoid height - value of geoid undulation derived by bilinear interpolation of EGM96 geoid model - 0.87m = EGM96 height - 0.87m. See CRS code 5773 and transformation code 10084.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-12-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7651"
+            }
+        ]
+    },
+    {
+        "Code": 5788,
+        "Name": "Kuwait PWD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Kuwait - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5788"
+            }
+        ]
+    },
+    {
+        "Code": 5193,
+        "Name": "KVD1964 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Korea, Republic of (South Korea) - onshore",
+        "Remarks": "Normal-orthometric heights.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-11-22T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5193"
+            }
+        ]
+    },
+    {
+        "Code": 9399,
+        "Name": "La Gomera height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - La Gomera",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9399"
+            }
+        ]
+    },
+    {
+        "Code": 9400,
+        "Name": "La Palma height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - La Palma",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9400"
+            }
+        ]
+    },
+    {
+        "Code": 5796,
+        "Name": "Lagos 1955 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Nigeria - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5796"
+            }
+        ]
+    },
+    {
+        "Code": 9395,
+        "Name": "Lanzarote height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - Lanzarote",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9395"
+            }
+        ]
+    },
+    {
+        "Code": 9666,
+        "Name": "LAS07 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Lithuania - onshore",
+        "Remarks": "In Lithuania replaces Baltic 1977 system (CRS code 5705) from January 2016.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-02-05T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9666"
+            }
+        ]
+    },
+    {
+        "Code": 5861,
+        "Name": "LAT depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"LAT at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5861"
+            }
+        ]
+    },
+    {
+        "Code": 9287,
+        "Name": "LAT NL depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Netherlands - offshore and nearshore ",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9287"
+            }
+        ]
+    },
+    {
+        "Code": 7700,
+        "Name": "Latvia 2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Latvia - onshore",
+        "Remarks": "In Latvia replaces Baltic 1977 system (CRS code 5705) from December 2014.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2015-12-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7700"
+            }
+        ]
+    },
+    {
+        "Code": 6131,
+        "Name": "LCVD61 height (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Cayman Islands - Little Cayman",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-10-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6131"
+            }
+        ]
+    },
+    {
+        "Code": 5742,
+        "Name": "Lerwick height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Shetland Islands onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5742"
+            }
+        ]
+    },
+    {
+        "Code": 5729,
+        "Name": "LHN95 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Liechtenstein and Switzerland",
+        "Remarks": "Replaces LN02 height (CRS code 5728).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5729"
+            }
+        ]
+    },
+    {
+        "Code": 5862,
+        "Name": "LLWLT depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"LLWLT at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5862"
+            }
+        ]
+    },
+    {
+        "Code": 5728,
+        "Name": "LN02 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Liechtenstein and Switzerland",
+        "Remarks": "Replaced by LHN95 height (CRS code 5729).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5728"
+            }
+        ]
+    },
+    {
+        "Code": 5873,
+        "Name": "Low Water depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Low Water at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5873"
+            }
+        ]
+    },
+    {
+        "Code": 5763,
+        "Name": "Lyttelton 1937 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - South Island - Lyttleton vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5763"
+            }
+        ]
+    },
+    {
+        "Code": 8434,
+        "Name": "Macao height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - Macao",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-02-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8434"
+            }
+        ]
+    },
+    {
+        "Code": 5731,
+        "Name": "Malin Head height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Ireland (Republic and Ulster) - onshore",
+        "Remarks": "Topographic mapping at all scales in Republic and medium and small scales in Northern Ireland. Belfast Lough height (CRS code 5732) used for large scale topographic mapping in Northern Ireland.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5731"
+            }
+        ]
+    },
+    {
+        "Code": 9392,
+        "Name": "Mallorca height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Balearic Islands - Mallorca",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9392"
+            }
+        ]
+    },
+    {
+        "Code": 5722,
+        "Name": "Maputo height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Mozambique - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5722"
+            }
+        ]
+    },
+    {
+        "Code": 5794,
+        "Name": "Martinique 1955 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Martinique - onshore",
+        "Remarks": "Replaced by Martinique 1987 height (CRS code 5756)",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5794"
+            }
+        ]
+    },
+    {
+        "Code": 5756,
+        "Name": "Martinique 1987 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Martinique - onshore",
+        "Remarks": "Replaces Martinique 1955 height (CRS code 5794)",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5756"
+            }
+        ]
+    },
+    {
+        "Code": 5604,
+        "Name": "Maupiti SAU 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Maupiti",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5604"
+            }
+        ]
+    },
+    {
+        "Code": 5793,
+        "Name": "Mayotte 1950 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Mayotte - onshore",
+        "Remarks": "Referred to as 'SHOM 1953' in government regulations but confirmed by IGN as being the Mayotte 1950 system.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-12-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5793"
+            }
+        ]
+    },
+    {
+        "Code": 10354,
+        "Name": "Melilla height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Melilla",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-06-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10354"
+            }
+        ]
+    },
+    {
+        "Code": 9393,
+        "Name": "Menorca height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Balearic Islands - Menorca",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9393"
+            }
+        ]
+    },
+    {
+        "Code": 5869,
+        "Name": "MHHW height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"MHHW at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5869"
+            }
+        ]
+    },
+    {
+        "Code": 5868,
+        "Name": "MHW height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean High Water at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5868"
+            }
+        ]
+    },
+    {
+        "Code": 5870,
+        "Name": "MHWS height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"MHWS at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5870"
+            }
+        ]
+    },
+    {
+        "Code": 5866,
+        "Name": "MLLW depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"MLLW at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5866"
+            }
+        ]
+    },
+    {
+        "Code": 5864,
+        "Name": "MLLWS depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"MLLWS at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model..",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5864"
+            }
+        ]
+    },
+    {
+        "Code": 5867,
+        "Name": "MLW depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Low Water at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5867"
+            }
+        ]
+    },
+    {
+        "Code": 5865,
+        "Name": "MLWS depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"MLWS at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5865"
+            }
+        ]
+    },
+    {
+        "Code": 5602,
+        "Name": "Moorea SAU 1981 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Moorea",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5602"
+            }
+        ]
+    },
+    {
+        "Code": 5764,
+        "Name": "Moturiki 1953 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Moturiki vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5764"
+            }
+        ]
+    },
+    {
+        "Code": 5715,
+        "Name": "MSL depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5715"
+            }
+        ]
+    },
+    {
+        "Code": 8051,
+        "Name": "MSL depth (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8051"
+            }
+        ]
+    },
+    {
+        "Code": 8053,
+        "Name": "MSL depth (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8053"
+            }
+        ]
+    },
+    {
+        "Code": 5714,
+        "Name": "MSL height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5714"
+            }
+        ]
+    },
+    {
+        "Code": 8050,
+        "Name": "MSL height (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "World",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8050"
+            }
+        ]
+    },
+    {
+        "Code": 8052,
+        "Name": "MSL height (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA",
+        "Remarks": "Approximate because not specific to any location or epoch. Users are advised to not use this generic CRS but instead use one with a specific datum origin (e.g. \"Mean Sea Level at xxx during yyyy-yyyy\") or defined through a specified geoid/hydroid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8052"
+            }
+        ]
+    },
+    {
+        "Code": 9288,
+        "Name": "MSL NL depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Netherlands - offshore and nearshore ",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9288"
+            }
+        ]
+    },
+    {
+        "Code": 10150,
+        "Name": "MSL UK & Ireland VORF08 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Ireland and UK offshore",
+        "Remarks": "For offshore engineering on UKCS, use Ordnance Datum Newlyn (Offshore).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-11-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10150"
+            }
+        ]
+    },
+    {
+        "Code": 8841,
+        "Name": "MVGC height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Saudi Arabia - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-08-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8841"
+            }
+        ]
+    },
+    {
+        "Code": 3900,
+        "Name": "N2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Finland - onshore",
+        "Remarks": "Replaces N43 height and N60 height (CRS codes 8675 and 5717).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-05-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/3900"
+            }
+        ]
+    },
+    {
+        "Code": 8675,
+        "Name": "N43 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Finland - mainland south of 66°N",
+        "Remarks": "Introduced during second national precise levelling as a temporary height system (or intended to be such). Replaced by N60 height (CRS code 5717).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-05-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8675"
+            }
+        ]
+    },
+    {
+        "Code": 5717,
+        "Name": "N60 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Finland - onshore",
+        "Remarks": "In use since 1968. Replaced by N2000 height (CRS code 3900).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-05-02T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5717"
+            }
+        ]
+    },
+    {
+        "Code": 5709,
+        "Name": "NAP height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Netherlands",
+        "Remarks": "Use has been extended from Netherlands onshore to Netherlands onshore and offshore from 2018.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-08-31T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5709"
+            }
+        ]
+    },
+    {
+        "Code": 5765,
+        "Name": "Napier 1962 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Hawkes Bay mc Napier vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5765"
+            }
+        ]
+    },
+    {
+        "Code": 6357,
+        "Name": "NAVD88 depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "North America - Mexico and USA - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6357"
+            }
+        ]
+    },
+    {
+        "Code": 6358,
+        "Name": "NAVD88 depth (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - CONUS and Alaska - onshore",
+        "Remarks": "Replaces NGVD29 depth (ftUS) (CRS code 6359).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6358"
+            }
+        ]
+    },
+    {
+        "Code": 5703,
+        "Name": "NAVD88 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "North America - Mexico and USA - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5703"
+            }
+        ]
+    },
+    {
+        "Code": 8228,
+        "Name": "NAVD88 height (ft)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - onshore - AZ MI MT ND OR SC",
+        "Remarks": "Care: only for use as part of a compound CRS in conjunction with State Plane CS in States which have passed State Plane legislation in International feet (note: not US survet feet).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8228"
+            }
+        ]
+    },
+    {
+        "Code": 6360,
+        "Name": "NAVD88 height (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - CONUS and Alaska - onshore",
+        "Remarks": "Replaces NGVD29 height (ftUS) (CRS code 5702).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6360"
+            }
+        ]
+    },
+    {
+        "Code": 5766,
+        "Name": "Nelson 1955 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - South Island - Nelson vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5766"
+            }
+        ]
+    },
+    {
+        "Code": 5774,
+        "Name": "NG95 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Luxembourg",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-01-03T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5774"
+            }
+        ]
+    },
+    {
+        "Code": 10190,
+        "Name": "NGA 2022 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Algeria - onshore",
+        "Remarks": "In practice realised by application of geoid model recommended by the Institut National de Cartographie et de Télédétection (INCT) to WGS 84 ellipsoidal heights.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-03-01T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10190"
+            }
+        ]
+    },
+    {
+        "Code": 5791,
+        "Name": "NGC 1948 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "France - Corsica onshore",
+        "Remarks": "Replaced by IGN78 height (CRS code 5721)",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5791"
+            }
+        ]
+    },
+    {
+        "Code": 5719,
+        "Name": "NGF Lallemand height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "France - mainland onshore",
+        "Remarks": "Generally but not entirely replaced by NGF IGN69 height (CRS code 5720).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5719"
+            }
+        ]
+    },
+    {
+        "Code": 5720,
+        "Name": "NGF-IGN69 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "France - mainland onshore",
+        "Remarks": "Generally but not entirely replaces NGF Lallemand height (CRS code 5719).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-09-23T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5720"
+            }
+        ]
+    },
+    {
+        "Code": 5721,
+        "Name": "NGF-IGN78 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "France - Corsica onshore",
+        "Remarks": "Replaces NGC 1948 height (CRS code 5791).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-06-21T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5721"
+            }
+        ]
+    },
+    {
+        "Code": 5755,
+        "Name": "NGG1977 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Guiana - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5755"
+            }
+        ]
+    },
+    {
+        "Code": 9351,
+        "Name": "NGNC08 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Caledonia - Belep, Grande Terre, Ile des Pins, Loyalty Islands",
+        "Remarks": "On Grande Terre replaces NGNC69 (CRS code 5753).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-03-31T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9351"
+            }
+        ]
+    },
+    {
+        "Code": 5753,
+        "Name": "NGNC69 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Caledonia - Grande Terre",
+        "Remarks": "Replaced by NGNC08 height (CRS code 9351).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-04-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5753"
+            }
+        ]
+    },
+    {
+        "Code": 5600,
+        "Name": "NGPF height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - main islands",
+        "Remarks": "The collection of heterogeneous vertical coordinate reference systems throughout the Society Islands of French Polynesia.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5600"
+            }
+        ]
+    },
+    {
+        "Code": 6359,
+        "Name": "NGVD29 depth (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - CONUS - onshore",
+        "Remarks": "Replaced by NAVD88 depth (ftUS) (CRS code 6358).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6359"
+            }
+        ]
+    },
+    {
+        "Code": 5702,
+        "Name": "NGVD29 height (ftUS)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - CONUS - onshore",
+        "Remarks": "Replaced by NAVD88 height (ftUS) (CRS code 6360).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5702"
+            }
+        ]
+    },
+    {
+        "Code": 7968,
+        "Name": "NGVD29 height (m)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "USA - CONUS - onshore",
+        "Remarks": "System defined by IOGP to allow transformation of heights to and from NGVD29. See CRS code 5702 for system in US survey feet in actual use.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7968"
+            }
+        ]
+    },
+    {
+        "Code": 6640,
+        "Name": "NMVD03 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Northern Mariana Islands - Rota, Saipan and Tinian",
+        "Remarks": "Replaces all earlier vertical CRSs on these islands.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6640"
+            }
+        ]
+    },
+    {
+        "Code": 5941,
+        "Name": "NN2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Norway - onshore",
+        "Remarks": "Replaces NN54 height (CRS code 5776).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2012-12-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5941"
+            }
+        ]
+    },
+    {
+        "Code": 5776,
+        "Name": "NN54 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Norway - onshore",
+        "Remarks": "Replaced by NN2000 height (CRS code 5941).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2012-12-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5776"
+            }
+        ]
+    },
+    {
+        "Code": 5745,
+        "Name": "North Rona height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - North Rona onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5745"
+            }
+        ]
+    },
+    {
+        "Code": 9681,
+        "Name": "NVD 1992 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Bangladesh - onshore",
+        "Remarks": "Replaces PWD Datum.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-01-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9681"
+            }
+        ]
+    },
+    {
+        "Code": 4440,
+        "Name": "NZVD2009 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand",
+        "Remarks": "Replaced by NZVD2016 from 2016-06-27.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/4440"
+            }
+        ]
+    },
+    {
+        "Code": 7839,
+        "Name": "NZVD2016 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand",
+        "Remarks": "Normal-orthometric heights. Replaces NZVD2009 height (CRS code 4440).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7839"
+            }
+        ]
+    },
+    {
+        "Code": 7707,
+        "Name": "ODN (Offshore) height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - offshore 49°45'N to 61°N, 9°W to 2°E",
+        "Remarks": "Defined through OSGM geoid model (transformation code 7713). Replaces Fair Isle height, Flannan Isles height, Foula height, North Rona height, St Kilda height and Sule Skerry height (CRS codes 5741, 5748, 5743, 5745, 5747 and 5744) from 2016.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-02-09T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7707"
+            }
+        ]
+    },
+    {
+        "Code": 5701,
+        "Name": "ODN height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Great Britain mainland onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-07-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5701"
+            }
+        ]
+    },
+    {
+        "Code": 5740,
+        "Name": "ODN Orkney height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Orkney Islands onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5740"
+            }
+        ]
+    },
+    {
+        "Code": 5767,
+        "Name": "One Tree Point 1964 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - One Tree vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5767"
+            }
+        ]
+    },
+    {
+        "Code": 5710,
+        "Name": "Ostend height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Belgium - onshore",
+        "Remarks": "No gravity corrections applied.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-04-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5710"
+            }
+        ]
+    },
+    {
+        "Code": 9675,
+        "Name": "Pago Pago 2020 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "American Samoa - Tutuila island",
+        "Remarks": "Replaces ASVD02 height (CRS 6643) from March 2020.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-12-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9675"
+            }
+        ]
+    },
+    {
+        "Code": 5724,
+        "Name": "PHD93 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Oman - onshore",
+        "Remarks": "Replaces Fahud Height Datum height (CRS code 5725) from 1993.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-11-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5724"
+            }
+        ]
+    },
+    {
+        "Code": 5716,
+        "Name": "Piraeus height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Greece - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5716"
+            }
+        ]
+    },
+    {
+        "Code": 7447,
+        "Name": "PNG08 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Papua New Guinea - 0°N to 12°S and 140°E to 158°E",
+        "Remarks": "PNG08 height = PNG94 ellipsoidal height - value of geoid undulation derived by bilinear interpolation of PNG08 geoid model (see transformation code 7655).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-03-19T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7447"
+            }
+        ]
+    },
+    {
+        "Code": 7841,
+        "Name": "POM08 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Papua New Guinea - onshore - Central province and Gulf province east of 144°E",
+        "Remarks": "POM08 height = WGS 84 ellipsoid height - value of geoid undulation derived by bilinear interpolation of EGM2008 geoid model - 0.93m = EGM2008 height - 0.93m. See CRS code 3855 and transformation codes 3858 and 3859.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-10-28T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7841"
+            }
+        ]
+    },
+    {
+        "Code": 7832,
+        "Name": "POM96 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Papua New Guinea - onshore - Central province and Gulf province east of 144°E",
+        "Remarks": "POM96 height = WGS 84 ellipsoid height - value of geoid undulation derived by bilinear interpolation of EGM96 geoid model - 1.58m = EGM96 height - 1.58m. See CRS code 5773 and transformation code 10084.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-10-28T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7832"
+            }
+        ]
+    },
+    {
+        "Code": 10378,
+        "Name": "Ponta Delgada depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores E - S Miguel onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10378"
+            }
+        ]
+    },
+    {
+        "Code": 6187,
+        "Name": "Ponta Delgada height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores E - S Miguel onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6187"
+            }
+        ]
+    },
+    {
+        "Code": 5754,
+        "Name": "Poolbeg height (ft(Br36))",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Ireland (Republic and Ulster) - onshore",
+        "Remarks": "Topographic mapping before 1956 in Northern Ireland and 1970 in the Republic of Ireland. Replaced by Belfast Lough height and Malin Head height (CRS codes 5732 and 5731).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2017-10-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5754"
+            }
+        ]
+    },
+    {
+        "Code": 7962,
+        "Name": "Poolbeg height (m)",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - Ireland (Republic and Ulster) - onshore",
+        "Remarks": "CRS in metres used only for transformation of heights referenced to Poolbeg height (ft). For CRS in feet see code 5754.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2021-04-20T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7962"
+            }
+        ]
+    },
+    {
+        "Code": 6641,
+        "Name": "PRVD02 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Puerto Rico - onshore",
+        "Remarks": "Replaces all earlier vertical CRSs for Puerto Rico.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6641"
+            }
+        ]
+    },
+    {
+        "Code": 5603,
+        "Name": "Raiatea SAU 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Raiatea",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5603"
+            }
+        ]
+    },
+    {
+        "Code": 5843,
+        "Name": "Ras Ghumays height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UAE - Abu Dhabi - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2015-01-26T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5843"
+            }
+        ]
+    },
+    {
+        "Code": 5758,
+        "Name": "Reunion 1989 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Reunion - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5758"
+            }
+        ]
+    },
+    {
+        "Code": 5615,
+        "Name": "RH00 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Sweden - onshore",
+        "Remarks": "Replaced by RH70 (CRS code 5718).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5615"
+            }
+        ]
+    },
+    {
+        "Code": 5613,
+        "Name": "RH2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Sweden - onshore",
+        "Remarks": "Replaces RH70 (CRS code 5718) from 2005.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-07-13T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5613"
+            }
+        ]
+    },
+    {
+        "Code": 5718,
+        "Name": "RH70 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Sweden - onshore",
+        "Remarks": "Replaces RH00 (CRS code 5615). Replaced by RH2000 (CRS code 5613) from 2005.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5718"
+            }
+        ]
+    },
+    {
+        "Code": 9279,
+        "Name": "SA LLD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "South Africa - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-11-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9279"
+            }
+        ]
+    },
+    {
+        "Code": 10376,
+        "Name": "Santa Cruz da Graciosa depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Graciosa onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10376"
+            }
+        ]
+    },
+    {
+        "Code": 6183,
+        "Name": "Santa Cruz da Graciosa height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores C - Graciosa onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6183"
+            }
+        ]
+    },
+    {
+        "Code": 10372,
+        "Name": "Santa Cruz das Flores depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores W - Flores onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10372"
+            }
+        ]
+    },
+    {
+        "Code": 6185,
+        "Name": "Santa Cruz das Flores height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - Azores W - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-03-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6185"
+            }
+        ]
+    },
+    {
+        "Code": 6916,
+        "Name": "SHD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Singapore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2014-07-16T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6916"
+            }
+        ]
+    },
+    {
+        "Code": 7890,
+        "Name": "SHVD2015 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "St Helena - St Helena Island",
+        "Remarks": "Replaces Jamestown 1971 height and Tritan 2011 height (CRS codes 7888-89) from 2016.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-10-31T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7890"
+            }
+        ]
+    },
+    {
+        "Code": 5237,
+        "Name": "SLVD height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Sri Lanka - onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2010-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5237"
+            }
+        ]
+    },
+    {
+        "Code": 5785,
+        "Name": "SNN76 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Germany - East Germany all states",
+        "Remarks": "Replaced by DNNH92 height (CRS code 5783).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5785"
+            }
+        ]
+    },
+    {
+        "Code": 8691,
+        "Name": "SRB_VRS12 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Serbia",
+        "Remarks": "Replaces Trieste height (CRS code 5195) in Serbia from 2012-03.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-07-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8691"
+            }
+        ]
+    },
+    {
+        "Code": 9255,
+        "Name": "SRVN16 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Argentina - onshore",
+        "Remarks": "Orthometric heights. Replaces SRVN71.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-11-23T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9255"
+            }
+        ]
+    },
+    {
+        "Code": 7889,
+        "Name": "St. Helena Tritan 2011 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "St Helena - St Helena Island",
+        "Remarks": "Replaced by SHVD2016 (CRS code 7890) from 2016.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2016-11-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/7889"
+            }
+        ]
+    },
+    {
+        "Code": 5747,
+        "Name": "St. Kilda height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - St. Kilda onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5747"
+            }
+        ]
+    },
+    {
+        "Code": 5749,
+        "Name": "St. Marys height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Scilly Isles onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-03-30T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5749"
+            }
+        ]
+    },
+    {
+        "Code": 5772,
+        "Name": "Stewart Island 1977 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - Stewart Island",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-04-04T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5772"
+            }
+        ]
+    },
+    {
+        "Code": 5746,
+        "Name": "Stornoway height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Outer Hebrides onshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5746"
+            }
+        ]
+    },
+    {
+        "Code": 5744,
+        "Name": "Sule Skerry height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "UK - Sule Skerry onshore",
+        "Remarks": "Replaced by ODN (Offshore) height (CRS code 7707) in 2016.",
+        "Deprecated": false,
+        "Superseded": true,
+        "RevisionDate": "2020-06-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5744"
+            }
+        ]
+    },
+    {
+        "Code": 20000,
+        "Name": "SVD2006 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Arctic - 81°10'N to 76°10'N, 4°W to 38°E",
+        "Remarks": "Defined through the arcgp-2006-sk geoid model.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2022-05-08T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/20000"
+            }
+        ]
+    },
+    {
+        "Code": 5779,
+        "Name": "SVS2000 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Slovenia - onshore",
+        "Remarks": "Replaces Trieste height (CRS code 5195) in Slovenia from 2000. Replaced by SVS2010 (CRS code 8690) from 2019-01.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2018-08-29T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5779"
+            }
+        ]
+    },
+    {
+        "Code": 8690,
+        "Name": "SVS2010 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Slovenia - onshore",
+        "Remarks": "Replaces SVS2000 height (CRS code 5779) from 2019-01.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-07-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8690"
+            }
+        ]
+    },
+    {
+        "Code": 5606,
+        "Name": "Tahaa SAU 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "French Polynesia - Society Islands - Tahaa",
+        "Remarks": "Part of NGPF (CRS code 5600).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5606"
+            }
+        ]
+    },
+    {
+        "Code": 5769,
+        "Name": "Taranaki 1970 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Taranaki vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5769"
+            }
+        ]
+    },
+    {
+        "Code": 5768,
+        "Name": "Tararu 1952 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Tararu vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5768"
+            }
+        ]
+    },
+    {
+        "Code": 9398,
+        "Name": "Tenerife height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Spain - Canary Islands - Tenerife",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-06-27T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/9398"
+            }
+        ]
+    },
+    {
+        "Code": 5195,
+        "Name": "Trieste height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Europe - former Yugoslavia onshore",
+        "Remarks": "In Croatia replaced by HVRS71 height (CRS code 5610). In Serbia replaced by SRB_VRS12 height (CRS code 8691). In Slovenia replaced by SVS2000 height (CRS code 5779).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-07-24T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5195"
+            }
+        ]
+    },
+    {
+        "Code": 6638,
+        "Name": "Tutuila 1962 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "American Samoa - Tutuila island",
+        "Remarks": "Replaced by ASVD02 height (CRS code 6643).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2013-10-21T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6638"
+            }
+        ]
+    },
+    {
+        "Code": 8904,
+        "Name": "TWVD 2001 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Taiwan - onshore - mainland",
+        "Remarks": "Replaces TWVD79.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-03-09T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8904"
+            }
+        ]
+    },
+    {
+        "Code": 8881,
+        "Name": "Vienna height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Austria - Vienna",
+        "Remarks": "Defined from GHA height (EPSG:5778) using a vertical offset (Wiener Null is 156.68m above GHA height).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-04-15T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/8881"
+            }
+        ]
+    },
+    {
+        "Code": 6642,
+        "Name": "VIVD09 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Virgin Islands, US - onshore",
+        "Remarks": "Replaces all earlier vertical CRSs on these islands.",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2019-09-17T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/6642"
+            }
+        ]
+    },
+    {
+        "Code": 5770,
+        "Name": "Wellington 1953 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "New Zealand - North Island - Wellington vcrs",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2011-01-25T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5770"
+            }
+        ]
+    },
+    {
+        "Code": 5736,
+        "Name": "Yellow Sea 1956 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - onshore",
+        "Remarks": "Replaced by Yellow Sea 1985 height (CRS code 5737).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2008-03-14T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5736"
+            }
+        ]
+    },
+    {
+        "Code": 5737,
+        "Name": "Yellow Sea 1985 height",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "China - onshore",
+        "Remarks": "Replaces Yellow Sea 1956 height (CRS code 5736).",
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2020-08-31T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/5737"
+            }
+        ]
+    },
+    {
+        "Code": 10349,
+        "Name": "ZH Portugal depth",
+        "Type": "vertical",
+        "DataSource": "EPSG",
+        "Area": "Portugal - offshore",
+        "Remarks": null,
+        "Deprecated": false,
+        "Superseded": false,
+        "RevisionDate": "2023-08-07T00:00:00",
+        "Links": [
+            {
+                "rel": "result",
+                "href": "https://apps.epsg.org/api/v1/VerticalCoordRefSystem/10349"
+            }
+        ]
+    }
+]

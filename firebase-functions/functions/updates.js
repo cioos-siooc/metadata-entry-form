@@ -19,7 +19,7 @@ function getRecordFilename(record) {
 exports.downloadRecord = functions.https.onCall(
   async ({ record, fileType, region }, context) => {
 
-    let urlBase = urlBaseDefault;;
+    let urlBase = urlBaseDefault;
     try {
       urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
     } catch (error) {
