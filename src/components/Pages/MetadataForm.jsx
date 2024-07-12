@@ -286,7 +286,7 @@ class MetadataForm extends FormClassTemplate {
     const { datacitePrefix } = this.context;
 
     try {
-      if (datacitePrefix){
+      if (datacitePrefix && record.datasetIdentifier){
         const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix);
 
       if (statusCode === 200) {
