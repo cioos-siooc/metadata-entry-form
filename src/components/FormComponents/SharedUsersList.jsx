@@ -62,7 +62,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     Object.keys(record.sharedWith || {}).forEach((userID) => {
       const name = users[userID]?.userinfo?.displayName;
       if (name) {
-        sharedWithDetails[userID] = { name };
+        sharedWithDetails[userID] = { name: `${name} (${users[userID]?.userinfo?.email.split("@").pop()})` };
       }
     });
 
@@ -112,7 +112,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
   const shareWithOptions = Object.entries(users)
     .map(([userID, userInfo]) => ({
-      label: userInfo.userinfo?.displayName,
+      label: `${userInfo.userinfo?.displayName} (${userInfo.userinfo?.email.split("@").pop()})`,
       userID,
     }))
     .filter((x) => x.label)
