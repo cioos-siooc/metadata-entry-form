@@ -76,10 +76,10 @@ const regions = {
       en: "IYS Data Catalogue",
     },
     colors: { primary: "#006e90", secondary: "#ffc857" },
-    email: "iys.data@hakai.org",
+    email: "secretariat@npafc.org",
     catalogueURL: {
-      fr: "https://iys.hakai.org/dataset/",
-      en: "https://iys.hakai.org/dataset/",
+      fr: "https://data.npafc.org/dataset/",
+      en: "https://data.npafc.org/dataset/",
     },
     introPageText: { en: "", fr: "" },
     showInRegionSelector: false,
