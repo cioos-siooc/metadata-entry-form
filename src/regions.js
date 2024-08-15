@@ -68,37 +68,6 @@ const regions = {
     },
     showInRegionSelector: true,
   },
-
-  iys: {
-    title: { en: "IYS", fr: "IYS" },
-    catalogueTitle: {
-      fr: "Catalogue de données du IYS",
-      en: "IYS Data Catalogue",
-    },
-    colors: { primary: "#006e90", secondary: "#ffc857" },
-    email: "secretariat@npafc.org",
-    catalogueURL: {
-      fr: "https://data.npafc.org/dataset/",
-      en: "https://data.npafc.org/dataset/",
-    },
-    introPageText: { en: "", fr: "" },
-    showInRegionSelector: false,
-  },
-  hakai: {
-    title: { en: "Hakai", fr: "Hakai" },
-    catalogueTitle: {
-      fr: "Catalogue de données du Hakai",
-      en: "Hakai Data Catalogue",
-    },
-    colors: { primary: "#aa2025", secondary: "#459be2" },
-    email: "data@hakai.org",
-    catalogueURL: {
-      fr: "https://catalogue.hakai.org/",
-      en: "https://catalogue.hakai.org/",
-    },
-    introPageText: { en: "", fr: "" },
-    showInRegionSelector: false,
-  },
   test: {
     title: { en: "Test", fr: "Test" },
     catalogueTitle: {
