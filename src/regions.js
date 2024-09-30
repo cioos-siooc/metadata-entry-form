@@ -87,7 +87,7 @@ const regions = {
       fr:
         "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
-    showInRegionSelector: true,
+    showInRegionSelector: false,
   },
   test: {
     title: { en: "Test", fr: "Test" },
