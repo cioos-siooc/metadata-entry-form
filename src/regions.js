@@ -68,6 +68,27 @@ const regions = {
     },
     showInRegionSelector: true,
   },
+  amundsen: {
+    title: { en: "Amundsen Science", fr: "Amundsen Science" },
+    titleFrPossessive: "de Amundsen Science",
+    catalogueTitle: {
+      fr: "Catalogue de données de Amundsen Science",
+      en: "Amundsen Science Data Catalogue",
+    },
+    colors: { primary: "#E31837", secondary: "#77777A" },
+    email: "info@as.ulaval.ca",
+    catalogueURL: {
+      fr: "https://catalogue.amundsenscience.ca/fr/",
+      en: "https://catalogue.amundsenscience.ca/",
+    },
+    introPageText: {
+      en:
+        "Amundsen Science is the nonprofit organization responsible for the scientific mandate of the research icebreaker CCGS Amundsen.",
+      fr:
+        "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
+    },
+    showInRegionSelector: false,
+  },
   test: {
     title: { en: "Test", fr: "Test" },
     catalogueTitle: {
