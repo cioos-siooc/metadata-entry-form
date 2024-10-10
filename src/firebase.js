@@ -13,22 +13,23 @@ const prodConfig = {
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
   apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY,
-  authDomain: "cioos-metadata-form.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form.firebaseio.com",
-  projectId: "cioos-metadata-form",
-  storageBucket: "cioos-metadata-form.appspot.com",
-  messagingSenderId: "646114203434",
-  appId: "1:646114203434:web:bccceadc5144270f98f053",
+  authDomain: "cioos-metadata-form-f8c47.firebaseapp.com",
+  databaseURL: "https://cioos-metadata-form-production.firebaseio.com",
+  projectId: "cioos-metadata-form-f8c47",
+  storageBucket: "cioos-metadata-form-f8c47.appspot.com",
+  messagingSenderId: "1066019404951",
+  appId: "1:1066019404951:web:6d0fb7d59e20b8680b3dd2"
 };
 
 const devConfig = {
   apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV,
-  authDomain: "cioos-metadata-form-dev.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form-dev-default-rtdb.firebaseio.com/",
-  projectId: "cioos-metadata-form-dev",
-  storageBucket: "cioos-metadata-form-dev.appspot.com",
-  messagingSenderId: "392401521083",
-  appId: "1:392401521083:web:45d1539f9d284f446d5c9e",
+  authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
+  databaseURL: "https://cioos-metadata-form-development.firebaseio.com",
+  projectId: "cioos-metadata-form-dev-258dc",
+  storageBucket: "cioos-metadata-form-dev-258dc.appspot.com",
+  messagingSenderId: "141560007794",
+  appId: "1:141560007794:web:861d99b02210ea4d17c6eb",
+  measurementId: "G-BSKRHNR1EW"
 };
 
 
