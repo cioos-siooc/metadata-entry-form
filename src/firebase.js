@@ -13,12 +13,13 @@ const prodConfig = {
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
   apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY,
-  authDomain: "cioos-metadata-form-f8c47.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form-production.firebaseio.com",
-  projectId: "cioos-metadata-form-f8c47",
-  storageBucket: "cioos-metadata-form-f8c47.appspot.com",
-  messagingSenderId: "1066019404951",
-  appId: "1:1066019404951:web:6d0fb7d59e20b8680b3dd2"
+  authDomain: "cioos-metadata-form-8d942.firebaseapp.com",
+  databaseURL: "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com",
+  projectId: "cioos-metadata-form-8d942",
+  storageBucket: "cioos-metadata-form-8d942.appspot.com",
+  messagingSenderId: "467286137979",
+  appId: "1:467286137979:web:250b09e3db2a56716016de",
+  measurementId: "G-BEMJG40RHN"
 };
 
 const devConfig = {
