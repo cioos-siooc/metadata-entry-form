@@ -73,11 +73,11 @@ def main():
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
-        args["region"],
-        args["key"],
-        record_url,
-        args["status"].split(","),
-        args["database_url"],
+        region=args["region"],
+        firebase_auth_key_file=args["key"],
+        record_url=record_url,
+        record_status=args["status"].split(","),
+        database_url=args["database_url"],
     )
 
     # translate each record to YAML and then to XML
