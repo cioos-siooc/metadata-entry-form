@@ -42,3 +42,5 @@ def scrub_keys(d_in):
     return scrubbed
 
 
+def remove_nones(items):
+    return list(filter(lambda item: item is not None, items))
