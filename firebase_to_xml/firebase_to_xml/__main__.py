@@ -3,6 +3,7 @@
 """
 Command line interface to part of firebase_to_xml
 """
+
 import argparse
 import traceback
 from pathlib import Path
@@ -18,9 +19,8 @@ from get_records_from_firebase import get_records_from_firebase
 from record_json_to_yaml import record_json_to_yaml
 
 
-
 def get_filename(record):
-    """Creates a filename by combinig the title and UUID """
+    """Creates a filename by combinig the title and UUID"""
     name = record["title"][record["language"]][0:30] + "_" + record["identifier"][0:5]
     char_list = [
         character if character.isalnum() else "_" for character in name.strip().lower()
@@ -43,9 +43,7 @@ def main():
     parser.add_argument(
         "--yaml", action="store_true", help="Whether to output yaml file as well as xml"
     )
-    parser.add_argument(
-        "--region", required=True, help="Eg pacific/stlaurent/atlantic"
-    )
+    parser.add_argument("--region", required=True, help="Eg pacific/stlaurent/atlantic")
     parser.add_argument(
         "--status",
         default="published",
@@ -58,7 +56,12 @@ def main():
         ],
     )
     parser.add_argument("--record_url", required=False)
-    parser.add_argument("--database_url", default=os.getenv("DATABASE_URL"), required=False, help="Firebase database URL (default: %(default)s)")
+    parser.add_argument(
+        "--database_url",
+        default=os.getenv("DATABASE_URL"),
+        required=False,
+        help="Firebase database URL (default: %(default)s)",
+    )
     args = vars(parser.parse_args())
 
     record_url = args["record_url"]
@@ -66,7 +69,11 @@ def main():
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
-        args["region"], args["key"], record_url, args["status"].split(','), args["database_url"]
+        args["region"],
+        args["key"],
+        record_url,
+        args["status"].split(","),
+        args["database_url"],
     )
 
     # translate each record to YAML and then to XML
@@ -85,7 +92,10 @@ def main():
             # output yaml
             if also_save_yaml:
                 yaml_file = output_directory / f"{filename}.yaml"
-                yaml_file.write_text(yaml.dump(record_yaml, allow_unicode=True, sort_keys=False), encoding="utf-8")
+                yaml_file.write_text(
+                    yaml.dump(record_yaml, allow_unicode=True, sort_keys=False),
+                    encoding="utf-8",
+                )
 
             # render xml template and write to file
             xml = metadata_to_xml(record_yaml)
@@ -94,7 +104,7 @@ def main():
                 continue
 
             xml_file = output_directory / f"{filename}.xml"
-            xml_file.write_text(xml, encoding="utf-8") 
+            xml_file.write_text(xml, encoding="utf-8")
 
         except Exception:
             logger.error(traceback.format_exc())
