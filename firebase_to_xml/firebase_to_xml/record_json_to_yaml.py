@@ -6,8 +6,9 @@ the metadata-xml module.
 """
 
 import json
-from firebase_to_xml.scrubbers import scrub_dict, scrub_keys, remove_nones
 import os
+
+from firebase_to_xml.scrubbers import remove_nones, scrub_dict, scrub_keys
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
