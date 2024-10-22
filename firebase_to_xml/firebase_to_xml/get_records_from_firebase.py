@@ -5,15 +5,13 @@ Query firebase to get all the records
 """
 
 import json
-import pprint
 import sys
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 
-
 def get_records_from_firebase(
-    region, firebase_auth_key_file, record_url, record_status, firebase_auth_key_json=None
+    region:str, firebase_auth_key_file:str, record_url:str, record_status:list, database_url:str, firebase_auth_key_json:str=None
 ):
     """
     Returns list of records from firebase for this region,
@@ -44,7 +42,7 @@ def get_records_from_firebase(
 
     if record_url:
         response = authed_session.get(
-            f"https://cioos-metadata-form.firebaseio.com/{record_url}.json"
+            f"{database_url}{record_url}.json"
         )
         body = json.loads(response.text)
         records.append(body)
@@ -52,12 +50,12 @@ def get_records_from_firebase(
 
     else:
         response = authed_session.get(
-            f"https://cioos-metadata-form.firebaseio.com/{region}/users.json"
+            f"{database_url}{region}/users.json"
         )
         body = json.loads(response.text)
 
         # Parse response
-        if not body or type(body) != dict :
+        if not body or not isinstance(body, dict) :
             print("Region",region,"not found?")
             # print(response.content)
             sys.exit()
