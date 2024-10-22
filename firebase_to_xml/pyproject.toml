@@ -14,6 +14,11 @@ dependencies = [
     "tqdm>=4.66.5",
 ]
 
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.7.0",
+]
+
 [tool.uv.sources]
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 firebase-to-xml = { workspace = true }
