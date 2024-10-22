@@ -63,13 +63,16 @@ def main():
         help="Firebase database URL (default: %(default)s)",
     )
     parser.add_argument(
-        "--encoding",default="utf-8", required=False, help="Encoding of the output files"  
+        "--encoding",
+        default="utf-8",
+        required=False,
+        help="Encoding of the output files",
     )
     args = vars(parser.parse_args())
 
     record_url = args["record_url"]
     also_save_yaml = args["yaml"]
-    encoding=args["encoding"]
+    encoding = args["encoding"]
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(

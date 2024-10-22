@@ -11,6 +11,7 @@ from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from loguru import logger
 
+
 def get_records_from_firebase(
     region: str,
     firebase_auth_key_file: str,
