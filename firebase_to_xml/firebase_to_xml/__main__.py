@@ -62,10 +62,14 @@ def main():
         required=False,
         help="Firebase database URL (default: %(default)s)",
     )
+    parser.add_argument(
+        "--encoding",default="utf-8", required=False, help="Encoding of the output files"  
+    )
     args = vars(parser.parse_args())
 
     record_url = args["record_url"]
     also_save_yaml = args["yaml"]
+    encoding=args["encoding"]
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
@@ -94,7 +98,7 @@ def main():
                 yaml_file = output_directory / f"{filename}.yaml"
                 yaml_file.write_text(
                     yaml.dump(record_yaml, allow_unicode=True, sort_keys=False),
-                    encoding="utf-8",
+                    encoding=encoding,
                 )
 
             # render xml template and write to file
@@ -104,7 +108,7 @@ def main():
                 continue
 
             xml_file = output_directory / f"{filename}.xml"
-            xml_file.write_text(xml, encoding="utf-8")
+            xml_file.write_text(xml, encoding=encoding)
 
         except Exception:
             logger.error(traceback.format_exc())
