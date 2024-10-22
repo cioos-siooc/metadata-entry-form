@@ -9,7 +9,7 @@ import sys
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
-
+from loguru import logger
 
 def get_records_from_firebase(
     region: str,
@@ -58,8 +58,7 @@ def get_records_from_firebase(
 
         # Parse response
         if not body or not isinstance(body, dict):
-            print("Region", region, "not found?")
-            # print(response.content)
+            logger.warning("Region", region, "not found?")
             sys.exit()
 
         for users_tree in body.values():
