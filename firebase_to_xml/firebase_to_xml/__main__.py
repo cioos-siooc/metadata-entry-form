@@ -5,18 +5,17 @@ Command line interface to part of firebase_to_xml
 """
 
 import argparse
+import os
 import traceback
 from pathlib import Path
-import os
 
 import yaml
 from dotenv import load_dotenv
-from metadata_xml.template_functions import metadata_to_xml
-from loguru import logger
-from tqdm import tqdm
-
 from get_records_from_firebase import get_records_from_firebase
+from loguru import logger
+from metadata_xml.template_functions import metadata_to_xml
 from record_json_to_yaml import record_json_to_yaml
+from tqdm import tqdm
 
 
 def get_filename(record):
