@@ -1,26 +1,26 @@
 {
   "projects": {
-    "default": "cioos-metadata-form",
-    "dev": "cioos-metadata-form-dev"
+    "default": "cioos-metadata-form-8d942",
+    "dev": "cioos-metadata-form-dev-258dc"
   },
   "targets": {
     "cioos-metadata-form": {
       "database": {
         "prod": [
-          "cioos-metadata-form"
+          "cioos-metadata-form-8d942"
         ],
         "dev": [
-          "cioos-metadata-form-dev"
+          "cioos-metadata-form-dev-258dc"
         ]
       }
     },
     "development": {
       "database": {
         "prod": [
-          "cioos-metadata-form"
+          "cioos-metadata-form-8d942"
         ],
         "dev": [
-          "cioos-metadata-form-dev"
+          "cioos-metadata-form-dev-258dc"
         ]
       }
     }
