@@ -40,3 +40,5 @@ firebase-debug.log
 
 yarn.lock
 .env
+firebase_to_xml/build
+output

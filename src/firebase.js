@@ -6,7 +6,7 @@ const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
 const prodConfig = {
   // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
-  // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
+  // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
   // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we 
@@ -19,7 +19,7 @@ const prodConfig = {
   storageBucket: "cioos-metadata-form-8d942.appspot.com",
   messagingSenderId: "467286137979",
   appId: "1:467286137979:web:250b09e3db2a56716016de",
-  measurementId: "G-BEMJG40RHN"
+  measurementId: "G-BEMJG40RHN",
 };
 
 const devConfig = {
@@ -30,7 +30,7 @@ const devConfig = {
   storageBucket: "cioos-metadata-form-dev-258dc.appspot.com",
   messagingSenderId: "141560007794",
   appId: "1:141560007794:web:861d99b02210ea4d17c6eb",
-  measurementId: "G-BSKRHNR1EW"
+  measurementId: "G-BSKRHNR1EW",
 };
 
 

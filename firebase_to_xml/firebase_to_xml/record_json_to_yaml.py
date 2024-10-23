@@ -6,44 +6,51 @@ the metadata-xml module.
 """
 
 import json
-from firebase_to_xml.scrubbers import scrub_dict, scrub_keys, remove_nones
 import os
+
+from firebase_to_xml.scrubbers import remove_nones, scrub_dict, scrub_keys
+
 dir = os.path.dirname(os.path.realpath(__file__))
 
+
 def get_licenses():
-    with open(dir + '/resources/licenses.json') as f:
+    with open(dir + "/resources/licenses.json") as f:
         return json.load(f)
 
+
 def get_eov_translations():
-    with open(dir + '/resources/eov.json') as f:
-        eovs= json.load(f)
-        translation={}
+    with open(dir + "/resources/eov.json") as f:
+        eovs = json.load(f)
+        translation = {}
         for eov in eovs:
-            translation[eov['value']]=eov['label FR']
+            translation[eov["value"]] = eov["label FR"]
         return translation
 
 
 def get_epsg():
-    with open(dir + '/resources/epsg.json') as f:
+    with open(dir + "/resources/epsg.json") as f:
         epsgDict = {}
         epsgJson = json.load(f)
         if epsgJson:
-            epsgDict = {str(x['Code']): x for x in epsgJson}
+            epsgDict = {str(x["Code"]): x for x in epsgJson}
         return epsgDict
 
-licenses=get_licenses()
-eov_translations=get_eov_translations()
+
+licenses = get_licenses()
+eov_translations = get_eov_translations()
 epsg = get_epsg()
 
 
 def eovs_to_fr(eovs_en):
-    """ Translate a list of EOVs in english to a list in french"""
-    return [eov_translations.get(eov,"") for eov in eovs_en if eov]
+    """Translate a list of EOVs in english to a list in french"""
+    return [eov_translations.get(eov, "") for eov in eovs_en if eov]
+
 
 def verify_translation(verified, message):
     if not verified:
         return message
     return ""
+
 
 def strip_keywords(keywords):
     """Strips whitespace from each keyword in either language"""
@@ -61,33 +68,40 @@ def date_from_datetime_str(datetime_str):
         return None
     return (datetime_str or "")[:10]
 
+
 def fix_lat_long_polygon(polygon):
     """Change lat,long to long, lat, which is what is expected in the XML"""
     if not polygon:
         return ""
     fixed = []
-    cleanPolygon = polygon.replace(", ",",")
+    cleanPolygon = polygon.replace(", ", ",")
     coords = cleanPolygon.split(" ")
     for coord in coords:
         [lat, long] = coord.split(",")
         fixed.append(",".join([long, lat]))
     return " ".join(fixed)
 
+
 def format_taxa(taxa):
     taxaKeywords = []
     if isinstance(taxa, str):
         taxa = [taxa]
     for t in taxa:
-        taxaKeywords = taxaKeywords + ",".join(filter(None, (
-                t.get("kingdom"), 
-                t.get("phylum"), 
-                t.get("class"), 
-                t.get("order"), 
-                t.get("family"), 
-                t.get("genus"), 
-                t.get("species")
-            ))).split(",")
-        
+        taxaKeywords = taxaKeywords + ",".join(
+            filter(
+                None,
+                (
+                    t.get("kingdom"),
+                    t.get("phylum"),
+                    t.get("class"),
+                    t.get("order"),
+                    t.get("family"),
+                    t.get("genus"),
+                    t.get("species"),
+                ),
+            )
+        ).split(",")
+
     return taxaKeywords
 
 
@@ -102,7 +116,6 @@ def record_json_to_yaml(record):
     base_url = "https://cioos-siooc.github.io/metadata-entry-form#"
     full_url = f"{base_url}/{language}/{region}/{user_id}/{record_id}"
 
-
     polygon = record.get("map", {}).get("polygon", "")
 
     record_yaml = {
@@ -110,8 +123,7 @@ def record_json_to_yaml(record):
             "naming_authority": "ca.cioos",
             "identifier": record.get("identifier"),
             "language": record.get("language"),
-            "maintenance_note": "Generated from "
-            + full_url,
+            "maintenance_note": "Generated from " + full_url,
             "use_constraints": {
                 "limitations": record.get("limitations", "None"),
                 "licence": licenses.get(
@@ -139,13 +151,19 @@ def record_json_to_yaml(record):
             else "",
             "polygon": fix_lat_long_polygon(polygon),
             "vertical": [
-                0 if record.get("noVerticalExtent") else float(
-                    record.get("verticalExtentMin")),
-                0 if record.get("noVerticalExtent") else float(
-                    record.get("verticalExtentMax")),
+                0
+                if record.get("noVerticalExtent")
+                else float(record.get("verticalExtentMin")),
+                0
+                if record.get("noVerticalExtent")
+                else float(record.get("verticalExtentMax")),
             ],
-            "vertical_positive": "heightPositive" if record.get("noVerticalExtent") else record.get("verticalExtentDirection"),
-            "vertical_epsg": epsg.get("5829") if record.get("noVerticalExtent") else epsg.get(record.get("verticalExtentEPSG")),
+            "vertical_positive": "heightPositive"
+            if record.get("noVerticalExtent")
+            else record.get("verticalExtentDirection"),
+            "vertical_epsg": epsg.get("5829")
+            if record.get("noVerticalExtent")
+            else epsg.get(record.get("verticalExtentEPSG")),
             "description": record["map"].get("description"),
             "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
         },
@@ -161,8 +179,14 @@ def record_json_to_yaml(record):
             },
             "keywords": {
                 "default": strip_keywords(record.get("keywords", {"en": [], "fr": []})),
-                "eov": {"en": record.get("eov",[]), "fr": eovs_to_fr(record.get("eov",[]))},
-                "taxa": {"en": format_taxa(record.get("taxa",[])), "fr": format_taxa(record.get("taxa",[]))}
+                "eov": {
+                    "en": record.get("eov", []),
+                    "fr": eovs_to_fr(record.get("eov", [])),
+                },
+                "taxa": {
+                    "en": format_taxa(record.get("taxa", [])),
+                    "fr": format_taxa(record.get("taxa", [])),
+                },
             },
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
@@ -184,7 +208,14 @@ def record_json_to_yaml(record):
                     "ror": contact.get("orgRor"),
                 },
                 "individual": {
-                    "name": ", ".join(remove_nones([contact.get("lastName") or None, contact.get("givenNames") or None])),
+                    "name": ", ".join(
+                        remove_nones(
+                            [
+                                contact.get("lastName") or None,
+                                contact.get("givenNames") or None,
+                            ]
+                        )
+                    ),
                     "position": contact.get("indPosition"),
                     "email": contact.get("indEmail"),
                     "orcid": contact.get("indOrcid"),
@@ -203,14 +234,14 @@ def record_json_to_yaml(record):
         ],
     }
 
-    if record.get("noTaxa") and record_yaml.get("identification",{}).get("keywords"):
+    if record.get("noTaxa") and record_yaml.get("identification", {}).get("keywords"):
         record_yaml["identification"]["keywords"].pop("taxa", None)
-        
+
     if record.get("noPlatform"):
         record_yaml["instruments"] = record.get("instruments")
     else:
-        instrumentsList = record.get("instruments",[])
-        platformList = record.get("platforms",[])
+        instrumentsList = record.get("instruments", [])
+        platformList = record.get("platforms", [])
         # If platforms has only one element, add it to the platform dict and add all instruments as a key
         if len(platformList) == 1:
             record["platforms"][0]["instruments"] = instrumentsList

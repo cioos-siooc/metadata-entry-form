@@ -18,7 +18,7 @@ def scrub_dict(d_in):
             val = scrub_dict(val)
         if isinstance(val, list):
             val = scrub_list(val)
-        if val not in (u"", None, {}):
+        if val not in ("", None, {}):
             new_dict[key] = val
     return new_dict
 
@@ -41,5 +41,6 @@ def scrub_keys(d_in):
             scrubbed[k] = d_in[k]
     return scrubbed
 
-def remove_nones(l):
-    return list(filter(lambda item: item is not None, l))
+
+def remove_nones(items):
+    return list(filter(lambda item: item is not None, items))
