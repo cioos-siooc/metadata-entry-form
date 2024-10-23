@@ -19,7 +19,7 @@ const prodConfig = {
   storageBucket: "cioos-metadata-form-8d942.appspot.com",
   messagingSenderId: "467286137979",
   appId: "1:467286137979:web:250b09e3db2a56716016de",
-  measurementId: "G-BEMJG40RHN"
+  measurementId: "G-BEMJG40RHN",
 };
 
 const devConfig = {
@@ -30,7 +30,7 @@ const devConfig = {
   storageBucket: "cioos-metadata-form-dev-258dc.appspot.com",
   messagingSenderId: "141560007794",
   appId: "1:141560007794:web:861d99b02210ea4d17c6eb",
-  measurementId: "G-BSKRHNR1EW"
+  measurementId: "G-BSKRHNR1EW",
 };
 
 
