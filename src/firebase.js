@@ -6,7 +6,7 @@ const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
 const prodConfig = {
   // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
-  // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
+  // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
   // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we 
@@ -24,10 +24,10 @@ const prodConfig = {
 
 const devConfig = {
   apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV,
-  authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
-  projectId: "cioos-metadata-form-dev-258dc",
-  storageBucket: "cioos-metadata-form-dev-258dc.appspot.com",
+  authDomain: "cioos-metadata-form-dev-258dc-258dc.firebaseapp.com",
+  databaseURL: "https://cioos-metadata-form-dev-258dc-258dc-default-rtdb.firebaseio.com",
+  projectId: "cioos-metadata-form-dev-258dc-258dc",
+  storageBucket: "cioos-metadata-form-dev-258dc-258dc.appspot.com",
   messagingSenderId: "141560007794",
   appId: "1:141560007794:web:861d99b02210ea4d17c6eb",
   measurementId: "G-BSKRHNR1EW",
