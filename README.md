@@ -73,12 +73,12 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 
 ### Deploying to Development Project
 
-To deploy updated Firebase functions to the "cioos-metadata-form-dev" development project, follow these steps:
+To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" development project, follow these steps:
 
-1. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev" project.
+1. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
 
     ```bash
-    firebase use cioos-metadata-form-dev
+    firebase use cioos-metadata-form-dev-258dc
     ```
 
 2. **Make necessary changes to your Firebase functions.**
@@ -103,7 +103,7 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 - `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
 - `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
 - `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
-- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
+- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
 
 ### Using Parameterized Configuration in Firebase Functions
 
@@ -137,12 +137,12 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 ### Define targets
 
-This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev` (dev). 
+This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
 Use Firebase CLI targets to manage rules deployment:
 
 ```bash
 firebase target:apply database prod cioos-metadata-form
-firebase target:apply database dev cioos-metadata-form-dev
+firebase target:apply database dev cioos-metadata-form-dev-258dc
 ```
 
 ### Configure firebase.json
@@ -188,10 +188,10 @@ When hosting the application in a new place there are a couple of things to upda
 
 - You must add your new domain to the allowed list for authenication in firebase.
   https://console.firebase.google.com/u/0/project/cioos-metadata-form/authentication/settings
-  https://console.firebase.google.com/u/0/project/cioos-metadata-form-dev/authentication/settings
+  https://console.firebase.google.com/u/0/project/cioos-metadata-form-dev-258dc/authentication/settings
 
 - You have to allow your domain under Website restrictions for the firebase browser key
   https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form
-  https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev
+  https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev-258dc
 
   
