@@ -102,7 +102,9 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = await [JSON.stringify(recordToDataCite( record, language, region, datacitePrefix ), null, 2)];
+        data = await [JSON.stringify(record)];
+      } else if (fileType === "datacite-json") {
+        data = await [JSON.stringify(recordToDataCite(record, language, region, datacitePrefix), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType, region });
         data = Object.values(res.data.message);
@@ -379,9 +381,18 @@ const MetadataRecordListItem = ({
                   EML for OBIS IPT
                 </MenuItem>
                 <MenuItem
-                  key="json"
+                  key="eml"
                   onClick={() => {
                     handleDownloadRecord("json");
+                    handleClose();
+                  }}
+                >
+                  Database JSON
+                </MenuItem>
+                <MenuItem
+                  key="json"
+                  onClick={() => {
+                    handleDownloadRecord("datacite-json");
                     handleClose();
                   }}
                 >
