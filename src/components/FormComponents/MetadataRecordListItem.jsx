@@ -102,8 +102,8 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = await [JSON.stringify(record)];
-      } else if (fileType === "datacite-json") {
+        data = await [JSON.stringify(record, null, 2)];
+      } else if (fileType === "dataciteJson") {
         data = await [JSON.stringify(recordToDataCite(record, language, region, datacitePrefix), null, 2)];
       } else {
         const res = await downloadRecord({ record, fileType, region });
@@ -115,6 +115,7 @@ const MetadataRecordListItem = ({
         eml: "application/xml",
         erddap: "application/xml",
         json: "application/json",
+        dataciteJson: "application/json",
       };
       const blob = new Blob(data, {
         type: `${mimeTypes[fileType]};charset=utf-8`,
@@ -392,7 +393,7 @@ const MetadataRecordListItem = ({
                 <MenuItem
                   key="json"
                   onClick={() => {
-                    handleDownloadRecord("datacite-json");
+                    handleDownloadRecord("dataciteJson");
                     handleClose();
                   }}
                 >
