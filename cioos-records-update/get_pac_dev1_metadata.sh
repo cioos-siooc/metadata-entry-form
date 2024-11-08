@@ -1,4 +1,2 @@
 #!/bin/bash
-
-wget -r -l1 -H -nd -A xml,yaml -P ./metadata "https://pac-dev1.cioos.org/dev/metadata/"
-
+wget --no-parent -r "https://pac-dev1.cioos.org/dev/metadata" -A ".xml" -A ".yaml"
