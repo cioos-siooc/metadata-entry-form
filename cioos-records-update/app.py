@@ -63,6 +63,11 @@ def get_complete_path(status, region, basename,file_suffix):
     return filename
 
 
+@app.route("/status", methods=["GET"])
+def status():
+    return jsonify(message="OK")
+
+
 @app.route("/recordDelete")
 def recordDelete():
     filenameToDelete = request.args.get("filename")
