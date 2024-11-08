@@ -1,6 +1,6 @@
 services:
   web:
-    container_name: cioos-metadata-records-web-api
+    container_name: metadata-entry-forms-web-api
     build: .
     ports:
       - "8091:8000"
@@ -11,7 +11,7 @@ services:
     restart: always
   waf:
     image: nginx:alpine
-    container_name: cioos-metadata-records-waf
+    container_name: metadata-entry-forms-waf
     ports:
       - "8092:80"
     volumes:
