@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const https = require("https");
 const axios = require("axios");
 
-const urlBaseDefault = "https://api.forms.cioos.ca"
+const urlBaseDefault = "https://api.forms.cioos.ca/"
 
 function getRecordFilename(record) {
   return `${record.title[record.language].slice(
