@@ -283,8 +283,8 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             optionLabels={
               
               <I18n
-                en={['Oceanographic', 'Biological', 'Other']}
-                fr={['Océanographique', 'Biologique', 'Autre']}
+                en={["Oceanographic", "Biological", "Other"]}
+                fr={["Océanographique", "Biologique", "Autre"]}
               />
               }
             disabled={disabled}
