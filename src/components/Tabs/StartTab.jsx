@@ -22,6 +22,8 @@ import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
+import themesList from "../../utils/themes";
+
 
 import SelectInput from "../FormComponents/SelectInput";
 
@@ -32,6 +34,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const regionInfo = regions[region];
   const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
+  const themes = themesList.find((e) => e[language]);
   
   const updateResourceType = (value) => {
     if(Array.isArray(value) && value.length === 1 && value.includes('other')){
@@ -54,10 +57,6 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
       handleUpdateRecord("metadataScope")(e);
     };
   }
-
-  const AnglaisItems = ["Oceanographic", "Biological", "Other",];
-
-  const FrancaisItems = ["Océanographique", "Biologique", "Autre",];
 
  
   useEffect(() => {
@@ -284,12 +283,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             defaultValue="oceanographic"
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
-            optionLabels={
-              <I18n
-                en={AnglaisItems}
-                fr={FrancaisItems}
-              />
-              }
+            optionLabels={themes}
             disabled={disabled}
           />
         </FormControl>
