@@ -34,7 +34,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const regionInfo = regions[region];
   const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
-  const themes = themesList.map(function(data){return data[language]});
+
+  const themes = themesList.map(theme => theme === language);
+
 
     
   
