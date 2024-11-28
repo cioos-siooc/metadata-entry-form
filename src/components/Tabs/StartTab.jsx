@@ -267,7 +267,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the theme of this record?</En>
-              <Fr>Quel est le thème de ce disque?</Fr>
+              <Fr>Quel est le thème de cet enregistrement?</Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />
@@ -280,7 +280,13 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             defaultValue="oceanographic"
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
-            optionLabels={["Oceanographic", "Biological", "Other"]}
+            optionLabels={
+              
+              <I18n
+                en={['Oceanographic', 'Biological', 'Other']}
+                fr={['Océanographique', 'Biologique', 'Autre']}
+              />
+              }
             disabled={disabled}
           />
         </FormControl>

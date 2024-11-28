@@ -101,7 +101,7 @@ const ContactTab = ({
                 appear in the citation. One contact can occupy multiple roles.
               </En>
               <Fr>
-                Veuillez saisir au moins un Dépositaire des métadonnées ET un
+                Veuillez saisir au moins un dépositaire des métadonnées ET un
                 propriétaire des données de ce jeu. Ces personnes pourraient
                 être appelées à collaborer avec le personnel
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
