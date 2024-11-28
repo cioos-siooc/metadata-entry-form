@@ -34,10 +34,8 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const regionInfo = regions[region];
   const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
-  const themes = themesList.find(e => e === language);
-  if (themes) {
-    const theme = themes[language];
-  }
+  const themes = themesList.map(function(data){return (data[language])});
+
     
   
   
@@ -288,7 +286,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             defaultValue="oceanographic"
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
-            optionLabels={theme}
+            optionLabels={themes}
               
             disabled={disabled}
           />
