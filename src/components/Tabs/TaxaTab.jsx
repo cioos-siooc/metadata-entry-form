@@ -203,7 +203,12 @@ const TaxaTab = ({
                             <TextField
                                 // eslint-disable-next-line react/jsx-props-no-spreading
                                 {...params}
-                                label='GBIF taxa Search'
+                                label={
+                                    <I18n>
+                                        <En>GBIF taxa Search</En>
+                                        <Fr>Système mondial d’information sur la biodiversité </Fr>
+                                    </I18n>
+                                }
                             />
                         )}
                     />
