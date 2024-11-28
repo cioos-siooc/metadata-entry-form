@@ -1,0 +1,24 @@
+[project]
+name = "firebase-to-xml"
+version = "0.1.0"
+description = "Python module translates metadata records from Firebase into XML"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "firebase-to-xml",
+    "google-auth>=2.35.0",
+    "google-oauth>=1.0.1",
+    "loguru>=0.7.2",
+    "metadata-xml",
+    "python-dotenv>=1.0.1",
+    "tqdm>=4.66.5",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.7.0",
+]
+
+[tool.uv.sources]
+metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
+firebase-to-xml = { workspace = true }

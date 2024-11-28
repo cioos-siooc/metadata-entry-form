@@ -40,3 +40,5 @@ firebase-debug.log
 
 yarn.lock
 .env
+.env.*
+*.log
