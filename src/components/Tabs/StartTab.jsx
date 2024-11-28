@@ -55,13 +55,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
     };
   }
 
-  const AnglaisItems = [
-    "Oceanographic", "Biological", "Other"
-  ];
+  const AnglaisItems = ["Oceanographic", "Biological", "Other",];
 
-  const FrancaisItems = 
-    ["Océanographique", "Biologique", "Autre"]
-  ;
+  const FrancaisItems = ["Océanographique", "Biologique", "Autre",];
 
  
   useEffect(() => {
