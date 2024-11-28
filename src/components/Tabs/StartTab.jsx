@@ -284,6 +284,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
             optionLabels={themes}
+              
             disabled={disabled}
           />
         </FormControl>
