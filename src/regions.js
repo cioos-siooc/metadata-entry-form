@@ -25,7 +25,7 @@ const regions = {
   stlaurent: {
     title: {
       en: "St. Lawrence Global Observatory",
-      fr: "Observatoire Global du Saint-Laurent (OGSL)",
+      fr: "Observatoire global du Saint-Laurent (OGSL)",
     },
     titleFrPossessive: "de l'Observatoire global du Saint-Laurent (OGSL)",
     catalogueTitle: {
