@@ -227,7 +227,7 @@ const PlatformLeftList = ({
             <Typography>
               <I18n>
                 <En>Add new platform</En>
-                <Fr>Ajouter un platform</Fr>
+                <Fr>Ajouter une plateforme</Fr>
               </I18n>
             </Typography>
           </Button>
@@ -242,7 +242,7 @@ const PlatformLeftList = ({
             ))}
             options={platformList.map((v, i) => i)}
             disabled={!platformList.length || disabled}
-            label={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATFORM" />}
+            label={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UNE PLATEFORME" />}
           />
         </Grid>
       </Grid>

@@ -55,6 +55,14 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
     };
   }
 
+  const AnglaisItems = [
+    "Oceanographic", "Biological", "Other"
+  ];
+
+  const FrancaisItems = 
+    ["Océanographique", "Biologique", "Autre"]
+  ;
+
  
   useEffect(() => {
     mounted.current = true;
@@ -281,10 +289,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
             optionLabels={
-              
               <I18n
-                en={["Oceanographic", "Biological", "Other"]}
-                fr={["Océanographique", "Biologique", "Autre"]}
+                en={AnglaisItems}
+                fr={FrancaisItems}
               />
               }
             disabled={disabled}
