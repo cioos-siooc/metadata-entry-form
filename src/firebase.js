@@ -1,11 +1,12 @@
 import { initializeApp } from 'firebase/app'
 // import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 // import "firebase/compat/database";
+// import { getDatabase, ref, set } from "firebase/database";
 
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
 const prodConfig = {
-  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
+  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
   // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
@@ -46,6 +47,9 @@ const App = initializeApp(config);
 
 // // uncomment below to use firebase emulator for local development
 // if (window.location.hostname === "localhost" && deployedOnTestServer) {
+//   const db = getDatabase();
+//   set(ref(db), null);
+
 //   const functions = getFunctions(App);
 //   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 //   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
