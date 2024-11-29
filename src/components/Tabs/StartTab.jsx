@@ -38,16 +38,13 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   function themes() {
 
     const foundWord = themesList.find((e) => e[language])
-    if (foundWord) return foundWord[language]
+    if (foundWord){
+      return foundWord[language]
+    } 
+    return {}
   }
 
 
-
-
-
-    
-  
-  
   const updateResourceType = (value) => {
     if(Array.isArray(value) && value.length === 1 && value.includes('other')){
       if (Array.isArray(record.eov)){
