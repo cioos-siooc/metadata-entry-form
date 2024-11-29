@@ -44,7 +44,7 @@ import { En, Fr, I18n } from "./I18n";
 
 import { UserContext } from "../providers/UserProvider";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const useStyles = makeStyles((theme) => ({
   root: {
