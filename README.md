@@ -84,6 +84,7 @@ To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" deve
 2. **Make necessary changes to your Firebase functions.**
 
 3. **Deploy the changes by running the command:**
+From the `./firebase-functions/functions` directory run the command:
 
     ```bash
     firebase deploy --only functions
@@ -137,11 +138,11 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 ### Define targets
 
-This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
+This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
 Use Firebase CLI targets to manage rules deployment:
 
 ```bash
-firebase target:apply database prod cioos-metadata-form
+firebase target:apply database prod cioos-metadata-form-8d942
 firebase target:apply database dev cioos-metadata-form-dev-258dc
 ```
 
