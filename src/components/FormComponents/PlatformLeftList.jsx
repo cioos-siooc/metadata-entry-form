@@ -132,7 +132,7 @@ const PlatformLeftList = ({
                           title={
                             <I18n
                               en="Duplicate platform"
-                              fr="Duplicate platform"
+                              fr="Plateforme en double"
                             />
                           }
                         >

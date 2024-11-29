@@ -206,7 +206,7 @@ const TaxaTab = ({
                                 label={
                                     <I18n>
                                         <En>GBIF taxa Search</En>
-                                        <Fr>Système mondial d’information sur la biodiversité </Fr>
+                                        <Fr>Recherche de taxons dans GBIF</Fr>
                                     </I18n>
                                 }
                             />
