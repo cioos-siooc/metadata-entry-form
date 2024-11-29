@@ -36,7 +36,6 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const mounted = useRef(false);
 
   const themes = themesList.map(theme => theme === language);
-  console.log(`Helloooo ${themes[0]}`);
 
     
   
