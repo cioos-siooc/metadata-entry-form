@@ -135,6 +135,11 @@ const BaseLayout = ({ match }) => {
           flexDirection: 'column',
         },
       },
+      MuiTypography: {
+        root: {
+          whiteSpace: 'pre-wrap',
+        },
+      },
     },
     palette: {
       primary: {
