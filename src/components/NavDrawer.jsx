@@ -175,7 +175,7 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envconnection: <I18n en="Connected to development database" fr="Connecté à la base de données \n de développement" />,
+    envconnection: <I18n en="Connected to development database" fr="Connecté à la base de données\nde développement" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
