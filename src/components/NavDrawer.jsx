@@ -469,7 +469,7 @@ export default function MiniDrawer({ children }) {
           <Divider />
           {usingDevDatabase &&    
             
-            <Typography sx={{ fontSize: '10px', fontWeight: 'fontWeightBold', wordBreak: "break-word" }}>
+            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
               {translations.envConnection}
             </Typography>
           
