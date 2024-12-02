@@ -467,7 +467,20 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase && <div>{translations.envConnection}</div>
+          {usingDevDatabase &&    (       
+            
+            <Typography
+              variant="h5"
+              noWrap
+              style={{
+                marginLeft: "10px",
+                marginBottom: "10px",
+                flex: 1,
+                color: "white",
+              }}
+            >
+              {translations.envConnection}
+            </Typography> )
           
           }
         </Drawer>
