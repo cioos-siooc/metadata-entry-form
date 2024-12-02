@@ -103,7 +103,7 @@ const ContactTab = ({
               <Fr>
                 Veuillez saisir au moins un dépositaire des métadonnées <b>et</b> un
                 propriétaire des données de ce jeu. Ces personnes pourraient
-                être appelées à collaborer avec le personnel
+                être appelées à collaborer avec le personnel{" "}
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
                 informations. Vous devez également sélectionner au moins un
                 contact pour apparaître dans la citation. Un contact peut occuper plusieurs rôles.
