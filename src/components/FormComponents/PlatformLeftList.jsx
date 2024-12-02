@@ -90,7 +90,7 @@ const PlatformLeftList = ({
             {platforms.length ? (
               <I18n>
                 <En>Platforms in this record:</En>
-                <Fr>Plateforme dans cet enregistrement:</Fr>
+                <Fr>Plateformes dans cet enregistrement:</Fr>
               </I18n>
             ) : (
               <I18n>

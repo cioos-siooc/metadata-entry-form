@@ -121,7 +121,7 @@ class Platforms extends FormClassTemplate {
           <Typography variant="h5">
             <I18n>
               <En>Platforms</En>
-              <Fr>Plateforme</Fr>
+              <Fr>Plateformes</Fr>
             </I18n>
           </Typography>
         </Grid>

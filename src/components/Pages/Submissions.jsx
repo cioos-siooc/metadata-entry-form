@@ -203,8 +203,8 @@ class Submissions extends FormClassTemplate {
                     obligatoires, vous pouvez soumettre vos métadonnées pour
                     validation en cliquant sur l’icône « soumettre pour
                     validation ». Vos métadonnées seront publiées lorsqu’elles
-                    auront été validées et approuvées par un professionel de l'{" "}
-                    {regions[region].title[language]}.
+                    auront été validées et approuvées par un professionel{" "}
+                    {regions[region].titleFrPossessive}.
                   </Fr>
                 </I18n>
               </Typography>
