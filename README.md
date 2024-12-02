@@ -27,7 +27,7 @@ This will start a hot-reloading dev server. Click on the link that it outputs to
 
 ## Monitoring
 
-Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://hakai-institute.sentry.io/projects/cioos-metadata-entry-form/) project.
+Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
 
 ### Running the Firebase emulator
 
