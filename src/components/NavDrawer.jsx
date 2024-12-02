@@ -470,11 +470,8 @@ export default function MiniDrawer({ children }) {
           {usingDevDatabase &&    
             
             <Typography
-              variant="h5"
+              variant="body2"
               noWrap
-              style={{
-                flex: 1,
-              }}
             >
               {translations.envConnection}
             </Typography>
