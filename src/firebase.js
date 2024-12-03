@@ -5,7 +5,7 @@ import { initializeApp } from 'firebase/app'
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
 const prodConfig = {
-  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
+  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
   // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
