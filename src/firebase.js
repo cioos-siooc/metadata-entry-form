@@ -38,9 +38,9 @@ const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
   ? prodConfig
   : devConfig
 
-if (window.location.hostname === "localhost" && deployedOnTestServer) {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
-}
+// if (window.location.hostname === "localhost" && deployedOnTestServer) {
+//   config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
+// }
 
 const App = initializeApp(config);
 
