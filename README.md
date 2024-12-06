@@ -75,15 +75,21 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 
 To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" development project, follow these steps:
 
-1. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
+1. **Login** to firebase
+  
+    ```bash
+    firebase login
+    ```
+
+2. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
 
     ```bash
     firebase use cioos-metadata-form-dev-258dc
     ```
 
-2. **Make necessary changes to your Firebase functions.**
+3. **Make necessary changes to your Firebase functions.**
 
-3. **Deploy the changes by running the command:**
+4. **Deploy the changes by running the command:**
 From the `./firebase-functions/functions` directory run the command:
 
     ```bash
