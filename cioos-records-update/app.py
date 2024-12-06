@@ -28,7 +28,7 @@ firebase_auth_key_json = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY
 # this is bind mounted to /var/www/html/dev/metadata
 xml_folder = "xml"
 
-waf_url = "https://pac-dev1.cioos.org/dev/metadata/"
+waf_url = "https://waf.forms.cioos.ca/metadata/"
 app = Flask(__name__)
 
 def delete_record(basename):
@@ -61,6 +61,11 @@ def get_complete_path(status, region, basename,file_suffix):
 
     filename = "/".join([xml_folder, submitted_dir_addon, region, basename + file_suffix])
     return filename
+
+
+@app.route("/status", methods=["GET"])
+def status():
+    return jsonify(message="OK")
 
 
 @app.route("/recordDelete")

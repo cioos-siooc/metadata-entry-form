@@ -10,10 +10,16 @@ import sys
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
+from loguru import logger
 
 
 def get_records_from_firebase(
-    region, firebase_auth_key_file, record_url, record_status, firebase_auth_key_json=None
+    region: str,
+    firebase_auth_key_file: str,
+    record_url: str,
+    record_status: list,
+    database_url: str,
+    firebase_auth_key_json: str = None,
 ):
     """
     Returns list of records from firebase for this region,
@@ -43,23 +49,18 @@ def get_records_from_firebase(
     records = []
 
     if record_url:
-        response = authed_session.get(
-            f"https://cioos-metadata-form.firebaseio.com/{record_url}.json"
-        )
+        response = authed_session.get(f"{database_url}{record_url}.json")
         body = json.loads(response.text)
         records.append(body)
         return records
 
     else:
-        response = authed_session.get(
-            f"https://cioos-metadata-form.firebaseio.com/{region}/users.json"
-        )
+        response = authed_session.get(f"{database_url}{region}/users.json")
         body = json.loads(response.text)
 
         # Parse response
-        if not body or type(body) != dict :
-            print("Region",region,"not found?")
-            # print(response.content)
+        if not body or not isinstance(body, dict):
+            logger.warning("Region", region, "not found?")
             sys.exit()
 
         for users_tree in body.values():

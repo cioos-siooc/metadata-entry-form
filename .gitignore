@@ -27,7 +27,6 @@ firebase_to_xml/venv
 *.egg-info
 TODO
 
-.devcontainer
 .vscode
 
 node_modules
@@ -40,3 +39,5 @@ firebase-debug.log
 
 yarn.lock
 .env
+.env.*
+*.log
