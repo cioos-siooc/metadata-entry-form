@@ -22,6 +22,8 @@ import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
+import themesList from "../../utils/themes";
+
 
 import SelectInput from "../FormComponents/SelectInput";
 
@@ -32,7 +34,17 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const regionInfo = regions[region];
   const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
-  
+
+  function themes() {
+
+    const foundWord = themesList.find((e) => e[language])
+    if (foundWord){
+      return foundWord[language]
+    } 
+    return {}
+  }
+
+
   const updateResourceType = (value) => {
     if(Array.isArray(value) && value.length === 1 && value.includes('other')){
       if (Array.isArray(record.eov)){
@@ -267,7 +279,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the theme of this record?</En>
-              <Fr>Quel est le thème de ce disque?</Fr>
+              <Fr>Quel est le thème de cet enregistrement?</Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />
@@ -280,7 +292,8 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             defaultValue="oceanographic"
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
-            optionLabels={["Oceanographic", "Biological", "Other"]}
+            optionLabels={themes()}
+              
             disabled={disabled}
           />
         </FormControl>
