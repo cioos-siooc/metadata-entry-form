@@ -1,22 +1,22 @@
 [project]
 name = "firebase-to-xml"
 version = "0.1.0"
-description = "Python module translates metadata records from Firebase into XML"
+description = "Package use to convert firebase data to xml"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "firebase-to-xml",
-    "google-auth>=2.35.0",
+    "google-auth>=2.36.0",
     "google-oauth>=1.0.1",
-    "loguru>=0.7.2",
+    "loguru>=0.7.3",
     "metadata-xml @ git+https://github.com/cioos-siooc/metadata-xml.git",
     "python-dotenv>=1.0.1",
-    "tqdm>=4.66.5",
+    "tqdm>=4.67.1",
 ]
 
 [tool.uv]
 dev-dependencies = [
-    "ruff>=0.7.0",
+    "ruff>=0.8.2",
 ]
 
 [tool.uv.sources]
