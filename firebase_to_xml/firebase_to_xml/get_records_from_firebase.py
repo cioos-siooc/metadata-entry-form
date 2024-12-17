@@ -5,7 +5,6 @@ Query firebase to get all the records
 """
 
 import json
-import pprint
 import sys
 
 from google.auth.transport.requests import AuthorizedSession

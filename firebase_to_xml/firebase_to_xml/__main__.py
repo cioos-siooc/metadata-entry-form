@@ -11,10 +11,10 @@ from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
-from get_records_from_firebase import get_records_from_firebase
+from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from loguru import logger
 from metadata_xml.template_functions import metadata_to_xml
-from record_json_to_yaml import record_json_to_yaml
+from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from tqdm import tqdm
 
 
@@ -28,6 +28,7 @@ def get_filename(record):
     return name
 
 
+@logger.catch
 def main():
     "Get arguments from command line and run script"
 
@@ -69,14 +70,11 @@ def main():
     )
     args = vars(parser.parse_args())
 
-    region = args["region"]
-    record_status = parse_status(args["status"])
-
     record_url = args["record_url"]
-
-    firebase_auth_key_file = args["key"]
     also_save_yaml = args["yaml"]
     encoding = args["encoding"]
+    xml_directory = Path(args["out"])
+    region = args["region"]
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
@@ -88,10 +86,10 @@ def main():
     )
 
     # translate each record to YAML and then to XML
-    for record in record_list:
+    for record in tqdm(record_list, desc=f"Processing {region} records"):
         # if single record it uses std out, hide info
         if not record_url:
-            print(
+            logger.info(
                 "Processing",
                 f"'{record['title']['en']}'",
                 f"'{record['title']['fr']}'",
@@ -107,15 +105,13 @@ def main():
 
             name = record.get("filename") or get_filename(record)
 
-            xml_directory = args["out"]
+            output_directory = xml_directory / organization
 
-            xml_directory = "/".join([args["out"], organization])
-
-            Path(xml_directory).mkdir(parents=True, exist_ok=True)
+            output_directory.mkdir(parents=True, exist_ok=True)
 
             # output yaml
             if also_save_yaml:
-                yaml_file = output_directory / f"{filename}.yaml"
+                yaml_file = output_directory / f"{name}.yaml"
                 yaml_file.write_text(
                     yaml.dump(record_yaml, allow_unicode=True, sort_keys=False),
                     encoding=encoding,
@@ -124,15 +120,11 @@ def main():
             # render xml template and write to file
             xml = metadata_to_xml(record_yaml)
             if record_url:
-                print(xml)
+                logger.info(xml)
             else:
-                filename = f"{xml_directory}/{name}.xml"
-                file = open(filename, "w")
-                file.write(xml)
-                print("Wrote " + file.name)
-
-            xml_file = output_directory / f"{filename}.xml"
-            xml_file.write_text(xml, encoding=encoding)
+                xml_file = output_directory / f"{name}.xml"
+                xml_file.write_text(xml, encoding=encoding)
+                logger.info("Wrote " + xml_file.name)
 
         except Exception:
             print(traceback.format_exc())
