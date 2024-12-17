@@ -3,9 +3,6 @@
 """
 Command line interface to part of firebase_to_xml
 """
-
-import argparse
-import os
 import traceback
 from pathlib import Path
 
@@ -16,6 +13,7 @@ from loguru import logger
 from metadata_xml.template_functions import metadata_to_xml
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from tqdm import tqdm
+import click
 
 load_dotenv()
 
@@ -31,8 +29,58 @@ def get_filename(record):
 
 
 @logger.catch
+@click.command()
+@click.option(
+    "--record_url",
+    help="URL to a single record to process",
+)
+@click.option(
+    "--also-save-yaml",
+    "--yaml",
+    is_flag=True,
+    help="Whether to output yaml file as well as xml",
+)
+@click.option(
+    "--encoding",
+    default="utf-8",
+    help="Encoding of the output files",
+)
+@click.option(
+    "--xml_directory",
+    "--out",
+    "-o",
+    default=".",
+    help="Folder to save xml",
+)
+@click.option(
+    "--region",
+    required=True,
+    help="Eg pacific/stlaurent/atlantic",
+)
+@click.option(
+    "--status",
+    default="published",
+    required=False,
+    type=click.Choice(
+        ["published", "submitted", "submitted,published", "published,submitted"]
+    ),
+)
+@click.option(
+    "--database_url",
+    required=True,
+    envvar="DATABASE_URL",
+    help="Firebase database URL",
+)
+@click.option(
+    "--key",
+    required=True,
+    help="Path to firebase OAuth2 key file",
+)
+def main_cli(**kwargs):
+    main(**kwargs)
+
+
 def main(
-    record_url,
     also_save_yaml,
     encoding,
     xml_directory,
@@ -40,6 +88,7 @@ def main(
     status,
     database_url,
     key,
+    record_url=None,
 ):
     "Get arguments from command line and run script"
 
@@ -53,7 +102,7 @@ def main(
     )
 
     # translate each record to YAML and then to XML
-    for record in tqdm(record_list, desc=f"Processing {region} records"):
+    for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
         # if single record it uses std out, hide info
         if not record_url:
             logger.info(
@@ -92,49 +141,8 @@ def main(
                 logger.info("Wrote " + xml_file.name)
 
         except Exception:
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Convert firebase metadata form to xml and optionaly yaml"
-    )
-
-    parser.add_argument("--key", required=True, help="Path to firebase OAuth2 key file")
-    parser.add_argument(
-        "--xml-directory", "--out", default=".", help="Folder to save xml"
-    )
-    parser.add_argument(
-        "--also-save-yaml",
-        "--yaml",
-        action="store_true",
-        help="Whether to output yaml file as well as xml",
-    )
-    parser.add_argument("--region", required=True, help="Eg pacific/stlaurent/atlantic")
-    parser.add_argument(
-        "--status",
-        default="published",
-        required=False,
-        choices=[
-            "published",
-            "submitted",
-            "submitted,published",
-            "published,submitted",
-        ],
-    )
-    parser.add_argument("--record_url", required=False)
-    parser.add_argument(
-        "--database_url",
-        default=os.getenv("DATABASE_URL"),
-        required=False,
-        help="Firebase database URL (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--encoding",
-        default="utf-8",
-        required=False,
-        help="Encoding of the output files",
-    )
-    args = vars(parser.parse_args())
-
-    main(**args)
+    main_cli()
