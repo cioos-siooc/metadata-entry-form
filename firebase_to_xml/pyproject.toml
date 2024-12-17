@@ -1,15 +1,14 @@
 [project]
 name = "firebase-to-xml"
-version = "0.1.0"
+version = "0.2.0"
 description = "Package use to convert firebase data to xml"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "firebase-to-xml",
     "google-auth>=2.36.0",
     "google-oauth>=1.0.1",
     "loguru>=0.7.3",
-    "metadata-xml @ git+https://github.com/cioos-siooc/metadata-xml.git",
+    "metadata-xml",
     "python-dotenv>=1.0.1",
     "tqdm>=4.67.1",
 ]
@@ -20,7 +19,8 @@ dev-dependencies = [
 ]
 
 [tool.uv.sources]
-firebase-to-xml = { workspace = true }
+metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 
-[tool.setuptools]
-py-modules = []
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
