@@ -15,7 +15,6 @@ import sentry_sdk
 
 sentry_sdk.init(
     dsn="https://b21f672d78630938fcc78d26097dfece@o4505071053766656.ingest.us.sentry.io/4507704416796672",
-
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production.
@@ -24,12 +23,15 @@ sentry_sdk.init(
 
 # on the server its run inside docker, the values of xml, key.json work for the server
 firebase_auth_key_file = "key.json"
-firebase_auth_key_json = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY','{}'))
+firebase_auth_key_json = json.loads(
+    os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY", "{}")
+)
 # this is bind mounted to /var/www/html/dev/metadata
 xml_folder = "xml"
 
 waf_url = "https://waf.forms.cioos.ca/metadata/"
 app = Flask(__name__)
+
 
 def delete_record(basename):
     # before writing/update a file, delete the old one
@@ -41,25 +43,28 @@ def delete_record(basename):
             for character in basename.strip().lower()
         ]
     )
-    types = ('.xml','.yaml') # the tuple of file types
-    
-    existing_record_path = []
-    
-    for files in types:
-        existing_record_path.extend(glob.glob(f"{xml_folder}/**/{basename}{files}", recursive=True))
+    types = (".xml", ".yaml")  # the tuple of file types
 
+    existing_record_path = []
+
+    for files in types:
+        existing_record_path.extend(
+            glob.glob(f"{xml_folder}/**/{basename}{files}", recursive=True)
+        )
 
     for file_path in existing_record_path:
         print("Deleting", file_path)
         os.remove(file_path)
 
 
-def get_complete_path(status, region, basename,file_suffix):
+def get_complete_path(status, region, basename, file_suffix):
     submitted_dir_addon = ""
     if status == "submitted":
         submitted_dir_addon = "unpublished"
 
-    filename = "/".join([xml_folder, submitted_dir_addon, region, basename + file_suffix])
+    filename = "/".join(
+        [xml_folder, submitted_dir_addon, region, basename + file_suffix]
+    )
     return filename
 
 
@@ -82,22 +87,22 @@ def recordDelete():
 def recordUpdate():
     path = request.args.get("path")
     if not path:
-         return make_response(jsonify(error="Missing path"), 500)
- 
+        return make_response(jsonify(error="Missing path"), 500)
+
     [region, userID, recordID] = path.split("/")
     pathComplete = region + "/users/" + userID + "/records/" + recordID
 
     recordFromFB = get_records_from_firebase(
         "", firebase_auth_key_file, pathComplete, [], firebase_auth_key_json
     )[0]
-    if not recordFromFB or not "title" in recordFromFB:
+    if not recordFromFB or "title" not in recordFromFB:
         return jsonify(message="not found")
 
     status = recordFromFB.get("status", "")
-    basename = recordFromFB.get('filename') or get_filename(recordFromFB)
-    
-    xml_filename = get_complete_path(status, region, basename,'.xml')
-    yaml_filename = get_complete_path(status, region, basename,'.yaml')
+    basename = recordFromFB.get("filename") or get_filename(recordFromFB)
+
+    xml_filename = get_complete_path(status, region, basename, ".xml")
+    yaml_filename = get_complete_path(status, region, basename, ".yaml")
 
     # delete file if exists already
     print(basename)
@@ -111,7 +116,7 @@ def recordUpdate():
     try:
         record = record_json_to_yaml(recordFromFB)
         xml = metadata_to_xml(record)
-        record_yaml =  yaml.safe_dump(record, allow_unicode=True)
+        record_yaml = yaml.safe_dump(record, allow_unicode=True)
 
         # create path if doesnt exist
         print(xml_filename)
@@ -120,13 +125,13 @@ def recordUpdate():
         with open(xml_filename, "w") as f:
             f.write(xml)
             print("wrote", xml_filename)
-        
+
         with open(yaml_filename, "w") as g:
             g.write(record_yaml)
             print("wrote", yaml_filename)
 
         url = waf_url + basename
-        
+
         # returned value doesnt do anything
         return jsonify(message=url)
     except Exception:
@@ -158,7 +163,6 @@ def recordToYAML():
     print(record)
 
     return jsonify(message={"record": yaml.safe_dump(record, allow_unicode=True)})
-
 
 
 @app.errorhandler(404)
