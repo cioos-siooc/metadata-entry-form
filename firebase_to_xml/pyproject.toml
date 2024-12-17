@@ -8,7 +8,7 @@ dependencies = [
     "google-auth>=2.36.0",
     "google-oauth>=1.0.1",
     "loguru>=0.7.3",
-    "metadata-xml @ git+https://github.com/cioos-siooc/metadata-xml.git",
+    "metadata-xml",
     "python-dotenv>=1.0.1",
     "tqdm>=4.67.1",
 ]
