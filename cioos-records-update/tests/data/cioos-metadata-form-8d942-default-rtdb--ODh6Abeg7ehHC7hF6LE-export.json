@@ -1,0 +1,194 @@
+{
+  "abstract": {
+    "en": "Some abstract",
+    "fr": "Quelques résumés",
+    "translations": {
+      "fr": {
+        "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+        "verified": false
+      }
+    }
+  },
+  "associated_resources": [
+    {
+      "association_type": "IsReviewedBy",
+      "association_type_iso": "crossReference",
+      "authority": "URL",
+      "code": "http://google.com",
+      "title": {
+        "en": "Some test related works",
+        "fr": "Quelques travaux liés aux tests",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      }
+    }
+  ],
+  "category": "",
+  "comment": "",
+  "contacts": [
+    {
+      "givenNames": "Jessy",
+      "inCitation": true,
+      "indEmail": "barrettej@ogsl.ca",
+      "indOrcid": "https://orcid.org/0000-0002-0422-2589",
+      "indPosition": "data and software specialist",
+      "lastName": "Barrette",
+      "orgAdress": "",
+      "orgCity": "Rimouski",
+      "orgCountry": "Canada",
+      "orgEmail": "",
+      "orgName": "St. Lawrence Global Observatory",
+      "orgRor": "https://ror.org/03wfagk22",
+      "orgURL": "https://ogsl.ca/en/home-slgo/",
+      "role": [
+        "custodian",
+        "owner",
+        "distributor",
+        "author",
+        "editor",
+        "pointOfContact",
+        "resourceProvider",
+        "rightsHolder",
+        "principalInvestigator",
+        "funder",
+        "coAuthor",
+        "collaborator",
+        "mediator",
+        "sponsor",
+        "processor",
+        "contributor",
+        "originator",
+        "publisher",
+        "stakeholder"
+      ]
+    }
+  ],
+  "created": "2024-12-16T19:27:33.359Z",
+  "datasetIdentifier": "",
+  "dateEnd": "2024-12-06T17:00:00.000Z",
+  "datePublished": "2024-09-01T16:00:00.000Z",
+  "dateRevised": "2024-09-01T16:00:00.000Z",
+  "dateStart": "2024-12-04T17:00:00.000Z",
+  "distribution": [
+    {
+      "description": {
+        "en": "a test website ressource",
+        "fr": "une ressource de site Web de test",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      },
+      "name": {
+        "en": "Some ressource",
+        "fr": "Quelques ressources",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      },
+      "url": "http://google.com"
+    }
+  ],
+  "doiCreationStatus": "",
+  "edition": "1.1.0",
+  "eov": [
+    "dissolvedOrganicCarbon",
+    "oxygen",
+    "transientTracers",
+    "microbeBiomassAndDiversity"
+  ],
+  "filename": "some_english_title__copy__041d7",
+  "identifier": "041d701e-bbd9-41d1-9da4-0490bbf4ed0b",
+  "keywords": {
+    "en": [
+      "endangered species"
+    ],
+    "fr": [
+      "espèces en péril"
+    ]
+  },
+  "language": "en",
+  "lastEditedBy": {
+    "displayName": "Jessy Barrette",
+    "email": "barrettej@ogsl.ca"
+  },
+  "license": "CC-BY-4.0",
+  "limitations": {
+    "en": "some limitations",
+    "fr": "certaines limites",
+    "translations": {
+      "fr": {
+        "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+        "verified": false
+      }
+    }
+  },
+  "map": {
+    "description": {
+      "en": "A description of the environment",
+      "fr": "Une description de l'environnement",
+      "translations": {
+        "fr": {
+          "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+          "verified": false
+        }
+      }
+    },
+    "east": "-36.88",
+    "north": "53.11",
+    "polygon": "",
+    "south": "30.89",
+    "west": "-119.7"
+  },
+  "metadataScope": "Dataset",
+  "noPlatform": false,
+  "noTaxa": true,
+  "organization": "",
+  "platforms": [
+    {
+      "description": {
+        "en": "A test platform",
+        "fr": "Une plateforme de test",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      },
+      "id": "fish-some-crabs",
+      "type": "fishing vessel"
+    }
+  ],
+  "progress": "onGoing",
+  "recordID": "-ODh6Abeg7ehHC7hF6LE",
+  "region": "test",
+  "resourceType": [
+    "oceanographic"
+  ],
+  "status": "submitted",
+  "timeFirstPublished": "2024-12-09T20:30:00.949Z",
+  "title": {
+    "en": "some english title (Copy) another test",
+    "fr": "un titre anglais (copie) un autre test",
+    "translations": {
+      "fr": {
+        "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+        "verified": false
+      }
+    }
+  },
+  "userID": "ub4VXoafIhgNybksQ1nht7KiCsD3",
+  "verticalExtentDirection": "heightPositive",
+  "verticalExtentMax": "100",
+  "verticalExtentMin": "0"
+}
