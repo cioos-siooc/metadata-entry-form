@@ -26,6 +26,11 @@ firebase_auth_key_file = "key.json"
 firebase_auth_key_json = json.loads(
     os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY", "{}")
 )
+firebase_database_url = os.environ.get(
+    "FIREBASE_DATABASE_URL",
+    "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com/",
+)
+
 # this is bind mounted to /var/www/html/dev/metadata
 xml_folder = "xml"
 
@@ -93,7 +98,12 @@ def recordUpdate():
     pathComplete = region + "/users/" + userID + "/records/" + recordID
 
     recordFromFB = get_records_from_firebase(
-        "", firebase_auth_key_file, pathComplete, [], firebase_auth_key_json
+        "",
+        firebase_auth_key_file,
+        pathComplete,
+        [],
+        firebase_database_url,
+        firebase_auth_key_json,
     )[0]
     if not recordFromFB or "title" not in recordFromFB:
         return jsonify(message="not found")
