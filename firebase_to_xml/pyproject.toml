@@ -23,5 +23,5 @@ dev-dependencies = [
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
