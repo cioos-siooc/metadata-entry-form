@@ -1,6 +1,6 @@
 Flask==1.1.4
 Werkzeug==1.0.1
 gunicorn
-sentry-sdk
+'sentry-sdk[flask]'
 git+https://github.com/cioos-siooc/metadata-xml.git
 git+https://github.com/cioos-siooc/metadata-entry-form.git#egg=firebase_to_xml&subdirectory=firebase_to_xml

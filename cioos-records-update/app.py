@@ -14,11 +14,14 @@ from metadata_xml.template_functions import metadata_to_xml
 import sentry_sdk
 
 sentry_sdk.init(
-    dsn="https://b21f672d78630938fcc78d26097dfece@o4505071053766656.ingest.us.sentry.io/4507704416796672",
+    dsn="https://e0623f41d68caf57dc1563203f482daf@o4505071053766656.ingest.us.sentry.io/4508490893426688",
     # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
+    # of transactions for tracing.
     traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
 )
 
 # on the server its run inside docker, the values of xml, key.json work for the server
