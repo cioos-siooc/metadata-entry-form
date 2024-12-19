@@ -191,7 +191,7 @@ const Lineage = ({
                               title={
                                 <I18n
                                   en="Duplicate contact"
-                                  fr="Duplicate contact"
+                                  fr="Contact en double"
                                 />
                               }
                             >

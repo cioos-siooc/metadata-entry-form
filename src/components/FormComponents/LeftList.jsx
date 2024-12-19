@@ -142,7 +142,7 @@ const LeftList = ({
                           title={
                             <I18n
                               en="Duplicate entry"
-                              fr="Duplicate entrée"
+                              fr="Entrée en double"
                             />
                           }
                         >
