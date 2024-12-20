@@ -1,9 +1,9 @@
-FROM python:3
+FROM python:3.12
 
 WORKDIR /usr/src/app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+RUN pip install uv && uv pip install -r pyproject.toml --system
 EXPOSE 8000
 COPY . .
 

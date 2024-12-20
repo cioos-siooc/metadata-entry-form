@@ -6,7 +6,7 @@ import os
 firebase_key = Path(__file__).parent / "key.json"
 os.environ["FIREBASE_SERVICE_ACCOUNT_KEY"] = firebase_key.read_text()
 
-record_ids = ["-ODRWCP95qCGQZM-ODHo", "-ODh6Abeg7ehHC7hF6LE"]
+record_ids = ["-ODh6Abeg7ehHC7hF6LE"]
 region = "test"
 user = "ub4VXoafIhgNybksQ1nht7KiCsD3"
 filenames = ["some_english_title_276e6", "some_english_title__copy__041d7"]

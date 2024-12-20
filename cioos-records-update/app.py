@@ -10,11 +10,14 @@ from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from flask import Flask, jsonify, make_response, request
 from metadata_xml.template_functions import metadata_to_xml
+from dotenv import load_dotenv
 
 import sentry_sdk
 
+load_dotenv()
+
 sentry_sdk.init(
-    dsn="https://e0623f41d68caf57dc1563203f482daf@o4505071053766656.ingest.us.sentry.io/4508490893426688",
+    dsn=os.environ.get("SENTRY_DSN", ""),
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for tracing.
     traces_sample_rate=1.0,
@@ -25,19 +28,16 @@ sentry_sdk.init(
 )
 
 # on the server its run inside docker, the values of xml, key.json work for the server
-firebase_auth_key_file = "key.json"
+firebase_auth_key_file = os.environ.get("FIREBASE_KEY_PATH","key.json")
 firebase_auth_key_json = json.loads(
-    os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY", "{}")
+    os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY") or "{}"
 )
-firebase_database_url = os.environ.get(
-    "FIREBASE_DATABASE_URL",
-    "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com/",
-)
+firebase_database_url = os.environ["FIREBASE_DATABASE_URL"]
 
 # this is bind mounted to /var/www/html/dev/metadata
-xml_folder = "xml"
+xml_folder = os.environ.get("OUTPUT_DIR", "xml")
 
-waf_url = "https://waf.forms.cioos.ca/metadata/"
+waf_url = os.environ.get("WAF_URL", "")
 app = Flask(__name__)
 
 

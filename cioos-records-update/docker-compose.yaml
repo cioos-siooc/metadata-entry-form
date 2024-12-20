@@ -4,10 +4,12 @@ services:
     build: .
     ports:
       - "8091:8000"
+    env_file:
+      - .env
     volumes:
       - cioos_metadata_form_files:/usr/src/app/xml
     environment:
-      FLASK_ENV: production
+      OUTPUT_DIR: /usr/src/app/xml
     restart: always
   waf:
     image: nginx:alpine
