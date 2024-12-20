@@ -28,16 +28,15 @@ sentry_sdk.init(
 )
 
 # on the server its run inside docker, the values of xml, key.json work for the server
-firebase_auth_key_file = os.environ.get("FIREBASE_KEY_PATH","key.json")
+firebase_auth_key_file = os.environ.get("FIREBASE_KEY_PATH", "key.json")
 firebase_auth_key_json = json.loads(
     os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY") or "{}"
 )
 firebase_database_url = os.environ["FIREBASE_DATABASE_URL"]
-
-# this is bind mounted to /var/www/html/dev/metadata
 xml_folder = os.environ.get("OUTPUT_DIR", "xml")
-
 waf_url = os.environ.get("WAF_URL", "")
+regions = os.environ.get("REGIONS", "").split(",")
+
 app = Flask(__name__)
 
 
@@ -98,6 +97,15 @@ def recordUpdate():
         return make_response(jsonify(error="Missing path"), 500)
 
     [region, userID, recordID] = path.split("/")
+
+    if regions and region not in regions:
+        return make_response(
+            jsonify(
+                error=f"Invalid region: {region}, accept only the following regions: {regions}"
+            ),
+            500,
+        )
+
     pathComplete = region + "/users/" + userID + "/records/" + recordID
 
     recordFromFB = get_records_from_firebase(
