@@ -44,8 +44,11 @@ import click
     default="WARNING",
     help="Logging level",
 )
-def main(regions,key,output_dir,database_url,also_save_yaml=False,encoding='utf-8', log_level='WARNING'):
+def main_cli(regions,key,output_dir,database_url,also_save_yaml,encoding, log_level):
+    main(regions,key,output_dir,database_url,also_save_yaml,encoding, log_level)
 
+
+def main(regions,key,output_dir,database_url,also_save_yaml=False,encoding='utf-8', log_level='WARNING'):
     logger.remove()
     logger.add(sys.stderr, level=log_level)
 
