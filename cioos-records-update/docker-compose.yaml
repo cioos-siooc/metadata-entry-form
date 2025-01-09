@@ -6,6 +6,8 @@ services:
       - "8091:8000"
     volumes:
       - cioos_metadata_form_files:/usr/src/app/xml
+    env_file:
+      - .env
     environment:
       FLASK_ENV: production
     restart: always
