@@ -25,7 +25,8 @@ sentry_sdk.init(
 )
 
 # on the server its run inside docker, the values of xml, key.json work for the server
-firebase_auth_key_file = "key.json"
+FIREBASE_KEY_PATH = Path(os.getenv("FIREBASE_KEY_PATH", "key.json"))
+firebase_auth_key_file = str(FIREBASE_KEY_PATH) if FIREBASE_KEY_PATH.exists() else None
 firebase_auth_key_json = json.loads(
     os.environ.get("FIREBASE_SERVICE_ACCOUNT_KEY", "{}")
 )
