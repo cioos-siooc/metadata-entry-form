@@ -132,7 +132,7 @@ const InstrumentLeftList = ({
                           title={
                             <I18n
                               en="Duplicate instrument"
-                              fr="Duplicate instrument"
+                              fr="Instrument en double"
                             />
                           }
                         >

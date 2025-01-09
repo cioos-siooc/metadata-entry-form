@@ -71,8 +71,8 @@ const IdentificationTab = ({
                 project, email{" "}
               </En>
               <Fr>
-                Quels sont les projets dont ce disque fait partie? Pour ajouter
-                un projet, e-mail{" "}
+                Quels sont les projets dont cet enregistrement fait partie? Pour ajouter
+                un projet, courriel {" "}
               </Fr>
             </I18n>
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
@@ -202,7 +202,7 @@ const IdentificationTab = ({
               Veuillez sélectionner toutes les variables océaniques essentielles
               contenues dans ce jeu de données. Survolez une variable pour voir
               sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à
-              la définition complète du Système d’Observatoire Global des Océans
+              la définition complète du Système d’observatoire global des océans
               (GOOS).
             </Fr>
           </I18n>
