@@ -5,7 +5,10 @@ from loguru import logger
 import shutil
 import os
 
-FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY")   
+FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv(
+    "FIREBASE_SERVICE_ACCOUNT_KEY"
+)
+
 
 @click.command()
 @click.option(
@@ -52,8 +55,15 @@ FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIRE
     help="Whether to delete the output directory before writing",
     default=True,
 )
-def main(regions,output,auth_key,database_url,also_save_yaml=False,encoding='utf-8',delete=True):
-
+def main(
+    regions,
+    output,
+    auth_key,
+    database_url,
+    also_save_yaml=False,
+    encoding="utf-8",
+    delete=True,
+):
     if delete:
         # delete output directory
         logger.info("Deleting output directory {}", output)
@@ -71,6 +81,7 @@ def main(regions,output,auth_key,database_url,also_save_yaml=False,encoding='utf
         encoding=encoding,
     )
     logger.info("Records retrieved from Firebase and saved to XML")
+
 
 if __name__ == "__main__":
     main()
