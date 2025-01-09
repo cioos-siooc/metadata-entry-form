@@ -5,14 +5,13 @@ Query firebase to get all the records
 """
 
 import json
-import pprint
 import sys
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from loguru import logger
 
-
+@logger.catch
 def get_records_from_firebase(
     region: str,
     firebase_auth_key_file: str,
@@ -60,8 +59,8 @@ def get_records_from_firebase(
 
         # Parse response
         if not body or not isinstance(body, dict):
-            logger.warning("Region", region, "not found?")
-            sys.exit()
+            logger.warning("Region {} not found?", region)
+            sys.exit(1)
 
         for users_tree in body.values():
             if "records" in users_tree:
