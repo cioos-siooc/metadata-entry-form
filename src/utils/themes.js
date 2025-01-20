@@ -1,5 +1,5 @@
 const themesList = [
   { en: ["Oceanographic", "Biological", "Other"], 
-    fr: ["Océanographique", "Biologique", "Autre"] },
+    fr: ["Océanographie", "Biologie", "Autre"] },
 ];
 export default themesList;

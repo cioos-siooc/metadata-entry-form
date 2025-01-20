@@ -28,7 +28,6 @@ import themesList from "../../utils/themes";
 import SelectInput from "../FormComponents/SelectInput";
 
 const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCodes;
-
 const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
@@ -130,15 +129,15 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
               <br /> Questions regarding the form can be directed to{" "}
             </En>
             <Fr>
-              Bienvenue dans l’outil de saisie de métadonnées{" "}
-              {regionInfo.titleFrPossessive} qui constitue la première étape du
-              processus de partage de vos données. Ces renseignements serviront
+              Bienvenue dans le formulaire de saisie de métadonnées{" "}
+              {regionInfo.titleFrPossessive}. Cet outil constitue la première étape du
+              processus de partage de vos données. Les renseignements fournis serviront
               à créer le profil de métadonnées de votre jeu de données. Ces
               métadonnées facilitent l’accessibilité et la découvrabilité de vos
-              données via le Catalogue de données {regionInfo.catalogueTitle.fr}
+              données via le {regionInfo.catalogueTitle.fr}
               . Elles rendent également vos jeux de données interopérables avec
-              d’autres systèmes de diffusion. Aussi, nous vous incitons
-              fortement à remplir les champs requis de la façon la plus
+              d’autres systèmes de diffusion. Aussi, nous vous invitons
+              à remplir les champs requis de la façon la plus
               exhaustive possible.
               <br />
               <br /> Les questions concernant le formulaire peuvent être
@@ -177,9 +176,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
               </En>
               <Fr>
                 Le formulaire peut être sauvegardé et complété ultérieurement en
-                cliquant sur le bouton <Save /> dans le coin inférieur droit.
-                Cet icône sera activé par l’ajout du titre du jeu de données
-                dans la section « Identification des données ».
+                cliquant sur la disquette située dans le coin inférieur droit.
+                Cette icône sera activée par l’ajout du titre du jeu de données
+                dans la section « Identification des ressources ».
               </Fr>
             </I18n>
           </li>
@@ -193,12 +192,11 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
                 more text to translate.
               </En>
               <Fr>
-                Certains champs peuvent avoir du texte à la fois en français et
-                en anglais, toutefois seules les traductions du titre et du
-                résumé sont réellement requises. Le bouton « Traduire» génère
-                automatiquement du texte dans l'autre langue. Veuillez noter que
-                plus il y a de texte à traduire et plus la traduction sera
-                précise.
+                Certains champs peuvent contenir du texte à la fois en français et
+                en anglais. Toutefois, seules les traductions du titre et de la
+                description sont obligatoires. Le bouton « Traduire» génère
+                automatiquement une traduction dans l'autre langue. Une description
+                exhaustive améliorera la précision de la traduction.
               </Fr>
             </I18n>
           </li>
@@ -231,9 +229,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
                 <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
                 <p>
                   Le titre doit être suffisamment précis pour que l'utilisateur
-                  n'ait pas à ouvrir le ensemble de données pour comprendre son
-                  contenu. Le titre ne doit pas avoir des acronymes, des
-                  caractères spéciaux ou utiliser une nomenclature spécialisée.
+                  n'ait pas à ouvrir le jeu de données pour en comprendre le
+                  contenu. Le titre ne doit pas comporter d'acronymes, de
+                  caractères spéciaux ou de termes techniques spécifiques à un domaine.
                   Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
                   {regionInfo.catalogueTitle.fr}.
                 </p>
@@ -279,7 +277,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the theme of this record?</En>
-              <Fr>Quel est le thème de cet enregistrement?</Fr>
+              <Fr>À quelle discipline sicentifique ce jeu de données est-il associé?</Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />
