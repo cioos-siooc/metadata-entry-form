@@ -66,7 +66,7 @@ const validators = {
     tab: "start",
     error: {
       en: "Please select a theme for this record",
-      fr: "Veuillez sélectionner un thème pour cet enregistrement",
+      fr: "Veuillez sélectionner un domaine pour cet enregistrement",
     },
   },
   abstract: {
@@ -74,7 +74,7 @@ const validators = {
     tab: "dataID",
     error: {
       en: "Missing abstract in French or English",
-      fr: "Abrégé manquant en français ou en anglais",
+      fr: "Résumé manquant en français ou en anglais",
     },
   },
   keywords: {
@@ -115,7 +115,7 @@ const validators = {
     validation: (val) => val,
     error: {
       en: "Please select a dataset status",
-      fr: "L'information spatiale est manquante",
+      fr: "Veuillez définir le statut du jeu de données",
     },
   },
   language: {
@@ -246,7 +246,7 @@ const validators = {
       en:
         "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
       fr:
-        "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+        "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
     },
   },
 
@@ -287,7 +287,7 @@ const validators = {
       en:
         "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
       fr:
-        "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
+        "Le lignage doit contenir un titre et une description pour chaque origine de jeu de données. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
     },
   },
   platforms: {

@@ -170,7 +170,7 @@ const TaxaTab = ({
                     label={
                         <I18n>
                             <En>This dataset does not contain any taxonomic classification</En>
-                            <Fr>Cet ensemble de données ne contient aucune classification taxonomique</Fr>
+                            <Fr>Ce jeu de données ne contient aucune classification taxonomique</Fr>
                         </I18n>
                     }
                 />

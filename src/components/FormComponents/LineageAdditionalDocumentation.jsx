@@ -97,7 +97,7 @@ const LineageAdditionalDocumentation = ({
                 A citation to additional lineage documentation. This could be a publication that describes the whole process, dataset, or model.
               </En>
               <Fr>
-                Une citation à une documentation supplémentaire sur la lignée. Il peut s'agir d'une publication décrivant l'ensemble du processus, de l'ensemble de données ou du modèle.
+                Une citation vers une documentation supplémentaire sur l'origine des données. Il peut s'agir d'une publication décrivant l'ensemble du processus, de l'ensemble de données ou du modèle.
               </Fr>
             </I18n>
           </SupplementalText>

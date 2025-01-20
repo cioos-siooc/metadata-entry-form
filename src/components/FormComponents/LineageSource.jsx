@@ -89,7 +89,7 @@ const LineageSource = ({
     <Grid container spacing={0}>
       <Grid item>
         <QuestionText>
-          Source:
+          Source :
           <SupplementalText>
             <I18n>
               <En>

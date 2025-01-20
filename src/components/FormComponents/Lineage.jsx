@@ -274,7 +274,7 @@ const Lineage = ({
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
-                      <Fr>Titre de la lignée</Fr>
+                      <Fr>Titre de la ressource d'origine</Fr>
                     </I18n>
                     <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
                     <SupplementalText>
@@ -284,9 +284,9 @@ const Lineage = ({
                           processing steps or methods use the processing and method step question
                         </En>
                         <Fr>
-                          Explication générale de l'étape de lignage ou des méthodes d'échantillonnage.
-                          Pour des étapes ou des méthodes de traitement détaillées, utilisez
-                          la question sur les étapes de traitement et de méthode.
+                          Explication générale de la démarche d'origine des jeux de données ou des méthodes d'échantillonnage.
+                          Pour entrer des démarches ou des méthodes de traitement détaillées, utilisez
+                          la question sur le traitement et la méthodologie (ci-après).
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -302,7 +302,7 @@ const Lineage = ({
                   <QuestionText>
                     <I18n>
                       <En>Scope</En>
-                      <Fr>Portée</Fr>
+                      <Fr>Cadre</Fr>
                     </I18n>
                     <SupplementalText>
                       <I18n>
@@ -310,7 +310,7 @@ const Lineage = ({
                           Type of resource and/or extent to which the lineage information applies.
                         </En>
                         <Fr>
-                          Type de ressource et/ou mesure dans laquelle les informations sur la lignée s'appliquent.
+                          Type de ressource et/ou d'étendue pour laquelle les informations sur l'origine s'appliquent.
                         </Fr>
                       </I18n>
                     </SupplementalText>

@@ -285,9 +285,9 @@ const Resources = ({
                         </En>
                         <Fr>
                           <p>
-                            Le lien peut être vers une ressource de données
-                            formelle sur un autre dépôt de données ou un lien vers
-                            un disque personnel en ligne (par exemple Google
+                            Ce lien peut renvoyer vers une ressource de données
+                            sur un autre dépôt de données ou un lien vers
+                            un espace de stockage personnel en ligne (par exemple, Google
                             Drive).
                           </p>
                         </Fr>

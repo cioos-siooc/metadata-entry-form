@@ -7,6 +7,10 @@ const regions = {
       fr: "Catalogue de données du SIOOC du Pacifique",
       en: "CIOOS Pacific Data Catalogue",
     },
+    catalogueTitleMinuscule: {
+      fr: "catalogue de données du SIOOC du Pacifique",
+      en: "CIOOS Pacific Data Catalogue",
+    },
     colors: { primary: "#006e90", secondary: "#ffc857" },
     email: "info@cioospacific.ca",
     catalogueURL: {
@@ -33,6 +37,12 @@ const regions = {
         "Catalogue de données de l'Observatoire global du Saint-Laurent (OGSL)",
       en: "St. Lawrence Global Observatory Data Catalogue (SLGO)",
     },
+    catalogueTitleMinuscule: {
+      fr:
+        "catalogue de données de l'OGSL",
+      en: "St. Lawrence Global Observatory Data Catalogue (SLGO)",
+    },
+  
     colors: { primary: "#00adef", secondary: "#00aeef" },
     email: "info@ogsl.ca",
     catalogueURL: {
@@ -73,6 +83,10 @@ const regions = {
     titleFrPossessive: "de Amundsen Science",
     catalogueTitle: {
       fr: "Catalogue de données de Amundsen Science",
+      en: "Amundsen Science Data Catalogue",
+    },
+    catalogueTitleMinuscule: {
+      fr: "catalogue de données de Amundsen Science",
       en: "Amundsen Science Data Catalogue",
     },
     colors: { primary: "#E31837", secondary: "#77777A" },

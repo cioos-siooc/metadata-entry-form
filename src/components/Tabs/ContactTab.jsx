@@ -102,11 +102,11 @@ const ContactTab = ({
               </En>
               <Fr>
                 Veuillez saisir au moins un dépositaire des métadonnées <b>et</b> un
-                propriétaire des données de ce jeu. Ces personnes pourraient
+                propriétaire des données. Ces personnes pourraient
                 être appelées à collaborer avec le personnel{" "}
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
                 informations. Vous devez également sélectionner au moins un
-                contact pour apparaître dans la citation. Un contact peut occuper plusieurs rôles.
+                contact qui apparaîtra dans la citation. Un contact peut occuper plusieurs rôles.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
@@ -143,9 +143,8 @@ const ContactTab = ({
                 </En>
                 <Fr>
                   Voici à quoi ressemblera votre citation dans le catalogue.
-                  Seuls les contacts dont la case «Auteur cité» est cochée
-                  apparaissent. Seuls les rôles étoilés apparaîtront dans la
-                  citation. Changer la commande, faites glisser le{" "}
+                  Seuls les contacts identifiés comme faisant partie de la citation
+                  (en cochant la case appropriée) y figurent. Pour changer l'ordre, faites glisser le{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} />.
                 </Fr>
               </I18n>

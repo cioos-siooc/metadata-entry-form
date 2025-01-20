@@ -90,7 +90,7 @@ const InstrumentLeftList = ({
             {instruments.length ? (
               <I18n>
                 <En>Instruments in this record:</En>
-                <Fr>Instruments dans cet enregistrement:</Fr>
+                <Fr>Instruments dans cet enregistrement :</Fr>
               </I18n>
             ) : (
               <I18n>

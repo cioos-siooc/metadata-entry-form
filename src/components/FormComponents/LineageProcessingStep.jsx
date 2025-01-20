@@ -92,7 +92,7 @@ const ProcessingStep = ({
         <QuestionText>
           <I18n>
             <En>Processing or Method Step:</En>
-            <Fr>Étape de traitement ou de méthode:</Fr>
+            <Fr>Traitement ou origine du jeu de données :</Fr>
           </I18n>
           
           <SupplementalText>
@@ -103,9 +103,9 @@ const ProcessingStep = ({
                 to initial data collection.
               </En>
               <Fr>
-                Une description générale de la façon dont la ressource a été développée ou d'un événement associé à la
-                Ressource. Il peut s'agir d'un résumé du flux de travail ou des étapes de création ultérieure de la ressource.
-                à la collecte initiale des données.
+                Une description générale de la façon dont la ressource a été développée, ou d'un événement associé à la
+                ressource. Il peut s'agir d'un résumé du processus de travail ou des étapes ayant abouties à la création
+                de la ressources suite à la collecte de données initiale.
               </Fr>
             </I18n>
           </SupplementalText>

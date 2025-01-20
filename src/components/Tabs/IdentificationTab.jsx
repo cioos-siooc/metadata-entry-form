@@ -321,11 +321,11 @@ const IdentificationTab = ({
                     <p>
                       Vous pouvez choisir un mot-clé prédéfini (liste
                       déroulante) en français puis cliquer sur le bouton de
-                      traduction. Vous pouvez aussi créer votre propre mot clé
+                      traduction. Vous pouvez aussi créer votre propre mot-clé
                       en rédigeant un texte libre en anglais ou en français
                       (vérifiez toujours si son équivalent existe dans la liste
                       déroulante afin de diminuer le risque d’écriture multiple
-                      d’un même mot clé -ex: phoque Vs Phoques-).
+                      d’un même mot-clé -ex: phoque Vs Phoques-).
                     </p>
                     <p>
                       Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
@@ -474,7 +474,7 @@ const IdentificationTab = ({
                   Veuillez noter que ce champ n'a pas besoin d'être rempli ou
                   mis à jour lorsque des révisions sont apportées aux
                   métadonnées, mais plutôt lorsqu'une nouvelle version du
-                  fichier ou du paquet de données devient disponible,
+                  fichier ou du jeu de données devient disponible,
                   c'est-à-dire pour les données de séries temporelles.
                 </p>
               </Fr>
@@ -493,7 +493,7 @@ const IdentificationTab = ({
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
-            <Fr>Quelle est la licence de ce jeu de données?</Fr>
+            <Fr>Quelle licence souhaitez-vous attribuer à ce jeu de données?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "license")} />
           <SupplementalText>
@@ -554,7 +554,7 @@ const IdentificationTab = ({
                     </b>
                     - Licence recommandée par le SIOOC. Les données sont
                     ouvertes, mais la licence exige que le jeu de données soit
-                    cité lorsqu’il est utilisé par un autre utilisateur.
+                    cité lorsqu’il est utilisé par quiconque.
                   </li>
                   <li>
                     <b>Creative Commons 0</b> - N’impose aucune restriction
@@ -563,10 +563,10 @@ const IdentificationTab = ({
                   </li>
                   <li>
                     <b>Licence du gouvernement ouvert - Canada</b> - Pour les
-                    jeux de données rendus disponibles par les organisations et
-                    ministères fédéraux. Cette licence est similaire à CC-BY 4.0
+                    jeux de données rendus disponibles par les entités fédérales.
+                    Cette licence est similaire à CC-BY 4.0
                     : les données sont ouvertes mais le jeu de données doit être
-                    cité lorsqu'il est utilisé par un autre utilisateur.
+                    cité lorsqu'il est utilisé par quiconque.
                   </li>
                 </ul>
               </Fr>
