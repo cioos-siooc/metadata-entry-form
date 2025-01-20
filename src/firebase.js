@@ -5,7 +5,7 @@ import { initializeApp } from 'firebase/app'
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
 
 const prodConfig = {
-  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
+  // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
   // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
@@ -16,7 +16,7 @@ const prodConfig = {
   authDomain: "cioos-metadata-form-8d942.firebaseapp.com",
   databaseURL: "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-8d942",
-  storageBucket: "cioos-metadata-form-8d942.appspot.com",
+  storageBucket: "cioos-metadata-form-8d942.firebasestorage.app",
   messagingSenderId: "467286137979",
   appId: "1:467286137979:web:250b09e3db2a56716016de",
   measurementId: "G-BEMJG40RHN",
@@ -27,7 +27,7 @@ const devConfig = {
   authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
   databaseURL: "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-dev-258dc",
-  storageBucket: "cioos-metadata-form-dev-258dc.appspot.com",
+  storageBucket: "cioos-metadata-form-dev-258dc.firebasestorage.app",
   messagingSenderId: "141560007794",
   appId: "1:141560007794:web:861d99b02210ea4d17c6eb",
   measurementId: "G-BSKRHNR1EW",
@@ -38,9 +38,9 @@ const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
   ? prodConfig
   : devConfig
 
-if (window.location.hostname === "localhost" && deployedOnTestServer) {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
-}
+// if (window.location.hostname === "localhost" && deployedOnTestServer) {
+//   config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
+// }
 
 const App = initializeApp(config);
 

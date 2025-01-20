@@ -27,7 +27,7 @@ This will start a hot-reloading dev server. Click on the link that it outputs to
 
 ## Monitoring
 
-Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://hakai-institute.sentry.io/projects/cioos-metadata-entry-form/) project.
+Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
 
 ### Running the Firebase emulator
 
@@ -75,15 +75,22 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 
 To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" development project, follow these steps:
 
-1. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
+1. **Login** to firebase
+  
+    ```bash
+    firebase login
+    ```
+
+2. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
 
     ```bash
     firebase use cioos-metadata-form-dev-258dc
     ```
 
-2. **Make necessary changes to your Firebase functions.**
+3. **Make necessary changes to your Firebase functions.**
 
-3. **Deploy the changes by running the command:**
+4. **Deploy the changes by running the command:**
+From the `./firebase-functions/functions` directory run the command:
 
     ```bash
     firebase deploy --only functions
@@ -137,11 +144,11 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 ### Define targets
 
-This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
+This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
 Use Firebase CLI targets to manage rules deployment:
 
 ```bash
-firebase target:apply database prod cioos-metadata-form
+firebase target:apply database prod cioos-metadata-form-8d942
 firebase target:apply database dev cioos-metadata-form-dev-258dc
 ```
 
