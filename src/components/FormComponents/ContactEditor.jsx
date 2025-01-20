@@ -368,7 +368,7 @@ const ContactEditor = ({
           <Grid item xs>
             <TextField
               // style={{ margin: "25px" }}
-              label={<I18n en="Last name" fr="nom de famille" />}
+              label={<I18n en="Last name" fr="Nom de famille" />}
               value={value.lastName}
               helperText={
                 !lastNameValid && (

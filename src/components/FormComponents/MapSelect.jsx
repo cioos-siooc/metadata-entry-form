@@ -352,7 +352,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
               with the same point. Eg,
             </En>
             <Fr>
-              Doivent commencer et se terminer par le même point. Par exemple,
+              La suite de coordonnées doit commencer et se terminer par le même point. Par exemple,
             </Fr>
           </I18n>{" "}
           48,-128 56,-133 56,-147 48,-128
@@ -377,7 +377,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       <QuestionText>
         <I18n>
           <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
-          <Fr>Décrivez l'étendue géographique de l'ensemble de données. Obligatoire pour les ensembles de données biologiques</Fr>
+          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
         </I18n>
         {record.resourceType && record.resourceType.includes("biological") && (
           <RequiredMark passes={Boolean(mapData.description)} /> 
@@ -395,10 +395,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             <Fr>
               <p>
                 Vous pouvez éventuellement inclure une description textuelle 
-                de la zone géographique. zone couverte par cet ensemble de 
-                données ou cette étude. Ce champ est obligatoire lors du 
-                remplissage d'ensembles de données biologiques, mais est 
-                facultatif pour tous d’autres types d’ensembles de données.
+                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est 
+                facultatif pour tous autre type de jeux de données.
               </p>
             </Fr>
           </I18n>

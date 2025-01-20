@@ -84,7 +84,7 @@ export const roleCodes = {
     },
   },
   editor: {
-    title: { en: "Editor", fr: "Éditeur" },
+    title: { en: "Editor", fr: "Réviseur" },
     text: {
       en: "Party who reviewed or modified the resource to improve the content",
       fr:
@@ -143,7 +143,7 @@ export const roleCodes = {
     },
   },
   publisher: {
-    title: { en: "Publisher", fr: "Editeur" },
+    title: { en: "Publisher", fr: "Éditeur" },
     text: {
       en: "Party who published the resource",
       fr: "Partie qui a publié la ressource",
@@ -188,7 +188,7 @@ export const progressCodes = {
       en:
         "Data is continually being updated. e.g satellite dataset that continues to be augmented",
       fr:
-        "Les données sont continuellement mises à jour, par exemple un ensemble de données satellite qui continue d'être augmenté",
+        "Les données sont continuellement mises à jour, C'est le cas par exemple pour un jeu de données satellitaires qui continue d'être alimenté.",
     },
   },
 
@@ -198,7 +198,7 @@ export const progressCodes = {
       en:
         "Data has been stored in an offline storage facility. use to indicate data are archived",
       fr:
-        "Les données ont été stockées dans une installation de stockage hors connexion. Utilisez pour indiquer que les données sont archivées",
+        "Les données ont été stockées dans une installation de stockage hors connexion. Utilisez cette option pour indiquer que les données sont archivées",
     },
   },
 
@@ -208,7 +208,7 @@ export const progressCodes = {
       en:
         "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
       fr:
-        "La production des données a été terminée, p. ex. données brutes qui ne sont pas en cours, modèle terminé",
+        "La production des données a été terminée. C'est le cas par exemple pour des données brutes qui ne sont plus alimentées, ou encore pour un modèle terminé",
     },
   },
 };
@@ -764,7 +764,7 @@ export const associationTypeCode = {
     isoValue: "dependency",
   },
   IsSourceOf: {
-    title: { en: "Is Source Of", fr: "est la source de" },
+    title: { en: "Is Source Of", fr: "Est la source de" },
     text: {
       en: "A is source of B", fr: "A est la source de B",
     },
