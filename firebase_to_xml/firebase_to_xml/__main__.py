@@ -28,7 +28,7 @@ def get_filename(record):
     return name
 
 
-@logger.catch
+@logger.catch(reraise=True)
 @click.command()
 @click.option(
     "--record_url",
