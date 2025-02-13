@@ -15,6 +15,9 @@ import {
   SupervisorAccount,
   Menu,
   AssignmentTurnedIn,
+  StraightenSharp,
+  DirectionsBoatSharp,
+  FolderShared,
 } from "@material-ui/icons";
 
 import {
@@ -128,6 +131,7 @@ export default function MiniDrawer({ children }) {
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
     authIsLoading,
+    hasSharedRecords,
   } = useContext(UserContext);
 
   let { language = "en", region = "region-select" } = useParams();
@@ -162,12 +166,15 @@ export default function MiniDrawer({ children }) {
     home: <I18n en="Home" fr="Accueil" />,
     new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
+    instruments: <I18n en="Instruments" fr="Instruments" />,
+    platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
+    sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -350,6 +357,56 @@ export default function MiniDrawer({ children }) {
                     <ListItemText primary={translations.contacts} />
                   </ListItem>
                 </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="instruments"
+                    onClick={() => history.push(`${baseURL}/instruments`)}
+                  >
+                    <ListItemIcon disabled>
+                      <StraightenSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.instruments} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="Platforms"
+                    onClick={() => history.push(`${baseURL}/platforms`)}
+                  >
+                    <ListItemIcon disabled>
+                      <DirectionsBoatSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.platforms} />
+                  </ListItem>
+                </Tooltip>
+
+                {hasSharedRecords && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.sharedWithMe}
+                  >
+                    <ListItem
+                      button
+                      key="SharedWithMe"
+                      onClick={() => history.push(`${baseURL}/shared`)}
+                    >
+                      <ListItemIcon>
+                        <FolderShared />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.sharedWithMe} />
+                    </ListItem>
+                  </Tooltip>
+                )}
 
                 {userIsReviewer && (
                   <Tooltip

@@ -37,9 +37,7 @@ const mockMetadataRecord = {
     "edition": "1.1",
     "recordID": "-Nhi6_2lQjNwKkzdv_Qu",
     "instruments": [],
-    "platform": "",
-    "platformID": "",
-    "platformDescription": "",
+    "platforms": [],
     "language": "en",
     "license": "CC-BY-4.0",
     "contacts": [

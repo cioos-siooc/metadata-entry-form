@@ -28,8 +28,8 @@ import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import recordToERDDAP from "../../utils/recordToERDDAP";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { recordIsValid, percentValid } from "../../utils/validate";
+import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
@@ -60,7 +60,7 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { downloadRecord } = useContext(UserContext);
+  const { downloadRecord, datacitePrefix } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -102,9 +102,11 @@ const MetadataRecordListItem = ({
       } else if (fileType === "erddap") {
         data = [recordToERDDAP(record)];
       } else if (fileType === "json") {
-        data = [JSON.stringify(recordToDataCite(record, language, region), null, 2)];
+        data = await [JSON.stringify(record, null, 2)];
+      } else if (fileType === "dataciteJson") {
+        data = await [JSON.stringify(recordToDataCite(record, language, region, datacitePrefix), null, 2)];
       } else {
-        const res = await downloadRecord({ record, fileType });
+        const res = await downloadRecord({ record, fileType, region });
         data = Object.values(res.data.message);
       }
       const mimeTypes = {
@@ -113,6 +115,7 @@ const MetadataRecordListItem = ({
         eml: "application/xml",
         erddap: "application/xml",
         json: "application/json",
+        dataciteJson: "application/json",
       };
       const blob = new Blob(data, {
         type: `${mimeTypes[fileType]};charset=utf-8`,
@@ -308,7 +311,9 @@ const MetadataRecordListItem = ({
         )}
 
         {showDownloadButton && (
-          <Tooltip title={<I18n en="Download" fr="Download" />}>
+          <Tooltip 
+            disableHoverListener={open}
+            title={<I18n en="Download" fr="Download" />}>
             <span>
               <IconButton
                 aria-label="more"
@@ -377,9 +382,18 @@ const MetadataRecordListItem = ({
                   EML for OBIS IPT
                 </MenuItem>
                 <MenuItem
-                  key="json"
+                  key="eml"
                   onClick={() => {
                     handleDownloadRecord("json");
+                    handleClose();
+                  }}
+                >
+                  Database JSON
+                </MenuItem>
+                <MenuItem
+                  key="json"
+                  onClick={() => {
+                    handleDownloadRecord("dataciteJson");
                     handleClose();
                   }}
                 >

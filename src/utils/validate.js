@@ -170,7 +170,7 @@ const validators = {
   verticalExtentMin: {
     tab: "spatial",
 
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Min",
       fr: "Étendue verticale manquante Min",
@@ -178,7 +178,7 @@ const validators = {
   },
   verticalExtentMax: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Max",
       fr: "Étendue verticale manquante Max",
@@ -186,7 +186,7 @@ const validators = {
   },
   verticalExtentDirection: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Direction",
       fr: "Direction de l'étendue verticale manquante",
@@ -290,20 +290,12 @@ const validators = {
         "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
     },
   },
-  platformID: {
+  platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
+    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
-      en: "Missing platform ID",
-      fr: "ID de la plateforme manquant",
-    },
-  },
-  platform: {
-    tab: "platform",
-    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
-    error: {
-      en: "Missing platform type",
-      fr: "Type de plateforme manquant",
+      en: "Missing platform type or ID",
+      fr: "Type ou ID de plateforme manquant",
     },
   },
   instruments: {
@@ -377,7 +369,7 @@ export const validateFieldWarning = async (record, fieldName) => {
   // if no validator funciton exists, then it is not a required field
   const validationFunction =
     (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
-  
+
   const res = await validationFunction(valueToValidate, record);
   return validationFunction && res;
 };

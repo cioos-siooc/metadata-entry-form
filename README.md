@@ -5,6 +5,14 @@
 
 CIOOS Metadata entry form
 
+## System Architecture
+
+Below is the system architecture diagram which provides an overview of the data flow and interaction between components within the application:
+
+![System Architecture Diagram](docs/systems_diagram.png)
+
+For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
+
 ## Installation
 
 1. Install [Node](https://nodejs.org/en/download/)
@@ -19,7 +27,7 @@ This will start a hot-reloading dev server. Click on the link that it outputs to
 
 ## Monitoring
 
-Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://hakai-institute.sentry.io/projects/cioos-metadata-entry-form/) project.
+Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
 
 ### Running the Firebase emulator
 
@@ -28,13 +36,8 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 Install firebase CLI [as described here](https://firebase.google.com/docs/emulator-suite/install_and_configure).
 
 Run `firebase emulators:start` from the `firebase-functions/functions` directory.
-Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
+Redirect function calls to this emulator by uncommenting the call to `connectFunctionsEmulator` in [src/firebase.js](src/firebase.js).
 
-#### Docker Alternative
-Using the firebase emulator in docker will preload some data into a local realtime database and emulate cloud functions and the realtime database
-
-docker-compose up -d --build
-Redirect function calls to this emulator by uncommenting the call to `useFunctionsEmulator` in [firebase.js](firebase.js).
 
 ## Deploy to production site at GitHub pages
 
@@ -68,6 +71,33 @@ We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase 
 2. Select the `firebase-deploy` workflow.
 3. Click "Run workflow", select the branch to deploy, and initiate the workflow.
 
+### Deploying to Development Project
+
+To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" development project, follow these steps:
+
+1. **Login** to firebase
+  
+    ```bash
+    firebase login
+    ```
+
+2. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
+
+    ```bash
+    firebase use cioos-metadata-form-dev-258dc
+    ```
+
+3. **Make necessary changes to your Firebase functions.**
+
+4. **Deploy the changes by running the command:**
+From the `./firebase-functions/functions` directory run the command:
+
+    ```bash
+    firebase deploy --only functions
+    ```
+
+This will deploy the updated functions to the development project. The GitHub Action for deploying to the preview URL is already configured to use this development project, ensuring that any previews generated from pull requests will interact with the updated dev functions instead of the production version.
+
 #### GitHub Secrets and .env File Creation
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:
@@ -80,7 +110,7 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 - `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
 - `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
 - `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form
-- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev
+- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
 
 ### Using Parameterized Configuration in Firebase Functions
 
@@ -114,12 +144,12 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 ### Define targets
 
-This project has two databases: `cioos-metadata-form` (this is the default/main db for production) and `cioos-metadata-form-dev` (dev). 
+This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
 Use Firebase CLI targets to manage rules deployment:
 
 ```bash
-firebase target:apply database prod cioos-metadata-form
-firebase target:apply database dev cioos-metadata-form-dev
+firebase target:apply database prod cioos-metadata-form-8d942
+firebase target:apply database dev cioos-metadata-form-dev-258dc
 ```
 
 ### Configure firebase.json
@@ -157,3 +187,18 @@ firebase deploy --only database:prod # For production
 - **Testing**: Thoroughly test your rules in a development or staging environment before deploying to production.
 
 Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.
+
+
+## Hosting on github and Authentication
+
+When hosting the application in a new place there are a couple of things to update. 
+
+- You must add your new domain to the allowed list for authenication in firebase.
+  https://console.firebase.google.com/u/0/project/cioos-metadata-form/authentication/settings
+  https://console.firebase.google.com/u/0/project/cioos-metadata-form-dev-258dc/authentication/settings
+
+- You have to allow your domain under Website restrictions for the firebase browser key
+  https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form
+  https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev-258dc
+
+  

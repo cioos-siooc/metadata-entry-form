@@ -195,7 +195,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           container
           direction="row"
           justifyContent="flex-start"
-          alignItems="flex-start"
+          alignItems="center"
           spacing={4}
         >
           <Grid item xs={5}>
@@ -207,6 +207,15 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 (e) => e[language]
               )}
               disabled={disabled}
+            />
+              <p>OR</p>
+            <TextField
+                value={record.verticalExtentEPSG}
+                onChange={handleUpdateRecord("verticalExtentEPSG")}
+                label="EPSG code"
+                fullWidth
+                type="number"
+                disabled={disabled}
             />
           </Grid>
           <Grid item xs={2}>

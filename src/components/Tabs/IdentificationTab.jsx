@@ -190,7 +190,7 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
-      {(!record.resourceType || !record.resourceType.includes('other')) && (
+      {(!record.resourceType || !(record.resourceType.includes('other') && record.resourceType.length === 1)) && (
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>

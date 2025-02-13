@@ -22,6 +22,7 @@
     "@testing-library/user-event": "^7.1.2",
     "array-move": "^3.0.1",
     "axios": "^1.6.7",
+    "buffer": "^6.0.3",
     "citation-js": "^0.5.0",
     "clsx": "^1.1.1",
     "crypto-browserify": "^3.12.0",
@@ -39,7 +40,6 @@
     "path-browserify": "^1.0.1",
     "querystring-es3": "^0.2.1",
     "react": "^16.13.1",
-    "react-app-rewired": "^2.2.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
     "react-leaflet": "^2.7.0",
@@ -79,6 +79,7 @@
     "gh-pages": "^3.1.0",
     "lint-staged": "^10.4.0",
     "prettier": "^2.1.2",
+    "react-app-rewired": "^2.2.1",
     "react-hot-loader": "^4.12.21"
   },
   "scripts": {

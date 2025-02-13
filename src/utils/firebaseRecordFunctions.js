@@ -157,3 +157,42 @@ export const multipleFirebaseToJSObject = (multiple) => {
     return acc;
   }, {});
 };
+
+// fetches a region's users
+export async function loadRegionUsers(region) {
+  const database = getDatabase(firebase);
+  try {
+    const regionUsersRef = ref(database, `${region}/users`);
+    const regionUsers = (await get(regionUsersRef, "value")).val();
+
+    return regionUsers
+    
+  } catch (error) {
+    throw new Error(`Error fetching user emails for region ${region}: ${error}`);
+  }
+}
+
+/**
+ * Asynchronously shares or unshares a record with a single user by updating the 'shares' node in Firebase.
+ * This function directly uses the userID to share or unshare the record.
+ * 
+ * @param {string} userID 
+ * @param {string} recordID
+ * @param {string} authorID - The ID of the author of the record, included when the record is shared.
+ * @param {string} region
+ * @param {boolean} share
+ */
+export async function updateSharedRecord(userID, recordID, authorID, region, share) {
+  const database = getDatabase(firebase);
+  const sharesRef = ref(database, `${region}/shares/${userID}/${authorID}/${recordID}`);
+
+  if (share) {
+    // Share the record with the user by setting it directly under the authorID node
+    await set(sharesRef, { shared: true })
+      .catch(error => {throw new Error(`Error sharing record by author ${authorID} with user ${userID}: ${error}`)});
+  } else {
+    // Unshare the record from the user
+    await remove(sharesRef)
+      .catch(error => { throw new Error(`Error unsharing record by author ${authorID} with user ${userID}: ${error}`) });
+  }
+}

@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "cioos-metadata-form"
-  }
+    "default": "cioos-metadata-form-8d942",
+    "dev": "cioos-metadata-form-dev-258dc"
+  },
+  "targets": {},
+  "etags": {}
 }

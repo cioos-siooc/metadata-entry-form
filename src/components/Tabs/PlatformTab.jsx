@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import Instruments from "../FormComponents/Instruments";
@@ -10,10 +10,31 @@ import { En, Fr, I18n } from "../I18n";
 const PlatformTab = ({
   disabled,
   record,
-  handleUpdateRecord,
+  userPlatforms,
+  saveUpdatePlatform,
+  userInstruments,
+  saveUpdateInstrument,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
+
+
+  useEffect(() => {
+    if (record.platformID){
+      updateRecord("platforms")([
+        {
+          id: record.platformID,
+          description: record.platformDescription,
+          type: record.platform,
+
+        },
+        ...record.platforms,
+      ])
+      updateRecord("platformID")(null)
+      updateRecord("platformDescription")(null)
+      updateRecord("platform")(null)
+    }
+  }, [record.platformID, record.platform, record.platformDescription]);
 
   return (
     <div>
@@ -85,9 +106,13 @@ const PlatformTab = ({
             {!noPlatform ? (
               <>
                 <Platform
+                  platforms={record.platforms}
+                  userPlatforms={userPlatforms}
+                  saveUpdatePlatform={saveUpdatePlatform}
                   record={record}
-                  handleUpdateRecord={handleUpdateRecord}
+                  updatePlatforms={updateRecord("platforms")}
                   disabled={disabled}
+                  paperClass={paperClass}
                 />
               </>
             ) : (
@@ -105,9 +130,12 @@ const PlatformTab = ({
             <Instruments
               instruments={record.instruments}
               updateInstruments={updateRecord("instruments")}
+              saveUpdateInstrument={saveUpdateInstrument}
+              userInstruments={userInstruments}
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}
+              platformList={record.platforms}
             />
           </Grid>
         </Grid>
