@@ -55,7 +55,8 @@ def get_filename(record):
 @click.option(
     "--region",
     required=True,
-    help="Eg pacific/stlaurent/atlantic",
+    help="Regions to include pacific/stlaurent/atlantic",
+    envvar="REGION",
 )
 @click.option(
     "--status",
@@ -64,6 +65,7 @@ def get_filename(record):
     type=click.Choice(
         ["published", "submitted", "submitted,published", "published,submitted"]
     ),
+    help="Status of records to process",
 )
 @click.option(
     "--database_url",
@@ -75,6 +77,7 @@ def get_filename(record):
     "--key",
     required=True,
     help="Path to firebase OAuth2 key file",
+    envvar="FIREBASE_KEY"
 )
 def main_cli(**kwargs):
     main(**kwargs)
@@ -90,7 +93,25 @@ def main(
     key,
     record_url=None,
 ):
-    "Get arguments from command line and run script"
+    """ Main function to convert records from Firebase to XML.
+
+    Args:
+        also_save_yaml (bool): Whether to output yaml file as well as xml
+        encoding (str): Encoding of the output files
+        xml_directory (str): Folder to save xml
+        region (str): Regions to include pacific/stlaurent/atlantic
+        status (str): Status of records to process
+        database_url (str): Firebase database URL
+        key (str): Path to firebase OAuth2 key file
+        record_url (str): URL to a single record to process
+    """
+
+    # verify if key is a json string or a file
+    if key.startswith("{"):
+        key = None
+        firebase_auth_key_json = key
+    else:
+        firebase_auth_key_json = None
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
@@ -99,6 +120,7 @@ def main(
         record_url=record_url,
         record_status=status.split(","),
         database_url=database_url,
+        firebase_auth_key_json=firebase_auth_key_json,
     )
 
     # translate each record to YAML and then to XML
