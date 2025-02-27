@@ -4,6 +4,7 @@ import sys
 from loguru import logger
 import click
 
+
 @logger.catch
 @click.command()
 @click.option(
@@ -44,26 +45,36 @@ import click
     default="WARNING",
     help="Logging level",
 )
-def main_cli(regions,key,output_dir,database_url,also_save_yaml,encoding, log_level):
-    main(regions,key,output_dir,database_url,also_save_yaml,encoding, log_level)
+def main_cli(
+    regions, key, output_dir, database_url, also_save_yaml, encoding, log_level
+):
+    main(regions, key, output_dir, database_url, also_save_yaml, encoding, log_level)
 
 
-def main(regions,key,output_dir,database_url,also_save_yaml=False,encoding='utf-8', log_level='WARNING'):
+def main(
+    regions,
+    key,
+    output_dir,
+    database_url,
+    also_save_yaml=False,
+    encoding="utf-8",
+    log_level="WARNING",
+):
     logger.remove()
     logger.add(sys.stderr, level=log_level)
 
     output_dir = Path(output_dir)
-    for region in regions.split(','):
+    for region in regions.split(","):
         logger.info("Retrieve {} published records", region)
         retrieve_records(
             record_url=None,
             also_save_yaml=also_save_yaml,
             encoding=encoding,
-            xml_directory=output_dir/region,
+            xml_directory=output_dir / region,
             region=region,
-            status='published',
+            status="published",
             database_url=database_url,
-            key=key
+            key=key,
         )
         logger.info("Retrieve {} unpublished records", region)
         retrieve_records(
@@ -72,10 +83,11 @@ def main(regions,key,output_dir,database_url,also_save_yaml=False,encoding='utf-
             encoding=encoding,
             xml_directory=output_dir / "unpublished" / region,
             region=region,
-            status='submitted',
+            status="submitted",
             database_url=database_url,
-            key=key
+            key=key,
         )
+
 
 if __name__ == "__main__":
     main()
