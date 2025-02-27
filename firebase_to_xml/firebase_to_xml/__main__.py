@@ -113,7 +113,7 @@ def main(
         firebase_auth_key_json = key
     else:
         firebase_auth_key_json = None
-    
+
     if key and not Path(key).exists():
         raise FileNotFoundError(f"Key file {key} not found")
 
