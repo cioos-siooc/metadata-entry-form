@@ -250,6 +250,7 @@ dependencies = [
     { name = "loguru" },
     { name = "metadata-xml" },
     { name = "python-dotenv" },
+    { name = "pyyaml" },
     { name = "tqdm" },
 ]
 
@@ -266,6 +267,7 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "metadata-xml", git = "https://github.com/cioos-siooc/metadata-xml.git" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "pyyaml", specifier = ">=5.1.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
