@@ -4,6 +4,7 @@
 Command line interface to part of firebase_to_xml
 """
 
+import json
 import traceback
 from pathlib import Path
 
@@ -113,6 +114,10 @@ def main(
         firebase_auth_key_json = key
     else:
         firebase_auth_key_json = None
+        # Test key is a json file
+        logger.info(f"Reading key file {key}")
+        with open(key, "r") as f:
+            json.load(f)
 
     if key and not Path(key).exists():
         raise FileNotFoundError(f"Key file {key} not found")
