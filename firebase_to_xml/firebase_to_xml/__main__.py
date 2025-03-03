@@ -31,6 +31,18 @@ def get_filename(record):
 
 
 @logger.catch(reraise=True)
+def _test_key(key_file: Path):
+    """Attempt to read firebase key file and raise exception if it fails"""
+    if not Path(key_file).exists():
+        raise FileNotFoundError(f"Key file {key_file} not found")
+
+    key_content = key_file.read_text()
+    if not key_content:
+        raise ValueError(f"Key file {key_file} is empty")
+    return json.loads(key_content)
+
+
+@logger.catch(reraise=True)
 @click.command()
 @click.option(
     "--record_url",
@@ -114,16 +126,7 @@ def main(
         firebase_auth_key_json = key
     else:
         firebase_auth_key_json = None
-        # Test key is a json file
-        logger.info(f"Reading key file {key}")
-        with open(key, "r") as f:
-            result_key = json.load(f)
-        
-        if not result_key:
-            raise ValueError(f"Key file {key} is empty")
-
-    if key and not Path(key).exists():
-        raise FileNotFoundError(f"Key file {key} not found")
+        _test_key(key)
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
