@@ -117,7 +117,10 @@ def main(
         # Test key is a json file
         logger.info(f"Reading key file {key}")
         with open(key, "r") as f:
-            json.load(f)
+            result_key = json.load(f)
+        
+        if not result_key:
+            raise ValueError(f"Key file {key} is empty")
 
     if key and not Path(key).exists():
         raise FileNotFoundError(f"Key file {key} not found")
