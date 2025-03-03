@@ -90,6 +90,7 @@ def _test_key(key_file: Path):
 @click.option(
     "--key",
     required=True,
+    type=click.Path(exists=True),
     help="Path to firebase OAuth2 key file",
     envvar="FIREBASE_KEY",
 )
@@ -121,12 +122,7 @@ def main(
     """
 
     # verify if key is a json string or a file
-    if key.startswith("{"):
-        key = None
-        firebase_auth_key_json = key
-    else:
-        firebase_auth_key_json = None
-        _test_key(key)
+    _test_key(Path(key))
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
@@ -135,10 +131,10 @@ def main(
         record_url=record_url,
         record_status=status.split(","),
         database_url=database_url,
-        firebase_auth_key_json=firebase_auth_key_json,
     )
     if not record_list:
         raise ValueError("No records found")
+
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
