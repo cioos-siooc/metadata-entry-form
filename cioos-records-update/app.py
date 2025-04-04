@@ -136,11 +136,11 @@ def recordUpdate():
         print(xml_filename)
         Path(xml_filename).parent.mkdir(parents=True, exist_ok=True)
 
-        with open(xml_filename, "w") as f:
+        with open(xml_filename, "w", encoding="utf-8") as f:
             f.write(xml)
             print("wrote", xml_filename)
 
-        with open(yaml_filename, "w") as g:
+        with open(yaml_filename, "w", encoding="utf-8") as g:
             g.write(record_yaml)
             print("wrote", yaml_filename)
 

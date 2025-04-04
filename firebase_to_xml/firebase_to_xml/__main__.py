@@ -3,6 +3,8 @@
 """
 Command line interface to part of firebase_to_xml
 """
+
+import json
 import traceback
 from pathlib import Path
 
@@ -26,6 +28,18 @@ def get_filename(record):
     ]
     name = "".join(char_list)
     return name
+
+
+@logger.catch(reraise=True)
+def _test_key(key_file: Path):
+    """Attempt to read firebase key file and raise exception if it fails"""
+    if not Path(key_file).exists():
+        raise FileNotFoundError(f"Key file {key_file} not found")
+
+    key_content = key_file.read_text()
+    if not key_content:
+        raise ValueError(f"Key file {key_file} is empty")
+    return json.loads(key_content)
 
 
 @logger.catch(reraise=True)
@@ -76,8 +90,9 @@ def get_filename(record):
 @click.option(
     "--key",
     required=True,
+    type=click.Path(exists=True),
     help="Path to firebase OAuth2 key file",
-    envvar="FIREBASE_KEY"
+    envvar="FIREBASE_KEY",
 )
 def main_cli(**kwargs):
     main(**kwargs)
@@ -93,7 +108,7 @@ def main(
     key,
     record_url=None,
 ):
-    """ Main function to convert records from Firebase to XML.
+    """Main function to convert records from Firebase to XML.
 
     Args:
         also_save_yaml (bool): Whether to output yaml file as well as xml
@@ -107,11 +122,7 @@ def main(
     """
 
     # verify if key is a json string or a file
-    if key.startswith("{"):
-        key = None
-        firebase_auth_key_json = key
-    else:
-        firebase_auth_key_json = None
+    _test_key(Path(key))
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
@@ -120,8 +131,10 @@ def main(
         record_url=record_url,
         record_status=status.split(","),
         database_url=database_url,
-        firebase_auth_key_json=firebase_auth_key_json,
     )
+    if not record_list:
+        raise ValueError("No records found")
+
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
