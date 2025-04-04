@@ -1,14 +1,12 @@
-FROM python:3.12-bookworm
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm
 
 WORKDIR /usr/src/app
 
-# Install dependencies
-ADD firebase_to_xml ../firebase_to_xml
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=cioos-records-update/uv.lock,target=uv.lock \
-    --mount=type=bind,source=cioos-records-update/pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+COPY cioos-records-update/pyproject.toml  cioos-records-update/uv.lock ./
+COPY firebase_to_xml ../firebase_to_xml
+RUN uv pip install . --system
+EXPOSE 8000
+COPY cioos-records-update/ .
 
 ADD cioos-records-update .
 
