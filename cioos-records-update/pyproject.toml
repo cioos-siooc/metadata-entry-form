@@ -5,11 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+
     "firebase-to-xml",
+
     "flask>=3.1.0",
+
     "gunicorn>=23.0.0",
-    "metadata-xml",
+
     "sentry-sdk[flask]>=2.20.0",
+
     "werkzeug>=3.1.3",
 ]
 
@@ -19,5 +23,4 @@ dev-dependencies = [
 ]
 
 [tool.uv.sources]
-metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 firebase-to-xml = { path = "../firebase_to_xml" }
