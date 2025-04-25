@@ -91,7 +91,7 @@ const regions = {
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
-    titleFrPossessive: "de Amundsen Science",
+    titleFrPossessive: "du Réseau canadien d'information sur les bassins versants",
     catalogueTitle: {
       fr: "Catalogue de données du Réseau canadien d'information sur les bassins versants (CanWIN)",
       en: "Canadian Watershed Information Network Data Catalogue",
