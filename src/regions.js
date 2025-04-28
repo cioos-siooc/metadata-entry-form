@@ -97,7 +97,7 @@ const regions = {
       en: "Canadian Watershed Information Network Data Catalogue",
     },
     colors: { primary: "#385e9d", secondary: "#1ca8e1" },
-    email: "info@as.ulaval.ca",
+    email: "portalco@umanitoba.ca",
     catalogueURL: {
       fr: "https://canwin-datahub.ad.umanitoba.ca/",
       en: "https://canwin-datahub.ad.umanitoba.ca/",
