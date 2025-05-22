@@ -115,7 +115,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "firebase-to-xml", directory = "../firebase_to_xml" },
+    { name = "firebase-to-xml", editable = "../firebase_to_xml" },
     { name = "flask", specifier = ">=3.1.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "sentry-sdk", extras = ["flask"], specifier = ">=2.20.0" },
@@ -193,7 +193,7 @@ wheels = [
 [[package]]
 name = "firebase-to-xml"
 version = "0.2.0"
-source = { directory = "../firebase_to_xml" }
+source = { editable = "../firebase_to_xml" }
 dependencies = [
     { name = "click" },
     { name = "google-auth" },
