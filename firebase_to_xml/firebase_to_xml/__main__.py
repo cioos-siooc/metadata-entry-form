@@ -102,6 +102,12 @@ def _test_key(key_file: Path):
     help="Create a subdirectory for each owner",
     envvar="SPLIT_BY_OWNER"
 )
+@click.option(
+    "--organizations",
+    type=click.Path(exists=True),
+    help="JSON listing all the organizations mapping for record owners",
+    envvar="ORGANIZATIONS",
+)
 def main_cli(**kwargs):
     main(**kwargs)
 
@@ -148,7 +154,7 @@ def main(
         raise ValueError("No records found")
     
     if organizations:
-        organizations = json.loads(organizations.read_text(encoding="UTF-8"))
+        organizations = json.loads(Path(organizations).read_text(encoding="UTF-8"))
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
