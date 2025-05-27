@@ -16,6 +16,7 @@ from metadata_xml.template_functions import metadata_to_xml
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from tqdm import tqdm
 import click
+from loguru import logger
 
 from firebase_to_xml.organizations import get_record_owner
 
@@ -106,6 +107,7 @@ def _test_key(key_file: Path):
     "--organizations",
     type=click.Path(exists=True),
     help="JSON listing all the organizations mapping for record owners",
+    default=None,
     envvar="ORGANIZATIONS",
 )
 def main_cli(**kwargs):
@@ -154,7 +156,10 @@ def main(
         raise ValueError("No records found")
     
     if organizations:
+        logger.info(f"Loading organizations from {organizations}")
         organizations = json.loads(Path(organizations).read_text(encoding="UTF-8"))
+        if not organizations:
+            raise ValueError(f"No organizations found in {organizations}")
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
@@ -174,11 +179,13 @@ def main(
 
             organization = record.get("organization", "")
             name = record.get("filename") or get_filename(record)
-            owner = get_record_owner(record, organizations)
 
             output_directory = Path(xml_directory) / organization
-            if owner and split_by_owner:
+
+            if split_by_owner and organizations:
+                owner = get_record_owner(record, organizations)
                 output_directory = output_directory / owner
+
             output_directory.mkdir(parents=True, exist_ok=True)
 
             # output yaml

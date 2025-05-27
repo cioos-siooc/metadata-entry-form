@@ -45,10 +45,18 @@ import click
     default="WARNING",
     help="Logging level",
 )
+@click.option("--organizations", help="Use organizations.json to standardize owner names", envvar="ORGANIZATIONS")
+@click.option(
+    "--split-by-owner",
+    type=str,
+    default="",
+    help="Comma separated list of regions for which datasets are divided by owner",
+    envvar="SPLIT_BY_OWNER",
+)
 def main_cli(
-    regions, key, output_dir, database_url, also_save_yaml, encoding, log_level
+    **kwargs
 ):
-    main(regions, key, output_dir, database_url, also_save_yaml, encoding, log_level)
+    main(**kwargs)
 
 
 def main(
@@ -59,6 +67,8 @@ def main(
     also_save_yaml=False,
     encoding="utf-8",
     log_level="WARNING",
+    organizations:Path =None,
+    split_by_owner:str ="",
 ):
     logger.remove()
     logger.add(sys.stderr, level=log_level)
@@ -75,6 +85,8 @@ def main(
             status="published",
             database_url=database_url,
             key=key,
+            split_by_owner= region in split_by_owner.split(",") if split_by_owner else False,
+            organizations=organizations,
         )
         logger.info("Retrieve {} unpublished records", region)
         retrieve_records(
@@ -86,6 +98,8 @@ def main(
             status="submitted",
             database_url=database_url,
             key=key,
+            split_by_owner= region in split_by_owner.split(",") if split_by_owner else False,
+            organizations=organizations,
         )
 
 
