@@ -91,8 +91,8 @@ const ProcessingStep = ({
       <Grid item>
         <QuestionText>
           <I18n>
-            <En>Processing or Method Step:</En>
-            <Fr>Traitement ou origine du jeu de données :</Fr>
+            <En>Processing or Method Step :</En>
+            <Fr>Méthodologie détaillée :</Fr>
           </I18n>
           
           <SupplementalText>
@@ -103,9 +103,8 @@ const ProcessingStep = ({
                 to initial data collection.
               </En>
               <Fr>
-                Une description générale de la façon dont la ressource a été développée, ou d'un événement associé à la
-                ressource. Il peut s'agir d'un résumé du processus de travail ou des étapes ayant abouties à la création
-                de la ressources suite à la collecte de données initiale.
+                Une description de la façon dont la ressource a été développée. Il peut s'agir d'un résumé du processus ou des étapes de création
+                de la ressources suite à la collecte initiale des données .
               </Fr>
             </I18n>
           </SupplementalText>
@@ -202,7 +201,12 @@ const ProcessingStep = ({
                 </Grid>
                 <Grid item xs>
                   <TextField
-                    label="Identifier or URL"
+                    label={
+                      <I18n>
+                        <En>Identifier or URL</En>
+                        <Fr>Identifiant ou URL</Fr>
+                      </I18n>
+                    }
                     value={source.code}
                     onChange={handleIdentifierChange("code")}
                     fullWidth

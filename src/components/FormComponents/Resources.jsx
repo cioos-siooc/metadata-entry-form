@@ -170,7 +170,7 @@ const Resources = ({
                           title={
                             <I18n
                               en="Duplicate contact"
-                              fr="Contact en double"
+                              fr="Dupliquer"
                             />
                           }
                         >

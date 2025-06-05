@@ -144,7 +144,7 @@ class Platforms extends FormClassTemplate {
           <Button startIcon={<Add />} onClick={() => this.addPlatform()}>
             <I18n>
               <En>Add platform</En>
-              <Fr>ajouter une plateforme</Fr>
+              <Fr>Ajouter une plateforme</Fr>
             </I18n>
           </Button>
         </Grid>

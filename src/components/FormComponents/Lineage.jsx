@@ -191,7 +191,7 @@ const Lineage = ({
                               title={
                                 <I18n
                                   en="Duplicate contact"
-                                  fr="Contact en double"
+                                  fr="Dupliquer"
                                 />
                               }
                             >
@@ -274,7 +274,7 @@ const Lineage = ({
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
-                      <Fr>Titre de la ressource d'origine</Fr>
+                      <Fr>Description de la généalogie des données</Fr>
                     </I18n>
                     <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
                     <SupplementalText>
@@ -284,9 +284,8 @@ const Lineage = ({
                           processing steps or methods use the processing and method step question
                         </En>
                         <Fr>
-                          Explication générale de la démarche d'origine des jeux de données ou des méthodes d'échantillonnage.
-                          Pour entrer des démarches ou des méthodes de traitement détaillées, utilisez
-                          la question sur le traitement et la méthodologie (ci-après).
+                          Expliquez dans un cadre général la généalogie des données et/ou les méthodes d’échantillonnage.
+                          Pour fournir une explication plus détaillée, utilisez la section correspondante.
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -304,16 +303,6 @@ const Lineage = ({
                       <En>Scope</En>
                       <Fr>Cadre</Fr>
                     </I18n>
-                    <SupplementalText>
-                      <I18n>
-                        <En>
-                          Type of resource and/or extent to which the lineage information applies.
-                        </En>
-                        <Fr>
-                          Type de ressource et/ou d'étendue pour laquelle les informations sur l'origine s'appliquent.
-                        </Fr>
-                      </I18n>
-                    </SupplementalText>
                   </QuestionText>
                   <SelectInput
                     value={lineageStep.scope}
@@ -325,7 +314,7 @@ const Lineage = ({
                     )}
                     disabled={disabled}
                     fullWidth
-                    label={<I18n en="Scope" fr="???" />}
+                    label={<I18n en="Scope" fr="Cadre" />}
                   />
                 </Grid>
                 <Grid item xs>

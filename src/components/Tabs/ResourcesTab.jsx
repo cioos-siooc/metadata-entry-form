@@ -199,7 +199,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 Data processing history (provenance) for the resource.
               </En>
               <Fr>
-                Historique du traitement des données (provenance) de la ressource.
+                Provenance et traitement des données.
               </Fr>
               <RequiredMark passes={validateField(record, "history")} />
               <SupplementalText>
@@ -208,7 +208,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                     Enter Information about the events or source data used in constructing the data specified by the scope.
                   </En>
                   <Fr>
-                    Entrez des informations sur les événements ou les données sources utilisées dans la construction des données en spécifiant leur cadre.
+                    Pour chaque ressource, fournissez des informations supplémentaires sur le traitement des données, et/ou spécifiez la source des données utilisées.
                   </Fr>
                 </I18n>
               </SupplementalText>

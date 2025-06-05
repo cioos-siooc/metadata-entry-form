@@ -105,7 +105,7 @@ const LeftList = ({
             )) : (leftListEmptyHeader || (
               <I18n>
                 <En>There are no items in this record.</En>
-                <Fr>Il n'y a aucun articles dans cet enregistrement.</Fr>
+                <Fr>Il n'y a aucun article dans cet enregistrement.</Fr>
               </I18n>
             ))}
           </Typography>
@@ -161,7 +161,7 @@ const LeftList = ({
                           title={
                             <I18n
                               en="Remove from this record"
-                              fr="Supprimer de cet enregistrement"
+                              fr="Supprimer cette entrée"
                             />
                           }
                         >

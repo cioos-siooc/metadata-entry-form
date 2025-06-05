@@ -57,7 +57,7 @@ const Platform = ({
                   savedUserItems={userPlatforms}
                   saveItem={saveUpdatePlatform}
                   getBlankItem={getBlankPlatform}
-                  addSavedItemLabel={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATEFORME" />}
+                  addSavedItemLabel={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UNE PLATEFORME" />}
                   itemTitle={(platformItem) => PlatformTitle({"platform":platformItem})}
                   />
 

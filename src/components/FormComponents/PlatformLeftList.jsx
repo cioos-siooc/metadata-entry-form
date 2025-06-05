@@ -90,7 +90,7 @@ const PlatformLeftList = ({
             {platforms.length ? (
               <I18n>
                 <En>Platforms in this record:</En>
-                <Fr>Plateformes dans cet enregistrement:</Fr>
+                <Fr>Plateformes associées à cet enregistrement :</Fr>
               </I18n>
             ) : (
               <I18n>
@@ -132,7 +132,7 @@ const PlatformLeftList = ({
                           title={
                             <I18n
                               en="Duplicate platform"
-                              fr="Plateforme en double"
+                              fr="Dupliquer"
                             />
                           }
                         >
@@ -170,7 +170,7 @@ const PlatformLeftList = ({
                           title={
                             <I18n
                               en="Add to saved platforms"
-                              fr="Ajouter aux platforms enregistrés"
+                              fr="Ajouter aux plateformes enregistrés"
                             />
                           }
                         >

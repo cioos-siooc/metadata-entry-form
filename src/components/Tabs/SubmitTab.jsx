@@ -110,7 +110,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                 informations ne seront pas publiées avant d'obtenir votre
                 approbation. Si vous avez des questions ou si vous désirez
                 effectuer un suivi concernant l'état de votre soumission,
-                veuillez contacte
+                veuillez contacter 
               </Fr>
             </I18n>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
