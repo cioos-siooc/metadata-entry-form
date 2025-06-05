@@ -4,14 +4,12 @@
 Query firebase to get all the records
 """
 
-import json
-import sys
-
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from loguru import logger
 
-@logger.catch
+
+@logger.catch(reraise=True)
 def get_records_from_firebase(
     region: str,
     firebase_auth_key_file: str,
@@ -19,7 +17,7 @@ def get_records_from_firebase(
     record_status: list,
     database_url: str,
     firebase_auth_key_json: str = None,
-):
+) -> list:
     """
     Returns list of records from firebase for this region,
     using keyfile to authenticate
@@ -40,33 +38,27 @@ def get_records_from_firebase(
         credentials = service_account.Credentials.from_service_account_file(
             firebase_auth_key_file, scopes=scopes
         )
-
-    # Use the credentials object to authenticate a Requests session.
     authed_session = AuthorizedSession(credentials)
-    # request data
 
-    records = []
+    # Generate the URL to query
+    if record_url:
+        logger.info(f"Processing record {record_url}")
+        url = f"{database_url}{record_url}.json"
+    else:
+        logger.info(f"Processing records for {region}")
+        url = f"{database_url}{region}/users.json"
+
+    response = authed_session.get(url)
+    response.raise_for_status()
 
     if record_url:
-        response = authed_session.get(f"{database_url}{record_url}.json")
-        body = json.loads(response.text)
-        records.append(body)
-        return records
+        # Return single url
+        return [response.json()]
 
-    else:
-        response = authed_session.get(f"{database_url}{region}/users.json")
-        body = json.loads(response.text)
-
-        # Parse response
-        if not body or not isinstance(body, dict):
-            logger.warning("Region {} not found?", region)
-            sys.exit(1)
-
-        for users_tree in body.values():
-            if "records" in users_tree:
-                records_tree = users_tree["records"]
-
-                for record in records_tree.values():
-                    if "status" in record and record["status"] in record_status:
-                        records.append(record)
-        return records
+    # Return all records for this region and status
+    return [
+        record
+        for user in response.json().values()
+        for record in user.get("records", {}).values()
+        if record.get("status") in record_status
+    ]
