@@ -96,7 +96,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   }
 
   function limitDecimals(x) {
-    return Number.parseFloat(x).toPrecision(4);
+    return Number(Number.parseFloat(x).toFixed(4));
   }
 
   // update the polygon property using an event
