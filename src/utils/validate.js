@@ -138,7 +138,7 @@ const validators = {
   map: {
     error: {
       en: "Spatial information is missing",
-      fr: "L'état du jeu de données n'est pas spécifiée",
+      fr: "L'état du jeu de données n'est pas spécifié",
     },
     tab: "spatial",
     validation: (val, record) => {
@@ -287,7 +287,7 @@ const validators = {
       en:
         "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
       fr:
-        "La généalogie des données doit contenir un titre et une description pour chaque origine de jeu de données. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
+        "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
     },
   },
   platforms: {

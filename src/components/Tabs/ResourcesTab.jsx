@@ -186,7 +186,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           <HeadingText>            
             <I18n>
               <En>Lineage</En>
-              <Fr>Origine</Fr>
+              <Fr>Généalogie des données</Fr>
             </I18n>
             {record.history && record.history.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.history.length} variant="outlined" />)}            
           </HeadingText>

@@ -39,7 +39,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       <QuestionText>
         <I18n>
           <En>Appear in citation?</En>
-          <Fr>Ce contact doit apparaître dans la citation?</Fr>
+          <Fr>Ce contact doit-il apparaître dans la citation?</Fr>
         </I18n>
 
         <Checkbox

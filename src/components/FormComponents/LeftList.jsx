@@ -105,7 +105,7 @@ const LeftList = ({
             )) : (leftListEmptyHeader || (
               <I18n>
                 <En>There are no items in this record.</En>
-                <Fr>Il n'y a aucun article dans cet enregistrement.</Fr>
+                <Fr>Il n'y a aucun contact dans cet enregistrement.</Fr>
               </I18n>
             ))}
           </Typography>

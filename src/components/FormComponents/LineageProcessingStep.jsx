@@ -91,7 +91,7 @@ const ProcessingStep = ({
       <Grid item>
         <QuestionText>
           <I18n>
-            <En>Processing or Method Step :</En>
+            <En>Processing or Method Step:</En>
             <Fr>Méthodologie détaillée :</Fr>
           </I18n>
           

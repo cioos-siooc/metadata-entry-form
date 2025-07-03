@@ -71,8 +71,7 @@ const IdentificationTab = ({
                 project, email{" "}
               </En>
               <Fr>
-                Quels sont les projets dont cet enregistrement fait partie? Pour ajouter
-                un projet, courriel {" "}
+                Quels sont les projets dont cet enregistrement fait partie?
               </Fr>
             </I18n>
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.

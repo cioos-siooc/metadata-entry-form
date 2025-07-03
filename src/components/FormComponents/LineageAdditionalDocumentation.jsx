@@ -89,7 +89,7 @@ const LineageAdditionalDocumentation = ({
         <QuestionText>
           <I18n>
             <En>Additional Documentation:</En>
-            <Fr>Documentation supplémentaire:</Fr>
+            <Fr>Documentation supplémentaire :</Fr>
           </I18n>
           <SupplementalText>
             <I18n>
