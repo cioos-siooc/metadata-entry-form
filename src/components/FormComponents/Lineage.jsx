@@ -285,6 +285,7 @@ const Lineage = ({
                         </En>
                         <Fr>
                           Expliquez dans un cadre général la généalogie des données et/ou les méthodes d’échantillonnage.
+                          Pour fournir une explication plus détaillée, utilisez la section correspondante.
                         </Fr>
                       </I18n>
                     </SupplementalText>
