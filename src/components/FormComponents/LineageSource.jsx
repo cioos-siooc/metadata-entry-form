@@ -89,7 +89,7 @@ const LineageSource = ({
     <Grid container spacing={0}>
       <Grid item>
         <QuestionText>
-          Source:
+          Source :
           <SupplementalText>
             <I18n>
               <En>
@@ -99,9 +99,9 @@ const LineageSource = ({
                 if their is no publication cited above to describe the model.
               </En>
               <Fr>
-                Informations sur l'entrée utilisée lors de la création de la ressource spécifiée par la portée. Fournir
-                citations aux données d’entrée. Ceci est particulièrement utile pour les données satellitaires traitées et
-                données du modèle. Pour les données de modèle, il est suggéré de décrire le modèle et ses entrées, en particulier
+                Informations sur les données utilisées pour la création de la ressource et si possible fournir la référence des données sources.
+                Ceci est particulièrement recommandé si vous fournissez des données ayant été transformées (ex : données satellitaires, données issues de modèles).
+                Pour les données de modèle, il est suggéré de décrire le modèle et ses entrées, en particulier
                 s'il n'y a pas de publication citée ci-dessus pour décrire le modèle.
               </Fr>
             </I18n>
@@ -150,7 +150,7 @@ const LineageSource = ({
             >
               <I18n>
                 <En>Add source</En>
-                <Fr>Ajouter un source</Fr>
+                <Fr>Ajouter une source</Fr>
               </I18n>
             </Button>
           </Grid>
@@ -199,7 +199,12 @@ const LineageSource = ({
                 </Grid>
                 <Grid item xs>
                   <TextField
-                      label="Identifier or URL"
+                    label={
+                      <I18n>
+                        <En>Identifier or URL</En>
+                        <Fr>Identifiant ou URL</Fr>
+                      </I18n>
+                    }
                     value={source.code}
                     onChange={handleIdentifierChange("code")}
                     fullWidth
@@ -235,7 +240,7 @@ const LineageSource = ({
                   >
                     <I18n>
                       <En>Remove source</En>
-                      <Fr>Supprimer l'source</Fr>
+                      <Fr>Supprimer la source</Fr>
                     </I18n>
                   </Button>
                 </Grid>

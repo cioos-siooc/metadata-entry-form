@@ -89,7 +89,7 @@ const LineageAdditionalDocumentation = ({
         <QuestionText>
           <I18n>
             <En>Additional Documentation:</En>
-            <Fr>Documentation Supplémentaire:</Fr>
+            <Fr>Documentation supplémentaire :</Fr>
           </I18n>
           <SupplementalText>
             <I18n>
@@ -97,7 +97,7 @@ const LineageAdditionalDocumentation = ({
                 A citation to additional lineage documentation. This could be a publication that describes the whole process, dataset, or model.
               </En>
               <Fr>
-                Une citation à une documentation supplémentaire sur la lignée. Il peut s'agir d'une publication décrivant l'ensemble du processus, de l'ensemble de données ou du modèle.
+                Information supplémentaire sur la généalogie des données. Peut être une publication décrivant le processus complet, la base de données ou le modèle.
               </Fr>
             </I18n>
           </SupplementalText>
@@ -146,7 +146,7 @@ const LineageAdditionalDocumentation = ({
             >
               <I18n>
                 <En>Add documentation</En>
-                <Fr>Ajouter un documentation</Fr>
+                <Fr>Ajouter une documentation</Fr>
               </I18n>
             </Button>
           </Grid>
@@ -172,7 +172,12 @@ const LineageAdditionalDocumentation = ({
                 </Grid>
                 <Grid item xs>
                   <TextField
-                    label="Identifier or URL"
+                    label={
+                      <I18n>
+                        <En>Identifier or URL</En>
+                        <Fr>Identifiant ou URL</Fr>
+                      </I18n>
+                    }
                     value={documentation.code}
                     onChange={handleIdentifierChange("code")}
                     fullWidth
@@ -208,7 +213,7 @@ const LineageAdditionalDocumentation = ({
                   >
                     <I18n>
                       <En>Remove documentation</En>
-                      <Fr>Supprimer l'documentation</Fr>
+                      <Fr>Supprimer la documentation</Fr>
                     </I18n>
                   </Button>
                 </Grid>

@@ -39,7 +39,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       <QuestionText>
         <I18n>
           <En>Appear in citation?</En>
-          <Fr>Apparaissent dans la citation?</Fr>
+          <Fr>Ce contact doit-il apparaître dans la citation?</Fr>
         </I18n>
 
         <Checkbox
@@ -68,7 +68,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
             <Fr>
               Plusieurs rôles peuvent être sélectionnés par personne. Si vous
               avez besoin de rôles plus spécifiques, vous pouvez étendre la
-              liste. Développez la liste ci-dessous pour un rôle supplémentaire.
+              liste ci-dessous.
             </Fr>
           </I18n>
         </SupplementalText>
