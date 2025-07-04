@@ -177,7 +177,12 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
+    envConnection: (
+      <I18n
+        en="Connected to development database"
+        fr="Connecté à la base de données de développement"
+      />
+    ),
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -297,9 +302,9 @@ export default function MiniDrawer({ children }) {
                       await signInWithGoogle();
                       history.push(pathname);
                     } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request'){
+                      if (error.code === "auth/cancelled-popup-request") {
                         // ignore
-                      }else{
+                      } else {
                         throw error;
                       }
                     }
@@ -413,7 +418,7 @@ export default function MiniDrawer({ children }) {
 
                 <Tooltip
                   placement="right-start"
-                  title={open ? "" : translations.instruments}
+                  title={open ? "" : translations.whatsNew}
                 >
                   <ListItem
                     button
@@ -485,13 +490,17 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase &&    
-            
-            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
+          {usingDevDatabase && (
+            <Typography
+              sx={{
+                fontSize: "10px",
+                fontWeight: 900,
+                wordBreak: "break-word",
+              }}
+            >
               {translations.envConnection}
             </Typography>
-          
-          }
+          )}
         </Drawer>
       )}
       <main className={classes.content}>
