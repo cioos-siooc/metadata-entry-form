@@ -18,7 +18,6 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
-  DirectionsBoatSharp,
 } from "@material-ui/icons";
 
 import {
