@@ -1,3 +1,8 @@
+## 4 juillet 2025
+
+- Corrections apportées à la version française du formulaire.
+- Amélioration de la précision des polygones et rectangles associés aux jeux de données.
+
 ## 12 avril 2024
 
 - Une question thématique a été ajoutée à la page d'accueil pour aider à filtrer les questions plus tard dans le formulaire. Certains champs seront obligatoires ou non selon votre sélection.
