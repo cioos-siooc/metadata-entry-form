@@ -26,10 +26,11 @@ import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
-const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
+const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
 
   const { language } = useParams();
 
@@ -38,8 +39,11 @@ const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
   const regionInfo = GetRegionInfo();
 
   useEffect(() => {
+    mounted.current = true;
 
-    mounted.current = true
+    if (userID === record.userID) {
+      setShowSubmitButton(true);
+    }
 
     const getUrlWarningsByTab = async (recordObj) => {
       const fields = Object.keys(warnings);
@@ -71,8 +75,7 @@ const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
         },
         {}
       );
-      if (mounted.current)
-        setValidationWarnings(fieldWarningInfoReduced);
+      if (mounted.current) setValidationWarnings(fieldWarningInfoReduced);
     };
 
     getUrlWarningsByTab(record);
@@ -80,8 +83,7 @@ const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
     return () => {
       mounted.current = false;
     };
-
-  }, [record]);
+  }, [record, userID]);
 
   return (
     <Paper style={paperClass}>
@@ -100,15 +102,15 @@ const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
                 contact
               </En>
               <Fr>
-                Merci d'avoir rempli ce formulaire. L'information sera validée
+                Merci d'avoir rempli ce formulaire. Les informations seront examinées
                 par un membre du personnel {regionInfo.titleFrPossessive}. Cette
-                personne pourrait vous contacter pour obtenir plus
+                personne vous contactera pour obtenir plus
                 d'informations ou pour vous indiquer quand votre jeu de données
-                sera disponible dans notre {regionInfo.catalogueTitle.fr}. Vos
+                sera disponible dans notre {regionInfo.catalogueTitleMinuscule.fr}. Vos
                 informations ne seront pas publiées avant d'obtenir votre
                 approbation. Si vous avez des questions ou si vous désirez
                 effectuer un suivi concernant l'état de votre soumission,
-                veuillez contacte
+                veuillez contacter 
               </Fr>
             </I18n>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
@@ -177,9 +179,8 @@ const SubmitTab = ({ record, submitRecord, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs>
-                  {isSubmitting ? (
-                    <CircularProgress />
-                  ) : (
+                  {isSubmitting && <CircularProgress />}
+                  {!isSubmitting && showSubmitButton && (
                     <Button
                       onClick={() => {
                         setSubmitting(true);

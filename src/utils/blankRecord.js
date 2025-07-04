@@ -19,9 +19,7 @@ const blankRecord = {
   edition: "",
   recordID: "",
   instruments: [],
-  platform: "",
-  platformID: "",
-  platformDescription: "",
+  platforms: [],
   language: "",
   license: "",
   contacts: [],
@@ -66,8 +64,29 @@ const blankContact = {
 };
 
 function getBlankContact() {
-  const contact = deepCopy(blankContact);
-  return contact;
+  return deepCopy(blankContact);
 }
 
-export { getBlankRecord, getBlankContact };
+const blankInstrument = {
+  id: "",
+  manufacturer: "",
+  version: "",
+  type: { en: "", fr: "" },
+  description: { en: "", fr: "" },
+};
+
+function getBlankInstrument() {
+  return deepCopy(blankInstrument);
+}
+
+const blankPlatform = {
+  type: "",
+  id: "",
+  description: { en: "", fr: "" },
+};
+
+function getBlankPlatform() {
+  return deepCopy(blankPlatform);
+}
+
+export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};

@@ -1,42 +1,33 @@
 import React, { useCallback, useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Delete } from "@material-ui/icons";
 import {
   TextField,
   Grid,
   Typography,
   Button,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
 } from "@material-ui/core";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
-import { deepCopy } from "../../utils/misc";
 
 import RequiredMark from "./RequiredMark";
-
-const emptyInstrument = {
-  id: "",
-  manufacturer: "",
-  version: "",
-  type: { en: "", fr: "" },
-  description: { en: "", fr: "" },
-};
+import {SupplementalText} from "./QuestionStyles";
+import PlatformTitle from "./PlatformTitle";
+import SelectInput from "./SelectInput";
+import LeftList from "./LeftList";
+import InstrumentTitle from "./InstrumentTitle";
+import {getBlankInstrument} from "../../utils/blankRecord";
 
 const Instruments = ({
   updateInstruments,
   instruments = [],
   disabled,
   paperClass,
+  saveUpdateInstrument,
+  userInstruments,
+  platformList,
 }) => {
   const [activeInstrument, setActiveInstrument] = useState(0);
-
-  const addInstrument = useCallback(() => {
-    updateInstruments(instruments.concat(deepCopy(emptyInstrument)));
-    setActiveInstrument(instruments.length);
-  }, [instruments]);
-
 
   const updateInstrumentField = useCallback((key) => {
     return (e) => {
@@ -57,55 +48,32 @@ const Instruments = ({
   const versionLabel = <I18n en="Version" fr="Version" />;
   const typeLabel = <I18n en="Type" fr="Type" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
+  const platformLabel = <I18n en="Platform" fr="Plateforme" />;
 
   const instrument = instruments.length > 0 && instruments[activeInstrument];
 
   return (
-    <Grid container direction="row" spacing={3}>
-      <Grid item xs={3}>
-        <Grid container direction="column" spacing={2}>
-          <Grid item xs>
-            Instruments:
-            <List>
-              {instruments.map((instrumentItem, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    button
-                    onClick={() => setActiveInstrument(i)}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography
-                          style={{
-                            fontWeight: activeInstrument === i ? "bold" : "",
-                          }}
-                        >
-                          {i + 1}. {instrumentItem.id}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Grid>
+    <Grid container direction="row" style={{ marginLeft: "5px" }}>
+    <Grid item xs={5}>
 
-          <Grid item xs>
-            <Button
+      <LeftList
+              itemType='instrument'
+              items={instruments}
+              updateItems={updateInstruments}
+              activeItem={activeInstrument}
+              setActiveItem={setActiveInstrument}
               disabled={disabled}
-              startIcon={<Add />}
-              onClick={addInstrument}
-              style={{ height: "56px", marginLeft: "10px" }}
-            >
-              <I18n>
-                <En>Add instrument</En>
-                <Fr>Ajouter un instrument</Fr>
-              </I18n>
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
+              savedUserItems={userInstruments}
+              saveItem={saveUpdateInstrument}
+              leftListHeader={<I18n><En>Instruments in this record:</En><Fr>Instruments dans cet enregistrement :</Fr></I18n>}
+              leftListEmptyHeader={<I18n><En>There are no instruments in this record.</En><Fr>Il n'y a aucun instrument dans cet enregistrement.</Fr></I18n>}
+              addSavedItemLabel={<I18n><En>ADD SAVED INSTRUMENT</En><Fr>Ajouter un instrument enregistré</Fr></I18n>}
+              addNewItemText={<I18n><En>ADD NEW INSTRUMENT</En><Fr>Ajouter un instrument</Fr></I18n>}
+              getBlankItem={getBlankInstrument}
+              itemTitle={(instrumentItem) => InstrumentTitle({instrument:instrumentItem})}
+              />
+
+    </Grid>
       <Grid item xs>
         <Grid container direction="column">
           {instrument && (
@@ -181,6 +149,32 @@ const Instruments = ({
                     </I18n>
                   </Button>
                 </Grid>
+                  {platformList.length >= 2 && (
+                      <Grid item xs>
+                          <SupplementalText>
+                              <I18n>
+                                  <En>
+                                      When mutiple platforms are used, you must specify which platform the instrument is
+                                      attached to. <RequiredMark passes={instrument.platform} />
+                                  </En>
+                                  <Fr>
+                                      Lorsque plusieurs plates-formes sont utilisées, vous devez spécifier à quelle
+                                      plate-forme l'instrument est connecté.
+                                  </Fr>
+                              </I18n>
+                          </SupplementalText>
+                          <SelectInput
+                              label={platformLabel}
+                              name="platform"
+                              value={instrument.platform}
+                              optionLabels={platformList.map((platform) => (<PlatformTitle platform={platform} />))}
+                              options={platformList.map((platform) => platform.id)}
+                              onChange={updateInstrumentField("platform")}
+                              fullWidth
+                              disabled={disabled}
+                          />
+                      </Grid>
+                  )}
               </Grid>
             </Paper>
           )}

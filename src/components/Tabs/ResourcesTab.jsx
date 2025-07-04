@@ -75,8 +75,8 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 Entrez un ou plusieurs liens vers la ressource principale décrite par
                 cet enregistrement de métadonnées. Les ressources ajoutées ici ne
                 doivent pas déjà avoir leur propre enregistrement de métadonnées ou
-                identifiant d'objet numérique, ces ressources doivent être ajoutées à
-                la section "Travaux associés".
+                identifiant d'objet numérique. Ces ressources doivent être ajoutées à
+                la section "Travaux connexes".
               </Fr>
               <RequiredMark passes={validateField(record, "distribution")} />
               <SupplementalText>
@@ -186,7 +186,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           <HeadingText>            
             <I18n>
               <En>Lineage</En>
-              <Fr>Lignée</Fr>
+              <Fr>Généalogie des données</Fr>
             </I18n>
             {record.history && record.history.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.history.length} variant="outlined" />)}            
           </HeadingText>
@@ -199,7 +199,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 Data processing history (provenance) for the resource.
               </En>
               <Fr>
-                Historique du traitement des données (provenance) pour la ressource.
+                Provenance et traitement des données.
               </Fr>
               <RequiredMark passes={validateField(record, "history")} />
               <SupplementalText>
@@ -208,7 +208,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                     Enter Information about the events or source data used in constructing the data specified by the scope.
                   </En>
                   <Fr>
-                    Entrez des informations sur les événements ou les données sources utilisées dans la construction des données spécifiées par la portée.
+                    Pour chaque ressource, fournissez des informations supplémentaires sur le traitement des données, et/ou spécifiez la source des données utilisées.
                   </Fr>
                 </I18n>
               </SupplementalText>

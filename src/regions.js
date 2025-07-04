@@ -7,6 +7,10 @@ const regions = {
       fr: "Catalogue de données du SIOOC du Pacifique",
       en: "CIOOS Pacific Data Catalogue",
     },
+    catalogueTitleMinuscule: {
+      fr: "catalogue de données du SIOOC du Pacifique",
+      en: "CIOOS Pacific Data Catalogue",
+    },
     colors: { primary: "#006e90", secondary: "#ffc857" },
     email: "info@cioospacific.ca",
     catalogueURL: {
@@ -25,14 +29,20 @@ const regions = {
   stlaurent: {
     title: {
       en: "St. Lawrence Global Observatory",
-      fr: "Observatoire Global du Saint-Laurent (OGSL)",
+      fr: "Observatoire global du Saint-Laurent (OGSL)",
     },
-    titleFrPossessive: "de l'Observatoire Global du Saint-Laurent (OGSL)",
+    titleFrPossessive: "de l'Observatoire global du Saint-Laurent (OGSL)",
     catalogueTitle: {
       fr:
         "Catalogue de données de l'Observatoire global du Saint-Laurent (OGSL)",
       en: "St. Lawrence Global Observatory Data Catalogue (SLGO)",
     },
+    catalogueTitleMinuscule: {
+      fr:
+        "catalogue de données de l'OGSL",
+      en: "St. Lawrence Global Observatory Data Catalogue (SLGO)",
+    },
+  
     colors: { primary: "#00adef", secondary: "#00aeef" },
     email: "info@ogsl.ca",
     catalogueURL: {
@@ -68,35 +78,29 @@ const regions = {
     },
     showInRegionSelector: true,
   },
-
-  iys: {
-    title: { en: "IYS", fr: "IYS" },
+  amundsen: {
+    title: { en: "Amundsen Science", fr: "Amundsen Science" },
+    titleFrPossessive: "de Amundsen Science",
     catalogueTitle: {
-      fr: "Catalogue de données du IYS",
-      en: "IYS Data Catalogue",
+      fr: "Catalogue de données de Amundsen Science",
+      en: "Amundsen Science Data Catalogue",
     },
-    colors: { primary: "#006e90", secondary: "#ffc857" },
-    email: "iys.data@hakai.org",
+    catalogueTitleMinuscule: {
+      fr: "catalogue de données de Amundsen Science",
+      en: "Amundsen Science Data Catalogue",
+    },
+    colors: { primary: "#E31837", secondary: "#77777A" },
+    email: "info@as.ulaval.ca",
     catalogueURL: {
-      fr: "https://iys.hakai.org/dataset/",
-      en: "https://iys.hakai.org/dataset/",
+      fr: "https://catalogue.amundsenscience.ca/fr/",
+      en: "https://catalogue.amundsenscience.ca/",
     },
-    introPageText: { en: "", fr: "" },
-    showInRegionSelector: false,
-  },
-  hakai: {
-    title: { en: "Hakai", fr: "Hakai" },
-    catalogueTitle: {
-      fr: "Catalogue de données du Hakai",
-      en: "Hakai Data Catalogue",
+    introPageText: {
+      en:
+        "Amundsen Science is the nonprofit organization responsible for the scientific mandate of the research icebreaker CCGS Amundsen.",
+      fr:
+        "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
-    colors: { primary: "#aa2025", secondary: "#459be2" },
-    email: "data@hakai.org",
-    catalogueURL: {
-      fr: "https://catalogue.hakai.org/",
-      en: "https://catalogue.hakai.org/",
-    },
-    introPageText: { en: "", fr: "" },
     showInRegionSelector: false,
   },
   test: {

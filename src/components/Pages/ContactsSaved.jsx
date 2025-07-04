@@ -176,7 +176,7 @@ class Contacts extends FormClassTemplate {
                         </ListItemAvatar>
 
                         <ListItemText
-                          primary={<ContactTitle contact={val} />}
+                          primary={ContactTitle(val)}
                         />
                         <ListItemSecondaryAction>
                           <Tooltip title={<I18n en="Edit" fr="Éditer" />}>

@@ -90,11 +90,11 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
                 <Fr>
                   Définissez la zone géographique à l'aide de l'outil qui
-                  correspond à la distribution géographique de vos données. Les
-                  données largement distribuées en haute mer peuvent être bien
-                  desservies par un cadre englobant. Les données côtières
-                  étroitement regroupées peuvent bénéficier d'un polygone qui
-                  n'inclut pas le terrain ou la zone non échantillonnée.
+                  correspond à la distribution géographique de vos données. Par exemple, 
+                  l’étendue de données relativement dispersées, localisées en haute mer 
+                  est souvent bien représentées par une zone rectangulaire, tandis qu’une représentation 
+                  polygonale excluant les terrains ou zones non échantillonnés se prête mieux à 
+                  l’étendue de données côtières, avec une résolution spatiale plus fine.
                 </Fr>
               </I18n>
             </div>
@@ -131,8 +131,8 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
 
                 <Fr>
-                  Cela permet de capturer les profondeurs minimales et maximales
-                  (ou la hauteur du fond marin) où l'instrument a enregistré des
+                  Cela permet de renseigner les profondeurs minimales et maximales
+                  (ou la hauteur depuis le fond marin) où l'instrument a enregistré des
                   données.
                 </Fr>
               </I18n>
@@ -186,7 +186,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           label={
             <I18n>
               <En>This dataset does not have a depth or height, value will be set to zero</En>
-              <Fr>Cet ensemble de données n'a ni profondeur ni hauteur, la valeur sera définie sur zéro</Fr>
+              <Fr>Ce jeu de données n'a ni profondeur ni hauteur, la valeur sera zéro</Fr>
             </I18n>
           }
         />
@@ -195,7 +195,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           container
           direction="row"
           justifyContent="flex-start"
-          alignItems="flex-start"
+          alignItems="center"
           spacing={4}
         >
           <Grid item xs={5}>
@@ -207,6 +207,20 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 (e) => e[language]
               )}
               disabled={disabled}
+            />
+              <p>
+              <I18n>
+                <En>OR</En>
+                <Fr>OU</Fr>
+            </I18n>
+              </p>
+            <TextField
+                value={record.verticalExtentEPSG}
+                onChange={handleUpdateRecord("verticalExtentEPSG")}
+                label="EPSG code"
+                fullWidth
+                type="number"
+                disabled={disabled}
             />
           </Grid>
           <Grid item xs={2}>

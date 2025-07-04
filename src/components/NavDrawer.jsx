@@ -15,6 +15,9 @@ import {
   SupervisorAccount,
   Menu,
   AssignmentTurnedIn,
+  StraightenSharp,
+  DirectionsBoatSharp,
+  FolderShared,
   DirectionsBoatSharp,
 } from "@material-ui/icons";
 
@@ -42,7 +45,7 @@ import { En, Fr, I18n } from "./I18n";
 
 import { UserContext } from "../providers/UserProvider";
 
-const drawerWidth = 240;
+const drawerWidth = 275;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -129,6 +132,7 @@ export default function MiniDrawer({ children }) {
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
     authIsLoading,
+    hasSharedRecords,
   } = useContext(UserContext);
 
   let { language = "en", region = "region-select" } = useParams();
@@ -163,6 +167,8 @@ export default function MiniDrawer({ children }) {
     home: <I18n en="Home" fr="Accueil" />,
     new: <I18n en="Metadata Editor" fr="Éditeur de méta-données" />,
     contacts: <I18n en="Contacts" fr="Contacts" />,
+    instruments: <I18n en="Instruments" fr="Instruments" />,
+    platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
@@ -170,6 +176,8 @@ export default function MiniDrawer({ children }) {
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
+    sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
+    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -359,6 +367,56 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItem
                     button
+                    key="instruments"
+                    onClick={() => history.push(`${baseURL}/instruments`)}
+                  >
+                    <ListItemIcon disabled>
+                      <StraightenSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.instruments} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="Platforms"
+                    onClick={() => history.push(`${baseURL}/platforms`)}
+                  >
+                    <ListItemIcon disabled>
+                      <DirectionsBoatSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.platforms} />
+                  </ListItem>
+                </Tooltip>
+
+                {hasSharedRecords && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.sharedWithMe}
+                  >
+                    <ListItem
+                      button
+                      key="SharedWithMe"
+                      onClick={() => history.push(`${baseURL}/shared`)}
+                    >
+                      <ListItemIcon>
+                        <FolderShared />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.sharedWithMe} />
+                    </ListItem>
+                  </Tooltip>
+                )}
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
                     key="whatsNew"
                     onClick={() => history.push(`${baseURL}/whatsNew`)}
                   >
@@ -427,7 +485,13 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase && <h5>Connected to development database</h5>}
+          {usingDevDatabase &&    
+            
+            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
+              {translations.envConnection}
+            </Typography>
+          
+          }
         </Drawer>
       )}
       <main className={classes.content}>

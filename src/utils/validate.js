@@ -66,7 +66,7 @@ const validators = {
     tab: "start",
     error: {
       en: "Please select a theme for this record",
-      fr: "Veuillez sélectionner un thème pour cet enregistrement",
+      fr: "Veuillez sélectionner une discipline scientifique pour cet enregistrement",
     },
   },
   abstract: {
@@ -74,7 +74,7 @@ const validators = {
     tab: "dataID",
     error: {
       en: "Missing abstract in French or English",
-      fr: "Abrégé manquant en français ou en anglais",
+      fr: "Résumé manquant en français ou en anglais",
     },
   },
   keywords: {
@@ -90,7 +90,7 @@ const validators = {
     tab: "dataID",
     error: {
       en: "At least one EOV is required",
-      fr: "Au moins un variable essentielle océanique est requise",
+      fr: "Au moins une variable océanique essentielle est requise",
     },
   },
   datasetIdentifier: {
@@ -115,7 +115,7 @@ const validators = {
     validation: (val) => val,
     error: {
       en: "Please select a dataset status",
-      fr: "L'information spatiale est manquante",
+      fr: "Veuillez définir le statut du jeu de données",
     },
   },
   language: {
@@ -138,7 +138,7 @@ const validators = {
   map: {
     error: {
       en: "Spatial information is missing",
-      fr: "L'information géographique est manquante",
+      fr: "L'état du jeu de données n'est pas spécifié",
     },
     tab: "spatial",
     validation: (val, record) => {
@@ -170,7 +170,7 @@ const validators = {
   verticalExtentMin: {
     tab: "spatial",
 
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Min",
       fr: "Étendue verticale manquante Min",
@@ -178,7 +178,7 @@ const validators = {
   },
   verticalExtentMax: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Max",
       fr: "Étendue verticale manquante Max",
@@ -186,7 +186,7 @@ const validators = {
   },
   verticalExtentDirection: {
     tab: "spatial",
-    validation: (val) => val,
+    validation: (val, record) => val || record.noVerticalExtent,
     error: {
       en: "Missing Vertical Extent Direction",
       fr: "Direction de l'étendue verticale manquante",
@@ -246,7 +246,7 @@ const validators = {
       en:
         "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
       fr:
-        "Les œuvres connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+        "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
     },
   },
 
@@ -287,23 +287,15 @@ const validators = {
       en:
         "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
       fr:
-        "Le lignage doit contenir un titre et une description pour chaque étape de traitement. Si la portée du lignage est définie sur « collecte de données », alors une déclaration de lignage est requise",
+        "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
     },
   },
-  platformID: {
+  platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
+    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScope === 'model'),
     error: {
-      en: "Missing platform ID",
-      fr: "ID de la plateforme manquant",
-    },
-  },
-  platform: {
-    tab: "platform",
-    validation: (val, record) => record.noPlatform || val || (!record.metadataScope || record.metadataScope === 'model'),
-    error: {
-      en: "Missing platform type",
-      fr: "Type de plateforme manquant",
+      en: "Missing platform type or ID",
+      fr: "Type ou ID de plateforme manquant.",
     },
   },
   instruments: {
@@ -311,7 +303,7 @@ const validators = {
     validation: (val) => val.every((instrument) => instrument.id),
     error: {
       en: "Instrument ID is required",
-      fr: "L'identifiant de l'instrument est requis",
+      fr: "L'identifiant de l'instrument est requis.",
     },
   },
   taxa: {
@@ -319,7 +311,7 @@ const validators = {
     validation: (val, record) => record.noTaxa || val,
     error: {
       en: "Missing Taxonomic Coverage",
-      fr: "Couverture taxonomique manquante",
+      fr: "Couverture taxonomique manquante.",
     },
   },
 };
@@ -377,7 +369,7 @@ export const validateFieldWarning = async (record, fieldName) => {
   // if no validator funciton exists, then it is not a required field
   const validationFunction =
     (warnings[fieldName] && warnings[fieldName].validation) || (() => true);
-  
+
   const res = await validationFunction(valueToValidate, record);
   return validationFunction && res;
 };

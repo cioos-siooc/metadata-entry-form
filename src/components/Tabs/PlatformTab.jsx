@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import Instruments from "../FormComponents/Instruments";
@@ -10,10 +10,31 @@ import { En, Fr, I18n } from "../I18n";
 const PlatformTab = ({
   disabled,
   record,
-  handleUpdateRecord,
+  userPlatforms,
+  saveUpdatePlatform,
+  userInstruments,
+  saveUpdateInstrument,
   updateRecord,
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
+
+
+  useEffect(() => {
+    if (record.platformID){
+      updateRecord("platforms")([
+        {
+          id: record.platformID,
+          description: record.platformDescription,
+          type: record.platform,
+
+        },
+        ...record.platforms,
+      ])
+      updateRecord("platformID")(null)
+      updateRecord("platformDescription")(null)
+      updateRecord("platform")(null)
+    }
+  }, [record.platformID, record.platform, record.platformDescription]);
 
   return (
     <div>
@@ -38,7 +59,7 @@ const PlatformTab = ({
                   of the page.
                 </En>
                 <Fr>
-                  Une plateforme désigne tout “objet” sur lequel un ou plusieurs
+                  Une plateforme désigne tout « objet » sur lequel un ou plusieurs
                   instruments sont attachés et utilisés dans la collecte des
                   données. Par exemple :
                   <ul>
@@ -48,13 +69,10 @@ const PlatformTab = ({
                     <li>Navire</li>
                     <li>Bouée</li>
                     <li>Satellite</li>
-                    <li>ROV</li>
+                    <li>Véhicule téléopéré (ROV)</li>
                     <li>Amarrage</li>
                   </ul>
-                  S'il n'y a pas de plateforme, vous pouvez entrer des
-                  informations sur les instruments au bas de la page. Sinon,
-                  vous devez décrire le plus précisément possible la plateforme
-                  utilisée dans la collecte de données.
+                  Vous devez décrire le plus précisément possible la plateforme utilisée dans le cadre de la collecte de données et les instruments.
                 </Fr>
               </I18n>
             </QuestionText>
@@ -85,9 +103,13 @@ const PlatformTab = ({
             {!noPlatform ? (
               <>
                 <Platform
+                  platforms={record.platforms}
+                  userPlatforms={userPlatforms}
+                  saveUpdatePlatform={saveUpdatePlatform}
                   record={record}
-                  handleUpdateRecord={handleUpdateRecord}
+                  updatePlatforms={updateRecord("platforms")}
                   disabled={disabled}
+                  paperClass={paperClass}
                 />
               </>
             ) : (
@@ -95,8 +117,7 @@ const PlatformTab = ({
                 <I18n>
                   <En>You can still enter an instrument without a platform</En>
                   <Fr>
-                    Vous pouvez toujours entrer dans un instrument sans
-                    plateforme
+                    Veuillez renseigner les informations sur les instruments utilisés.
                   </Fr>
                 </I18n>
               </QuestionText>
@@ -105,9 +126,12 @@ const PlatformTab = ({
             <Instruments
               instruments={record.instruments}
               updateInstruments={updateRecord("instruments")}
+              saveUpdateInstrument={saveUpdateInstrument}
+              userInstruments={userInstruments}
               disabled={disabled}
               paperClass={paperClass}
               noPlatform={noPlatform}
+              platformList={record.platforms}
             />
           </Grid>
         </Grid>

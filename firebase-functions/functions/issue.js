@@ -14,6 +14,7 @@ function readIssueText(filename) {
   }
 }
 
+// Create an issue in the github repo when a metadta form record is submited for review
 async function createIssue(title, url) {
   const octokit = new Octokit({
     auth: githubAuthCred,

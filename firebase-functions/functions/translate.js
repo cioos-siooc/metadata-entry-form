@@ -20,6 +20,7 @@ AWS.config = new AWS.Config(awsAuth);
 
 const translate = new AWS.Translate();
 
+// Translate up to 100,000 characters at a time using amazon translate
 const translateText = async (
   originalText,
   sourceLanguageCode,

@@ -170,7 +170,7 @@ const TaxaTab = ({
                     label={
                         <I18n>
                             <En>This dataset does not contain any taxonomic classification</En>
-                            <Fr>Cet ensemble de données ne contient aucune classification taxonomique</Fr>
+                            <Fr>Ce jeu de données ne contient aucune classification taxonomique</Fr>
                         </I18n>
                     }
                 />
@@ -203,7 +203,12 @@ const TaxaTab = ({
                             <TextField
                                 // eslint-disable-next-line react/jsx-props-no-spreading
                                 {...params}
-                                label='GBIF taxa Search'
+                                label={
+                                    <I18n>
+                                        <En>GBIF taxa Search</En>
+                                        <Fr>Recherche de taxons dans GBIF</Fr>
+                                    </I18n>
+                                }
                             />
                         )}
                     />

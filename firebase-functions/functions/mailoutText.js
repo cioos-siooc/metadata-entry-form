@@ -1,3 +1,5 @@
+// send emails to reviwers when a metadata form record is submitted for review
+// this is the text that is sent in the emails
 function mailOptionsReviewer(reviewers, title, region) {
   return {
     from:

@@ -1,5 +1,1 @@
-# Metadata tool cloud functions
-
-## Translate
-
-## Notify
+see ../README.md

@@ -1,11 +1,30 @@
-version: "3"
 services:
   web:
-    build: .
+    container_name: metadata-entry-forms-web-api
+    build:
+      context: ..
+      dockerfile: cioos-records-update/Dockerfile
     ports:
       - "8091:8000"
     volumes:
-      - /var/www/html/dev/metadata:/usr/src/app/xml
+      - cioos_metadata_form_files:/usr/src/app/xml
+    env_file:
+      - .env
     environment:
       FLASK_ENV: production
     restart: always
+  waf:
+    image: nginx:alpine
+    container_name: metadata-entry-forms-waf
+    ports:
+      - "8092:80"
+    volumes:
+      - ./waf/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./waf/header.html:/usr/share/nginx/html/files/header.txt
+      - ./waf/footer.html:/usr/share/nginx/html/files/footer.txt
+      - cioos_metadata_form_files:/usr/share/nginx/html/metadata:ro
+
+volumes:
+  cioos_metadata_form_files:
+    external: true
+    name: cioos-metadata-form-files

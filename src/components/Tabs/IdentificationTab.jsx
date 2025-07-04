@@ -71,8 +71,7 @@ const IdentificationTab = ({
                 project, email{" "}
               </En>
               <Fr>
-                Quels sont les projets dont ce disque fait partie? Pour ajouter
-                un projet, e-mail{" "}
+                Si cet enregistrement fait partie d'un des projet ci-dessous, sélectionnez le ou les projets.
               </Fr>
             </I18n>
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
@@ -137,14 +136,12 @@ const IdentificationTab = ({
               </En>
 
               <Fr>
-                Cette description correspond au résumé de votre jeu de données
-                lorsqu’il sera publié dans le {regionInfo.catalogueTitle.fr}{" "}
-                <CatalogueLink lang="fr" />. Pour vous aider à rédiger ce
+                La description de votre jeu de données sera utilisée comme résumé
+                dans le {regionInfo.catalogueTitle.fr}{" "}. Pour vous aider à rédiger ce
                 résumé, vous pouvez vous inspirer d’autres jeux de données déjà
-                publiés dans le catalogue. Ce champ doit être compris par tout
-                type d’utilisateur, nous vous recommandons un maximum de 500
-                mots, l’utilisation d’un langage accessible et de limiter
-                l’utilisation de vocabulaire de type jargon.
+                publiés dans le catalogue <CatalogueLink lang="fr" />. Veuillez à ce qu'elle soit
+                compréhensible par tout type d’utilisateur, rédigée dans un langage clair et accessible, 
+                et ne dépasse pas 500 mots. Limitez l’utilisation de termes techniques ou de jargon.
                 <br />
                 <br />
                 Suggestion de points à aborder dans votre résumé:
@@ -159,7 +156,7 @@ const IdentificationTab = ({
                     </li>
                     <li>
                       <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des
-                      sites d’échantillonnages, déplacement enregistrés d’un
+                      sites d’échantillonnages, déplacement d’un
                       capteur, laboratoire, etc.
                     </li>
                     <li>
@@ -190,7 +187,7 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
-      {(!record.resourceType || !record.resourceType.includes('other')) && (
+      {(!record.resourceType || !(record.resourceType.includes('other') && record.resourceType.length === 1)) && (
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -200,9 +197,9 @@ const IdentificationTab = ({
             </En>
             <Fr>
               Veuillez sélectionner toutes les variables océaniques essentielles
-              contenues dans ce jeu de données. Survolez une variable pour voir
+              contenues dans ce jeu de données. Survolez une variable pour afficher
               sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à
-              la définition complète du Système d’Observatoire Global des Océans
+              la définition complète issue du The Global Ocean observing System
               (GOOS).
             </Fr>
           </I18n>
@@ -315,19 +312,19 @@ const IdentificationTab = ({
                   </En>
                   <Fr>
                     <p>
-                      Les mots clés sont un moyen efficace de catégoriser vos
-                      données pour permettre aux utilisateurs ou à d'autres
-                      systèmes d’accéder à tous les jeux de données partageant
-                      une même caractéristique.
+                      Les mots-clés sont un moyen efficace de catégoriser vos
+                      données pour permettre aux publics ou à d'autres
+                      systèmes informatiques d’accéder à tous les jeux de données
+                      associés à des thèmes ou concepts similaires.
                     </p>
                     <p>
-                      Vous pouvez choisir un mot clé prédéfini (liste
+                      Vous pouvez choisir un mot-clé prédéfini (liste
                       déroulante) en français puis cliquer sur le bouton de
-                      traduction. Vous pouvez aussi créer votre propre mot clé
+                      traduction. Vous pouvez aussi créer votre propre mot-clé
                       en rédigeant un texte libre en anglais ou en français
                       (vérifiez toujours si son équivalent existe dans la liste
                       déroulante afin de diminuer le risque d’écriture multiple
-                      d’un même mot clé -ex: phoque Vs Phoques-).
+                      d’un même mot-clé -ex: phoque Vs Phoques-).
                     </p>
                     <p>
                       Entrez un mot-clé à la fois. Cliquez sur « Ajouter »
@@ -476,7 +473,7 @@ const IdentificationTab = ({
                   Veuillez noter que ce champ n'a pas besoin d'être rempli ou
                   mis à jour lorsque des révisions sont apportées aux
                   métadonnées, mais plutôt lorsqu'une nouvelle version du
-                  fichier ou du paquet de données devient disponible,
+                  fichier ou du jeu de données devient disponible,
                   c'est-à-dire pour les données de séries temporelles.
                 </p>
               </Fr>
@@ -495,7 +492,7 @@ const IdentificationTab = ({
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
-            <Fr>Quelle est la licence de ce jeu de données?</Fr>
+            <Fr>Quelle licence souhaitez-vous attribuer à ce jeu de données?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "license")} />
           <SupplementalText>
@@ -556,7 +553,7 @@ const IdentificationTab = ({
                     </b>
                     - Licence recommandée par le SIOOC. Les données sont
                     ouvertes, mais la licence exige que le jeu de données soit
-                    cité lorsqu’il est utilisé par un autre utilisateur.
+                    cité lorsqu’il est utilisé par quiconque.
                   </li>
                   <li>
                     <b>Creative Commons 0</b> - N’impose aucune restriction
@@ -565,10 +562,10 @@ const IdentificationTab = ({
                   </li>
                   <li>
                     <b>Licence du gouvernement ouvert - Canada</b> - Pour les
-                    jeux de données rendus disponibles par les organisations et
-                    ministères fédéraux. Cette licence est similaire à CC-BY 4.0
+                    jeux de données rendus disponibles par les entités fédérales.
+                    Cette licence est similaire à CC-BY 4.0
                     : les données sont ouvertes mais le jeu de données doit être
-                    cité lorsqu'il est utilisé par un autre utilisateur.
+                    cité lorsqu'il est utilisé par quiconque.
                   </li>
                 </ul>
               </Fr>
