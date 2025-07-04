@@ -44,7 +44,7 @@ import { En, Fr, I18n } from "./I18n";
 
 import { UserContext } from "../providers/UserProvider";
 
-const drawerWidth = 240;
+const drawerWidth = 275;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -175,6 +175,7 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
+    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -466,7 +467,13 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase && <h5>Connected to development database</h5>}
+          {usingDevDatabase &&    
+            
+            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
+              {translations.envConnection}
+            </Typography>
+          
+          }
         </Drawer>
       )}
       <main className={classes.content}>

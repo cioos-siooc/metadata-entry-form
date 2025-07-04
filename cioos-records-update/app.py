@@ -8,8 +8,10 @@ import yaml
 from firebase_to_xml.__main__ import get_filename
 from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
+from firebase_to_xml.organizations import get_record_owner
 from flask import Flask, jsonify, make_response, request
 from metadata_xml.template_functions import metadata_to_xml
+
 
 import sentry_sdk
 
@@ -23,6 +25,13 @@ sentry_sdk.init(
     # We recommend adjusting this value in production.
     profiles_sample_rate=1.0,
 )
+
+# Some RAs will split their records automatically by owner
+REGIONS_SPLIT_BY_OWNER = os.getenv("REGIONS_SPLIT_BY_OWNER", "")
+ORGANIZATIONS_REFERENCE_FILE = Path(
+    os.getenv("ORGANIZATIONS", Path(__file__).parent / ".." / "organizations.json")
+)
+organizations = json.loads(ORGANIZATIONS_REFERENCE_FILE.read_text(encoding="utf-8"))
 
 # on the server its run inside docker, the values of xml, key.json work for the server
 FIREBASE_KEY_PATH = Path(os.getenv("FIREBASE_KEY_PATH", "key.json"))
@@ -66,13 +75,19 @@ def delete_record(basename):
         os.remove(file_path)
 
 
-def get_complete_path(status, region, basename, file_suffix):
+def get_complete_path(status, region, basename, file_suffix, record):
     submitted_dir_addon = ""
     if status == "submitted":
         submitted_dir_addon = "unpublished"
 
+    owner_subdir = ""
+    if REGIONS_SPLIT_BY_OWNER and region in REGIONS_SPLIT_BY_OWNER.split(","):
+        # if the region is split by owner, we need to add the userID as a subdirectory
+        # this is used for pacific and atlantic regions
+        owner_subdir = get_record_owner(record)
+
     filename = "/".join(
-        [xml_folder, submitted_dir_addon, region, basename + file_suffix]
+        [xml_folder, submitted_dir_addon, region, owner_subdir, basename + file_suffix]
     )
     return filename
 
@@ -114,9 +129,10 @@ def recordUpdate():
 
     status = recordFromFB.get("status", "")
     basename = recordFromFB.get("filename") or get_filename(recordFromFB)
+    record = record_json_to_yaml(recordFromFB)
 
-    xml_filename = get_complete_path(status, region, basename, ".xml")
-    yaml_filename = get_complete_path(status, region, basename, ".yaml")
+    xml_filename = get_complete_path(status, region, basename, ".xml", record)
+    yaml_filename = get_complete_path(status, region, basename, ".yaml", record)
 
     # delete file if exists already
     print(basename)
@@ -128,7 +144,6 @@ def recordUpdate():
 
     # this might fail for incomplete files. It should only be used if record is complete
     try:
-        record = record_json_to_yaml(recordFromFB)
         xml = metadata_to_xml(record)
         record_yaml = yaml.safe_dump(record, allow_unicode=True)
 
@@ -136,11 +151,11 @@ def recordUpdate():
         print(xml_filename)
         Path(xml_filename).parent.mkdir(parents=True, exist_ok=True)
 
-        with open(xml_filename, "w") as f:
+        with open(xml_filename, "w", encoding="utf-8") as f:
             f.write(xml)
             print("wrote", xml_filename)
 
-        with open(yaml_filename, "w") as g:
+        with open(yaml_filename, "w", encoding="utf-8") as g:
             g.write(record_yaml)
             print("wrote", yaml_filename)
 

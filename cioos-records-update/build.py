@@ -55,6 +55,19 @@ FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv(
     help="Whether to delete the output directory before writing",
     default=True,
 )
+@click.option(
+    "--organizations",
+    help="Use organizations.json to standardize owner names",
+    envvar="ORGANIZATIONS",
+    default="organizations.json",
+)
+@click.option(
+    "--split-by-owner",
+    type=str,
+    default="",
+    help="Comma separated list of regions for which datasets are divided by owner",
+    envvar="SPLIT_BY_OWNER",
+)
 def main(
     regions,
     output,
@@ -63,6 +76,8 @@ def main(
     also_save_yaml=False,
     encoding="utf-8",
     delete=True,
+    organizations="organizations.json",
+    split_by_owner="",
 ):
     if delete:
         # delete output directory
@@ -79,6 +94,8 @@ def main(
         database_url,
         also_save_yaml=also_save_yaml,
         encoding=encoding,
+        organizations=organizations,
+        split_by_owner=split_by_owner,
     )
     logger.info("Records retrieved from Firebase and saved to XML")
 

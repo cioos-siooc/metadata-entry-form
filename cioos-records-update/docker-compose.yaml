@@ -1,7 +1,9 @@
 services:
   web:
     container_name: metadata-entry-forms-web-api
-    build: .
+    build:
+      context: ..
+      dockerfile: cioos-records-update/Dockerfile
     ports:
       - "8091:8000"
     volumes:

@@ -14,12 +14,12 @@ dir = os.path.dirname(os.path.realpath(__file__))
 
 
 def get_licenses():
-    with open(dir + "/resources/licenses.json") as f:
+    with open(dir + "/resources/licenses.json", encoding="utf-8") as f:
         return json.load(f)
 
 
 def get_eov_translations():
-    with open(dir + "/resources/eov.json") as f:
+    with open(dir + "/resources/eov.json", encoding="utf-8") as f:
         eovs = json.load(f)
         translation = {}
         for eov in eovs:
@@ -28,7 +28,7 @@ def get_eov_translations():
 
 
 def get_epsg():
-    with open(dir + "/resources/epsg.json") as f:
+    with open(dir + "/resources/epsg.json", encoding="utf-8") as f:
         epsgDict = {}
         epsgJson = json.load(f)
         if epsgJson:

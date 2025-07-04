@@ -191,7 +191,7 @@ const Lineage = ({
                               title={
                                 <I18n
                                   en="Duplicate contact"
-                                  fr="Duplicate contact"
+                                  fr="Dupliquer"
                                 />
                               }
                             >
@@ -274,7 +274,7 @@ const Lineage = ({
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
-                      <Fr>Titre de la lignée</Fr>
+                      <Fr>Titre de la généalogie des données</Fr>
                     </I18n>
                     <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
                     <SupplementalText>
@@ -284,9 +284,8 @@ const Lineage = ({
                           processing steps or methods use the processing and method step question
                         </En>
                         <Fr>
-                          Explication générale de l'étape de lignage ou des méthodes d'échantillonnage.
-                          Pour des étapes ou des méthodes de traitement détaillées, utilisez
-                          la question sur les étapes de traitement et de méthode.
+                          Expliquez dans un cadre général la généalogie des données et/ou les méthodes d’échantillonnage.
+                          Pour fournir une explication plus détaillée, utilisez la section correspondante.
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -302,7 +301,7 @@ const Lineage = ({
                   <QuestionText>
                     <I18n>
                       <En>Scope</En>
-                      <Fr>Portée</Fr>
+                      <Fr>Cadre</Fr>
                     </I18n>
                     <SupplementalText>
                       <I18n>
@@ -310,7 +309,7 @@ const Lineage = ({
                           Type of resource and/or extent to which the lineage information applies.
                         </En>
                         <Fr>
-                          Type de ressource et/ou mesure dans laquelle les informations sur la lignée s'appliquent.
+                          Type de ressource et/ou d'étendue pour laquelle les informations sur l'origine s'appliquent.
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -325,7 +324,7 @@ const Lineage = ({
                     )}
                     disabled={disabled}
                     fullWidth
-                    label={<I18n en="Scope" fr="???" />}
+                    label={<I18n en="Scope" fr="Cadre" />}
                   />
                 </Grid>
                 <Grid item xs>

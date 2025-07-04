@@ -121,7 +121,7 @@ class Platforms extends FormClassTemplate {
           <Typography variant="h5">
             <I18n>
               <En>Platforms</En>
-              <Fr>Platforms</Fr>
+              <Fr>Plateformes</Fr>
             </I18n>
           </Typography>
         </Grid>
@@ -144,7 +144,7 @@ class Platforms extends FormClassTemplate {
           <Button startIcon={<Add />} onClick={() => this.addPlatform()}>
             <I18n>
               <En>Add platform</En>
-              <Fr>ajouter un platform</Fr>
+              <Fr>Ajouter une plateforme</Fr>
             </I18n>
           </Button>
         </Grid>
@@ -159,7 +159,7 @@ class Platforms extends FormClassTemplate {
                   <Typography>
                     <I18n>
                       <En>These are your platforms</En>
-                      <Fr>Ce sont vos platforms</Fr>
+                      <Fr>Ce sont vos plateformes</Fr>
                     </I18n>
                   </Typography>
                   <List>
@@ -213,7 +213,7 @@ class Platforms extends FormClassTemplate {
                 <Typography>
                   <I18n>
                     <En>No platforms submitted yet</En>
-                    <Fr>Aucun platforms n'a encore été soumis</Fr>
+                    <Fr>Aucune plateformes n'a encore été soumises</Fr>
                   </I18n>
                 </Typography>
               )}
