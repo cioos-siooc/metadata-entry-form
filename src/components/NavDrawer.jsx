@@ -18,6 +18,7 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  NewReleases,
 } from "@material-ui/icons";
 
 import {
@@ -415,22 +416,6 @@ export default function MiniDrawer({ children }) {
                   </Tooltip>
                 )}
 
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.whatsNew}
-                >
-                  <ListItem
-                    button
-                    key="whatsNew"
-                    onClick={() => history.push(`${baseURL}/whatsNew`)}
-                  >
-                    <ListItemIcon disabled>
-                      <DirectionsBoatSharp />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.whatsNew} />
-                  </ListItem>
-                </Tooltip>
-
                 {userIsReviewer && (
                   <Tooltip
                     placement="right-start"
@@ -467,6 +452,22 @@ export default function MiniDrawer({ children }) {
                 )}
               </>
             )}
+
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.whatsNew}
+            >
+              <ListItem
+                button
+                key="whatsNew"
+                onClick={() => history.push(`${baseURL}/whatsNew`)}
+              >
+                <ListItemIcon disabled>
+                  <NewReleases />
+                </ListItemIcon>
+                <ListItemText primary={translations.whatsNew} />
+              </ListItem>
+            </Tooltip>
 
             {user && (
               <Tooltip
