@@ -29,6 +29,7 @@ import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreat
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
+import {useParams} from "react-router-dom";
 
 import { unique } from "../../utils/misc";
 
@@ -62,6 +63,7 @@ class Admin extends FormClassTemplate {
     const { region } = match.params;
     const { getCredentialsStored, getDatacitePrefix } = this.context;
     const database = getDatabase(firebase);
+    const { language } = useParams();
 
     this.setState({ loading: true });
 
@@ -72,7 +74,7 @@ class Admin extends FormClassTemplate {
         const regionAdminRef = child(adminRef, region);
         const permissionsRef = child(regionAdminRef, "permissions");
 
-        const projects = await getRegionProjects(region);
+        const projects = await getRegionProjects(region,language);
         const datacitePrefix = await getDatacitePrefix(region).then(
           (response) => {
             return response.data;

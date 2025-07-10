@@ -140,11 +140,11 @@ export function returnRecordToDraft(region, userID, key) {
   return set(ref(database, `${region})/users/${userID}/records/${key}/status`), "");
 }
 
-export async function getRegionProjects(region) {
+export async function getRegionProjects(region,language) {
   const database = getDatabase(firebase);
   const projects = Object.values(
     (
-      await get(ref(database, `admin/${region}/projects`), "value")
+      await get(ref(database, `admin/${region}/projects/${language}`), "value")
     ).toJSON() || {}
   );
   return projects;
