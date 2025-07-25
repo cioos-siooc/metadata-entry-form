@@ -142,12 +142,26 @@ export function returnRecordToDraft(region, userID, key) {
 
 export async function getRegionProjects(region,language) {
   const database = getDatabase(firebase);
-  const projects = Object.values(
-    (
-      await get(ref(database, `admin/${region}/projects/${language}`), "value")
-    ).toJSON() || {}
-  );
-  return projects;
+
+  const path = `admin/${region}/projects/${language}`;
+
+  const exists = await pathExists(path);
+  if (exists) {
+      const projects = Object.values( 
+      (
+        await get(ref(database, path), "value")
+      ).toJSON() || {}
+    );
+    return projects;
+  } else {
+    const path = `admin/${region}/projects`;
+    const projects = Object.values( 
+      (
+        await get(ref(database, path), "value")
+      ).toJSON() || {}
+    );
+    return projects;
+  }
 }
 
 // runs firebaseToJSObject on each child object
@@ -195,4 +209,11 @@ export async function updateSharedRecord(userID, recordID, authorID, region, sha
     await remove(sharesRef)
       .catch(error => { throw new Error(`Error unsharing record by author ${authorID} with user ${userID}: ${error}`) });
   }
+}
+
+
+export async function pathExists(path) {
+  const database = getDatabase();
+  const snapshot = await get(ref(database, path));
+  return snapshot.exists();
 }
