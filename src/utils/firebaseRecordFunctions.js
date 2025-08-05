@@ -143,25 +143,12 @@ export function returnRecordToDraft(region, userID, key) {
 export async function getRegionProjects(region) {
   const database = getDatabase(firebase);
 
-  const path = `admin/${region}/projects`;
-
-  const exists = await pathExists(path);
-  if (exists) {
-      const projects = Object.values( 
-      (
-        await get(ref(database, path), "value")
-      ).toJSON() || {}
-    );
-    return projects;
-  } else {
-    const path = `admin/${region}/projects`;
-    const projects = Object.values( 
-      (
-        await get(ref(database, path), "value")
-      ).toJSON() || {}
-    );
-    return projects;
-  }
+  const projects = Object.values(
+    (
+      await get(ref(database, `admin/${region}/projects`), "value")
+    ).toJSON() || {}
+  );
+  return projects;
 }
 
 // runs firebaseToJSObject on each child object
