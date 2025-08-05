@@ -46,7 +46,6 @@ import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
-import {useParams} from "react-router-dom";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -134,7 +133,6 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     this.setState({ loading: true });
     const database = getDatabase(firebase);
-    const { language } = useParams();
 
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
@@ -146,7 +144,7 @@ class MetadataForm extends FormClassTemplate {
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
 
-        this.setState({ projects: await getRegionProjects(region,language), loggedInUserID: user.uid });
+        this.setState({ projects: await getRegionProjects(region), loggedInUserID: user.uid });
         let editorInfo;
         // get info of the person openeing the record
         const editorDataRef = child(ref(database, `${region}/users`), loggedInUserID);

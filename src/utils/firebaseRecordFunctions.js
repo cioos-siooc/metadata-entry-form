@@ -140,10 +140,10 @@ export function returnRecordToDraft(region, userID, key) {
   return set(ref(database, `${region})/users/${userID}/records/${key}/status`), "");
 }
 
-export async function getRegionProjects(region,language) {
+export async function getRegionProjects(region) {
   const database = getDatabase(firebase);
 
-  const path = `admin/${region}/projects/${language}`;
+  const path = `admin/${region}/projects`;
 
   const exists = await pathExists(path);
   if (exists) {
