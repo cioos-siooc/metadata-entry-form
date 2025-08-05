@@ -67,7 +67,7 @@ const ContactEditor = ({
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
+      fetch(`https://api.ror.org/v1/organizations?query="${newInputValue}"`)
         .then((response) => response.json())
         .then((response) => {
           if (mounted.current){
@@ -144,7 +144,7 @@ const ContactEditor = ({
               disabled={disabled}
               onChange={(e, organization) => {
                 if (organization !== null) {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
+                  fetch(`https://api.ror.org/v1/organizations/${organization.id}`)
                     .then((response) => response.json())
                     .then((response) => {
                       if (!response.errors) {
