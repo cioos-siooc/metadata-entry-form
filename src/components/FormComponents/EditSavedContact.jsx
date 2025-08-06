@@ -110,6 +110,7 @@ class EditContact extends FormClassTemplate {
 
   render() {
     const { orgName, givenNames, lastName } = this.state;
+    console.log("CONTACT ::: " ,this.state);
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>
