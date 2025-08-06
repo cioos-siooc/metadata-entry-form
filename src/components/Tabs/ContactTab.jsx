@@ -60,11 +60,12 @@ const ContactTab = ({
     console.log("ROR PAYLOAD ::: ", payload);
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
-    newContacts[activeContact].orgName = payload.name;
-    newContacts[activeContact].orgURL = payload.links.find(() => true) || "";
+    newContacts[activeContact].orgName = payload.names.find((x) => x.lang === "en" || x.lang === "fr").value;
+    newContacts[activeContact].orgURL = payload.links.find((x) => x.type === "website")?.value || "";
     newContacts[activeContact].orgCity =
-      payload.addresses.find(() => true).city || "";
-    newContacts[activeContact].orgCountry = payload.country.country_name;
+      payload.locations.find(() => true)?.geonames_details?.name || ""
+    newContacts[activeContact].orgCountry = 
+      payload.locations.find(() => true)?.geonames_details?.country_name || ""
     updateContacts(newContacts);
   }
 
