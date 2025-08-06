@@ -62,6 +62,7 @@ class EditContact extends FormClassTemplate {
 
   updateOrgFromRor() {
     return (payload) => {
+      console.log("ROR PAYLOAD ::: ", payload);
       this.setState({
         orgRor: payload.id,
         orgName: payload.name,
