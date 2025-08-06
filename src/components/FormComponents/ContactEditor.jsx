@@ -71,10 +71,10 @@ const ContactEditor = ({
         .then((response) => response.json())
         .then((response) => {
           if (mounted.current){
-            console.log("ITEMS ::: " ,response.items);
+            console.log("ITEMS V2 ::: " ,response.items);
             setRorOptions(response.items)}
           if (response.number_of_results === 1){
-            console.log("ITEMS 1 ::: " ,response.items);
+            console.log("ITEMS V2 1 ::: " ,response.items);
             updateContactRor(response.items[0]);
           }
         })
