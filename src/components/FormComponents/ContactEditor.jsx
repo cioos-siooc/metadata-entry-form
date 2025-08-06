@@ -67,7 +67,7 @@ const ContactEditor = ({
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/v2/organizations?query="${newInputValue}"`)
+      fetch(`https://api.ror.org/v1/organizations?query="${newInputValue}"`)
         .then((response) => response.json())
         .then((response) => {
           if (mounted.current){
