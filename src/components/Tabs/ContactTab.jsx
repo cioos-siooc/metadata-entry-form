@@ -57,6 +57,7 @@ const ContactTab = ({
   }
 
   function updateOrgFromRor(payload) {
+    console.log("ROR PAYLOAD ::: ", payload);
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
     newContacts[activeContact].orgName = payload.name;
