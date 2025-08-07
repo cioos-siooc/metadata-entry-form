@@ -56,7 +56,7 @@ const ContactTab = ({
     };
   }
 
-  function updateOrgFromRor(payload,language) {
+  function updateOrgFromRor(payload) {
     console.log("ROR PAYLOAD ::: ", payload);
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
@@ -189,7 +189,7 @@ const ContactTab = ({
                       handleClear={(key) => updateContact(key)("")}
                       updateContactEvent={(key) => updateContactEvent(key)}
                       updateContact={(key) => updateContact(key)}
-                      updateContactRor={(payload) => updateOrgFromRor(payload,language)}
+                      updateContactRor={(payload) => updateOrgFromRor(payload, language)}
                       updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
                       disabled={disabled}
                       language={language}
