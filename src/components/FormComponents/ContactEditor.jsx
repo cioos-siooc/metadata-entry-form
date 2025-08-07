@@ -46,7 +46,6 @@ const ContactEditor = ({
   updateContactOrcid,
   language,
 }) => {
-  console.log("CONTACT EDITOR VALUE ::: ", value);
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
@@ -138,7 +137,6 @@ const ContactEditor = ({
             <Autocomplete
               inputValue={rorInputValue}
               onInputChange={(e, newInputValue) => {
-                console.log("ROR INPUT VALUE ::: ", newInputValue);
                 setRorInputValue(newInputValue);
                 if (newInputValue === "") {
                   setRorSearchActive(false);

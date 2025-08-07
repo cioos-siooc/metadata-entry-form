@@ -66,7 +66,7 @@ class EditContact extends FormClassTemplate {
       this.setState({
         orgRor: payload.id,
         orgName: payload.names.find((n) => n.lang === language)?.value || "",
-        orgURL: payload.links.find((l) => l.website?.value) || "",
+        orgURL: payload.links.find((l) => l.type ==="website")?.value || "",
         orgCity: payload.locations.find((g) => g.geonames_details.name)?.geonames_details.name || "",
         orgCountry: payload.locations.find((g) => g.geonames_details.country_name)?.geonames_details.country_name || "",
       });
