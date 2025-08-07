@@ -44,7 +44,7 @@ const ContactEditor = ({
   updateContactEvent,
   updateContactRor,
   updateContactOrcid,
-  language
+  language,
 }) => {
   console.log("CONTACT EDITOR VALUE ::: ", value);
   const mounted = useRef(false);
