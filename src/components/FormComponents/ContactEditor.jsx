@@ -68,14 +68,13 @@ const ContactEditor = ({
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/v2/organizations?query="${newInputValue}"`)
+      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
         .then((response) => response.json())
         .then((response) => {
           if (mounted.current){
             console.log("ITEMS V2 ::: " ,response.items);
             setRorOptions(response.items)}
           if (response.number_of_results === 1){
-            console.log("ITEMS V2 1 ::: " ,response.items);
             updateContactRor(response.items[0]);
           }
         })
@@ -87,7 +86,6 @@ const ContactEditor = ({
 
     mounted.current = true;
     if (debouncedRorInputValue) {
-      console.log("DEBOUNCED ROR INPUT VALUE ::: ", debouncedRorInputValue);
       updateRorOptions(debouncedRorInputValue);
     }
 
@@ -146,9 +144,8 @@ const ContactEditor = ({
               }}
               disabled={disabled}
               onChange={(e, organization) => {
-                console.log("ROR ORGANIZATION SELECTED ::: ", organization);
                 if (organization !== null) {
-                  fetch(`https://api.ror.org/v2/organizations/${organization.id}`)
+                  fetch(`https://api.ror.org/organizations/${organization.id}`)
                     .then((response) => response.json())
                     .then((response) => {
                       if (!response.errors) {
