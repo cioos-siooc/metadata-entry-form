@@ -61,7 +61,7 @@ const ContactTab = ({
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
     newContacts[activeContact].orgName = payload.names.find((n) => n.lang === language)?.value || "";
-    newContacts[activeContact].orgURL = payload.links.find(() => true) || "";
+    newContacts[activeContact].orgURL = payload.links.find((l) => l.website?.value) || "";
     newContacts[activeContact].orgCity = payload.locations.find((g) => g.geonames_details.name || "");
     newContacts[activeContact].orgCountry = payload.locations.find((g) => g.geonames_details.country_name || "");
     updateContacts(newContacts);
