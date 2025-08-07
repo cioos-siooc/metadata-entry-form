@@ -193,6 +193,7 @@ const ContactTab = ({
                       updateContactRor={(payload) => updateOrgFromRor(payload)}
                       updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
                       disabled={disabled}
+                      language={language}
                     />
                   </Grid>
                 </Grid>
