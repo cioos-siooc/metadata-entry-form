@@ -62,7 +62,6 @@ class EditContact extends FormClassTemplate {
 
   updateOrgFromRor(language) {
     return (payload) => {
-      console.log("ROR PAYLOAD ::: ", payload);
       this.setState({
         orgRor: payload.id,
         orgName: payload.names.find((n) => n.lang === language)?.value || "",
@@ -113,7 +112,6 @@ class EditContact extends FormClassTemplate {
     const { match } = this.props;
     const { language } = match.params;
     const { orgName, givenNames, lastName } = this.state;
-    console.log("CONTACT ::: " ,this.state);
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>

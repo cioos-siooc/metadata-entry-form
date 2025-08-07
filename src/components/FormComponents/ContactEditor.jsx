@@ -72,7 +72,6 @@ const ContactEditor = ({
         .then((response) => response.json())
         .then((response) => {
           if (mounted.current){
-            console.log("ITEMS V2 ::: " ,response.items);
             setRorOptions(response.items)}
           if (response.number_of_results === 1){
             updateContactRor(response.items[0]);
@@ -149,7 +148,6 @@ const ContactEditor = ({
                     .then((response) => response.json())
                     .then((response) => {
                       if (!response.errors) {
-                        console.log("ROR ORG SELECTED ::: ", response);
                         updateContactRor(response);
                       } // todo: do some error handling here if search fails?
                     })
