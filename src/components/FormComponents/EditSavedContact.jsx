@@ -110,6 +110,8 @@ class EditContact extends FormClassTemplate {
   }
 
   render() {
+    const { match } = this.props;
+    const { language } = match.params;
     const { orgName, givenNames, lastName } = this.state;
     console.log("CONTACT ::: " ,this.state);
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
@@ -122,7 +124,7 @@ class EditContact extends FormClassTemplate {
             updateContactEvent={(key) => this.handleChange(key)}
             updateContactRor={this.updateOrgFromRor()}
             updateContactOrcid={this.updateIndFromOrcid()}
-            language={match.params.language}
+            language={language}
           />
         </Grid>
 
