@@ -90,12 +90,12 @@ const PlatformLeftList = ({
             {platforms.length ? (
               <I18n>
                 <En>Platforms in this record:</En>
-                <Fr>Platforms dans cet enregistrement:</Fr>
+                <Fr>Plateformes associées à cet enregistrement :</Fr>
               </I18n>
             ) : (
               <I18n>
                 <En>There are no platforms in this record.</En>
-                <Fr>Il n'y a aucun platform dans cet enregistrement.</Fr>
+                <Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr>
               </I18n>
             )}
           </Typography>
@@ -132,7 +132,7 @@ const PlatformLeftList = ({
                           title={
                             <I18n
                               en="Duplicate platform"
-                              fr="Duplicate platform"
+                              fr="Dupliquer"
                             />
                           }
                         >
@@ -170,7 +170,7 @@ const PlatformLeftList = ({
                           title={
                             <I18n
                               en="Add to saved platforms"
-                              fr="Ajouter aux platforms enregistrés"
+                              fr="Ajouter aux plateformes enregistrés"
                             />
                           }
                         >
@@ -227,7 +227,7 @@ const PlatformLeftList = ({
             <Typography>
               <I18n>
                 <En>Add new platform</En>
-                <Fr>Ajouter un platform</Fr>
+                <Fr>Ajouter une plateforme</Fr>
               </I18n>
             </Typography>
           </Button>
@@ -242,7 +242,7 @@ const PlatformLeftList = ({
             ))}
             options={platformList.map((v, i) => i)}
             disabled={!platformList.length || disabled}
-            label={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UN PLATFORM" />}
+            label={<I18n en="ADD SAVED PLATFORM" fr="AJOUTER UNE PLATEFORME" />}
           />
         </Grid>
       </Grid>

@@ -170,7 +170,7 @@ const RelatedWorks = ({
                               title={
                                 <I18n
                                   en="Duplicate contact"
-                                  fr="Duplicate contact"
+                                  fr="Dupliquer"
                                 />
                               }
                             >
@@ -253,7 +253,7 @@ const RelatedWorks = ({
                 <QuestionText>
                   <I18n>
                     <En>Enter the title of the related resource</En>
-                    <Fr>Entrez le titre de l'œuvre concernée</Fr>
+                    <Fr>Entrez le titre de la ressource connexe</Fr>
                   </I18n>
                   <RequiredMark passes={resourceStep.title?.en || resourceStep.title?.fr} />
                 </QuestionText>{" "}
@@ -270,7 +270,7 @@ const RelatedWorks = ({
                 <QuestionText>
                   <I18n>
                     <En>Enter the identifier for the related resource</En>
-                    <Fr>Saisissez l'identifiant de l'œuvre concernée</Fr>
+                    <Fr>Saisissez l'identifiant de la ressource connexe</Fr>
                   </I18n>
 
                   <RequiredMark passes={resourceStep.code} />
@@ -284,8 +284,8 @@ const RelatedWorks = ({
                       </En>
                       <Fr>
                         <p>
-                          L'identifiant peut provenir d'une ressource ou d'un enregistrement de métadonnées sur un autre
-                          référentiel ou un autre enregistrement dans CIOOS. Un DOI ou une URL complète sont préférés.
+                          L'identifiant peut renvoyer vers une ressource ou un enregistrement de métadonnées sur un autre
+                          dépôt de données ou vers un autre enregistrement dans le SIOOC. Un DOI ou une URL complète sont préférés.
                         </p>
                       </Fr>
                     </I18n>
@@ -343,14 +343,15 @@ const RelatedWorks = ({
                       </En>
                       <Fr>
                         <p>
-                          Spécifiez la relation à partir de (A) la ressource principale ; à (B) la ressource associée. Par exemple:
+                          Spécifiez la relation entre la ressource principale (A) et la ressource connexe (B). Par exemple :
                         </p>
                         <ul>
-                          <li>Utilisez "Est une nouvelle version de" pour indiquer que la ressource principale décrite dans cet enregistrement de métadonnées (A) est une nouvelle version de (B) la ressource associée.</li>
-                          <li>Utilisez "Fait partie de" pour indiquer que la ressource principale (A) est un sous-ensemble de (B) la ressource plus grande associée.</li>
-                          <li>Utilisez "A une partie" pour indiquer que la ressource principale (A) est le travail le plus important qui comprend (B) la ressource associée.</li>
-                          <li>Utilisez "Cites" pour indiquer que (A) cite (B).</li>
-                          <li>Utilisez "Est cité par" pour indiquer que (B) cite (A)</li>
+                        «»
+                          <li>Utilisez « Est une nouvelle version de » pour indiquer que la ressource principale (A) décrite dans cet enregistrement de métadonnées est une nouvelle version de la ressource connexe (B).</li>
+                          <li>Utilisez « Fait partie de » pour indiquer que la ressource principale (A) est un sous-ensemble de la ressource connexe (B) plus large.</li>
+                          <li>Utilisez « A une partie » pour indiquer que la ressource principale (A) est plus large qui comprend la ressource connexe (B).</li>
+                          <li>Utilisez « Cite » pour indiquer que (A) cite (B).</li>
+                          <li>Utilisez « Est cité par » pour indiquer que (B) cite (A)</li>
                         </ul>
 
                       </Fr>

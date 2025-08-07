@@ -35,7 +35,7 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
                 </ul>
               </En>
               <Fr>
-                Les œuvres connexes peuvent être :
+                Les travaux connexes peuvent être :
                 <ul>
                   <li>Autres ensembles de données faisant partie de la même collection, du même projet ou du même protocole d'échantillonnage</li>
                   <li>Enregistrements de métadonnées sur d'autres catalogues tels que OBIS ou FRDR qui décrivent le même ensemble de données</li>

@@ -130,7 +130,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
               </En>
               <Fr>
                 Pour partager l'accès en modification avec un autre utilisateur,
-                commencez à saisir son nom et sélectionnez parmi les
+                commencez à saisir son nom avant de le sélectionner parmi les
                 suggestions.
               </Fr>
             </I18n>

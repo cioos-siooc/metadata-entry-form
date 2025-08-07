@@ -100,12 +100,12 @@ const LeftList = ({
               {items.length ? (leftListHeader ||(
               <I18n>
                 <En>Items in this record:</En>
-                <Fr>Articles dans cet enregistrement:</Fr>
+                <Fr>Contact dans cet enregistrement :</Fr>
               </I18n>
             )) : (leftListEmptyHeader || (
               <I18n>
                 <En>There are no items in this record.</En>
-                <Fr>Il n'y a aucun articles dans cet enregistrement.</Fr>
+                <Fr>Il n'y a aucun contact dans cet enregistrement.</Fr>
               </I18n>
             ))}
           </Typography>
@@ -142,7 +142,7 @@ const LeftList = ({
                           title={
                             <I18n
                               en="Duplicate entry"
-                              fr="Duplicate entrée"
+                              fr="Dupliquer"
                             />
                           }
                         >
@@ -161,7 +161,7 @@ const LeftList = ({
                           title={
                             <I18n
                               en="Remove from this record"
-                              fr="Supprimer de cet enregistrement"
+                              fr="Supprimer cette entrée"
                             />
                           }
                         >
@@ -243,7 +243,7 @@ const LeftList = ({
             <Typography>
                 {addNewItemText || <I18n>
                     <En>Add new item</En>
-                    <Fr>Ajouter un item</Fr>
+                    <Fr>Ajouter un contact</Fr>
                 </I18n>}
             </Typography>
           </Button>
