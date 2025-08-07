@@ -85,7 +85,7 @@ const ContactEditor = ({
   useEffect(() => {
 
     mounted.current = true;
-
+    console.log("Mounted ContactEditor");
     if (debouncedRorInputValue) {
       updateRorOptions(debouncedRorInputValue);
     }
