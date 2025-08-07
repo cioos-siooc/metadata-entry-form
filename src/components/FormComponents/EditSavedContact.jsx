@@ -122,6 +122,7 @@ class EditContact extends FormClassTemplate {
             updateContactEvent={(key) => this.handleChange(key)}
             updateContactRor={this.updateOrgFromRor()}
             updateContactOrcid={this.updateIndFromOrcid()}
+            language={match.params.language}
           />
         </Grid>
 

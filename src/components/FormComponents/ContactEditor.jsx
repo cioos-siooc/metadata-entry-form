@@ -44,7 +44,9 @@ const ContactEditor = ({
   updateContactEvent,
   updateContactRor,
   updateContactOrcid,
+  language
 }) => {
+  console.log("CONTACT EDITOR VALUE ::: ", value);
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
@@ -162,7 +164,7 @@ const ContactEditor = ({
               }}
               freeSolo
               filterOptions={(x) => x}
-              getOptionLabel={(e) => e.name}
+              getOptionLabel={(e) => e.names[language]}
               options={rorOptions}
               fullWidth
               renderInput={(params) => (
