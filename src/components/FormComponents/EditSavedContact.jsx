@@ -60,15 +60,15 @@ class EditContact extends FormClassTemplate {
     this.setState({ [key]: "" });
   }
 
-  updateOrgFromRor() {
+  updateOrgFromRor(language) {
     return (payload) => {
       console.log("ROR PAYLOAD ::: ", payload);
       this.setState({
         orgRor: payload.id,
-        orgName: payload.name,
+        orgName: payload.names.find((n) => n.lang === language)?.value || "",
         orgURL: payload.links.find(() => true) || "",
-        orgCity: payload.addresses.find(() => true).city || "",
-        orgCountry: payload.country.country_name,
+        orgCity: payload.locations.find((g) => g.geonames_details.name || ""),
+        orgCountry: payload.locations.find((g) => g.geonames_details.country_name || ""),
       });
     };
   }
@@ -122,7 +122,7 @@ class EditContact extends FormClassTemplate {
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
             updateContactEvent={(key) => this.handleChange(key)}
-            updateContactRor={this.updateOrgFromRor()}
+            updateContactRor={this.updateOrgFromRor(language)}
             updateContactOrcid={this.updateIndFromOrcid()}
             language={language}
           />
