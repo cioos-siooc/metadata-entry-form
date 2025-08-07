@@ -164,7 +164,10 @@ const ContactEditor = ({
               }}
               freeSolo
               filterOptions={(x) => x}
-              getOptionLabel={(e) => e.names[language]}
+              getOptionLabel={(e) => {
+                const match = e.names.find((n) => n.lang === language);
+                return match ? match.value : e.names[0]?.value || "";
+              }}
               options={rorOptions}
               fullWidth
               renderInput={(params) => (
