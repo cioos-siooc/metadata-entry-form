@@ -136,6 +136,7 @@ const ContactEditor = ({
             <Autocomplete
               inputValue={rorInputValue}
               onInputChange={(e, newInputValue) => {
+                console.log("ROR INPUT VALUE ::: ", newInputValue);
                 setRorInputValue(newInputValue);
                 if (newInputValue === "") {
                   setRorSearchActive(false);
@@ -145,6 +146,7 @@ const ContactEditor = ({
               }}
               disabled={disabled}
               onChange={(e, organization) => {
+                console.log("ROR ORGANIZATION SELECTED ::: ", organization);
                 if (organization !== null) {
                   fetch(`https://api.ror.org/v2/organizations/${organization.id}`)
                     .then((response) => response.json())
