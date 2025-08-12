@@ -61,8 +61,6 @@ const ContactTab = ({
     newContacts[activeContact].orgRor = payload.id;
     newContacts[activeContact].orgName = payload.names.find((n) => n.lang === language)?.value || "";
     newContacts[activeContact].orgURL = payload.links.find((l) => l.type ==="website")?.value || "";
-    // newContacts[activeContact].orgCity = payload.locations.find((g) => g.geonames_details.name)?.geonames_details.name || "";
-    // newContacts[activeContact].orgCountry = payload.locations.find((g) => g.geonames_details.country_name)?.geonames_details.country_name || "";
     newContacts[activeContact].orgCity = payload.locations.find(() => true)?.geonames_details?.name || "";
     newContacts[activeContact].orgCountry = payload.locations.find(() => true)?.geonames_details?.country_name || ""
     updateContacts(newContacts);
