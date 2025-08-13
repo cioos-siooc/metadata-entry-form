@@ -81,6 +81,7 @@ exports.regenerateXMLforRecord = functions.https.onCall(
       throw new functions.https.HttpsError("unauthenticated");
 
     const { path, status, region } = data;
+    console.log("regenerateXMLforRecord ::: ", status, "to", region); 
     if (["submitted", "published"].includes(status)) updateXML(path, region);
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
@@ -98,7 +99,7 @@ exports.updatesRecordCreate = functions.database
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    console.log("updatesRecordCreate ::: ", beforeStatus, "to", afterStatus); 
+    console.log("updatesRecordCreate ::: ", region, "to", status); 
     if (["submitted", "published"].includes(status)) {
       // wait a second so the file has a chance to be deleted on the server before it is created
       // otherwise the server might delete the new files
@@ -143,7 +144,7 @@ async function deleteXML(filename, region) {
   } catch (error) {
     console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
   }
-  console.log("deleted ::: ", beforeStatus, "to", afterStatus); 
+  console.log("deleted ::: ", authHash, "to", urlBase); 
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({
     filename,
