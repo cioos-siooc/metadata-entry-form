@@ -42,6 +42,8 @@ exports.downloadRecord = functions.https.onCall(
 
 async function updateXML(path, region, status = "", filename = "") {
 
+  console.log("updating XML for", path, "with status", status);
+
   let urlBase = urlBaseDefault;
   let authHash
   try {
