@@ -18,6 +18,7 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  NewReleases,
 } from "@material-ui/icons";
 
 import {
@@ -171,11 +172,17 @@ export default function MiniDrawer({ children }) {
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
+    whatsNew: <I18n en="What's New" fr="Quoi de Neuf" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
+    envConnection: (
+      <I18n
+        en="Connected to development database"
+        fr="Connecté à la base de données de développement"
+      />
+    ),
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -295,9 +302,9 @@ export default function MiniDrawer({ children }) {
                       await signInWithGoogle();
                       history.push(pathname);
                     } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request'){
+                      if (error.code === "auth/cancelled-popup-request") {
                         // ignore
-                      }else{
+                      } else {
                         throw error;
                       }
                     }
@@ -377,7 +384,7 @@ export default function MiniDrawer({ children }) {
 
                 <Tooltip
                   placement="right-start"
-                  title={open ? "" : translations.instruments}
+                  title={open ? "" : translations.platforms}
                 >
                   <ListItem
                     button
@@ -446,6 +453,22 @@ export default function MiniDrawer({ children }) {
               </>
             )}
 
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : translations.whatsNew}
+            >
+              <ListItem
+                button
+                key="whatsNew"
+                onClick={() => history.push(`${baseURL}/whatsNew`)}
+              >
+                <ListItemIcon disabled>
+                  <NewReleases />
+                </ListItemIcon>
+                <ListItemText primary={translations.whatsNew} />
+              </ListItem>
+            </Tooltip>
+
             {user && (
               <Tooltip
                 placement="right-start"
@@ -467,13 +490,17 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase &&    
-            
-            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
+          {usingDevDatabase && (
+            <Typography
+              sx={{
+                fontSize: "10px",
+                fontWeight: 900,
+                wordBreak: "break-word",
+              }}
+            >
               {translations.envConnection}
             </Typography>
-          
-          }
+          )}
         </Drawer>
       )}
       <main className={classes.content}>
