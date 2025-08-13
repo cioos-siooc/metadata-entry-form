@@ -98,6 +98,7 @@ exports.updatesRecordCreate = functions.database
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    console.log("updatesRecordCreate ::: ", beforeStatus, "to", afterStatus); 
     if (["submitted", "published"].includes(status)) {
       // wait a second so the file has a chance to be deleted on the server before it is created
       // otherwise the server might delete the new files
@@ -118,7 +119,7 @@ exports.updatesRecordUpdate = functions.database
 
     const afterStatus = after.val();
     const beforeStatus = before.val();
-
+    console.log("updatesRecordUpdate ::: ", beforeStatus, "to", afterStatus); 
     // status changed to draft
     if (
       // if this record was or is published or submitted
@@ -142,7 +143,7 @@ async function deleteXML(filename, region) {
   } catch (error) {
     console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
   }
-
+  console.log("deleted ::: ", beforeStatus, "to", afterStatus); 
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({
     filename,
