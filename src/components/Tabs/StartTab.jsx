@@ -277,7 +277,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the theme of this record?</En>
-              <Fr>À quelle discipline sicentifique ce jeu de données est-il associé?</Fr>
+              <Fr>À quelle discipline scientifique ce jeu de données est-il associé ?</Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />

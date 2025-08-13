@@ -260,7 +260,7 @@ const Lineage = ({
               >
                 <I18n>
                   <En>Add Lineage</En>
-                  <Fr>Ajouter une lignée</Fr>
+                  <Fr>Ajouter une généalogie</Fr>
                 </I18n>
               </Button>
             </Grid>
