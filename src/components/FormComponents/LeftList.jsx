@@ -100,12 +100,12 @@ const LeftList = ({
               {items.length ? (leftListHeader ||(
               <I18n>
                 <En>Items in this record:</En>
-                <Fr>Contact dans cet enregistrement :</Fr>
+                <Fr>Plateforme dans cet enregistrement :</Fr>
               </I18n>
             )) : (leftListEmptyHeader || (
               <I18n>
                 <En>There are no items in this record.</En>
-                <Fr>Il n'y a aucun contact dans cet enregistrement.</Fr>
+                <Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr>
               </I18n>
             ))}
           </Typography>
