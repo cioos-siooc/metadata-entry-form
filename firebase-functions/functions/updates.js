@@ -99,7 +99,14 @@ exports.updatesRecordCreate = functions.database
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    console.log("updatesRecordCreate ::: ", region, "to", status); 
+    console.log(JSON.stringify({
+      severity: "INFO",
+      function: "updateXML",
+      region,
+      status,
+      path,
+      timestamp: new Date().toISOString()
+    }));
     if (["submitted", "published"].includes(status)) {
       // wait a second so the file has a chance to be deleted on the server before it is created
       // otherwise the server might delete the new files
