@@ -98,7 +98,6 @@ exports.updatesRecordCreate = functions.database
     const { region, userID, recordID } = context.params;
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     console.log(JSON.stringify({
       severity: "INFO",
       function: "updatesRecordCreate",
@@ -107,6 +106,9 @@ exports.updatesRecordCreate = functions.database
       path,
       timestamp: new Date().toISOString()
     }));
+    console.log("SALUT :::: ");
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     if (["submitted", "published"].includes(status)) {
       // wait a second so the file has a chance to be deleted on the server before it is created
       // otherwise the server might delete the new files
