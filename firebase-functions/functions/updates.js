@@ -107,7 +107,7 @@ exports.updatesRecordCreate = functions.database
       timestamp: new Date().toISOString()
     }));
     console.info("updatesRecordCreate ::: ", status, "to", region);
-    console.log("SALUT :::: ");
+    console.log("SALUTT :::: ");
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     if (["submitted", "published"].includes(status)) {
