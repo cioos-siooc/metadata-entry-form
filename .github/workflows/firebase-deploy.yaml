@@ -37,7 +37,7 @@ jobs:
           echo "Setting Firebase Project..."
           firebase use default
           echo "Deploying to Firebase..."
-          firebase deploy --only functions --token ${{ secrets.FIREBASE_TOKEN }}
+          firebase deploy --only functions --force --token ${{ secrets.FIREBASE_TOKEN }}
         working-directory: firebase-functions/functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
