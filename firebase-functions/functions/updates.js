@@ -101,7 +101,7 @@ exports.updatesRecordCreate = functions.database
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     console.log(JSON.stringify({
       severity: "INFO",
-      function: "updateXML",
+      function: "updatesRecordCreate",
       region,
       status,
       path,
