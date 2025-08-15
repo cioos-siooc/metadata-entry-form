@@ -18,7 +18,7 @@ function getRecordFilename(record) {
 
 // creates xml for a completed record. returns a URL to the generated XML
 exports.downloadRecord = functions.https.onCall(
-  async ({ record, fileType, region }, context) => {
+  async ({ record, fileType, region }) => {
 
     let urlBase = urlBaseDefault;
     try {

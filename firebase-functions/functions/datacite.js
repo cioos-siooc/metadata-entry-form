@@ -1,9 +1,9 @@
 const admin = require("firebase-admin");
+const axios = require("axios");
+const functions = require("firebase-functions");
 const { dataciteHeaders, axiosConfig } = require("./apiConfig");
 
 const baseUrl = "https://api.datacite.org/dois/";
-const functions = require("firebase-functions");
-const axios = require("axios");
 
 // Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentials 
 // are pulled from the admin section of the firebase db

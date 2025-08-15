@@ -1,30 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
-
-import {
-  TextField,
-  Typography,
-  Grid,
-  CircularProgress,
-  Button,
-  IconButton,
-  InputAdornment,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { useDebounce } from "use-debounce";
+import React, { useState, useRef, useEffect } from "react";
+import { TextField, Grid, Autocomplete, InputAdornment, IconButton, Typography, CircularProgress, Button } from "@material-ui/core";
 import { Clear, OpenInNew } from "@material-ui/icons";
+import { useDebounce } from "use-debounce";
 import { getBlankContact } from "../../utils/blankRecord";
-
-import { validateEmail, validateURL } from "../../utils/validate";
-import RolePicker from "./RolePicker";
-import { En, Fr, I18n } from "../I18n";
-
+import { rorHeaders, orcidHeaders, fetchConfig } from "../../utils/apiConfig";
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
-import { withStyles } from "@material-ui/core/styles";
-import { withRouter } from "react-router-dom";
-import { debounce } from "lodash";
-import { deepCopy } from "../../utils/misc";
-import { rorHeaders, orcidHeaders, fetchConfig } from "../../utils/apiConfig";
+import { I18n, En, Fr } from "../I18n";
+import { validateEmail, validateURL } from "../../utils/validate";
+import RolePicker from "./RolePicker";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -54,7 +38,7 @@ const ContactEditor = ({
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.hu );
+  const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState(value.orgRor);
@@ -75,7 +59,7 @@ const ContactEditor = ({
     } else {
       fetch(`https://api.ror.org/organizations?query="${newInputValue}"`, {
         ...fetchConfig,
-        headers: rorHeaders
+        headers: rorHeaders,
       })
         .then((response) => {
           if (!response.ok) {
@@ -85,7 +69,8 @@ const ContactEditor = ({
         })
         .then((response) => {
           if (mounted.current){
-            setRorOptions(response.items)}
+            setRorOptions(response.items);
+          }
           if (response.number_of_results === 1){
             updateContactRor(response.items[0]);
           }
@@ -98,7 +83,7 @@ const ContactEditor = ({
         })
         .then(() => {if (mounted.current) setRorSearchActive(false)});
     }
-  }
+  };
 
   useEffect(() => {
 
@@ -165,7 +150,7 @@ const ContactEditor = ({
                 if (organization !== null) {
                   fetch(`https://api.ror.org/organizations/${organization.id}`, {
                     ...fetchConfig,
-                    headers: rorHeaders
+                    headers: rorHeaders,
                   })
                     .then((response) => {
                       if (!response.ok) {
@@ -335,7 +320,7 @@ const ContactEditor = ({
               if (orcid) {
                 fetch(`https://pub.orcid.org/v3.0/${orcid}/record`, {
                   ...fetchConfig,
-                  headers: orcidHeaders
+                  headers: orcidHeaders,
                 })
                   .then((response) => {
                     if (!response.ok) {
