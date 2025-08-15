@@ -1,25 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
-
-import {
-  TextField,
-  Typography,
-  Grid,
-  CircularProgress,
-  Button,
-  IconButton,
-  InputAdornment,
-} from "@material-ui/core";
+import React, { useState, useRef, useEffect } from "react";
+import { TextField, Grid, InputAdornment, IconButton, Typography, CircularProgress, Button } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { useDebounce } from "use-debounce";
 import { Clear, OpenInNew } from "@material-ui/icons";
+import { useDebounce } from "use-debounce";
 import { getBlankContact } from "../../utils/blankRecord";
-
-import { validateEmail, validateURL } from "../../utils/validate";
-import RolePicker from "./RolePicker";
-import { En, Fr, I18n } from "../I18n";
-
+import { rorHeaders, orcidHeaders, fetchConfig } from "../../utils/apiConfig";
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
+import { I18n, En, Fr } from "../I18n";
+import { validateEmail, validateURL } from "../../utils/validate";
+import RolePicker from "./RolePicker";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -49,7 +39,7 @@ const ContactEditor = ({
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.hu );
+  const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState(value.orgRor);
@@ -61,25 +51,40 @@ const ContactEditor = ({
   // eslint-disable-next-line no-param-reassign
   value = { ...getBlankContact(), ...value };
 
-  function updateRorOptions(newInputValue) {
+  const updateRorOptions = (newInputValue) => {
     if (
       newInputValue.startsWith("http") &&
       !newInputValue.includes("ror.org")
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
-        .then((response) => response.json())
+      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`, {
+        ...fetchConfig,
+        headers: rorHeaders,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`ROR API error: ${response.status}`);
+          }
+          return response.json();
+        })
         .then((response) => {
           if (mounted.current){
-            setRorOptions(response.items)}
+            setRorOptions(response.items);
+          }
           if (response.number_of_results === 1){
             updateContactRor(response.items[0]);
           }
         })
+        .catch((error) => {
+          console.error('ROR API error:', error);
+          if (mounted.current) {
+            setRorOptions([]);
+          }
+        })
         .then(() => {if (mounted.current) setRorSearchActive(false)});
     }
-  }
+  };
 
   useEffect(() => {
 
@@ -144,12 +149,23 @@ const ContactEditor = ({
               disabled={disabled}
               onChange={(e, organization) => {
                 if (organization !== null) {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
-                    .then((response) => response.json())
+                  fetch(`https://api.ror.org/organizations/${organization.id}`, {
+                    ...fetchConfig,
+                    headers: rorHeaders,
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        throw new Error(`ROR API error: ${response.status}`);
+                      }
+                      return response.json();
+                    })
                     .then((response) => {
                       if (!response.errors) {
                         updateContactRor(response);
                       } // todo: do some error handling here if search fails?
+                    })
+                    .catch((error) => {
+                      console.error('ROR API error:', error);
                     })
                     .then(() => setRorSearchActive(false))
                     .then(() => setRorInputValue(""));
@@ -304,12 +320,19 @@ const ContactEditor = ({
               const orcid = e.target.value.match(regex);
               if (orcid) {
                 fetch(`https://pub.orcid.org/v3.0/${orcid}/record`, {
-                  headers: {
-                    accept: "application/json",
-                  },
+                  ...fetchConfig,
+                  headers: orcidHeaders,
                 })
-                  .then((response) => response.json())
+                  .then((response) => {
+                    if (!response.ok) {
+                      throw new Error(`ORCID API error: ${response.status}`);
+                    }
+                    return response.json();
+                  })
                   .then((response) => updateContactOrcid(response))
+                  .catch((error) => {
+                    console.error('ORCID API error:', error);
+                  })
                   .then(() => {
                     setTimeout(() => setOrcidInputValue(""), 100);
                   });
