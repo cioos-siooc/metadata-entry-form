@@ -42,12 +42,8 @@ exports.downloadRecord = functions.https.onCall(
 
 async function updateXML(path, region, status = "", filename = "") {
 
-  console.log("updating XML for", path, "with status", status);
-
   let urlBase = urlBaseDefault;
-  let authHash
   try {
-    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
     urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
   } catch (error) {
     console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
@@ -61,14 +57,7 @@ async function updateXML(path, region, status = "", filename = "") {
   }).toString();
   const urlFull = `${url}?${urlParams}`;
 
-  const options = {
-    headers: {
-      'Authorization': `Basic ${authHash}`,
-      'Content-Type': 'application/json',
-    }
-  };  
-
-  return https.get(urlFull, options)
+  return https.get(urlFull)
     .on("error", (err) => {
       console.error("Error updating XML:", err);
     });
@@ -81,7 +70,6 @@ exports.regenerateXMLforRecord = functions.https.onCall(
       throw new functions.https.HttpsError("unauthenticated");
 
     const { path, status, region } = data;
-    console.log("regenerateXMLforRecord ::: ", status, "to", region); 
     if (["submitted", "published"].includes(status)) updateXML(path, region);
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
@@ -98,16 +86,6 @@ exports.updatesRecordCreate = functions.database
     const { region, userID, recordID } = context.params;
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
-    console.log(JSON.stringify({
-      severity: "INFO",
-      function: "updatesRecordCreate",
-      region,
-      status,
-      path,
-      timestamp: new Date().toISOString()
-    }));
-    console.info("updatesRecordCreate ::: ", status, "to", region);
-    console.log("SALUTT :::: ");
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     if (["submitted", "published"].includes(status)) {
@@ -130,7 +108,6 @@ exports.updatesRecordUpdate = functions.database
 
     const afterStatus = after.val();
     const beforeStatus = before.val();
-    console.log("updatesRecordUpdate ::: ", beforeStatus, "to", afterStatus); 
     // status changed to draft
     if (
       // if this record was or is published or submitted
@@ -140,7 +117,6 @@ exports.updatesRecordUpdate = functions.database
     ) {
       return updateXML(path, region, afterStatus);
     }
-    console.log("no change");
     return null;
   });
 
@@ -154,20 +130,13 @@ async function deleteXML(filename, region) {
   } catch (error) {
     console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
   }
-  console.log("deleted ::: ", authHash, "to", urlBase); 
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({
     filename,
   }).toString();
-  const urlFull = `${url}?${urlParams}`;
-  const options = {
-    headers: {
-      'Authorization': `Basic ${authHash}`,
-      'Content-Type': 'application/json',
-    }
-  };  
+  const urlFull = `${url}?${urlParams}`; 
 
-  return https.get(urlFull, options);
+  return https.get(urlFull);
 }
 
 // also trigger update when record is deleted
