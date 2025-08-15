@@ -31,6 +31,7 @@ import { En, Fr, I18n } from "../I18n";
 import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
+import { gbifHeaders, axiosConfig } from "../../utils/apiConfig";
 
 
 const TaxaTab = ({
@@ -102,17 +103,21 @@ const TaxaTab = ({
             params: {
                 q: searchStr,
             },
+            ...axiosConfig,
+            headers: gbifHeaders,
         };
         requestInProgress.current = true;
         axios(config).then((response) => {
-            ;
             if (mounted.current) {
                 setData([...response.data]);
             }
             requestInProgress.current = false;
         }).catch((error) => {
             /* eslint-disable no-console */
-            console.error(error);
+            console.error('GBIF API error:', error);
+            if (mounted.current) {
+                setData([]); // Set empty data on error
+            }
             requestInProgress.current = false;
         });
     }, 500);

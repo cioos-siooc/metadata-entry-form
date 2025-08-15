@@ -20,6 +20,11 @@ import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
+import { withStyles } from "@material-ui/core/styles";
+import { withRouter } from "react-router-dom";
+import { debounce } from "lodash";
+import { deepCopy } from "../../utils/misc";
+import { rorHeaders, orcidHeaders, fetchConfig } from "../../utils/apiConfig";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -61,20 +66,34 @@ const ContactEditor = ({
   // eslint-disable-next-line no-param-reassign
   value = { ...getBlankContact(), ...value };
 
-  function updateRorOptions(newInputValue) {
+  const updateRorOptions = (newInputValue) => {
     if (
       newInputValue.startsWith("http") &&
       !newInputValue.includes("ror.org")
     ) {
        if (mounted.current) setRorSearchActive(false);
     } else {
-      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
-        .then((response) => response.json())
+      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`, {
+        ...fetchConfig,
+        headers: rorHeaders
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`ROR API error: ${response.status}`);
+          }
+          return response.json();
+        })
         .then((response) => {
           if (mounted.current){
             setRorOptions(response.items)}
           if (response.number_of_results === 1){
             updateContactRor(response.items[0]);
+          }
+        })
+        .catch((error) => {
+          console.error('ROR API error:', error);
+          if (mounted.current) {
+            setRorOptions([]);
           }
         })
         .then(() => {if (mounted.current) setRorSearchActive(false)});
@@ -144,12 +163,23 @@ const ContactEditor = ({
               disabled={disabled}
               onChange={(e, organization) => {
                 if (organization !== null) {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
-                    .then((response) => response.json())
+                  fetch(`https://api.ror.org/organizations/${organization.id}`, {
+                    ...fetchConfig,
+                    headers: rorHeaders
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        throw new Error(`ROR API error: ${response.status}`);
+                      }
+                      return response.json();
+                    })
                     .then((response) => {
                       if (!response.errors) {
                         updateContactRor(response);
                       } // todo: do some error handling here if search fails?
+                    })
+                    .catch((error) => {
+                      console.error('ROR API error:', error);
                     })
                     .then(() => setRorSearchActive(false))
                     .then(() => setRorInputValue(""));
@@ -304,12 +334,19 @@ const ContactEditor = ({
               const orcid = e.target.value.match(regex);
               if (orcid) {
                 fetch(`https://pub.orcid.org/v3.0/${orcid}/record`, {
-                  headers: {
-                    accept: "application/json",
-                  },
+                  ...fetchConfig,
+                  headers: orcidHeaders
                 })
-                  .then((response) => response.json())
+                  .then((response) => {
+                    if (!response.ok) {
+                      throw new Error(`ORCID API error: ${response.status}`);
+                    }
+                    return response.json();
+                  })
                   .then((response) => updateContactOrcid(response))
+                  .catch((error) => {
+                    console.error('ORCID API error:', error);
+                  })
                   .then(() => {
                     setTimeout(() => setOrcidInputValue(""), 100);
                   });

@@ -2,6 +2,7 @@ const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const https = require("https");
 const axios = require("axios");
+const { cioosHeaders, axiosConfig } = require("./apiConfig");
 
 const urlBaseDefault = "https://api.forms.cioos.ca/"
 
@@ -27,8 +28,17 @@ exports.downloadRecord = functions.https.onCall(
     }
 
     const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
-    const response = await axios.post(url, record);
-    return response.data;
+    
+    try {
+      const response = await axios.post(url, record, {
+        ...axiosConfig,
+        headers: cioosHeaders,
+      });
+      return response.data;
+    } catch (error) {
+      functions.logger.error(`Error calling CIOOS Forms API: ${error.message}`);
+      throw new functions.https.HttpsError('internal', 'Failed to generate document from CIOOS Forms API');
+    }
   }
 );
 

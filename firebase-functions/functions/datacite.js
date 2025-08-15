@@ -1,10 +1,11 @@
 const admin = require("firebase-admin");
+const { dataciteHeaders, axiosConfig } = require("./apiConfig");
 
 const baseUrl = "https://api.datacite.org/dois/";
 const functions = require("firebase-functions");
 const axios = require("axios");
 
-// Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
+// Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentials 
 // are pulled from the admin section of the firebase db
 exports.createDraftDoi = functions.https.onCall(async (data) => {
 
@@ -24,13 +25,11 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   try{
     const url = `${baseUrl}`;
     const response = await axios.post(url, record, {
-    headers: {
-      'Authorization': `Basic ${authHash}`,
-      'Content-Type': 'application/json',
-    },
-  });
+      ...axiosConfig,
+      headers: dataciteHeaders(authHash),
+    });
 
-  return response.data;
+    return response.data;
 
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
@@ -63,7 +62,7 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   }
 });
 
-// Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentails 
+// Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentials 
 // are pulled from the admin section of the firebase db
 exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
   const { doi, region, data } = dataObj;
@@ -78,10 +77,8 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
   try {
     const url = `${baseUrl}${doi}/`;
     const response = await axios.put(url, data, {
-      headers: {
-        'Authorization': `Basic ${authHash}`,
-        'Content-Type': "application/json",
-      },
+      ...axiosConfig,
+      headers: dataciteHeaders(authHash),
     });
 
     return {
