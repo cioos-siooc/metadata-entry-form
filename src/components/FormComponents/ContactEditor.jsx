@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { TextField, Grid, Autocomplete, InputAdornment, IconButton, Typography, CircularProgress, Button } from "@material-ui/core";
+import { TextField, Grid, InputAdornment, IconButton, Typography, CircularProgress, Button } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Clear, OpenInNew } from "@material-ui/icons";
 import { useDebounce } from "use-debounce";
 import { getBlankContact } from "../../utils/blankRecord";
