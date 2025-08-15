@@ -28,18 +28,18 @@ exports.downloadRecord = functions.https.onCall(
       console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
     }
 
-    const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
+    /*const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
     const response = await axios.post(url, record,
       {
         headers: {
           'Authorization': `Basic ${authHash}`,
           'Content-Type': "application/json",
         },
-    });
+    });*/
 
-    //const response2 = await axios.post(url, record);
+    const response2 = await axios.post(url, record);
 
-    return response.data;
+    return response2.data;
   }
 );
 
