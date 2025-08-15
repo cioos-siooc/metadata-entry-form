@@ -20,15 +20,26 @@ exports.downloadRecord = functions.https.onCall(
   async ({ record, fileType, region }, context) => {
 
     let urlBase = urlBaseDefault;
+    let authHash
     try {
+      authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
       urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
     } catch (error) {
       console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
     }
 
-    const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
-    const response = await axios.post(url, record);
-    return response.data;
+    /*const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
+    const response = await axios.post(url, record,
+      {
+        headers: {
+          'Authorization': `Basic ${authHash}`,
+          'Content-Type': "application/json",
+        },
+    });*/
+
+    const response2 = await axios.post(url, record);
+
+    return response2.data;
   }
 );
 
@@ -49,7 +60,10 @@ async function updateXML(path, region, status = "", filename = "") {
   }).toString();
   const urlFull = `${url}?${urlParams}`;
 
-  return https.get(urlFull);
+  return https.get(urlFull)
+    .on("error", (err) => {
+      console.error("Error updating XML:", err);
+    });
 }
 
 // when user clicks "Save", if the record is submitted or published, update the XML
@@ -76,6 +90,7 @@ exports.updatesRecordCreate = functions.database
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     if (["submitted", "published"].includes(status)) {
       // wait a second so the file has a chance to be deleted on the server before it is created
       // otherwise the server might delete the new files
@@ -96,7 +111,6 @@ exports.updatesRecordUpdate = functions.database
 
     const afterStatus = after.val();
     const beforeStatus = before.val();
-
     // status changed to draft
     if (
       // if this record was or is published or submitted
@@ -106,24 +120,24 @@ exports.updatesRecordUpdate = functions.database
     ) {
       return updateXML(path, region, afterStatus);
     }
-    console.log("no change");
     return null;
   });
 
 
 async function deleteXML(filename, region) {
   let urlBase = urlBaseDefault;
+  let authHash
   try {
+    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
     urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
   } catch (error) {
     console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
   }
-
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({
     filename,
   }).toString();
-  const urlFull = `${url}?${urlParams}`;
+  const urlFull = `${url}?${urlParams}`; 
 
   return https.get(urlFull);
 }
