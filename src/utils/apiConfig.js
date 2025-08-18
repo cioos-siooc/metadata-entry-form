@@ -9,6 +9,14 @@ export const standardHeaders = {
   'X-Requested-With': 'XMLHttpRequest',
 };
 
+// Standard ror headers to prevent Cloudflare blocking and improve API compatibility, it does not support cache-control option 
+export const standardRORHeaders = {
+  'User-Agent': 'CIOOS-Metadata-Form/1.0',
+  'Accept': 'application/json',
+  'Accept-Language': 'en,fr',
+  'X-Requested-With': 'XMLHttpRequest',
+};
+
 // Axios configuration with timeout and validation settings
 export const axiosConfig = {
   timeout: 10000, // 10 second timeout
@@ -37,7 +45,7 @@ export const gbifHeaders = {
 
 // ROR specific headers
 export const rorHeaders = {
-  ...standardHeaders,
+  ...standardRORHeaders,
   'Accept': 'application/json',
   'Content-Type': 'application/json',
 };
