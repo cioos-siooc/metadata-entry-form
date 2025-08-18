@@ -41,6 +41,8 @@ export const gbifHeaders = {
   ...standardRORHeaders,
   'Accept': 'application/json',
   'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+
 };
 
 // ROR specific headers
