@@ -38,7 +38,7 @@ export const fetchConfig = {
 
 // GBIF specific headers
 export const gbifHeaders = {
-  ...standardHeaders,
+  ...standardRORHeaders,
   'Accept': 'application/json',
   'Content-Type': 'application/json',
 };
