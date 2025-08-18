@@ -52,7 +52,7 @@ export const rorHeaders = {
 
 // ORCID specific headers
 export const orcidHeaders = {
-  ...standardHeaders,
+  ...standardRORHeaders,
   'Accept': 'application/json, application/vnd.orcid+json',
   'Content-Type': 'application/json',
 };
