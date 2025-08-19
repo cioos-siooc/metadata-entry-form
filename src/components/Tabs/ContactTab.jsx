@@ -59,11 +59,10 @@ const ContactTab = ({
   function updateOrgFromRor(payload) {
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
-    newContacts[activeContact].orgName = payload.name;
-    newContacts[activeContact].orgURL = payload.links.find(() => true) || "";
-    newContacts[activeContact].orgCity =
-      payload.addresses.find(() => true).city || "";
-    newContacts[activeContact].orgCountry = payload.country.country_name;
+    newContacts[activeContact].orgName = payload.names.find((n) => n.lang === language)?.value || "";
+    newContacts[activeContact].orgURL = payload.links.find((l) => l.type ==="website")?.value || "";
+    newContacts[activeContact].orgCity = payload.locations.find(() => true)?.geonames_details?.name || "";
+    newContacts[activeContact].orgCountry = payload.locations.find(() => true)?.geonames_details?.country_name || ""
     updateContacts(newContacts);
   }
 
@@ -189,9 +188,10 @@ const ContactTab = ({
                       handleClear={(key) => updateContact(key)("")}
                       updateContactEvent={(key) => updateContactEvent(key)}
                       updateContact={(key) => updateContact(key)}
-                      updateContactRor={(payload) => updateOrgFromRor(payload)}
+                      updateContactRor={(payload) => updateOrgFromRor(payload, language)}
                       updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
                       disabled={disabled}
+                      language={language}
                     />
                   </Grid>
                 </Grid>

@@ -44,11 +44,12 @@ const ContactEditor = ({
   updateContactEvent,
   updateContactRor,
   updateContactOrcid,
+  language,
 }) => {
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.orgURL);
+  const orgURLValid = validateURL(value.hu );
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState(value.orgRor);
@@ -83,7 +84,6 @@ const ContactEditor = ({
   useEffect(() => {
 
     mounted.current = true;
-
     if (debouncedRorInputValue) {
       updateRorOptions(debouncedRorInputValue);
     }
@@ -157,7 +157,10 @@ const ContactEditor = ({
               }}
               freeSolo
               filterOptions={(x) => x}
-              getOptionLabel={(e) => e.name}
+              getOptionLabel={(e) => {
+                const match = e.names.find((n) => n.lang === language);
+                return match ? match.value : e.names[0]?.value || "";
+              }}
               options={rorOptions}
               fullWidth
               renderInput={(params) => (
