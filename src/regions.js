@@ -103,6 +103,27 @@ const regions = {
     },
     showInRegionSelector: false,
   },
+  canwin: {
+    title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
+    titleFrPossessive: "du Réseau canadien d'information sur les bassins versants",
+    catalogueTitle: {
+      fr: "Catalogue de données du Réseau canadien d'information sur les bassins versants (CanWIN)",
+      en: "Canadian Watershed Information Network Data Catalogue",
+    },
+    colors: { primary: "#385e9d", secondary: "#1ca8e1" },
+    email: "portalco@umanitoba.ca",
+    catalogueURL: {
+      fr: "https://canwin-datahub.ad.umanitoba.ca/",
+      en: "https://canwin-datahub.ad.umanitoba.ca/",
+    },
+    introPageText: {
+      en:
+        "CanWIN is the data centre for the Centre for Earth Observation Science (CEOS). We support research and education, and inform management, policy and evidence based decision-making from the Nelson River Watershed to the Arctic.",
+      fr:
+        "CanWIN est le centre de données du Centre for Earth Observation Science (CEOS). Nous soutenons la recherche et l’éducation, et nous contribuons à la gestion, aux politiques et à la prise de décision fondée sur des données probantes, du bassin versant de la rivière Nelson jusqu’à l’Arctique.",
+    },
+    showInRegionSelector: false,
+  },
   test: {
     title: { en: "Test", fr: "Test" },
     catalogueTitle: {
