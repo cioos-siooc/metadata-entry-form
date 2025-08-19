@@ -20,7 +20,7 @@ function getPlatformTitleFromNames(platform) {
 function PlatformTitle({platform} ) {
     return (
         getPlatformTitleFromNames(platform) ||
-        (<I18n en="New platform" fr="Nouvelle platforme" />)
+        (<I18n en="New platform" fr="Nouvelle plateforme" />)
     );
 }
 

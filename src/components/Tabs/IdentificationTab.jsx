@@ -74,7 +74,6 @@ const IdentificationTab = ({
                 Si cet enregistrement fait partie d'un des projet ci-dessous, sélectionnez le ou les projets.
               </Fr>
             </I18n>
-            <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
           </QuestionText>
           <CheckBoxList
             value={record.projects || []}
