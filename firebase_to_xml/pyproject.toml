@@ -21,7 +21,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.sources]
-metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
+metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git", branch = "fix/empty-language-fix" }
 
 [build-system]
 requires = ["hatchling"]
