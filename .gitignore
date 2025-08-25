@@ -43,3 +43,5 @@ yarn.lock
 *.log
 
 xml
+emulator.pid
+firebase-functions/functions/emulator-data
