@@ -64,6 +64,10 @@ const regions = {
       fr: "Catalogue de données du SIOOC du Atlantic",
       en: "CIOOS Atlantic Data Catalogue",
     },
+    catalogueTitleMinuscule: {
+      fr: "Catalogue de données du SIOOC du Atlantic",
+      en: "CIOOS Atlantic Data Catalogue",
+    },
     colors: { primary: "#19222b", secondary: "#e55162" },
     email: "info@cioosatlantic.ca",
     catalogueURL: {
