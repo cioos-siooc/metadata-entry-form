@@ -102,15 +102,16 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                 contact
               </En>
               <Fr>
-                Merci d'avoir rempli ce formulaire. Les informations seront examinées
-                par un membre du personnel {regionInfo.titleFrPossessive}. Cette
-                personne vous contactera pour obtenir plus
-                d'informations ou pour vous indiquer quand votre jeu de données
-                sera disponible dans notre {regionInfo.catalogueTitleMinuscule.fr}. Vos
-                informations ne seront pas publiées avant d'obtenir votre
+                Merci d'avoir rempli ce formulaire. Les informations seront
+                examinées par un membre du personnel{" "}
+                {regionInfo.titleFrPossessive}. Cette personne vous contactera
+                pour obtenir plus d'informations ou pour vous indiquer quand
+                votre jeu de données sera disponible dans notre{" "}
+                {regionInfo.catalogueTitle.fr.replace("Catalogue", "catalogue")}
+                . Vos informations ne seront pas publiées avant d'obtenir votre
                 approbation. Si vous avez des questions ou si vous désirez
                 effectuer un suivi concernant l'état de votre soumission,
-                veuillez contacter 
+                veuillez contacter
               </Fr>
             </I18n>{" "}
             <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
@@ -134,31 +135,34 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                 </Fr>
               </I18n>
             </Typography>
-            {doiUpdated && (<Typography>
-            <b>
-              <I18n>
-                <En>
-                  DOI has successfully been updated with the submitted changes.
-                </En>
-                <Fr>
-                  DOI a été mis à jour avec succès avec les modifications soumises.
-                </Fr>
-              </I18n>
-            </b>
-                  </Typography>)}
-              {doiError && (
-                  <Typography>
-                    <b>
-                      <I18n>
-                        <En>
-                          Error occurred when updating DOI.
-                        </En>
-                        <Fr>
-                          Une erreur s'est produite lors de la mise à jour du DOI
-                        </Fr>
-                      </I18n>
-                    </b>
-                  </Typography>)}
+            {doiUpdated && (
+              <Typography>
+                <b>
+                  <I18n>
+                    <En>
+                      DOI has successfully been updated with the submitted
+                      changes.
+                    </En>
+                    <Fr>
+                      DOI a été mis à jour avec succès avec les modifications
+                      soumises.
+                    </Fr>
+                  </I18n>
+                </b>
+              </Typography>
+            )}
+            {doiError && (
+              <Typography>
+                <b>
+                  <I18n>
+                    <En>Error occurred when updating DOI.</En>
+                    <Fr>
+                      Une erreur s'est produite lors de la mise à jour du DOI
+                    </Fr>
+                  </I18n>
+                </b>
+              </Typography>
+            )}
           </Grid>
         ) : (
           <>
