@@ -20,6 +20,7 @@ import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions from "../regions";
+import WhatsNew from "./Pages/WhatsNew";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
 
@@ -77,6 +78,7 @@ const Pages = ({ match }) => {
                   path={`${match.path}/submissions`}
                   component={Submissions}
                 />
+                <Route path={`${match.path}/whatsNew`} component={WhatsNew} />
                 <Route path={`${match.path}/published`} component={Published} />
                 <Route 
                   path={`${match.path}/reviewer`} 
@@ -115,7 +117,7 @@ const BaseLayout = ({ match }) => {
         root: {
           '&.Mui-disabled': {
             '& .MuiCheckbox-root': {
-              color: '#ababab', 
+              color: '#ababab',
             },
             '& .MuiTypography-root': {
               color: '#ababab',
