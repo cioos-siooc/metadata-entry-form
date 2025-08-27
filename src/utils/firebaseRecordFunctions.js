@@ -142,6 +142,7 @@ export function returnRecordToDraft(region, userID, key) {
 
 export async function getRegionProjects(region) {
   const database = getDatabase(firebase);
+
   const projects = Object.values(
     (
       await get(ref(database, `admin/${region}/projects`), "value")
