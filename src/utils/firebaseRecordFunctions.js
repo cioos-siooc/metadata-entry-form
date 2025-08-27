@@ -197,3 +197,10 @@ export async function updateSharedRecord(userID, recordID, authorID, region, sha
       .catch(error => { throw new Error(`Error unsharing record by author ${authorID} with user ${userID}: ${error}`) });
   }
 }
+
+
+export async function pathExists(path) {
+  const database = getDatabase();
+  const snapshot = await get(ref(database, path));
+  return snapshot.exists();
+}
