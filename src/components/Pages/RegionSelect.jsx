@@ -59,9 +59,17 @@ export default function RegionSelect() {
         {/* CIOOS Regional Associations */}
         <Grid item xs>
           <Typography variant="h5" gutterBottom>
-            {t("CIOOS Regional Associations", "Associations régionales du SIOOC")}
+            {t(
+              "CIOOS Regional Associations",
+              "Associations régionales du SIOOC"
+            )}
           </Typography>
-          <Grid container spacing={4} justifyContent="flex-start" alignItems="stretch">
+          <Grid
+            container
+            spacing={4}
+            justifyContent="center"
+            alignItems="stretch"
+          >
             {raCodes.map((regionCode) => {
               const regionInfo = regions[regionCode];
               if (!regionInfo) return null;
@@ -89,11 +97,19 @@ export default function RegionSelect() {
           </Typography>
           {otherOrganizations.length === 0 && (
             <Typography variant="body2">
-              {t("No affiliated organizations found.", "Aucune organisation affiliée trouvée.")}
+              {t(
+                "No affiliated organizations found.",
+                "Aucune organisation affiliée trouvée."
+              )}
             </Typography>
           )}
           {otherOrganizations.length > 0 && (
-            <Grid container spacing={4} justifyContent="flex-start" alignItems="stretch">
+            <Grid
+              container
+              spacing={4}
+              justifyContent="center"
+              alignItems="stretch"
+            >
               {otherOrganizations.map(({ code, info }) => (
                 <Grid item key={code} style={{ flex: "0 1 380px" }}>
                   <RegionCard
@@ -105,7 +121,11 @@ export default function RegionSelect() {
               ))}
             </Grid>
           )}
-          <Typography variant="caption" color="textSecondary" style={{ marginTop: 12, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            style={{ marginTop: 12, display: "block" }}
+          >
             {t(
               "Select an affiliated organization to continue.",
               "Sélectionnez une organisation affiliée pour continuer."

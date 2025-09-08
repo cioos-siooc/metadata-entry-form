@@ -12,14 +12,33 @@ import regions from "../../regions";
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: 345,
+    maxWidth: 380,
+    display: "flex",
+    flexDirection: "column",
   },
   media: {
-    height: 400,
+    height: 300,
     "&:hover": {
       filter:
         "brightness( 100% ) contrast( 100% ) saturate( 200% ) blur( 0px ) hue-rotate( 197deg )",
     },
+  },
+  actionArea: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    alignItems: "stretch",
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+  },
+  summaryClamp: {
+    display: "-webkit-box",
+    WebkitLineClamp: 5,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
 });
 
@@ -31,40 +50,54 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   const regionInfo = regions[region];
   const imgPath = `/cioos-${region}-${language}.png`;
 
-  const cardMinHeight = showMap ? "500px" : "250px";
+  // Fixed heights:
+  // RA cards (showMap) -> 560px; Affiliated (no map) -> 300px
+  const fixedHeight = showMap ? 560 : 300;
 
   return (
     <Card
       className={classes.root}
       onClick={() => history.push(`/${language}/${region}`)}
-      style={{ minHeight: cardMinHeight, minWidth: "360px" }}
+      style={{ height: fixedHeight, minWidth: 360 }}
     >
-      <CardActionArea>
+      <CardActionArea
+        className={classes.actionArea}
+        style={{ alignItems: "stretch" }}
+      >
         {showMap && (
           <CardMedia
             className={classes.media}
             image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
             title={regionInfo.title[language]}
             onError={(e) => {
-              // Gracefully hide map section if image missing
+              // Hide map image area if not found
               e.target.style.display = "none";
             }}
           />
         )}
-        <CardContent>
-          <div>
+        <CardContent className={classes.content} style={{ width: "100%" }}>
+          <div style={{ textAlign: "center" }}>
             <img
               src={process.env.PUBLIC_URL + imgPath}
               alt={region}
-              style={{ margin: "10px", maxWidth: "300px", maxHeight: "80px" }}
+              style={{
+                margin: "10px auto",
+                maxWidth: 300,
+                maxHeight: 80,
+                display: "block",
+              }}
               onError={(e) => {
-                // Hide broken logo if missing
                 e.target.style.display = "none";
               }}
             />
           </div>
-
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p"
+            className={classes.summaryClamp}
+            style={{ marginTop: 8 }}
+          >
             {regionSummary}
           </Typography>
         </CardContent>
