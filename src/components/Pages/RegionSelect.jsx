@@ -121,16 +121,6 @@ export default function RegionSelect() {
               ))}
             </Grid>
           )}
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            style={{ marginTop: 12, display: "block" }}
-          >
-            {t(
-              "Select an affiliated organization to continue.",
-              "Sélectionnez une organisation affiliée pour continuer."
-            )}
-          </Typography>
         </Grid>
       </Grid>
     </>
