@@ -15,10 +15,11 @@ const useStyles = makeStyles({
     maxWidth: 380,
     display: "flex",
     flexDirection: "column",
-    transition: "filter 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease",
+    transition:
+      "filter 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease",
     cursor: "pointer",
-    position: 'relative',
-    overflow: 'hidden',
+    position: "relative",
+    overflow: "hidden",
   },
   media: {
     height: 220,
@@ -26,24 +27,24 @@ const useStyles = makeStyles({
   },
   colorOverlay: {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     opacity: 0,
-    transition: 'opacity 0.35s ease',
-    pointerEvents: 'none',
+    transition: "opacity 0.35s ease",
+    pointerEvents: "none",
   },
   hovered: {
-    '& $media': {
-      filter: 'brightness(0.85) saturate(140%)',
-      transform: 'scale(1.015)',
+    "& $media": {
+      filter: "brightness(0.85) saturate(140%)",
+      transform: "scale(1.015)",
     },
-    '& $colorOverlay': {
+    "& $colorOverlay": {
       opacity: 0.25,
     },
-    boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
+    boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
   },
   actionArea: {
     display: "flex",
@@ -82,7 +83,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   const [hover, setHover] = React.useState(false);
   if (hover) rootClassNames.push(classes.hovered);
 
-  const primaryColor = regionInfo?.colors?.primary || '#666';
+  const primaryColor = regionInfo?.colors?.primary || "#666";
 
   return (
     <Card
@@ -92,10 +93,17 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
       onMouseLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
       onBlur={() => setHover(false)}
-      style={{ height: fixedHeight, minWidth: 360, borderTop: `6px solid ${primaryColor}` }}
+      style={{
+        height: fixedHeight,
+        minWidth: 360,
+        borderTop: `6px solid ${primaryColor}`,
+      }}
       role="button"
       tabIndex={0}
-      onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') history.push(`/${language}/${region}`); }}
+      onKeyPress={(e) => {
+        if (e.key === "Enter" || e.key === " ")
+          history.push(`/${language}/${region}`);
+      }}
       aria-label={regionInfo.title[language]}
     >
       <CardActionArea
@@ -103,14 +111,14 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
         style={{ alignItems: "stretch" }}
       >
         {showMap && (
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: "relative" }}>
             <CardMedia
               className={classes.media}
               image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
               title={regionInfo.title[language]}
               onError={(e) => {
                 // Hide map image area if not found
-                e.target.style.display = 'none';
+                e.target.style.display = "none";
               }}
             />
             <div
