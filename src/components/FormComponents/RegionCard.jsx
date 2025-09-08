@@ -52,7 +52,7 @@ const useStyles = makeStyles({
     WebkitLineClamp: 5,
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
-  textAlign: 'center',
+    textAlign: "center",
   },
 });
 
