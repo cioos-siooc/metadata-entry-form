@@ -22,20 +22,20 @@ const useStyles = makeStyles({
     overflow: "hidden",
   },
   media: {
-  height: 260, // increased height for better map/logo visibility
-  transition: "filter 0.4s ease, transform 0.4s ease",
-  backgroundPosition: 'bottom center', // align image content to bottom
+    height: 260, // increased height for better map/logo visibility
+    transition: "filter 0.4s ease, transform 0.4s ease",
+    backgroundPosition: "bottom center", // align image content to bottom
   },
   colorOverlay: {
     content: '""',
     position: "absolute",
-    top: 0,
-    left: 0,
+    inset: 0,
     width: "100%",
     height: "100%",
     opacity: 0,
     transition: "opacity 0.35s ease",
     pointerEvents: "none",
+    zIndex: 1,
   },
   hovered: {
     "& $media": {
@@ -43,7 +43,7 @@ const useStyles = makeStyles({
       transform: "scale(1.015)",
     },
     "& $colorOverlay": {
-      opacity: 0.25,
+      opacity: 0.18,
     },
     boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
   },
@@ -52,6 +52,8 @@ const useStyles = makeStyles({
     flexDirection: "column",
     height: "100%",
     alignItems: "stretch",
+    position: "relative",
+    zIndex: 2,
   },
   content: {
     display: "flex",
@@ -117,14 +119,10 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
               className={classes.media}
               image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
               title={regionInfo.title[language]}
+              style={{ width: "100%" }}
               onError={(e) => {
-                // Hide map image area if not found
                 e.target.style.display = "none";
               }}
-            />
-            <div
-              className={classes.colorOverlay}
-              style={{ backgroundColor: primaryColor }}
             />
           </div>
         )}
@@ -154,6 +152,12 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
             {regionSummary}
           </Typography>
         </CardContent>
+        {/* Full-card overlay for consistent hover tint */}
+        <div
+          className={classes.colorOverlay}
+          style={{ backgroundColor: primaryColor }}
+          aria-hidden="true"
+        />
       </CardActionArea>
     </Card>
   );
