@@ -15,6 +15,14 @@ const useStyles = makeStyles({
     maxWidth: 380,
     display: "flex",
     flexDirection: "column",
+    transition: "filter 0.25s ease, background-color 0.25s ease",
+  },
+  rootOrg: {
+    '&:hover': {
+      filter: 'grayscale(70%)',
+      backgroundColor: '#f5f5f5',
+      cursor: 'pointer'
+    }
   },
   media: {
     height: 300,
@@ -54,9 +62,12 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   // RA cards (showMap) -> 560px; Affiliated (no map) -> 300px
   const fixedHeight = showMap ? 560 : 300;
 
+  const rootClassNames = [classes.root];
+  if (!showMap) rootClassNames.push(classes.rootOrg);
+
   return (
     <Card
-      className={classes.root}
+      className={rootClassNames.join(' ')}
       onClick={() => history.push(`/${language}/${region}`)}
       style={{ height: fixedHeight, minWidth: 360 }}
     >
