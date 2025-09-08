@@ -40,17 +40,24 @@ export default function RegionSelect() {
       </Helmet>
       <Grid container direction="column" spacing={4}>
         <Grid item xs>
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            align="center"
+            justifyContent="center"
+          >
             <I18n>
               <En>
-                Welcome to the CIOOS Metadata Entry Tool. To get started, please
-                select your Regional Association or browse collaborating
-                organizations.
+                Welcome to the CIOOS Metadata Entry Tool.
+                <br />
+                To get started, please select your Regional Association or
+                browse collaborating organizations.
               </En>
               <Fr>
-                Bienvenue dans l'outil de saisie de métadonnées du SIOOC. Pour
-                commencer, sélectionnez votre association régionale ou parcourez
-                les organisations partenaires.
+                Bienvenue dans l'outil de saisie de métadonnées du SIOOC.
+                <br />
+                Pour commencer, sélectionnez votre association régionale ou
+                parcourez les organisations partenaires.
               </Fr>
             </I18n>
           </Typography>
@@ -58,7 +65,7 @@ export default function RegionSelect() {
 
         {/* CIOOS Regional Associations */}
         <Grid item xs>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom align="center">
             {t(
               "CIOOS Regional Associations",
               "Associations régionales du SIOOC"
@@ -92,11 +99,11 @@ export default function RegionSelect() {
 
         {/* All Organizations */}
         <Grid item xs>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom align="center">
             {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>
           {otherOrganizations.length === 0 && (
-            <Typography variant="body2">
+            <Typography variant="body2" align="center">
               {t(
                 "No affiliated organizations found.",
                 "Aucune organisation affiliée trouvée."
