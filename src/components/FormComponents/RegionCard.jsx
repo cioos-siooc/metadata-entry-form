@@ -21,7 +21,7 @@ const useStyles = makeStyles({
     overflow: 'hidden',
   },
   media: {
-    height: 300,
+    height: 220,
     transition: "filter 0.4s ease, transform 0.4s ease",
   },
   colorOverlay: {
@@ -75,7 +75,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
 
   // Fixed heights:
   // RA cards (showMap) -> 560px; Affiliated (no map) -> 300px
-  const fixedHeight = showMap ? 560 : 300;
+  const fixedHeight = showMap ? 500 : 300;
 
   const rootClassNames = [classes.root];
 
