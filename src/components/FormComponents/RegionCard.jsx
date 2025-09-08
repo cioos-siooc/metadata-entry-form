@@ -78,8 +78,8 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   const imgPath = `/cioos-${region}-${language}.png`;
 
   // Fixed heights:
-  // RA cards (showMap) -> 560px; Affiliated (no map) -> 300px
-  const fixedHeight = showMap ? 500 : 300;
+  // RA cards (showMap) -> 470px; Affiliated (no map) -> 240px
+  const fixedHeight = showMap ? 470 : 240;
 
   const rootClassNames = [classes.root];
 
