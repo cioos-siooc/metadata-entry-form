@@ -18,18 +18,23 @@ const useStyles = makeStyles({
     transition: "filter 0.25s ease, background-color 0.25s ease",
   },
   rootOrg: {
-    '&:hover': {
-      filter: 'grayscale(70%)',
-      backgroundColor: '#f5f5f5',
-      cursor: 'pointer'
-    }
+    "&:hover": {
+      filter: "grayscale(70%)",
+      backgroundColor: "#f5f5f5",
+      cursor: "pointer",
+    },
+  },
+  rootRa: {
+    "&:hover $media": {
+      /* red tint via filter pipeline */
+      filter: "brightness(0.75) sepia(1) saturate(8) hue-rotate(-5deg)",
+      transition: "filter 0.4s ease",
+    },
+    cursor: "pointer",
   },
   media: {
     height: 300,
-    "&:hover": {
-      filter:
-        "brightness( 100% ) contrast( 100% ) saturate( 200% ) blur( 0px ) hue-rotate( 197deg )",
-    },
+    transition: "filter 0.4s ease",
   },
   actionArea: {
     display: "flex",
@@ -64,10 +69,11 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
 
   const rootClassNames = [classes.root];
   if (!showMap) rootClassNames.push(classes.rootOrg);
+  else rootClassNames.push(classes.rootRa);
 
   return (
     <Card
-      className={rootClassNames.join(' ')}
+      className={rootClassNames.join(" ")}
       onClick={() => history.push(`/${language}/${region}`)}
       style={{ height: fixedHeight, minWidth: 360 }}
     >
