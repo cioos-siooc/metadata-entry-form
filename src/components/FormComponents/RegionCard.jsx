@@ -22,8 +22,9 @@ const useStyles = makeStyles({
     overflow: "hidden",
   },
   media: {
-    height: 220,
-    transition: "filter 0.4s ease, transform 0.4s ease",
+  height: 260, // increased height for better map/logo visibility
+  transition: "filter 0.4s ease, transform 0.4s ease",
+  backgroundPosition: 'bottom center', // align image content to bottom
   },
   colorOverlay: {
     content: '""',
