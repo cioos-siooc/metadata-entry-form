@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MediaCard({ region, regionSummary }) {
+export default function MediaCard({ region, regionSummary, showMap = true }) {
   const history = useHistory();
   const { language } = useParams();
   const classes = useStyles();
@@ -31,24 +31,36 @@ export default function MediaCard({ region, regionSummary }) {
   const regionInfo = regions[region];
   const imgPath = `/cioos-${region}-${language}.png`;
 
+  const cardMinHeight = showMap ? "500px" : "250px";
+
   return (
     <Card
       className={classes.root}
       onClick={() => history.push(`/${language}/${region}`)}
-      style={{ minHeight: "500px", minWidth: "400px" }}
+      style={{ minHeight: cardMinHeight, minWidth: "360px" }}
     >
       <CardActionArea>
-        <CardMedia
-          className={classes.media}
-          image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
-          title={regionInfo.title[language]}
-        />
+        {showMap && (
+          <CardMedia
+            className={classes.media}
+            image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
+            title={regionInfo.title[language]}
+            onError={(e) => {
+              // Gracefully hide map section if image missing
+              e.target.style.display = "none";
+            }}
+          />
+        )}
         <CardContent>
           <div>
             <img
               src={process.env.PUBLIC_URL + imgPath}
               alt={region}
               style={{ margin: "10px", maxWidth: "300px", maxHeight: "80px" }}
+              onError={(e) => {
+                // Hide broken logo if missing
+                e.target.style.display = "none";
+              }}
             />
           </div>
 

@@ -1,15 +1,6 @@
 import React from "react";
-import {
-  Grid,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  ListItemAvatar,
-  Avatar,
-} from "@material-ui/core";
-import { useParams, Link } from "react-router-dom";
+import { Grid, Typography, Divider } from "@material-ui/core";
+import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { En, Fr, I18n } from "../I18n";
 import RegionCard from "../FormComponents/RegionCard";
@@ -26,7 +17,7 @@ export default function RegionSelect() {
   const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
   // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
   const otherOrganizations = Object.entries(regions)
-    .filter(([code]) => !raCodes.includes(code))
+    .filter(([code]) => !raCodes.includes(code) && code !== "test")
     .map(([code, regionInfo]) => ({ code, info: regionInfo }));
 
   // Sort by translated title / name
@@ -68,31 +59,18 @@ export default function RegionSelect() {
         {/* CIOOS Regional Associations */}
         <Grid item xs>
           <Typography variant="h5" gutterBottom>
-            {t(
-              "CIOOS Regional Associations",
-              "Associations régionales du SIOOC"
-            )}
+            {t("CIOOS Regional Associations", "Associations régionales du SIOOC")}
           </Typography>
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-start"
-            alignItems="stretch"
-            spacing={2}
-          >
+          <Grid container spacing={4} justifyContent="flex-start" alignItems="stretch">
             {raCodes.map((regionCode) => {
               const regionInfo = regions[regionCode];
               if (!regionInfo) return null;
               return (
-                <Grid
-                  item
-                  xs
-                  key={regionCode}
-                  style={{ minWidth: 260, flex: "0 1 300px" }}
-                >
+                <Grid item key={regionCode} style={{ flex: "0 1 380px" }}>
                   <RegionCard
                     region={regionCode}
                     regionSummary={regionInfo.introPageText[language]}
+                    showMap
                   />
                 </Grid>
               );
@@ -107,72 +85,30 @@ export default function RegionSelect() {
         {/* All Organizations */}
         <Grid item xs>
           <Typography variant="h5" gutterBottom>
-            {t("Organizations", "Organisations")}
+            {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>
           {otherOrganizations.length === 0 && (
             <Typography variant="body2">
-              {t(
-                "No additional organizations found.",
-                "Aucune autre organisation trouvée."
-              )}
+              {t("No affiliated organizations found.", "Aucune organisation affiliée trouvée.")}
             </Typography>
           )}
           {otherOrganizations.length > 0 && (
-            <List dense>
-              {otherOrganizations.map(({ code, info }) => {
-                const displayName =
-                  info?.title?.[language] || info?.title?.en || code;
-                const description = info?.introPageText?.[language] || "";
-                // Derive a logo path based on naming convention in /public (fallback allowed to broken image hidden)
-                const logo = `${process.env.PUBLIC_URL}/cioos-${code}-${language}.png`;
-                const href = `/${language}/${code}`; // direct link to region route
-                const content = (
-                  <ListItemText primary={displayName} secondary={description} />
-                );
-                return (
-                  <ListItem key={code} style={{ alignItems: "flex-start" }}>
-                    {logo && (
-                      <ListItemAvatar>
-                        <Link
-                          to={href}
-                          style={{ textDecoration: "none" }}
-                          aria-label={`${displayName} region link`}
-                        >
-                          <Avatar
-                            src={logo}
-                            alt={displayName}
-                            variant="square"
-                            style={{ width: 48, height: 48 }}
-                            imgProps={{
-                              onError: (e) => {
-                                // Hide avatar if image not found
-                                e.target.style.visibility = "hidden";
-                              },
-                            }}
-                          />
-                        </Link>
-                      </ListItemAvatar>
-                    )}
-                    <Link
-                      to={href}
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                        flex: 1,
-                      }}
-                      aria-label={`${displayName} form link`}
-                    >
-                      {content}
-                    </Link>
-                  </ListItem>
-                );
-              })}
-            </List>
+            <Grid container spacing={4} justifyContent="flex-start" alignItems="stretch">
+              {otherOrganizations.map(({ code, info }) => (
+                <Grid item key={code} style={{ flex: "0 1 380px" }}>
+                  <RegionCard
+                    region={code}
+                    regionSummary={info?.introPageText?.[language] || ""}
+                    showMap={false}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           )}
-          <Typography variant="caption" color="textSecondary">
+          <Typography variant="caption" color="textSecondary" style={{ marginTop: 12, display: 'block' }}>
             {t(
-              "Select any organization below to proceed (Regional Associations are highlighted above).",
-              "Sélectionnez une organisation ci-dessous pour continuer (les associations régionales sont mises en évidence ci-dessus)."
+              "Select an affiliated organization to continue.",
+              "Sélectionnez une organisation affiliée pour continuer."
             )}
           </Typography>
         </Grid>
