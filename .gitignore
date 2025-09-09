@@ -41,5 +41,5 @@ yarn.lock
 .env
 .env.*
 *.log
-
+firebase-functions/python-functions/venv
 xml
