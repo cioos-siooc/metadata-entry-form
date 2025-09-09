@@ -21,13 +21,30 @@ const LastEdited = ({ dateStr }) => {
     timeAgo = new TimeAgo("fr-FR");
   }
 
+  const dateObj = new Date(dateStr);
+  const now = Date.now();
+  const diffMs = now - dateObj.getTime();
+  const twoDaysMs = 2 * 24 * 60 * 60 * 1000;
+
+  let displayStr;
+  if (diffMs > twoDaysMs) {
+    // Use locale-sensitive absolute date (YYYY-MM-DD style for clarity)
+    const options = { year: "numeric", month: "short", day: "2-digit" };
+    displayStr = dateObj.toLocaleDateString(
+      language === "fr" ? "fr-CA" : "en-CA",
+      options
+    );
+  } else {
+    displayStr = timeAgo.format(dateObj);
+  }
+
   return (
     <span>
       <I18n>
         <En>Last edited</En>
         <Fr>Dernière modification</Fr>
       </I18n>{" "}
-      {timeAgo.format(new Date(dateStr))}
+      {displayStr}
       {". "}
     </span>
   );
