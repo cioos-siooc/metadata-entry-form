@@ -27,7 +27,6 @@ import {
 import { useParams } from "react-router-dom";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
-import recordToERDDAP from "../../utils/recordToERDDAP";
 import { recordIsValid, percentValid } from "../../utils/validate";
 import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
@@ -60,7 +59,7 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { downloadRecord, datacitePrefix } = useContext(UserContext);
+  const { datacitePrefix } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -84,51 +83,75 @@ const MetadataRecordListItem = ({
   const percentValidInt =
     showPercentComplete && Math.round(percentValid(record) * 100);
   async function handleDownloadRecord(fileType) {
-    // filetype is
     const extensions = {
-      erddap: "_erddap.txt",
+      erddap: "_erddap.xml",
       xml: ".xml",
       yaml: ".yaml",
       eml: "_eml.xml",
       json: ".json",
+      dataciteJson: "_dataCite.json",
     };
-    setIsLoading({ downloadXML: true });
+    const mimeTypes = {
+      xml: "application/xml",
+      yaml: "application/x-yaml",
+      eml: "application/xml",
+      erddap: "application/xml",
+      json: "application/json",
+      dataciteJson: "application/json",
+    };
 
+    setIsLoading({ downloadXML: true });
     try {
-      let data;
+      let blob;
+      // Local generation cases we keep as-is
       if (fileType === "eml") {
         const emlStr = await recordToEML(record);
-        data = [emlStr];
-      } else if (fileType === "erddap") {
-        data = [recordToERDDAP(record)];
+        blob = new Blob([emlStr], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else if (fileType === "json") {
-        data = await [JSON.stringify(record, null, 2)];
+        blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` }); 
       } else if (fileType === "dataciteJson") {
-        data = await [JSON.stringify(recordToDataCite(record, language, region, datacitePrefix), null, 2)];
-      } else {
-        const res = await downloadRecord({ record, fileType, region });
-        data = Object.values(res.data.message);
+        const dc = recordToDataCite(record, language, region, datacitePrefix);
+        blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
+  } else {
+        // Use Python HTTP function convert_metadata for: xml, yaml, erddap, json
+        const projectId = (window?.firebaseApp?.options?.projectId) || process.env.REACT_APP_FIREBASE_PROJECT_ID || 'cioos-metadata-form-dev-258dc';
+        const regionId = 'us-central1';
+        // Local emulator vs deployed
+        const isLocal = window.location.hostname === 'localhost';
+        const port = 5002; // Python functions emulator port (must match firebase.json config)
+        const baseUrl = isLocal
+          ? `http://127.0.0.1:${port}/${projectId}/${regionId}`
+          : `https://${regionId}-${projectId}.cloudfunctions.net`;
+        const url = `${baseUrl}/convert_metadata`;
+        const body = {
+          record_data: record,
+            // Map UI fileType to converter output_format if naming differs
+          output_format: fileType === 'xml' ? 'xml' : fileType,
+          schema: 'firebase',
+        };
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!resp.ok) {
+          const errTxt = await resp.text();
+          throw new Error(`convert_metadata failed: ${resp.status} ${errTxt}`);
+        }
+        if (fileType === 'json') {
+          const jsonData = await resp.json();
+          blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
+        } else {
+          const textData = await resp.text();
+          blob = new Blob([textData], { type: `${mimeTypes[fileType]};charset=utf-8` });
+        }
       }
-      const mimeTypes = {
-        xml: "application/xml",
-        yaml: "application/x-yaml",
-        eml: "application/xml",
-        erddap: "application/xml",
-        json: "application/json",
-        dataciteJson: "application/json",
-      };
-      const blob = new Blob(data, {
-        type: `${mimeTypes[fileType]};charset=utf-8`,
-      });
 
-      FileSaver.saveAs(
-        blob,
-        `${getRecordFilename(record)}${extensions[fileType]}`
-      );
-      setIsLoading({ downloadXML: false });
+      FileSaver.saveAs(blob, `${getRecordFilename(record)}${extensions[fileType]}`);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.log(e);
+      console.error(e);
+    } finally {
       setIsLoading({ downloadXML: false });
     }
   }
@@ -382,7 +405,7 @@ const MetadataRecordListItem = ({
                   EML for OBIS IPT
                 </MenuItem>
                 <MenuItem
-                  key="eml"
+                  key="database-json"
                   onClick={() => {
                     handleDownloadRecord("json");
                     handleClose();
@@ -391,7 +414,7 @@ const MetadataRecordListItem = ({
                   Database JSON
                 </MenuItem>
                 <MenuItem
-                  key="json"
+                  key="datacite-json"
                   onClick={() => {
                     handleDownloadRecord("dataciteJson");
                     handleClose();
