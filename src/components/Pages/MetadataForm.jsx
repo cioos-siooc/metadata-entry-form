@@ -14,7 +14,14 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Save } from "@material-ui/icons";
 import { withRouter } from "react-router-dom";
-import { getDatabase, ref, child, onValue, update, push } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  child,
+  onValue,
+  update,
+  push,
+} from "firebase/database";
 
 import FormClassTemplate from "./FormClassTemplate";
 import { I18n, En, Fr } from "../I18n";
@@ -30,7 +37,7 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
-import TaxaTab from "../Tabs/TaxaTab"
+import TaxaTab from "../Tabs/TaxaTab";
 
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import firebase from "../../firebase";
@@ -95,12 +102,11 @@ const styles = (theme) => ({
     position: "fixed",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
+    zIndex: 5,
   },
 });
 
-
 class MetadataForm extends FormClassTemplate {
-
   constructor(props) {
     super(props);
 
@@ -144,10 +150,16 @@ class MetadataForm extends FormClassTemplate {
         const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
         const { isReviewer } = this.context;
 
-        this.setState({ projects: await getRegionProjects(region), loggedInUserID: user.uid });
+        this.setState({
+          projects: await getRegionProjects(region),
+          loggedInUserID: user.uid,
+        });
         let editorInfo;
         // get info of the person openeing the record
-        const editorDataRef = child(ref(database, `${region}/users`), loggedInUserID);
+        const editorDataRef = child(
+          ref(database, `${region}/users`),
+          loggedInUserID
+        );
         const userinfoRef = child(editorDataRef, "userinfo");
         onValue(userinfoRef, (userinfo) => {
           editorInfo = userinfo.toJSON();
@@ -198,7 +210,6 @@ class MetadataForm extends FormClassTemplate {
         });
         this.listenerRefs.push(editorPlatformsRef);
 
-
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
           this.setState({ loading: false, loggedInUserCanEditRecord: true });
@@ -214,7 +225,8 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
-            const loggedInUserIsSharedWith = record.sharedWith && record.sharedWith[loggedInUserID] === true;
+            const loggedInUserIsSharedWith =
+              record.sharedWith && record.sharedWith[loggedInUserID] === true;
 
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
@@ -230,9 +242,6 @@ class MetadataForm extends FormClassTemplate {
         }
       }
     });
-
-
-
   }
 
   toggleModal = (modalName, state, key = "", userID) => {
@@ -267,7 +276,10 @@ class MetadataForm extends FormClassTemplate {
     const { region } = match.params;
     const database = getDatabase(firebase);
 
-    const contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
+    const contactsRef = ref(
+      database,
+      `${region}/users/${auth.currentUser.uid}/contacts`
+    );
 
     // existing contact
     if (contactID) {
@@ -276,29 +288,34 @@ class MetadataForm extends FormClassTemplate {
     }
     // new contact
 
-    return (push(contactsRef, contact)).key;
+    return push(contactsRef, contact).key;
   }
 
   async handleUpdateDraftDOI() {
     const { match } = this.props;
     const { region, language } = match.params;
-    const { record} = this.state;
+    const { record } = this.state;
     const { datacitePrefix } = this.context;
 
     try {
-      if (datacitePrefix && record.datasetIdentifier){
-        const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix);
+      if (datacitePrefix && record.datasetIdentifier) {
+        const statusCode = await performUpdateDraftDoi(
+          record,
+          region,
+          language,
+          datacitePrefix
+        );
 
-      if (statusCode === 200) {
-        this.state.doiUpdated = true
-      } else {
-        this.state.doiError = true
+        if (statusCode === 200) {
+          this.state.doiUpdated = true;
+        } else {
+          this.state.doiError = true;
         }
       }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error('Error updating draft DOI: ', err);
-      this.state.doiError = true
+      console.error("Error updating draft DOI: ", err);
+      this.state.doiError = true;
       throw err;
     }
   }
@@ -309,8 +326,11 @@ class MetadataForm extends FormClassTemplate {
 
     const { region } = match.params;
 
-      const database = getDatabase(firebase);
-    const instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`);
+    const database = getDatabase(firebase);
+    const instrumentsRef = ref(
+      database,
+      `${region}/users/${auth.currentUser.uid}/instruments`
+    );
 
     // existing instrument
     if (id) {
@@ -319,7 +339,7 @@ class MetadataForm extends FormClassTemplate {
     }
     // new instrument
     // eslint-disable-next-line no-debugger
-    debugger
+    debugger;
 
     return push(instrumentsRef, instrument).key;
   }
@@ -330,8 +350,11 @@ class MetadataForm extends FormClassTemplate {
 
     const { region } = match.params;
 
-    const database = getDatabase(firebase)
-    const platformRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
+    const database = getDatabase(firebase);
+    const platformRef = ref(
+      database,
+      `${region}/users/${auth.currentUser.uid}/platforms`
+    );
 
     // existing instrument
     if (id) {
@@ -355,7 +378,7 @@ class MetadataForm extends FormClassTemplate {
     const recordUserID = isNewRecord ? loggedInUserID : userID;
 
     const recordID = await this.handleSaveClick();
-    await this.handleUpdateDraftDOI()
+    await this.handleUpdateDraftDOI();
 
     return submitRecord(region, recordUserID, recordID, "submitted", record);
   }
@@ -368,7 +391,7 @@ class MetadataForm extends FormClassTemplate {
     const userID = match.params.userID || auth.currentUser.uid;
     const database = getDatabase(firebase);
 
-    const recordsRef = ref(database,`${region}/users/${userID}/records`);
+    const recordsRef = ref(database, `${region}/users/${userID}/records`);
 
     // remove userContacts since they get saved elsewhere
     const { editorInfo } = this.state;
@@ -402,9 +425,11 @@ class MetadataForm extends FormClassTemplate {
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
-      await update(child(recordsRef,record.recordID),
+      await update(
+        child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record });
+        { ...getBlankRecord(), ...record }
+      );
     } else {
       // new record
       const newNode = await push(recordsRef, record);
@@ -469,10 +494,10 @@ class MetadataForm extends FormClassTemplate {
       record,
       handleUpdateRecord: this.handleUpdateRecord,
       updateRecord: this.updateRecord,
-      userID:loggedInUserID,
+      userID: loggedInUserID,
     };
     const percentValidInt = Math.round(percentValid(record) * 100);
-  
+
     return loading ? (
       <CircularProgress />
     ) : (
@@ -567,7 +592,7 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-                {!(['model'].includes(record.metadataScope)) && (
+              {!["model"].includes(record.metadataScope) && (
                 <Tab
                   fullWidth
                   classes={{ root: classes.tabRoot }}
@@ -621,18 +646,19 @@ class MetadataForm extends FormClassTemplate {
           <IdentificationTab {...tabProps} projects={projects} />
         </TabPanel>
         <TabPanel value={tabIndex} index="taxa">
-            <TaxaTab {...tabProps} />
+          <TaxaTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="spatial">
           <SpatialTab {...tabProps} />
         </TabPanel>
         <TabPanel value={tabIndex} index="platform">
           <PlatformTab
-          userInstruments={userInstruments}
-          saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
-          userPlatforms={userPlatforms}
-          saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
-          {...tabProps} />
+            userInstruments={userInstruments}
+            saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+            userPlatforms={userPlatforms}
+            saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
+            {...tabProps}
+          />
         </TabPanel>
         <TabPanel value={tabIndex} index="distribution">
           <ResourcesTab {...tabProps} />
