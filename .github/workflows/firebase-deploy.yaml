@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install Python venv
-        workding-directory: firebase-functions/python-functions
+        working-directory: firebase-functions/python-functions
         run: |
           pyenv -m venv venv
           source venv/bin/activate
