@@ -11,7 +11,10 @@ cd ..
 # Install dependencies for Python functions 
 echo "🐍 Installing dependencies for Python functions..."
 cd python-functions
-pip install -r requirements.txt
+uv venv venv
+uv sync --active
+source venv/bin/activate
+uv pip install -r requirements.txt
 cd ..
 
 echo "🔧 Starting Firebase Emulators for both JS and Python functions..."
