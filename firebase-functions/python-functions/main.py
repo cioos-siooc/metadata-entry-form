@@ -128,3 +128,41 @@ def get_available_formats(req: https_fn.CallableRequest) -> list:
             "error": "Internal server error",
             "details": str(e)
         }
+
+
+@https_fn.on_call()
+def convert_metadata_call(req: https_fn.CallableRequest):
+    """Callable wrapper for metadata conversion used by the React frontend.
+
+    Request data example:
+      {
+        "record_data": { ... },
+        "output_format": "xml" | "json" | "yaml" | "erddap" | ...,
+        "schema": "firebase"
+      }
+    Response:
+      For output_format == json -> converted object is returned directly.
+      Otherwise -> { "result": <string representation> }
+    """
+    data = req.data or {}
+    record_data = data.get("record_data")
+    output_format = data.get("output_format")
+    schema = data.get("schema", "firebase")
+
+    if not record_data or not output_format:
+        raise https_fn.HttpsError(
+            code="invalid-argument",
+            message="record_data and output_format required"
+        )
+    try:
+        converted = converter(record=record_data,
+                              format=output_format, schema=schema)
+    except Exception as e:  # pylint: disable=broad-except
+        raise https_fn.HttpsError(
+            code="internal",
+            message=f"Conversion failed: {e}"
+        ) from e
+
+    if output_format == "json":
+        return converted
+    return {"result": converted}

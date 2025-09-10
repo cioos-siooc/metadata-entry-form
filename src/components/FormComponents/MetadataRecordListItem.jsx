@@ -25,6 +25,7 @@ import {
   Edit,
 } from "@material-ui/icons";
 import { useParams } from "react-router-dom";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
@@ -108,43 +109,18 @@ const MetadataRecordListItem = ({
         const emlStr = await recordToEML(record);
         blob = new Blob([emlStr], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else if (fileType === "json") {
-        blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` }); 
+        blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else if (fileType === "dataciteJson") {
         const dc = recordToDataCite(record, language, region, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
-  } else {
-        // Use Python HTTP function convert_metadata for: xml, yaml, erddap, json
-        const projectId = (window?.firebaseApp?.options?.projectId) || process.env.REACT_APP_FIREBASE_PROJECT_ID || 'cioos-metadata-form-dev-258dc';
-        const regionId = 'us-central1';
-        // Local emulator vs deployed
-        const isLocal = window.location.hostname === 'localhost';
-        const port = 5002; // Python functions emulator port (must match firebase.json config)
-        const baseUrl = isLocal
-          ? `http://127.0.0.1:${port}/${projectId}/${regionId}`
-          : `https://${regionId}-${projectId}.cloudfunctions.net`;
-        const url = `${baseUrl}/convert_metadata`;
-        const body = {
-          record_data: record,
-            // Map UI fileType to converter output_format if naming differs
-          output_format: fileType === 'xml' ? 'xml' : fileType,
-          schema: 'firebase',
-        };
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        if (!resp.ok) {
-          const errTxt = await resp.text();
-          throw new Error(`convert_metadata failed: ${resp.status} ${errTxt}`);
-        }
-        if (fileType === 'json') {
-          const jsonData = await resp.json();
-          blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
-        } else {
-          const textData = await resp.text();
-          blob = new Blob([textData], { type: `${mimeTypes[fileType]};charset=utf-8` });
-        }
+      } else {
+        // Use callable python function convert_metadata_call for: xml, yaml, erddap
+        const functions = getFunctions();
+        const convertMetadata = httpsCallable(functions, 'convert_metadata_call');
+        const outputFormat = fileType; // mapping currently 1:1 for these cases
+        const resp = await convertMetadata({ record_data: record, output_format: outputFormat, schema: 'firebase' });
+        const resultText = resp.data?.result ?? '';
+        blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
       }
 
       FileSaver.saveAs(blob, `${getRecordFilename(record)}${extensions[fileType]}`);
