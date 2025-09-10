@@ -2,7 +2,7 @@ name: Deploy firebase functions
 on:
   push:
     branches:
-      - main
+      - '**'
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
@@ -44,8 +44,14 @@ jobs:
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
           echo "REACT_APP_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
           echo "REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
-          echo "Setting Firebase Project..."
-          firebase use default
+          echo "Selecting Firebase project based on branch..."
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "On main branch, using default project"
+            firebase use default
+          else
+            echo "On non-main branch, using dev project"
+            firebase use dev
+          fi
           echo "Deploying to Firebase..."
           firebase deploy --only functions:js-functions,functions:py-functions --token ${{ secrets.FIREBASE_TOKEN }}
         working-directory: firebase-functions/functions
