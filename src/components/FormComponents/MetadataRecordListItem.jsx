@@ -91,6 +91,8 @@ const MetadataRecordListItem = ({
       eml: "_eml.xml",
       json: ".json",
       dataciteJson: "_dataCite.json",
+      dataciteJson_test: "_dataCite-new.json",
+      dataciteXml_test: "_dataCite-new.xml",
     };
     const mimeTypes = {
       xml: "application/xml",
@@ -99,6 +101,8 @@ const MetadataRecordListItem = ({
       erddap: "application/xml",
       json: "application/json",
       dataciteJson: "application/json",
+      dataciteJson_test: "application/json",
+      dataciteXml_test: "application/xml",
     };
 
     setIsLoading({ downloadXML: true });
@@ -340,7 +344,7 @@ const MetadataRecordListItem = ({
                 PaperProps={{
                   style: {
                     // maxHeight: ITEM_HEIGHT * 4.5,
-                    width: "20ch",
+                    width: "30ch",
                   },
                 }}
               >
@@ -397,6 +401,24 @@ const MetadataRecordListItem = ({
                   }}
                 >
                   DATACITE JSON
+                </MenuItem>
+                <MenuItem
+                  key="datacite-json-test"
+                  onClick={() => {
+                    handleDownloadRecord("dataciteJson_test");
+                    handleClose();
+                  }}
+                >
+                  (test) DATACITE JSON
+                </MenuItem>
+                <MenuItem
+                  key="datacite-xml-test"
+                  onClick={() => {
+                    handleDownloadRecord("dataciteXml_test");
+                    handleClose();
+                  }}
+                >
+                  (test) DATACITE XML
                 </MenuItem>
               </Menu>
             </span>

@@ -1,114 +1,15 @@
 """
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
+
 import json
-import requests
 from firebase_functions import https_fn, options
-from firebase_admin import initialize_app, firestore
+from firebase_admin import initialize_app
 
-from cioos_metadata_conversion.__main__ import converter, output_formats
-
+from cioos_metadata_conversion.converter import OUTPUT_FORMATS
+from cioos_metadata_conversion.cioos import cioos_firebase_to_cioos_schema
 # Initialize Firebase Admin SDK
 initialize_app()
-
-
-@https_fn.on_request(cors=options.CorsOptions(
-    cors_origins=["*"],
-    cors_methods=["GET"]
-))
-def convert_metadata(req: https_fn.Request) -> https_fn.Response:
-    """
-    Convert Firebase record JSON to different metadata formats
-    using the cioos-metadata-conversion API
-    """
-    if req.method == "OPTIONS":
-        return https_fn.Response("", status=200)
-
-    if req.method != "POST":
-        return https_fn.Response(
-            json.dumps({"error": "Only POST method allowed"}),
-            content_type="application/json",
-            status=405
-        )
-
-    try:
-        # Parse request body
-        request_data = req.get_json()
-        if not request_data:
-            return https_fn.Response(
-                json.dumps({"error": "Request body is required"}),
-                content_type="application/json",
-                status=400
-            )
-
-        # Extract parameters
-        record_data = request_data.get("record_data")
-        output_format = request_data.get("output_format")
-        schema = request_data.get("schema", "firebase")
-
-        # Log
-
-        if not record_data:
-            return https_fn.Response(
-                json.dumps({"error": "record_data is required"}),
-                content_type="application/json",
-                status=400
-            )
-        if not output_format:
-            return https_fn.Response(
-                json.dumps({"error": "output_format is required"}),
-                content_type="application/json",
-                status=400
-            )
-
-        # Call cioos-metadata-conversion API
-        try:
-            converted_data = converter(
-                record=record_data, format=output_format, schema=schema
-            )
-        except Exception as e:
-            return https_fn.Response(
-                json.dumps({
-                    "error": "Conversion failed",
-                    "details": str(e)
-                }),
-                content_type="application/json",
-                status=500
-            )
-
-        if output_format == "json":
-            return https_fn.Response(
-                json.dumps(converted_data, indent=2),
-                content_type="application/json",
-                status=200
-            )
-        elif output_format in ["xml", "iso19115", "erddap"]:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/xml",
-                status=200
-            )
-        elif output_format in ["yaml", "cff"]:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/x-yaml",
-                status=200
-            )
-        else:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/text",
-                status=200
-            )
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({
-                "error": "Internal server error",
-                "details": str(e)
-            }),
-            content_type="application/json",
-            status=500
-        )
 
 
 @https_fn.on_call()
@@ -132,16 +33,21 @@ def convert_metadata_call(req: https_fn.CallableRequest):
 
     if not record_data or not output_format:
         raise https_fn.HttpsError(
-            code="invalid-argument",
-            message="record_data and output_format required"
+            code="invalid-argument", message="record_data and output_format required"
         )
     try:
-        converted = converter(record=record_data,
-                              format=output_format, schema=schema)
+        if schema == "firebase":
+            record_data = cioos_firebase_to_cioos_schema(record_data)
+        if output_format not in OUTPUT_FORMATS:
+            raise https_fn.HttpsError(
+                code="invalid-argument",
+                message=f"Unsupported output_format: {output_format}",
+            )
+        convert_func = OUTPUT_FORMATS[output_format]
+        converted = convert_func(record_data)
     except Exception as e:  # pylint: disable=broad-except
         raise https_fn.HttpsError(
-            code="internal",
-            message=f"Conversion failed: {e}"
+            code="internal", message=f"Conversion failed: {e}"
         ) from e
 
     if output_format == "json":

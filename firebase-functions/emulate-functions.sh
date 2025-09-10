@@ -11,8 +11,7 @@ cd ..
 # Install dependencies for Python functions 
 echo "🐍 Installing dependencies for Python functions..."
 cd python-functions
-uv venv venv
-uv sync --active
+uv venv venv --clear
 source venv/bin/activate
 uv pip install -r requirements.txt
 cd ..
