@@ -102,15 +102,29 @@ This will deploy the updated functions to the development project. The GitHub Ac
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:
 
-- `GMAIL_USER` notifications
-- `GMAIL_PASS` notifications
-- `AWS_REGION` used for amazon translate service access
-- `AWS_ACCESSKEYID` used for amazon translate service access
-- `AWS_SECRETACCESSKEY` used for amazon translate service access
-- `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
-- `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
-- `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
-- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
+```env
+# Email notifications account (do not commit real credentials)
+GMAIL_USER=
+GMAIL_PASS=
+
+# AWS Translate credentials
+AWS_REGION=
+AWS_ACCESSKEYID=
+AWS_SECRETACCESSKEY=
+
+# GitHub token (repo + pages scopes) for issue generation
+GITHUB_AUTH=
+
+# Front-end runtime config
+# Set to true to use development Firebase DB (defaults to false / production)
+REACT_APP_DEV_DEPLOYMENT=false
+
+# Google Cloud API keys
+# Prod project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
+REACT_APP_GOOGLE_CLOUD_API_KEY=
+# Dev project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
+REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=
+```
 
 ### Using Parameterized Configuration in Firebase Functions
 
