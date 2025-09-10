@@ -14,7 +14,7 @@ initialize_app()
 
 @https_fn.on_request(cors=options.CorsOptions(
     cors_origins=["*"],
-    cors_methods=["POST", "OPTIONS"]
+    cors_methods=["GET"]
 ))
 def convert_metadata(req: https_fn.Request) -> https_fn.Response:
     """
