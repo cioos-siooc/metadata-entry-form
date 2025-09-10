@@ -25,7 +25,7 @@ jobs:
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v6
       - name: Install Python venv
-        workdiring-directory: firebase-functions/python-functions
+        workding-directory: firebase-functions/python-functions
         run: |
           uv venv venv
           source venv/bin/activate
