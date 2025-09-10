@@ -3,9 +3,17 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": {
-    "source": "functions"
-  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "js-functions"
+    },
+    {
+      "source": "python-functions", 
+      "runtime": "python311",
+      "codebase": "py-functions"
+    }
+  ],
   "emulators": {
     "functions": {
       "port": 5002,

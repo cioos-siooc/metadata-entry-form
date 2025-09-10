@@ -1,4 +1,19 @@
 {
+  "functions": [
+    {
+      "source": "firebase-functions/python-functions",
+      "runtime": "python311"
+    },
+    {
+      "source": "firebase-functions/functions",
+      "runtime": "nodejs20"
+    }
+  ],
+  "emulators": {
+    "functions": {
+      "port": 5001
+    }
+  },
   "hosting": {
     "public": "build",
     "ignore": [
