@@ -111,25 +111,6 @@ def convert_metadata(req: https_fn.Request) -> https_fn.Response:
         )
 
 
-@https_fn.on_request(cors=options.CorsOptions(
-    cors_origins=["*"],
-    cors_methods=["GET", "OPTIONS"]
-))
-def get_available_formats(req: https_fn.CallableRequest) -> list:
-    """
-    Get available conversion formats from the cioos-metadata-conversion API
-    """
-    try:
-
-        return list(output_formats.keys())
-
-    except Exception as e:
-        return {
-            "error": "Internal server error",
-            "details": str(e)
-        }
-
-
 @https_fn.on_call()
 def convert_metadata_call(req: https_fn.CallableRequest):
     """Callable wrapper for metadata conversion used by the React frontend.
