@@ -13,7 +13,7 @@ initialize_app()
 
 
 @https_fn.on_call()
-def convert_metadata_call(req: https_fn.CallableRequest):
+def convert_metadata(req: https_fn.CallableRequest):
     """Callable wrapper for metadata conversion used by the React frontend.
 
     Request data example:

@@ -120,7 +120,7 @@ const MetadataRecordListItem = ({
       } else {
         // Use callable python function convert_metadata_call for: xml, yaml, erddap
         const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, 'convert_metadata_call');
+        const convertMetadata = httpsCallable(functions, 'convert_metadata');
         const outputFormat = fileType; // mapping currently 1:1 for these cases
         const resp = await convertMetadata({ record_data: record, output_format: outputFormat, schema: 'firebase' });
         const resultText = resp.data?.result ?? '';
