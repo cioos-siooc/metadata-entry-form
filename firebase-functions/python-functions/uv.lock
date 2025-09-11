@@ -211,7 +211,7 @@ wheels = [
 [[package]]
 name = "cioos-metadata-conversion"
 version = "0.1.0"
-source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=fix%2Fimprove-converter-object#e895f7b9b8171e4ac40e90e9bfc6870ff440b5ef" }
+source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git#78b0df85817576dbe9d24bc8186f7441fd34ca8f" }
 dependencies = [
     { name = "cffconvert" },
     { name = "click" },
@@ -1154,7 +1154,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cioos-metadata-conversion", git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=fix%2Fimprove-converter-object" },
+    { name = "cioos-metadata-conversion", git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git" },
     { name = "firebase-functions", specifier = ">=0.4.3" },
     { name = "metadata-xml", git = "https://github.com/cioos-siooc/metadata-xml.git" },
 ]
