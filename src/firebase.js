@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app'
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
-// import "firebase/compat/database";
+import "firebase/compat/database";
 
-const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
+const localFirebaseFunctions = process.env.FIREBASE_LOCAL_FUNCTIONS;
+const localFirebaseDatabase = process.env.FIREBASE_LOCAL_DATABASE;
 
 const prodConfig = {
   // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
@@ -34,18 +35,21 @@ const devConfig = {
 };
 
 
-const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
+const config = process.env.NODE_ENV === "production" && !localFirebaseDatabase && !localFirebaseFunctions
   ? prodConfig
   : devConfig
 
-// if (window.location.hostname === "localhost" && deployedOnTestServer) {
-//   config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
-// }
+if (window.location.hostname === "localhost" && localFirebaseDatabase) {
+  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
+}
 
 const App = initializeApp(config);
 
+// Export the resolved config so UI components can reference values (e.g., databaseURL)
+export const firebaseConfig = config;
+
 // // uncomment below to use firebase emulator for local development
-if (window.location.hostname === "localhost" && deployedOnTestServer) {
+if (window.location.hostname === "localhost" && localFirebaseFunctions) {
   const functions = getFunctions(App);
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   connectFunctionsEmulator(functions, "127.0.0.1", 5002);

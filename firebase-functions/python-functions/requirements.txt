@@ -141,7 +141,7 @@ charset-normalizer==3.4.3 \
     --hash=sha256:fd10de089bcdcd1be95a2f73dbe6254798ec1bda9f450d5828c96f93e2536b9c \
     --hash=sha256:fdabf8315679312cfa71302f9bd509ded4f2f263fb5b765cf1433b39106c3cc9
     # via requests
-cioos-metadata-conversion @ git+https://github.com/cioos-siooc/cioos-metadata-conversion.git@e895f7b9b8171e4ac40e90e9bfc6870ff440b5ef
+cioos-metadata-conversion @ git+https://github.com/cioos-siooc/cioos-metadata-conversion.git@78b0df85817576dbe9d24bc8186f7441fd34ca8f
     # via python-functions
 click==8.2.1 \
     --hash=sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202 \
