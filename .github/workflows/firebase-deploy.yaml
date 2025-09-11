@@ -28,6 +28,7 @@ jobs:
         working-directory: firebase-functions/python-functions
         run: |
           uv venv venv
+          uv export --format requirements-txt --no-dev --frozen --output-file requirements.txt
           source venv/bin/activate
           uv pip install -r requirements.txt
       - name: Authenticate Firebase and Deploy
