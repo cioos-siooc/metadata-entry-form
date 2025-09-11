@@ -118,10 +118,10 @@ const MetadataRecordListItem = ({
         const dc = recordToDataCite(record, language, region, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
-        // Use callable python function convert_metadata_call for: xml, yaml, erddap
+        // Use callable python function convert_metadata for: xml, yaml, erddap
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
-        const resp = await convertMetadata({ record_data: record, output_format: fileType, schema: 'firebase' });
+        const resp = await convertMetadata({ record_data: record, output_format: fileType});
         const resultText = resp.data?.result ?? '';
         blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
       }

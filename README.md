@@ -124,11 +124,14 @@ AWS_SECRETACCESSKEY=
 # GitHub token (repo + pages scopes) for issue generation
 GITHUB_AUTH=
 
-# Front-end runtime config
-# Set to true to use development Firebase DB and Functions (defaults to false / production)
+# Environment settings
+# Set REACT_APP_DEV_DEPLOYMENT to true to connect to dev Firebase project
 REACT_APP_DEV_DEPLOYMENT=false
-FIREBASE_LOCAL_FUNCTIONS=true
-FIREBASE_LOCAL_DATABASE=false
+
+# Use local emulators for Firebase services
+# Note: if using local emulators, ensure the emulators are running (firebase emulators:start)
+REACT_APP_FIREBASE_LOCAL_FUNCTIONS=true
+REACT_APP_FIREBASE_LOCAL_DATABASE=false
 
 # Google Cloud API keys
 # Prod project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942

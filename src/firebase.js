@@ -2,8 +2,9 @@ import { initializeApp } from 'firebase/app'
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import "firebase/compat/database";
 
-const localFirebaseFunctions = process.env.FIREBASE_LOCAL_FUNCTIONS;
-const localFirebaseDatabase = process.env.FIREBASE_LOCAL_DATABASE;
+const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
+const localFirebaseFunctions = process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS;
+const localFirebaseDatabase = process.env.REACT_APP_FIREBASE_LOCAL_DATABASE;
 
 const prodConfig = {
   // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
@@ -35,7 +36,7 @@ const devConfig = {
 };
 
 
-const config = process.env.NODE_ENV === "production" && !process.env.REACT_APP_DEV_DEPLOYMENT
+const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
   ? prodConfig
   : devConfig
 
