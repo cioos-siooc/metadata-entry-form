@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
-// import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
-// import "firebase/compat/database";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import "firebase/compat/database";
 
 const localFirebaseFunctions = process.env.FIREBASE_LOCAL_FUNCTIONS;
 const localFirebaseDatabase = process.env.FIREBASE_LOCAL_DATABASE;
@@ -35,13 +35,13 @@ const devConfig = {
 };
 
 
-const config = process.env.NODE_ENV === "production" && !localFirebaseDatabase && !localFirebaseFunctions
+const config = process.env.NODE_ENV === "production" && !process.env.REACT_APP_DEV_DEPLOYMENT
   ? prodConfig
   : devConfig
 
-// if (window.location.hostname === "localhost" && localFirebaseDatabase) {
-//   config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
-// }
+if (window.location.hostname === "localhost" && localFirebaseDatabase) {
+  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
+}
 
 const App = initializeApp(config);
 
@@ -49,11 +49,11 @@ const App = initializeApp(config);
 export const firebaseConfig = config;
 
 // // uncomment below to use firebase emulator for local development
-// if (window.location.hostname === "localhost" && localFirebaseFunctions) {
-//   const functions = getFunctions(App);
-//   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
-//   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
-// }
+if (window.location.hostname === "localhost" && localFirebaseFunctions) {
+  const functions = getFunctions(App);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5002);
+}
 
 
 export default App;
