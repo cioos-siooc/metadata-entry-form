@@ -2,13 +2,12 @@
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
 
-import json
-from firebase_functions import https_fn, options
+from firebase_functions import https_fn
 from firebase_admin import initialize_app
 
-from cioos_metadata_conversion.converter import OUTPUT_FORMATS
-from cioos_metadata_conversion.cioos import cioos_firebase_to_cioos_schema
-# Initialize Firebase Admin SDK
+from cioos_metadata_conversion.record import Record
+
+
 initialize_app()
 
 
@@ -29,22 +28,18 @@ def convert_metadata(req: https_fn.CallableRequest):
     data = req.data or {}
     record_data = data.get("record_data")
     output_format = data.get("output_format")
-    schema = data.get("schema", "firebase")
 
     if not record_data or not output_format:
         raise https_fn.HttpsError(
             code="invalid-argument", message="record_data and output_format required"
         )
     try:
-        if schema == "firebase":
-            record_data = cioos_firebase_to_cioos_schema(record_data)
-        if output_format not in OUTPUT_FORMATS:
-            raise https_fn.HttpsError(
-                code="invalid-argument",
-                message=f"Unsupported output_format: {output_format}",
-            )
-        convert_func = OUTPUT_FORMATS[output_format]
-        converted = convert_func(record_data)
+        converted = (
+            Record(record_data, schema="firebase")
+            .load()
+            .convert_to_cioos_schema()
+            .convert_to(output_format)
+        )
     except Exception as e:  # pylint: disable=broad-except
         raise https_fn.HttpsError(
             code="internal", message=f"Conversion failed: {e}"

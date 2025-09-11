@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-// import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 // import "firebase/compat/database";
 
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
@@ -45,11 +45,11 @@ const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
 const App = initializeApp(config);
 
 // // uncomment below to use firebase emulator for local development
-// if (window.location.hostname === "localhost" && deployedOnTestServer) {
-//   const functions = getFunctions(App);
-//   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
-//   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
-// }
+if (window.location.hostname === "localhost" && deployedOnTestServer) {
+  const functions = getFunctions(App);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5002);
+}
 
 
 export default App;

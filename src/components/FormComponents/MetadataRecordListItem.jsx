@@ -91,8 +91,8 @@ const MetadataRecordListItem = ({
       eml: "_eml.xml",
       json: ".json",
       dataciteJson: "_dataCite.json",
-      dataciteJson_test: "_dataCite-new.json",
-      dataciteXml_test: "_dataCite-new.xml",
+      datacite_json: "_dataCite-test.json",
+      datacite_xml: "_dataCite-test.xml",
     };
     const mimeTypes = {
       xml: "application/xml",
@@ -101,8 +101,8 @@ const MetadataRecordListItem = ({
       erddap: "application/xml",
       json: "application/json",
       dataciteJson: "application/json",
-      dataciteJson_test: "application/json",
-      dataciteXml_test: "application/xml",
+      datacite_json: "application/json",
+      datacite_xml: "application/xml",
     };
 
     setIsLoading({ downloadXML: true });
@@ -121,8 +121,7 @@ const MetadataRecordListItem = ({
         // Use callable python function convert_metadata_call for: xml, yaml, erddap
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
-        const outputFormat = fileType; // mapping currently 1:1 for these cases
-        const resp = await convertMetadata({ record_data: record, output_format: outputFormat, schema: 'firebase' });
+        const resp = await convertMetadata({ record_data: record, output_format: fileType, schema: 'firebase' });
         const resultText = resp.data?.result ?? '';
         blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
       }
@@ -405,7 +404,7 @@ const MetadataRecordListItem = ({
                 <MenuItem
                   key="datacite-json-test"
                   onClick={() => {
-                    handleDownloadRecord("dataciteJson_test");
+                    handleDownloadRecord("datacite_json");
                     handleClose();
                   }}
                 >
@@ -414,7 +413,7 @@ const MetadataRecordListItem = ({
                 <MenuItem
                   key="datacite-xml-test"
                   onClick={() => {
-                    handleDownloadRecord("dataciteXml_test");
+                    handleDownloadRecord("datacite_xml");
                     handleClose();
                   }}
                 >
