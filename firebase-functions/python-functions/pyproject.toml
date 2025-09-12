@@ -7,9 +7,8 @@ requires-python = ">=3.11"
 dependencies = [
     "cioos-metadata-conversion",
     "firebase-functions>=0.4.3",
-    "metadata-xml",
+    "setuptools<81",
 ]
 
 [tool.uv.sources]
-metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git" }
