@@ -13,30 +13,39 @@ Below is the system architecture diagram which provides an overview of the data 
 
 For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
 
-## Installation
+## Local Development Installation
 
-1. Install [Node](https://nodejs.org/en/download/)
+To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container. 
 
-2. In this directory, run `npm install`
+In the container, run the following steps:
 
-## Running development mode
+1. Copy `.env.sample` to `.env`
+  ```shell
+  cp .env.sample .env
+  ```
+2. Login with firebase
+  ``shell
+  firebase login
+  ```
+3. Select firebase project:
+  ```shell
+  firebase use dev
+  ```
 
-`npm start`
-
-This will start a hot-reloading dev server. Click on the link that it outputs to open in your browser.
+4. Go to firebase-functions directory and start the emulator, this will install the javascript and python functions dependancies and activate the firebase local emulator :
+  ```shell
+  cd firebase-functions
+  bash emulate-functions.sh 
+  ```
+5. In a second terminal, start the frontent in development. From the base directory of this project run:
+  ```
+  npm install
+  npm start
+  ```
 
 ## Monitoring
 
 Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
-
-### Running the Firebase emulator
-
-#### Local Install Alternative
-
-Install firebase CLI [as described here](https://firebase.google.com/docs/emulator-suite/install_and_configure).
-
-Run `firebase emulators:start` from the `firebase-functions/functions` directory.
-Redirect function calls to this emulator by uncommenting the call to `connectFunctionsEmulator` in [src/firebase.js](src/firebase.js).
 
 
 ## Deploy to production site at GitHub pages
@@ -49,7 +58,7 @@ Or manually deploy any branch with
 
 ## Deploy to dev preview sites
 
-firebase hosted preview sites are created for all pull requests. Once a pull request is generated, check the pull request comments on github for the link to the preview site. Deployment is handled by the `firebase-hosting-pull-request.yml` github action. Preview sites are deleted during a pull request close event or after 30 days of inactivity on the pull request. Any commit to the pull request branch will reset the timer.
+Firebase hosted preview sites are created for all pull requests. Once a pull request is generated, check the pull request comments on github for the link to the preview site. Deployment is handled by the `firebase-hosting-pull-request.yml` github action. Preview sites are deleted during a pull request close event or after 30 days of inactivity on the pull request. Any commit to the pull request branch will reset the timer.
 
 ## Deployment and Configuration of Firebase Functions
 
@@ -102,15 +111,34 @@ This will deploy the updated functions to the development project. The GitHub Ac
 
 The workflow utilizes the following secrets to create the virtual `.env` file for the deployment process:
 
-- `GMAIL_USER` notifications
-- `GMAIL_PASS` notifications
-- `AWS_REGION` used for amazon translate service access
-- `AWS_ACCESSKEYID` used for amazon translate service access
-- `AWS_SECRETACCESSKEY` used for amazon translate service access
-- `GITHUB_AUTH` used to push to github pages branch and other github action type stuff
-- `REACT_APP_DEV_DEPLOYMENT` used to switch between development and production databases. Default False, set to True to use Dev database
-- `REACT_APP_GOOGLE_CLOUD_API_KEY` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
-- `REACT_APP_GOOGLE_CLOUD_API_KEY_DEV` found at https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
+```env
+# Email notifications account (do not commit real credentials)
+GMAIL_USER=
+GMAIL_PASS=
+
+# AWS Translate credentials
+AWS_REGION=
+AWS_ACCESSKEYID=
+AWS_SECRETACCESSKEY=
+
+# GitHub token (repo + pages scopes) for issue generation
+GITHUB_AUTH=
+
+# Environment settings
+# Set REACT_APP_DEV_DEPLOYMENT to true to connect to dev Firebase project
+REACT_APP_DEV_DEPLOYMENT=false
+
+# Use local emulators for Firebase services
+# Note: if using local emulators, ensure the emulators are running (firebase emulators:start)
+REACT_APP_FIREBASE_LOCAL_FUNCTIONS=true
+REACT_APP_FIREBASE_LOCAL_DATABASE=false
+
+# Google Cloud API keys
+# Prod project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
+REACT_APP_GOOGLE_CLOUD_API_KEY=
+# Dev project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
+REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=
+```
 
 ### Using Parameterized Configuration in Firebase Functions
 

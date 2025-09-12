@@ -38,6 +38,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import regions from "../regions";
+import { firebaseConfig } from "../firebase";
 import { auth, signInWithGoogle } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
@@ -186,6 +187,8 @@ export default function MiniDrawer({ children }) {
   const usingDevDatabase =
     process.env.REACT_APP_DEV_DEPLOYMENT ||
     process.env.NODE_ENV === "development";
+  // Derive database URL from firebase config (injected at build) if not production
+  const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
 
   return (
     <div className={classes.root}>
@@ -199,7 +202,7 @@ export default function MiniDrawer({ children }) {
         <Toolbar
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: "end",
+            alignItems: 'end',
           }}
         >
           {region && (
@@ -250,7 +253,7 @@ export default function MiniDrawer({ children }) {
             </Select>
           </div>
         </Toolbar>
-      </AppBar>
+  </AppBar>
       {region && (
         <Drawer
           variant="permanent"
@@ -297,7 +300,7 @@ export default function MiniDrawer({ children }) {
                     } catch (error) {
                       if (error.code === 'auth/cancelled-popup-request'){
                         // ignore
-                      }else{
+                      } else {
                         throw error;
                       }
                     }
@@ -467,13 +470,32 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
           <Divider />
-          {usingDevDatabase &&    
-            
-            <Typography sx={{ fontSize: "10px", fontWeight: 900, wordBreak: "break-word" }}>
-              {translations.envConnection}
-            </Typography>
-          
-          }
+          {usingDevDatabase && (
+            <div style={{ padding: '12px' }}>
+              <Typography
+                style={{
+                  fontSize: '14px',
+                  color: '#d32f2f',
+                }}
+              >
+                🚨 {translations.envConnection}
+                <br />
+                {databaseUrl && (
+                  <a
+                    href={databaseUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      color: '#d32f2f',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {databaseUrl}
+                  </a>
+                )}
+              </Typography>
+            </div>
+          )}
         </Drawer>
       )}
       <main className={classes.content}>
