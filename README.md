@@ -24,7 +24,7 @@ In the container, run the following steps:
   cp .env.sample .env
   ```
 2. Login with firebase
-  ``shell
+  ```shell
   firebase login
   ```
 3. Select firebase project:
