@@ -22,7 +22,7 @@ initialize_app()
 @https_fn.on_call(
     cors=options.CorsOptions(
         cors_origins=[
-            r"https://cioos-metadata-form-dev-258dc-.*\.webb\.app",
+            r"https://cioos-metadata-form-dev-258dc-.*\.web\.app",
             r"https://cioos-siooc\.github\.io/metadata-entry-form",
             *(dev_cors_origins if REACT_APP_DEV_DEPLOYMENT else []),
         ],
