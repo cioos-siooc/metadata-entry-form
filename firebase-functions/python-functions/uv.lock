@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -1149,12 +1149,14 @@ source = { virtual = "." }
 dependencies = [
     { name = "cioos-metadata-conversion" },
     { name = "firebase-functions" },
+    { name = "setuptools" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "cioos-metadata-conversion", git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git" },
     { name = "firebase-functions", specifier = ">=0.4.3" },
+    { name = "setuptools", specifier = "<81" },
 ]
 
 [[package]]
