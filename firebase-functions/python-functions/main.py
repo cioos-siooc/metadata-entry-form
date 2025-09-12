@@ -26,7 +26,7 @@ initialize_app()
             r"https://cioos-siooc\.github\.io/metadata-entry-form",
             *(dev_cors_origins if REACT_APP_DEV_DEPLOYMENT else []),
         ],
-        cors_methods=["get", "post"],
+        cors_methods=["get", "post", "options"],
     )
 )
 def convert_metadata(req: https_fn.CallableRequest):
