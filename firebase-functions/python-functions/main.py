@@ -115,8 +115,8 @@ def convert_metadata_http(req: https_fn.Request):  # type: ignore
     except Exception:  # pragma: no cover
         payload = {}
 
-    record_data = payload.get("record_data")
-    output_format = payload.get("output_format")
+    record_data = payload.get("data", {}).get("record_data")
+    output_format = payload.get("data", {}).get("output_format")
 
     if not record_data or not output_format:
         return https_fn.Response(
