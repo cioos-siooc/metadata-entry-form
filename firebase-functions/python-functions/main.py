@@ -21,13 +21,15 @@ STATIC_ALLOWED_ORIGINS = {
 }
 
 # Regex patterns for preview channel domains for the dev project
-ALLOWED_ORIGIN_PATTERNS = [
-    # Allow any preview channel (optional trailing slash/path just in case)
-    re.compile(
-        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
-]
+ALLOWED_ORIGIN_PATTERNS = []
 
 if REACT_APP_DEV_DEPLOYMENT:
+    ALLOWED_ORIGIN_PATTERNS += [
+        # Regex patterns for preview channel domains for the dev project
+        re.compile(
+            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+    ]
+
     STATIC_ALLOWED_ORIGINS.update({
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -42,10 +44,6 @@ def _origin_allowed(origin: str | None) -> bool:
     if not origin:
         logging.info("CORS: no origin header")
         return False
-    # # Fast path for all preview channel domains for this project
-    # if origin.startswith("https://cioos-metadata-form-dev-258dc--") and origin.endswith(".web.app"):
-    #     logging.info("CORS: origin matched preview prefix: %s", origin)
-    #     return True
     if origin in STATIC_ALLOWED_ORIGINS:
         logging.info("CORS: origin matched static list: %s", origin)
         return True
@@ -153,33 +151,3 @@ def convert_metadata_http(req: https_fn.Request):  # type: ignore
         headers=headers,
         content_type="application/json",
     )
-
-
-@https_fn.on_call()
-def convert_metadata(call_req: https_fn.CallableRequest):  # type: ignore
-    """Callable wrapper retained for existing clients; forwards to HTTP logic internally.
-
-    Note: Callable framework handles its own origin checks; for preview channel support,
-    clients should migrate to the HTTP endpoint /convert_metadata_http.
-    """
-    data = call_req.data or {}
-    record_data = data.get("record_data")
-    output_format = data.get("output_format")
-    if not record_data or not output_format:
-        raise https_fn.HttpsError(
-            code="invalid-argument", message="record_data and output_format required"
-        )
-    try:
-        converted = (
-            Record(record_data, schema="firebase")
-            .load()
-            .convert_to_cioos_schema()
-            .convert_to(output_format)
-        )
-    except Exception as e:  # pylint: disable=broad-except
-        raise https_fn.HttpsError(
-            code="internal", message=f"Conversion failed: {e}"
-        ) from e
-    if output_format == "json":
-        return converted
-    return {"result": converted}
