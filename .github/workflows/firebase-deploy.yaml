@@ -27,7 +27,7 @@ jobs:
       - name: Install Python environment in venv
         working-directory: firebase-functions/python-functions
         run: |
-          uv venv venv
+          uv venv venv --clear
           uv export --format requirements-txt --no-dev --no-hashes --output-file requirements.txt
           source venv/bin/activate
           uv pip install -r requirements.txt
