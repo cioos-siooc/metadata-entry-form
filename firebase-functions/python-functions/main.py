@@ -21,14 +21,15 @@ STATIC_ALLOWED_ORIGINS = {
 }
 
 # Regex patterns for preview channel domains for the dev project
-ALLOWED_ORIGIN_PATTERNS = [
-    # Regex patterns for preview channel domains for the dev project
-    re.compile(
-        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
-]
+ALLOWED_ORIGIN_PATTERNS = []
 
 # Development deployment allowed origins (preview channels, localhost)
 if REACT_APP_DEV_DEPLOYMENT:
+    ALLOWED_ORIGIN_PATTERNS += [
+        # Regex patterns for preview channel domains for the dev project
+        re.compile(
+            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+    ]
     STATIC_ALLOWED_ORIGINS.update({
         "http://localhost:3000",
         "http://127.0.0.1:3000",
