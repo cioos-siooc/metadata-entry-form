@@ -22,8 +22,9 @@ STATIC_ALLOWED_ORIGINS = {
 
 # Regex patterns for preview channel domains for the dev project
 ALLOWED_ORIGIN_PATTERNS = [
+    # Allow any preview channel (optional trailing slash/path just in case)
     re.compile(
-        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app$"),
+        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app/?$"),
 ]
 
 if REACT_APP_DEV_DEPLOYMENT:
@@ -39,29 +40,39 @@ initialize_app()
 # Adjust regex accordingly so they are accepted.
 def _origin_allowed(origin: str | None) -> bool:
     if not origin:
+        logging.info("CORS: no origin header")
         return False
-    if origin in STATIC_ALLOWED_ORIGINS:
+    # Fast path for all preview channel domains for this project
+    if origin.startswith("https://cioos-metadata-form-dev-258dc--") and origin.endswith(".web.app"):
+        logging.info("CORS: origin matched preview prefix: %s", origin)
         return True
-    return any(pat.match(origin) for pat in ALLOWED_ORIGIN_PATTERNS)
+    if origin in STATIC_ALLOWED_ORIGINS:
+        logging.info("CORS: origin matched static list: %s", origin)
+        return True
+    for pat in ALLOWED_ORIGIN_PATTERNS:
+        if pat.match(origin):
+            logging.info("CORS: origin matched regex %s: %s",
+                         pat.pattern, origin)
+            return True
+    logging.info("CORS: origin NOT allowed: %s", origin)
+    return False
 
 
 def _cors_headers(origin: str | None, allowed: bool):
-    if not origin or not allowed:
-        # Intentionally do not echo disallowed origin; browser will block.
-        return {
-            "Access-Control-Allow-Origin": "null",
-            "Vary": "Origin",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Max-Age": "3600",
-        }
-    return {
-        "Access-Control-Allow-Origin": origin,
+    base = {
         "Vary": "Origin",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": "3600",
+        # Debug headers (safe, informational)
+        "X-Debug-Cors-Origin": origin or "<none>",
+        "X-Debug-Cors-Allowed": str(allowed).lower(),
     }
+    if not origin or not allowed:
+        base["Access-Control-Allow-Origin"] = "null"
+    else:
+        base["Access-Control-Allow-Origin"] = origin
+    return base
 
 
 @https_fn.on_request()
@@ -79,6 +90,8 @@ def convert_metadata_http(req: https_fn.Request):  # type: ignore
     # Preflight
     if req.method == "OPTIONS":
         status = 204 if allowed else 403
+        logging.info(
+            "CORS preflight for origin %s allowed=%s status=%s", origin, allowed, status)
         return https_fn.Response("", status=status, headers=headers)
 
     if not allowed:
