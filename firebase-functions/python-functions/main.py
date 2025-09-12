@@ -22,7 +22,7 @@ is_dev_project = project_id == "cioos-metadata-form-dev-258dc"
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
-    "https://cioos-siooc.github.io/metadata-entry-form",
+    "https://cioos-siooc.github.io",
 }
 ALLOWED_ORIGIN_PATTERNS = []
 
@@ -30,7 +30,8 @@ ALLOWED_ORIGIN_PATTERNS = []
 if is_dev_project:
     ALLOWED_ORIGIN_PATTERNS += [
         # Regex patterns for preview channel domains for the dev project
-        re.compile(r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+        re.compile(
+            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
     ]
     STATIC_ALLOWED_ORIGINS.update(
         {
@@ -52,7 +53,8 @@ def _origin_allowed(origin: str | None) -> bool:
         return True
     for pat in ALLOWED_ORIGIN_PATTERNS:
         if pat.match(origin):
-            logging.info("CORS: origin matched regex %s: %s", pat.pattern, origin)
+            logging.info("CORS: origin matched regex %s: %s",
+                         pat.pattern, origin)
             return True
     logging.info("CORS: origin NOT allowed: %s", origin)
     return False
