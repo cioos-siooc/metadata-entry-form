@@ -24,7 +24,7 @@ STATIC_ALLOWED_ORIGINS = {
 ALLOWED_ORIGIN_PATTERNS = [
     # Allow any preview channel (optional trailing slash/path just in case)
     re.compile(
-        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app/?$"),
+        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app/"),
 ]
 
 if REACT_APP_DEV_DEPLOYMENT:
