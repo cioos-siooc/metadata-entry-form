@@ -21,15 +21,14 @@ STATIC_ALLOWED_ORIGINS = {
 }
 
 # Regex patterns for preview channel domains for the dev project
-ALLOWED_ORIGIN_PATTERNS = []
+ALLOWED_ORIGIN_PATTERNS = [
+    # Regex patterns for preview channel domains for the dev project
+    re.compile(
+        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+]
 
+# Development deployment allowed origins (preview channels, localhost)
 if REACT_APP_DEV_DEPLOYMENT:
-    ALLOWED_ORIGIN_PATTERNS += [
-        # Regex patterns for preview channel domains for the dev project
-        re.compile(
-            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
-    ]
-
     STATIC_ALLOWED_ORIGINS.update({
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -38,9 +37,8 @@ if REACT_APP_DEV_DEPLOYMENT:
 initialize_app()
 
 
-# Note: Preview channel domains follow pattern {projectId}--{channelId}-{hash}.web.app (double hyphen)
-# Adjust regex accordingly so they are accepted.
 def _origin_allowed(origin: str | None) -> bool:
+    """Check if the given origin is allowed."""
     if not origin:
         logging.info("CORS: no origin header")
         return False
@@ -74,7 +72,7 @@ def _cors_headers(origin: str | None, allowed: bool):
 
 
 @https_fn.on_request()
-def convert_metadata_http(req: https_fn.Request):  # type: ignore
+def convert_metadata(req: https_fn.Request):  # type: ignore
     """HTTP function performing metadata conversion with explicit CORS.
 
     POST JSON body:
