@@ -24,7 +24,7 @@ STATIC_ALLOWED_ORIGINS = {
 ALLOWED_ORIGIN_PATTERNS = [
     # Allow any preview channel (optional trailing slash/path just in case)
     re.compile(
-        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app/"),
+        r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
 ]
 
 if REACT_APP_DEV_DEPLOYMENT:
@@ -42,10 +42,10 @@ def _origin_allowed(origin: str | None) -> bool:
     if not origin:
         logging.info("CORS: no origin header")
         return False
-    # Fast path for all preview channel domains for this project
-    if origin.startswith("https://cioos-metadata-form-dev-258dc--") and origin.endswith(".web.app"):
-        logging.info("CORS: origin matched preview prefix: %s", origin)
-        return True
+    # # Fast path for all preview channel domains for this project
+    # if origin.startswith("https://cioos-metadata-form-dev-258dc--") and origin.endswith(".web.app"):
+    #     logging.info("CORS: origin matched preview prefix: %s", origin)
+    #     return True
     if origin in STATIC_ALLOWED_ORIGINS:
         logging.info("CORS: origin matched static list: %s", origin)
         return True
