@@ -1,6 +1,7 @@
 """
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
+
 import os
 import re
 import json
@@ -12,28 +13,31 @@ from firebase_admin import initialize_app
 from cioos_metadata_conversion.record import Record
 
 # Config flags (environment variables are set at deploy time, all values public)
-REACT_APP_DEV_DEPLOYMENT = os.getenv(
-    "REACT_APP_DEV_DEPLOYMENT", "false").lower() == "true"
+project_id = (
+    os.getenv("GCP_PROJECT")
+    or os.getenv("GOOGLE_CLOUD_PROJECT")
+    or os.getenv("GCLOUD_PROJECT")
+)
+is_dev_project = project_id == "cioos-metadata-form-dev-258dc"
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
     "https://cioos-siooc.github.io/metadata-entry-form",
 }
-
-# Regex patterns for preview channel domains for the dev project
 ALLOWED_ORIGIN_PATTERNS = []
 
-# Development deployment allowed origins (preview channels, localhost)
-if REACT_APP_DEV_DEPLOYMENT:
+# Allow localhost and preview channels for dev project
+if is_dev_project:
     ALLOWED_ORIGIN_PATTERNS += [
         # Regex patterns for preview channel domains for the dev project
-        re.compile(
-            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+        re.compile(r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
     ]
-    STATIC_ALLOWED_ORIGINS.update({
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    })
+    STATIC_ALLOWED_ORIGINS.update(
+        {
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        }
+    )
 
 initialize_app()
 
@@ -48,8 +52,7 @@ def _origin_allowed(origin: str | None) -> bool:
         return True
     for pat in ALLOWED_ORIGIN_PATTERNS:
         if pat.match(origin):
-            logging.info("CORS: origin matched regex %s: %s",
-                         pat.pattern, origin)
+            logging.info("CORS: origin matched regex %s: %s", pat.pattern, origin)
             return True
     logging.info("CORS: origin NOT allowed: %s", origin)
     return False
@@ -88,7 +91,8 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
     if req.method == "OPTIONS":
         status = 204 if allowed else 403
         logging.info(
-            "CORS preflight for origin %s allowed=%s status=%s", origin, allowed, status)
+            "CORS preflight for origin %s allowed=%s status=%s", origin, allowed, status
+        )
         return https_fn.Response("", status=status, headers=headers)
 
     if not allowed:
