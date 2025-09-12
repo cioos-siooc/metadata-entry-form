@@ -120,7 +120,7 @@ const MetadataRecordListItem = ({
       } else {
         // Use callable python function convert_metadata for: xml, yaml, erddap
         const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, 'convert_metadata');
+        const convertMetadata = httpsCallable(functions, 'convert_metadata_http');
         const resp = await convertMetadata({ record_data: record, output_format: fileType});
         const resultText = resp.data?.result ?? '';
         blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
