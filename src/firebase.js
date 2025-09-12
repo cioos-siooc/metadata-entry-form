@@ -36,11 +36,11 @@ const devConfig = {
 };
 
 
-const config = process.env.NODE_ENV === "production" && !deployedOnTestServer
+const config = process.env.NODE_ENV === "production" && !(deployedOnTestServer === "true")
   ? prodConfig
   : devConfig
 
-if (window.location.hostname === "localhost" && localFirebaseDatabase) {
+if (window.location.hostname === "localhost" && localFirebaseDatabase === "true") {
   config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
 }
 
@@ -50,7 +50,7 @@ const App = initializeApp(config);
 export const firebaseConfig = config;
 
 // // uncomment below to use firebase emulator for local development
-if (window.location.hostname === "localhost" && localFirebaseFunctions) {
+if (window.location.hostname === "localhost" && localFirebaseFunctions === "true") {
   const functions = getFunctions(App);
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
