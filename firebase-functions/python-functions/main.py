@@ -65,7 +65,7 @@ def _cors_headers(origin: str | None, allowed: bool):
 
 
 @https_fn.on_request()
-def convert_metadata(req: https_fn.Request):  # type: ignore
+def convert_metadata_http(req: https_fn.Request):  # type: ignore
     """HTTP function performing metadata conversion with explicit CORS.
 
     POST JSON body:
@@ -140,3 +140,33 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
         headers=headers,
         content_type="application/json",
     )
+
+
+@https_fn.on_call()
+def convert_metadata(call_req: https_fn.CallableRequest):  # type: ignore
+    """Callable wrapper retained for existing clients; forwards to HTTP logic internally.
+
+    Note: Callable framework handles its own origin checks; for preview channel support,
+    clients should migrate to the HTTP endpoint /convert_metadata_http.
+    """
+    data = call_req.data or {}
+    record_data = data.get("record_data")
+    output_format = data.get("output_format")
+    if not record_data or not output_format:
+        raise https_fn.HttpsError(
+            code="invalid-argument", message="record_data and output_format required"
+        )
+    try:
+        converted = (
+            Record(record_data, schema="firebase")
+            .load()
+            .convert_to_cioos_schema()
+            .convert_to(output_format)
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        raise https_fn.HttpsError(
+            code="internal", message=f"Conversion failed: {e}"
+        ) from e
+    if output_format == "json":
+        return converted
+    return {"result": converted}
