@@ -1,17 +1,34 @@
 """
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
+import os
 
-from firebase_functions import https_fn
+from firebase_functions import https_fn, options
 from firebase_admin import initialize_app
 
 from cioos_metadata_conversion.record import Record
 
+# Only allow CORS from localhost from development
+REACT_APP_DEV_DEPLOYMENT = os.getenv(
+    "REACT_APP_DEV_DEPLOYMENT", "false").lower() == "true"
+dev_cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 initialize_app()
 
 
-@https_fn.on_call()
+@https_fn.on_call(
+    cors=options.CorsOptions(
+        cors_origins=[
+            r"https://cioos-metadata-form-dev-258dc-*\.webb\.app",
+            r"https://cioos-siooc\.github\.io/metadata-entry-form",
+            *(dev_cors_origins if REACT_APP_DEV_DEPLOYMENT else []),
+        ],
+        cors_methods=["get", "post"],
+    )
+)
 def convert_metadata(req: https_fn.CallableRequest):
     """Callable wrapper for metadata conversion used by the React frontend.
 
