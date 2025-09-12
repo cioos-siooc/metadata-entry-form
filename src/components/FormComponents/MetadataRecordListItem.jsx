@@ -91,6 +91,8 @@ const MetadataRecordListItem = ({
       eml: "_eml.xml",
       json: ".json",
       dataciteJson: "_dataCite.json",
+      datacite_json: "_dataCite-test.json",
+      datacite_xml: "_dataCite-test.xml",
     };
     const mimeTypes = {
       xml: "application/xml",
@@ -99,6 +101,8 @@ const MetadataRecordListItem = ({
       erddap: "application/xml",
       json: "application/json",
       dataciteJson: "application/json",
+      datacite_json: "application/json",
+      datacite_xml: "application/xml",
     };
 
     setIsLoading({ downloadXML: true });
@@ -114,11 +118,10 @@ const MetadataRecordListItem = ({
         const dc = recordToDataCite(record, language, region, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
-        // Use callable python function convert_metadata_call for: xml, yaml, erddap
+        // Use callable python function convert_metadata for: xml, yaml, erddap
         const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, 'convert_metadata_call');
-        const outputFormat = fileType; // mapping currently 1:1 for these cases
-        const resp = await convertMetadata({ record_data: record, output_format: outputFormat, schema: 'firebase' });
+        const convertMetadata = httpsCallable(functions, 'convert_metadata');
+        const resp = await convertMetadata({ record_data: record, output_format: fileType});
         const resultText = resp.data?.result ?? '';
         blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
       }
@@ -340,7 +343,7 @@ const MetadataRecordListItem = ({
                 PaperProps={{
                   style: {
                     // maxHeight: ITEM_HEIGHT * 4.5,
-                    width: "20ch",
+                    width: "30ch",
                   },
                 }}
               >
@@ -397,6 +400,24 @@ const MetadataRecordListItem = ({
                   }}
                 >
                   DATACITE JSON
+                </MenuItem>
+                <MenuItem
+                  key="datacite-json-test"
+                  onClick={() => {
+                    handleDownloadRecord("datacite_json");
+                    handleClose();
+                  }}
+                >
+                  (test) DATACITE JSON
+                </MenuItem>
+                <MenuItem
+                  key="datacite-xml-test"
+                  onClick={() => {
+                    handleDownloadRecord("datacite_xml");
+                    handleClose();
+                  }}
+                >
+                  (test) DATACITE XML
                 </MenuItem>
               </Menu>
             </span>

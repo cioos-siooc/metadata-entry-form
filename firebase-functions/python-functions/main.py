@@ -1,149 +1,156 @@
 """
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
+
+import os
+import re
 import json
-import requests
-from firebase_functions import https_fn, options
-from firebase_admin import initialize_app, firestore
+import logging
 
-from cioos_metadata_conversion.__main__ import converter, output_formats
+from firebase_functions import https_fn
+from firebase_admin import initialize_app
 
-# Initialize Firebase Admin SDK
+from cioos_metadata_conversion.record import Record
+
+# Config flags (environment variables are set at deploy time, all values public)
+project_id = (
+    os.getenv("GCP_PROJECT")
+    or os.getenv("GOOGLE_CLOUD_PROJECT")
+    or os.getenv("GCLOUD_PROJECT")
+)
+is_dev_project = project_id == "cioos-metadata-form-dev-258dc"
+
+# Origins we allow explicitly (strings)
+STATIC_ALLOWED_ORIGINS = {
+    "https://cioos-siooc.github.io/metadata-entry-form",
+}
+ALLOWED_ORIGIN_PATTERNS = []
+
+# Allow localhost and preview channels for dev project
+if is_dev_project:
+    ALLOWED_ORIGIN_PATTERNS += [
+        # Regex patterns for preview channel domains for the dev project
+        re.compile(r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+    ]
+    STATIC_ALLOWED_ORIGINS.update(
+        {
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        }
+    )
+
 initialize_app()
 
 
-@https_fn.on_request(cors=options.CorsOptions(
-    cors_origins=["*"],
-    cors_methods=["GET"]
-))
-def convert_metadata(req: https_fn.Request) -> https_fn.Response:
+def _origin_allowed(origin: str | None) -> bool:
+    """Check if the given origin is allowed."""
+    if not origin:
+        logging.info("CORS: no origin header")
+        return False
+    if origin in STATIC_ALLOWED_ORIGINS:
+        logging.info("CORS: origin matched static list: %s", origin)
+        return True
+    for pat in ALLOWED_ORIGIN_PATTERNS:
+        if pat.match(origin):
+            logging.info("CORS: origin matched regex %s: %s", pat.pattern, origin)
+            return True
+    logging.info("CORS: origin NOT allowed: %s", origin)
+    return False
+
+
+def _cors_headers(origin: str | None, allowed: bool):
+    base = {
+        "Vary": "Origin",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "3600",
+        # Debug headers (safe, informational)
+        "X-Debug-Cors-Origin": origin or "<none>",
+        "X-Debug-Cors-Allowed": str(allowed).lower(),
+    }
+    if not origin or not allowed:
+        base["Access-Control-Allow-Origin"] = "null"
+    else:
+        base["Access-Control-Allow-Origin"] = origin
+    return base
+
+
+@https_fn.on_request()
+def convert_metadata(req: https_fn.Request):  # type: ignore
+    """HTTP function performing metadata conversion with explicit CORS.
+
+    POST JSON body:
+      { "record_data": {...}, "output_format": "xml"|"json"|"yaml"|"erddap", "schema": "firebase" }
+    Returns JSON.
     """
-    Convert Firebase record JSON to different metadata formats
-    using the cioos-metadata-conversion API
-    """
+    origin = req.headers.get("origin")
+    allowed = _origin_allowed(origin)
+    headers = _cors_headers(origin, allowed)
+
+    # Preflight
     if req.method == "OPTIONS":
-        return https_fn.Response("", status=200)
+        status = 204 if allowed else 403
+        logging.info(
+            "CORS preflight for origin %s allowed=%s status=%s", origin, allowed, status
+        )
+        return https_fn.Response("", status=status, headers=headers)
+
+    if not allowed:
+        return https_fn.Response(
+            json.dumps({"error": "Origin not allowed"}),
+            status=403,
+            headers=headers,
+            content_type="application/json",
+        )
 
     if req.method != "POST":
         return https_fn.Response(
-            json.dumps({"error": "Only POST method allowed"}),
+            json.dumps({"error": "Method not allowed"}),
+            status=405,
+            headers=headers,
             content_type="application/json",
-            status=405
         )
 
     try:
-        # Parse request body
-        request_data = req.get_json()
-        if not request_data:
-            return https_fn.Response(
-                json.dumps({"error": "Request body is required"}),
-                content_type="application/json",
-                status=400
-            )
+        payload = req.get_json(silent=True) or {}
+    except Exception:  # pragma: no cover
+        payload = {}
 
-        # Extract parameters
-        record_data = request_data.get("record_data")
-        output_format = request_data.get("output_format")
-        schema = request_data.get("schema", "firebase")
-
-        # Log
-
-        if not record_data:
-            return https_fn.Response(
-                json.dumps({"error": "record_data is required"}),
-                content_type="application/json",
-                status=400
-            )
-        if not output_format:
-            return https_fn.Response(
-                json.dumps({"error": "output_format is required"}),
-                content_type="application/json",
-                status=400
-            )
-
-        # Call cioos-metadata-conversion API
-        try:
-            converted_data = converter(
-                record=record_data, format=output_format, schema=schema
-            )
-        except Exception as e:
-            return https_fn.Response(
-                json.dumps({
-                    "error": "Conversion failed",
-                    "details": str(e)
-                }),
-                content_type="application/json",
-                status=500
-            )
-
-        if output_format == "json":
-            return https_fn.Response(
-                json.dumps(converted_data, indent=2),
-                content_type="application/json",
-                status=200
-            )
-        elif output_format in ["xml", "iso19115", "erddap"]:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/xml",
-                status=200
-            )
-        elif output_format in ["yaml", "cff"]:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/x-yaml",
-                status=200
-            )
-        else:
-            return https_fn.Response(
-                converted_data,
-                content_type="application/text",
-                status=200
-            )
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({
-                "error": "Internal server error",
-                "details": str(e)
-            }),
-            content_type="application/json",
-            status=500
-        )
-
-
-@https_fn.on_call()
-def convert_metadata_call(req: https_fn.CallableRequest):
-    """Callable wrapper for metadata conversion used by the React frontend.
-
-    Request data example:
-      {
-        "record_data": { ... },
-        "output_format": "xml" | "json" | "yaml" | "erddap" | ...,
-        "schema": "firebase"
-      }
-    Response:
-      For output_format == json -> converted object is returned directly.
-      Otherwise -> { "result": <string representation> }
-    """
-    data = req.data or {}
-    record_data = data.get("record_data")
-    output_format = data.get("output_format")
-    schema = data.get("schema", "firebase")
+    record_data = payload.get("data", {}).get("record_data")
+    output_format = payload.get("data", {}).get("output_format")
 
     if not record_data or not output_format:
-        raise https_fn.HttpsError(
-            code="invalid-argument",
-            message="record_data and output_format required"
+        return https_fn.Response(
+            json.dumps({"error": "record_data and output_format required"}),
+            status=400,
+            headers=headers,
+            content_type="application/json",
         )
+
     try:
-        converted = converter(record=record_data,
-                              format=output_format, schema=schema)
+        converted = (
+            Record(record_data, schema="firebase")
+            .load()
+            .convert_to_cioos_schema()
+            .convert_to(output_format)
+        )
     except Exception as e:  # pylint: disable=broad-except
-        raise https_fn.HttpsError(
-            code="internal",
-            message=f"Conversion failed: {e}"
-        ) from e
+        logging.exception("Conversion failed")
+        return https_fn.Response(
+            json.dumps({"error": f"Conversion failed: {e}"}),
+            status=500,
+            headers=headers,
+            content_type="application/json",
+        )
 
     if output_format == "json":
-        return converted
-    return {"result": converted}
+        body_out = json.dumps(converted)
+    else:
+        body_out = json.dumps({"result": converted})
+
+    return https_fn.Response(
+        body_out,
+        status=200,
+        headers=headers,
+        content_type="application/json",
+    )
