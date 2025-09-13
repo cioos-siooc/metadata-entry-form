@@ -122,7 +122,7 @@ const MetadataRecordListItem = ({
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
         const resp = await convertMetadata({ record_data: record, output_format: fileType});
-        const resultText = resp.data?.result ?? '';
+        const resultText = resp?.data ?? '';
         blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
       }
 
@@ -348,13 +348,13 @@ const MetadataRecordListItem = ({
                 }}
               >
                 <MenuItem
-                  key="xml"
+                  key="iso19115-3_xml"
                   onClick={() => {
-                    handleDownloadRecord("xml");
+                    handleDownloadRecord("iso19115-3_xml");
                     handleClose();
                   }}
                 >
-                  ISO 19115 XML
+                  ISO 19115-3 XML
                 </MenuItem>
                 <MenuItem
                   key="yaml"

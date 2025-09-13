@@ -8,17 +8,13 @@ import json
 import logging
 
 from firebase_functions import https_fn
+from firebase_functions.params import BoolParam
 from firebase_admin import initialize_app
 
 from cioos_metadata_conversion.record import Record
 
-# Config flags (environment variables are set at deploy time, all values public)
-project_id = (
-    os.getenv("GCP_PROJECT")
-    or os.getenv("GOOGLE_CLOUD_PROJECT")
-    or os.getenv("GCLOUD_PROJECT")
-)
-is_dev_project = project_id == "cioos-metadata-form-dev-258dc"
+# Determine if this is the dev project
+is_dev_project = BoolParam("REACT_APP_DEV_DEPLOYMENT", default=True)
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
@@ -30,8 +26,7 @@ ALLOWED_ORIGIN_PATTERNS = []
 if is_dev_project:
     ALLOWED_ORIGIN_PATTERNS += [
         # Regex patterns for preview channel domains for the dev project
-        re.compile(
-            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+        re.compile(r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
     ]
     STATIC_ALLOWED_ORIGINS.update(
         {
@@ -53,8 +48,7 @@ def _origin_allowed(origin: str | None) -> bool:
         return True
     for pat in ALLOWED_ORIGIN_PATTERNS:
         if pat.match(origin):
-            logging.info("CORS: origin matched regex %s: %s",
-                         pat.pattern, origin)
+            logging.info("CORS: origin matched regex %s: %s", pat.pattern, origin)
             return True
     logging.info("CORS: origin NOT allowed: %s", origin)
     return False
@@ -82,7 +76,7 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
     """HTTP function performing metadata conversion with explicit CORS.
 
     POST JSON body:
-      { "record_data": {...}, "output_format": "xml"|"json"|"yaml"|"erddap", "schema": "firebase" }
+      { "record_data": {...}, "output_format": "xml"|"json"|"yaml"|"erddap" }
     Returns JSON.
     """
     origin = req.headers.get("origin")
@@ -145,13 +139,8 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
             content_type="application/json",
         )
 
-    if output_format == "json":
-        body_out = json.dumps(converted)
-    else:
-        body_out = json.dumps({"result": converted})
-
     return https_fn.Response(
-        body_out,
+        json.dumps({"data": converted}),
         status=200,
         headers=headers,
         content_type="application/json",
