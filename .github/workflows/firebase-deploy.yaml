@@ -47,10 +47,12 @@ jobs:
           if [ "${GITHUB_REF##*/}" = "main" ]; then
             echo "On main branch, using default project"
             echo "REACT_APP_DEV_DEPLOYMENT=false" >> .env
+            export REACT_APP_DEV_DEPLOYMENT=false
             firebase use default
           else
             echo "On non-main branch, using dev project"
             echo "REACT_APP_DEV_DEPLOYMENT=true" >> .env
+            export REACT_APP_DEV_DEPLOYMENT=true
             firebase use dev
           fi
           echo "Deploying to Firebase..."
