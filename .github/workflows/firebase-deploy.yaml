@@ -51,8 +51,10 @@ jobs:
           else
             echo "On non-main branch, using dev project"
             echo "REACT_APP_DEV_DEPLOYMENT=true" >> .env
+            export REACT_APP_DEV_DEPLOYMENT=true
             firebase use dev
           fi
+          cp .env ../python-functions/.env
           echo "Deploying to Firebase..."
           firebase deploy --only functions:js-functions,functions:py-functions --token ${{ secrets.FIREBASE_TOKEN }} --force
         working-directory: firebase-functions/functions
