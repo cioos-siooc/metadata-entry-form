@@ -19,5 +19,7 @@ module.exports = {
   },
   moduleNameMapper: {
     "^axios$": "axios/dist/node/axios.cjs",
+    "^cheerio/lib/utils$": "cheerio/dist/commonjs/utils",
+    "^cheerio/lib/(.*)$": "cheerio/dist/commonjs/$1",
   },
 };
