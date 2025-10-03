@@ -40,6 +40,7 @@ firebase-debug.log
 yarn.lock
 .env
 .env.*
+!.env.sample
 *.log
 firebase-functions/python-functions/venv
 firebase-functions/python-functions/requirements.txt
