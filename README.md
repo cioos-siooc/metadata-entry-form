@@ -17,6 +17,8 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 
 To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container. 
 
+To do so, open the repository in vscode and a prompt will appear to allow you to access the container.
+
 In the container, run the following steps:
 
 1. Copy `.env.sample` to `.env`
