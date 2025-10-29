@@ -128,19 +128,30 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
         )}
         <CardContent className={classes.content} style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
-            <img
-              src={logoSrc}
-              alt={region}
-              style={{
-                margin: "10px auto",
+            {logoSrc ? (
+              <img
+                src={logoSrc}
+                alt={region}
+                style={{
+                  margin: "10px auto",
+                  maxWidth: 300,
+                  maxHeight: 80,
+                  display: "block",
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            ) : (
+              <div style={{
+                margin: '10px auto',
                 maxWidth: 300,
                 maxHeight: 80,
-                display: "block",
-              }}
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
-            />
+                display: 'block',
+                fontSize: '1.4rem',
+                fontWeight: 600,
+              }}>{regionInfo.title[language] || region}</div>
+            )}
           </div>
           <Typography
             variant="body2"
