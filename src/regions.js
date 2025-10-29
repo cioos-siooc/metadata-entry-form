@@ -20,6 +20,7 @@ const regions = {
         "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
+    logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
   },
 
   stlaurent: {
@@ -46,6 +47,7 @@ const regions = {
         "L'Observatoire global du Saint-Laurent intègre les données du Saint-Laurent, des Grands Lacs jusqu'au Golfe",
     },
     showInRegionSelector: true,
+    logo: { en: "cioos-stlaurent-en.png", fr: "cioos-stlaurent-fr.png" },
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
@@ -67,6 +69,7 @@ const regions = {
         "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
+    logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
@@ -88,6 +91,7 @@ const regions = {
         "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
     showInRegionSelector: true,
+    logo: { en: "cioos-amundsen-en.png", fr: "cioos-amundsen-fr.png" },
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
@@ -109,6 +113,8 @@ const regions = {
         "CanWIN est le centre de données du Centre for Earth Observation Science (CEOS). Nous soutenons la recherche et l’éducation, et nous contribuons à la gestion, aux politiques et à la prise de décision fondée sur des données probantes, du bassin versant de la rivière Nelson jusqu’à l’Arctique.",
     },
     showInRegionSelector: false,
+    logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
+  },
   },
   test: {
     title: { en: "Test", fr: "Test" },
@@ -124,7 +130,19 @@ const regions = {
     },
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
+    logo: { en: "cioos-en.png", fr: "cioos-fr.png" }, // fallback test region logo
   },
 };
+
+// Helper to get logo path by language with graceful fallbacks
+// getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.
+export function getRegionLogo(regionId, language = 'en') {
+  const r = regions[regionId];
+  if (!r) return `${process.env.PUBLIC_URL}/cioos-${language}.png`;
+  const logoObj = r.logo || {};
+  const file = logoObj[language] || logoObj.en || logoObj.fr;
+  if (!file) return `${process.env.PUBLIC_URL}/cioos-${language}.png`;
+  return `${process.env.PUBLIC_URL}/${file}`;
+}
 
 export default regions;
