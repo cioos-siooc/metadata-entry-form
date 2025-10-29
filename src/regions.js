@@ -123,7 +123,7 @@ const regions = {
       en: "Transforming Climate Action Data Catalogue",
     },
     colors: { primary: "rgb(254, 187, 18)", secondary: "#4e472fff" },
-    email: "info@cioos.ca",
+    email: "tca.data@cioos.ca",
     catalogueURL: {
       fr: "https://catalogue.cioos.ca/",
       en: "https://catalogue.cioos.ca/",
