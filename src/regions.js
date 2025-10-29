@@ -87,7 +87,7 @@ const regions = {
       fr:
         "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
-    showInRegionSelector: false,
+    showInRegionSelector: true,
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
