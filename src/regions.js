@@ -159,10 +159,10 @@ const regions = {
 // getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.
 export function getRegionLogo(regionId, language = 'en') {
   const r = regions[regionId];
-  if (!r) return `${process.env.PUBLIC_URL}/cioos-${language}.png`;
+  if (!r) return null;
   const logoObj = r.logo || {};
   const file = logoObj[language] || logoObj.en || logoObj.fr;
-  if (!file) return `${process.env.PUBLIC_URL}/cioos-${language}.png`;
+  if (!file) return null;
   return `${process.env.PUBLIC_URL}/${file}`;
 }
 
