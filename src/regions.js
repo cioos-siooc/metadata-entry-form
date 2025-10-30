@@ -115,7 +115,6 @@ const regions = {
     showInRegionSelector: false,
     logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
   },
-  },
   test: {
     title: { en: "Test", fr: "Test" },
     catalogueTitle: {
@@ -130,7 +129,7 @@ const regions = {
     },
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
-    logo: { en: "cioos-en.png", fr: "cioos-fr.png" }, // fallback test region logo
+    logo: { en: "cioos-en.png", fr: "cioos-fr.png" },
   },
 };
 
