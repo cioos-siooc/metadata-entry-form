@@ -5,5 +5,10 @@
 import "regenerator-runtime/runtime";
 
 import { TextEncoder, TextDecoder } from 'util';
+import { ReadableStream } from 'stream/web';
 
-Object.assign(global, { TextDecoder, TextEncoder });
+Object.assign(global, { TextDecoder, TextEncoder, ReadableStream });
+
+// Mock window.location for Firebase initialization
+delete window.location;
+window.location = { hostname: 'test.example.com' };
