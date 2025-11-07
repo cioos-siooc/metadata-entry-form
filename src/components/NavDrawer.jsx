@@ -18,6 +18,7 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  Business,
 } from "@material-ui/icons";
 
 import {
@@ -169,6 +170,7 @@ export default function MiniDrawer({ children }) {
     contacts: <I18n en="Contacts" fr="Contacts" />,
     instruments: <I18n en="Instruments" fr="Instruments" />,
     platforms: <I18n en="Platforms" fr="Plateformes" />,
+    organizations: <I18n en="Organizations" fr="Organisations" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
@@ -391,6 +393,22 @@ export default function MiniDrawer({ children }) {
                       <DirectionsBoatSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.platforms} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.organizations}
+                >
+                  <ListItem
+                    button
+                    key="Organizations"
+                    onClick={() => history.push(`${baseURL}/organizations`)}
+                  >
+                    <ListItemIcon disabled>
+                      <Business />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.organizations} />
                   </ListItem>
                 </Tooltip>
 

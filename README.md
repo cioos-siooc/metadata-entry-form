@@ -15,33 +15,61 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 
 ## Local Development Installation
 
-To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container. 
+**Recommended:** Use VS Code Dev Containers for a consistent, pre-configured development environment.
 
-In the container, run the following steps:
+### Quick Start with Dev Container
 
-1. Copy `.env.sample` to `.env`
-  ```shell
-  cp .env.sample .env
-  ```
-2. Login with firebase
-  ```shell
-  firebase login
-  ```
-3. Select firebase project:
-  ```shell
-  firebase use dev
-  ```
+1. **Prerequisites** (one-time setup):
+   - Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+   - Install [VS Code](https://code.visualstudio.com/)
+   - Install [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
-4. Go to firebase-functions directory and start the emulator, this will install the javascript and python functions dependancies and activate the firebase local emulator :
-  ```shell
-  cd firebase-functions
-  bash emulate-functions.sh 
-  ```
-5. In a second terminal, start the frontent in development. From the base directory of this project run:
-  ```
-  npm install
-  npm start
-  ```
+2. **Open in Container**:
+   ```shell
+   code .
+   # Press F1 → "Dev Containers: Reopen in Container"
+   ```
+
+3. **Inside the container**, run the following steps:
+
+   a. Copy `.env.sample` to `.env`
+   ```shell
+   cp .env.sample .env
+   ```
+
+   b. Login with Firebase
+   ```shell
+   firebase login
+   ```
+
+   c. Select Firebase project:
+   ```shell
+   firebase use dev
+   ```
+
+   d. **Terminal 1** - Start Firebase emulators:
+   ```shell
+   cd firebase-functions
+   bash emulate-functions.sh
+   ```
+   This installs JavaScript and Python function dependencies and starts the Firebase emulator suite.
+
+   e. **Terminal 2** - Start the frontend:
+   ```shell
+   npm install
+   npm start
+   ```
+
+4. **Access the application**:
+   - Frontend: http://localhost:3000
+   - Firebase Emulator UI: http://localhost:4000
+
+### 📖 Detailed Documentation
+
+- **[DEVCONTAINER_SETUP.md](DEVCONTAINER_SETUP.md)** - Complete Dev Container setup guide
+- **[QUICK_START.md](QUICK_START.md)** - Quick reference for development
+- **[LOCAL_DEVELOPMENT_GUIDE.md](LOCAL_DEVELOPMENT_GUIDE.md)** - Comprehensive local development guide
+- **[ORGANIZATIONS_FIREBASE_IMPLEMENTATION.md](ORGANIZATIONS_FIREBASE_IMPLEMENTATION.md)** - Organizations feature documentation
 
 ## Monitoring
 

@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+// PropTypes removed to avoid dependency; add if runtime validation desired.
 import {
   Button,
   InputAdornment,
@@ -25,6 +26,7 @@ const BilingualTextInput = ({
   disabled,
   error,
   translationButonDisabled = false,
+  label,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
@@ -64,7 +66,11 @@ const BilingualTextInput = ({
         }),
     };
     const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
+    if (typeof onChange === "function") onChange(newDataEvent);
+    else {
+      // eslint-disable-next-line no-console
+      console.warn("BilingualTextInput: onChange prop is missing; change ignored.");
+    }
   }
 
   function handleTranslateCheckEvent(e) {
@@ -74,7 +80,11 @@ const BilingualTextInput = ({
       translations: setTranslationData(value.translations, checked),
     };
     const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
+    if (typeof onChange === "function") onChange(newDataEvent);
+    else {
+      // eslint-disable-next-line no-console
+      console.warn("BilingualTextInput: onChange prop is missing; translate checkbox change ignored.");
+    }
   }
 
   // Ensure translations field exists on component mount/load
@@ -92,7 +102,12 @@ const BilingualTextInput = ({
             },
           },
         };
-        onChange({ target: { name, value: updatedValue } });
+        if (typeof onChange === "function") {
+          onChange({ target: { name, value: updatedValue } });
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn("BilingualTextInput: onChange prop is missing during mount initialization; translations field not propagated.");
+        }
       }
     }
   }, [name, onChange, value, alternateLanguage]);
@@ -116,6 +131,7 @@ const BilingualTextInput = ({
             multiline={multiline}
             disabled={disabled}
             error={Boolean(error)}
+            label={i === 0 ? label : undefined}
           />
           {i === 0 && !translationButonDisabled && (
             <Tooltip
