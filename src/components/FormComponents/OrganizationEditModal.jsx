@@ -29,6 +29,20 @@ const OrganizationEditModal = ({
   const [editedOrg, setEditedOrg] = useState({ ...organization });
   const [newAlias, setNewAlias] = useState("");
 
+  // Reusable heading style to improve form readability
+  const headingStyle = {
+    fontWeight: 600,
+    color: '#1976d2',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  };
+
+  const headingDecoration = <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1976d2' }} />;
+
   // Update state when organization prop changes
   useEffect(() => {
     if (organization) {
@@ -129,7 +143,8 @@ const OrganizationEditModal = ({
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom style={headingStyle}>
+              {headingDecoration}
               <I18n en="Title *" fr="Titre *" />
             </Typography>
             <BilingualTextInput
@@ -140,7 +155,8 @@ const OrganizationEditModal = ({
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom style={headingStyle}>
+              {headingDecoration}
               <I18n en="Description" fr="Description" />
             </Typography>
             <BilingualTextInput
@@ -152,6 +168,15 @@ const OrganizationEditModal = ({
             />
           </Grid>
 
+          {/* Subtitle for contact/location section (now includes website) */}
+          <Grid item xs={12}>
+            <Typography variant="subtitle2" style={{ ...headingStyle, marginTop: 8 }}>
+              {headingDecoration}
+              <I18n en="Organization Contact & Location" fr="Contact et localisation de l'organisation" />
+            </Typography>
+          </Grid>
+
+          {/* Optional contact/location + website fields */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -161,11 +186,47 @@ const OrganizationEditModal = ({
               helperText={<I18n en="Organization's website" fr="Site web de l'organisation" />}
             />
           </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={<I18n en="Email" fr="Courriel" />}
+              value={editedOrg.email || ""}
+              onChange={handleFieldChange("email")}
+              type="email"
+              helperText={<I18n en="Optional contact email" fr="Courriel de contact facultatif" />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={<I18n en="Address" fr="Adresse" />}
+              value={editedOrg.address || ""}
+              onChange={handleFieldChange("address")}
+              helperText={<I18n en="Street or mailing address" fr="Adresse postale ou rue" />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              fullWidth
+              label={<I18n en="City" fr="Ville" />}
+              value={editedOrg.city || ""}
+              onChange={handleFieldChange("city")}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              fullWidth
+              label={<I18n en="Country" fr="Pays" />}
+              value={editedOrg.country || ""}
+              onChange={handleFieldChange("country")}
+            />
+          </Grid>
 
           {/* CKAN instance removed per request */}
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom style={headingStyle}>
+              {headingDecoration}
               <I18n en="Image URL" fr="URL de l'image" />
             </Typography>
             <BilingualTextInput
@@ -185,7 +246,8 @@ const OrganizationEditModal = ({
 
           <Grid item xs={12}>
             <Paper style={{ padding: "15px", backgroundColor: "#f5f5f5" }}>
-              <Typography variant="subtitle2" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom style={headingStyle}>
+                {headingDecoration}
                 <I18n en="Organization URI (ROR, etc.)" fr="URI de l'organisation (ROR, etc.)" />
               </Typography>
               <Box display="flex" justifyContent="flex-end" marginBottom={1}>
@@ -245,7 +307,8 @@ const OrganizationEditModal = ({
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom style={headingStyle}>
+              {headingDecoration}
               <I18n en="Aliases" fr="Alias" />
             </Typography>
             <Box display="flex" alignItems="center" marginBottom={1}>

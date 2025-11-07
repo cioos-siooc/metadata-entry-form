@@ -160,6 +160,10 @@ class Organizations extends FormClassTemplate {
       const descEn = org.description_translated?.en?.toLowerCase() || "";
       const descFr = org.description_translated?.fr?.toLowerCase() || "";
       const aliases = org.aliases?.join(" ").toLowerCase() || "";
+      const address = org.address?.toLowerCase() || "";
+      const city = org.city?.toLowerCase() || "";
+      const country = org.country?.toLowerCase() || "";
+      const email = org.email?.toLowerCase() || "";
 
       return (
         title.includes(searchTerm) ||
@@ -168,7 +172,11 @@ class Organizations extends FormClassTemplate {
         name.includes(searchTerm) ||
         descEn.includes(searchTerm) ||
         descFr.includes(searchTerm) ||
-        aliases.includes(searchTerm)
+        aliases.includes(searchTerm) ||
+        address.includes(searchTerm) ||
+        city.includes(searchTerm) ||
+        country.includes(searchTerm) ||
+        email.includes(searchTerm)
       );
     });
 
@@ -203,6 +211,10 @@ class Organizations extends FormClassTemplate {
         },
       ],
       aliases: [],
+      address: "",
+      city: "",
+      country: "",
+      email: "",
     };
 
     this.setState({
@@ -420,18 +432,18 @@ class Organizations extends FormClassTemplate {
                 const paginated = filteredOrganizations.slice(startIndex, endIndex);
                 return (
                   <>
-                    <Grid container spacing={3}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                       {paginated.map((org) => (
-                        <Grid item xs={12} sm={6} md={4} key={org.name}>
+                        <div key={org.name} style={{ flex: '0 0 220px', maxWidth: '220px' }}>
                           <OrganizationCard
                             organization={org}
                             language={language}
                             canEdit={canEdit}
                             onEdit={() => this.handleEditOrganization(org)}
                           />
-                        </Grid>
+                        </div>
                       ))}
-                    </Grid>
+                    </div>
                     {totalPages > 1 && (
                       <Grid container justifyContent="center" style={{ marginTop: 24 }}>
                         <Pagination

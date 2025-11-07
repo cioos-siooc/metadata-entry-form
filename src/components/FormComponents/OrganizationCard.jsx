@@ -32,6 +32,8 @@ const OrganizationCard = ({ organization, language, canEdit, onEdit }) => {
     return `${text.substring(0, maxLength)}...`;
   };
 
+  // NOTE: Card previously used grid "cells" for layout; reverted to simple stacked layout per request.
+
   return (
     <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {imageUrl && (
@@ -51,13 +53,28 @@ const OrganizationCard = ({ organization, language, canEdit, onEdit }) => {
         <Typography variant="h6" gutterBottom>
           {title}
         </Typography>
-        <Typography variant="caption" color="textSecondary" gutterBottom>
+        <Typography
+          variant="caption"
+          gutterBottom
+          style={{ color: '#1976d2', fontWeight: 600, letterSpacing: 0.5 }}
+        >
           {organization.name}
         </Typography>
+        {(organization.address || organization.city || organization.country) && (
+          <Typography variant="caption" color="textSecondary" style={{ display: 'block' }}>
+            {[organization.address, organization.city, organization.country].filter(Boolean).join(', ')}
+          </Typography>
+        )}
+        {organization.email && (
+          <Typography variant="caption" style={{ display: 'block' }}>
+            <a href={`mailto:${organization.email}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+              {organization.email}
+            </a>
+          </Typography>
+        )}
         <Typography variant="body2" color="textSecondary" paragraph>
           {truncateText(description)}
         </Typography>
-
         {aliases && aliases.length > 0 && (
           <Box marginTop={1}>
             <Typography variant="caption" color="textSecondary">
@@ -70,7 +87,6 @@ const OrganizationCard = ({ organization, language, canEdit, onEdit }) => {
             </Box>
           </Box>
         )}
-
         {/* CKAN instance display removed */}
       </CardContent>
       <CardActions>
