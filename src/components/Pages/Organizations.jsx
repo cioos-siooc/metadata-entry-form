@@ -14,6 +14,7 @@ import {
   DialogActions,
 } from "@material-ui/core";
 import { Add, Search, CloudUpload } from "@material-ui/icons";
+import { Pagination } from "@material-ui/lab";
 import { I18n, En, Fr } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 import OrganizationCard from "../FormComponents/OrganizationCard";
@@ -40,6 +41,8 @@ class Organizations extends FormClassTemplate {
       isCreatingNew: false,
       showInitializeDialog: false,
       noDataInFirebase: false,
+      currentPage: 1,
+      pageSize: 12, // 3 columns * 4 rows per page
     };
   }
 
@@ -169,7 +172,8 @@ class Organizations extends FormClassTemplate {
       );
     });
 
-    this.setState({ searchTerm, filteredOrganizations: filtered });
+    // Reset to first page when search changes
+    this.setState({ searchTerm, filteredOrganizations: filtered, currentPage: 1 });
   };
 
   handleEditOrganization = (organization) => {
@@ -271,6 +275,10 @@ class Organizations extends FormClassTemplate {
     }
   };
 
+  handlePageChange = (event, page) => {
+    this.setState({ currentPage: page });
+  };
+
   render() {
     const {
       loading,
@@ -280,6 +288,8 @@ class Organizations extends FormClassTemplate {
       selectedOrganization,
       isCreatingNew,
       showInitializeDialog,
+      currentPage,
+      pageSize,
     } = this.state;
     const { match } = this.props;
     const { language } = match.params;
@@ -335,6 +345,21 @@ class Organizations extends FormClassTemplate {
                   ),
                 }}
               />
+              {/* Count of filtered organizations */}
+              <Typography variant="caption" style={{ marginTop: 4, display: 'block' }}>
+                <I18n>
+                  <En>
+                    {filteredOrganizations.length === 0
+                      ? 'No organizations'
+                      : `Showing ${Math.min((currentPage - 1) * pageSize + 1, filteredOrganizations.length)}–${Math.min(currentPage * pageSize, filteredOrganizations.length)} of ${filteredOrganizations.length} organizations`}
+                  </En>
+                  <Fr>
+                    {filteredOrganizations.length === 0
+                      ? 'Aucune organisation'
+                      : `Affichage ${Math.min((currentPage - 1) * pageSize + 1, filteredOrganizations.length)}–${Math.min(currentPage * pageSize, filteredOrganizations.length)} sur ${filteredOrganizations.length} organisations`}
+                  </Fr>
+                </I18n>
+              </Typography>
             </Grid>
             {canEdit && (
               <>
@@ -388,18 +413,41 @@ class Organizations extends FormClassTemplate {
         ) : (
           <Grid item xs>
             {filteredOrganizations && filteredOrganizations.length > 0 ? (
-              <Grid container spacing={3}>
-                {filteredOrganizations.map((org) => (
-                  <Grid item xs={12} sm={6} md={4} key={org.name}>
-                    <OrganizationCard
-                      organization={org}
-                      language={language}
-                      canEdit={canEdit}
-                      onEdit={() => this.handleEditOrganization(org)}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
+              (() => {
+                const totalPages = Math.ceil(filteredOrganizations.length / pageSize) || 1;
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const paginated = filteredOrganizations.slice(startIndex, endIndex);
+                return (
+                  <>
+                    <Grid container spacing={3}>
+                      {paginated.map((org) => (
+                        <Grid item xs={12} sm={6} md={4} key={org.name}>
+                          <OrganizationCard
+                            organization={org}
+                            language={language}
+                            canEdit={canEdit}
+                            onEdit={() => this.handleEditOrganization(org)}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                    {totalPages > 1 && (
+                      <Grid container justifyContent="center" style={{ marginTop: 24 }}>
+                        <Pagination
+                          count={totalPages}
+                          page={currentPage}
+                          onChange={this.handlePageChange}
+                          color="primary"
+                          size="small"
+                          showFirstButton
+                          showLastButton
+                        />
+                      </Grid>
+                    )}
+                  </>
+                );
+              })()
             ) : (
               <Paper style={{ padding: "20px", textAlign: "center" }}>
                 <Typography>
