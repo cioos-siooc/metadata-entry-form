@@ -54,6 +54,19 @@ class Admin extends FormClassTemplate {
       credentialsStored: false,
       showDeletionDialog: false,
       showCredentialsMissingDialog: false,
+      // GitHub Publishing Configuration
+      githubOwner: "cioos-siooc",
+      githubRepo: "cioos-siooc-forms",
+      githubToken: "",
+      githubBranch: "main",
+      githubEnvironments: ["prod"],
+      githubFilenameTemplate: "{uuid}",
+      showGithubToken: false,
+      isGithubPublishingEnabled: false,
+      githubCredentialsStored: false,
+      githubOwnerValid: true,
+      githubRepoValid: true,
+      showGithubCredentialsMissingDialog: false,
     };
   }
 
@@ -83,6 +96,24 @@ class Admin extends FormClassTemplate {
             return response.data;
           }
         );
+
+        // Load GitHub credentials
+        const githubCredentialsRef = child(regionAdminRef, "githubCredentials");
+        onValue(githubCredentialsRef, (githubSnapshot) => {
+          const githubCreds = githubSnapshot.toJSON();
+          if (githubCreds) {
+            this.setState({
+              githubOwner: githubCreds.owner || "cioos-siooc",
+              githubRepo: githubCreds.repo || "cioos-siooc-forms",
+              githubBranch: githubCreds.branch || "main",
+              githubEnvironments: githubCreds.environments || ["prod"],
+              githubFilenameTemplate: githubCreds.filenameTemplate || "{uuid}",
+              githubCredentialsStored: !!githubCreds.githubTokenHash,
+              isGithubPublishingEnabled: !!githubCreds.githubTokenHash,
+            });
+          }
+        });
+        this.listenerRefs.push(githubCredentialsRef);
 
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
@@ -123,6 +154,21 @@ class Admin extends FormClassTemplate {
 
   handleMouseDownPassword = (event) => {
     event.preventDefault();
+  };
+
+  handleClickShowGithubToken = () =>
+    this.setState((prevState) => ({
+      showGithubToken: !prevState.showGithubToken,
+    }));
+
+  handleMouseDownGithubToken = (event) => {
+    event.preventDefault();
+  };
+
+  handleToggleGithubPublishing = () => {
+    this.setState((prevState) => ({
+      isGithubPublishingEnabled: !prevState.isGithubPublishingEnabled,
+    }));
   };
 
   handleToggleDoiCreation = () => {
@@ -172,6 +218,53 @@ class Admin extends FormClassTemplate {
 
       set(projectsRef, cleanArr(projects));
       set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
+    }
+  }
+
+  saveGithubCredentials() {
+    const { match } = this.props;
+    const { region } = match.params;
+
+    const {
+      githubOwner,
+      githubRepo,
+      githubToken,
+      githubBranch,
+      githubEnvironments,
+      githubFilenameTemplate,
+      isGithubPublishingEnabled,
+    } = this.state;
+
+    const database = getDatabase(firebase);
+
+    // Check if GitHub publishing is enabled but credentials are not provided
+    if (
+      isGithubPublishingEnabled &&
+      (!githubOwner || !githubRepo || !githubToken || !githubBranch)
+    ) {
+      this.setState({ showGithubCredentialsMissingDialog: true });
+      return;
+    }
+
+    // Base64 encode the GitHub token
+    const bufferObj = Buffer.from(githubToken, "utf8");
+    const base64String = bufferObj.toString("base64");
+
+    if (auth.currentUser) {
+      const regionAdminRef = ref(database, `admin/${region}`);
+      const githubRef = child(regionAdminRef, "githubCredentials");
+
+      set(child(githubRef, "owner"), githubOwner);
+      set(child(githubRef, "repo"), githubRepo);
+      set(child(githubRef, "branch"), githubBranch);
+      set(child(githubRef, "environments"), githubEnvironments);
+      set(child(githubRef, "filenameTemplate"), githubFilenameTemplate);
+      set(child(githubRef, "githubTokenHash"), base64String);
+
+      this.setState({
+        githubToken: "",
+        githubCredentialsStored: true,
+      });
     }
   }
 
@@ -284,11 +377,50 @@ class Admin extends FormClassTemplate {
     );
   }
 
+  renderGithubCredentialsMissingDialog() {
+    return (
+      <Dialog
+        open={this.state.showGithubCredentialsMissingDialog}
+        onClose={() =>
+          this.setState({ showGithubCredentialsMissingDialog: false })
+        }
+        aria-labelledby="github-credentials-missing-dialog-title"
+        aria-describedby="github-credentials-missing-dialog-description"
+      >
+        <DialogTitle id="github-credentials-missing-dialog-title">
+          Missing GitHub Credentials
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="github-credentials-missing-dialog-description">
+            Please add GitHub credentials before saving.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() =>
+              this.setState({ showGithubCredentialsMissingDialog: false })
+            }
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value }, () => {
       if (name === "datacitePrefix") {
         this.validateDatacitePrefix(value);
+      }
+      if (name === "githubOwner") {
+        this.validateGithubOwner(value);
+      }
+      if (name === "githubRepo") {
+        this.validateGithubRepo(value);
       }
     });
   };
@@ -296,6 +428,16 @@ class Admin extends FormClassTemplate {
   validateDatacitePrefix = (prefix) => {
     const isValid = /^10\.\d+/.test(prefix);
     this.setState({ datacitePrefixValid: isValid });
+  };
+
+  validateGithubOwner = (owner) => {
+    const isValid = /^[a-zA-Z0-9_-]+$/.test(owner);
+    this.setState({ githubOwnerValid: isValid });
+  };
+
+  validateGithubRepo = (repo) => {
+    const isValid = /^[a-zA-Z0-9_-]+$/.test(repo);
+    this.setState({ githubRepoValid: isValid });
   };
 
   render() {
@@ -568,10 +710,235 @@ class Admin extends FormClassTemplate {
                 )}
               </Grid>
             </Paper>
+            <Paper style={paperClass}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>GitHub Publishing Configuration</En>
+                      <Fr>Configuration de publication GitHub</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Grid item>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={
+                            this.state.isGithubPublishingEnabled || false
+                          }
+                          onChange={this.handleToggleGithubPublishing}
+                        />
+                      }
+                      label={
+                        <I18n>
+                          <En>Enable GitHub Publishing</En>
+                          <Fr>Activer la publication GitHub</Fr>
+                        </I18n>
+                      }
+                    />
+                  </Grid>
+                  {this.state.isGithubPublishingEnabled &&
+                    this.state.githubCredentialsStored && (
+                      <Grid item container spacing={2} alignItems="center">
+                        <Grid item>
+                          <Typography variant="body1">
+                            <CheckCircleIcon
+                              style={{
+                                color: "green",
+                                marginRight: 4,
+                                fontSize: "1.4rem",
+                              }}
+                            />
+                            <I18n>
+                              <En>Credentials Stored</En>
+                              <Fr>Identifiants Enregistrés</Fr>
+                            </I18n>
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    )}
+                  {this.state.isGithubPublishingEnabled &&
+                    !this.state.githubCredentialsStored && (
+                      <Grid item container spacing={2} alignItems="center">
+                        <Grid item>
+                          <Typography variant="body1">
+                            <CancelIcon
+                              style={{
+                                color: "red",
+                                marginRight: 4,
+                                fontSize: "1.4rem",
+                              }}
+                            />
+                            <I18n>
+                              <En>Please Add GitHub Credentials</En>
+                              <Fr>Veuillez ajouter les identifiants GitHub</Fr>
+                            </I18n>
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    )}
+                </Grid>
+                {this.state.isGithubPublishingEnabled && (
+                  <>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubOwner"
+                        label={
+                          <I18n>
+                            <En>Repository Owner</En>
+                            <Fr>Propriétaire du référentiel</Fr>
+                          </I18n>
+                        }
+                        placeholder="cioos-siooc"
+                        value={this.state.githubOwner || ""}
+                        onChange={this.handleChange}
+                        fullWidth
+                        error={!this.state.githubOwnerValid}
+                        helperText={
+                          !this.state.githubOwnerValid &&
+                          "Owner must contain only alphanumeric characters, hyphens, and underscores."
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubRepo"
+                        label={
+                          <I18n>
+                            <En>Repository Name</En>
+                            <Fr>Nom du référentiel</Fr>
+                          </I18n>
+                        }
+                        placeholder="cioos-siooc-forms"
+                        value={this.state.githubRepo || ""}
+                        onChange={this.handleChange}
+                        fullWidth
+                        error={!this.state.githubRepoValid}
+                        helperText={
+                          !this.state.githubRepoValid &&
+                          "Repository name must contain only alphanumeric characters, hyphens, and underscores."
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubToken"
+                        label={
+                          <I18n>
+                            <En>GitHub Token</En>
+                            <Fr>Jeton GitHub</Fr>
+                          </I18n>
+                        }
+                        type={this.state.showGithubToken ? "text" : "password"}
+                        onChange={this.handleChange}
+                        value={this.state.githubToken || ""}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={this.handleClickShowGithubToken}
+                                onMouseDown={this.handleMouseDownGithubToken}
+                                edge="end"
+                              >
+                                {this.state.showGithubToken ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubBranch"
+                        label={
+                          <I18n>
+                            <En>Target Branch</En>
+                            <Fr>Branche cible</Fr>
+                          </I18n>
+                        }
+                        placeholder="main"
+                        value={this.state.githubBranch || ""}
+                        onChange={this.handleChange}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubEnvironments"
+                        label={
+                          <I18n>
+                            <En>Environments (one per line)</En>
+                            <Fr>Environnements (un par ligne)</Fr>
+                          </I18n>
+                        }
+                        placeholder="prod"
+                        multiline
+                        value={this.state.githubEnvironments.join("\n")}
+                        onChange={(e) =>
+                          this.setState({
+                            githubEnvironments: e.target.value.split("\n"),
+                          })
+                        }
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="githubFilenameTemplate"
+                        label={
+                          <I18n>
+                            <En>File Naming Template</En>
+                            <Fr>Modèle de nom de fichier</Fr>
+                          </I18n>
+                        }
+                        placeholder="{uuid}"
+                        value={this.state.githubFilenameTemplate || ""}
+                        onChange={this.handleChange}
+                        fullWidth
+                        helperText={
+                          <I18n>
+                            <En>Available variables: {"{uuid}"}, {"{title}"}</En>
+                            <Fr>Variables disponibles: {"{uuid}"}, {"{title}"}</Fr>
+                          </I18n>
+                        }
+                      />
+                    </Grid>
+                  </>
+                )}
+                {this.state.isGithubPublishingEnabled && (
+                  <Button
+                    startIcon={<Save />}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.saveGithubCredentials()}
+                    style={{ margin: 10 }}
+                  >
+                    <I18n>
+                      <En>Save GitHub Settings</En>
+                      <Fr>Enregistrer les paramètres GitHub</Fr>
+                    </I18n>
+                  </Button>
+                )}
+              </Grid>
+            </Paper>
           </>
         )}
         {this.renderDeletionDialog()}
         {this.renderCredentialsMissingDialog()}
+        {this.renderGithubCredentialsMissingDialog()}
       </Grid>
     );
   }
