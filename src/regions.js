@@ -151,7 +151,7 @@ const regions = {
     },
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
-    logo: { en: "cioos-en.png", fr: "cioos-fr.png" }, // fallback test region logo
+    logo: { en: "cioos-en.png", fr: "cioos-fr.png" },
   },
 };
 

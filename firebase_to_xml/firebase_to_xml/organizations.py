@@ -37,9 +37,9 @@ def get_record_owner(record, organizations: dict) -> str:
 
             if owner in organizations:
                 return owner
-            for organization, att in organizations.items():
-                if owner in att["aliases"] or orginal_owner in att["aliases"]:
-                    return organization
+            for organization in organizations:
+                if owner in organization["aliases"] or orginal_owner in organization["aliases"]:
+                    return organization['name']
             logger.warning(
                 f"Owner {orginal_owner} not found in organizations.json, using {owner}"
             )
