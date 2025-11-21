@@ -8,6 +8,7 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Paper,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDebounce } from "use-debounce";
@@ -95,6 +96,24 @@ const ContactEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
+      {value.isDefaultContact && (
+        <Grid item xs>
+          <Paper
+            style={{
+              padding: '12px 16px',
+              backgroundColor: '#e3f2fd',
+              borderLeft: '4px solid #1976d2',
+            }}
+          >
+            <Typography variant="body2" style={{ color: '#1565c0', fontWeight: 500 }}>
+              <I18n
+                en="This is a default contact automatically added to all records in this region"
+                fr="Il s'agit d'un contact par défaut ajouté automatiquement à tous les enregistrements de cette région"
+              />
+            </Typography>
+          </Paper>
+        </Grid>
+      )}
       <Grid item xs>
         <Typography variant="h6">
           {ContactTitle(value)}

@@ -1,5 +1,6 @@
 import React from "react";
 
+import { Chip } from "@material-ui/core";
 import { I18n } from "../I18n";
 
 /* Functions used to format text in the contact page, left column */
@@ -20,11 +21,30 @@ function getContactTitleFromNames(contact) {
     .join(" - ");
 }
 
-function ContactTitle( contact ) {
-  return (
-    getContactTitleFromNames(contact) ||
-    (<I18n en="New contact" fr="Nouveau contact" />)
-  );
+function ContactTitle({ isDefaultContact, ...contact }) {
+  const titleText = getContactTitleFromNames(contact) ||
+    (<I18n en="New contact" fr="Nouveau contact" />);
+
+  if (isDefaultContact) {
+    return (
+      <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        {titleText}
+        <Chip
+          label={<I18n en="Default" fr="Défaut" />}
+          size="small"
+          style={{
+            backgroundColor: '#e3f2fd',
+            color: '#1976d2',
+            fontWeight: 500,
+            height: '20px',
+            fontSize: '0.7rem',
+          }}
+        />
+      </span>
+    );
+  }
+
+  return titleText;
 }
 
 export default ContactTitle;

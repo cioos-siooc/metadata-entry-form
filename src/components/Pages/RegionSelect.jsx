@@ -44,7 +44,6 @@ export default function RegionSelect() {
             variant="h6"
             gutterBottom
             align="center"
-            justifyContent="center"
           >
             <I18n>
               <En>

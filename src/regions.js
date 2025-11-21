@@ -15,12 +15,30 @@ const regions = {
     },
     introPageText: {
       en:
-        "CIOOS Pacific integrates data from Canada’s west coast, from Dixon Entrance to the Strait of Juan de Fuca.",
+        "CIOOS Pacific integrates data from Canada's west coast, from Dixon Entrance to the Strait of Juan de Fuca.",
       fr:
         "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
     logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "CIOOS Pacific",
+        orgEmail: "info@cioospacific.ca",
+        orgURL: "https://cioospacific.ca",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "Canada",
+        orgRor: "",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: false,
+      },
+    ],
   },
 
   stlaurent: {
@@ -48,6 +66,24 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-stlaurent-en.png", fr: "cioos-stlaurent-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "Observatoire global du Saint-Laurent",
+        orgEmail: "info@ogsl.ca",
+        orgURL: "https://ogsl.ca",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "Canada",
+        orgRor: "https://ror.org/03wfagk22",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: false,
+      },
+    ],
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
@@ -64,12 +100,30 @@ const regions = {
     },
     introPageText: {
       en:
-        "CIOOS Atlantic integrates data from Canada’s east coast, from Labrador to Bay of Fundy.",
+        "CIOOS Atlantic integrates data from Canada's east coast, from Labrador to Bay of Fundy.",
       fr:
         "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
     logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "CIOOS Atlantic",
+        orgEmail: "info@cioosatlantic.ca",
+        orgURL: "https://cioosatlantic.ca",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "Canada",
+        orgRor: "",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: false,
+      },
+    ],
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
@@ -88,10 +142,28 @@ const regions = {
       en:
         "Amundsen Science is the nonprofit organization responsible for the scientific mandate of the research icebreaker CCGS Amundsen.",
       fr:
-        "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
+        "Amundsen Science est l'organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
     showInRegionSelector: true,
     logo: { en: "cioos-amundsen-en.png", fr: "cioos-amundsen-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "Amundsen Science",
+        orgEmail: "info@as.ulaval.ca",
+        orgURL: "https://amundsenscience.ca",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "Canada",
+        orgRor: "https://ror.org/02s3xv195",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: false,
+      },
+    ],
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
@@ -110,10 +182,28 @@ const regions = {
       en:
         "CanWIN is the data centre for the Centre for Earth Observation Science (CEOS). We support research and education, and inform management, policy and evidence based decision-making from the Nelson River Watershed to the Arctic.",
       fr:
-        "CanWIN est le centre de données du Centre for Earth Observation Science (CEOS). Nous soutenons la recherche et l’éducation, et nous contribuons à la gestion, aux politiques et à la prise de décision fondée sur des données probantes, du bassin versant de la rivière Nelson jusqu’à l’Arctique.",
+        "CanWIN est le centre de données du Centre for Earth Observation Science (CEOS). Nous soutenons la recherche et l'éducation, et nous contribuons à la gestion, aux politiques et à la prise de décision fondée sur des données probantes, du bassin versant de la rivière Nelson jusqu'à l'Arctique.",
     },
     showInRegionSelector: false,
     logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "Canadian Watershed Information Network",
+        orgEmail: "portalco@umanitoba.ca",
+        orgURL: "https://canwin-datahub.ad.umanitoba.ca/",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "",
+        orgRor: "",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: false,
+      },
+    ],
   },
   test: {
     title: { en: "Test", fr: "Test" },
@@ -130,6 +220,24 @@ const regions = {
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
     logo: { en: "cioos-en.png", fr: "cioos-fr.png" },
+    defaultContacts: [
+      {
+        role: ["publisher"],
+        orgName: "Test Region",
+        orgEmail: "info@cioos.ca",
+        orgURL: "https://example.com",
+        orgAdress: "",
+        orgCity: "",
+        orgCountry: "",
+        orgRor: "",
+        indPosition: "",
+        indEmail: "",
+        indOrcid: "",
+        givenNames: "",
+        lastName: "",
+        inCitation: true,
+      },
+    ],
   },
 };
 

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { deepCopy } from "./misc";
+import regions from "../regions";
 
 const blankRecord = {
   title: { en: "", fr: "" },
@@ -39,10 +40,19 @@ const blankRecord = {
   associated_resources: [],
 };
 
-function getBlankRecord() {
+function getBlankRecord(region = null) {
   const record = deepCopy(blankRecord);
   record.identifier = uuidv4();
   record.created = new Date().toISOString();
+
+  // Add default contacts from region configuration if available
+  if (region && regions[region]?.defaultContacts) {
+    record.contacts = deepCopy(regions[region].defaultContacts).map(contact => ({
+      ...contact,
+      isDefaultContact: true, // Mark as default contact for highlighting
+    }));
+  }
+
   return record;
 }
 

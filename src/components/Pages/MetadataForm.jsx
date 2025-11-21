@@ -110,9 +110,11 @@ class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
+    const { region } = props.match.params;
+
     this.state = {
       projects: [],
-      record: getBlankRecord(),
+      record: getBlankRecord(region),
 
       // contacts saved by user (not the ones saved in the record)
       // kept in firebase object format instead of array
@@ -428,7 +430,7 @@ class MetadataForm extends FormClassTemplate {
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record }
+        { ...getBlankRecord(region), ...record }
       );
     } else {
       // new record
