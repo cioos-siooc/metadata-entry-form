@@ -26,10 +26,19 @@ import EditPlatform from "./FormComponents/EditSavedPlatform";
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
   const logoSrc = getRegionLogo(region, language);
+  const titleText = regions[region]?.title?.[language] || region;
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
-        <img src={logoSrc} alt={region} />
+        {logoSrc ? (
+          <img src={logoSrc} alt={region} />
+        ) : (
+          <div style={{
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            padding: '10px 0',
+          }}>{titleText}</div>
+        )}
       </Grid>
       <Grid item xs style={{ paddingLeft: "50px" }}>
         {children}
