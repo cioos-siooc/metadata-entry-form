@@ -115,28 +115,6 @@ const regions = {
     showInRegionSelector: false,
     logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
   },
-  tca: {
-    title: { en: "Transforming Climate Action", fr: "Transformer l'action pour le climat" },
-    titleFrPossessive: "de Transformer l'action pour le climat",
-    catalogueTitle: {
-      fr: "Catalogue de données de Transformer l'action pour le climat",
-      en: "Transforming Climate Action Data Catalogue",
-    },
-    colors: { primary: "rgb(254, 187, 18)", secondary: "#4e472fff" },
-    email: "tca.data@cioos.ca",
-    catalogueURL: {
-      fr: "https://catalogue.cioos.ca/",
-      en: "https://catalogue.cioos.ca/",
-    },
-    introPageText: {
-      en:
-        "Transforming Climate Action is a collaborative network focused on accelerating climate action in Canada through data, tools, and knowledge sharing.",
-      fr:
-        "Transformer l'action pour le climat est un réseau collaboratif axé sur l'accélération de l'action climatique au Canada grâce aux données, aux outils et au partage des connaissances.",
-    },
-    showInRegionSelector: true,
-    logo: { en: "", fr: "" },
-  },
   test: {
     title: { en: "Test", fr: "Test" },
     catalogueTitle: {
