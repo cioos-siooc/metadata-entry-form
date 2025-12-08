@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 
 import { useParams, useLocation, useHistory } from "react-router-dom";
 
@@ -11,6 +11,7 @@ import {
   AccountCircle,
   ChevronLeft,
   ChevronRight,
+  FeedbackRounded,
   RateReview,
   SupervisorAccount,
   Menu,
@@ -37,6 +38,7 @@ import {
   Tooltip,
   MenuItem,
 } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
 import { auth, signInWithGoogle } from "../auth";
@@ -189,6 +191,14 @@ export default function MiniDrawer({ children }) {
     process.env.NODE_ENV === "development";
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
+  const feedbackButtonRef = useRef(null);
+  useEffect(() => {
+    const feedback = Sentry.getFeedback();
+    const el = feedbackButtonRef.current;
+    if (feedback && el) {
+      feedback.attachTo(el);
+    }
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -202,7 +212,7 @@ export default function MiniDrawer({ children }) {
         <Toolbar
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: 'end',
+            alignItems: 'flex-end',
           }}
         >
           {region && (
@@ -232,14 +242,16 @@ export default function MiniDrawer({ children }) {
               <Fr>Outil de saisie de métadonnées</Fr>
             </I18n>
           </Typography>
-          <div style={{ marginLeft: "auto" }}>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "flex-end" }}>
             <img
               src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
               alt="CIOOS/SIOOC"
               width={350}
-              style={{ verticalAlign: "bottom", paddingRight: "15px" }}
+              style={{ display: "block", paddingRight: "15px" }}
             />
-
+            <button id="sentry-feedback-button" ref={feedbackButtonRef} type="button" style={{ padding: "15px" , background: "none", border: "none", cursor: "pointer" }} aria-label="Feedback">
+              <FeedbackRounded style={{ color: "white" }} />
+            </button>
             <Select
               color="primary"
               className={classes.languageSelector}
