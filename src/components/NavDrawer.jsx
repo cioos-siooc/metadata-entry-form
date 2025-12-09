@@ -107,7 +107,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    // marginBottom: theme.spacing(1),
     transition: "opacity 0.2s ease",
     "&:hover": {
       opacity: 0.8,
