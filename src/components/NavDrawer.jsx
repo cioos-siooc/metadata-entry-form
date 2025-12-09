@@ -242,9 +242,24 @@ export default function MiniDrawer({ children }) {
     const feedback = Sentry.getFeedback();
     const el = feedbackButtonRef.current;
     if (feedback && el) {
-      feedback.attachTo(el);
+      const config = {
+        colorScheme: "light",
+        triggerLabel: language === "fr" ? "Commentaires" : "Feedback",
+        submitButtonLabel: language === "fr" ? "Envoyer" : "Send Feedback",
+        formTitle: language === "fr" ? "Envoyer des commentaires" : "Send Feedback",
+        cancelButtonLabel: language === "fr" ? "Annuler" : "Cancel",
+        nameLabel: language === "fr" ? "Nom" : "Name",
+        namePlaceholder: language === "fr" ? "Votre nom" : "Your name",
+        emailLabel: language === "fr" ? "Courriel" : "Email",
+        emailPlaceholder: language === "fr" ? "votre.courriel@exemple.com" : "your.email@example.com",
+        messageLabel: language === "fr" ? "Description" : "Description",
+        messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
+        successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
+        enableScreenshot: true,
+      };
+      feedback.attachTo(el, config);
     }
-  }, []);
+  }, [language, topBarBackgroundColor]);
 
   return (
     <div className={classes.root}>
