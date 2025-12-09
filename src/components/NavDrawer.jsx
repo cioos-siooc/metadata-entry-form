@@ -73,15 +73,56 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 36,
   },
   languageSelector: {
-    "&:before": {
-      borderColor: "white",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderColor: "white",
-    },
     color: "white",
-    borderColor: "white",
+    border: "1px solid white",
+    borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    width: 100,
+    "&:before": {
+      display: "none",
+    },
+    "&:after": {
+      display: "none",
+    },
+    "&:hover:not(.Mui-disabled)": {
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    "& .MuiSelect-select": {
+      padding: `${theme.spacing(0.75)}px ${theme.spacing(4)}px ${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+      textAlign: "center",
+      "&:focus": {
+        backgroundColor: "transparent",
+      },
+    },
+    "& .MuiSelect-icon": {
+      color: "white",
+    },
+  },
+  feedbackButton: {
+    padding: theme.spacing(1),
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    // marginBottom: theme.spacing(1),
+    transition: "opacity 0.2s ease",
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
+  headerControls: {
+    display: "flex",
+    alignItems: "flex-end",
+    gap: theme.spacing(1),
+    marginLeft: "auto",
+  },
+  logoImage: {
+    display: "block",
+    height: "auto",
+    marginBottom: 0,
   },
   hide: {
     display: "none",
@@ -116,6 +157,12 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
+  },
+  appBarToolbar: {
+    minHeight: 64,
+    [theme.breakpoints.up("sm")]: {
+      minHeight: 70,
+    },
   },
   content: {
     flexGrow: 1,
@@ -210,9 +257,11 @@ export default function MiniDrawer({ children }) {
         })}
       >
         <Toolbar
+          className={classes.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: 'flex-end',
+            alignItems: "flex-end",
+            paddingBottom: 0,
           }}
         >
           {region && (
@@ -223,6 +272,7 @@ export default function MiniDrawer({ children }) {
               className={clsx(classes.menuButton, {
                 [classes.hide]: open,
               })}
+              style={{ marginBottom: theme.spacing(1) }}
             >
               <Menu />
             </IconButton>
@@ -231,8 +281,8 @@ export default function MiniDrawer({ children }) {
             variant="h5"
             noWrap
             style={{
-              marginLeft: "10px",
-              marginBottom: "10px",
+              marginLeft: theme.spacing(1.25),
+              marginBottom: theme.spacing(1),
               flex: 1,
               color: "white",
             }}
@@ -242,23 +292,29 @@ export default function MiniDrawer({ children }) {
               <Fr>Outil de saisie de métadonnées</Fr>
             </I18n>
           </Typography>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "flex-end" }}>
+          <div className={classes.headerControls}>
             <img
               src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
               alt="CIOOS/SIOOC"
               width={350}
-              style={{ display: "block", paddingRight: "15px" }}
+              className={classes.logoImage}
             />
-            <button id="sentry-feedback-button" ref={feedbackButtonRef} type="button" style={{ padding: "15px" , background: "none", border: "none", cursor: "pointer" }} aria-label="Feedback">
-              <FeedbackRounded style={{ color: "white" }} />
+            <button
+              id="sentry-feedback-button"
+              ref={feedbackButtonRef}
+              type="button"
+              className={classes.feedbackButton}
+              aria-label="Feedback"
+            >
+              <FeedbackRounded style={{ color: "white", fontSize: 28 }} />
             </button>
             <Select
-              color="primary"
               className={classes.languageSelector}
               value={language}
               onChange={(e) =>
                 history.push(`/${e.target.value}/${pathWithoutLang}`)
               }
+              disableUnderline
             >
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="fr">FR</MenuItem>
