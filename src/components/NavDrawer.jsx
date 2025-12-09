@@ -238,9 +238,18 @@ export default function MiniDrawer({ children }) {
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
   const feedbackButtonRef = useRef(null);
+  const feedbackWidgetRef = useRef(null);
+
   useEffect(() => {
     const feedback = Sentry.getFeedback();
     const el = feedbackButtonRef.current;
+
+    // Remove previous widget if it exists
+    if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+      feedbackWidgetRef.current.remove();
+      feedbackWidgetRef.current = null;
+    }
+
     if (feedback && el) {
       const config = {
         colorScheme: "light",
@@ -256,9 +265,19 @@ export default function MiniDrawer({ children }) {
         messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
         successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
         enableScreenshot: true,
+        themeLight: {
+          accentBackground: topBarBackgroundColor,
+          accentForeground: "#ffffff",
+        },
       };
-      feedback.attachTo(el, config);
+      feedbackWidgetRef.current = feedback.attachTo(el, config);
     }
+
+    return () => {
+      if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+        feedbackWidgetRef.current.remove();
+      }
+    };
   }, [language, topBarBackgroundColor]);
 
   return (
