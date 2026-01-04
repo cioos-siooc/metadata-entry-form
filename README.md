@@ -217,6 +217,31 @@ firebase deploy --only database:prod # For production
 Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.
 
 
+## GitHub Publishing
+
+Reviewers and Admins can publish metadata records directly to a GitHub repository (e.g., `cioos-siooc/cioos-siooc-forms`).
+
+### Configuration
+
+1.  Go to the Admin page for your region.
+2.  Locate the "GitHub Publishing Configuration" section.
+3.  Enter the repository details (Owner, Name, Branch).
+4.  Provide a GitHub Personal Access Token (PAT) with `repo` scope.
+    *   Note: The token is stored in Firebase and protected by security rules.
+5.  Configure file naming template (default `{uuid}`) and target environments (e.g. `prod`, `dev`).
+
+### Publishing a Record
+
+1.  Go to the Reviewer page.
+2.  Find a Submitted or Published record.
+3.  Click the "Cloud Upload" icon (Publish to GitHub).
+4.  Select the target environments.
+5.  Optionally provide a commit message.
+6.  Click Publish.
+
+The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{environment}/{filename}.{xml|yaml}`.
+
+
 ## Hosting on github and Authentication
 
 When hosting the application in a new place there are a couple of things to update. 

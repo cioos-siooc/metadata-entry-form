@@ -57,6 +57,8 @@ const MetadataRecordListItem = ({
   showDownloadButton = true,
   showTransferButton,
   onTransferClick,
+  showGithubPublishAction,
+  onGithubPublishClick,
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
@@ -118,7 +120,6 @@ const MetadataRecordListItem = ({
         const dc = recordToDataCite(record, language, region, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
-        // Use callable python function convert_metadata for: xml, yaml, erddap
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
         const resp = await convertMetadata({ record_data: record, output_format: fileType});
@@ -210,6 +211,19 @@ const MetadataRecordListItem = ({
                 aria-label="delete"
               >
                 <Delete />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {showGithubPublishAction && (
+          <Tooltip title={<I18n en="Publish to GitHub" fr="Publier sur GitHub" />}>
+            <span>
+              <IconButton
+                onClick={() => onGithubPublishClick && onGithubPublishClick()}
+                edge="end"
+                aria-label="publish to github"
+              >
+                <CloudUpload />
               </IconButton>
             </span>
           </Tooltip>

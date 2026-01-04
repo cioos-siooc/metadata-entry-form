@@ -20,12 +20,14 @@ import { QuestionText } from "../FormComponents/QuestionStyles";
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
+import { UserContext } from "../../providers/UserProvider";
 
 import CheckBoxList from "../FormComponents/CheckBoxList";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
+import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 
 import {
   loadRegionRecords,
@@ -111,6 +113,15 @@ const RecordItem = ({
       showUnSubmitAction
       showEditAction
       showPercentComplete
+      showGithubPublishAction
+      onGithubPublishClick={() =>
+        toggleModal(
+          "githubPublishModalOpen",
+          true,
+          record.recordID,
+          record.userinfo.userID
+        )
+      }
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...commonProps}
     />
@@ -129,6 +140,15 @@ const RecordItem = ({
         showUnPublishAction
         showViewAction
         showPercentComplete
+        showGithubPublishAction
+        onGithubPublishClick={() =>
+          toggleModal(
+            "githubPublishModalOpen",
+            true,
+            record.recordID,
+            record.userinfo.userID
+          )
+        }
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
       />
@@ -159,6 +179,8 @@ class Reviewer extends FormClassTemplate {
       records: [],
       recordsFilter: "",
       recordCountsByStatus: {},
+      githubPublishModalOpen: false,
+      githubPublishLoading: false,
     };
   }
 
@@ -243,6 +265,33 @@ class Reviewer extends FormClassTemplate {
   toggleModal(modalName, state, key = "", userID) {
     this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
   }
+
+  handleGithubPublish = async (environments, commitMessage) => {
+    this.setState({ githubPublishLoading: true });
+    try {
+      const { match } = this.props;
+      const { region } = match.params;
+      const { publishRecordToGitHub } = this.context;
+
+      await publishRecordToGitHub({
+        recordId: this.state.modalKey,
+        userId: this.state.modalUserID,
+        region: region,
+        environments: environments,
+        commitMessage: commitMessage,
+      });
+
+      // eslint-disable-next-line no-alert
+      alert("Published to GitHub successfully!");
+      this.setState({ githubPublishModalOpen: false });
+    } catch (error) {
+      console.error("Publish error:", error);
+      // eslint-disable-next-line no-alert
+      alert(`Error publishing: ${error.message}`);
+    } finally {
+      this.setState({ githubPublishLoading: false });
+    }
+  };
 
   render() {
     const {
@@ -372,6 +421,17 @@ class Reviewer extends FormClassTemplate {
           onAccept={() => this.handleSubmitRecord(modalKey, modalUserID, "")}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
+        />
+        <GitHubPublishDialog
+          open={this.state.githubPublishModalOpen}
+          onClose={() => this.setState({ githubPublishModalOpen: false })}
+          onPublish={this.handleGithubPublish}
+          region={match.params.region}
+          recordTitle={
+            records.find((r) => r.recordID === modalKey)?.title?.[language] ||
+            ""
+          }
+          loading={this.state.githubPublishLoading}
         />
         <Grid item xs>
           <Typography variant="h5">
@@ -531,4 +591,5 @@ class Reviewer extends FormClassTemplate {
   }
 }
 
+Reviewer.contextType = UserContext;
 export default Reviewer;

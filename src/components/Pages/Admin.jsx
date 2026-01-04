@@ -54,6 +54,13 @@ class Admin extends FormClassTemplate {
       credentialsStored: false,
       showDeletionDialog: false,
       showCredentialsMissingDialog: false,
+      githubOwner: "cioos-siooc",
+      githubRepo: "cioos-siooc-forms",
+      githubToken: "",
+      githubBranch: "main",
+      githubFileTemplate: "{uuid}",
+      githubEnvironments: "prod",
+      showGithubToken: false,
     };
   }
 
@@ -83,6 +90,21 @@ class Admin extends FormClassTemplate {
             return response.data;
           }
         );
+
+        const githubRef = child(regionAdminRef, "githubCredentials");
+        onValue(githubRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            this.setState({
+              githubOwner: data.owner || "cioos-siooc",
+              githubRepo: data.repo || "cioos-siooc-forms",
+              githubBranch: data.branch || "main",
+              githubFileTemplate: data.fileTemplate || "{uuid}",
+              githubEnvironments: (data.environments || ["prod"]).join("\n"),
+              githubToken: data.token || "",
+            });
+          }
+        });
 
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
@@ -213,6 +235,39 @@ class Admin extends FormClassTemplate {
       this.setState({
         datacitePass: "",
         credentialsStored: true,
+      });
+    }
+  }
+
+  handleClickShowGithubToken = () =>
+    this.setState((prevState) => ({
+      showGithubToken: !prevState.showGithubToken,
+    }));
+
+  saveGithubCredentials() {
+    const { match } = this.props;
+    const { region } = match.params;
+    const {
+      githubOwner,
+      githubRepo,
+      githubToken,
+      githubBranch,
+      githubFileTemplate,
+      githubEnvironments,
+    } = this.state;
+    const database = getDatabase(firebase);
+
+    if (auth.currentUser) {
+      const regionAdminRef = ref(database, `admin/${region}`);
+      const githubRef = child(regionAdminRef, "githubCredentials");
+
+      set(githubRef, {
+        owner: githubOwner,
+        repo: githubRepo,
+        token: githubToken,
+        branch: githubBranch,
+        fileTemplate: githubFileTemplate,
+        environments: cleanArr(githubEnvironments.split("\n")),
       });
     }
   }
@@ -566,6 +621,117 @@ class Admin extends FormClassTemplate {
                     </I18n>
                   </Button>
                 )}
+              </Grid>
+            </Paper>
+            <Paper style={paperClass}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>GitHub Publishing Configuration</En>
+                      <Fr>Configuration de publication GitHub</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubOwner"
+                    label={
+                      <I18n>
+                        <En>Repository Owner</En>
+                        <Fr>Propriétaire du dépôt</Fr>
+                      </I18n>
+                    }
+                    value={this.state.githubOwner}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubRepo"
+                    label={
+                      <I18n>
+                        <En>Repository Name</En>
+                        <Fr>Nom du dépôt</Fr>
+                      </I18n>
+                    }
+                    value={this.state.githubRepo}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubToken"
+                    label="GitHub Token"
+                    type={this.state.showGithubToken ? "text" : "password"}
+                    value={this.state.githubToken}
+                    onChange={this.handleChange}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={this.handleClickShowGithubToken}
+                            onMouseDown={this.handleMouseDownPassword}
+                            edge="end"
+                          >
+                            {this.state.showGithubToken ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubBranch"
+                    label="Target Branch"
+                    value={this.state.githubBranch}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubFileTemplate"
+                    label="File Naming Template"
+                    value={this.state.githubFileTemplate}
+                    onChange={this.handleChange}
+                    fullWidth
+                    helperText="Default: {uuid}"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="githubEnvironments"
+                    label="Environments"
+                    multiline
+                    value={this.state.githubEnvironments}
+                    onChange={this.handleChange}
+                    fullWidth
+                    helperText="One environment per line (e.g. prod)"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    startIcon={<Save />}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.saveGithubCredentials()}
+                    style={{ margin: 10 }}
+                  >
+                    <I18n>
+                      <En>Save GitHub Settings</En>
+                      <Fr>Enregistrer les paramètres GitHub</Fr>
+                    </I18n>
+                  </Button>
+                </Grid>
               </Grid>
             </Paper>
           </>
