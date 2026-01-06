@@ -17,7 +17,7 @@ export default function RegionSelect() {
   const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
   // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
   const otherOrganizations = Object.entries(regions)
-    .filter(([code]) => !raCodes.includes(code) && code !== "test")
+    .filter(([code, regionInfo]) => !raCodes.includes(code) && regionInfo.showInRegionSelector)
     .map(([code, regionInfo]) => ({ code, info: regionInfo }));
 
   // Sort by translated title / name

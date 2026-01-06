@@ -117,8 +117,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <I18n>
             <En>
               Welcome to the {regionInfo.title.en} Metadata Entry Tool, the
-              first step in making your data discoverable and accessible through
-              CIOOS. This information will be used to create a metadata record
+              first step in making your data discoverable and accessible. This information will be used to create a metadata record
               for your dataset that will allow it to be searchable through the{" "}
               {regionInfo.catalogueTitle.en}. Please fill out each field with as
               much detail as possible. The metadata record will help describe

@@ -19,17 +19,17 @@ import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
-import regions from "../regions";
+import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
-  const imgPath = `/cioos-${region}-${language}.png`;
+  const logoSrc = getRegionLogo(region, language);
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
-        <img src={process.env.PUBLIC_URL + imgPath} alt={region} />
+        <img src={logoSrc} alt={region} />
       </Grid>
       <Grid item xs style={{ paddingLeft: "50px" }}>
         {children}

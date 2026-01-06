@@ -8,7 +8,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 
 import Typography from "@material-ui/core/Typography";
 import { useParams, useHistory } from "react-router-dom";
-import regions from "../../regions";
+import regions, { getRegionLogo } from "../../regions";
 
 const useStyles = makeStyles({
   root: {
@@ -75,7 +75,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   const classes = useStyles();
 
   const regionInfo = regions[region];
-  const imgPath = `/cioos-${region}-${language}.png`;
+  const logoSrc = getRegionLogo(region, language);
 
   // Fixed heights:
   // RA cards (showMap) -> 470px; Affiliated (no map) -> 240px
@@ -129,7 +129,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
         <CardContent className={classes.content} style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
             <img
-              src={process.env.PUBLIC_URL + imgPath}
+              src={logoSrc}
               alt={region}
               style={{
                 margin: "10px auto",
