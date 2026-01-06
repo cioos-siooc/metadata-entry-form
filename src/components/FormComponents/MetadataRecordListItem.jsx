@@ -20,6 +20,7 @@ import {
   Eject,
   Visibility,
   CloudDownload,
+  CloudUpload,
   TransferWithinAStation,
   OpenInNew,
   Edit,

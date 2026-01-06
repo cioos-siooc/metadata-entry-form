@@ -276,9 +276,9 @@ class Reviewer extends FormClassTemplate {
       await publishRecordToGitHub({
         recordId: this.state.modalKey,
         userId: this.state.modalUserID,
-        region: region,
-        environments: environments,
-        commitMessage: commitMessage,
+        region,
+        environments,
+        commitMessage,
       });
 
       // eslint-disable-next-line no-alert

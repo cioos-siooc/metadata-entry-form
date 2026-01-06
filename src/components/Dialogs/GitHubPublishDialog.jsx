@@ -10,13 +10,20 @@ import {
   Checkbox,
   FormGroup,
   CircularProgress,
-  Typography
+  Typography,
 } from "@material-ui/core";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import { I18n, En, Fr } from "../I18n";
 
-export default function GitHubPublishDialog({ open, onClose, onPublish, region, recordTitle, loading }) {
+export default function GitHubPublishDialog({
+  open,
+  onClose,
+  onPublish,
+  region,
+  recordTitle,
+  loading,
+}) {
   const [environments, setEnvironments] = useState([]);
   const [selectedEnvironments, setSelectedEnvironments] = useState([]);
   const [commitMessage, setCommitMessage] = useState("");
@@ -35,16 +42,17 @@ export default function GitHubPublishDialog({ open, onClose, onPublish, region, 
             setSelectedEnvironments([val.environments[0]]);
           }
         } else {
-            setEnvironments(["prod"]); // Fallback
+          setEnvironments(["prod"]); // Fallback
         }
         setConfigLoaded(true);
       });
-      
+
       // Default commit message
       setCommitMessage(`Publish metadata record: ${recordTitle || ""}`);
-      
+
       return () => unsub();
     }
+    return undefined;
   }, [open, region, recordTitle]);
 
   const handleToggleEnv = (env) => {
