@@ -11,4 +11,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git", branch = "fix/drop-firebase-to-xml-depandency" }
+cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git", branch = "development" }
