@@ -150,10 +150,10 @@ const validators = {
       const { polygon, description } = val;
 
       return (
-        (!isNaN(north) &&
-          !isNaN(south) &&
-          !isNaN(east) &&
-          !isNaN(west) &&
+        (!Number.isNaN(north) &&
+          !Number.isNaN(south) &&
+          !Number.isNaN(east) &&
+          !Number.isNaN(west) &&
           north >= south &&
           east >= west &&
           validateLatitude(north) &&
