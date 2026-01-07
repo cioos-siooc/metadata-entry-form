@@ -118,7 +118,7 @@ export async function transferRecord(
   if (userMatch) {
     const [matchingUserID] = userMatch;
 
-    const recordRef = child(regionUsersRef, `${sourceUserID})/records/${recordID}`);
+    const recordRef = child(regionUsersRef, `${sourceUserID}/records/${recordID}`);
 
     const record = (await get(recordRef, "value")).val();
 
@@ -137,7 +137,7 @@ export async function transferRecord(
 
 export function returnRecordToDraft(region, userID, key) {
   const database = getDatabase(firebase);
-  return set(ref(database, `${region})/users/${userID}/records/${key}/status`), "");
+  return set(ref(database, `${region}/users/${userID}/records/${key}/status`), "");
 }
 
 export async function getRegionProjects(region) {
