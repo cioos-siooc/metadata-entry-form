@@ -23,6 +23,7 @@
     "array-move": "^3.0.1",
     "axios": "^1.6.7",
     "buffer": "^6.0.3",
+    "cheerio": "1.0.0-rc.3",
     "citation-js": "^0.5.0",
     "clsx": "^1.1.1",
     "crypto-browserify": "^3.12.0",
@@ -70,8 +71,9 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.2",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.3",
+    "domexception": "4.0.0",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.6",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.12.0",
@@ -81,7 +83,9 @@
     "prettier": "^2.1.2",
     "react-app-rewired": "^2.2.1",
     "react-hot-loader": "^4.12.21",
-    "typescript": "4.9.5"
+    "text-encoding": "0.7.0",
+    "typescript": "4.9.5",
+    "whatwg-fetch": "3.6.20"
   },
   "overrides": {
     "typescript": "4.9.5"
