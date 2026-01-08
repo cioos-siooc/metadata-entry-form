@@ -13,17 +13,29 @@ import {
   Button,
   ButtonGroup,
 } from "@material-ui/core";
+import {
+  Edit,
+  Visibility,
+  Delete,
+  FileCopy,
+  Publish,
+  Eject,
+  TransferWithinAStation,
+} from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import MaterialTable from "material-table";
 
 import { getDatabase, ref, onValue } from "firebase/database";
 
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
+import regions from "../../regions";
+import { percentValid } from "../../utils/validate";
+import LastEdited from "../FormComponents/LastEdited";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
-import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 
 import {
   loadRegionRecords,
@@ -34,109 +46,6 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
 import FormClassTemplate from "./FormClassTemplate";
-
-const RecordItem = ({
-  record,
-  language,
-  editRecord,
-  toggleModal,
-  handleCloneRecord,
-}) => {
-  const commonProps = {
-    record,
-    language,
-    onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
-    onCloneClick: () =>
-      handleCloneRecord(record.recordID, record.userinfo.userID),
-    onDeleteClick: () =>
-      toggleModal(
-        "deleteModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    onTransferClick: () =>
-      toggleModal(
-        "transferModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    showAuthor: true,
-    showTransferButton: true,
-    showDeleteAction: true,
-    showCloneAction: true,
-  };
-
-  const DraftRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onSubmitClick={() => {
-          return toggleModal(
-            "submitModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          );
-        }}
-        showSubmitAction
-        showEditAction
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-        showPercentComplete
-      />
-    );
-  };
-  const SubmittedRecordItem = () => (
-    <MetadataRecordListItem
-      onSubmitClick={() =>
-        toggleModal(
-          "publishModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      onUnSubmitClick={() =>
-        toggleModal(
-          "unSubmitModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      showPublishAction
-      showUnSubmitAction
-      showEditAction
-      showPercentComplete
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...commonProps}
-    />
-  );
-  const PublishedRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onUnPublishClick={() =>
-          toggleModal(
-            "unPublishModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          )
-        }
-        showUnPublishAction
-        showViewAction
-        showPercentComplete
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-      />
-    );
-  };
-
-  if (record.status === "submitted") return <SubmittedRecordItem />;
-  if (record.status === "published") return <PublishedRecordItem />;
-  return <DraftRecordItem />;
-};
 
 class Reviewer extends FormClassTemplate {
   constructor(props) {
@@ -535,52 +444,203 @@ class Reviewer extends FormClassTemplate {
                 </Grid>
               </Grid>
             </Paper>
-            {recordsToShow.length ? (
-              <>
-                <Grid container direction="column" spacing={1}>
-                  <Grid item xs={12}>
-                    <Typography variant="body2" gutterBottom>
-                      <I18n>
-                        <En>
-                          These are the submissions we have received from all
-                          users that have not yet been reviewed. To accept a
-                          record, click the 'Publish' button.
-                        </En>
-                        <Fr>
-                          Ce sont les soumissions que nous avons reçues de tous
-                          les utilisateurs qui n'ont pas encore été examinées.
-                          Pour accepter un enregistrement, cliquez sur le bouton
-                          « Publier ».
-                        </Fr>
-                      </I18n>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    {recordsToShow.map((record) => (
-                      <RecordItem
-                        key={record.recordID}
-                        record={record}
-                        // eslint-disable-next-line react/jsx-no-bind
-                        toggleModal={this.toggleModal.bind(this)}
-                        editRecord={this.editRecord.bind(this)}
-                        handleCloneRecord={this.handleCloneRecord.bind(this)}
+            <MaterialTable
+              title=""
+              columns={[
+                {
+                  title: language === "en" ? "Title" : "Titre",
+                  field: "title",
+                  grouping: false,
+                  render: (rowData) => rowData.title?.[language] || "",
+                  customFilterAndSearch: (term, rowData) => {
+                    const title = rowData.title?.[language] || "";
+                    return title.toLowerCase().includes(term.toLowerCase());
+                  },
+                },
+                {
+                  title: language === "en" ? "Status" : "Statut",
+                  field: "status",
+                  lookup: {
+                    "": language === "en" ? "Draft" : "Brouillon",
+                    submitted: language === "en" ? "Submitted" : "Soumis",
+                    published: language === "en" ? "Published" : "Publié",
+                  },
+                  render: (rowData) => {
+                    const regionColor = regions[rowData.region]?.colors?.primary || "#006e90";
+                    let bgColor = "#757575";
+                    let label = language === "en" ? "Draft" : "Brouillon";
+
+                    if (rowData.status === "published") {
+                      bgColor = regionColor;
+                      label = language === "en" ? "Published" : "Publié";
+                    } else if (rowData.status === "submitted") {
+                      bgColor = "#f57c00";
+                      label = language === "en" ? "Submitted" : "Soumis";
+                    }
+
+                    return (
+                      <Chip
+                        label={label}
+                        size="small"
+                        style={{
+                          backgroundColor: bgColor,
+                          color: "#ffffff",
+                          fontWeight: 500,
+                        }}
                       />
-                    ))}
-                  </Grid>
-                </Grid>
-              </>
-            ) : (
-              <Grid container direction="column">
-                <Grid item xs>
-                  <Typography>
-                    <I18n>
-                      <En>There are no records waiting to be reviewed.</En>
-                      <Fr>Aucun dossier n'attend d'être examiné.</Fr>
-                    </I18n>
-                  </Typography>
-                </Grid>
-              </Grid>
-            )}
+                    );
+                  },
+                },
+                {
+                  title: language === "en" ? "Author" : "Auteur",
+                  field: "userinfo.email",
+                  filtering: false,
+                },
+                {
+                  title: language === "en" ? "Progress" : "Progrès",
+                  field: "progress",
+                  filtering: false,
+                  grouping: false,
+                  render: (rowData) => `${percentValid(rowData)}%`,
+                  customSort: (a, b) => percentValid(a) - percentValid(b),
+                },
+                {
+                  title: language === "en" ? "Last Edited" : "Dernière modification",
+                  field: "created",
+                  filtering: false,
+                  grouping: false,
+                  render: (rowData) => <LastEdited dateStr={rowData.created} />,
+                  customSort: (a, b) => {
+                    const dateA = a.created ? new Date(a.created).getTime() : 0;
+                    const dateB = b.created ? new Date(b.created).getTime() : 0;
+                    return dateA - dateB;
+                  },
+                },
+              ]}
+              data={recordsToShow}
+              actions={[
+                (rowData) => {
+                  const isPublished = rowData.status === "published";
+                  let tooltip = "";
+                  if (isPublished) {
+                    tooltip = language === "en" ? "View" : "Voir";
+                  } else {
+                    tooltip = language === "en" ? "Edit" : "Modifier";
+                  }
+                  return {
+                    icon: () => isPublished ? <Visibility /> : <Edit />,
+                    tooltip,
+                    onClick: (_, row) => this.editRecord(row.recordID, row.userinfo.userID),
+                  };
+                },
+                () => ({
+                  icon: () => <FileCopy />,
+                  tooltip: language === "en" ? "Clone" : "Dupliquer",
+                  onClick: (_, row) => this.handleCloneRecord(row.recordID, row.userinfo.userID),
+                }),
+                () => ({
+                  icon: () => <Delete />,
+                  tooltip: language === "en" ? "Delete" : "Supprimer",
+                  onClick: (_, row) => this.toggleModal("deleteModalOpen", true, row.recordID, row.userinfo.userID),
+                }),
+                () => ({
+                  icon: () => <TransferWithinAStation />,
+                  tooltip: language === "en" ? "Transfer" : "Transférer",
+                  onClick: (_, row) => this.toggleModal("transferModalOpen", true, row.recordID, row.userinfo.userID),
+                }),
+                (rowData) => {
+                  if (rowData.status === "") {
+                    return {
+                      icon: () => <Publish />,
+                      tooltip: language === "en" ? "Submit" : "Soumettre",
+                      onClick: (_, row) => this.toggleModal("submitModalOpen", true, row.recordID, row.userinfo.userID),
+                    };
+                  }
+                  if (rowData.status === "submitted") {
+                    return {
+                      icon: () => <Publish />,
+                      tooltip: language === "en" ? "Publish" : "Publier",
+                      onClick: (_, row) => this.toggleModal("publishModalOpen", true, row.recordID, row.userinfo.userID),
+                    };
+                  }
+                  if (rowData.status === "published") {
+                    return {
+                      icon: () => <Eject />,
+                      tooltip: language === "en" ? "Unpublish" : "Dépublier",
+                      onClick: (_, row) => this.toggleModal("unPublishModalOpen", true, row.recordID, row.userinfo.userID),
+                    };
+                  }
+                  return null;
+                },
+                (rowData) => {
+                  if (rowData.status === "submitted") {
+                    return {
+                      icon: () => <Eject />,
+                      tooltip: language === "en" ? "Unsubmit" : "Annuler la soumission",
+                      onClick: (_, row) => this.toggleModal("unSubmitModalOpen", true, row.recordID, row.userinfo.userID),
+                    };
+                  }
+                  return null;
+                },
+              ].filter(action => typeof action === "function" || action !== null)}
+              options={{
+                filtering: true,
+                sorting: true,
+                search: false,
+                grouping: true,
+                pageSize: 20,
+                pageSizeOptions: [10, 20, 50, 100],
+                actionsColumnIndex: -1,
+                showTitle: false,
+                toolbar: true,
+                exportButton: true,
+                exportAllData: true,
+                columnsButton: true,
+                headerStyle: {
+                  fontWeight: 600,
+                  fontSize: "0.875rem",
+                },
+                actionsCellStyle: {
+                  padding: "4px 8px",
+                },
+              }}
+              localization={{
+                pagination: {
+                  labelDisplayedRows: language === "en" ? "{from}-{to} of {count}" : "{from}-{to} de {count}",
+                  labelRowsSelect: language === "en" ? "rows" : "lignes",
+                  labelRowsPerPage: language === "en" ? "Rows per page:" : "Lignes par page:",
+                  firstAriaLabel: language === "en" ? "First Page" : "Première page",
+                  firstTooltip: language === "en" ? "First Page" : "Première page",
+                  previousAriaLabel: language === "en" ? "Previous Page" : "Page précédente",
+                  previousTooltip: language === "en" ? "Previous Page" : "Page précédente",
+                  nextAriaLabel: language === "en" ? "Next Page" : "Page suivante",
+                  nextTooltip: language === "en" ? "Next Page" : "Page suivante",
+                  lastAriaLabel: language === "en" ? "Last Page" : "Dernière page",
+                  lastTooltip: language === "en" ? "Last Page" : "Dernière page",
+                },
+                toolbar: {
+                  searchTooltip: language === "en" ? "Search" : "Rechercher",
+                  searchPlaceholder: language === "en" ? "Search" : "Rechercher",
+                  exportTitle: language === "en" ? "Export" : "Exporter",
+                  exportAriaLabel: language === "en" ? "Export" : "Exporter",
+                  exportName: language === "en" ? "Export as CSV" : "Exporter en CSV",
+                  showColumnsTitle: language === "en" ? "Show Columns" : "Afficher les colonnes",
+                  showColumnsAriaLabel: language === "en" ? "Show Columns" : "Afficher les colonnes",
+                  nRowsSelected: language === "en" ? "{0} row(s) selected" : "{0} ligne(s) sélectionnée(s)",
+                },
+                header: {
+                  actions: language === "en" ? "Actions" : "Actions",
+                },
+                body: {
+                  emptyDataSourceMessage: language === "en"
+                    ? "There are no records waiting to be reviewed."
+                    : "Aucun dossier n'attend d'être examiné.",
+                  filterRow: {
+                    filterTooltip: language === "en" ? "Filter" : "Filtrer",
+                  },
+                },
+              }}
+            />
           </>
         )}
       </Grid>
