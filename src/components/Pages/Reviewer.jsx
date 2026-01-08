@@ -7,17 +7,19 @@ import {
   Checkbox,
   TextField,
   Paper,
+  Chip,
+  Box,
+  Divider,
+  Button,
+  ButtonGroup,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { getDatabase, ref, onValue } from "firebase/database";
-import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
-
-import CheckBoxList from "../FormComponents/CheckBoxList";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
@@ -384,37 +386,103 @@ class Reviewer extends FormClassTemplate {
         ) : (
           <>
             <Paper
+              elevation={1}
               style={{
-                padding: "10px",
-                marginBottom: "10px",
+                padding: "16px",
+                marginBottom: "16px",
               }}
             >
-              <QuestionText>
-                <En>Filters</En>
-                <Fr>Filtres</Fr>
-              </QuestionText>
-              <Grid container direction="column" spacing={2}>
-                <Grid item xs>
-                  <CheckBoxList
-                    value={showRecordTypes}
+              <Box mb={2}>
+                <Typography variant="h6" gutterBottom>
+                  <I18n en="Filters" fr="Filtres" />
+                </Typography>
+                <Divider />
+              </Box>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="subtitle2"
+                    gutterBottom
+                    style={{ fontWeight: 600, marginBottom: 12 }}
+                  >
+                    <I18n en="Search" fr="Recherche" />
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    size="small"
                     onChange={(e) => {
-                      this.setState({ showRecordTypes: e });
+                      this.setState({ recordsFilter: e.target.value });
                     }}
-                    options={recordTypeOptions}
-                    optionLabels={["draft", "submitted", "published"].map(
-                      (status) =>
-                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
-                    )}
+                    placeholder={
+                      language === "en"
+                        ? "Search title and abstract..."
+                        : "Rechercher le titre et le résumé..."
+                    }
                   />
                 </Grid>
-                <Grid item xs>
+
+                <Grid item xs={12}>
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      gutterBottom
+                      style={{ fontWeight: 600, marginBottom: 12 }}
+                    >
+                      <I18n en="Status" fr="Statut" />
+                    </Typography>
+                    <ButtonGroup
+                      fullWidth
+                      size="small"
+                    >
+                      {["draft", "submitted", "published"].map((status) => {
+                        const isSelected = showRecordTypes.includes(
+                          recordTypeOptions[
+                            ["draft", "submitted", "published"].indexOf(status)
+                          ]
+                        );
+                        return (
+                          <Button
+                            key={status}
+                            variant={isSelected ? "contained" : "outlined"}
+                            color={isSelected ? "primary" : "default"}
+                            onClick={() => {
+                              const option =
+                                recordTypeOptions[
+                                  ["draft", "submitted", "published"].indexOf(
+                                    status
+                                  )
+                                ];
+                              const newTypes = isSelected
+                                ? showRecordTypes.filter((t) => t !== option)
+                                : [...showRecordTypes, option];
+                              this.setState({ showRecordTypes: newTypes });
+                            }}
+                          >
+                            {`${recordStatusTranslate[status][language]} (${recordCountsByStatus[status] || 0})`}
+                          </Button>
+                        );
+                      })}
+                    </ButtonGroup>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography
+                    variant="subtitle2"
+                    gutterBottom
+                    style={{ fontWeight: 600, marginBottom: 12 }}
+                  >
+                    <I18n en="Users" fr="Utilisateurs" />
+                  </Typography>
                   <Autocomplete
                     multiple
                     id="users-filter"
                     options={users}
                     disableCloseOnSelect
                     value={showUsers}
-                    onChange={(event, newValue) => {
+                    onChange={(_, newValue) => {
                       this.setState({ showUsers: newValue });
                     }}
                     getOptionLabel={(option) => option}
@@ -427,27 +495,42 @@ class Reviewer extends FormClassTemplate {
                         {option}
                       </>
                     )}
-                    renderInput={(params) => (
+                    renderTags={(value, getTagProps) => {
+                      if (value.length === 0) {
+                        return null;
+                      }
+                      return value.map((option, index) => {
+                        const tagProps = getTagProps({ index });
+                        return (
+                          // eslint-disable-next-line react/jsx-props-no-spreading
+                          <Chip key={option} size="small" label={option} {...tagProps} />
+                        );
+                      });
+                    }}
+                    renderInput={(params) => {
+                      let placeholderText = "";
+                      if (showUsers.length === 0) {
+                        placeholderText =
+                          language === "en"
+                            ? "All users"
+                            : "Tous les utilisateurs";
+                      } else {
+                        placeholderText =
+                          language === "en"
+                            ? "Search users..."
+                            : "Rechercher des utilisateurs...";
+                      }
+
+                      return (
                         <TextField
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...params}
-                          label={<I18n en="Users (none selected = all)" fr="Utilisateurs (aucun sélectionné = tous)" />}
+                          placeholder={placeholderText}
+                          variant="outlined"
+                          size="small"
                         />
-            )}
-                  />
-                </Grid>
-                <Grid item xs>
-                  <TextField
-                    fullWidth
-                    onChange={(e) => {
-                      this.setState({ recordsFilter: e.target.value });
+                      );
                     }}
-                    label={
-                      <I18n
-                        en="Search title and abstract"
-                        fr="Rechercher le titre et le résumé"
-                      />
-                    }
                   />
                 </Grid>
               </Grid>
