@@ -100,16 +100,24 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   feedbackButton: {
-    padding: theme.spacing(1),
+    padding: `${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
     background: "none",
-    border: "none",
+    border: "1px solid white",
+    borderRadius: theme.shape.borderRadius,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "opacity 0.2s ease",
+    color: "white",
+    fontSize: "14px",
+    fontWeight: 500,
+    fontFamily: theme.typography.fontFamily,
+    lineHeight: 1.5,
+    marginBottom: theme.spacing(1),
+    height: "auto",
+    transition: "background-color 0.2s ease",
     "&:hover": {
-      opacity: 0.8,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   },
   headerControls: {
@@ -265,6 +273,16 @@ export default function MiniDrawer({ children }) {
         messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
         successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
         enableScreenshot: true,
+        autoInject: false,
+        onFormOpen: () => {
+          // Add click handler to backdrop to close on single click
+          setTimeout(() => {
+            const backdrop = document.querySelector('[data-sentry-feedback-backdrop]');
+            if (backdrop) {
+              backdrop.style.pointerEvents = 'auto';
+            }
+          }, 0);
+        },
         themeLight: {
           accentBackground: topBarBackgroundColor,
           accentForeground: "#ffffff",
@@ -332,15 +350,6 @@ export default function MiniDrawer({ children }) {
               width={350}
               className={classes.logoImage}
             />
-            <button
-              id="sentry-feedback-button"
-              ref={feedbackButtonRef}
-              type="button"
-              className={classes.feedbackButton}
-              aria-label="Feedback"
-            >
-              <FeedbackRounded style={{ color: "white", fontSize: 28 }} />
-            </button>
             <Select
               className={classes.languageSelector}
               value={language}
@@ -569,6 +578,25 @@ export default function MiniDrawer({ children }) {
                 </ListItem>
               </Tooltip>
             )}
+          </List>
+          <Divider />
+          <List>
+            <Tooltip
+              placement="right-start"
+              title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+            >
+              <ListItem
+                button
+                key="Feedback"
+                id="sentry-feedback-button"
+                ref={feedbackButtonRef}
+              >
+                <ListItemIcon>
+                  <FeedbackRounded />
+                </ListItemIcon>
+                <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+              </ListItem>
+            </Tooltip>
           </List>
           <Divider />
           {usingDevDatabase && (
