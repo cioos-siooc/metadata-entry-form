@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
     marginBottom: theme.spacing(1),
-    width: 100,
+    width: 70,
     "&:before": {
       display: "none",
     },
