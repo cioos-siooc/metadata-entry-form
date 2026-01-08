@@ -4,14 +4,7 @@ import {
   Typography,
   Grid,
   CircularProgress,
-  Checkbox,
-  TextField,
-  Paper,
   Chip,
-  Box,
-  Divider,
-  Button,
-  ButtonGroup,
 } from "@material-ui/core";
 import {
   Edit,
@@ -34,7 +27,6 @@ import {
   SaveAlt,
   Check,
 } from "@material-ui/icons";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import MaterialTable from "material-table";
 
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -166,9 +158,6 @@ class Reviewer extends FormClassTemplate {
   render() {
     const {
       records,
-      recordsFilter,
-      showRecordTypes,
-      showUsers,
       deleteModalOpen,
       transferModalOpen,
       transferEmail,
@@ -180,59 +169,10 @@ class Reviewer extends FormClassTemplate {
       unSubmitModalOpen,
       submitModalOpen,
       loading,
-      users,
     } = this.state;
 
     const { match } = this.props;
     const { language } = match.params;
-
-    const recordTypeOptions = ["", "submitted", "published"];
-
-    // sort records - drafts then submitted then published
-    // Empty showUsers array means "show all users"
-    let recordsToShow = records
-      .filter((record) =>
-        showUsers.length === 0 || showUsers.includes(record.userinfo.email)
-      )
-      .sort((a, b) => a.created < b.created);
-
-    // the text search
-    if (recordsFilter) {
-      recordsToShow = recordsToShow.filter((record) => {
-        const recordText = JSON.stringify([
-          record.title || {},
-          record.abstract || {},
-        ]).toUpperCase();
-        return recordText.includes(recordsFilter.toUpperCase());
-      });
-    }
-
-    const recordCountsByStatus = {
-      draft: (recordsToShow.filter((record) => record.status === "") || [])
-        .length,
-      submitted: (
-        recordsToShow.filter((record) => record.status === "submitted") || []
-      ).length,
-      published: (
-        recordsToShow.filter((record) => record.status === "published") || []
-      ).length,
-    };
-
-    recordsToShow = recordsToShow.filter((record) =>
-      showRecordTypes.includes(record.status)
-    );
-
-    recordsToShow = recordsToShow.sort((a, b) => {
-      return (
-        showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
-      );
-    });
-
-    const recordStatusTranslate = {
-      draft: { en: "Draft", fr: "Brouillon" },
-      submitted: { en: "Submitted", fr: "Soumis" },
-      published: { en: "Published", fr: "Publié" },
-    };
     return (
       <Grid
         container
@@ -306,156 +246,6 @@ class Reviewer extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Paper
-              elevation={1}
-              style={{
-                padding: "16px",
-                marginBottom: "16px",
-              }}
-            >
-              <Box mb={2}>
-                <Typography variant="h6" gutterBottom>
-                  <I18n en="Filters" fr="Filtres" />
-                </Typography>
-                <Divider />
-              </Box>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography
-                    variant="subtitle2"
-                    gutterBottom
-                    style={{ fontWeight: 600, marginBottom: 12 }}
-                  >
-                    <I18n en="Search" fr="Recherche" />
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    onChange={(e) => {
-                      this.setState({ recordsFilter: e.target.value });
-                    }}
-                    placeholder={
-                      language === "en"
-                        ? "Search title and abstract..."
-                        : "Rechercher le titre et le résumé..."
-                    }
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Box>
-                    <Typography
-                      variant="subtitle2"
-                      gutterBottom
-                      style={{ fontWeight: 600, marginBottom: 12 }}
-                    >
-                      <I18n en="Status" fr="Statut" />
-                    </Typography>
-                    <ButtonGroup
-                      fullWidth
-                      size="small"
-                    >
-                      {["draft", "submitted", "published"].map((status) => {
-                        const isSelected = showRecordTypes.includes(
-                          recordTypeOptions[
-                            ["draft", "submitted", "published"].indexOf(status)
-                          ]
-                        );
-                        return (
-                          <Button
-                            key={status}
-                            variant={isSelected ? "contained" : "outlined"}
-                            color={isSelected ? "primary" : "default"}
-                            onClick={() => {
-                              const option =
-                                recordTypeOptions[
-                                  ["draft", "submitted", "published"].indexOf(
-                                    status
-                                  )
-                                ];
-                              const newTypes = isSelected
-                                ? showRecordTypes.filter((t) => t !== option)
-                                : [...showRecordTypes, option];
-                              this.setState({ showRecordTypes: newTypes });
-                            }}
-                          >
-                            {`${recordStatusTranslate[status][language]} (${recordCountsByStatus[status] || 0})`}
-                          </Button>
-                        );
-                      })}
-                    </ButtonGroup>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Typography
-                    variant="subtitle2"
-                    gutterBottom
-                    style={{ fontWeight: 600, marginBottom: 12 }}
-                  >
-                    <I18n en="Users" fr="Utilisateurs" />
-                  </Typography>
-                  <Autocomplete
-                    multiple
-                    id="users-filter"
-                    options={users}
-                    disableCloseOnSelect
-                    value={showUsers}
-                    onChange={(_, newValue) => {
-                      this.setState({ showUsers: newValue });
-                    }}
-                    getOptionLabel={(option) => option}
-                    renderOption={(option, { selected }) => (
-                      <>
-                        <Checkbox
-                          style={{ marginRight: 8 }}
-                          checked={selected}
-                        />
-                        {option}
-                      </>
-                    )}
-                    renderTags={(value, getTagProps) => {
-                      if (value.length === 0) {
-                        return null;
-                      }
-                      return value.map((option, index) => {
-                        const tagProps = getTagProps({ index });
-                        return (
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          <Chip key={option} size="small" label={option} {...tagProps} />
-                        );
-                      });
-                    }}
-                    renderInput={(params) => {
-                      let placeholderText = "";
-                      if (showUsers.length === 0) {
-                        placeholderText =
-                          language === "en"
-                            ? "All users"
-                            : "Tous les utilisateurs";
-                      } else {
-                        placeholderText =
-                          language === "en"
-                            ? "Search users..."
-                            : "Rechercher des utilisateurs...";
-                      }
-
-                      return (
-                        <TextField
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...params}
-                          placeholder={placeholderText}
-                          variant="outlined"
-                          size="small"
-                        />
-                      );
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Paper>
             <MaterialTable
               title=""
               icons={{
@@ -549,7 +339,7 @@ class Reviewer extends FormClassTemplate {
                   },
                 },
               ]}
-              data={recordsToShow}
+              data={records}
               actions={[
                 (rowData) => {
                   const isPublished = rowData.status === "published";
