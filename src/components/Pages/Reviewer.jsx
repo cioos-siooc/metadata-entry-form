@@ -8,11 +8,8 @@ import {
   TextField,
   Paper,
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 
@@ -186,7 +183,7 @@ class Reviewer extends FormClassTemplate {
             records,
             loading: false,
             users,
-            showUsers: users,
+            // Keep showUsers empty to indicate "all users selected"
           });
         });
         this.listenerRefs.push(usersRef);
@@ -269,8 +266,11 @@ class Reviewer extends FormClassTemplate {
     const recordTypeOptions = ["", "submitted", "published"];
 
     // sort records - drafts then submitted then published
+    // Empty showUsers array means "show all users"
     let recordsToShow = records
-      .filter((record) => showUsers.includes(record.userinfo.email))
+      .filter((record) =>
+        showUsers.length === 0 || showUsers.includes(record.userinfo.email)
+      )
       .sort((a, b) => a.created < b.created);
 
     // the text search
@@ -310,7 +310,6 @@ class Reviewer extends FormClassTemplate {
       submitted: { en: "Submitted", fr: "Soumis" },
       published: { en: "Published", fr: "Publié" },
     };
-    const selectedText = language === "fr" ? "sélectionnés" : "selected";
     return (
       <Grid
         container
@@ -409,54 +408,33 @@ class Reviewer extends FormClassTemplate {
                   />
                 </Grid>
                 <Grid item xs>
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2a-content"
-                      id="panel2a-header"
-                    >
-                      <Typography>
-                        {showUsers.length === users.length ? (
-                          <I18n
-                            en="Users (All users selected)"
-                            fr="Utilisateurs (Tous les utilisateurs)"
-                          />
-                        ) : (
-                          <I18n
-                            en={`Users (${showUsers.length}  ${selectedText})`}
-                            fr={`Utilisateurs (${showUsers.length}  ${selectedText})`}
-                          />
-                        )}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container direction="column">
-                        <Grid item xs>
-                          <En>Select All / None</En>
-                          <Fr>Tout sélectionner/Aucun</Fr>
-
-                          <Checkbox
-                            label="Show All / None"
-                            onChange={(e) => {
-                              this.setState({
-                                showUsers: e.target.checked ? users : [],
-                              });
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs>
-                          <CheckBoxList
-                            value={showUsers}
-                            onChange={(e) => {
-                              this.setState({ showUsers: e });
-                            }}
-                            options={users}
-                            labelSize={null}
-                          />
-                        </Grid>
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
+                  <Autocomplete
+                    multiple
+                    id="users-filter"
+                    options={users}
+                    disableCloseOnSelect
+                    value={showUsers}
+                    onChange={(event, newValue) => {
+                      this.setState({ showUsers: newValue });
+                    }}
+                    getOptionLabel={(option) => option}
+                    renderOption={(option, { selected }) => (
+                      <>
+                        <Checkbox
+                          style={{ marginRight: 8 }}
+                          checked={selected}
+                        />
+                        {option}
+                      </>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                          // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...params}
+                          label={<I18n en="Users (none selected = all)" fr="Utilisateurs (aucun sélectionné = tous)" />}
+                        />
+            )}
+                  />
                 </Grid>
                 <Grid item xs>
                   <TextField
