@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-no-bind */
-import React, { forwardRef } from "react";
+import React from "react";
 import {
   Typography,
   Grid,
   CircularProgress,
   Chip,
+  IconButton,
 } from "@material-ui/core";
 import {
   Edit,
@@ -14,20 +15,8 @@ import {
   Publish,
   Eject,
   TransferWithinAStation,
-  ArrowDownward,
-  ChevronLeft,
-  ChevronRight,
-  Clear,
-  FirstPage,
-  LastPage,
-  Search,
-  FilterList,
-  Remove,
-  ViewColumn,
-  SaveAlt,
-  Check,
 } from "@material-ui/icons";
-import MaterialTable from "material-table";
+import { DataGrid } from "@mui/x-data-grid";
 
 import { getDatabase, ref, onValue } from "firebase/database";
 
@@ -36,7 +25,6 @@ import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
 import regions from "../../regions";
 import { percentValid } from "../../utils/validate";
-import LastEdited from "../FormComponents/LastEdited";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
@@ -245,57 +233,44 @@ class Reviewer extends FormClassTemplate {
         {loading ? (
           <CircularProgress />
         ) : (
-          <>
-            <MaterialTable
-              title=""
-              icons={{
-                /* eslint-disable react/jsx-props-no-spreading */
-                Check: forwardRef((props, refParam) => <Check {...props} ref={refParam} />),
-                Clear: forwardRef((props, refParam) => <Clear {...props} ref={refParam} />),
-                Delete: forwardRef((props, refParam) => <Delete {...props} ref={refParam} />),
-                DetailPanel: forwardRef((props, refParam) => <ChevronRight {...props} ref={refParam} />),
-                Edit: forwardRef((props, refParam) => <Edit {...props} ref={refParam} />),
-                Export: forwardRef((props, refParam) => <SaveAlt {...props} ref={refParam} />),
-                Filter: forwardRef((props, refParam) => <FilterList {...props} ref={refParam} />),
-                FirstPage: forwardRef((props, refParam) => <FirstPage {...props} ref={refParam} />),
-                LastPage: forwardRef((props, refParam) => <LastPage {...props} ref={refParam} />),
-                NextPage: forwardRef((props, refParam) => <ChevronRight {...props} ref={refParam} />),
-                PreviousPage: forwardRef((props, refParam) => <ChevronLeft {...props} ref={refParam} />),
-                ResetSearch: forwardRef((props, refParam) => <Clear {...props} ref={refParam} />),
-                Search: forwardRef((props, refParam) => <Search {...props} ref={refParam} />),
-                SortArrow: forwardRef((props, refParam) => <ArrowDownward {...props} ref={refParam} />),
-                ThirdStateCheck: forwardRef((props, refParam) => <Remove {...props} ref={refParam} />),
-                ViewColumn: forwardRef((props, refParam) => <ViewColumn {...props} ref={refParam} />),
-                /* eslint-enable react/jsx-props-no-spreading */
-              }}
+          <div style={{ height: "calc(100vh - 200px)", width: "100%" }}>
+            <DataGrid
+              rows={records.map((record, index) => ({
+                id: record.recordID || index,
+                recordID: record.recordID,
+                userID: record.userinfo.userID,
+                title: record.title?.[language] || "",
+                status: record.status,
+                author: record.userinfo.email,
+                progress: Math.round(percentValid(record) * 100),
+                created: record.created,
+                region: record.region,
+                fullRecord: record,
+              }))}
               columns={[
                 {
-                  title: language === "en" ? "Title" : "Titre",
                   field: "title",
-                  grouping: false,
-                  render: (rowData) => rowData.title?.[language] || "",
-                  customFilterAndSearch: (term, rowData) => {
-                    const title = rowData.title?.[language] || "";
-                    return title.toLowerCase().includes(term.toLowerCase());
-                  },
+                  headerName: language === "en" ? "Title" : "Titre",
+                  flex: 2,
+                  minWidth: 200,
                 },
                 {
-                  title: language === "en" ? "Status" : "Statut",
                   field: "status",
-                  lookup: {
-                    "": language === "en" ? "Draft" : "Brouillon",
-                    submitted: language === "en" ? "Submitted" : "Soumis",
-                    published: language === "en" ? "Published" : "Publié",
-                  },
-                  render: (rowData) => {
-                    const regionColor = regions[rowData.region]?.colors?.primary || "#006e90";
+                  headerName: language === "en" ? "Status" : "Statut",
+                  flex: 1,
+                  minWidth: 130,
+                  groupable: true,
+                  headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => {
+                    const regionColor = regions[params.row.region]?.colors?.primary || "#006e90";
                     let bgColor = "#757575";
                     let label = language === "en" ? "Draft" : "Brouillon";
 
-                    if (rowData.status === "published") {
+                    if (params.value === "published") {
                       bgColor = regionColor;
                       label = language === "en" ? "Published" : "Publié";
-                    } else if (rowData.status === "submitted") {
+                    } else if (params.value === "submitted") {
                       bgColor = "#f57c00";
                       label = language === "en" ? "Submitted" : "Soumis";
                     }
@@ -312,157 +287,176 @@ class Reviewer extends FormClassTemplate {
                       />
                     );
                   },
+                  type: "singleSelect",
+                  maxWidth: 110,
+                  valueOptions: [
+                    { value: "", label: language === "en" ? "Draft" : "Brouillon" },
+                    { value: "submitted", label: language === "en" ? "Submitted" : "Soumis" },
+                    { value: "published", label: language === "en" ? "Published" : "Publié" },
+                  ],
                 },
                 {
-                  title: language === "en" ? "Author" : "Auteur",
-                  field: "userinfo.email",
+                  field: "author",
+                  headerName: language === "en" ? "Author" : "Auteur",
+                  flex: 1.5,
+                  minWidth: 180,
+                  groupable: true,
                 },
                 {
-                  title: language === "en" ? "Progress" : "Progrès",
                   field: "progress",
-                  filtering: false,
-                  grouping: false,
-                  render: (rowData) => `${percentValid(rowData)}%`,
-                  customSort: (a, b) => percentValid(a) - percentValid(b),
+                  headerName: language === "en" ? "Progress" : "Progrès",
+                  flex: 0.8,
+                  maxWidth: 90,
+                  type: "number",
+                  headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => `${params.value}%`,
                 },
                 {
-                  title: language === "en" ? "Last Edited" : "Dernière modification",
                   field: "created",
-                  filtering: false,
-                  grouping: false,
-                  render: (rowData) => <LastEdited dateStr={rowData.created} />,
-                  customSort: (a, b) => {
-                    const dateA = a.created ? new Date(a.created).getTime() : 0;
-                    const dateB = b.created ? new Date(b.created).getTime() : 0;
-                    return dateA - dateB;
+                  headerName: language === "en" ? "Last Edited" : "Dernière modification",
+                  flex: 1.2,
+                  maxWidth: 110,
+                  headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => {
+                    if (!params.value) return null;
+                    const dateObj = new Date(params.value);
+                    const now = Date.now();
+                    const diffMs = now - dateObj.getTime();
+                    const twoDaysMs = 2 * 24 * 60 * 60 * 1000;
+
+                    let displayStr;
+                    if (diffMs > twoDaysMs) {
+                      const options = { year: "numeric", month: "short", day: "2-digit" };
+                      displayStr = dateObj.toLocaleDateString(
+                        language === "fr" ? "fr-CA" : "en-CA",
+                        options
+                      );
+                    } else {
+                      // For relative time, we'll use a simple calculation
+                      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                      if (hours < 24) {
+                        displayStr = language === "en"
+                          ? `${hours} hour${hours !== 1 ? 's' : ''} ago`
+                          : `il y a ${hours} heure${hours !== 1 ? 's' : ''}`;
+                      } else {
+                        const days = Math.floor(hours / 24);
+                        displayStr = language === "en"
+                          ? `${days} day${days !== 1 ? 's' : ''} ago`
+                          : `il y a ${days} jour${days !== 1 ? 's' : ''}`;
+                      }
+                    }
+                    return <span>{displayStr}</span>;
+                  },
+                  sortComparator: (v1, v2) => {
+                    const date1 = v1 ? new Date(v1).getTime() : 0;
+                    const date2 = v2 ? new Date(v2).getTime() : 0;
+                    return date1 - date2;
+                  },
+                },
+                {
+                  field: "actions",
+                  headerName: language === "en" ? "Actions" : "Actions",
+                  flex: 1.5,
+                  minWidth: 220,
+                  sortable: false,
+                  filterable: false,
+                  renderCell: (params) => {
+                    const rowData = params.row;
+                    const isPublished = rowData.status === "published";
+
+                    let editTooltip = language === "en" ? "Edit" : "Modifier";
+                    if (isPublished) {
+                      editTooltip = language === "en" ? "View" : "Voir";
+                    }
+
+                    return (
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => this.editRecord(rowData.recordID, rowData.userID)}
+                          title={editTooltip}
+                        >
+                          {isPublished ? <Visibility fontSize="small" /> : <Edit fontSize="small" />}
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => this.handleCloneRecord(rowData.recordID, rowData.userID)}
+                          title={language === "en" ? "Clone" : "Dupliquer"}
+                        >
+                          <FileCopy fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => this.toggleModal("deleteModalOpen", true, rowData.recordID, rowData.userID)}
+                          title={language === "en" ? "Delete" : "Supprimer"}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => this.toggleModal("transferModalOpen", true, rowData.recordID, rowData.userID)}
+                          title={language === "en" ? "Transfer" : "Transférer"}
+                        >
+                          <TransferWithinAStation fontSize="small" />
+                        </IconButton>
+                        {rowData.status === "" && (
+                          <IconButton
+                            size="small"
+                            onClick={() => this.toggleModal("submitModalOpen", true, rowData.recordID, rowData.userID)}
+                            title={language === "en" ? "Submit" : "Soumettre"}
+                          >
+                            <Publish fontSize="small" />
+                          </IconButton>
+                        )}
+                        {rowData.status === "submitted" && (
+                          <>
+                            <IconButton
+                              size="small"
+                              onClick={() => this.toggleModal("publishModalOpen", true, rowData.recordID, rowData.userID)}
+                              title={language === "en" ? "Publish" : "Publier"}
+                            >
+                              <Publish fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => this.toggleModal("unSubmitModalOpen", true, rowData.recordID, rowData.userID)}
+                              title={language === "en" ? "Unsubmit" : "Annuler la soumission"}
+                            >
+                              <Eject fontSize="small" />
+                            </IconButton>
+                          </>
+                        )}
+                        {rowData.status === "published" && (
+                          <IconButton
+                            size="small"
+                            onClick={() => this.toggleModal("unPublishModalOpen", true, rowData.recordID, rowData.userID)}
+                            title={language === "en" ? "Unpublish" : "Dépublier"}
+                          >
+                            <Eject fontSize="small" />
+                          </IconButton>
+                        )}
+                      </div>
+                    );
                   },
                 },
               ]}
-              data={records}
-              actions={[
-                (rowData) => {
-                  const isPublished = rowData.status === "published";
-                  let tooltip = "";
-                  if (isPublished) {
-                    tooltip = language === "en" ? "View" : "Voir";
-                  } else {
-                    tooltip = language === "en" ? "Edit" : "Modifier";
-                  }
-                  return {
-                    icon: () => isPublished ? <Visibility /> : <Edit />,
-                    tooltip,
-                    onClick: (_, row) => this.editRecord(row.recordID, row.userinfo.userID),
-                  };
-                },
-                () => ({
-                  icon: () => <FileCopy />,
-                  tooltip: language === "en" ? "Clone" : "Dupliquer",
-                  onClick: (_, row) => this.handleCloneRecord(row.recordID, row.userinfo.userID),
-                }),
-                () => ({
-                  icon: () => <Delete />,
-                  tooltip: language === "en" ? "Delete" : "Supprimer",
-                  onClick: (_, row) => this.toggleModal("deleteModalOpen", true, row.recordID, row.userinfo.userID),
-                }),
-                () => ({
-                  icon: () => <TransferWithinAStation />,
-                  tooltip: language === "en" ? "Transfer" : "Transférer",
-                  onClick: (_, row) => this.toggleModal("transferModalOpen", true, row.recordID, row.userinfo.userID),
-                }),
-                (rowData) => {
-                  if (rowData.status === "") {
-                    return {
-                      icon: () => <Publish />,
-                      tooltip: language === "en" ? "Submit" : "Soumettre",
-                      onClick: (_, row) => this.toggleModal("submitModalOpen", true, row.recordID, row.userinfo.userID),
-                    };
-                  }
-                  if (rowData.status === "submitted") {
-                    return {
-                      icon: () => <Publish />,
-                      tooltip: language === "en" ? "Publish" : "Publier",
-                      onClick: (_, row) => this.toggleModal("publishModalOpen", true, row.recordID, row.userinfo.userID),
-                    };
-                  }
-                  if (rowData.status === "published") {
-                    return {
-                      icon: () => <Eject />,
-                      tooltip: language === "en" ? "Unpublish" : "Dépublier",
-                      onClick: (_, row) => this.toggleModal("unPublishModalOpen", true, row.recordID, row.userinfo.userID),
-                    };
-                  }
-                  return null;
-                },
-                (rowData) => {
-                  if (rowData.status === "submitted") {
-                    return {
-                      icon: () => <Eject />,
-                      tooltip: language === "en" ? "Unsubmit" : "Annuler la soumission",
-                      onClick: (_, row) => this.toggleModal("unSubmitModalOpen", true, row.recordID, row.userinfo.userID),
-                    };
-                  }
-                  return null;
-                },
-              ].filter(action => typeof action === "function" || action !== null)}
-              options={{
-                filtering: true,
-                sorting: true,
-                search: true,
-                grouping: true,
-                pageSize: 20,
-                pageSizeOptions: [10, 20, 50, 100],
-                actionsColumnIndex: -1,
-                showTitle: true,
-                toolbar: true,
-                exportButton: true,
-                exportAllData: true,
-                columnsButton: true,
-                headerStyle: {
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                },
-                actionsCellStyle: {
-                  padding: "4px 8px",
-                },
-              }}
-              localization={{
-                pagination: {
-                  labelDisplayedRows: language === "en" ? "{from}-{to} of {count}" : "{from}-{to} de {count}",
-                  labelRowsSelect: language === "en" ? "rows" : "lignes",
-                  labelRowsPerPage: language === "en" ? "Rows per page:" : "Lignes par page:",
-                  firstAriaLabel: language === "en" ? "First Page" : "Première page",
-                  firstTooltip: language === "en" ? "First Page" : "Première page",
-                  previousAriaLabel: language === "en" ? "Previous Page" : "Page précédente",
-                  previousTooltip: language === "en" ? "Previous Page" : "Page précédente",
-                  nextAriaLabel: language === "en" ? "Next Page" : "Page suivante",
-                  nextTooltip: language === "en" ? "Next Page" : "Page suivante",
-                  lastAriaLabel: language === "en" ? "Last Page" : "Dernière page",
-                  lastTooltip: language === "en" ? "Last Page" : "Dernière page",
-                },
-                toolbar: {
-                  searchTooltip: language === "en" ? "Search" : "Rechercher",
-                  searchPlaceholder: language === "en" ? "Search" : "Rechercher",
-                  exportTitle: language === "en" ? "Export" : "Exporter",
-                  exportAriaLabel: language === "en" ? "Export" : "Exporter",
-                  exportName: language === "en" ? "Export as CSV" : "Exporter en CSV",
-                  showColumnsTitle: language === "en" ? "Show Columns" : "Afficher les colonnes",
-                  showColumnsAriaLabel: language === "en" ? "Show Columns" : "Afficher les colonnes",
-                  nRowsSelected: language === "en" ? "{0} row(s) selected" : "{0} ligne(s) sélectionnée(s)",
-                },
-                header: {
-                  actions: language === "en" ? "Actions" : "Actions",
-                },
-                body: {
-                  emptyDataSourceMessage: language === "en"
-                    ? "There are no records waiting to be reviewed."
-                    : "Aucun dossier n'attend d'être examiné.",
-                  filterRow: {
-                    filterTooltip: language === "en" ? "Filter" : "Filtrer",
-                  },
-                },
+              pageSize={20}
+              rowsPerPageOptions={[10, 20, 50, 100]}
+              checkboxSelection={false}
+              disableSelectionOnClick
+              components={{
+                NoRowsOverlay: () => (
+                  <div style={{ padding: "20px", textAlign: "center" }}>
+                    {language === "en"
+                      ? "There are no records waiting to be reviewed."
+                      : "Aucun dossier n'attend d'être examiné."}
+                  </div>
+                ),
               }}
             />
-          </>
+          </div>
         )}
       </Grid>
     );
