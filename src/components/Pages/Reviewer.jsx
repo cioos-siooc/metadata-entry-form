@@ -259,7 +259,6 @@ class Reviewer extends FormClassTemplate {
                   headerName: language === "en" ? "Status" : "Statut",
                   flex: 1,
                   minWidth: 130,
-                  groupable: true,
                   headerAlign: "center",
                   align: "center",
                   renderCell: (params) => {
@@ -294,13 +293,63 @@ class Reviewer extends FormClassTemplate {
                     { value: "submitted", label: language === "en" ? "Submitted" : "Soumis" },
                     { value: "published", label: language === "en" ? "Published" : "Publié" },
                   ],
+                  filterOperators: [
+                    {
+                      label: language === "en" ? "is any of" : "est l'un de",
+                      value: "isAnyOf",
+                      getApplyFilterFn: (filterItem) => {
+                        if (!filterItem.value || filterItem.value.length === 0) {
+                          return null;
+                        }
+                        return (params) => {
+                          return filterItem.value.includes(params.value);
+                        };
+                      },
+                      InputComponent: ({ item, applyValue }) => {
+                        const handleFilterChange = (value) => {
+                          applyValue({ ...item, value });
+                        };
+
+                        return (
+                          <div style={{ padding: "8px" }}>
+                            {[
+                              { value: "", label: language === "en" ? "Draft" : "Brouillon" },
+                              { value: "submitted", label: language === "en" ? "Submitted" : "Soumis" },
+                              { value: "published", label: language === "en" ? "Published" : "Publié" },
+                            ].map((option) => {
+                              const checkboxId = `status-filter-${option.value}`;
+                              return (
+                                <div key={option.value} style={{ marginBottom: "4px" }}>
+                                  <label htmlFor={checkboxId} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+                                    <input
+                                      id={checkboxId}
+                                      type="checkbox"
+                                      checked={(item.value || []).includes(option.value)}
+                                      onChange={(e) => {
+                                        const currentValues = item.value || [];
+                                        const newValues = e.target.checked
+                                          ? [...currentValues, option.value]
+                                          : currentValues.filter((v) => v !== option.value);
+                                        handleFilterChange(newValues);
+                                      }}
+                                      style={{ marginRight: "8px" }}
+                                    />
+                                    {option.label}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      },
+                    },
+                  ],
                 },
                 {
                   field: "author",
                   headerName: language === "en" ? "Author" : "Auteur",
                   flex: 1.5,
                   minWidth: 180,
-                  groupable: true,
                 },
                 {
                   field: "progress",
