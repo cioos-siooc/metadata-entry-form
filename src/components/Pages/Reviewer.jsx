@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-bind */
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   Typography,
   Grid,
@@ -21,6 +21,18 @@ import {
   Publish,
   Eject,
   TransferWithinAStation,
+  ArrowDownward,
+  ChevronLeft,
+  ChevronRight,
+  Clear,
+  FirstPage,
+  LastPage,
+  Search,
+  FilterList,
+  Remove,
+  ViewColumn,
+  SaveAlt,
+  Check,
 } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import MaterialTable from "material-table";
@@ -446,6 +458,26 @@ class Reviewer extends FormClassTemplate {
             </Paper>
             <MaterialTable
               title=""
+              icons={{
+                /* eslint-disable react/jsx-props-no-spreading */
+                Check: forwardRef((props, refParam) => <Check {...props} ref={refParam} />),
+                Clear: forwardRef((props, refParam) => <Clear {...props} ref={refParam} />),
+                Delete: forwardRef((props, refParam) => <Delete {...props} ref={refParam} />),
+                DetailPanel: forwardRef((props, refParam) => <ChevronRight {...props} ref={refParam} />),
+                Edit: forwardRef((props, refParam) => <Edit {...props} ref={refParam} />),
+                Export: forwardRef((props, refParam) => <SaveAlt {...props} ref={refParam} />),
+                Filter: forwardRef((props, refParam) => <FilterList {...props} ref={refParam} />),
+                FirstPage: forwardRef((props, refParam) => <FirstPage {...props} ref={refParam} />),
+                LastPage: forwardRef((props, refParam) => <LastPage {...props} ref={refParam} />),
+                NextPage: forwardRef((props, refParam) => <ChevronRight {...props} ref={refParam} />),
+                PreviousPage: forwardRef((props, refParam) => <ChevronLeft {...props} ref={refParam} />),
+                ResetSearch: forwardRef((props, refParam) => <Clear {...props} ref={refParam} />),
+                Search: forwardRef((props, refParam) => <Search {...props} ref={refParam} />),
+                SortArrow: forwardRef((props, refParam) => <ArrowDownward {...props} ref={refParam} />),
+                ThirdStateCheck: forwardRef((props, refParam) => <Remove {...props} ref={refParam} />),
+                ViewColumn: forwardRef((props, refParam) => <ViewColumn {...props} ref={refParam} />),
+                /* eslint-enable react/jsx-props-no-spreading */
+              }}
               columns={[
                 {
                   title: language === "en" ? "Title" : "Titre",
