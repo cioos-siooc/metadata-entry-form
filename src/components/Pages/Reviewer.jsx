@@ -316,7 +316,6 @@ class Reviewer extends FormClassTemplate {
                 {
                   title: language === "en" ? "Author" : "Auteur",
                   field: "userinfo.email",
-                  filtering: false,
                 },
                 {
                   title: language === "en" ? "Progress" : "Progrès",
