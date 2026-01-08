@@ -87,9 +87,45 @@ The project is configured with multiple codebases in `firebase.json`:
 # Or: firebase emulators:start
 ```
 
+**Keep Local Data Between Restarts**:
+- The script persists emulator state to `.emulator-data` by default.
+- To use a custom path, set `EMULATOR_DATA_DIR`:
+   ```bash
+   EMULATOR_DATA_DIR=.cache/firebase-emulators ./emulate-functions.sh
+   ```
+   Data is imported on start and exported on exit.
+
+**Select Emulator Project Namespace**:
+- Frontend dev config uses project `cioos-metadata-form-dev-258dc`.
+- The emulator now defaults to that project to match the frontend.
+- Override if needed (e.g., to view prod-namespace data in your local emulator):
+   ```bash
+   EMULATOR_PROJECT=cioos-metadata-form-8d942 ./emulate-functions.sh
+   ```
+
 **Access Points**:
 - Functions Emulator: http://localhost:5002
 - Firebase UI: http://localhost:4000
+
+**Emulator Management**:
+- If ports are occupied (e.g., Firestore 8081), use the helper to clear blockers:
+   ```bash
+   cd firebase-functions
+   ./kill-emulators.sh
+   ```
+   This script kills common emulator processes and frees ports (UI, Functions, Firestore, RTDB, Auth).
+
+**Frontend Integration (Realtime Database Emulator)**:
+- The frontend connects to the RTDB emulator via SDK (`connectDatabaseEmulator`).
+- Ensure in the root `.env`:
+   ```bash
+   REACT_APP_FIREBASE_LOCAL_DATABASE=true
+   ```
+- Optional: local permissions overrides when using the RTDB emulator:
+   ```bash
+   REACT_APP_LOCAL_ADMINS=admin1@example.com,admin2@example.com
+   REACT_APP_LOCAL_REVIEWERS=reviewer1@example.com
+   ```
 
 ### Testing Python Functions
 

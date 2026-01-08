@@ -29,6 +29,9 @@ class UserProvider extends FormClassTemplate {
     const { match } = this.props;
 
     const { region } = match.params;
+    const localFirebaseDatabase = process.env.REACT_APP_FIREBASE_LOCAL_DATABASE;
+    const localAdminsEnv = (process.env.REACT_APP_LOCAL_ADMINS || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const localReviewersEnv = (process.env.REACT_APP_LOCAL_REVIEWERS || "").split(",").map((s) => s.trim()).filter(Boolean);
     this.setState({ authIsLoading: true });
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), (userAuth) => {
       if (userAuth) {
@@ -54,28 +57,30 @@ class UserProvider extends FormClassTemplate {
           });
 
         const database = getDatabase(firebase);
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
-        
-        const permissionsRef = ref(database, `admin/${region}/permissions`)
+        update(ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
 
-        onValue(permissionsRef, (permissionsFB) => {
-          const permissions = permissionsFB.toJSON();
-
-          const admins = permissions?.admins || "";
-          const reviewers = permissions?.reviewers || "";
-
+        // Support local admin/reviewer overrides when using the emulator
+        if (localFirebaseDatabase === "true" && (localAdminsEnv.length || localReviewersEnv.length)) {
+          const admins = localAdminsEnv;
+          const reviewers = localReviewersEnv;
           const isAdmin = admins.includes(email);
           const isReviewer = reviewers.includes(email);
+          this.setState({ admins, reviewers, isAdmin, isReviewer });
+        } else {
+          const permissionsRef = ref(database, `admin/${region}/permissions`);
+          onValue(permissionsRef, (permissionsFB) => {
+            const permissions = permissionsFB.toJSON();
 
-          this.setState({
-            admins,
-            reviewers,
-            isAdmin,
-            isReviewer,
+            const admins = permissions?.admins || "";
+            const reviewers = permissions?.reviewers || "";
+
+            const isAdmin = admins.includes(email);
+            const isReviewer = reviewers.includes(email);
+
+            this.setState({ admins, reviewers, isAdmin, isReviewer });
           });
-        });
-
-        this.listenerRefs.push(permissionsRef);
+          this.listenerRefs.push(permissionsRef);
+        }
 
         // real-time listener for shared records
         const sharesRef = ref(database, `${region}/shares/${uid}`);

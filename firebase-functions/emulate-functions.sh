@@ -30,5 +30,21 @@ echo "To test UI, start a new terminal, from the base directory, and run:"
 echo "  npm run start"
 echo ""
 
-# Start emulators
-firebase emulators:start
+# Persist emulator data across restarts
+# Override with EMULATOR_DATA_DIR env var if desired
+EMULATOR_DATA_DIR=${EMULATOR_DATA_DIR:-.emulator-data}
+mkdir -p "$EMULATOR_DATA_DIR"
+
+echo "📁 Using emulator data dir: $EMULATOR_DATA_DIR"
+echo "💾 Data will be imported on start and exported on exit"
+
+# Choose which Firebase project namespace the emulator uses
+# Defaults to the dev project to match the frontend dev config
+EMULATOR_PROJECT=${EMULATOR_PROJECT:-cioos-metadata-form-dev-258dc}
+echo "🧭 Using emulator project: $EMULATOR_PROJECT"
+
+# Start emulators with import/export to keep local database state
+firebase emulators:start \
+	--project="$EMULATOR_PROJECT" \
+	--import="$EMULATOR_DATA_DIR" \
+	--export-on-exit="$EMULATOR_DATA_DIR"

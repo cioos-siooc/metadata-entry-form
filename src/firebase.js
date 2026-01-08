@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import "firebase/compat/database";
 
 const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
@@ -40,11 +41,16 @@ const config = process.env.NODE_ENV === "production" && !(deployedOnTestServer =
   ? prodConfig
   : devConfig
 
-if (window.location.hostname === "localhost" && localFirebaseDatabase === "true") {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
-}
+// Use Realtime Database emulator for local development across common hostnames
+const localHosts = ["localhost", "127.0.0.1", "0.0.0.0"];
 
 const App = initializeApp(config);
+
+// Connect Realtime Database to local emulator when enabled
+if (localHosts.includes(window.location.hostname) && localFirebaseDatabase === "true") {
+  const db = getDatabase(App);
+  connectDatabaseEmulator(db, "127.0.0.1", 9001);
+}
 
 // Export the resolved config so UI components can reference values (e.g., databaseURL)
 export const firebaseConfig = config;

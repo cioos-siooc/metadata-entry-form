@@ -45,3 +45,5 @@ yarn.lock
 firebase-functions/python-functions/venv
 firebase-functions/python-functions/requirements.txt
 xml
+firebase-functions/.emulator-data
+firebase-functions/firebase-export*

@@ -37,10 +37,37 @@ In the container, run the following steps:
   cd firebase-functions
   bash emulate-functions.sh 
   ```
+   - Persistence: emulator data is imported/exported to `.emulator-data` by default.
+   - Namespace: defaults to dev project `cioos-metadata-form-dev-258dc`. Override with `EMULATOR_PROJECT=<project>`.
+   - If ports are busy, clear them:
+     ```shell
+     ./kill-emulators.sh
+     ```
 5. In a second terminal, start the frontent in development. From the base directory of this project run:
   ```
   npm install
   npm start
+  ```
+
+### Local Emulator Settings
+
+- Frontend to RTDB emulator:
+  ```env
+  REACT_APP_FIREBASE_LOCAL_DATABASE=true
+  ```
+  The app uses SDK `connectDatabaseEmulator` to route RTDB requests to `127.0.0.1:9001`.
+
+- Local permissions overrides (for emulator-only usage, avoid seeding DB):
+  ```env
+  REACT_APP_LOCAL_ADMINS=admin1@example.com,admin2@example.com
+  REACT_APP_LOCAL_REVIEWERS=reviewer1@example.com
+  ```
+
+- Emulator project namespace (functions directory scripts):
+  ```env
+  EMULATOR_PROJECT=cioos-metadata-form-dev-258dc
+  # Optionally set EMULATOR_DATA_DIR to a custom export path
+  # EMULATOR_DATA_DIR=.cache/firebase-emulators
   ```
 
 ## Monitoring
