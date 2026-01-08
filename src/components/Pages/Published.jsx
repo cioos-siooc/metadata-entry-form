@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, List, CircularProgress } from "@material-ui/core";
+import { Typography, CircularProgress, Box } from "@material-ui/core";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
@@ -72,8 +72,8 @@ class Published extends FormClassTemplate {
     const recordDateSort = (a, b) => new Date(b.created) - new Date(a.created);
 
     return (
-      <div>
-        <Typography variant="h5">
+      <Box>
+        <Typography variant="h5" gutterBottom>
           <I18n>
             <En>Published Records</En>
             <Fr>Dossiers publiés</Fr>
@@ -83,55 +83,53 @@ class Published extends FormClassTemplate {
         {loading ? (
           <CircularProgress />
         ) : (
-          <span>
-            <div>
-              <Typography>
-                <I18n>
-                  <En>These are the published records in your region.</En>
-                  <Fr>
-                    Il s'agit des enregistrements publiés dans votre région.
-                  </Fr>
-                </I18n>
-              </Typography>
+          <Box>
+            <Typography variant="body2" paragraph>
+              <I18n>
+                <En>These are the published records in your region.</En>
+                <Fr>
+                  Il s'agit des enregistrements publiés dans votre région.
+                </Fr>
+              </I18n>
+            </Typography>
 
-              <List>
-                {records && records.length
-                  ? records
-                      .sort(recordDateSort)
-                      .filter((record) => record.status === "published")
-                      .map((record) => {
-                        const { title } = record;
+            <Box mt={1}>
+              {records && records.length
+                ? records
+                    .sort(recordDateSort)
+                    .filter((record) => record.status === "published")
+                    .map((record) => {
+                      const { title } = record;
 
-                        if (!(title?.en || !title?.fr)) return null;
+                      if (!(title?.en || !title?.fr)) return null;
 
-                        return (
-                          <MetadataRecordListItem
-                            record={record}
-                            key={record.recordID}
-                            onViewEditClick={() =>
-                              this.editRecord(
-                                record.recordID,
-                                record.userinfo?.userID
-                              )
-                            }
-                            showDeleteAction={false}
-                            showUnSubmitAction={false}
-                            showCloneAction
-                            showAuthor
-                            showViewAction
-                            onCloneClick={() =>
-                              this.handleCloneRecord(
-                                record.recordID,
-                                record.userinfo?.userID,
-                                region
-                              )
-                            }
-                          />
-                        );
-                      })
-                  : ""}
-              </List>
-            </div>
+                      return (
+                        <MetadataRecordListItem
+                          key={record.recordID}
+                          record={record}
+                          onViewEditClick={() =>
+                            this.editRecord(
+                              record.recordID,
+                              record.userinfo?.userID
+                            )
+                          }
+                          showDeleteAction={false}
+                          showUnSubmitAction={false}
+                          showCloneAction
+                          showAuthor
+                          showViewAction
+                          onCloneClick={() =>
+                            this.handleCloneRecord(
+                              record.recordID,
+                              record.userinfo?.userID,
+                              region
+                            )
+                          }
+                        />
+                      );
+                    })
+                : null}
+            </Box>
 
             {!records && (
               <Typography>
@@ -141,9 +139,9 @@ class Published extends FormClassTemplate {
                 </I18n>
               </Typography>
             )}
-          </span>
+          </Box>
         )}
-      </div>
+      </Box>
     );
   }
 }

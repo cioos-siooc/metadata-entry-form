@@ -2,17 +2,19 @@ import React, { useContext, useState } from "react";
 import FileSaver from "file-saver";
 
 import {
-  ListItem,
-  ListItemText,
-  Avatar,
-  ListItemAvatar,
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
   Tooltip,
-  ListItemSecondaryAction,
   IconButton,
   CircularProgress,
   MenuItem,
   Menu,
+  Chip,
+  Box,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   FileCopy,
   Delete,
@@ -32,9 +34,135 @@ import { recordIsValid, percentValid } from "../../utils/validate";
 import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
-import RecordStatusIcon from "./RecordStatusIcon";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
+
+const useStyles = makeStyles((theme) => ({
+  card: {
+    marginBottom: theme.spacing(1),
+    transition: "box-shadow 0.2s ease, background-color 0.2s ease",
+    "&:hover": {
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      backgroundColor: "rgba(0,0,0,0.02)",
+    },
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: theme.spacing(0.75),
+      flexDirection: "column",
+      alignItems: "stretch",
+    },
+  },
+  cardContent: {
+    flex: 1,
+    padding: theme.spacing(1.25, 2),
+    paddingBottom: theme.spacing(1.25),
+    "&:last-child": {
+      paddingBottom: theme.spacing(1.25),
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(1.25),
+      paddingBottom: theme.spacing(1),
+    },
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+  },
+  content: {
+    flex: 1,
+    minWidth: 0,
+  },
+  title: {
+    fontWeight: 500,
+    fontSize: "0.95rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    lineHeight: 1.3,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.9rem",
+      whiteSpace: "normal",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+    },
+  },
+  metadata: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(0.5),
+    [theme.breakpoints.down("sm")]: {
+      gap: theme.spacing(0.5),
+      marginTop: theme.spacing(0.75),
+    },
+  },
+  chip: {
+    height: 20,
+    fontSize: "0.7rem",
+    fontWeight: 500,
+    [theme.breakpoints.down("sm")]: {
+      height: 18,
+      fontSize: "0.65rem",
+    },
+  },
+  cardActions: {
+    padding: theme.spacing(1, 1.5),
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: theme.spacing(0.25),
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0.75, 1.25),
+      justifyContent: "flex-start",
+      borderTop: `1px solid ${theme.palette.divider}`,
+    },
+  },
+  iconButton: {
+    padding: 6,
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.04)",
+    },
+  },
+  secondaryText: {
+    fontSize: "0.75rem",
+    color: theme.palette.text.secondary,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.7rem",
+    },
+  },
+  infoText: {
+    fontSize: "0.75rem",
+    color: theme.palette.text.secondary,
+    display: "inline",
+    marginRight: theme.spacing(1),
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.7rem",
+      display: "block",
+      marginTop: theme.spacing(0.25),
+    },
+  },
+  uuid: {
+    fontSize: "0.7rem",
+    color: theme.palette.text.disabled,
+    fontFamily: "monospace",
+    display: "inline",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.65rem",
+      display: "none",
+    },
+  },
+  statusBorder: {
+    borderLeft: "4px solid",
+    [theme.breakpoints.down("sm")]: {
+      borderLeft: "3px solid",
+    },
+  },
+}));
 
 const MetadataRecordListItem = ({
   record,
@@ -58,6 +186,7 @@ const MetadataRecordListItem = ({
   showTransferButton,
   onTransferClick,
 }) => {
+  const classes = useStyles();
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
   const { datacitePrefix } = useContext(UserContext);
@@ -135,50 +264,98 @@ const MetadataRecordListItem = ({
     }
   }
 
+  // Get status color - use region primary color
+  const regionColor = regions[region]?.colors?.primary || "#006e90";
+
+  const getStatusBgColor = (status) => {
+    switch (status) {
+      case "published":
+        return regionColor; // Full color
+      case "submitted":
+        return "#f57c00"; // Full orange
+      default:
+        return "#757575"; // Full gray
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      published: { en: "Published", fr: "Publié" },
+      submitted: { en: "Submitted", fr: "Soumis" },
+      "": { en: "Draft", fr: "Brouillon" },
+    };
+    return labels[status] || labels[""];
+  };
+
   return (
-    <ListItem key={record.recordID}>
-      <ListItemAvatar>
-        <IconButton onClick={onViewEditClick}>
-          <Avatar>
-            <RecordStatusIcon status={record.status} />
-          </Avatar>
-        </IconButton>
-      </ListItemAvatar>
-      <ListItemText
-        primary={<div style={{ width: "80%" }}>{record.title?.[language]}</div>}
-        secondaryTypographyProps={{ variant: "body2" }}
-        secondary={
-          <span>
-            {showAuthor && (
-              <span>
-                <I18n en="Author" fr="Auteur" />: {record.userinfo?.displayName}{" "}
-                {record.userinfo?.email}
-              </span>
-            )}
+    <Card
+      className={classes.card}
+      key={record.recordID}
+      elevation={0}
+      variant="outlined"
+    >
+      <CardContent className={classes.cardContent}>
+        <Box className={classes.header}>
+          <Box className={classes.content}>
+            <Typography className={classes.title}>
+              {record.title?.[language]}
+            </Typography>
 
-            <span style={{ display: "block" }}>
-              <LastEdited dateStr={record.created} />
-
+            <Box className={classes.metadata}>
+              <Chip
+                label={
+                  <I18n
+                    en={getStatusLabel(record.status).en}
+                    fr={getStatusLabel(record.status).fr}
+                  />
+                }
+                size="small"
+                className={classes.chip}
+                style={{
+                  backgroundColor: getStatusBgColor(record.status),
+                  color: "#ffffff",
+                }}
+              />
               {showPercentComplete && (
-                <I18n>
-                  <En>{percentValidInt}% complete</En>
-                  <Fr>{percentValidInt}% Achevée</Fr>
-                </I18n>
+                <Chip
+                  label={
+                    <I18n>
+                      <En>{percentValidInt}%</En>
+                      <Fr>{percentValidInt}%</Fr>
+                    </I18n>
+                  }
+                  size="small"
+                  className={classes.chip}
+                  style={{
+                    backgroundColor: "#f5f5f5",
+                    color: "#666",
+                  }}
+                />
               )}
-            </span>
+              {showAuthor && (
+                <Typography className={classes.infoText}>
+                  {record.userinfo?.displayName}
+                </Typography>
+              )}
+              <Typography className={classes.infoText}>
+                <LastEdited dateStr={record.created} />
+              </Typography>
+              <Typography className={classes.uuid}>
+                {record.identifier}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </CardContent>
 
-            <span style={{ display: "block" }}>UUID: {record.identifier}</span>
-          </span>
-        }
-      />
-      <ListItemSecondaryAction>
+      <CardActions className={classes.cardActions}>
         {showViewAction && (
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
               <IconButton
                 onClick={onViewEditClick}
-                edge="end"
                 aria-label="view record"
+                className={classes.iconButton}
               >
                 <Visibility />
               </IconButton>
@@ -192,8 +369,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={() => onViewEditClick()}
-                edge="end"
                 aria-label="Edit record"
+                className={classes.iconButton}
               >
                 <Edit />
               </IconButton>
@@ -206,8 +383,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={() => onDeleteClick()}
-                edge="end"
                 aria-label="delete"
+                className={classes.iconButton}
               >
                 <Delete />
               </IconButton>
@@ -219,8 +396,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={() => onSubmitClick()}
-                edge="end"
-                aria-label="delete"
+                aria-label="publish"
+                className={classes.iconButton}
               >
                 <Publish />
               </IconButton>
@@ -246,9 +423,9 @@ const MetadataRecordListItem = ({
               <span>
                 <IconButton
                   onClick={() => onSubmitClick()}
-                  edge="end"
                   aria-label="submit"
                   disabled={!isValidRecord}
+                  className={classes.iconButton}
                 >
                   <Publish />
                 </IconButton>
@@ -266,8 +443,8 @@ const MetadataRecordListItem = ({
               <span>
                 <IconButton
                   onClick={() => onSubmitClick()}
-                  edge="end"
-                  aria-label="delete"
+                  aria-label="return to draft"
+                  className={classes.iconButton}
                 >
                   <Eject />
                 </IconButton>
@@ -279,8 +456,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={() => onUnPublishClick()}
-                edge="end"
-                aria-label="delete"
+                aria-label="unpublish"
+                className={classes.iconButton}
               >
                 <Eject />
               </IconButton>
@@ -290,7 +467,11 @@ const MetadataRecordListItem = ({
         {showCloneAction && (
           <Tooltip title={<I18n en="Clone" fr="Cloner" />}>
             <span>
-              <IconButton onClick={() => onCloneClick()} edge="end" aria-label="clone">
+              <IconButton
+                onClick={() => onCloneClick()}
+                aria-label="clone"
+                className={classes.iconButton}
+              >
                 <FileCopy />
               </IconButton>
             </span>
@@ -303,8 +484,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={() => onUnSubmitClick()}
-                edge="end"
-                aria-label="delete"
+                aria-label="return to draft"
+                className={classes.iconButton}
               >
                 <Eject />
               </IconButton>
@@ -313,9 +494,10 @@ const MetadataRecordListItem = ({
         )}
 
         {showDownloadButton && (
-          <Tooltip 
+          <Tooltip
             disableHoverListener={open}
-            title={<I18n en="Download" fr="Télécharger" />}>
+            title={<I18n en="Download" fr="Télécharger" />}
+          >
             <span>
               <IconButton
                 aria-label="more"
@@ -325,9 +507,10 @@ const MetadataRecordListItem = ({
                 aria-haspopup="true"
                 onClick={handleClick}
                 disabled={!isValidRecord}
+                className={classes.iconButton}
               >
                 {isLoading.downloadXML ? (
-                  <CircularProgress />
+                  <CircularProgress size={24} />
                 ) : (
                   <CloudDownload />
                 )}
@@ -342,7 +525,6 @@ const MetadataRecordListItem = ({
                 onClose={handleClose}
                 PaperProps={{
                   style: {
-                    // maxHeight: ITEM_HEIGHT * 4.5,
                     width: "30ch",
                   },
                 }}
@@ -432,8 +614,8 @@ const MetadataRecordListItem = ({
             <span>
               <IconButton
                 onClick={onTransferClick}
-                edge="end"
                 aria-label="transfer"
+                className={classes.iconButton}
               >
                 <TransferWithinAStation />
               </IconButton>
@@ -456,15 +638,15 @@ const MetadataRecordListItem = ({
                 const win = window.open(catalogueURL, "_blank");
                 win.focus();
               }}
-              edge="end"
-              aria-label="transfer"
+              aria-label="open in catalogue"
+              className={classes.iconButton}
             >
               <OpenInNew />
             </IconButton>
           </span>
         </Tooltip>
-      </ListItemSecondaryAction>
-    </ListItem>
+      </CardActions>
+    </Card>
   );
 };
 

@@ -2,7 +2,6 @@
 import React from "react";
 import {
   Typography,
-  List,
   Grid,
   CircularProgress,
   Checkbox,
@@ -388,8 +387,7 @@ class Reviewer extends FormClassTemplate {
             <Paper
               style={{
                 padding: "10px",
-                margin: "10px",
-                width: "100%",
+                marginBottom: "10px",
               }}
             >
               <QuestionText>
@@ -478,9 +476,9 @@ class Reviewer extends FormClassTemplate {
             </Paper>
             {recordsToShow.length ? (
               <>
-                <Grid container direction="column">
-                  <Grid item xs>
-                    <Typography>
+                <Grid container direction="column" spacing={1}>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" gutterBottom>
                       <I18n>
                         <En>
                           These are the submissions we have received from all
@@ -496,19 +494,17 @@ class Reviewer extends FormClassTemplate {
                       </I18n>
                     </Typography>
                   </Grid>
-                  <Grid item xs>
-                    <List>
-                      {recordsToShow.map((record) => (
-                        <RecordItem
-                          key={record.recordID}
-                          record={record}
-                          // eslint-disable-next-line react/jsx-no-bind
-                          toggleModal={this.toggleModal.bind(this)}
-                          editRecord={this.editRecord.bind(this)}
-                          handleCloneRecord={this.handleCloneRecord.bind(this)}
-                        />
-                      ))}
-                    </List>
+                  <Grid item xs={12}>
+                    {recordsToShow.map((record) => (
+                      <RecordItem
+                        key={record.recordID}
+                        record={record}
+                        // eslint-disable-next-line react/jsx-no-bind
+                        toggleModal={this.toggleModal.bind(this)}
+                        editRecord={this.editRecord.bind(this)}
+                        handleCloneRecord={this.handleCloneRecord.bind(this)}
+                      />
+                    ))}
                   </Grid>
                 </Grid>
               </>

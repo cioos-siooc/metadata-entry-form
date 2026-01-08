@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Typography, List, CircularProgress, Button } from "@material-ui/core";
+import { Typography, CircularProgress, Button, Box } from "@material-ui/core";
 
 import { Add } from "@material-ui/icons";
 import { getDatabase, ref, onValue, off } from "firebase/database";
@@ -147,7 +147,7 @@ class Submissions extends FormClassTemplate {
       new Date(b[1].created) - new Date(a[1].created);
 
     return (
-      <div>
+      <Box>
         <SimpleModal
           open={deleteModalOpen}
           onClose={() => this.toggleModal("deleteModalOpen", false)}
@@ -170,7 +170,7 @@ class Submissions extends FormClassTemplate {
           aria-describedby="simple-modal-description"
         />
 
-        <Typography variant="h5">
+        <Typography variant="h5" gutterBottom>
           <I18n>
             <En>My Records</En>
             <Fr>Mes dossiers</Fr>
@@ -180,81 +180,81 @@ class Submissions extends FormClassTemplate {
         {loading ? (
           <CircularProgress />
         ) : (
-          <span>
-            <div>
-              <Typography>
-                <I18n>
-                  <En>
-                    To start a new record, click on "New Record" and begin
-                    adding information. To continue working on a record, select
-                    it from the list below. Once your record is completed and
-                    information has been provided for all mandatory fields, you
-                    can submit your record for review by clicking the "Submit
-                    for review" icon to the right of your record title. The
-                    record will not be published until it is reviewed and
-                    approved by {regions[region].title[language]} staff.
-                  </En>
-                  <Fr>
-                    Afin de soumettre vos métadonnées, cliquez sur « Nouvel
-                    enregistrement » et ajoutez-y les informations demandées. Si
-                    vous désirez reprendre la saisie d’un formulaire déjà
-                    entamé, sélectionnez-le dans la liste ci-dessous. Lorsque
-                    les informations sont saisies pour tous les champs
-                    obligatoires, vous pouvez soumettre vos métadonnées pour
-                    validation en cliquant sur l’icône « soumettre pour
-                    validation ». Vos métadonnées seront publiées lorsqu’elles
-                    auront été validées et approuvées par un professionel{" "}
-                    {regions[region].titleFrPossessive}.
-                  </Fr>
-                </I18n>
-              </Typography>
+          <Box>
+            <Typography variant="body2" paragraph>
+              <I18n>
+                <En>
+                  To start a new record, click on "New Record" and begin
+                  adding information. To continue working on a record, select
+                  it from the list below. Once your record is completed and
+                  information has been provided for all mandatory fields, you
+                  can submit your record for review by clicking the "Submit
+                  for review" icon to the right of your record title. The
+                  record will not be published until it is reviewed and
+                  approved by {regions[region].title[language]} staff.
+                </En>
+                <Fr>
+                  Afin de soumettre vos métadonnées, cliquez sur « Nouvel
+                  enregistrement » et ajoutez-y les informations demandées. Si
+                  vous désirez reprendre la saisie d'un formulaire déjà
+                  entamé, sélectionnez-le dans la liste ci-dessous. Lorsque
+                  les informations sont saisies pour tous les champs
+                  obligatoires, vous pouvez soumettre vos métadonnées pour
+                  validation en cliquant sur l'icône « soumettre pour
+                  validation ». Vos métadonnées seront publiées lorsqu'elles
+                  auront été validées et approuvées par un professionel{" "}
+                  {regions[region].titleFrPossessive}.
+                </Fr>
+              </I18n>
+            </Typography>
 
-              <div style={{ marginTop: "10px" }}>
-                <Button
-                  startIcon={<Add />}
-                  onClick={() => history.push(`/${language}/${region}/new`)}
-                >
-                  <I18n en="New Record" fr="Nouvel enregistrement" />
-                </Button>
-              </div>
+            <Box mb={1.5}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Add />}
+                onClick={() => history.push(`/${language}/${region}/new`)}
+              >
+                <I18n en="New Record" fr="Nouvel enregistrement" />
+              </Button>
+            </Box>
 
-              <List>
-                {Object.entries(records || {})
-                  .sort(recordDateSort)
-                  .map(([key, record]) => {
-                    const { status, title } = record;
+            <Box>
+              {Object.entries(records || {})
+                .sort(recordDateSort)
+                .map(([key, record]) => {
+                  const { status, title } = record;
 
-                    if (!(title?.en || !title?.fr)) return null;
+                  if (!(title?.en || !title?.fr)) return null;
 
-                    return (
-                      <MetadataRecordListItem
-                        key={key}
-                        record={record}
-                        showCloneAction
-                        onCloneClick={() => this.cloneRecord(key)}
-                        showDeleteAction
-                        onDeleteClick={() =>
-                          this.toggleModal("deleteModalOpen", true, key)
-                        }
-                        showEditAction
-                        showPercentComplete
-                        onViewEditClick={() => this.editRecord(key)}
-                        showSubmitAction
-                        onSubmitClick={() => {
-                          if (status === "")
-                            this.toggleModal(
-                              "submitModalOpen",
-                              true,
-                              key,
-                              record
-                            );
-                          else this.toggleModal("withdrawModalOpen", true, key);
-                        }}
-                      />
-                    );
-                  })}
-              </List>
-            </div>
+                  return (
+                    <MetadataRecordListItem
+                      key={key}
+                      record={record}
+                      showCloneAction
+                      onCloneClick={() => this.cloneRecord(key)}
+                      showDeleteAction
+                      onDeleteClick={() =>
+                        this.toggleModal("deleteModalOpen", true, key)
+                      }
+                      showEditAction
+                      showPercentComplete
+                      onViewEditClick={() => this.editRecord(key)}
+                      showSubmitAction
+                      onSubmitClick={() => {
+                        if (status === "")
+                          this.toggleModal(
+                            "submitModalOpen",
+                            true,
+                            key,
+                            record
+                          );
+                        else this.toggleModal("withdrawModalOpen", true, key);
+                      }}
+                    />
+                  );
+                })}
+            </Box>
 
             {!records && (
               <Typography>
@@ -264,9 +264,9 @@ class Submissions extends FormClassTemplate {
                 </I18n>
               </Typography>
             )}
-          </span>
+          </Box>
         )}
-      </div>
+      </Box>
     );
   }
 }
