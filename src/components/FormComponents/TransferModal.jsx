@@ -1,33 +1,60 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Modal, TextField } from "@material-ui/core";
+import {
+  Modal,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  CircularProgress,
+  Fade,
+  Backdrop,
+} from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import { validateEmail } from "../../utils/validate";
 
 import { En, Fr, I18n } from "../I18n";
 
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
-
-function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
-
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
-}
-
 const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   paper: {
-    position: "absolute",
-    width: 400,
     backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[24],
+    padding: theme.spacing(4),
+    minWidth: 500,
+    maxWidth: 600,
+    outline: "none",
+  },
+  title: {
+    marginBottom: theme.spacing(3),
+    fontWeight: 600,
+  },
+  description: {
+    marginBottom: theme.spacing(3),
+    color: theme.palette.text.secondary,
+  },
+  textField: {
+    marginBottom: theme.spacing(2),
+  },
+  buttonContainer: {
+    display: "flex",
+    gap: theme.spacing(2),
+    marginTop: theme.spacing(3),
+    justifyContent: "flex-end",
+  },
+  errorAlert: {
+    marginBottom: theme.spacing(2),
+  },
+  loadingContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
   },
 }));
 
@@ -38,115 +65,140 @@ export default function TransferModal({
   email,
   setEmail,
 }) {
-  // result of the transger
   const [transferResult, setTransferResult] = useState(true);
   const [isTransferring, setIsTransferring] = useState(false);
   const classes = useStyles();
 
-  // getModalStyle is not a pure function, we roll the style only on the first render
-  const [modalStyle] = React.useState(getModalStyle);
-
   const emailIsValid = validateEmail(email);
 
+  const handleClose = () => {
+    setTransferResult(true);
+    onClose();
+  };
+
+  const handleTransfer = async () => {
+    setIsTransferring(true);
+    const res = await onAccept();
+
+    setTransferResult(res);
+    setIsTransferring(false);
+    if (res) handleClose();
+  };
+
   return (
-    <div>
-      <Modal
-        open={open}
-        onClose={onClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
-        <div style={modalStyle} className={classes.paper}>
-          <h2 id="simple-modal-title">
+    <Modal
+      open={open}
+      onClose={handleClose}
+      className={classes.modal}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+      }}
+      aria-labelledby="transfer-modal-title"
+      aria-describedby="transfer-modal-description"
+    >
+      <Fade in={open}>
+        <Paper className={classes.paper}>
+          <Typography
+            variant="h5"
+            id="transfer-modal-title"
+            className={classes.title}
+          >
             <I18n>
               <En>Transfer Record</En>
-              <Fr>Enregistrement de transfert</Fr>
+              <Fr>Transférer l'enregistrement</Fr>
             </I18n>
-          </h2>
+          </Typography>
+
           {isTransferring ? (
-            <h3>
-              <I18n>
-                <En>Transferring...</En>
-                <Fr>Transfert en cours...</Fr>
-              </I18n>
-            </h3>
+            <Box className={classes.loadingContainer}>
+              <CircularProgress size={24} />
+              <Typography variant="body1">
+                <I18n>
+                  <En>Transferring...</En>
+                  <Fr>Transfert en cours...</Fr>
+                </I18n>
+              </Typography>
+            </Box>
           ) : (
-            <div>
+            <>
               {!transferResult && (
-                <h3>
+                <Alert severity="error" className={classes.errorAlert}>
                   <I18n>
-                    <En>User {email} not found</En>
-                    <Fr>L'utilisateur {email} n'a pas été trouvé</Fr>
+                    <En>User {email} not found in this region</En>
+                    <Fr>L'utilisateur {email} n'a pas été trouvé dans cette région</Fr>
                   </I18n>
-                </h3>
+                </Alert>
               )}
 
-              <div>
+              <Typography
+                variant="body1"
+                id="transfer-modal-description"
+                className={classes.description}
+              >
                 <I18n>
                   <En>
                     Enter the email address of the user to transfer this record
                     to. The user must have logged into this region at least
-                    once:
+                    once.
                   </En>
                   <Fr>
                     Entrez l'adresse e-mail de l'utilisateur vers lequel
                     transférer cet enregistrement. L'utilisateur doit s'être
-                    connecté à cette région au moins une fois:
+                    connecté à cette région au moins une fois.
                   </Fr>
                 </I18n>
-              </div>
+              </Typography>
 
-              {/* naterosenstock@gmail.com */}
-              <div>
-                <TextField
-                  helperText={
-                    !emailIsValid && (
-                      <I18n en="Invalid email" fr="E-mail non valide" />
-                    )
-                  }
-                  error={!emailIsValid}
-                  value={email}
-                  onChange={(e) => {
-                    setTransferResult(true);
-                    setEmail(e.target.value);
-                  }}
-                  fullWidth
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled={!email || !emailIsValid || isTransferring}
-                onClick={async () => {
-                  setIsTransferring(true);
-                  const res = await onAccept();
-
-                  setTransferResult(res);
-                  setIsTransferring(false);
-                  if (res) onClose();
-                }}
-              >
-                <I18n>
-                  <En>Transfer</En>
-                  <Fr>Transfert</Fr>
-                </I18n>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
+              <TextField
+                label={
+                  <I18n>
+                    <En>User Email</En>
+                    <Fr>E-mail de l'utilisateur</Fr>
+                  </I18n>
+                }
+                placeholder="user@example.com"
+                helperText={
+                  !emailIsValid && email && (
+                    <I18n en="Invalid email address" fr="Adresse e-mail non valide" />
+                  )
+                }
+                error={!emailIsValid && email.length > 0}
+                value={email}
+                onChange={(e) => {
                   setTransferResult(true);
-                  onClose();
+                  setEmail(e.target.value);
                 }}
-              >
-                <I18n>
-                  <En>Cancel</En>
-                  <Fr>Annuler</Fr>
-                </I18n>
-              </button>
-            </div>
+                fullWidth
+                variant="outlined"
+                className={classes.textField}
+                autoFocus
+              />
+
+              <Box className={classes.buttonContainer}>
+                <Button variant="outlined" onClick={handleClose}>
+                  <I18n>
+                    <En>Cancel</En>
+                    <Fr>Annuler</Fr>
+                  </I18n>
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  disabled={!email || !emailIsValid || isTransferring}
+                  onClick={handleTransfer}
+                >
+                  <I18n>
+                    <En>Transfer</En>
+                    <Fr>Transférer</Fr>
+                  </I18n>
+                </Button>
+              </Box>
+            </>
           )}
-        </div>
-      </Modal>
-    </div>
+        </Paper>
+      </Fade>
+    </Modal>
   );
 }

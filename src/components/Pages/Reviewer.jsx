@@ -346,7 +346,31 @@ class Reviewer extends FormClassTemplate {
           onAccept={() =>
             this.handleSubmitRecord(modalKey, modalUserID, "submitted")
           }
-          aria-labelledby="simple-modal-title"
+          title={
+            <I18n>
+              <En>Submit Record</En>
+              <Fr>Soumettre l'enregistrement</Fr>
+            </I18n>
+          }
+          description={
+            <I18n>
+              <En>
+                Are you sure you want to submit this record for review? The
+                record will be moved to the submissions queue.
+              </En>
+              <Fr>
+                Voulez-vous vraiment soumettre cet enregistrement pour examen ?
+                L'enregistrement sera déplacé vers la file d'attente des
+                soumissions.
+              </Fr>
+            </I18n>
+          }
+          confirmText={
+            <I18n>
+              <En>Submit</En>
+              <Fr>Soumettre</Fr>
+            </I18n>
+          }
         />
         <SimpleModal
           open={publishModalOpen}
@@ -354,8 +378,31 @@ class Reviewer extends FormClassTemplate {
           onAccept={() =>
             this.handleSubmitRecord(modalKey, modalUserID, "published")
           }
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
+          title={
+            <I18n>
+              <En>Publish Record</En>
+              <Fr>Publier l'enregistrement</Fr>
+            </I18n>
+          }
+          description={
+            <I18n>
+              <En>
+                Are you sure you want to publish this record? Once published,
+                the record will be publicly visible and available.
+              </En>
+              <Fr>
+                Voulez-vous vraiment publier cet enregistrement ? Une fois
+                publié, l'enregistrement sera visible et disponible
+                publiquement.
+              </Fr>
+            </I18n>
+          }
+          confirmText={
+            <I18n>
+              <En>Publish</En>
+              <Fr>Publier</Fr>
+            </I18n>
+          }
         />
         <SimpleModal
           open={unPublishModalOpen}
@@ -363,15 +410,61 @@ class Reviewer extends FormClassTemplate {
           onAccept={() =>
             this.handleSubmitRecord(modalKey, modalUserID, "submitted")
           }
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
+          title={
+            <I18n>
+              <En>Unpublish Record</En>
+              <Fr>Dépublier l'enregistrement</Fr>
+            </I18n>
+          }
+          description={
+            <I18n>
+              <En>
+                Are you sure you want to unpublish this record? The record will
+                be returned to submitted status and no longer publicly visible.
+              </En>
+              <Fr>
+                Voulez-vous vraiment dépublier cet enregistrement ?
+                L'enregistrement sera renvoyé au statut soumis et ne sera plus
+                visible publiquement.
+              </Fr>
+            </I18n>
+          }
+          confirmText={
+            <I18n>
+              <En>Unpublish</En>
+              <Fr>Dépublier</Fr>
+            </I18n>
+          }
         />
         <SimpleModal
           open={unSubmitModalOpen}
           onClose={() => this.toggleModal("unSubmitModalOpen", false)}
           onAccept={() => this.handleSubmitRecord(modalKey, modalUserID, "")}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
+          title={
+            <I18n>
+              <En>Return to Draft</En>
+              <Fr>Retourner au brouillon</Fr>
+            </I18n>
+          }
+          description={
+            <I18n>
+              <En>
+                Are you sure you want to return this record to draft status?
+                The record will be removed from the submission queue.
+              </En>
+              <Fr>
+                Voulez-vous vraiment retourner cet enregistrement au statut de
+                brouillon ? L'enregistrement sera retiré de la file d'attente
+                des soumissions.
+              </Fr>
+            </I18n>
+          }
+          confirmText={
+            <I18n>
+              <En>Return to Draft</En>
+              <Fr>Retourner au brouillon</Fr>
+            </I18n>
+          }
         />
         <Grid item xs>
           <Typography variant="h5">

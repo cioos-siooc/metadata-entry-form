@@ -510,7 +510,7 @@ class MetadataForm extends FormClassTemplate {
       >
         <SimpleModal
           open={saveIncompleteRecordModalOpen}
-          modalQuestion={
+          description={
             <I18n
               en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
               fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
