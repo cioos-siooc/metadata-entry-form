@@ -77,16 +77,9 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: 500,
     fontSize: "0.95rem",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
     lineHeight: 1.3,
     [theme.breakpoints.down("sm")]: {
       fontSize: "0.9rem",
-      whiteSpace: "normal",
-      display: "-webkit-box",
-      WebkitLineClamp: 2,
-      WebkitBoxOrient: "vertical",
     },
   },
   metadata: {
@@ -114,12 +107,13 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     gap: theme.spacing(0.25),
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0.75, 1.25),
       justifyContent: "flex-start",
       borderTop: `1px solid ${theme.palette.divider}`,
+      flexWrap: "wrap",
     },
   },
   iconButton: {
