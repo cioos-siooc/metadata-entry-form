@@ -229,6 +229,16 @@ class Reviewer extends FormClassTemplate {
               <Fr>Examen des soumissions</Fr>
             </I18n>
           </Typography>
+          <Typography variant="body2" color="textSecondary" style={{ marginTop: "8px" }}>
+            <I18n>
+              <En>
+                Review, manage, and publish metadata records. Use filters to find specific submissions by status, author, or title.
+              </En>
+              <Fr>
+                Examinez, gérez et publiez les enregistrements de métadonnées. Utilisez les filtres pour trouver des soumissions spécifiques par statut, auteur ou titre.
+              </Fr>
+            </I18n>
+          </Typography>
         </Grid>
         {loading ? (
           <CircularProgress />
