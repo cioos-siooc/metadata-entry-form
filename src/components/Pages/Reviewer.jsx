@@ -281,6 +281,8 @@ class Reviewer extends FormClassTemplate {
         commitMessage,
       });
 
+      await this.handleSubmitRecord(this.state.modalKey, this.state.modalUserID, "published");
+
       // eslint-disable-next-line no-alert
       alert("Published to GitHub successfully!");
       this.setState({ githubPublishModalOpen: false });

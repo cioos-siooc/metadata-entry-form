@@ -58,7 +58,7 @@ class Admin extends FormClassTemplate {
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
       githubBranch: "main",
-      githubFileTemplate: "{uuid}",
+      githubFileTemplate: "{filename}",
       githubEnvironments: "prod",
       showGithubToken: false,
     };
@@ -99,7 +99,7 @@ class Admin extends FormClassTemplate {
               githubOwner: data.owner || "cioos-siooc",
               githubRepo: data.repo || "cioos-siooc-forms",
               githubBranch: data.branch || "main",
-              githubFileTemplate: data.fileTemplate || "{uuid}",
+              githubFileTemplate: data.fileTemplate || "{filename}",
               githubEnvironments: (data.environments || ["prod"]).join("\n"),
               githubToken: data.token || "",
             });
@@ -632,6 +632,22 @@ class Admin extends FormClassTemplate {
                       <Fr>Configuration de publication GitHub</Fr>
                     </I18n>
                   </Typography>
+                  <Typography variant="body2" style={{ marginTop: "10px" }}>
+                    <I18n>
+                      <En>
+                        Configure the GitHub repository where metadata records will
+                        be published. This allows reviewers to push approved
+                        records directly to a GitHub repository as XML and YAML
+                        files.
+                      </En>
+                      <Fr>
+                        Configurez le référentiel GitHub où les enregistrements de
+                        métadonnées seront publiés. Cela permet aux réviseurs de
+                        pousser les enregistrements approuvés directement vers un
+                        référentiel GitHub sous forme de fichiers XML et YAML.
+                      </Fr>
+                    </I18n>
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -687,6 +703,16 @@ class Admin extends FormClassTemplate {
                     }}
                     fullWidth
                   />
+                  <Typography variant="caption" color="textSecondary">
+                    <I18n>
+                      <En>
+                        Personal Access Token (PAT) with 'repo' scope.
+                      </En>
+                      <Fr>
+                        Jeton d'accès personnel (PAT) avec la portée 'repo'.
+                      </Fr>
+                    </I18n>
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -704,7 +730,7 @@ class Admin extends FormClassTemplate {
                     value={this.state.githubFileTemplate}
                     onChange={this.handleChange}
                     fullWidth
-                    helperText="Default: {uuid}"
+                    helperText="Default: {filename}"
                   />
                 </Grid>
                 <Grid item xs={12}>

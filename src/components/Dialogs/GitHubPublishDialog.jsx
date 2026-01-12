@@ -111,7 +111,7 @@ export default function GitHubPublishDialog({
                     label={<I18n en="Commit Message" fr="Message de commit" />}
                     fullWidth
                     multiline
-                    rows={2}
+                    minRows={2}
                     value={commitMessage}
                     onChange={(e) => setCommitMessage(e.target.value)}
                 />
