@@ -59,8 +59,8 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   
   // 5. Convert to XML and YAML
   const projectId = process.env.GCLOUD_PROJECT;
-  const region = "us-central1";
-  const convertMetadataUrl = `https://${region}-${projectId}.cloudfunctions.net/convert_metadata`;
+  const cloudFunctionRegion = "us-central1";
+  const convertMetadataUrl = `https://${cloudFunctionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
 
   let xmlContent;
   let yamlContent;
