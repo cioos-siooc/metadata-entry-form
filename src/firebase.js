@@ -55,10 +55,9 @@ if (localHosts.includes(window.location.hostname) && localFirebaseDatabase === "
 // Export the resolved config so UI components can reference values (e.g., databaseURL)
 export const firebaseConfig = config;
 
-// // uncomment below to use firebase emulator for local development
+// Connect Functions to local emulator when enabled
 if (window.location.hostname === "localhost" && localFirebaseFunctions === "true") {
   const functions = getFunctions(App);
-  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
 }
 
