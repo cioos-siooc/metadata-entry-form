@@ -26,29 +26,62 @@ ALLOWED_ORIGIN_PATTERNS = []
 if is_dev_project:
     ALLOWED_ORIGIN_PATTERNS += [
         # Regex patterns for preview channel domains for the dev project
-        re.compile(r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
+        re.compile(
+            r"^https://cioos-metadata-form-dev-258dc--[A-Za-z0-9-]+\.web\.app"),
     ]
     STATIC_ALLOWED_ORIGINS.update(
         {
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "http://127.0.0.1:5002",
         }
     )
 
 initialize_app()
 
 
-def _origin_allowed(origin: str | None) -> bool:
+def _is_trusted_server_call(req: https_fn.Request) -> bool:
+    """Check if request is from a trusted source (e.g., Firebase Functions)."""
+    # Check for Firebase-specific headers that indicate internal calls
+    # Firebase Functions include these headers when deployed
+    if req.headers.get("function-execution-id"):
+        return True
+
+    # In emulator: check if request is from localhost Functions emulator
+    # AND uses axios (which Firebase Functions use)
+    user_agent = req.headers.get("user-agent", "").lower()
+    host = req.headers.get("host", "")
+
+    # Allow if request comes from Functions emulator (127.0.0.1:5002) with axios
+    if "127.0.0.1:5002" in host and "axios" in user_agent:
+        return True
+
+    # Check if running in emulator and request is internal
+    if os.environ.get("FUNCTIONS_EMULATOR") == "true":
+        # In emulator, allow calls from localhost with axios user agent
+        if "127.0.0.1" in (req.headers.get("x-forwarded-for", "") or "") and "axios" in user_agent:
+            return True
+
+    return False
+
+
+def _origin_allowed(origin: str | None, req: https_fn.Request) -> bool:
     """Check if the given origin is allowed."""
     if not origin:
-        logging.info("CORS: no origin header")
+        # Allow requests without Origin header ONLY if from trusted sources
+        if _is_trusted_server_call(req):
+            logging.info("CORS: no origin header - allowing trusted server call")
+            return True
+        logging.info("CORS: no origin header from untrusted source - denying")
         return False
+
     if origin in STATIC_ALLOWED_ORIGINS:
         logging.info("CORS: origin matched static list: %s", origin)
         return True
     for pat in ALLOWED_ORIGIN_PATTERNS:
         if pat.match(origin):
-            logging.info("CORS: origin matched regex %s: %s", pat.pattern, origin)
+            logging.info("CORS: origin matched regex %s: %s",
+                         pat.pattern, origin)
             return True
     logging.info("CORS: origin NOT allowed: %s", origin)
     return False
@@ -80,7 +113,7 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
     Returns JSON.
     """
     origin = req.headers.get("origin")
-    allowed = _origin_allowed(origin)
+    allowed = _origin_allowed(origin, req)
     headers = _cors_headers(origin, allowed)
 
     # Preflight
