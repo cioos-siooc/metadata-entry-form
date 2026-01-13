@@ -58,9 +58,20 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   }
   
   // 5. Convert to XML and YAML
-  const projectId = process.env.GCLOUD_PROJECT;
-  const cloudFunctionRegion = "us-central1";
-  const convertMetadataUrl = `https://${cloudFunctionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
+  // Detect if running in emulator - Firebase emulator sets FUNCTIONS_EMULATOR=true
+  const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
+  let convertMetadataUrl;
+
+  if (isEmulator) {
+    // Use local emulator URL
+    const emulatorProject = process.env.GCLOUD_PROJECT || 'cioos-metadata-form-dev-258dc';
+    convertMetadataUrl = `http://127.0.0.1:5002/${emulatorProject}/us-central1/convert_metadata`;
+  } else {
+    // Use production Cloud Functions URL
+    const projectId = process.env.GCLOUD_PROJECT;
+    const cloudFunctionRegion = "us-central1";
+    convertMetadataUrl = `https://${cloudFunctionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
+  }
 
   let xmlContent;
   let yamlContent;
