@@ -1,6 +1,7 @@
 import React from 'react';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import { act } from 'react-dom/test-utils';
 import GitHubPublishDialog from '../Dialogs/GitHubPublishDialog';
 import { Checkbox, Button, CircularProgress } from '@material-ui/core';
 import { onValue } from "firebase/database";
@@ -83,7 +84,9 @@ describe('<GitHubPublishDialog />', () => {
     // Simulate clicking the first checkbox (prod)
     const firstCheckbox = wrapper.find(Checkbox).at(0);
     // In Material-UI Checkbox, onChange passes event
-    firstCheckbox.props().onChange({ target: { checked: true } });
+    act(() => {
+      firstCheckbox.props().onChange({ target: { checked: true } });
+    });
     wrapper.update();
 
     const publishButton = wrapper.find(Button).filterWhere(b => b.text().includes('Publish'));
@@ -105,11 +108,15 @@ describe('<GitHubPublishDialog />', () => {
     wrapper.update();
 
     // Select an environment
-    wrapper.find(Checkbox).at(1).props().onChange({ target: { checked: true } }); // 'dev'
+    act(() => {
+      wrapper.find(Checkbox).at(1).props().onChange({ target: { checked: true } }); // 'dev'
+    });
 
     // Type a commit message
     const textField = wrapper.find('WithStyles(ForwardRef(TextField))');
-    textField.props().onChange({ target: { value: 'fix: updated metadata' } });
+    act(() => {
+      textField.props().onChange({ target: { value: 'fix: updated metadata' } });
+    });
     
     wrapper.update();
 

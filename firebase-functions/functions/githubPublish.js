@@ -3,8 +3,6 @@ const admin = require("firebase-admin");
 const axios = require("axios");
 const { Octokit } = require("octokit");
 
-const urlBaseDefault = "https://api.forms.cioos.ca/";
-
 // Helper to check permissions
 async function checkPermissions(email, region) {
   const permissionsSnapshot = await admin.database().ref(`admin/${region}/permissions`).once('value');
@@ -59,21 +57,31 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('failed-precondition', 'GitHub configuration missing.');
   }
   
-  // 4. Fetch Record Generator URL
-  const urlBaseSnapshot = await admin.database().ref(`admin/${region}/recordGeneratorURL`).once('value');
-  const urlBase = urlBaseSnapshot.val() || urlBaseDefault;
-  
   // 5. Convert to XML and YAML
+  const projectId = process.env.GCLOUD_PROJECT;
+  const region = "us-central1";
+  const convertMetadataUrl = `https://${region}-${projectId}.cloudfunctions.net/convert_metadata`;
+
   let xmlContent;
   let yamlContent;
   try {
-    const xmlResponse = await axios.post(`${urlBase}recordToXML`, record);
-    // The API returns { message: { xml: "..." } }
-    xmlContent = xmlResponse.data.message.xml;
+    const xmlResponse = await axios.post(convertMetadataUrl, {
+      data: {
+        record_data: record,
+        output_format: "iso19115-3_xml"
+      }
+    });
+    // The API returns { data: "..." }
+    xmlContent = xmlResponse.data.data;
     
-    const yamlResponse = await axios.post(`${urlBase}recordToYAML`, record);
-    // The API returns { message: { record: "..." } }
-    yamlContent = yamlResponse.data.message.record;
+    const yamlResponse = await axios.post(convertMetadataUrl, {
+      data: {
+        record_data: record,
+        output_format: "yaml"
+      }
+    });
+    // The API returns { data: "..." }
+    yamlContent = yamlResponse.data.data;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Conversion error", error);
