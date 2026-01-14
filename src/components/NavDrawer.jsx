@@ -39,7 +39,7 @@ import {
 } from "@material-ui/core";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
-import { auth, signInWithGoogle } from "../auth";
+import { auth, signInWithGoogle, signInWithMicrosoft } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
 
@@ -173,7 +173,8 @@ export default function MiniDrawer({ children }) {
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
-    signIn: <I18n en="Sign in" fr="Se Connecter" />,
+    signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
+    signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
@@ -285,33 +286,63 @@ export default function MiniDrawer({ children }) {
           <Divider />
           <List>
             {!user && region && (
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.signIn}
-              >
-                <ListItem
-                  disabled={authIsLoading}
-                  button
-                  key="Sign in"
-                  onClick={async () => {
-                    try {
-                      await signInWithGoogle();
-                      history.push(pathname);
-                    } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request'){
-                        // ignore
-                      } else {
-                        throw error;
-                      }
-                    }
-                  }}
+              <>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.signInGoogle}
                 >
-                  <ListItemIcon>
-                    <AccountCircle />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.signIn} />
-                </ListItem>
-              </Tooltip>
+                  <ListItem
+                    disabled={authIsLoading}
+                    button
+                    key="Sign in Google"
+                    onClick={async () => {
+                      try {
+                        await signInWithGoogle();
+                        history.push(pathname);
+                      } catch (error) {
+                        if (error.code === 'auth/cancelled-popup-request'){
+                          // ignore
+                        } else {
+                          throw error;
+                        }
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      <AccountCircle />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.signInGoogle} />
+                  </ListItem>
+                </Tooltip>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.signInMicrosoft}
+                >
+                  <ListItem
+                    disabled={authIsLoading}
+                    button
+                    key="Sign in Microsoft"
+                    onClick={async () => {
+                      try {
+                        await signInWithMicrosoft();
+                        history.push(pathname);
+                      } catch (error) {
+                        console.error("Microsoft Sign-In Error:", error);
+                        if (error.code === 'auth/cancelled-popup-request'){
+                          // ignore
+                        } else {
+                          throw error;
+                        }
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      <AccountCircle />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.signInMicrosoft} />
+                  </ListItem>
+                </Tooltip>
+              </>
             )}
             {user && region && (
               <>
