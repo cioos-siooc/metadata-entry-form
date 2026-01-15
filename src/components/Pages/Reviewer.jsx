@@ -296,6 +296,11 @@ class Reviewer extends FormClassTemplate {
         ) : (
           <div style={{ height: "calc(100vh - 200px)", width: "100%" }}>
             <DataGrid
+              sx={{
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  fontWeight: "bold",
+                },
+              }}
               rows={records.map((record, index) => ({
                 id: record.recordID || index,
                 recordID: record.recordID,
