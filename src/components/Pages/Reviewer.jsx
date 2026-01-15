@@ -16,7 +16,13 @@ import {
   Eject,
   TransferWithinAStation,
 } from "@material-ui/icons";
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarQuickFilter,
+  GridToolbarExport,
+} from "@mui/x-data-grid";
 
 import { getDatabase, ref, onValue } from "firebase/database";
 
@@ -25,6 +31,7 @@ import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
 import regions from "../../regions";
 import { percentValid } from "../../utils/validate";
+import licenses from "../../utils/licenses";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
@@ -38,6 +45,43 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
 import FormClassTemplate from "./FormClassTemplate";
+
+const COLUMN_VISIBILITY_STORAGE_KEY = "reviewer-column-visibility";
+
+const defaultColumnVisibility = {
+  title: true,
+  status: true,
+  author: true,
+  progress: true,
+  created: true,
+  abstract: false,
+  license: false,
+  verticalExtentMin: false,
+  verticalExtentMax: false,
+  contacts: false,
+  formLanguage: false,
+  actions: true,
+};
+
+function loadColumnVisibility() {
+  try {
+    const saved = localStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    // Ignore errors
+  }
+  return defaultColumnVisibility;
+}
+
+function saveColumnVisibility(model) {
+  try {
+    localStorage.setItem(COLUMN_VISIBILITY_STORAGE_KEY, JSON.stringify(model));
+  } catch (e) {
+    // Ignore errors
+  }
+}
 
 class Reviewer extends FormClassTemplate {
   constructor(props) {
@@ -58,8 +102,14 @@ class Reviewer extends FormClassTemplate {
       records: [],
       recordsFilter: "",
       recordCountsByStatus: {},
+      columnVisibilityModel: loadColumnVisibility(),
     };
   }
+
+  handleColumnVisibilityChange = (newModel) => {
+    this.setState({ columnVisibilityModel: newModel });
+    saveColumnVisibility(newModel);
+  };
 
   async componentDidMount() {
     this.setState({ loading: true });
@@ -157,6 +207,7 @@ class Reviewer extends FormClassTemplate {
       unSubmitModalOpen,
       submitModalOpen,
       loading,
+      columnVisibilityModel,
     } = this.state;
 
     const { match } = this.props;
@@ -255,6 +306,13 @@ class Reviewer extends FormClassTemplate {
                 progress: Math.round(percentValid(record) * 100),
                 created: record.created,
                 region: record.region,
+                abstract: record.abstract?.[language] || "",
+                license: record.license || "",
+                verticalExtentMin: record.verticalExtentMin,
+                verticalExtentMax: record.verticalExtentMax,
+                verticalExtentDirection: record.verticalExtentDirection,
+                contacts: record.contacts || [],
+                formLanguage: record.language || "",
                 fullRecord: record,
               }))}
               columns={[
@@ -415,6 +473,105 @@ class Reviewer extends FormClassTemplate {
                   },
                 },
                 {
+                  field: "abstract",
+                  headerName: language === "en" ? "Abstract" : "Résumé",
+                  flex: 2,
+                  minWidth: 200,
+                                    renderCell: (params) => (
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={params.value}
+                    >
+                      {params.value}
+                    </div>
+                  ),
+                },
+                {
+                  field: "license",
+                  headerName: language === "en" ? "License" : "Licence",
+                  flex: 1,
+                  minWidth: 150,
+                                    renderCell: (params) => {
+                    const licenseData = licenses[params.value];
+                    if (!licenseData) return params.value || "";
+                    return licenseData.title?.[language] || licenseData.title?.en || params.value;
+                  },
+                },
+                {
+                  field: "verticalExtentMin",
+                  headerName: language === "en" ? "Vertical Min" : "Étendue verticale min",
+                  flex: 0.8,
+                  minWidth: 100,
+                                    type: "number",
+                  headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => {
+                    if (params.value === undefined || params.value === null) return "";
+                    return params.value;
+                  },
+                },
+                {
+                  field: "verticalExtentMax",
+                  headerName: language === "en" ? "Vertical Max" : "Étendue verticale max",
+                  flex: 0.8,
+                  minWidth: 100,
+                                    type: "number",
+                  headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => {
+                    if (params.value === undefined || params.value === null) return "";
+                    return params.value;
+                  },
+                },
+                {
+                  field: "contacts",
+                  headerName: language === "en" ? "Contacts" : "Contacts",
+                  flex: 1.5,
+                  minWidth: 200,
+                                    sortable: false,
+                  renderCell: (params) => {
+                    const contactsList = params.value || [];
+                    if (contactsList.length === 0) return "";
+                    const contactNames = contactsList.map((c) => {
+                      if (c.givenNames || c.lastName) {
+                        return `${c.givenNames || ""} ${c.lastName || ""}`.trim();
+                      }
+                      return c.orgName || "";
+                    }).filter(Boolean);
+                    const displayText = contactNames.join(", ");
+                    return (
+                      <div
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                        title={displayText}
+                      >
+                        {displayText}
+                      </div>
+                    );
+                  },
+                },
+                {
+                  field: "formLanguage",
+                  headerName: language === "en" ? "Form Language" : "Langue du formulaire",
+                  flex: 0.8,
+                  minWidth: 100,
+                                    headerAlign: "center",
+                  align: "center",
+                  renderCell: (params) => {
+                    if (!params.value) return "";
+                    if (params.value === "en") return "English";
+                    if (params.value === "fr") return "Français";
+                    return params.value;
+                  },
+                },
+                {
                   field: "actions",
                   headerName: language === "en" ? "Actions" : "Actions",
                   flex: 1.5,
@@ -506,6 +663,13 @@ class Reviewer extends FormClassTemplate {
               checkboxSelection={false}
               disableSelectionOnClick
               components={{
+                Toolbar: () => (
+                  <GridToolbarContainer style={{ padding: "8px", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <GridToolbarQuickFilter />
+                    <GridToolbarColumnsButton />
+                    <GridToolbarExport  />
+                  </GridToolbarContainer>
+                ),
                 NoRowsOverlay: () => (
                   <div style={{ padding: "20px", textAlign: "center" }}>
                     {language === "en"
@@ -514,6 +678,17 @@ class Reviewer extends FormClassTemplate {
                   </div>
                 ),
               }}
+              localeText={{
+                toolbarColumns: language === "en" ? "Columns" : "Colonnes",
+                toolbarColumnsLabel: language === "en" ? "Select columns" : "Sélectionner les colonnes",
+                columnsPanelTextFieldLabel: language === "en" ? "Find column" : "Rechercher une colonne",
+                columnsPanelTextFieldPlaceholder: language === "en" ? "Column title" : "Titre de la colonne",
+                columnsPanelShowAllButton: language === "en" ? "Show all" : "Afficher tout",
+                columnsPanelHideAllButton: language === "en" ? "Hide all" : "Masquer tout",
+                toolbarQuickFilterPlaceholder: language === "en" ? "Search..." : "Rechercher...",
+              }}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={this.handleColumnVisibilityChange}
             />
           </div>
         )}
