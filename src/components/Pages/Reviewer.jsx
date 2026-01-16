@@ -320,13 +320,7 @@ class Reviewer extends FormClassTemplate {
                 formLanguage: record.language || "",
                 fullRecord: record,
               }))}
-              columns={[
-                {
-                  field: "title",
-                  headerName: language === "en" ? "Title" : "Titre",
-                  flex: 2,
-                  minWidth: 200,
-                },
+                columns={[
                 {
                   field: "status",
                   headerName: language === "en" ? "Status" : "Statut",
@@ -418,13 +412,7 @@ class Reviewer extends FormClassTemplate {
                     },
                   ],
                 },
-                {
-                  field: "author",
-                  headerName: language === "en" ? "Author" : "Auteur",
-                  flex: 1.5,
-                  minWidth: 180,
-                },
-                {
+              {
                   field: "progress",
                   headerName: language === "en" ? "Progress" : "Progrès",
                   flex: 0.8,
@@ -476,6 +464,19 @@ class Reviewer extends FormClassTemplate {
                     const date2 = v2 ? new Date(v2).getTime() : 0;
                     return date1 - date2;
                   },
+                },
+                {
+                  field: "title",
+                  headerName: language === "en" ? "Title" : "Titre",
+                  flex: 2,
+                  minWidth: 200,
+                },
+                
+                {
+                  field: "author",
+                  headerName: language === "en" ? "Author" : "Auteur",
+                  flex: 1.5,
+                  minWidth: 180,
                 },
                 {
                   field: "abstract",
