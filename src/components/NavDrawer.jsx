@@ -19,6 +19,7 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  Help,
 } from "@material-ui/icons";
 
 import {
@@ -583,6 +584,34 @@ export default function MiniDrawer({ children }) {
           <List>
             <Tooltip
               placement="right-start"
+              title={open ? "" : <I18n en="Contact Region" fr="Contacter la région" />}
+            >
+              <ListItem
+                button
+                key="Contact Region"
+                onClick={() => {
+                  const regionInfo = regions[region];
+                  const email = regionInfo?.email || '';
+                  const subject = encodeURIComponent(
+                    language === 'fr'
+                      ? `Formulaire ${regionInfo.title.fr} – Question`
+                      : `${regionInfo.title.en} Form – Question`
+                  );
+                  window.location.href = `mailto:${email}?subject=${subject}`;
+                }}
+              >
+                <ListItemIcon>
+                  <Help />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    language === 'fr' ? 'Contacter la région' : 'Contact Region'
+                  }
+                />
+              </ListItem>
+            </Tooltip>
+            <Tooltip
+              placement="right-start"
               title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
             >
               <ListItem
@@ -594,7 +623,7 @@ export default function MiniDrawer({ children }) {
                 <ListItemIcon>
                   <FeedbackRounded />
                 </ListItemIcon>
-                <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                <ListItemText primary={<I18n en="Form Feedback" fr="Commentaires par rapport au formulaire" />} />
               </ListItem>
             </Tooltip>
           </List>
