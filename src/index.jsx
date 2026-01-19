@@ -18,9 +18,12 @@ Sentry.init({
       formTitle: "Send Feedback",
       enableScreenshot: true,
     }),
+    Sentry.replayIntegration(),
   ],
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
   tracesSampleRate: process.env.NODE_ENV === "production" ? 1.0 : 0.1,
 });
 
