@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 const { Octokit } = require("octokit");
+const { getRecordFilename } = require("./updates");
 
 // Helper to check permissions
 async function checkPermissions(email, region) {
@@ -18,6 +19,13 @@ async function checkPermissions(email, region) {
 // Helper to generate filename
 function generateFilename(template, record, recordId) {
   let filename = template;
+
+  // Historical default name logic
+  if (filename.includes("{filename}")) {
+    const historicalFilename = getRecordFilename(record);
+    filename = filename.replace("{filename}", historicalFilename);
+  }
+
   // Use record.id or identifier or key
   const uuid = record.id || record.identifier || recordId;
   filename = filename.replace("{uuid}", uuid);
@@ -59,8 +67,12 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   
   // 5. Convert to XML and YAML
   const projectId = process.env.GCLOUD_PROJECT;
-  const region = "us-central1";
-  const convertMetadataUrl = `https://${region}-${projectId}.cloudfunctions.net/convert_metadata`;
+  const functionRegion = "us-central1";
+  let convertMetadataUrl = `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
+
+  if (process.env.FUNCTIONS_EMULATOR === "true") {
+    convertMetadataUrl = `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
+  }
 
   let xmlContent;
   let yamlContent;
@@ -93,7 +105,7 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   }
   
   // 6. Generate Filename
-  const filenameBase = generateFilename(config.fileTemplate || "{uuid}", record, recordId);
+  const filenameBase = generateFilename(config.fileTemplate || "{filename}", record, recordId);
   
   // 7. Commit to GitHub
   const octokit = new Octokit({

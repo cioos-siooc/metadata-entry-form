@@ -178,76 +178,17 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  save() {
+  handleSave() {
     const { match } = this.props;
     const { region } = match.params;
-
-    const { reviewers, admins, projects } = this.state;
-    const database = getDatabase(firebase);
-
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const permissionsRef = child(regionAdminRef, "permissions");
-      const projectsRef = child(regionAdminRef, "projects");
-
-      set(child(permissionsRef, "admins"), cleanArr(admins).join());
-
-      set(projectsRef, cleanArr(projects));
-      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
-    }
-  }
-
-  saveDoiCredentials() {
-    const { match } = this.props;
-    const { region } = match.params;
-
     const {
+      reviewers,
+      admins,
+      projects,
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
       isDoiCreationEnabled,
-    } = this.state;
-
-    const database = getDatabase(firebase);
-
-    const bufferObj = Buffer.from(
-      `${dataciteAccountId}:${datacitePass}`,
-      "utf8"
-    );
-    const base64String = bufferObj.toString("base64");
-
-    // Check if DOI creation is enabled but credentials are not stored
-    if (
-      isDoiCreationEnabled &&
-      (!datacitePrefix || !dataciteAccountId || !datacitePass)
-    ) {
-      this.setState({ showCredentialsMissingDialog: true });
-      return;
-    }
-
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const dataciteRef = child(regionAdminRef, "dataciteCredentials");
-
-      set(child(dataciteRef, "prefix"), datacitePrefix);
-      set(child(dataciteRef, "dataciteHash"), base64String);
-
-      this.setState({
-        datacitePass: "",
-        credentialsStored: true,
-      });
-    }
-  }
-
-  handleClickShowGithubToken = () =>
-    this.setState((prevState) => ({
-      showGithubToken: !prevState.showGithubToken,
-    }));
-
-  saveGithubCredentials() {
-    const { match } = this.props;
-    const { region } = match.params;
-    const {
       githubOwner,
       githubRepo,
       githubToken,
@@ -259,8 +200,41 @@ class Admin extends FormClassTemplate {
 
     if (auth.currentUser) {
       const regionAdminRef = ref(database, `admin/${region}`);
-      const githubRef = child(regionAdminRef, "githubCredentials");
 
+      // 1. Save Permissions
+      const permissionsRef = child(regionAdminRef, "permissions");
+      const projectsRef = child(regionAdminRef, "projects");
+      set(child(permissionsRef, "admins"), cleanArr(admins).join());
+      set(projectsRef, cleanArr(projects));
+      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
+
+      // 2. Save DOI Credentials if enabled
+      if (isDoiCreationEnabled) {
+        if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
+          this.setState({ showCredentialsMissingDialog: true });
+          // We continue saving other settings even if DOI is missing? 
+          // The user probably wants to fix this, but let's at least save what we can.
+          // Actually, the original saveDoiCredentials returned early.
+        } else {
+          const dataciteRef = child(regionAdminRef, "dataciteCredentials");
+          const bufferObj = Buffer.from(
+            `${dataciteAccountId}:${datacitePass}`,
+            "utf8"
+          );
+          const base64String = bufferObj.toString("base64");
+
+          set(child(dataciteRef, "prefix"), datacitePrefix);
+          set(child(dataciteRef, "dataciteHash"), base64String);
+
+          this.setState({
+            datacitePass: "",
+            credentialsStored: true,
+          });
+        }
+      }
+
+      // 3. Save GitHub Credentials
+      const githubRef = child(regionAdminRef, "githubCredentials");
       set(githubRef, {
         owner: githubOwner,
         repo: githubRepo,
@@ -453,20 +427,6 @@ class Admin extends FormClassTemplate {
                 />
               </Grid>
             </Paper>
-            <Grid item xs>
-              <Button
-                startIcon={<Save />}
-                variant="contained"
-                color="primary"
-                style={{ margin: 10 }}
-                onClick={() => this.save()}
-              >
-                <I18n>
-                  <En>Save Admin Settings</En>
-                  <Fr>Enregistrer</Fr>
-                </I18n>
-              </Button>
-            </Grid>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -607,20 +567,6 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   </>
                 )}
-                {this.state.isDoiCreationEnabled && (
-                  <Button
-                    startIcon={<Save />}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.saveDoiCredentials()}
-                    style={{ margin: 10 }}
-                  >
-                    <I18n>
-                      <En>Save DOI Settings</En>
-                      <Fr>Enregistrer les paramètres DOI</Fr>
-                    </I18n>
-                  </Button>
-                )}
               </Grid>
             </Paper>
             <Paper style={paperClass}>
@@ -744,22 +690,22 @@ class Admin extends FormClassTemplate {
                     helperText="One environment per line (e.g. prod)"
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    startIcon={<Save />}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.saveGithubCredentials()}
-                    style={{ margin: 10 }}
-                  >
-                    <I18n>
-                      <En>Save GitHub Settings</En>
-                      <Fr>Enregistrer les paramètres GitHub</Fr>
-                    </I18n>
-                  </Button>
-                </Grid>
               </Grid>
             </Paper>
+            <Grid item xs>
+              <Button
+                startIcon={<Save />}
+                variant="contained"
+                color="primary"
+                style={{ margin: 10 }}
+                onClick={() => this.handleSave()}
+              >
+                <I18n>
+                  <En>Save Admin Settings</En>
+                  <Fr>Enregistrer les paramètres d'administration</Fr>
+                </I18n>
+              </Button>
+            </Grid>
           </>
         )}
         {this.renderDeletionDialog()}
