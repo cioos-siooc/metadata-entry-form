@@ -1,8 +1,11 @@
 const functions = require("firebase-functions");
+const { defineString } = require('firebase-functions/params');
 const admin = require("firebase-admin");
 const axios = require("axios");
 const { Octokit } = require("octokit");
 const { getRecordFilename } = require("./updates");
+
+const awsRegion = defineString('AWS_REGION');
 
 // Helper to check permissions
 async function checkPermissions(email, region) {
@@ -67,7 +70,7 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   
   // 5. Convert to XML and YAML
   const projectId = process.env.GCLOUD_PROJECT;
-  const functionRegion = "us-central1";
+  const functionRegion = process.env.AWS_REGION || awsRegion.value();
   let convertMetadataUrl = `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
 
   if (process.env.FUNCTIONS_EMULATOR === "true") {

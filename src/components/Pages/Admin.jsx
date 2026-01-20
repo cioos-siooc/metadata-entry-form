@@ -19,7 +19,7 @@ import {
 import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
-import { getDatabase, ref, child, onValue, set } from "firebase/database";
+import { getDatabase, ref, child, onValue, update } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
@@ -94,14 +94,23 @@ class Admin extends FormClassTemplate {
         const githubRef = child(regionAdminRef, "githubCredentials");
         onValue(githubRef, (snapshot) => {
           const data = snapshot.val();
-          if (data) {
+          // Always update state, even if data is null (first time setup)
+          this.setState({
+            githubOwner: data?.owner || "cioos-siooc",
+            githubRepo: data?.repo || "cioos-siooc-forms",
+            githubBranch: data?.branch || "main",
+            githubFileTemplate: data?.fileTemplate || "{filename}",
+            githubEnvironments: (data?.environments || ["prod"]).join("\n"),
+            githubToken: data?.token || "",
+          });
+        });
+
+        const projectsRef = child(regionAdminRef, "projects");
+        onValue(projectsRef, (snapshot) => {
+          const projectsData = snapshot.val();
+          if (projectsData) {
             this.setState({
-              githubOwner: data.owner || "cioos-siooc",
-              githubRepo: data.repo || "cioos-siooc-forms",
-              githubBranch: data.branch || "main",
-              githubFileTemplate: data.fileTemplate || "{filename}",
-              githubEnvironments: (data.environments || ["prod"]).join("\n"),
-              githubToken: data.token || "",
+              projects: Object.values(projectsData),
             });
           }
         });
@@ -109,12 +118,11 @@ class Admin extends FormClassTemplate {
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          // const projects = permissions.projects.split(",");
-          const admins = permissions.admins.split(",");
-          const reviewers = permissions.reviewers.split(",");
+          const admins = permissions.admins ? permissions.admins.split(",") : [];
+          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
 
           this.setState({
-            projects,
+            projects, // Use the projects fetched by getRegionProjects initially
             admins,
             reviewers,
             loading: false,
@@ -124,6 +132,8 @@ class Admin extends FormClassTemplate {
           });
         });
         this.listenerRefs.push(permissionsRef);
+        this.listenerRefs.push(projectsRef);
+        this.listenerRefs.push(githubRef);
       }
     });
   }
@@ -141,6 +151,11 @@ class Admin extends FormClassTemplate {
   handleClickShowPassword = () =>
     this.setState((prevState) => ({
       showPassword: !prevState.showPassword,
+    }));
+
+  handleClickShowGithubToken = () =>
+    this.setState((prevState) => ({
+      showGithubToken: !prevState.showGithubToken,
     }));
 
   handleMouseDownPassword = (event) => {
@@ -200,31 +215,26 @@ class Admin extends FormClassTemplate {
 
     if (auth.currentUser) {
       const regionAdminRef = ref(database, `admin/${region}`);
+      const updates = {};
 
-      // 1. Save Permissions
-      const permissionsRef = child(regionAdminRef, "permissions");
-      const projectsRef = child(regionAdminRef, "projects");
-      set(child(permissionsRef, "admins"), cleanArr(admins).join());
-      set(projectsRef, cleanArr(projects));
-      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
+      // 1. Permissions
+      updates["permissions/admins"] = cleanArr(admins).join();
+      updates["permissions/reviewers"] = cleanArr(reviewers).join();
+      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
 
-      // 2. Save DOI Credentials if enabled
+      // 2. DOI Credentials if enabled
       if (isDoiCreationEnabled) {
         if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
           this.setState({ showCredentialsMissingDialog: true });
-          // We continue saving other settings even if DOI is missing? 
-          // The user probably wants to fix this, but let's at least save what we can.
-          // Actually, the original saveDoiCredentials returned early.
         } else {
-          const dataciteRef = child(regionAdminRef, "dataciteCredentials");
           const bufferObj = Buffer.from(
             `${dataciteAccountId}:${datacitePass}`,
             "utf8"
           );
           const base64String = bufferObj.toString("base64");
 
-          set(child(dataciteRef, "prefix"), datacitePrefix);
-          set(child(dataciteRef, "dataciteHash"), base64String);
+          updates["dataciteCredentials/prefix"] = datacitePrefix;
+          updates["dataciteCredentials/dataciteHash"] = base64String;
 
           this.setState({
             datacitePass: "",
@@ -233,16 +243,25 @@ class Admin extends FormClassTemplate {
         }
       }
 
-      // 3. Save GitHub Credentials
-      const githubRef = child(regionAdminRef, "githubCredentials");
-      set(githubRef, {
+      // 3. GitHub Credentials
+      const githubCredentials = {
         owner: githubOwner,
         repo: githubRepo,
         token: githubToken,
         branch: githubBranch,
         fileTemplate: githubFileTemplate,
         environments: cleanArr(githubEnvironments.split("\n")),
-      });
+      };
+      updates.githubCredentials = githubCredentials;
+
+      update(regionAdminRef, updates)
+        .catch((error) => {
+          console.error('Failed to save admin settings:', error);
+          alert(`Failed to save admin settings: ${error.message}`);
+        });
+    } else {
+      console.error('No authenticated user found');
+      alert('You must be logged in to save admin settings');
     }
   }
 
