@@ -39,7 +39,7 @@ import {
 } from "@material-ui/core";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
-import { auth, signInWithGoogle, signInWithMicrosoft } from "../auth";
+import { auth, signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
 
@@ -175,6 +175,7 @@ export default function MiniDrawer({ children }) {
     admin: <I18n en="Admin" fr="Admin" />,
     signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
     signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
+    signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
@@ -340,6 +341,34 @@ export default function MiniDrawer({ children }) {
                       <AccountCircle />
                     </ListItemIcon>
                     <ListItemText primary={translations.signInMicrosoft} />
+                  </ListItem>
+                </Tooltip>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.signInOrcid}
+                >
+                  <ListItem
+                    disabled={authIsLoading}
+                    button
+                    key="Sign in ORCID"
+                    onClick={async () => {
+                      try {
+                        await signInWithOrcid();
+                        history.push(pathname);
+                      } catch (error) {
+                        console.error("ORCID Sign-In Error:", error);
+                        if (error.code === 'auth/cancelled-popup-request'){
+                          // ignore
+                        } else {
+                          throw error;
+                        }
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      <AccountCircle />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.signInOrcid} />
                   </ListItem>
                 </Tooltip>
               </>

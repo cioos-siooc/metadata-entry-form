@@ -10,7 +10,13 @@ microsoftProvider.setCustomParameters({
   prompt: "select_account",
 });
 
+const orcidProvider = new OAuthProvider('oidc.orcid');
+orcidProvider.setCustomParameters({
+  prompt: "login",
+});
+
 const auth = getAuth(firebase);
 const signInWithGoogle = () => signInWithPopup(auth, provider);
 const signInWithMicrosoft = () => signInWithPopup(auth, microsoftProvider);
-export { signInWithGoogle, signInWithMicrosoft, auth, getAuth, onAuthStateChanged };
+const signInWithOrcid = () => signInWithPopup(auth, orcidProvider);
+export { signInWithGoogle, signInWithMicrosoft, signInWithOrcid, auth, getAuth, onAuthStateChanged };
