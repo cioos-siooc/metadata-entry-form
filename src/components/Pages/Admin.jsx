@@ -54,6 +54,8 @@ class Admin extends FormClassTemplate {
       credentialsStored: false,
       showDeletionDialog: false,
       showCredentialsMissingDialog: false,
+      showErrorDialog: false,
+      errorMessage: "",
       githubOwner: "cioos-siooc",
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
@@ -257,11 +259,17 @@ class Admin extends FormClassTemplate {
       update(regionAdminRef, updates)
         .catch((error) => {
           console.error('Failed to save admin settings:', error);
-          alert(`Failed to save admin settings: ${error.message}`);
+          this.setState({
+            showErrorDialog: true,
+            errorMessage: `Failed to save admin settings: ${error.message}`,
+          });
         });
     } else {
       console.error('No authenticated user found');
-      alert('You must be logged in to save admin settings');
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: 'You must be logged in to save admin settings',
+      });
     }
   }
 
@@ -322,6 +330,35 @@ class Admin extends FormClassTemplate {
             onClick={() =>
               this.setState({ showCredentialsMissingDialog: false })
             }
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  renderErrorDialog() {
+    return (
+      <Dialog
+        open={this.state.showErrorDialog}
+        onClose={() => this.setState({ showErrorDialog: false })}
+        aria-labelledby="error-dialog-title"
+        aria-describedby="error-dialog-description"
+      >
+        <DialogTitle id="error-dialog-title">
+          Error
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="error-dialog-description">
+            {this.state.errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => this.setState({ showErrorDialog: false })}
             color="primary"
             autoFocus
           >
@@ -729,6 +766,7 @@ class Admin extends FormClassTemplate {
         )}
         {this.renderDeletionDialog()}
         {this.renderCredentialsMissingDialog()}
+        {this.renderErrorDialog()}
       </Grid>
     );
   }
