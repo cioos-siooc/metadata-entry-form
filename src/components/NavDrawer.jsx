@@ -14,7 +14,7 @@ import {
   ChevronRight,
   RateReview,
   SupervisorAccount,
-  Menu,
+  Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
   DirectionsBoatSharp,
@@ -29,7 +29,6 @@ import {
   Toolbar,
   CssBaseline,
   Typography,
-  Divider,
   IconButton,
   List,
   ListItem,
@@ -38,6 +37,7 @@ import {
   Select,
   Tooltip,
   MenuItem,
+  Menu,
 } from "@material-ui/core";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
@@ -133,6 +133,16 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
   },
+  drawerPaper: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  drawerItems: {
+    flexGrow: 1,
+  },
+  bottomList: {
+    marginTop: "auto",
+  },
 }));
 
 export default function MiniDrawer({ children }) {
@@ -171,8 +181,24 @@ export default function MiniDrawer({ children }) {
   const [open, setOpen] = React.useState(Boolean(region));
 
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isMenuOpen = Boolean(anchorEl);
+
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleMenuClose();
+    auth.signOut().then(() => history.push(baseURL));
   };
 
   const translations = {
@@ -222,7 +248,7 @@ export default function MiniDrawer({ children }) {
               edge="start"
               className={classes.menuButton}
             >
-              <Menu />
+              <MenuIcon />
             </IconButton>
           )}
           <Typography
@@ -273,7 +299,7 @@ export default function MiniDrawer({ children }) {
             [classes.drawerClose]: !open && !isMobile,
           })}
           classes={{
-            paper: clsx({
+            paper: clsx(classes.drawerPaper, {
               [classes.drawerOpen]: open && !isMobile,
               [classes.drawerClose]: !open && !isMobile,
             }),
@@ -293,222 +319,237 @@ export default function MiniDrawer({ children }) {
             </IconButton>
           </div>
 
-          {user && (
-            <ListItem key="userInfo">
-              <ListItemIcon>
-                <Avatar src={user.photoURL} />
-              </ListItemIcon>
-              <ListItemText primary={user.displayName} />
-            </ListItem>
-          )}
-          <Divider />
-          <List>
-            {!user && region && (
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.signIn}
-              >
-                <ListItem
-                  disabled={authIsLoading}
-                  button
-                  key="Sign in"
-                  onClick={async () => {
-                    try {
-                      await signInWithGoogle();
-                      history.push(pathname);
-                    } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request') {
-                        // ignore
-                      } else {
-                        throw error;
+          <div className={classes.drawerItems}>
+            <List>
+              {!user && region && (
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.signIn}
+                >
+                  <ListItem
+                    disabled={authIsLoading}
+                    button
+                    key="Sign in"
+                    onClick={async () => {
+                      try {
+                        await signInWithGoogle();
+                        history.push(pathname);
+                      } catch (error) {
+                        if (error.code === 'auth/cancelled-popup-request') {
+                          // ignore
+                        } else {
+                          throw error;
+                        }
                       }
-                    }
-                  }}
-                >
-                  <ListItemIcon>
-                    <AccountCircle />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.signIn} />
-                </ListItem>
-              </Tooltip>
-            )}
-            {user && region && (
-              <>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.saved}
-                >
-                  <ListItem
-                    button
-                    key="My Records"
-                    onClick={() => history.push(`${baseURL}/submissions`)}
+                    }}
                   >
                     <ListItemIcon>
-                      <ListAlt />
+                      <AccountCircle />
                     </ListItemIcon>
-                    <ListItemText primary={translations.saved} />
+                    <ListItemText primary={translations.signIn} />
                   </ListItem>
                 </Tooltip>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.published}
-                >
+              )}
+              {user && region && (
+                <>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.saved}
+                  >
+                    <ListItem
+                      button
+                      key="My Records"
+                      onClick={() => history.push(`${baseURL}/submissions`)}
+                    >
+                      <ListItemIcon>
+                        <ListAlt />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.saved} />
+                    </ListItem>
+                  </Tooltip>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.published}
+                  >
+                    <ListItem
+                      button
+                      key="Region's Published Records"
+                      onClick={() => history.push(`${baseURL}/published`)}
+                    >
+                      <ListItemIcon>
+                        <AssignmentTurnedIn />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.published} />
+                    </ListItem>
+                  </Tooltip>
+
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.contacts}
+                  >
+                    <ListItem
+                      button
+                      key="Contacts"
+                      onClick={() => history.push(`${baseURL}/contacts`)}
+                    >
+                      <ListItemIcon disabled>
+                        <Contacts />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.contacts} />
+                    </ListItem>
+                  </Tooltip>
+
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.instruments}
+                  >
+                    <ListItem
+                      button
+                      key="instruments"
+                      onClick={() => history.push(`${baseURL}/instruments`)}
+                    >
+                      <ListItemIcon disabled>
+                        <StraightenSharp />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.instruments} />
+                    </ListItem>
+                  </Tooltip>
+
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.platforms}
+                  >
+                    <ListItem
+                      button
+                      key="Platforms"
+                      onClick={() => history.push(`${baseURL}/platforms`)}
+                    >
+                      <ListItemIcon disabled>
+                        <DirectionsBoatSharp />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.platforms} />
+                    </ListItem>
+                  </Tooltip>
+
+                  {hasSharedRecords && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.sharedWithMe}
+                    >
+                      <ListItem
+                        button
+                        key="SharedWithMe"
+                        onClick={() => history.push(`${baseURL}/shared`)}
+                      >
+                        <ListItemIcon>
+                          <FolderShared />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.sharedWithMe} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+
+                  {userIsReviewer && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
+                    >
+                      <ListItem
+                        button
+                        key="Review"
+                        onClick={() => history.push(`${baseURL}/reviewer`)}
+                      >
+                        <ListItemIcon>
+                          <RateReview />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.review} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                  {userIsAdmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.admin}
+                    >
+                      <ListItem
+                        button
+                        key="Admin"
+                        onClick={() => history.push(`${baseURL}/admin`)}
+                      >
+                        <ListItemIcon>
+                          <SupervisorAccount />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.admin} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+
+            </List>
+          </div>
+
+          <div className={classes.bottomList}>
+            <List>
+              {usingDevDatabase && (
+                <Tooltip placement="right-start" title={databaseUrl}>
                   <ListItem
                     button
-                    key="Region's Published Records"
-                    onClick={() => history.push(`${baseURL}/published`)}
+                    key="DevDBWarning"
+                    style={{
+                      fontSize: "14px",
+                      color: "#d32f2f",
+                    }}
                   >
                     <ListItemIcon>
-                      <AssignmentTurnedIn />
+                      <Warning style={{ color: "#d32f2f" }} />
                     </ListItemIcon>
-                    <ListItemText primary={translations.published} />
+                    <ListItemText
+                      primary={translations.envConnection}
+                      href={databaseUrl}
+                    />
                   </ListItem>
                 </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.contacts}
-                >
-                  <ListItem
-                    button
-                    key="Contacts"
-                    onClick={() => history.push(`${baseURL}/contacts`)}
-                  >
-                    <ListItemIcon disabled>
-                      <Contacts />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.contacts} />
-                  </ListItem>
-                </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.instruments}
-                >
-                  <ListItem
-                    button
-                    key="instruments"
-                    onClick={() => history.push(`${baseURL}/instruments`)}
-                  >
-                    <ListItemIcon disabled>
-                      <StraightenSharp />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.instruments} />
-                  </ListItem>
-                </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.platforms}
-                >
-                  <ListItem
-                    button
-                    key="Platforms"
-                    onClick={() => history.push(`${baseURL}/platforms`)}
-                  >
-                    <ListItemIcon disabled>
-                      <DirectionsBoatSharp />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.platforms} />
-                  </ListItem>
-                </Tooltip>
-
-                {hasSharedRecords && (
+              )}
+              {user && (
+                <>
                   <Tooltip
                     placement="right-start"
-                    title={open ? "" : translations.sharedWithMe}
+                    title={open ? "" : user.displayName}
                   >
                     <ListItem
                       button
-                      key="SharedWithMe"
-                      onClick={() => history.push(`${baseURL}/shared`)}
+                      key="userInfo"
+                      onClick={handleMenuOpen}
                     >
                       <ListItemIcon>
-                        <FolderShared />
+                        <Avatar
+                          src={user.photoURL}
+                          style={{ width: 30, height: 30 }}
+                        />
                       </ListItemIcon>
-                      <ListItemText primary={translations.sharedWithMe} />
+                      <ListItemText primary={user.displayName} />
                     </ListItem>
                   </Tooltip>
-                )}
-
-                {userIsReviewer && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.review}
+                  <Menu
+                    anchorEl={anchorEl}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    keepMounted
+                    transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    open={isMenuOpen}
+                    onClose={handleMenuClose}
                   >
-                    <ListItem
-                      button
-                      key="Review"
-                      onClick={() => history.push(`${baseURL}/reviewer`)}
-                    >
-                      <ListItemIcon>
-                        <RateReview />
+                    <MenuItem onClick={handleLogout}>
+                      <ListItemIcon style={{ minWidth: '40px' }}>
+                        <ExitToApp fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText primary={translations.review} />
-                    </ListItem>
-                  </Tooltip>
-                )}
-                {userIsAdmin && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.admin}
-                  >
-                    <ListItem
-                      button
-                      key="Admin"
-                      onClick={() => history.push(`${baseURL}/admin`)}
-                    >
-                      <ListItemIcon>
-                        <SupervisorAccount />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.admin} />
-                    </ListItem>
-                  </Tooltip>
-                )}
-              </>
-            )}
-
-            {user && (
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.logout}
-              >
-                <ListItem
-                  button
-                  key="Logout"
-                  onClick={() =>
-                    auth.signOut().then(() => history.push(baseURL))
-                  }
-                >
-                  <ListItemIcon>
-                    <ExitToApp />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.logout} />
-                </ListItem>
-              </Tooltip>
-            )}
-            <Divider />
-            {usingDevDatabase && (
-              <Tooltip
-                placement="right-start"
-                title={databaseUrl}
-              >
-                <ListItem
-                  button
-                  key="DevDBWarning"
-                  style={{
-                    fontSize: '14px',
-                    color: '#d32f2f',
-                  }}
-                >
-                  <ListItemIcon>
-                    <Warning style={{ color: '#d32f2f' }} />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.envConnection} href={databaseUrl} />
-                </ListItem>
-              </Tooltip>
-            )}
-          </List>
+                      <Typography variant="inherit">{translations.logout}</Typography>
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
+            </List>
+          </div>
         </Drawer>
       )}
       <main className={classes.content}>
