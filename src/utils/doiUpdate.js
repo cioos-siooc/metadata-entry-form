@@ -1,11 +1,12 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
-import recordToDataCite from "./recordToDataCite";
+import convertToDataCite from "./convertToDataCite";
 
 async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
   const functions = getFunctions();
   const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
 
-  const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+  // For updates, regenerate schema and URL from backend; do not set explicit DOI here
+  const mappedDataCiteObject = await convertToDataCite(record, { datacitePrefix, region, language, generateIfMissing: false });
   delete mappedDataCiteObject.data.type;
   delete mappedDataCiteObject.data.attributes.prefix;
 
@@ -13,7 +14,7 @@ async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
   const doi = record.datasetIdentifier.replace('https://doi.org/', '');
 
   const dataObject = {
-    doi, 
+    doi,
     region,
     data: mappedDataCiteObject,
   }

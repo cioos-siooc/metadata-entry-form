@@ -13,7 +13,7 @@ import { getDatabase, ref, child, update } from "firebase/database";
 import { En, Fr, I18n } from "../I18n";
 
 import firebase from "../../firebase";
-import recordToDataCite from "../../utils/recordToDataCite";
+import convertToDataCite from "../../utils/convertToDataCite";
 import { validateDOI } from "../../utils/validate";
 
 import {
@@ -50,7 +50,21 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         const database = getDatabase(firebase);
 
         try {
-            const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+            // If user already entered a DOI (and it matches our prefix), allow using it on creation
+            let providedDoi;
+            if (doiIsValid && record.datasetIdentifier?.includes('doi.org/')) {
+                const candidate = record.datasetIdentifier.split('doi.org/').pop();
+                if (candidate && (!datacitePrefix || candidate.startsWith(`${datacitePrefix}/`))) {
+                    providedDoi = candidate;
+                }
+            }
+
+            const mappedDataCiteObject = await convertToDataCite(record, {
+                datacitePrefix,
+                region,
+                language,
+                doi: providedDoi,
+            });
 
             await createDraftDoi({
                 record: mappedDataCiteObject,

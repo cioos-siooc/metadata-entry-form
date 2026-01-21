@@ -29,7 +29,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
-import recordToDataCite from "../../utils/recordToDataCite";
+import convertToDataCite from "../../utils/convertToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
@@ -115,7 +115,7 @@ const MetadataRecordListItem = ({
       } else if (fileType === "json") {
         blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else if (fileType === "dataciteJson") {
-        const dc = recordToDataCite(record, language, region, datacitePrefix);
+        const dc = await convertToDataCite(record, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
         // Use callable python function convert_metadata for: xml, yaml, erddap
