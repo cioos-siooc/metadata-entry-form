@@ -19,6 +19,7 @@ import {
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  Warning,
 } from "@material-ui/icons";
 
 import {
@@ -187,7 +188,7 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
+    envConnection: <I18n en="Development database" fr="Base de données de développement" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -487,34 +488,28 @@ export default function MiniDrawer({ children }) {
                 </ListItem>
               </Tooltip>
             )}
-          </List>
-          <Divider />
-          {usingDevDatabase && (
-            <div style={{ padding: '12px' }}>
-              <Typography
-                style={{
-                  fontSize: '14px',
-                  color: '#d32f2f',
-                }}
+            <Divider />
+            {usingDevDatabase && (
+              <Tooltip
+                placement="right-start"
+                title={databaseUrl}
               >
-                🚨 {translations.envConnection}
-                <br />
-                {databaseUrl && (
-                  <a
-                    href={databaseUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      color: '#d32f2f',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {databaseUrl}
-                  </a>
-                )}
-              </Typography>
-            </div>
-          )}
+                <ListItem
+                  button
+                  key="DevDBWarning"
+                  style={{
+                    fontSize: '14px',
+                    color: '#d32f2f',
+                  }}
+                >
+                  <ListItemIcon>
+                    <Warning style={{ color: '#d32f2f' }} />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.envConnection} href={databaseUrl} />
+                </ListItem>
+              </Tooltip>
+            )}
+          </List>
         </Drawer>
       )}
       <main className={classes.content}>
