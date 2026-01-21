@@ -4,6 +4,7 @@ import { useParams, useLocation, useHistory } from "react-router-dom";
 
 import clsx from "clsx";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import {
   ExitToApp,
   Contacts,
@@ -106,6 +107,18 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
     },
+    "& .MuiListItem-root": {
+      justifyContent: "center",
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+    "& .MuiListItemIcon-root": {
+      minWidth: 0,
+      justifyContent: "center",
+    },
+    "& .MuiListItemText-root": {
+      display: "none",
+    },
   },
   toolbar: {
     display: "flex",
@@ -126,6 +139,7 @@ export default function MiniDrawer({ children }) {
 
   const classes = useStyles();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
   const {
     user,
@@ -155,9 +169,6 @@ export default function MiniDrawer({ children }) {
   // if region not set, keep drawer closed
   const [open, setOpen] = React.useState(Boolean(region));
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -181,7 +192,7 @@ export default function MiniDrawer({ children }) {
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
     : // CIOOS national "dominant colour" from branding doc
-      "#52a79b";
+    "#52a79b";
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
@@ -195,9 +206,7 @@ export default function MiniDrawer({ children }) {
       <CssBaseline />
       <AppBar
         position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
+        className={classes.appBar}
       >
         <Toolbar
           style={{
@@ -208,11 +217,9 @@ export default function MiniDrawer({ children }) {
           {region && (
             <IconButton
               aria-label="open drawer"
-              onClick={() => handleDrawerOpen()}
+              onClick={() => setOpen(!open)}
               edge="start"
-              className={clsx(classes.menuButton, {
-                [classes.hide]: open,
-              })}
+              className={classes.menuButton}
             >
               <Menu />
             </IconButton>
@@ -233,12 +240,14 @@ export default function MiniDrawer({ children }) {
             </I18n>
           </Typography>
           <div style={{ marginLeft: "auto" }}>
-            <img
-              src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
-              alt="CIOOS/SIOOC"
-              width={350}
-              style={{ verticalAlign: "bottom", paddingRight: "15px" }}
-            />
+            {!isMobile && (
+              <img
+                src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
+                alt="CIOOS/SIOOC"
+                width={350}
+                style={{ verticalAlign: "bottom", paddingRight: "15px" }}
+              />
+            )}
 
             <Select
               color="primary"
@@ -253,22 +262,32 @@ export default function MiniDrawer({ children }) {
             </Select>
           </div>
         </Toolbar>
-  </AppBar>
+      </AppBar>
       {region && (
         <Drawer
-          variant="permanent"
+          variant={isMobile ? "temporary" : "permanent"}
+          open={open}
+          onClose={handleDrawerClose}
           className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
+            [classes.drawerOpen]: open && !isMobile,
+            [classes.drawerClose]: !open && !isMobile,
           })}
           classes={{
             paper: clsx({
-              [classes.drawerOpen]: open,
-              [classes.drawerClose]: !open,
+              [classes.drawerOpen]: open && !isMobile,
+              [classes.drawerClose]: !open && !isMobile,
             }),
           }}
         >
           <div className={classes.toolbar}>
+            {isMobile && (
+              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+                <I18n>
+                  <En>Metadata Entry Tool</En>
+                  <Fr>Outil de saisie de métadonnées</Fr>
+                </I18n>
+              </Typography>
+            )}
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
@@ -298,7 +317,7 @@ export default function MiniDrawer({ children }) {
                       await signInWithGoogle();
                       history.push(pathname);
                     } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request'){
+                      if (error.code === 'auth/cancelled-popup-request') {
                         // ignore
                       } else {
                         throw error;
