@@ -56,17 +56,12 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    [theme.breakpoints.down("xs")]: {
+      zIndex: theme.zIndex.appBar,
+    },
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
     }),
   },
   menuButton: {
@@ -90,6 +85,11 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: "nowrap",
+    "& .MuiTypography-root": {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
   },
   drawerOpen: {
     width: drawerWidth,
@@ -212,7 +212,7 @@ export default function MiniDrawer({ children }) {
         <Toolbar
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: 'end',
+            alignItems: 'center',
           }}
         >
           {region && (
@@ -230,7 +230,6 @@ export default function MiniDrawer({ children }) {
             noWrap
             style={{
               marginLeft: "10px",
-              marginBottom: "10px",
               flex: 1,
               color: "white",
             }}
