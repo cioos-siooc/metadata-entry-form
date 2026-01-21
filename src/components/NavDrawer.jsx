@@ -399,7 +399,7 @@ export default function MiniDrawer({ children }) {
 
                 <Tooltip
                   placement="right-start"
-                  title={open ? "" : translations.instruments}
+                  title={open ? "" : translations.platforms}
                 >
                   <ListItem
                     button
