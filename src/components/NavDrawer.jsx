@@ -495,6 +495,10 @@ export default function MiniDrawer({ children }) {
                 <Tooltip placement="right-start" title={databaseUrl}>
                   <ListItem
                     button
+                    component="a"
+                    href={databaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     key="DevDBWarning"
                     style={{
                       fontSize: "14px",
@@ -506,7 +510,6 @@ export default function MiniDrawer({ children }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={translations.envConnection}
-                      href={databaseUrl}
                     />
                   </ListItem>
                 </Tooltip>
