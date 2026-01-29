@@ -623,7 +623,7 @@ export default function MiniDrawer({ children }) {
                 <ListItemIcon>
                   <FeedbackRounded />
                 </ListItemIcon>
-                <ListItemText primary={<I18n en="Form Feedback" fr="Commentaires par rapport au formulaire" />} />
+                <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
               </ListItem>
             </Tooltip>
           </List>
