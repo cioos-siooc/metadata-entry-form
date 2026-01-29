@@ -242,6 +242,69 @@ export default function MiniDrawer({ children }) {
   const regionInfo = regions[region];
   const regionEmail = (regionInfo?.email || "");
   const regionEmailLower = regionEmail.toLowerCase();
+  const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
+  const [emailCopied, setEmailCopied] = React.useState(false);
+
+  const copyTooltipText = React.useMemo(() => {
+    if (emailCopied) {
+      return language === 'fr' ? 'Copié !' : 'Copied!';
+    }
+    return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
+  }, [emailCopied, language]);
+
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!regionEmailLower) return;
+
+    const done = () => {
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 1500);
+    };
+
+    const fallbackCopy = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = regionEmailLower;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch (err) {
+        // no-op: copying failed
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(regionEmailLower).then(done).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  };
+
+  const handleCopyEmailKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleCopyEmail(e);
+    }
+  };
+
+  const handleContactClick = (e) => {
+    // If clicking within the email copy element, do not trigger mailto
+    if (e && e.target && e.target.closest('[data-copy-email]')) {
+      e.preventDefault();
+      return;
+    }
+    const subject = encodeURIComponent(
+      language === 'fr'
+        ? `Formulaire ${regionInfo.title.fr} – Question`
+        : `${regionInfo.title.en} Form – Question`
+    );
+    window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
+  };
 
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -628,28 +691,47 @@ export default function MiniDrawer({ children }) {
           <List>
             <Tooltip
               placement="right-start"
-              title={open ? "" : <I18n en="Contact Region" fr="Contacter la région" />}
+              title={
+                open
+                  ? ""
+                  : (
+                    <span>
+                      {contactLabel}
+                      {regionEmailLower ? ` — ${regionEmailLower}` : ''}
+                    </span>
+                  )
+              }
             >
               <ListItem
                 button
                 key="Contact Region"
-                onClick={() => {
-                  const subject = encodeURIComponent(
-                    language === 'fr'
-                      ? `Formulaire ${regionInfo.title.fr} – Question`
-                      : `${regionInfo.title.en} Form – Question`
-                  );
-                  window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
-                }}
+                onClick={handleContactClick}
               >
                 <ListItemIcon>
                   <Help />
                 </ListItemIcon>
                 <ListItemText
-                  primary={
-                    language === 'fr' ? 'Contacter la région' : 'Contact Region'
+                  primary={contactLabel}
+                  secondary={
+                    regionEmailLower ? (
+                      <Tooltip
+                        title={copyTooltipText}
+                        placement="right-start"
+                      >
+                        <span
+                          data-copy-email="true"
+                          onClick={handleCopyEmail}
+                          onKeyDown={handleCopyEmailKeyDown}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                          style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                        >
+                          {regionEmailLower}
+                        </span>
+                      </Tooltip>
+                    ) : null
                   }
-                  secondary={regionEmailLower}
                 />
               </ListItem>
             </Tooltip>
