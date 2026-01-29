@@ -14,7 +14,6 @@ import {
   ChevronRight,
   FeedbackRounded,
   RateReview,
-  SupervisorAccount,
   Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
@@ -22,6 +21,7 @@ import {
   FolderShared,
   Help,
   Warning,
+  Settings,
 } from "@material-ui/icons";
 
 import {
@@ -40,7 +40,6 @@ import {
   Tooltip,
   MenuItem,
   Menu,
-  Divider,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -142,6 +141,10 @@ const useStyles = makeStyles((theme) => ({
       overflow: "hidden",
       textOverflow: "ellipsis",
     },
+    "& .MuiListItemIcon-root": {
+      display: "flex",
+      alignItems: "center",
+    },
   },
   drawerOpen: {
     width: drawerWidth,
@@ -197,6 +200,9 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerItems: {
     flexGrow: 1,
+  },
+  sidebarList: {
+    paddingTop: theme.spacing(2),
   },
   bottomList: {
     marginTop: "auto",
@@ -497,7 +503,7 @@ export default function MiniDrawer({ children }) {
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
-            <List>
+            <List className={classes.sidebarList}>
               {!user && region && (
                 <Tooltip
 
@@ -644,95 +650,13 @@ export default function MiniDrawer({ children }) {
                     </ListItem>
                   </Tooltip>
                 )}
-                {userIsAdmin && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.admin}
-                  >
-                    <ListItem
-                      button
-                      key="Admin"
-                      onClick={() => history.push(`${baseURL}/admin`)}
-                    >
-                      <ListItemIcon>
-                        <SupervisorAccount />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.admin} />
-                    </ListItem>
-                  </Tooltip>
-                )}
+                {/* Admin button moved to bottomList above account avatar */}
               </>
             )}
 
             {/* Logout button removed as requested */}
            
           </List>
-          <Divider />
-          <List>
-            <Tooltip
-              placement="right-start"
-              title={
-                open
-                  ? ""
-                  : (
-                    <span>
-                      {contactLabel}
-                      {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                    </span>
-                  )
-              }
-            >
-              <ListItem
-                button
-                key="Contact Region"
-                onClick={handleContactClick}
-              >
-                <ListItemIcon>
-                  <Help />
-                </ListItemIcon>
-                <ListItemText
-                  primary={contactLabel}
-                  secondary={
-                    regionEmailLower ? (
-                      <Tooltip
-                        title={copyTooltipText}
-                        placement="right-start"
-                      >
-                        <span
-                          data-copy-email="true"
-                          onClick={handleCopyEmail}
-                          onKeyDown={handleCopyEmailKeyDown}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                          style={{ textDecoration: 'underline', cursor: 'pointer' }}
-                        >
-                          {regionEmailLower}
-                        </span>
-                      </Tooltip>
-                    ) : null
-                  }
-                />
-              </ListItem>
-            </Tooltip>
-            <Tooltip
-              placement="right-start"
-              title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
-            >
-              <ListItem
-                button
-                key="Feedback"
-                id="sentry-feedback-button"
-                ref={feedbackButtonRef}
-              >
-                <ListItemIcon>
-                  <FeedbackRounded />
-                </ListItemIcon>
-                <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-              </ListItem>
-            </Tooltip>
-          </List>
-          <Divider />
           
 
           <div className={classes.bottomList}>
@@ -760,8 +684,87 @@ export default function MiniDrawer({ children }) {
                   </ListItem>
                 </Tooltip>
               )}
+              <Tooltip
+                placement="right-start"
+                title={
+                  open
+                    ? ""
+                    : (
+                      <span>
+                        {contactLabel}
+                        {regionEmailLower ? ` — ${regionEmailLower}` : ''}
+                      </span>
+                    )
+                }
+              >
+                <ListItem
+                  button
+                  key="Contact Region"
+                  onClick={handleContactClick}
+                >
+                  <ListItemIcon>
+                    <Help />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={contactLabel}
+                    secondary={
+                      regionEmailLower ? (
+                        <Tooltip
+                          title={copyTooltipText}
+                          placement="right-start"
+                        >
+                          <span
+                            data-copy-email="true"
+                            onClick={handleCopyEmail}
+                            onKeyDown={handleCopyEmailKeyDown}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                            style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                          >
+                            {regionEmailLower}
+                          </span>
+                        </Tooltip>
+                      ) : null
+                    }
+                  />
+                </ListItem>
+              </Tooltip>
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+              >
+                <ListItem
+                  button
+                  key="Feedback"
+                  id="sentry-feedback-button"
+                  ref={feedbackButtonRef}
+                >
+                  <ListItemIcon>
+                    <FeedbackRounded />
+                  </ListItemIcon>
+                  <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                </ListItem>
+              </Tooltip>
               {user && (
                 <>
+                  {userIsAdmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.admin}
+                    >
+                      <ListItem
+                        button
+                        key="Admin"
+                        onClick={() => history.push(`${baseURL}/admin`)}
+                      >
+                        <ListItemIcon>
+                          <Settings />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.admin} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
