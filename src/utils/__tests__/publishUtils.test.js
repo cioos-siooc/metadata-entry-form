@@ -93,7 +93,7 @@ describe("publishUtils", () => {
     it("should generate the correct payload with converted files", async () => {
       // Mock helper functions
       getRecordFilename.mockReturnValue("test-record-filename");
-      
+
       // Mock convertRecord responses (since it calls axios)
       axios.post
         .mockResolvedValueOnce({ data: { data: "<xml>content</xml>" } }) // First call (xml)
@@ -101,12 +101,14 @@ describe("publishUtils", () => {
 
       const environments = ["prod", "dev"];
       const commitMessage = "feat: update record";
+      const region = "test";
 
       const payload = await preparePublishPayload(
         mockRecord,
         environments,
         commitMessage,
-        mockConfig
+        mockConfig,
+        region
       );
 
       // Verify filename generation logic
@@ -116,56 +118,67 @@ describe("publishUtils", () => {
       expect(getRecordFilename).toHaveBeenCalledWith(mockRecord);
 
       expect(payload.commitMessage).toBe(commitMessage);
-      expect(payload.files).toHaveLength(4); // 2 formats * 2 environments
+      expect(payload.files).toHaveLength(7); // (xml,yaml,json)*2 envs + 1 top-level records json
 
       // Check specific file entries
       expect(payload.files).toContainEqual({
-        path: `forms/prod/${expectedFilenameBase}.xml`,
+        path: `forms/${region}/prod/${expectedFilenameBase}.xml`,
         content: "<xml>content</xml>",
       });
       expect(payload.files).toContainEqual({
-        path: `forms/prod/${expectedFilenameBase}.yaml`,
+        path: `forms/${region}/prod/${expectedFilenameBase}.yaml`,
         content: "yaml: content",
       });
       expect(payload.files).toContainEqual({
-        path: `forms/dev/${expectedFilenameBase}.xml`,
+        path: `forms/${region}/dev/${expectedFilenameBase}.xml`,
         content: "<xml>content</xml>",
       });
+      // JSON per env
+      expect(payload.files).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: `forms/${region}/prod/${expectedFilenameBase}.json` }),
+        expect.objectContaining({ path: `forms/${region}/dev/${expectedFilenameBase}.json` }),
+      ]));
+      // Top-level records JSON
+      expect(payload.files).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: `records/${expectedFilenameBase}.json` }),
+      ]));
     });
 
     it("should handle default commit message", async () => {
-        getRecordFilename.mockReturnValue("test");
-        axios.post.mockResolvedValue({ data: { data: "content" } });
-  
-        const payload = await preparePublishPayload(
-          mockRecord,
-          ["prod"],
-          null, // No commit message
-          mockConfig
-        );
-  
-        expect(payload.commitMessage).toBe("Publish metadata record: Test Record");
-      });
+      getRecordFilename.mockReturnValue("test");
+      axios.post.mockResolvedValue({ data: { data: "content" } });
+
+      const payload = await preparePublishPayload(
+        mockRecord,
+        ["prod"],
+        null, // No commit message
+        mockConfig,
+        "hakai"
+      );
+
+      expect(payload.commitMessage).toBe("Publish metadata record: Test Record");
+    });
 
     it("should handle filename generation replacements", async () => {
-        getRecordFilename.mockReturnValue("should-be-ignored");
-        
-        // Config with specific placeholders
-        const customConfig = {
-            fileTemplate: "records/{uuid}/{title}"
-        };
+      getRecordFilename.mockReturnValue("should-be-ignored");
 
-        axios.post.mockResolvedValue({ data: { data: "content" } });
+      // Config with specific placeholders
+      const customConfig = {
+        fileTemplate: "records/{uuid}/{title}"
+      };
 
-        const payload = await preparePublishPayload(
-            mockRecord,
-            ["prod"],
-            "msg",
-            customConfig
-        );
+      axios.post.mockResolvedValue({ data: { data: "content" } });
 
-        // Expected path: forms/prod/records/test-uuid/Test-Record.xml
-        expect(payload.files[0].path).toBe("forms/prod/records/test-uuid/Test-Record.xml");
+      const payload = await preparePublishPayload(
+        mockRecord,
+        ["prod"],
+        "msg",
+        customConfig,
+        "hakai"
+      );
+
+      // Expected path: forms/hakai/prod/records/test-uuid/Test-Record.xml
+      expect(payload.files[0].path).toBe("forms/hakai/prod/records/test-uuid/Test-Record.xml");
     });
   });
 });
