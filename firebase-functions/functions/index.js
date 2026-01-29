@@ -10,6 +10,7 @@ const {
   downloadRecord,
   regenerateXMLforRecord,
 } = require("./updates");
+const { githubPublishRecord } = require("./githubPublish");
 
 admin.initializeApp();
 
@@ -28,3 +29,4 @@ exports.getDoiStatus = getDoiStatus;
 exports.checkURLActive = checkURLActive;
 exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
+exports.githubPublishRecord = githubPublishRecord;

@@ -4,6 +4,7 @@ import { useParams, useLocation, useHistory } from "react-router-dom";
 
 import clsx from "clsx";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import {
   ExitToApp,
   Contacts,
@@ -14,12 +15,13 @@ import {
   FeedbackRounded,
   RateReview,
   SupervisorAccount,
-  Menu,
+  Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
   Help,
+  Warning,
 } from "@material-ui/icons";
 
 import {
@@ -29,7 +31,6 @@ import {
   Toolbar,
   CssBaseline,
   Typography,
-  Divider,
   IconButton,
   List,
   ListItem,
@@ -38,6 +39,8 @@ import {
   Select,
   Tooltip,
   MenuItem,
+  Menu,
+  Divider,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -57,17 +60,12 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    [theme.breakpoints.down("xs")]: {
+      zIndex: theme.zIndex.appBar,
+    },
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
     }),
   },
   menuButton: {
@@ -139,6 +137,11 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: "nowrap",
+    "& .MuiTypography-root": {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
   },
   drawerOpen: {
     width: drawerWidth,
@@ -156,6 +159,18 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
+    },
+    "& .MuiListItem-root": {
+      justifyContent: "center",
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+    "& .MuiListItemIcon-root": {
+      minWidth: 0,
+      justifyContent: "center",
+    },
+    "& .MuiListItemText-root": {
+      display: "none",
     },
   },
   toolbar: {
@@ -176,6 +191,16 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
   },
+  drawerPaper: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  drawerItems: {
+    flexGrow: 1,
+  },
+  bottomList: {
+    marginTop: "auto",
+  },
 }));
 
 export default function MiniDrawer({ children }) {
@@ -183,6 +208,7 @@ export default function MiniDrawer({ children }) {
 
   const classes = useStyles();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
   const {
     user,
@@ -212,12 +238,30 @@ export default function MiniDrawer({ children }) {
   // if region not set, keep drawer closed
   const [open, setOpen] = React.useState(Boolean(region));
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  // Region info and email (lowercased) for contact button display
+  const regionInfo = regions[region];
+  const regionEmail = (regionInfo?.email || "");
+  const regionEmailLower = regionEmail.toLowerCase();
+
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isMenuOpen = Boolean(anchorEl);
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleMenuClose();
+    auth.signOut().then(() => history.push(baseURL));
   };
 
   const translations = {
@@ -233,12 +277,12 @@ export default function MiniDrawer({ children }) {
     signIn: <I18n en="Sign in" fr="Se Connecter" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Connected to development database" fr="Connecté à la base de données de développement" />,
+    envConnection: <I18n en="Development database" fr="Base de données de développement" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
     : // CIOOS national "dominant colour" from branding doc
-      "#52a79b";
+    "#52a79b";
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
@@ -304,9 +348,7 @@ export default function MiniDrawer({ children }) {
       <CssBaseline />
       <AppBar
         position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
+        className={classes.appBar}
       >
         <Toolbar
           className={classes.appBarToolbar}
@@ -319,14 +361,14 @@ export default function MiniDrawer({ children }) {
           {region && (
             <IconButton
               aria-label="open drawer"
-              onClick={() => handleDrawerOpen()}
+              onClick={() => setOpen(!open)}
               edge="start"
               className={clsx(classes.menuButton, {
                 [classes.hide]: open,
               })}
               style={{ marginBottom: theme.spacing(1) }}
             >
-              <Menu />
+              <MenuIcon />
             </IconButton>
           )}
           <Typography
@@ -364,57 +406,58 @@ export default function MiniDrawer({ children }) {
             </Select>
           </div>
         </Toolbar>
-  </AppBar>
+      </AppBar>
       {region && (
         <Drawer
-          variant="permanent"
+          variant={isMobile ? "temporary" : "permanent"}
+          open={open}
+          onClose={handleDrawerClose}
           className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
+            [classes.drawerOpen]: open && !isMobile,
+            [classes.drawerClose]: !open && !isMobile,
           })}
           classes={{
-            paper: clsx({
-              [classes.drawerOpen]: open,
-              [classes.drawerClose]: !open,
+            paper: clsx(classes.drawerPaper, {
+              [classes.drawerOpen]: open && !isMobile,
+              [classes.drawerClose]: !open && !isMobile,
             }),
           }}
         >
           <div className={classes.toolbar}>
+            {isMobile && (
+              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+                <I18n>
+                  <En>Metadata Entry Tool</En>
+                  <Fr>Outil de saisie de métadonnées</Fr>
+                </I18n>
+              </Typography>
+            )}
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
+            <List>
+              {!user && region && (
+                <Tooltip
 
-          {user && (
-            <ListItem key="userInfo">
-              <ListItemIcon>
-                <Avatar src={user.photoURL} />
-              </ListItemIcon>
-              <ListItemText primary={user.displayName} />
-            </ListItem>
-          )}
-          <Divider />
-          <List>
-            {!user && region && (
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.signIn}
-              >
-                <ListItem
-                  disabled={authIsLoading}
-                  button
-                  key="Sign in"
-                  onClick={async () => {
-                    try {
-                      await signInWithGoogle();
-                      history.push(pathname);
-                    } catch (error) {
-                      if (error.code === 'auth/cancelled-popup-request'){
-                        // ignore
-                      } else {
-                        throw error;
+                  placement="right-start"
+                  title={open ? "" : translations.signIn}
+                >
+                  <ListItem
+                    disabled={authIsLoading}
+                    button
+                    key="Sign in"
+                    onClick={async () => {
+                      try {
+                        await signInWithGoogle();
+                        history.push(pathname);
+                      } catch (error) {
+                        if (error.code === 'auth/cancelled-popup-request') {
+                          // ignore
+                        } else {
+                          throw error;
+                        }
                       }
-                    }
                   }}
                 >
                   <ListItemIcon>
@@ -579,6 +622,7 @@ export default function MiniDrawer({ children }) {
                 </ListItem>
               </Tooltip>
             )}
+           
           </List>
           <Divider />
           <List>
@@ -590,14 +634,12 @@ export default function MiniDrawer({ children }) {
                 button
                 key="Contact Region"
                 onClick={() => {
-                  const regionInfo = regions[region];
-                  const email = regionInfo?.email || '';
                   const subject = encodeURIComponent(
                     language === 'fr'
                       ? `Formulaire ${regionInfo.title.fr} – Question`
                       : `${regionInfo.title.en} Form – Question`
                   );
-                  window.location.href = `mailto:${email}?subject=${subject}`;
+                  window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
                 }}
               >
                 <ListItemIcon>
@@ -607,6 +649,7 @@ export default function MiniDrawer({ children }) {
                   primary={
                     language === 'fr' ? 'Contacter la région' : 'Contact Region'
                   }
+                  secondary={regionEmailLower}
                 />
               </ListItem>
             </Tooltip>
@@ -628,32 +671,72 @@ export default function MiniDrawer({ children }) {
             </Tooltip>
           </List>
           <Divider />
-          {usingDevDatabase && (
-            <div style={{ padding: '12px' }}>
-              <Typography
-                style={{
-                  fontSize: '14px',
-                  color: '#d32f2f',
-                }}
-              >
-                🚨 {translations.envConnection}
-                <br />
-                {databaseUrl && (
-                  <a
+          
+
+          <div className={classes.bottomList}>
+            <List>
+              {usingDevDatabase && (
+                <Tooltip placement="right-start" title={databaseUrl}>
+                  <ListItem
+                    button
+                    component="a"
                     href={databaseUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
+                    key="DevDBWarning"
                     style={{
-                      color: '#d32f2f',
-                      wordBreak: 'break-all',
+                      fontSize: "14px",
+                      color: "#d32f2f",
                     }}
                   >
-                    {databaseUrl}
-                  </a>
-                )}
-              </Typography>
-            </div>
-          )}
+                    <ListItemIcon>
+                      <Warning style={{ color: "#d32f2f" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={translations.envConnection}
+                    />
+                  </ListItem>
+                </Tooltip>
+              )}
+              {user && (
+                <>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : user.displayName}
+                  >
+                    <ListItem
+                      button
+                      key="userInfo"
+                      onClick={handleMenuOpen}
+                    >
+                      <ListItemIcon>
+                        <Avatar
+                          src={user.photoURL}
+                          style={{ width: 30, height: 30 }}
+                        />
+                      </ListItemIcon>
+                      <ListItemText primary={user.displayName} />
+                    </ListItem>
+                  </Tooltip>
+                  <Menu
+                    anchorEl={anchorEl}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    keepMounted
+                    transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    open={isMenuOpen}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem onClick={handleLogout}>
+                      <ListItemIcon style={{ minWidth: '40px' }}>
+                        <ExitToApp fontSize="small" />
+                      </ListItemIcon>
+                      <Typography variant="inherit">{translations.logout}</Typography>
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
+            </List>
+          </div>
         </Drawer>
       )}
       <main className={classes.content}>

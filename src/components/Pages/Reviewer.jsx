@@ -9,23 +9,27 @@ import {
   TextField,
   Paper,
 } from "@material-ui/core";
+import Snackbar from "@material-ui/core/Snackbar";
+import Alert from "@material-ui/lab/Alert";
 
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, get } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
+import { UserContext } from "../../providers/UserProvider";
 
 import CheckBoxList from "../FormComponents/CheckBoxList";
 
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
+import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 
 import {
   loadRegionRecords,
@@ -35,6 +39,7 @@ import {
   cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
+import { preparePublishPayload } from "../../utils/publishUtils";
 import FormClassTemplate from "./FormClassTemplate";
 
 const RecordItem = ({
@@ -43,6 +48,7 @@ const RecordItem = ({
   editRecord,
   toggleModal,
   handleCloneRecord,
+  githubPublishEnabled,
 }) => {
   const commonProps = {
     record,
@@ -111,6 +117,16 @@ const RecordItem = ({
       showUnSubmitAction
       showEditAction
       showPercentComplete
+      showGithubPublishAction
+      githubPublishEnabled={githubPublishEnabled}
+      onGithubPublishClick={() =>
+        toggleModal(
+          "githubPublishModalOpen",
+          true,
+          record.recordID,
+          record.userinfo.userID
+        )
+      }
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...commonProps}
     />
@@ -129,6 +145,16 @@ const RecordItem = ({
         showUnPublishAction
         showViewAction
         showPercentComplete
+        showGithubPublishAction
+        githubPublishEnabled={githubPublishEnabled}
+        onGithubPublishClick={() =>
+          toggleModal(
+            "githubPublishModalOpen",
+            true,
+            record.recordID,
+            record.userinfo.userID
+          )
+        }
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...commonProps}
       />
@@ -159,6 +185,13 @@ class Reviewer extends FormClassTemplate {
       records: [],
       recordsFilter: "",
       recordCountsByStatus: {},
+      githubPublishModalOpen: false,
+      githubPublishLoading: false,
+      toastOpen: false,
+      toastMessage: "",
+      toastSeverity: "info",
+      publishLogs: [],
+      githubPublishEnabled: false,
     };
   }
 
@@ -171,7 +204,7 @@ class Reviewer extends FormClassTemplate {
       if (authUser) {
         const database = getDatabase(firebase);
         const usersRef = ref(database, `${region}/users`);
-
+        const githubRef = ref(database, `admin/${region}/githubCredentials`);
         onValue(usersRef, (regionUsersRaw) => {
           const records = loadRegionRecords(regionUsersRaw, [
             "",
@@ -191,6 +224,12 @@ class Reviewer extends FormClassTemplate {
           });
         });
         this.listenerRefs.push(usersRef);
+        onValue(githubRef, (snapshot) => {
+          const creds = snapshot.val() || {};
+          const token = creds.token || "";
+          this.setState({ githubPublishEnabled: !!token && token.trim().length > 0 });
+        });
+        this.listenerRefs.push(githubRef);
       }
     });
   }
@@ -243,6 +282,107 @@ class Reviewer extends FormClassTemplate {
   toggleModal(modalName, state, key = "", userID) {
     this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
   }
+
+  showToast = (message, severity = "info") => {
+    this.setState({ toastOpen: true, toastMessage: message, toastSeverity: severity });
+  };
+
+  closeToast = () => {
+    this.setState({ toastOpen: false });
+  };
+
+  addPublishLog = (message) => {
+    this.setState((prev) => ({ publishLogs: [...prev.publishLogs, message] }));
+  };
+
+  getLogMessage = (key, arg) => {
+    const { language } = this.props.match.params;
+    const messages = {
+      start: {
+        en: "Starting GitHub publish…",
+        fr: "Démarrage de la publication sur GitHub…",
+      },
+      fetchConfig: {
+        en: "Fetching GitHub configuration…",
+        fr: "Récupération de la configuration GitHub…",
+      },
+      preparingPayload: {
+        en: "Preparing publish payload…",
+        fr: "Préparation du contenu de publication…",
+      },
+      publishing: {
+        en: "Publishing record to GitHub…",
+        fr: "Publication de l’enregistrement sur GitHub…",
+      },
+      markingPublished: {
+        en: "Marking record as published…",
+        fr: "Marquage de l’enregistrement comme publié…",
+      },
+      complete: {
+        en: "Publish complete ✅",
+        fr: "Publication terminée ✅",
+      },
+      error: {
+        en: (msg) => `Error: ${msg}`,
+        fr: (msg) => `Erreur : ${msg}`,
+      },
+      githubNotConfigured: {
+        en: "GitHub publishing is not configured",
+        fr: "La publication GitHub n’est pas configurée",
+      },
+    };
+
+    const entry = messages[key];
+    if (!entry) return key;
+    const value = entry[language] || entry.en;
+    return typeof value === "function" ? value(arg) : value;
+  };
+
+  handleGithubPublish = async (environments, commitMessage) => {
+    if (!this.state.githubPublishEnabled) {
+      this.showToast(this.getLogMessage("githubNotConfigured"), "warning");
+      return;
+    }
+    this.setState({ githubPublishLoading: true, publishLogs: [] });
+    try {
+      const { match } = this.props;
+      const { region } = match.params;
+      const { publishRecordToGitHub } = this.context;
+
+      this.addPublishLog(this.getLogMessage("start"));
+      const record = this.state.records.find((r) => r.recordID === this.state.modalKey);
+      if (!record) throw new Error("Record not found in state.");
+
+      // Fetch GitHub config for file naming template
+      this.addPublishLog(this.getLogMessage("fetchConfig"));
+      const db = getDatabase(firebase);
+      const configSnapshot = await get(ref(db, `admin/${region}/githubCredentials`));
+      const config = configSnapshot.val() || {};
+
+      this.addPublishLog(this.getLogMessage("preparingPayload"));
+      const payload = await preparePublishPayload(record, environments, commitMessage, config, region);
+
+      this.addPublishLog(this.getLogMessage("publishing"));
+      await publishRecordToGitHub({
+        ...payload,
+        recordId: this.state.modalKey,
+        userId: this.state.modalUserID,
+        region,
+      });
+
+      this.addPublishLog(this.getLogMessage("markingPublished"));
+      await this.handleSubmitRecord(this.state.modalKey, this.state.modalUserID, "published");
+      this.showToast("Published to GitHub successfully!", "success");
+      this.addPublishLog(this.getLogMessage("complete"));
+      this.setState({ githubPublishModalOpen: false });
+    } catch (error) {
+      console.error("Publish error:", error);
+      this.showToast(`Error publishing: ${error.message}`, "error");
+      this.addPublishLog(this.getLogMessage("error", error.message));
+    } finally {
+      this.setState({ githubPublishLoading: false });
+    }
+  };
 
   render() {
     const {
@@ -373,6 +513,18 @@ class Reviewer extends FormClassTemplate {
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         />
+        <GitHubPublishDialog
+          open={this.state.githubPublishModalOpen}
+          onClose={() => this.setState({ githubPublishModalOpen: false })}
+          onPublish={this.handleGithubPublish}
+          region={match.params.region}
+          recordTitle={
+            records.find((r) => r.recordID === modalKey)?.title?.[language] ||
+            ""
+          }
+          loading={this.state.githubPublishLoading}
+          progressLogs={this.state.publishLogs}
+        />
         <Grid item xs>
           <Typography variant="h5">
             <I18n>
@@ -385,6 +537,16 @@ class Reviewer extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
+            <Snackbar
+              open={this.state.toastOpen}
+              autoHideDuration={6000}
+              onClose={this.closeToast}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+              <Alert onClose={this.closeToast} severity={this.state.toastSeverity} variant="filled" elevation={6}>
+                {this.state.toastMessage}
+              </Alert>
+            </Snackbar>
             <Paper
               style={{
                 padding: "10px",
@@ -506,6 +668,7 @@ class Reviewer extends FormClassTemplate {
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
                           handleCloneRecord={this.handleCloneRecord.bind(this)}
+                          githubPublishEnabled={this.state.githubPublishEnabled}
                         />
                       ))}
                     </List>
@@ -531,4 +694,5 @@ class Reviewer extends FormClassTemplate {
   }
 }
 
+Reviewer.contextType = UserContext;
 export default Reviewer;
