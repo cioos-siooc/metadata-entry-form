@@ -23,12 +23,12 @@ export default function GitHubPublishDialog({
   region,
   recordTitle,
   loading,
+  progressLogs = [],
 }) {
   const [environments, setEnvironments] = useState([]);
   const [selectedEnvironments, setSelectedEnvironments] = useState([]);
   const [commitMessage, setCommitMessage] = useState("");
-  // eslint-disable-next-line no-unused-vars
-  const [configLoaded, setConfigLoaded] = useState(false);
+  
 
   useEffect(() => {
     if (open && region) {
@@ -44,7 +44,6 @@ export default function GitHubPublishDialog({
         } else {
           setEnvironments(["prod"]); // Fallback
         }
-        setConfigLoaded(true);
       });
 
       // Default commit message
@@ -81,8 +80,25 @@ export default function GitHubPublishDialog({
       </DialogTitle>
       <DialogContent>
         {loading ? (
-             <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 20 }}>
                 <CircularProgress />
+                <div style={{ width: '100%', marginTop: 16 }}>
+                  <Typography variant="subtitle2">
+                    <I18n en="Progress" fr="Progression" />
+                  </Typography>
+                  <div style={{ maxHeight: 200, overflowY: 'auto', paddingRight: 4 }}>
+                    {progressLogs.length === 0 ? (
+                      <Typography variant="body2" color="textSecondary">
+                        <I18n en="Preparing publication…" fr="Préparation de la publication…" />
+                      </Typography>
+                    ) : (
+                      progressLogs.map((msg, idx) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <Typography key={idx} variant="body2">{msg}</Typography>
+                      ))
+                    )}
+                  </div>
+                </div>
              </div>
         ) : (
             <>

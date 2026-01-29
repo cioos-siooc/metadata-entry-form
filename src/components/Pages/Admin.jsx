@@ -19,11 +19,10 @@ import {
 import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
-import { getDatabase, ref, child, onValue, set } from "firebase/database";
+import { getDatabase, ref, child, onValue, update } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
-import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -54,6 +53,8 @@ class Admin extends FormClassTemplate {
       credentialsStored: false,
       showDeletionDialog: false,
       showCredentialsMissingDialog: false,
+      showErrorDialog: false,
+      errorMessage: "",
       githubOwner: "cioos-siooc",
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
@@ -79,7 +80,7 @@ class Admin extends FormClassTemplate {
         const regionAdminRef = child(adminRef, region);
         const permissionsRef = child(regionAdminRef, "permissions");
 
-        const projects = await getRegionProjects(region);
+        // Projects are loaded via the realtime listener below; no prefetch needed
         const datacitePrefix = await getDatacitePrefix(region).then(
           (response) => {
             return response.data;
@@ -94,14 +95,23 @@ class Admin extends FormClassTemplate {
         const githubRef = child(regionAdminRef, "githubCredentials");
         onValue(githubRef, (snapshot) => {
           const data = snapshot.val();
-          if (data) {
+          // Always update state, even if data is null (first time setup)
+          this.setState({
+            githubOwner: data?.owner || "cioos-siooc",
+            githubRepo: data?.repo || "cioos-siooc-forms",
+            githubBranch: data?.branch || "main",
+            githubFileTemplate: data?.fileTemplate || "{filename}",
+            githubEnvironments: (data?.environments || ["prod"]).join("\n"),
+            githubToken: data?.token || "",
+          });
+        });
+
+        const projectsRef = child(regionAdminRef, "projects");
+        onValue(projectsRef, (snapshot) => {
+          const projectsData = snapshot.val();
+          if (projectsData) {
             this.setState({
-              githubOwner: data.owner || "cioos-siooc",
-              githubRepo: data.repo || "cioos-siooc-forms",
-              githubBranch: data.branch || "main",
-              githubFileTemplate: data.fileTemplate || "{filename}",
-              githubEnvironments: (data.environments || ["prod"]).join("\n"),
-              githubToken: data.token || "",
+              projects: Object.values(projectsData),
             });
           }
         });
@@ -109,12 +119,12 @@ class Admin extends FormClassTemplate {
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          // const projects = permissions.projects.split(",");
-          const admins = permissions.admins.split(",");
-          const reviewers = permissions.reviewers.split(",");
+          const admins = permissions.admins ? permissions.admins.split(",") : [];
+          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
 
+          // Do not set `projects` here to avoid overwriting the more recent
+          // value from the `projectsRef` listener above.
           this.setState({
-            projects,
             admins,
             reviewers,
             loading: false,
@@ -124,6 +134,8 @@ class Admin extends FormClassTemplate {
           });
         });
         this.listenerRefs.push(permissionsRef);
+        this.listenerRefs.push(projectsRef);
+        this.listenerRefs.push(githubRef);
       }
     });
   }
@@ -141,6 +153,11 @@ class Admin extends FormClassTemplate {
   handleClickShowPassword = () =>
     this.setState((prevState) => ({
       showPassword: !prevState.showPassword,
+    }));
+
+  handleClickShowGithubToken = () =>
+    this.setState((prevState) => ({
+      showGithubToken: !prevState.showGithubToken,
     }));
 
   handleMouseDownPassword = (event) => {
@@ -178,76 +195,17 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  save() {
+  handleSave() {
     const { match } = this.props;
     const { region } = match.params;
-
-    const { reviewers, admins, projects } = this.state;
-    const database = getDatabase(firebase);
-
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const permissionsRef = child(regionAdminRef, "permissions");
-      const projectsRef = child(regionAdminRef, "projects");
-
-      set(child(permissionsRef, "admins"), cleanArr(admins).join());
-
-      set(projectsRef, cleanArr(projects));
-      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
-    }
-  }
-
-  saveDoiCredentials() {
-    const { match } = this.props;
-    const { region } = match.params;
-
     const {
+      reviewers,
+      admins,
+      projects,
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
       isDoiCreationEnabled,
-    } = this.state;
-
-    const database = getDatabase(firebase);
-
-    const bufferObj = Buffer.from(
-      `${dataciteAccountId}:${datacitePass}`,
-      "utf8"
-    );
-    const base64String = bufferObj.toString("base64");
-
-    // Check if DOI creation is enabled but credentials are not stored
-    if (
-      isDoiCreationEnabled &&
-      (!datacitePrefix || !dataciteAccountId || !datacitePass)
-    ) {
-      this.setState({ showCredentialsMissingDialog: true });
-      return;
-    }
-
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const dataciteRef = child(regionAdminRef, "dataciteCredentials");
-
-      set(child(dataciteRef, "prefix"), datacitePrefix);
-      set(child(dataciteRef, "dataciteHash"), base64String);
-
-      this.setState({
-        datacitePass: "",
-        credentialsStored: true,
-      });
-    }
-  }
-
-  handleClickShowGithubToken = () =>
-    this.setState((prevState) => ({
-      showGithubToken: !prevState.showGithubToken,
-    }));
-
-  saveGithubCredentials() {
-    const { match } = this.props;
-    const { region } = match.params;
-    const {
       githubOwner,
       githubRepo,
       githubToken,
@@ -259,15 +217,58 @@ class Admin extends FormClassTemplate {
 
     if (auth.currentUser) {
       const regionAdminRef = ref(database, `admin/${region}`);
-      const githubRef = child(regionAdminRef, "githubCredentials");
+      const updates = {};
 
-      set(githubRef, {
+      // 1. Permissions
+      updates["permissions/admins"] = cleanArr(admins).join();
+      updates["permissions/reviewers"] = cleanArr(reviewers).join();
+      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
+
+      // 2. DOI Credentials if enabled
+      if (isDoiCreationEnabled) {
+        if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
+          this.setState({ showCredentialsMissingDialog: true });
+        } else {
+          const bufferObj = Buffer.from(
+            `${dataciteAccountId}:${datacitePass}`,
+            "utf8"
+          );
+          const base64String = bufferObj.toString("base64");
+
+          updates["dataciteCredentials/prefix"] = datacitePrefix;
+          updates["dataciteCredentials/dataciteHash"] = base64String;
+
+          this.setState({
+            datacitePass: "",
+            credentialsStored: true,
+          });
+        }
+      }
+
+      // 3. GitHub Credentials
+      const githubCredentials = {
         owner: githubOwner,
         repo: githubRepo,
         token: githubToken,
         branch: githubBranch,
         fileTemplate: githubFileTemplate,
         environments: cleanArr(githubEnvironments.split("\n")),
+      };
+      updates.githubCredentials = githubCredentials;
+
+      update(regionAdminRef, updates)
+        .catch((error) => {
+          console.error('Failed to save admin settings:', error);
+          this.setState({
+            showErrorDialog: true,
+            errorMessage: `Failed to save admin settings: ${error.message}`,
+          });
+        });
+    } else {
+      console.error('No authenticated user found');
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: 'You must be logged in to save admin settings',
       });
     }
   }
@@ -317,11 +318,21 @@ class Admin extends FormClassTemplate {
         aria-describedby="credentials-=missing-dialog-description"
       >
         <DialogTitle id="credentials-missing-dialog-title">
-          Missing DataCite Credentials
+          <I18n>
+            <En>Missing DataCite Credentials</En>
+            <Fr>Informations d'identification DataCite manquantes</Fr>
+          </I18n>
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="credentials-missing-dialog-description">
-            Please add DataCite credentials before saving.
+            <I18n>
+              <En>
+                Other settings were saved; DataCite credentials were not. Please add credentials to enable DOI creation.
+              </En>
+              <Fr>
+                Les autres paramètres ont été enregistrés; les informations DataCite ne l'ont pas été. Ajoutez les informations pour activer la création de DOI.
+              </Fr>
+            </I18n>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -329,6 +340,35 @@ class Admin extends FormClassTemplate {
             onClick={() =>
               this.setState({ showCredentialsMissingDialog: false })
             }
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  renderErrorDialog() {
+    return (
+      <Dialog
+        open={this.state.showErrorDialog}
+        onClose={() => this.setState({ showErrorDialog: false })}
+        aria-labelledby="error-dialog-title"
+        aria-describedby="error-dialog-description"
+      >
+        <DialogTitle id="error-dialog-title">
+          Error
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="error-dialog-description">
+            {this.state.errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => this.setState({ showErrorDialog: false })}
             color="primary"
             autoFocus
           >
@@ -453,20 +493,6 @@ class Admin extends FormClassTemplate {
                 />
               </Grid>
             </Paper>
-            <Grid item xs>
-              <Button
-                startIcon={<Save />}
-                variant="contained"
-                color="primary"
-                style={{ margin: 10 }}
-                onClick={() => this.save()}
-              >
-                <I18n>
-                  <En>Save Admin Settings</En>
-                  <Fr>Enregistrer</Fr>
-                </I18n>
-              </Button>
-            </Grid>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -607,20 +633,6 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   </>
                 )}
-                {this.state.isDoiCreationEnabled && (
-                  <Button
-                    startIcon={<Save />}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.saveDoiCredentials()}
-                    style={{ margin: 10 }}
-                  >
-                    <I18n>
-                      <En>Save DOI Settings</En>
-                      <Fr>Enregistrer les paramètres DOI</Fr>
-                    </I18n>
-                  </Button>
-                )}
               </Grid>
             </Paper>
             <Paper style={paperClass}>
@@ -744,26 +756,27 @@ class Admin extends FormClassTemplate {
                     helperText="One environment per line (e.g. prod)"
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    startIcon={<Save />}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.saveGithubCredentials()}
-                    style={{ margin: 10 }}
-                  >
-                    <I18n>
-                      <En>Save GitHub Settings</En>
-                      <Fr>Enregistrer les paramètres GitHub</Fr>
-                    </I18n>
-                  </Button>
-                </Grid>
               </Grid>
             </Paper>
+            <Grid item xs>
+              <Button
+                startIcon={<Save />}
+                variant="contained"
+                color="primary"
+                style={{ margin: 10 }}
+                onClick={() => this.handleSave()}
+              >
+                <I18n>
+                  <En>Save Admin Settings</En>
+                  <Fr>Enregistrer les paramètres d'administration</Fr>
+                </I18n>
+              </Button>
+            </Grid>
           </>
         )}
         {this.renderDeletionDialog()}
         {this.renderCredentialsMissingDialog()}
+        {this.renderErrorDialog()}
       </Grid>
     );
   }
