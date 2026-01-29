@@ -272,7 +272,7 @@ Reviewers and Admins can publish metadata records directly to a GitHub repositor
 5.  Optionally provide a commit message.
 6.  Click Publish.
 
-The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{environment}/{filename}.{xml|yaml}`.
+The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{region}/{environment}/{filename}.{xml|yaml}`.
 
 
 ## Hosting on github and Authentication
