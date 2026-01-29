@@ -261,7 +261,7 @@ Reviewers and Admins can publish metadata records directly to a GitHub repositor
 3.  Enter the repository details (Owner, Name, Branch).
 4.  Provide a GitHub Personal Access Token (PAT) with `repo` scope.
     *   Note: The token is stored in Firebase and protected by security rules.
-5.  Configure file naming template (default `{uuid}`) and target environments (e.g. `prod`, `dev`).
+5.  Configure file naming template (default `{filename}`) and target environments (e.g. `prod`, `dev`).
 
 ### Publishing a Record
 
