@@ -426,9 +426,7 @@ export default function MiniDrawer({ children }) {
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
-              className={clsx(classes.menuButton, {
-                [classes.hide]: open,
-              })}
+              className={classes.menuButton}
               style={{ marginBottom: theme.spacing(1) }}
             >
               <MenuIcon />
