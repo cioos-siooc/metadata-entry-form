@@ -118,17 +118,18 @@ export async function transferRecord(
   if (userMatch) {
     const [matchingUserID] = userMatch;
 
-    const recordRef = child(regionUsersRef, `${sourceUserID})/records/${recordID}`);
+    const recordRef = child(regionUsersRef, `${sourceUserID}/records/${recordID}`);
 
     const record = (await get(recordRef, "value")).val();
 
-    const newRecordRef = await child(regionUsersRef, `${matchingUserID}/records/${record}`);
+    const destinationRecordsRef = ref(database, `${region}/users/${matchingUserID}/records`);
+    const newRecordRef = push(destinationRecordsRef, record);
     const newRecordID = newRecordRef.key;
 
     record.recordID = newRecordID;
-    newRecordRef.update(record);
+    await set(newRecordRef, record);
     if (newRecordID) {
-      await recordRef.remove();
+      await remove(recordRef);
       return true;
     }
   }
@@ -137,7 +138,7 @@ export async function transferRecord(
 
 export function returnRecordToDraft(region, userID, key) {
   const database = getDatabase(firebase);
-  return set(ref(database, `${region})/users/${userID}/records/${key}/status`), "");
+  return set(ref(database, `${region}/users/${userID}/records/${key}/status`), "");
 }
 
 export async function getRegionProjects(region) {

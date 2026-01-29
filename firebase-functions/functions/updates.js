@@ -15,6 +15,8 @@ function getRecordFilename(record) {
     .replace(/[^a-zA-Z0-9]/g, "_");
 }
 
+exports.getRecordFilename = getRecordFilename;
+
 // creates xml for a completed record. returns a URL to the generated XML
 exports.downloadRecord = functions.https.onCall(
   async ({ record, fileType, region }, context) => {

@@ -26,22 +26,31 @@ import EditPlatform from "./FormComponents/EditSavedPlatform";
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
   const logoSrc = getRegionLogo(region, language);
+  const titleText = regions[region]?.title?.[language] || region;
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item xs>
-        <img src={logoSrc} alt={region} />
+        {logoSrc ? (
+          <img src={logoSrc} alt={region} />
+        ) : (
+          <div style={{
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            padding: '10px 0',
+          }}>{titleText}</div>
+        )}
       </Grid>
-      <Grid item xs style={{ paddingLeft: "50px" }}>
+      <Grid item xs>
         {children}
       </Grid>
     </Grid>
   );
 };
 const Pages = ({ match }) => {
-  const { 
-    loggedIn, 
-    authIsLoading, 
-    isReviewer: userIsReviewer, 
+  const {
+    loggedIn,
+    authIsLoading,
+    isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
   } = useContext(UserContext);
   return (
@@ -78,13 +87,13 @@ const Pages = ({ match }) => {
                   component={Submissions}
                 />
                 <Route path={`${match.path}/published`} component={Published} />
-                <Route 
-                  path={`${match.path}/reviewer`} 
-                  component={userIsAdmin || userIsReviewer ? Reviewer : NotFound} 
+                <Route
+                  path={`${match.path}/reviewer`}
+                  component={userIsAdmin || userIsReviewer ? Reviewer : NotFound}
                 />
-                <Route 
-                  path={`${match.path}/admin`} 
-                  component={userIsAdmin || userIsReviewer ? Admin : NotFound} 
+                <Route
+                  path={`${match.path}/admin`}
+                  component={userIsAdmin || userIsReviewer ? Admin : NotFound}
                 />
                 <Route
                   path={`${match.path}/sentry-test`}
@@ -115,7 +124,7 @@ const BaseLayout = ({ match }) => {
         root: {
           '&.Mui-disabled': {
             '& .MuiCheckbox-root': {
-              color: '#ababab', 
+              color: '#ababab',
             },
             '& .MuiTypography-root': {
               color: '#ababab',
