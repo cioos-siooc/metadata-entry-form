@@ -1,7 +1,6 @@
 import axios from "axios";
 import { preparePublishPayload, convertRecord } from "../publishUtils";
 import { getRecordFilename } from "../misc";
-import firebase from "../../firebase";
 
 // Mock dependencies
 jest.mock("axios");
