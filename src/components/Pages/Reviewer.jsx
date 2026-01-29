@@ -341,7 +341,7 @@ class Reviewer extends FormClassTemplate {
       const config = configSnapshot.val() || {};
 
       this.addPublishLog(this.getLogMessage("preparingPayload"));
-      const payload = await preparePublishPayload(record, environments, commitMessage, config);
+      const payload = await preparePublishPayload(record, environments, commitMessage, config, region);
 
       this.addPublishLog(this.getLogMessage("publishing"));
       await publishRecordToGitHub({

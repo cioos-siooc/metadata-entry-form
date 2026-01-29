@@ -9,7 +9,7 @@ const getConvertMetadataUrl = () => {
   // Check if we should use the emulator
   const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const useLocalFunctions = process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS === "true";
-  
+
   if (isLocal && useLocalFunctions) {
     // Port 5001 is standard for Firebase functions and matches root firebase.json
     return `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
@@ -44,9 +44,9 @@ export const convertRecord = async (record, format) => {
 /**
  * Prepares the payload for GitHub publishing by converting the record and generating paths.
  */
-export const preparePublishPayload = async (record, environments, commitMessage, config) => {
+export const preparePublishPayload = async (record, environments, commitMessage, config, region) => {
   const { fileTemplate } = config;
-  
+
   // Logic to generate filename matches the backend helper
   let filenameBase = fileTemplate || "{filename}";
   if (filenameBase.includes("{filename}")) {
@@ -64,17 +64,32 @@ export const preparePublishPayload = async (record, environments, commitMessage,
     convertRecord(record, "iso19115-3_xml"),
     convertRecord(record, "yaml"),
   ]);
+  // Store only the record JSON, excluding database-specific user info
+  const recordForJson = { ...record };
+  if (recordForJson.userinfo) delete recordForJson.userinfo;
+  const jsonContent = JSON.stringify(recordForJson, null, 2);
 
   const files = [];
   environments.forEach((env) => {
+    const baseDir = region ? `forms/${region}/${env}` : `forms/${env}`;
     files.push({
-      path: `forms/${env}/${filenameBase}.xml`,
+      path: `${baseDir}/${filenameBase}.xml`,
       content: xmlContent,
     });
     files.push({
-      path: `forms/${env}/${filenameBase}.yaml`,
+      path: `${baseDir}/${filenameBase}.yaml`,
       content: yamlContent,
     });
+    files.push({
+      path: `${baseDir}/${filenameBase}.json`,
+      content: jsonContent,
+    });
+  });
+
+  // Also store a copy of the original JSON in a top-level records directory
+  files.push({
+    path: `records/${filenameBase}.json`,
+    content: jsonContent,
   });
 
   return {
