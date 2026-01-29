@@ -3,7 +3,7 @@ import firebase from "../firebase";
 import { getRecordFilename } from "./misc";
 
 const getConvertMetadataUrl = () => {
-  const projectId = firebase.app().options.projectId;
+  const { options: { projectId } } = firebase;
   const functionRegion = process.env.REACT_APP_FUNCTION_REGION || "us-central1";
 
   // Check if we should use the emulator
@@ -53,9 +53,10 @@ export const preparePublishPayload = async (record, environments, commitMessage,
     const historicalFilename = getRecordFilename(record);
     filenameBase = filenameBase.replace("{filename}", historicalFilename);
   }
-  const uuid = record.id || record.identifier;
+  const { id, identifier, title: recordTitle } = record;
+  const uuid = id || identifier;
   filenameBase = filenameBase.replace("{uuid}", uuid);
-  const title = record.title ? (record.title.en || record.title.fr || "untitled") : "untitled";
+  const title = recordTitle ? (recordTitle.en || recordTitle.fr || "untitled") : "untitled";
   const sanitizedTitle = title.replace(/[^a-zA-Z0-9-_]/g, "-");
   filenameBase = filenameBase.replace("{title}", sanitizedTitle);
 
