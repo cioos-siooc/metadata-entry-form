@@ -67,7 +67,7 @@
         },
         "githubCredentials": {
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-          ".read": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
+          ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
         }
       }
     }
