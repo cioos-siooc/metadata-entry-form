@@ -228,7 +228,12 @@ const MetadataRecordListItem = ({
         )}
         {(showGithubPublishAction || showPublishAction || showUnPublishAction || showUnSubmitAction) && (
           <>
-             <Tooltip title={<I18n en="Publishing Options" fr="Options de publication" />}>
+             <Tooltip
+               title={<I18n en="Publishing Options" fr="Options de publication" />}
+               disableHoverListener={publishMenuOpen}
+               disableFocusListener={publishMenuOpen}
+               disableTouchListener={publishMenuOpen}
+             >
                <span>
                 <IconButton onClick={handlePublishClick}>
                   <Publish />
