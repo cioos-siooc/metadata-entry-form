@@ -22,6 +22,7 @@ import {
   Eject,
   Visibility,
   CloudDownload,
+  CloudUpload,
   TransferWithinAStation,
   OpenInNew,
   Edit,
@@ -179,6 +180,9 @@ const MetadataRecordListItem = ({
   showDownloadButton = true,
   showTransferButton,
   onTransferClick,
+  showGithubPublishAction,
+  onGithubPublishClick,
+  githubPublishEnabled = true,
 }) => {
   const classes = useStyles();
   const { language, region } = useParams();
@@ -186,13 +190,22 @@ const MetadataRecordListItem = ({
   const { datacitePrefix } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [downloadAnchorEl, setDownloadAnchorEl] = React.useState(null);
+  const downloadMenuOpen = Boolean(downloadAnchorEl);
+  const handleDownloadClick = (event) => {
+    setDownloadAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleDownloadClose = () => {
+    setDownloadAnchorEl(null);
+  };
+  
+  const [publishAnchorEl, setPublishAnchorEl] = React.useState(null);
+  const publishMenuOpen = Boolean(publishAnchorEl);
+  const handlePublishClick = (event) => {
+    setPublishAnchorEl(event.currentTarget);
+  };
+  const handlePublishClose = () => {
+    setPublishAnchorEl(null);
   };
 
   if (!record.title) {
@@ -241,7 +254,6 @@ const MetadataRecordListItem = ({
         const dc = recordToDataCite(record, language, region, datacitePrefix);
         blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
-        // Use callable python function convert_metadata for: xml, yaml, erddap
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
         const resp = await convertMetadata({ record_data: record, output_format: fileType});
@@ -385,19 +397,61 @@ const MetadataRecordListItem = ({
             </span>
           </Tooltip>
         )}
-        {showPublishAction && (
-          <Tooltip title={<I18n en="Publish" fr="Publier" />}>
-            <span>
-              <IconButton
-                onClick={() => onSubmitClick()}
-                aria-label="publish"
-                className={classes.iconButton}
-              >
-                <Publish />
-              </IconButton>
-            </span>
-          </Tooltip>
+        {(showGithubPublishAction || showPublishAction || showUnPublishAction || showUnSubmitAction) && (
+          <>
+             <Tooltip
+               title={<I18n en="Publishing Options" fr="Options de publication" />}
+               disableHoverListener={publishMenuOpen}
+               disableFocusListener={publishMenuOpen}
+               disableTouchListener={publishMenuOpen}
+             >
+               <span>
+                <IconButton onClick={handlePublishClick}>
+                  <Publish />
+                </IconButton>
+               </span>
+             </Tooltip>
+             <Menu
+               anchorEl={publishAnchorEl}
+               open={publishMenuOpen}
+               onClose={handlePublishClose}
+             >
+                {showPublishAction && (
+                  <MenuItem onClick={() => { onSubmitClick(); handlePublishClose(); }}>
+                    <Publish style={{ marginRight: 8 }}/> <I18n en="Publish" fr="Publier" />
+                  </MenuItem>
+                )}
+                {showUnPublishAction && (
+                   <MenuItem onClick={() => { onUnPublishClick(); handlePublishClose(); }}>
+                     <Eject style={{ marginRight: 8 }}/> <I18n en="Un-publish" fr="De-Publier" />
+                   </MenuItem>
+                )}
+                {showUnSubmitAction && (
+                   <MenuItem onClick={() => { onUnSubmitClick(); handlePublishClose(); }}>
+                     <Eject style={{ marginRight: 8 }}/> <I18n en="Return to draft" fr="Revenir au brouillon" />
+                   </MenuItem>
+                )}
+                {showGithubPublishAction && (
+                  <Tooltip
+                    title={<I18n en="GitHub publishing not configured" fr="La publication GitHub n’est pas configurée" />}
+                    disableHoverListener={githubPublishEnabled}
+                    disableFocusListener={githubPublishEnabled}
+                    disableTouchListener={githubPublishEnabled}
+                  >
+                    <span>
+                      <MenuItem
+                        disabled={!githubPublishEnabled}
+                        onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
+                      >
+                        <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
+                      </MenuItem>
+                    </span>
+                  </Tooltip>
+                )}
+             </Menu>
+          </>
         )}
+
         {showSubmitAction &&
           (record.status === "" ? (
             <Tooltip
@@ -445,19 +499,7 @@ const MetadataRecordListItem = ({
               </span>
             </Tooltip>
           ))}
-        {showUnPublishAction && (
-          <Tooltip title={<I18n en="Un-publish" fr="De-Publier" />}>
-            <span>
-              <IconButton
-                onClick={() => onUnPublishClick()}
-                aria-label="unpublish"
-                className={classes.iconButton}
-              >
-                <Eject />
-              </IconButton>
-            </span>
-          </Tooltip>
-        )}
+        
         {showCloneAction && (
           <Tooltip title={<I18n en="Clone" fr="Cloner" />}>
             <span>
@@ -471,35 +513,19 @@ const MetadataRecordListItem = ({
             </span>
           </Tooltip>
         )}
-        {showUnSubmitAction && (
-          <Tooltip
-            title={<I18n en="Return to draft" fr="Revenir au brouillon" />}
-          >
-            <span>
-              <IconButton
-                onClick={() => onUnSubmitClick()}
-                aria-label="return to draft"
-                className={classes.iconButton}
-              >
-                <Eject />
-              </IconButton>
-            </span>
-          </Tooltip>
-        )}
 
         {showDownloadButton && (
-          <Tooltip
-            disableHoverListener={open}
-            title={<I18n en="Download" fr="Télécharger" />}
-          >
+          <Tooltip 
+            disableHoverListener={downloadMenuOpen}
+            title={<I18n en="Download" fr="Télécharger" />}>
             <span>
               <IconButton
                 aria-label="more"
                 id="long-button"
                 aria-controls="long-menu"
-                aria-expanded={open ? "true" : undefined}
+                aria-expanded={downloadMenuOpen ? "true" : undefined}
                 aria-haspopup="true"
-                onClick={handleClick}
+                onClick={handleDownloadClick}
                 disabled={!isValidRecord}
                 className={classes.iconButton}
               >
@@ -514,9 +540,9 @@ const MetadataRecordListItem = ({
                 MenuListProps={{
                   "aria-labelledby": "long-button",
                 }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
+                anchorEl={downloadAnchorEl}
+                open={downloadMenuOpen}
+                onClose={handleDownloadClose}
                 PaperProps={{
                   style: {
                     width: "30ch",
@@ -527,7 +553,7 @@ const MetadataRecordListItem = ({
                   key="iso19115-3_xml"
                   onClick={() => {
                     handleDownloadRecord("iso19115-3_xml");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   ISO 19115-3 XML
@@ -536,7 +562,7 @@ const MetadataRecordListItem = ({
                   key="yaml"
                   onClick={() => {
                     handleDownloadRecord("yaml");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   YAML
@@ -545,7 +571,7 @@ const MetadataRecordListItem = ({
                   key="erddap"
                   onClick={() => {
                     handleDownloadRecord("erddap");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   ERDDAP snippet
@@ -554,7 +580,7 @@ const MetadataRecordListItem = ({
                   key="eml"
                   onClick={() => {
                     handleDownloadRecord("eml");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   EML for OBIS IPT
@@ -563,7 +589,7 @@ const MetadataRecordListItem = ({
                   key="database-json"
                   onClick={() => {
                     handleDownloadRecord("json");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   Database JSON
@@ -572,7 +598,7 @@ const MetadataRecordListItem = ({
                   key="datacite-json"
                   onClick={() => {
                     handleDownloadRecord("dataciteJson");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   DATACITE JSON
@@ -581,7 +607,7 @@ const MetadataRecordListItem = ({
                   key="datacite-json-test"
                   onClick={() => {
                     handleDownloadRecord("datacite_json");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   (test) DATACITE JSON
@@ -590,7 +616,7 @@ const MetadataRecordListItem = ({
                   key="datacite-xml-test"
                   onClick={() => {
                     handleDownloadRecord("datacite_xml");
-                    handleClose();
+                    handleDownloadClose();
                   }}
                 >
                   (test) DATACITE XML

@@ -35,11 +35,9 @@ class UserProvider extends FormClassTemplate {
         const { displayName, email, uid } = userAuth;
         this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
 
-        Sentry.configureScope((scope) => {
-          scope.setUser({
-            email,
-            username: email,
-          });
+        Sentry.setUser({
+          email,
+          username: email,
         });
 
 
@@ -110,6 +108,7 @@ class UserProvider extends FormClassTemplate {
     const checkURLActive = httpsCallable(functions, "checkURLActive");
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
+    const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
 
     return (
       <UserContext.Provider
@@ -125,6 +124,7 @@ class UserProvider extends FormClassTemplate {
           checkURLActive,
           getCredentialsStored,
           getDatacitePrefix,
+          publishRecordToGitHub,
         }}
       >
         {children}
