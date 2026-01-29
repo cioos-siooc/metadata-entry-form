@@ -97,7 +97,13 @@
   },
   "overrides": {
     "typescript": "4.9.5",
-    "jsonfile": "^6.1.0"
+    "jsonfile": "^6.1.0",
+    "react-leaflet-draw": {
+      "react": "$react"
+    },
+    "react-smooth-dnd": {
+      "react": "$react"
+    }
   },
   "scripts": {
     "start": "react-app-rewired start",
