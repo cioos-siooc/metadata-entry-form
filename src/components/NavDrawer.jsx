@@ -664,25 +664,7 @@ export default function MiniDrawer({ children }) {
               </>
             )}
 
-            {user && (
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.logout}
-              >
-                <ListItem
-                  button
-                  key="Logout"
-                  onClick={() =>
-                    auth.signOut().then(() => history.push(baseURL))
-                  }
-                >
-                  <ListItemIcon>
-                    <ExitToApp />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.logout} />
-                </ListItem>
-              </Tooltip>
-            )}
+            {/* Logout button removed as requested */}
            
           </List>
           <Divider />
