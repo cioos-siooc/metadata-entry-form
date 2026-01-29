@@ -1,48 +1,37 @@
-import * as db from "firebase/database";
-import * as dataciteFunctions from '../utils/firebaseEnableDoiCreation';
-
-// ****************************************************************************************************************************
-// Attach to the existing firebase methods using .spyOn. This allows us to check if the method was called and to alter its 
-// action or returned values with .mockImplementation, .mockImplementationOnce, .mockReturnValue, etc.
-// https://jestjs.io/docs/mock-function-api#mockfnmockimplementationfn
-// ****************************************************************************************************************************
-
-// Mocking the 'set' method. This method saves data to a specified location in the Firebase database.
-// It returns a Promise that resolves to 'true', indicating a successful write operation in a test environment.
-const mockSet = jest.spyOn(db, 'set').mockResolvedValue(true);
-
-// Mocking the 'child' method, which navigates to a specific path within the database, allowing for nested data access.
-// This mock facilitates method chaining by returning 'this', simulating the Firebase reference chaining.
+// Mock Firebase dependencies entirely to avoid import side-effects (ReadableStream error)
+const mockSet = jest.fn().mockResolvedValue(true);
 const mockChild = jest.fn().mockReturnThis();
-
-// Mocks 'get' to simulate reading from Firebase, returning a snapshot that
-// indicates no data (null)
-const mockGet = jest.spyOn(db, 'get').mockResolvedValue({
+const mockGet = jest.fn().mockResolvedValue({
   val: jest.fn(() => {}),
 });
+const mockRemove = jest.fn().mockResolvedValue();
+// mockRef must be an object or function that can be returned. 
+// The implementation code likely calls db.ref(dbInstance, path).
+const mockRef = jest.fn().mockReturnThis();
+const mockGetDatabase = jest.fn().mockReturnThis();
 
-// Mocking the 'remove' method. This method deletes data from a specified location in the Firebase database.
-// It returns a Promise that resolves, indicating a successful deletion operation in a test environment.
-const mockRemove = jest.spyOn(db, 'remove').mockResolvedValue();
-
-// Mocking the 'ref' method, which obtains a reference to a location in the database.
-const mockRef = jest.spyOn(db, 'ref').mockReturnThis();
-
-const mockGetDatabase = jest.spyOn(db, 'getDatabase').mockReturnThis();
-
-jest.mock('firebase/database', () => ({
-  ref: jest.fn(() => mockRef),
-  set: jest.fn(() => mockSet),
-  get: jest.fn(() => mockGet),
-  child: jest.fn(() => mockChild),
-  remove: jest.fn(() => mockRemove),
-  getDatabase: jest.fn(() => mockGetDatabase),
+jest.mock("firebase/database", () => ({
+  ref: (...args) => mockRef(...args),
+  set: (...args) => mockSet(...args),
+  get: (...args) => mockGet(...args),
+  child: (...args) => mockChild(...args),
+  remove: (...args) => mockRemove(...args),
+  getDatabase: (...args) => mockGetDatabase(...args),
 }));
 
 jest.mock('firebase/app', () => ({
+
   initializeApp: jest.fn(),
+
 }));
 
+
+
+jest.mock('../firebase', () => ({}));
+
+
+
+import * as dataciteFunctions from '../utils/firebaseEnableDoiCreation';
 
 describe('Datacite Credentials Management', () => {
   beforeEach(() => {
@@ -58,6 +47,7 @@ describe('Datacite Credentials Management', () => {
 
     await dataciteFunctions.newDataciteAccount(region, prefix, dataciteHash);
     // Assert: Verify that the Firebase database was interacted with as expected.
+    // Note: The first argument to ref/set in modular SDK is the db instance or ref, which is mocked as undefined/mock object here.
     expect(mockRef).toHaveBeenCalledWith(undefined, "admin/hakai/dataciteCredentials");
     expect(mockSet).toHaveBeenCalledWith(undefined, { prefix, dataciteHash });
 

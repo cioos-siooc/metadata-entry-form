@@ -5,6 +5,9 @@
 
 CIOOS Metadata entry form
 
+## Project Goal
+The primary goal of this project is to provide a user-friendly web interface for creating, editing, and managing metadata records for the Canadian Integrated Ocean Observing System (CIOOS). It facilitates the collection of high-quality metadata that complies with standards (ISO 19115), supports bilingual content (English/French), and integrates with external systems like GitHub and DataCite (for DOIs).
+
 ## System Architecture
 
 Below is the system architecture diagram which provides an overview of the data flow and interaction between components within the application:
@@ -12,6 +15,36 @@ Below is the system architecture diagram which provides an overview of the data 
 ![System Architecture Diagram](docs/systems_diagram.png)
 
 For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
+
+### High-Level Components
+*   **Frontend**: A Single Page Application (SPA) built with React (v16.x) using `create-react-app`. Uses Material-UI (v4) for UI and Leaflet for maps.
+*   **Backend**: Firebase Functions (Node.js and Python) handling business logic, triggers, and API endpoints.
+*   **Database**: Firebase Realtime Database and/or Firestore for storing metadata records and user data.
+*   **Authentication**: Firebase Authentication.
+*   **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting).
+
+## Project Structure & Key Concepts
+
+### Frontend (`src/`)
+*   **`src/components/Pages/`**: Top-level route components (`MetadataForm.jsx`, `Submissions.jsx`, `Admin.jsx`, `Reviewer.jsx`).
+*   **`src/components/FormComponents/`**: Reusable UI inputs (e.g., `BilingualTextInput`, `MapSelect`, `ContactEditor`).
+*   **`src/utils/`**: Core logic independent of UI.
+    *   `blankRecord.js`: Defines the JSON schema of a new metadata record.
+    *   `validate.js`: Validation rules mapping fields to error messages and tabs.
+    *   `firebase.js`: Firebase SDK initialization.
+
+### Backend (`firebase-functions/`)
+Serverless backend using Firebase Cloud Functions (Gen 2).
+*   **JavaScript (`functions/`)**: Handles triggers (DB updates), notifications, translations, and GitHub publishing.
+*   **Python (`python-functions/`)**: Handles heavy data processing (XML conversion).
+
+### Data Model & Validation
+*   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
+*   A record contains bilingual fields (objects with `en`/`fr` keys).
+*   Validation is defined in `src/utils/validate.js`.
+
+### Internationalization (i18n)
+The app is bilingual (English/French). Content fields are stored as `{ en: "...", fr: "..." }`.
 
 ## Local Development Installation
 
@@ -217,6 +250,31 @@ firebase deploy --only database:prod # For production
 Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.
 
 
+## GitHub Publishing
+
+Reviewers and Admins can publish metadata records directly to a GitHub repository (e.g., `cioos-siooc/cioos-siooc-forms`).
+
+### Configuration
+
+1.  Go to the Admin page for your region.
+2.  Locate the "GitHub Publishing Configuration" section.
+3.  Enter the repository details (Owner, Name, Branch).
+4.  Provide a GitHub Personal Access Token (PAT) with `repo` scope.
+    *   Note: The token is stored in Firebase and protected by security rules.
+5.  Configure file naming template (default `{filename}`) and target environments (e.g. `prod`, `dev`).
+
+### Publishing a Record
+
+1.  Go to the Reviewer page.
+2.  Find a Submitted or Published record.
+3.  Click the "Cloud Upload" icon (Publish to GitHub).
+4.  Select the target environments.
+5.  Optionally provide a commit message.
+6.  Click Publish.
+
+The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{region}/{environment}/{filename}.{xml|yaml}`.
+
+
 ## Hosting on github and Authentication
 
 When hosting the application in a new place there are a couple of things to update. 
@@ -228,5 +286,3 @@ When hosting the application in a new place there are a couple of things to upda
 - You have to allow your domain under Website restrictions for the firebase browser key
   https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form
   https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev-258dc
-
-  
