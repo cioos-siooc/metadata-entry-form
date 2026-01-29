@@ -23,7 +23,6 @@ import { getDatabase, ref, child, onValue, update } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
-import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -81,7 +80,7 @@ class Admin extends FormClassTemplate {
         const regionAdminRef = child(adminRef, region);
         const permissionsRef = child(regionAdminRef, "permissions");
 
-        const projects = await getRegionProjects(region);
+        // Projects are loaded via the realtime listener below; no prefetch needed
         const datacitePrefix = await getDatacitePrefix(region).then(
           (response) => {
             return response.data;
