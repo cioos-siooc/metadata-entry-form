@@ -28,8 +28,7 @@ export default function GitHubPublishDialog({
   const [environments, setEnvironments] = useState([]);
   const [selectedEnvironments, setSelectedEnvironments] = useState([]);
   const [commitMessage, setCommitMessage] = useState("");
-  // eslint-disable-next-line no-unused-vars
-  const [configLoaded, setConfigLoaded] = useState(false);
+  
 
   useEffect(() => {
     if (open && region) {
@@ -45,7 +44,6 @@ export default function GitHubPublishDialog({
         } else {
           setEnvironments(["prod"]); // Fallback
         }
-        setConfigLoaded(true);
       });
 
       // Default commit message
