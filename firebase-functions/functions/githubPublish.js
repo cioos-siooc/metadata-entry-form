@@ -1,11 +1,6 @@
 const functions = require("firebase-functions");
-const { defineString } = require('firebase-functions/params');
 const admin = require("firebase-admin");
-const axios = require("axios");
 const { Octokit } = require("octokit");
-const { getRecordFilename } = require("./updates");
-
-const awsRegion = defineString('AWS_REGION');
 
 // Helper to check permissions
 async function checkPermissions(email, region) {
@@ -19,98 +14,28 @@ async function checkPermissions(email, region) {
   }
 }
 
-// Helper to generate filename
-function generateFilename(template, record, recordId) {
-  let filename = template;
-
-  // Historical default name logic
-  if (filename.includes("{filename}")) {
-    const historicalFilename = getRecordFilename(record);
-    filename = filename.replace("{filename}", historicalFilename);
-  }
-
-  // Use record.id or identifier or key
-  const uuid = record.id || record.identifier || recordId;
-  filename = filename.replace("{uuid}", uuid);
-  
-  const title = record.title ? (record.title.en || record.title.fr || "untitled") : "untitled";
-  const sanitizedTitle = title.replace(/[^a-zA-Z0-9-_]/g, '-');
-  filename = filename.replace("{title}", sanitizedTitle);
-  
-  return filename;
-}
-
 exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
   
-  const { recordId, userId, region, environments, commitMessage } = data;
+  const { region, files, commitMessage } = data;
   
-  if (!recordId || !userId || !region || !environments || environments.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'Missing required parameters.');
+  if (!region || !files || !Array.isArray(files) || files.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'Missing required parameters: region and files.');
   }
   
   // 1. Check Permissions
   await checkPermissions(context.auth.token.email, region);
   
-  // 2. Fetch Record
-  const recordSnapshot = await admin.database().ref(`${region}/users/${userId}/records/${recordId}`).once('value');
-  const record = recordSnapshot.val();
-  if (!record) {
-    throw new functions.https.HttpsError('not-found', 'Record not found.');
-  }
-  
-  // 3. Fetch GitHub Config
+  // 2. Fetch GitHub Config
   const configSnapshot = await admin.database().ref(`admin/${region}/githubCredentials`).once('value');
   const config = configSnapshot.val();
   if (!config || !config.token) {
     throw new functions.https.HttpsError('failed-precondition', 'GitHub configuration missing.');
   }
   
-  // 5. Convert to XML and YAML
-  const projectId = process.env.GCLOUD_PROJECT;
-  const functionRegion = process.env.AWS_REGION || awsRegion.value();
-  let convertMetadataUrl = `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
-
-  if (process.env.FUNCTIONS_EMULATOR === "true") {
-    convertMetadataUrl = `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
-  }
-
-  let xmlContent;
-  let yamlContent;
-  try {
-    const xmlResponse = await axios.post(convertMetadataUrl, {
-      data: {
-        record_data: record,
-        output_format: "iso19115-3_xml"
-      }
-    });
-    // The API returns { data: "..." }
-    xmlContent = xmlResponse.data.data;
-    
-    const yamlResponse = await axios.post(convertMetadataUrl, {
-      data: {
-        record_data: record,
-        output_format: "yaml"
-      }
-    });
-    // The API returns { data: "..." }
-    yamlContent = yamlResponse.data.data;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Conversion error", error);
-    throw new functions.https.HttpsError('internal', 'Failed to convert record. Ensure conversion service is available.');
-  }
-  
-  if (!xmlContent || !yamlContent) {
-     throw new functions.https.HttpsError('internal', 'Conversion returned empty content.');
-  }
-  
-  // 6. Generate Filename
-  const filenameBase = generateFilename(config.fileTemplate || "{filename}", record, recordId);
-  
-  // 7. Commit to GitHub
+  // 3. Commit to GitHub
   const octokit = new Octokit({
     auth: config.token
   });
@@ -122,7 +47,6 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   
   try {
       // 1. Get Ref
-      // If branch doesn't exist, this fails. We assume it exists.
       const { data: refData } = await octokit.rest.git.getRef({
           owner,
           repo,
@@ -139,28 +63,14 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
       const treeSha = commitData.tree.sha;
       
       // 3. Create Tree
-      const treeItems = [];
-      
-      environments.forEach((env) => {
-          const xmlPath = `forms/${env}/${filenameBase}.xml`;
-          const yamlPath = `forms/${env}/${filenameBase}.yaml`;
-          
-          treeItems.push({
-              path: xmlPath,
+      const treeItems = files.map(file => {
+          uploadedFiles.push(file.path);
+          return {
+              path: file.path,
               mode: '100644',
               type: 'blob',
-              content: xmlContent
-          });
-          
-          treeItems.push({
-              path: yamlPath,
-              mode: '100644',
-              type: 'blob',
-              content: yamlContent
-          });
-          
-          uploadedFiles.push(xmlPath);
-          uploadedFiles.push(yamlPath);
+              content: file.content
+          };
       });
       
       const { data: treeData } = await octokit.rest.git.createTree({
@@ -172,8 +82,7 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
       const newTreeSha = treeData.sha;
       
       // 4. Create Commit
-      const title = record.title?.en || record.title?.fr || recordId;
-      const message = commitMessage || `Publish metadata record: ${title}`;
+      const message = commitMessage || "Publish metadata record";
       
       const { data: newCommitData } = await octokit.rest.git.createCommit({
           owner,

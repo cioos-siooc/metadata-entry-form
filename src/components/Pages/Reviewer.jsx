@@ -14,7 +14,7 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, get } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
@@ -37,6 +37,7 @@ import {
   cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
 import { unique } from "../../utils/misc";
+import { preparePublishPayload } from "../../utils/publishUtils";
 import FormClassTemplate from "./FormClassTemplate";
 
 const RecordItem = ({
@@ -273,12 +274,21 @@ class Reviewer extends FormClassTemplate {
       const { region } = match.params;
       const { publishRecordToGitHub } = this.context;
 
+      const record = this.state.records.find((r) => r.recordID === this.state.modalKey);
+      if (!record) throw new Error("Record not found in state.");
+
+      // Fetch GitHub config for file naming template
+      const db = getDatabase(firebase);
+      const configSnapshot = await get(ref(db, `admin/${region}/githubCredentials`));
+      const config = configSnapshot.val() || {};
+
+      const payload = await preparePublishPayload(record, environments, commitMessage, config);
+
       await publishRecordToGitHub({
+        ...payload,
         recordId: this.state.modalKey,
         userId: this.state.modalUserID,
         region,
-        environments,
-        commitMessage,
       });
 
       await this.handleSubmitRecord(this.state.modalKey, this.state.modalUserID, "published");
