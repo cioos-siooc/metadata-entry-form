@@ -48,6 +48,7 @@ const RecordItem = ({
   editRecord,
   toggleModal,
   handleCloneRecord,
+  githubPublishEnabled,
 }) => {
   const commonProps = {
     record,
@@ -117,6 +118,7 @@ const RecordItem = ({
       showEditAction
       showPercentComplete
       showGithubPublishAction
+      githubPublishEnabled={githubPublishEnabled}
       onGithubPublishClick={() =>
         toggleModal(
           "githubPublishModalOpen",
@@ -144,6 +146,7 @@ const RecordItem = ({
         showViewAction
         showPercentComplete
         showGithubPublishAction
+        githubPublishEnabled={githubPublishEnabled}
         onGithubPublishClick={() =>
           toggleModal(
             "githubPublishModalOpen",
@@ -188,6 +191,7 @@ class Reviewer extends FormClassTemplate {
       toastMessage: "",
       toastSeverity: "info",
       publishLogs: [],
+      githubPublishEnabled: false,
     };
   }
 
@@ -200,6 +204,7 @@ class Reviewer extends FormClassTemplate {
       if (authUser) {
         const database = getDatabase(firebase);
         const usersRef = ref(database, `${region}/users`);
+        const githubRef = ref(database, `admin/${region}/githubCredentials`);
         onValue(usersRef, (regionUsersRaw) => {
           const records = loadRegionRecords(regionUsersRaw, [
             "",
@@ -219,6 +224,12 @@ class Reviewer extends FormClassTemplate {
           });
         });
         this.listenerRefs.push(usersRef);
+        onValue(githubRef, (snapshot) => {
+          const creds = snapshot.val() || {};
+          const token = creds.token || "";
+          this.setState({ githubPublishEnabled: !!token && token.trim().length > 0 });
+        });
+        this.listenerRefs.push(githubRef);
       }
     });
   }
@@ -649,6 +660,7 @@ class Reviewer extends FormClassTemplate {
                           toggleModal={this.toggleModal.bind(this)}
                           editRecord={this.editRecord.bind(this)}
                           handleCloneRecord={this.handleCloneRecord.bind(this)}
+                          githubPublishEnabled={this.state.githubPublishEnabled}
                         />
                       ))}
                     </List>

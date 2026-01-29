@@ -60,6 +60,7 @@ const MetadataRecordListItem = ({
   onTransferClick,
   showGithubPublishAction,
   onGithubPublishClick,
+  githubPublishEnabled = true,
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
@@ -255,7 +256,10 @@ const MetadataRecordListItem = ({
                    </MenuItem>
                 )}
                 {showGithubPublishAction && (
-                   <MenuItem onClick={() => { if (onGithubPublishClick) onGithubPublishClick(); handlePublishClose(); }}>
+                   <MenuItem
+                     disabled={!githubPublishEnabled}
+                     onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
+                   >
                      <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
                    </MenuItem>
                 )}
