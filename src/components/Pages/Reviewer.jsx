@@ -326,6 +326,10 @@ class Reviewer extends FormClassTemplate {
         en: (msg) => `Error: ${msg}`,
         fr: (msg) => `Erreur : ${msg}`,
       },
+      githubNotConfigured: {
+        en: "GitHub publishing is not configured",
+        fr: "La publication GitHub n’est pas configurée",
+      },
     };
 
     const entry = messages[key];
@@ -335,6 +339,10 @@ class Reviewer extends FormClassTemplate {
   };
 
   handleGithubPublish = async (environments, commitMessage) => {
+    if (!this.state.githubPublishEnabled) {
+      this.showToast(this.getLogMessage("githubNotConfigured"), "warning");
+      return;
+    }
     this.setState({ githubPublishLoading: true, publishLogs: [] });
     try {
       const { match } = this.props;

@@ -261,12 +261,21 @@ const MetadataRecordListItem = ({
                    </MenuItem>
                 )}
                 {showGithubPublishAction && (
-                   <MenuItem
-                     disabled={!githubPublishEnabled}
-                     onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
-                   >
-                     <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
-                   </MenuItem>
+                  <Tooltip
+                    title={<I18n en="GitHub publishing not configured" fr="La publication GitHub n’est pas configurée" />}
+                    disableHoverListener={githubPublishEnabled}
+                    disableFocusListener={githubPublishEnabled}
+                    disableTouchListener={githubPublishEnabled}
+                  >
+                    <span>
+                      <MenuItem
+                        disabled={!githubPublishEnabled}
+                        onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
+                      >
+                        <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
+                      </MenuItem>
+                    </span>
+                  </Tooltip>
                 )}
              </Menu>
           </>
