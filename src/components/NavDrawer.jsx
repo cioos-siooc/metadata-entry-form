@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 
 import { useParams, useLocation, useHistory } from "react-router-dom";
 
@@ -12,14 +12,16 @@ import {
   AccountCircle,
   ChevronLeft,
   ChevronRight,
+  FeedbackRounded,
   RateReview,
-  SupervisorAccount,
   Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
   DirectionsBoatSharp,
   FolderShared,
+  Help,
   Warning,
+  Settings,
 } from "@material-ui/icons";
 
 import {
@@ -39,6 +41,7 @@ import {
   MenuItem,
   Menu,
 } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
 import { auth, signInWithGoogle } from "../auth";
@@ -68,15 +71,63 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 36,
   },
   languageSelector: {
-    "&:before": {
-      borderColor: "white",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderColor: "white",
-    },
     color: "white",
-    borderColor: "white",
+    border: "1px solid white",
+    borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    width: 70,
+    "&:before": {
+      display: "none",
+    },
+    "&:after": {
+      display: "none",
+    },
+    "&:hover:not(.Mui-disabled)": {
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    "& .MuiSelect-select": {
+      padding: `${theme.spacing(0.75)}px ${theme.spacing(4)}px ${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+      textAlign: "center",
+      "&:focus": {
+        backgroundColor: "transparent",
+      },
+    },
+    "& .MuiSelect-icon": {
+      color: "white",
+    },
+  },
+  feedbackButton: {
+    padding: `${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+    background: "none",
+    border: "1px solid white",
+    borderRadius: theme.shape.borderRadius,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontSize: "14px",
+    fontWeight: 500,
+    fontFamily: theme.typography.fontFamily,
+    lineHeight: 1.5,
+    marginBottom: theme.spacing(1),
+    height: "auto",
+    transition: "background-color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+  },
+  headerControls: {
+    display: "flex",
+    alignItems: "flex-end",
+    gap: theme.spacing(1),
+    marginLeft: "auto",
+  },
+  logoImage: {
+    display: "block",
+    height: "auto",
+    marginBottom: 0,
   },
   hide: {
     display: "none",
@@ -89,6 +140,10 @@ const useStyles = makeStyles((theme) => ({
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
+    },
+    "& .MuiListItemIcon-root": {
+      display: "flex",
+      alignItems: "center",
     },
   },
   drawerOpen: {
@@ -129,6 +184,12 @@ const useStyles = makeStyles((theme) => ({
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
   },
+  appBarToolbar: {
+    minHeight: 64,
+    [theme.breakpoints.up("sm")]: {
+      minHeight: 70,
+    },
+  },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -139,6 +200,9 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerItems: {
     flexGrow: 1,
+  },
+  sidebarList: {
+    paddingTop: theme.spacing(2),
   },
   bottomList: {
     marginTop: "auto",
@@ -179,6 +243,74 @@ export default function MiniDrawer({ children }) {
 
   // if region not set, keep drawer closed
   const [open, setOpen] = React.useState(Boolean(region));
+
+  // Region info and email (lowercased) for contact button display
+  const regionInfo = regions[region];
+  const regionEmail = (regionInfo?.email || "");
+  const regionEmailLower = regionEmail.toLowerCase();
+  const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
+  const [emailCopied, setEmailCopied] = React.useState(false);
+
+  const copyTooltipText = React.useMemo(() => {
+    if (emailCopied) {
+      return language === 'fr' ? 'Copié !' : 'Copied!';
+    }
+    return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
+  }, [emailCopied, language]);
+
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!regionEmailLower) return;
+
+    const done = () => {
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 1500);
+    };
+
+    const fallbackCopy = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = regionEmailLower;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch (err) {
+        // no-op: copying failed
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(regionEmailLower).then(done).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  };
+
+  const handleCopyEmailKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleCopyEmail(e);
+    }
+  };
+
+  const handleContactClick = (e) => {
+    // If clicking within the email copy element, do not trigger mailto
+    if (e && e.target && e.target.closest('[data-copy-email]')) {
+      e.preventDefault();
+      return;
+    }
+    const subject = encodeURIComponent(
+      language === 'fr'
+        ? `Formulaire ${regionInfo.title.fr} – Question`
+        : `${regionInfo.title.en} Form – Question`
+    );
+    window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
+  };
 
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -227,6 +359,58 @@ export default function MiniDrawer({ children }) {
     process.env.NODE_ENV === "development";
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
+  const feedbackButtonRef = useRef(null);
+  const feedbackWidgetRef = useRef(null);
+
+  useEffect(() => {
+    const feedback = Sentry.getFeedback();
+    const el = feedbackButtonRef.current;
+
+    // Remove previous widget if it exists
+    if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+      feedbackWidgetRef.current.remove();
+      feedbackWidgetRef.current = null;
+    }
+
+    if (feedback && el) {
+      const config = {
+        colorScheme: "light",
+        triggerLabel: language === "fr" ? "Commentaires" : "Feedback",
+        submitButtonLabel: language === "fr" ? "Envoyer" : "Send Feedback",
+        formTitle: language === "fr" ? "Envoyer des commentaires" : "Send Feedback",
+        cancelButtonLabel: language === "fr" ? "Annuler" : "Cancel",
+        nameLabel: language === "fr" ? "Nom" : "Name",
+        namePlaceholder: language === "fr" ? "Votre nom" : "Your name",
+        emailLabel: language === "fr" ? "Courriel" : "Email",
+        emailPlaceholder: language === "fr" ? "votre.courriel@exemple.com" : "your.email@example.com",
+        messageLabel: language === "fr" ? "Description" : "Description",
+        messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
+        successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
+        enableScreenshot: true,
+        autoInject: false,
+        onFormOpen: () => {
+          // Add click handler to backdrop to close on single click
+          setTimeout(() => {
+            const backdrop = document.querySelector('[data-sentry-feedback-backdrop]');
+            if (backdrop) {
+              backdrop.style.pointerEvents = 'auto';
+            }
+          }, 0);
+        },
+        themeLight: {
+          accentBackground: topBarBackgroundColor,
+          accentForeground: "#ffffff",
+        },
+      };
+      feedbackWidgetRef.current = feedback.attachTo(el, config);
+    }
+
+    return () => {
+      if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+        feedbackWidgetRef.current.remove();
+      }
+    };
+  }, [language, topBarBackgroundColor]);
 
   return (
     <div className={classes.root}>
@@ -236,9 +420,11 @@ export default function MiniDrawer({ children }) {
         className={classes.appBar}
       >
         <Toolbar
+          className={classes.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: 'center',
+            alignItems: "flex-end",
+            paddingBottom: 0,
           }}
         >
           {region && (
@@ -247,6 +433,7 @@ export default function MiniDrawer({ children }) {
               onClick={() => setOpen(!open)}
               edge="start"
               className={classes.menuButton}
+              style={{ marginBottom: theme.spacing(1) }}
             >
               <MenuIcon />
             </IconButton>
@@ -255,7 +442,8 @@ export default function MiniDrawer({ children }) {
             variant="h5"
             noWrap
             style={{
-              marginLeft: "10px",
+              marginLeft: theme.spacing(1.25),
+              marginBottom: theme.spacing(1),
               flex: 1,
               color: "white",
             }}
@@ -265,23 +453,20 @@ export default function MiniDrawer({ children }) {
               <Fr>Outil de saisie de métadonnées</Fr>
             </I18n>
           </Typography>
-          <div style={{ marginLeft: "auto" }}>
-            {!isMobile && (
-              <img
-                src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
-                alt="CIOOS/SIOOC"
-                width={350}
-                style={{ verticalAlign: "bottom", paddingRight: "15px" }}
-              />
-            )}
-
+          <div className={classes.headerControls}>
+            <img
+              src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
+              alt="CIOOS/SIOOC"
+              width={350}
+              className={classes.logoImage}
+            />
             <Select
-              color="primary"
               className={classes.languageSelector}
               value={language}
               onChange={(e) =>
                 history.push(`/${e.target.value}/${pathWithoutLang}`)
               }
+              disableUnderline
             >
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="fr">FR</MenuItem>
@@ -318,11 +503,10 @@ export default function MiniDrawer({ children }) {
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
-
-          <div className={classes.drawerItems}>
-            <List>
+            <List className={classes.sidebarList}>
               {!user && region && (
                 <Tooltip
+
                   placement="right-start"
                   title={open ? "" : translations.signIn}
                 >
@@ -341,153 +525,139 @@ export default function MiniDrawer({ children }) {
                           throw error;
                         }
                       }
-                    }}
+                  }}
+                >
+                  <ListItemIcon>
+                    <AccountCircle />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.signIn} />
+                </ListItem>
+              </Tooltip>
+            )}
+            {user && region && (
+              <>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.saved}
+                >
+                  <ListItem
+                    button
+                    key="My Records"
+                    onClick={() => history.push(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
-                      <AccountCircle />
+                      <ListAlt />
                     </ListItemIcon>
-                    <ListItemText primary={translations.signIn} />
+                    <ListItemText primary={translations.saved} />
                   </ListItem>
                 </Tooltip>
-              )}
-              {user && region && (
-                <>
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.published}
+                >
+                  <ListItem
+                    button
+                    key="Region's Published Records"
+                    onClick={() => history.push(`${baseURL}/published`)}
+                  >
+                    <ListItemIcon>
+                      <AssignmentTurnedIn />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.published} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.contacts}
+                >
+                  <ListItem
+                    button
+                    key="Contacts"
+                    onClick={() => history.push(`${baseURL}/contacts`)}
+                  >
+                    <ListItemIcon disabled>
+                      <Contacts />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.contacts} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.instruments}
+                >
+                  <ListItem
+                    button
+                    key="instruments"
+                    onClick={() => history.push(`${baseURL}/instruments`)}
+                  >
+                    <ListItemIcon disabled>
+                      <StraightenSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.instruments} />
+                  </ListItem>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.platforms}
+                >
+                  <ListItem
+                    button
+                    key="Platforms"
+                    onClick={() => history.push(`${baseURL}/platforms`)}
+                  >
+                    <ListItemIcon disabled>
+                      <DirectionsBoatSharp />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.platforms} />
+                  </ListItem>
+                </Tooltip>
+
+                {hasSharedRecords && (
                   <Tooltip
                     placement="right-start"
-                    title={open ? "" : translations.saved}
+                    title={open ? "" : translations.sharedWithMe}
                   >
                     <ListItem
                       button
-                      key="My Records"
-                      onClick={() => history.push(`${baseURL}/submissions`)}
+                      key="SharedWithMe"
+                      onClick={() => history.push(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
-                        <ListAlt />
+                        <FolderShared />
                       </ListItemIcon>
-                      <ListItemText primary={translations.saved} />
+                      <ListItemText primary={translations.sharedWithMe} />
                     </ListItem>
                   </Tooltip>
+                )}
+
+                {userIsReviewer && (
                   <Tooltip
                     placement="right-start"
-                    title={open ? "" : translations.published}
+                    title={open ? "" : translations.review}
                   >
                     <ListItem
                       button
-                      key="Region's Published Records"
-                      onClick={() => history.push(`${baseURL}/published`)}
+                      key="Review"
+                      onClick={() => history.push(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
-                        <AssignmentTurnedIn />
+                        <RateReview />
                       </ListItemIcon>
-                      <ListItemText primary={translations.published} />
+                      <ListItemText primary={translations.review} />
                     </ListItem>
                   </Tooltip>
+                )}
+                {/* Admin button moved to bottomList above account avatar */}
+              </>
+            )}
 
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.contacts}
-                  >
-                    <ListItem
-                      button
-                      key="Contacts"
-                      onClick={() => history.push(`${baseURL}/contacts`)}
-                    >
-                      <ListItemIcon disabled>
-                        <Contacts />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.contacts} />
-                    </ListItem>
-                  </Tooltip>
-
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.instruments}
-                  >
-                    <ListItem
-                      button
-                      key="instruments"
-                      onClick={() => history.push(`${baseURL}/instruments`)}
-                    >
-                      <ListItemIcon disabled>
-                        <StraightenSharp />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.instruments} />
-                    </ListItem>
-                  </Tooltip>
-
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.platforms}
-                  >
-                    <ListItem
-                      button
-                      key="Platforms"
-                      onClick={() => history.push(`${baseURL}/platforms`)}
-                    >
-                      <ListItemIcon disabled>
-                        <DirectionsBoatSharp />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.platforms} />
-                    </ListItem>
-                  </Tooltip>
-
-                  {hasSharedRecords && (
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.sharedWithMe}
-                    >
-                      <ListItem
-                        button
-                        key="SharedWithMe"
-                        onClick={() => history.push(`${baseURL}/shared`)}
-                      >
-                        <ListItemIcon>
-                          <FolderShared />
-                        </ListItemIcon>
-                        <ListItemText primary={translations.sharedWithMe} />
-                      </ListItem>
-                    </Tooltip>
-                  )}
-
-                  {userIsReviewer && (
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.review}
-                    >
-                      <ListItem
-                        button
-                        key="Review"
-                        onClick={() => history.push(`${baseURL}/reviewer`)}
-                      >
-                        <ListItemIcon>
-                          <RateReview />
-                        </ListItemIcon>
-                        <ListItemText primary={translations.review} />
-                      </ListItem>
-                    </Tooltip>
-                  )}
-                  {userIsAdmin && (
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.admin}
-                    >
-                      <ListItem
-                        button
-                        key="Admin"
-                        onClick={() => history.push(`${baseURL}/admin`)}
-                      >
-                        <ListItemIcon>
-                          <SupervisorAccount />
-                        </ListItemIcon>
-                        <ListItemText primary={translations.admin} />
-                      </ListItem>
-                    </Tooltip>
-                  )}
-                </>
-              )}
-
-            </List>
-          </div>
+            {/* Logout button removed as requested */}
+           
+          </List>
+          
 
           <div className={classes.bottomList}>
             <List>
@@ -514,8 +684,87 @@ export default function MiniDrawer({ children }) {
                   </ListItem>
                 </Tooltip>
               )}
+              <Tooltip
+                placement="right-start"
+                title={
+                  open
+                    ? ""
+                    : (
+                      <span>
+                        {contactLabel}
+                        {regionEmailLower ? ` — ${regionEmailLower}` : ''}
+                      </span>
+                    )
+                }
+              >
+                <ListItem
+                  button
+                  key="Contact Region"
+                  onClick={handleContactClick}
+                >
+                  <ListItemIcon>
+                    <Help />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={contactLabel}
+                    secondary={
+                      regionEmailLower ? (
+                        <Tooltip
+                          title={copyTooltipText}
+                          placement="right-start"
+                        >
+                          <span
+                            data-copy-email="true"
+                            onClick={handleCopyEmail}
+                            onKeyDown={handleCopyEmailKeyDown}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                            style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                          >
+                            {regionEmailLower}
+                          </span>
+                        </Tooltip>
+                      ) : null
+                    }
+                  />
+                </ListItem>
+              </Tooltip>
+              <Tooltip
+                placement="right-start"
+                title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+              >
+                <ListItem
+                  button
+                  key="Feedback"
+                  id="sentry-feedback-button"
+                  ref={feedbackButtonRef}
+                >
+                  <ListItemIcon>
+                    <FeedbackRounded />
+                  </ListItemIcon>
+                  <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                </ListItem>
+              </Tooltip>
               {user && (
                 <>
+                  {userIsAdmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.admin}
+                    >
+                      <ListItem
+                        button
+                        key="Admin"
+                        onClick={() => history.push(`${baseURL}/admin`)}
+                      >
+                        <ListItemIcon>
+                          <Settings />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.admin} />
+                      </ListItem>
+                    </Tooltip>
+                  )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}

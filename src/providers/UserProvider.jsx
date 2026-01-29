@@ -35,11 +35,9 @@ class UserProvider extends FormClassTemplate {
         const { displayName, email, uid } = userAuth;
         this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
 
-        Sentry.configureScope((scope) => {
-          scope.setUser({
-            email,
-            username: email,
-          });
+        Sentry.setUser({
+          email,
+          username: email,
         });
 
 

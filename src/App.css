@@ -32,7 +32,36 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+#sentry-feedback {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1000;
+}
+
+/* Position Sentry's auto-injected feedback button at bottom-left.
+   Cover multiple SDK selector variants to ensure override. */
+.sentry-feedback-trigger,
+[data-sentry-feedback],
+.sentry-feedback-button,
+.sentry-feedback {
+  position: fixed !important;
+  left: 16px !important;
+  bottom: 16px !important;
+  right: auto !important;
+  top: auto !important;
+  z-index: 2147483647 !important;
+}
+
+.sentry-feedback-trigger,
+.sentry-feedback-button {
+  padding: 10px 14px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
