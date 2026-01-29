@@ -24,16 +24,10 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 
-import { getDatabase, ref, onValue } from "firebase/database";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { getDatabase, ref, onValue, get } from "firebase/database";
-import { QuestionText } from "../FormComponents/QuestionStyles";
 
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -45,12 +39,6 @@ import licenses from "../../utils/licenses";
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import { UserContext } from "../../providers/UserProvider";
-
-import CheckBoxList from "../FormComponents/CheckBoxList";
-
-import SimpleModal from "../FormComponents/SimpleModal";
-import TransferModal from "../FormComponents/TransferModal";
-import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 
 import {
@@ -80,130 +68,6 @@ const defaultColumnVisibility = {
   contacts: false,
   formLanguage: false,
   actions: true,
-};
-
-const RecordItem = ({
-  record,
-  language,
-  editRecord,
-  toggleModal,
-  handleCloneRecord,
-  githubPublishEnabled,
-}) => {
-  const commonProps = {
-    record,
-    language,
-    onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
-    onCloneClick: () =>
-      handleCloneRecord(record.recordID, record.userinfo.userID),
-    onDeleteClick: () =>
-      toggleModal(
-        "deleteModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    onTransferClick: () =>
-      toggleModal(
-        "transferModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    showAuthor: true,
-    showTransferButton: true,
-    showDeleteAction: true,
-    showCloneAction: true,
-  };
-
-  const DraftRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onSubmitClick={() => {
-          return toggleModal(
-            "submitModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          );
-        }}
-        showSubmitAction
-        showEditAction
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-        showPercentComplete
-      />
-    );
-  };
-  const SubmittedRecordItem = () => (
-    <MetadataRecordListItem
-      onSubmitClick={() =>
-        toggleModal(
-          "publishModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      onUnSubmitClick={() =>
-        toggleModal(
-          "unSubmitModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      showPublishAction
-      showUnSubmitAction
-      showEditAction
-      showPercentComplete
-      showGithubPublishAction
-      githubPublishEnabled={githubPublishEnabled}
-      onGithubPublishClick={() =>
-        toggleModal(
-          "githubPublishModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...commonProps}
-    />
-  );
-  const PublishedRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onUnPublishClick={() =>
-          toggleModal(
-            "unPublishModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          )
-        }
-        showUnPublishAction
-        showViewAction
-        showPercentComplete
-        showGithubPublishAction
-        githubPublishEnabled={githubPublishEnabled}
-        onGithubPublishClick={() =>
-          toggleModal(
-            "githubPublishModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          )
-        }
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-      />
-    );
-  };
-
-  if (record.status === "submitted") return <SubmittedRecordItem />;
-  if (record.status === "published") return <PublishedRecordItem />;
-  return <DraftRecordItem />;
 };
 
 function loadColumnVisibility() {

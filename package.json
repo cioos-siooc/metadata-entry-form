@@ -79,8 +79,9 @@
     "cross-env": "^7.0.2",
     "domexception": "4.0.0",
     "enzyme": "3.11.0",
-    "enzyme-adapter-react-16": "1.15.6",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
     "eslint": "^7.32.0",
+    "source-map-loader": "^4.0.2",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -95,7 +96,8 @@
     "yaml": "2.8.2"
   },
   "overrides": {
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "jsonfile": "^6.1.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
