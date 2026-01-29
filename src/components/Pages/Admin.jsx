@@ -123,8 +123,9 @@ class Admin extends FormClassTemplate {
           const admins = permissions.admins ? permissions.admins.split(",") : [];
           const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
 
+          // Do not set `projects` here to avoid overwriting the more recent
+          // value from the `projectsRef` listener above.
           this.setState({
-            projects, // Use the projects fetched by getRegionProjects initially
             admins,
             reviewers,
             loading: false,
@@ -318,11 +319,21 @@ class Admin extends FormClassTemplate {
         aria-describedby="credentials-=missing-dialog-description"
       >
         <DialogTitle id="credentials-missing-dialog-title">
-          Missing DataCite Credentials
+          <I18n>
+            <En>Missing DataCite Credentials</En>
+            <Fr>Informations d'identification DataCite manquantes</Fr>
+          </I18n>
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="credentials-missing-dialog-description">
-            Please add DataCite credentials before saving.
+            <I18n>
+              <En>
+                Other settings were saved; DataCite credentials were not. Please add credentials to enable DOI creation.
+              </En>
+              <Fr>
+                Les autres paramètres ont été enregistrés; les informations DataCite ne l'ont pas été. Ajoutez les informations pour activer la création de DOI.
+              </Fr>
+            </I18n>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
