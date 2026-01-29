@@ -214,8 +214,8 @@ export const progressCodes = {
 };
 
 export const depthDirections = {
-  heightPositive: { en: "Depth Positive", fr: "Profondeur positive" },
-  depthPositive: { en: "Height Positive", fr: "Hauteur positive" },
+  heightPositive: { en: "Height Positive", fr: "Hauteur positive" },
+  depthPositive: { en: "Depth Positive", fr: "Profondeur positive" },
 };
 
 export const metadataScopeCodes = {
