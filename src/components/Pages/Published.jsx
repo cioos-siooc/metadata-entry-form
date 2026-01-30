@@ -1,149 +1,102 @@
-import React from "react";
-import { Typography, CircularProgress, Box } from "@material-ui/core";
-import { getDatabase, ref, onValue } from "firebase/database";
-import firebase from "../../firebase";
-import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import {
-  cloneRecord,
-  loadRegionRecords,
-} from "../../utils/firebaseRecordFunctions";
-import { Fr, En, I18n } from "../I18n";
-import FormClassTemplate from "./FormClassTemplate";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Typography, Box } from '@material-ui/core';
+import { useParams, useHistory } from 'react-router-dom';
+import { getDatabase, ref, onValue, off } from 'firebase/database';
+import firebase from '../../firebase';
+import { auth, getAuth, onAuthStateChanged } from '../../auth';
+import { cloneRecord, loadRegionRecords } from '../../utils/firebaseRecordFunctions';
+import { Fr, En, I18n } from '../I18n';
+import RecordList, { publishedConfig } from '../RecordList';
 
-class Published extends FormClassTemplate {
-  constructor(props) {
-    super(props);
-    this.state = {
-      records: {},
-      deleteModalOpen: false,
-      submitModalOpen: false,
-      withdrawModalOpen: false,
-      modalKey: "",
-      modalRecord: null,
-      loading: false,
-    };
-  }
+const Published = () => {
+  const { language, region } = useParams();
+  const history = useHistory();
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const listenerRefs = useRef([]);
+  const unsubscribeRef = useRef(null);
 
-  async loadRecords() {
-    this.setState({ loading: true });
-    const { match } = this.props;
-    const { region } = match.params;
+  // Load records on mount
+  useEffect(() => {
+    setLoading(true);
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
+    unsubscribeRef.current = onAuthStateChanged(getAuth(firebase), async (user) => {
       if (user) {
         const database = getDatabase(firebase);
         const usersRef = ref(database, `${region}/users`);
 
         onValue(usersRef, (regionRecordsFB) => {
-          const records = loadRegionRecords(regionRecordsFB, ["published"]);
-          this.setState({ records, loading: false });
+          const loadedRecords = loadRegionRecords(regionRecordsFB, ['published']);
+          setRecords(loadedRecords);
+          setLoading(false);
         });
-        this.listenerRefs.push(usersRef);
+
+        listenerRefs.current.push(usersRef);
       }
     });
-  }
 
-  async componentDidMount() {
-    this.loadRecords();
-  }
+    // Cleanup
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      listenerRefs.current.forEach((refListener) => off(refListener));
+      listenerRefs.current = [];
+    };
+  }, [region]);
 
-  editRecord(key, userID) {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
-    history.push(`/${language}/${region}/${userID}/${key}`);
-  }
+  // Action handlers
+  const handleEditRecord = useCallback(
+    (recordID, userID) => {
+      history.push(`/${language}/${region}/${userID}/${recordID}`);
+    },
+    [history, language, region]
+  );
 
-  // user ID is that of the record owner, not the editor
-  handleCloneRecord(recordID, sourceUserID) {
-    const { match } = this.props;
-    const { region } = match.params;
+  const handleCloneRecord = useCallback(
+    (recordID, sourceUserID) => {
+      if (auth.currentUser) {
+        cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
+      }
+    },
+    [region]
+  );
 
-    if (auth.currentUser) {
-      cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
-    }
-  }
+  // Filter to only show published records
+  const publishedRecords = records.filter((record) => record.status === 'published');
 
-  render() {
-    const { match } = this.props;
-    const { region } = match.params;
-    const { records, loading } = this.state;
+  return (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        <I18n>
+          <En>Published Records</En>
+          <Fr>Dossiers publiés</Fr>
+        </I18n>
+      </Typography>
 
-    const recordDateSort = (a, b) => new Date(b.created) - new Date(a.created);
+      <Typography variant="body2" paragraph>
+        <I18n>
+          <En>These are the published records in your region.</En>
+          <Fr>Il s'agit des enregistrements publiés dans votre région.</Fr>
+        </I18n>
+      </Typography>
 
-    return (
-      <Box>
-        <Typography variant="h5" gutterBottom>
+      <RecordList
+        records={publishedRecords}
+        config={publishedConfig}
+        loading={loading}
+        onEditRecord={handleEditRecord}
+        onCloneRecord={handleCloneRecord}
+      />
+
+      {!loading && publishedRecords.length === 0 && (
+        <Typography>
           <I18n>
-            <En>Published Records</En>
-            <Fr>Dossiers publiés</Fr>
+            <En>There are no published records.</En>
+            <Fr>Il n'y a pas de documents publiés.</Fr>
           </I18n>
         </Typography>
-
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box>
-            <Typography variant="body2" paragraph>
-              <I18n>
-                <En>These are the published records in your region.</En>
-                <Fr>
-                  Il s'agit des enregistrements publiés dans votre région.
-                </Fr>
-              </I18n>
-            </Typography>
-
-            <Box mt={1}>
-              {records && records.length
-                ? records
-                    .sort(recordDateSort)
-                    .filter((record) => record.status === "published")
-                    .map((record) => {
-                      const { title } = record;
-
-                      if (!(title?.en || !title?.fr)) return null;
-
-                      return (
-                        <MetadataRecordListItem
-                          key={record.recordID}
-                          record={record}
-                          onViewEditClick={() =>
-                            this.editRecord(
-                              record.recordID,
-                              record.userinfo?.userID
-                            )
-                          }
-                          showDeleteAction={false}
-                          showUnSubmitAction={false}
-                          showCloneAction
-                          showAuthor
-                          showViewAction
-                          onCloneClick={() =>
-                            this.handleCloneRecord(
-                              record.recordID,
-                              record.userinfo?.userID,
-                              region
-                            )
-                          }
-                        />
-                      );
-                    })
-                : null}
-            </Box>
-
-            {!records && (
-              <Typography>
-                <I18n>
-                  <En>There are no published records.</En>
-                  <Fr>Il n'y a pas de documents publiés.</Fr>
-                </I18n>
-              </Typography>
-            )}
-          </Box>
-        )}
-      </Box>
-    );
-  }
-}
+      )}
+    </Box>
+  );
+};
 
 export default Published;
