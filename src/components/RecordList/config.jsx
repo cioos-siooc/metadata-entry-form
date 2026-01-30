@@ -1,10 +1,180 @@
 import React from 'react';
 import { Chip } from '@material-ui/core';
-import regions from '../../../regions';
-import licenses from '../../../utils/licenses';
-import { percentValid } from '../../../utils/validate';
+import regions from '../../regions';
+import licenses from '../../utils/licenses';
+import { percentValid } from '../../utils/validate';
 
-// Helper to get status color
+// ============================================================================
+// Page Configurations
+// ============================================================================
+
+export const reviewerConfig = {
+  pageId: 'reviewer',
+  storageKey: 'reviewer-records',
+
+  views: {
+    allowToggle: true,
+    persistViewPreference: true,
+  },
+
+  columns: [
+    'status',
+    'progress',
+    'created',
+    'title',
+    'author',
+    'abstract',
+    'license',
+    'verticalExtentMin',
+    'verticalExtentMax',
+    'contacts',
+    'formLanguage',
+  ],
+
+  defaultColumnVisibility: {
+    title: true,
+    status: true,
+    author: true,
+    progress: true,
+    created: true,
+    abstract: false,
+    license: false,
+    verticalExtentMin: false,
+    verticalExtentMax: false,
+    contacts: false,
+    formLanguage: false,
+    actions: true,
+  },
+
+  cardFields: {
+    showStatus: true,
+    showProgress: true,
+    showAuthor: true,
+    showLastEdited: true,
+    showUUID: true,
+  },
+
+  actions: {
+    showViewAction: false,
+    showEditAction: true,
+    showDeleteAction: true,
+    showCloneAction: true,
+    showSubmitAction: false,
+    showPublishAction: true,
+    showUnPublishAction: true,
+    showUnSubmitAction: true,
+    showTransferButton: true,
+    showDownloadButton: false,
+    showGithubPublishAction: true,
+  },
+
+  table: {
+    pageSize: 20,
+    rowsPerPageOptions: [10, 20, 50, 100],
+    columnVisibilityStorageKey: 'reviewer-column-visibility',
+  },
+};
+
+export const publishedConfig = {
+  pageId: 'published',
+  storageKey: 'published-records',
+
+  views: {
+    allowToggle: true,
+    persistViewPreference: true,
+  },
+
+  columns: ['status', 'created', 'title', 'author'],
+
+  defaultColumnVisibility: {
+    title: true,
+    status: true,
+    author: true,
+    created: true,
+    actions: true,
+  },
+
+  cardFields: {
+    showStatus: true,
+    showProgress: false,
+    showAuthor: true,
+    showLastEdited: true,
+    showUUID: true,
+  },
+
+  actions: {
+    showViewAction: true,
+    showEditAction: false,
+    showDeleteAction: false,
+    showCloneAction: true,
+    showSubmitAction: false,
+    showPublishAction: false,
+    showUnPublishAction: false,
+    showUnSubmitAction: false,
+    showTransferButton: false,
+    showDownloadButton: false,
+    showGithubPublishAction: false,
+  },
+
+  table: {
+    pageSize: 20,
+    rowsPerPageOptions: [10, 20, 50, 100],
+    columnVisibilityStorageKey: 'published-column-visibility',
+  },
+};
+
+export const submissionsConfig = {
+  pageId: 'submissions',
+  storageKey: 'submissions-records',
+
+  views: {
+    allowToggle: true,
+    persistViewPreference: true,
+  },
+
+  columns: ['status', 'progress', 'created', 'title'],
+
+  defaultColumnVisibility: {
+    title: true,
+    status: true,
+    progress: true,
+    created: true,
+    actions: true,
+  },
+
+  cardFields: {
+    showStatus: true,
+    showProgress: true,
+    showAuthor: false,
+    showLastEdited: true,
+    showUUID: true,
+  },
+
+  actions: {
+    showViewAction: false,
+    showEditAction: true,
+    showDeleteAction: true,
+    showCloneAction: true,
+    showSubmitAction: true,
+    showPublishAction: false,
+    showUnPublishAction: false,
+    showUnSubmitAction: false,
+    showTransferButton: false,
+    showDownloadButton: true,
+    showGithubPublishAction: false,
+  },
+
+  table: {
+    pageSize: 20,
+    rowsPerPageOptions: [10, 20, 50, 100],
+    columnVisibilityStorageKey: 'submissions-column-visibility',
+  },
+};
+
+// ============================================================================
+// Column Helpers
+// ============================================================================
+
 export const getStatusColor = (status, region) => {
   const regionColor = regions[region]?.colors?.primary || '#006e90';
   switch (status) {
@@ -17,7 +187,6 @@ export const getStatusColor = (status, region) => {
   }
 };
 
-// Helper to get status label
 export const getStatusLabel = (status, language) => {
   const labels = {
     published: { en: 'Published', fr: 'Publié' },
@@ -27,7 +196,6 @@ export const getStatusLabel = (status, language) => {
   return labels[status]?.[language] || labels[''][language];
 };
 
-// Helper to format date
 export const formatDate = (dateStr, language) => {
   if (!dateStr) return '';
   const dateObj = new Date(dateStr);
@@ -53,7 +221,10 @@ export const formatDate = (dateStr, language) => {
     : `il y a ${days} jour${days !== 1 ? 's' : ''}`;
 };
 
-// Column definitions factory - creates columns with current language
+// ============================================================================
+// Column Definitions Factory
+// ============================================================================
+
 export const createColumns = (language, region) => ({
   status: {
     field: 'status',
@@ -76,11 +247,7 @@ export const createColumns = (language, region) => ({
         <Chip
           label={label}
           size="small"
-          style={{
-            backgroundColor: bgColor,
-            color: '#ffffff',
-            fontWeight: 500,
-          }}
+          style={{ backgroundColor: bgColor, color: '#ffffff', fontWeight: 500 }}
         />
       );
     },
@@ -89,48 +256,40 @@ export const createColumns = (language, region) => ({
         label: language === 'en' ? 'is any of' : "est l'un de",
         value: 'isAnyOf',
         getApplyFilterFn: (filterItem) => {
-          if (!filterItem.value || filterItem.value.length === 0) {
-            return null;
-          }
+          if (!filterItem.value || filterItem.value.length === 0) return null;
           return (params) => filterItem.value.includes(params.value);
         },
         InputComponent: ({ item, applyValue }) => {
-          const handleFilterChange = (value) => {
-            applyValue({ ...item, value });
-          };
-
+          const handleFilterChange = (value) => applyValue({ ...item, value });
           return (
             <div style={{ padding: '8px' }}>
               {[
                 { value: '', label: language === 'en' ? 'Draft' : 'Brouillon' },
                 { value: 'submitted', label: language === 'en' ? 'Submitted' : 'Soumis' },
                 { value: 'published', label: language === 'en' ? 'Published' : 'Publié' },
-              ].map((option) => {
-                const checkboxId = `status-filter-${option.value}`;
-                return (
-                  <div key={option.value} style={{ marginBottom: '4px' }}>
-                    <label
-                      htmlFor={checkboxId}
-                      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                    >
-                      <input
-                        id={checkboxId}
-                        type="checkbox"
-                        checked={(item.value || []).includes(option.value)}
-                        onChange={(e) => {
-                          const currentValues = item.value || [];
-                          const newValues = e.target.checked
-                            ? [...currentValues, option.value]
-                            : currentValues.filter((v) => v !== option.value);
-                          handleFilterChange(newValues);
-                        }}
-                        style={{ marginRight: '8px' }}
-                      />
-                      {option.label}
-                    </label>
-                  </div>
-                );
-              })}
+              ].map((option) => (
+                <div key={option.value} style={{ marginBottom: '4px' }}>
+                  <label
+                    htmlFor={`status-filter-${option.value}`}
+                    style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                  >
+                    <input
+                      id={`status-filter-${option.value}`}
+                      type="checkbox"
+                      checked={(item.value || []).includes(option.value)}
+                      onChange={(e) => {
+                        const currentValues = item.value || [];
+                        const newValues = e.target.checked
+                          ? [...currentValues, option.value]
+                          : currentValues.filter((v) => v !== option.value);
+                        handleFilterChange(newValues);
+                      }}
+                      style={{ marginRight: '8px' }}
+                    />
+                    {option.label}
+                  </label>
+                </div>
+              ))}
             </div>
           );
         },
@@ -156,10 +315,7 @@ export const createColumns = (language, region) => ({
     maxWidth: 130,
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => {
-      if (!params.value) return null;
-      return <span>{formatDate(params.value, language)}</span>;
-    },
+    renderCell: (params) => (params.value ? <span>{formatDate(params.value, language)}</span> : null),
     sortComparator: (v1, v2) => {
       const date1 = v1 ? new Date(v1).getTime() : 0;
       const date2 = v2 ? new Date(v2).getTime() : 0;
@@ -188,11 +344,7 @@ export const createColumns = (language, region) => ({
     minWidth: 200,
     renderCell: (params) => (
       <div
-        style={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
+        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
         title={params.value}
       >
         {params.value}
@@ -220,10 +372,7 @@ export const createColumns = (language, region) => ({
     type: 'number',
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => {
-      if (params.value === undefined || params.value === null) return '';
-      return params.value;
-    },
+    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
   },
 
   verticalExtentMax: {
@@ -234,10 +383,7 @@ export const createColumns = (language, region) => ({
     type: 'number',
     headerAlign: 'center',
     align: 'center',
-    renderCell: (params) => {
-      if (params.value === undefined || params.value === null) return '';
-      return params.value;
-    },
+    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
   },
 
   contacts: {
@@ -250,21 +396,12 @@ export const createColumns = (language, region) => ({
       const contactsList = params.value || [];
       if (contactsList.length === 0) return '';
       const contactNames = contactsList
-        .map((c) => {
-          if (c.givenNames || c.lastName) {
-            return `${c.givenNames || ''} ${c.lastName || ''}`.trim();
-          }
-          return c.orgName || '';
-        })
+        .map((c) => (c.givenNames || c.lastName ? `${c.givenNames || ''} ${c.lastName || ''}`.trim() : c.orgName || ''))
         .filter(Boolean);
       const displayText = contactNames.join(', ');
       return (
         <div
-          style={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
+          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
           title={displayText}
         >
           {displayText}
@@ -289,7 +426,10 @@ export const createColumns = (language, region) => ({
   },
 });
 
-// Transform record to row data for DataGrid
+// ============================================================================
+// Record to Row Transformer
+// ============================================================================
+
 export const recordToRow = (record, language, index) => ({
   id: record.recordID || index,
   recordID: record.recordID,

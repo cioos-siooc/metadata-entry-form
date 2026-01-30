@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, Typography } from '@material-ui/core';
 
-import { useRecordListContext } from '../RecordListContext';
-import MetadataRecordListItem from '../../FormComponents/MetadataRecordListItem';
-import { I18n, En, Fr } from '../../I18n';
+import { useRecordListContext } from './context';
+import MetadataRecordListItem from '../FormComponents/MetadataRecordListItem';
+import { I18n, En, Fr } from '../I18n';
 
 const RecordCardView = ({ records }) => {
   const { config, actionHandlers, githubPublishEnabled } = useRecordListContext();
@@ -30,10 +30,9 @@ const RecordCardView = ({ records }) => {
   return (
     <Box>
       {sortedRecords.map((record) => {
-        const { title } = record;
+        const { title, recordID } = record;
         if (!(title?.en || title?.fr)) return null;
 
-        const { recordID } = record;
         const userID = record.userinfo?.userID;
 
         return (

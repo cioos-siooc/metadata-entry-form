@@ -1,8 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  IconButton,
-  Tooltip,
-} from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import {
   Edit,
   Visibility,
@@ -21,10 +18,10 @@ import {
   GridToolbarExport,
 } from '@mui/x-data-grid';
 
-import { useRecordListContext } from '../RecordListContext';
-import { useColumnVisibility } from '../hooks';
-import { createColumns, recordToRow } from '../config/columnDefinitions';
-import { I18n } from '../../I18n';
+import { useRecordListContext } from './context';
+import { useColumnVisibility } from './hooks';
+import { createColumns, recordToRow } from './config';
+import { I18n } from '../I18n';
 
 const RecordTableView = ({ records }) => {
   const { config, actionHandlers, language, region, githubPublishEnabled } = useRecordListContext();
@@ -39,9 +36,7 @@ const RecordTableView = ({ records }) => {
 
   // Build columns array from config
   const columns = useMemo(() => {
-    const cols = (config.columns || [])
-      .map((colName) => columnDefs[colName])
-      .filter(Boolean);
+    const cols = (config.columns || []).map((colName) => columnDefs[colName]).filter(Boolean);
 
     // Add actions column
     cols.push({
@@ -197,11 +192,7 @@ const RecordTableView = ({ records }) => {
   return (
     <div style={{ height: 'calc(100vh - 300px)', width: '100%' }}>
       <DataGrid
-        sx={{
-          '& .MuiDataGrid-columnHeaderTitle': {
-            fontWeight: 'bold',
-          },
-        }}
+        sx={{ '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' } }}
         rows={rows}
         columns={columns}
         pageSize={config.table?.pageSize || 20}
@@ -220,9 +211,7 @@ const RecordTableView = ({ records }) => {
           ),
           NoRowsOverlay: () => (
             <div style={{ padding: '20px', textAlign: 'center' }}>
-              {language === 'en'
-                ? 'No records found.'
-                : 'Aucun enregistrement trouvé.'}
+              {language === 'en' ? 'No records found.' : 'Aucun enregistrement trouvé.'}
             </div>
           ),
         }}
