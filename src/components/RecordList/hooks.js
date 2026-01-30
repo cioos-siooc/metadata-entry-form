@@ -121,7 +121,9 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Merge saved settings with defaults so new columns respect their default visibility
+        return { ...defaultVisibility, ...parsed };
       }
     } catch (e) {
       // Ignore errors
@@ -141,8 +143,18 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
     [storageKey]
   );
 
+  const resetColumnVisibility = useCallback(() => {
+    setColumnVisibilityModel(defaultVisibility);
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (e) {
+      // Ignore errors
+    }
+  }, [storageKey, defaultVisibility]);
+
   return {
     columnVisibilityModel,
     handleColumnVisibilityChange,
+    resetColumnVisibility,
   };
 }

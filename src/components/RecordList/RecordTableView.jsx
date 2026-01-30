@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { IconButton, Tooltip, Menu, MenuItem } from '@material-ui/core';
+import React, { useMemo, useState, useCallback } from 'react';
+import { IconButton, Tooltip, Menu, MenuItem, Button } from '@material-ui/core';
 import {
   Edit,
   Visibility,
@@ -9,6 +9,7 @@ import {
   Eject,
   TransferWithinAStation,
   CloudUpload,
+  Refresh,
 } from '@material-ui/icons';
 import {
   DataGrid,
@@ -16,6 +17,7 @@ import {
   GridToolbarColumnsButton,
   GridToolbarQuickFilter,
   GridToolbarExport,
+  GridToolbarFilterButton,
 } from '@mui/x-data-grid';
 
 import { useRecordListContext } from './context';
@@ -215,10 +217,19 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
 const RecordTableView = ({ records }) => {
   const { config, actionHandlers, language, region, githubPublishEnabled } = useRecordListContext();
 
-  const { columnVisibilityModel, handleColumnVisibilityChange } = useColumnVisibility(
+  const { columnVisibilityModel, handleColumnVisibilityChange, resetColumnVisibility } = useColumnVisibility(
     config.table?.columnVisibilityStorageKey || `${config.pageId}-column-visibility`,
     config.defaultColumnVisibility || {}
   );
+
+  // Filter model state
+  const [filterModel, setFilterModel] = useState({ items: [] });
+
+  // Reset handler for columns and filters
+  const handleReset = useCallback(() => {
+    resetColumnVisibility();
+    setFilterModel({ items: [] });
+  }, [resetColumnVisibility]);
 
   // Create column definitions for current language
   const columnDefs = useMemo(() => createColumns(language, region), [language, region]);
@@ -253,6 +264,30 @@ const RecordTableView = ({ records }) => {
     [records, language]
   );
 
+  // Custom toolbar with reset button
+  const CustomToolbar = useCallback(
+    () => (
+      <GridToolbarContainer
+        style={{ padding: '8px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}
+      >
+        <GridToolbarQuickFilter />
+        <GridToolbarFilterButton />
+        <GridToolbarColumnsButton />
+        <GridToolbarExport />
+        <Tooltip title={<I18n en="Reset columns & filters" fr="Réinitialiser colonnes et filtres" />}>
+          <Button
+            size="small"
+            startIcon={<Refresh />}
+            onClick={handleReset}
+          >
+            <I18n en="Reset" fr="Réinitialiser" />
+          </Button>
+        </Tooltip>
+      </GridToolbarContainer>
+    ),
+    [handleReset]
+  );
+
   return (
     <div style={{ height: 'calc(100vh - 300px)', width: '100%' }}>
       <DataGrid
@@ -263,16 +298,10 @@ const RecordTableView = ({ records }) => {
         rowsPerPageOptions={config.table?.rowsPerPageOptions || [10, 20, 50, 100]}
         checkboxSelection={false}
         disableSelectionOnClick
+        filterModel={filterModel}
+        onFilterModelChange={setFilterModel}
         components={{
-          Toolbar: () => (
-            <GridToolbarContainer
-              style={{ padding: '8px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}
-            >
-              <GridToolbarQuickFilter />
-              <GridToolbarColumnsButton />
-              <GridToolbarExport />
-            </GridToolbarContainer>
-          ),
+          Toolbar: CustomToolbar,
           NoRowsOverlay: () => (
             <div style={{ padding: '20px', textAlign: 'center' }}>
               {language === 'en' ? 'No records found.' : 'Aucun enregistrement trouvé.'}
@@ -287,6 +316,12 @@ const RecordTableView = ({ records }) => {
           columnsPanelShowAllButton: language === 'en' ? 'Show all' : 'Afficher tout',
           columnsPanelHideAllButton: language === 'en' ? 'Hide all' : 'Masquer tout',
           toolbarQuickFilterPlaceholder: language === 'en' ? 'Search...' : 'Rechercher...',
+          toolbarFilters: language === 'en' ? 'Filters' : 'Filtres',
+          toolbarFiltersLabel: language === 'en' ? 'Show filters' : 'Afficher les filtres',
+          toolbarFiltersTooltipHide: language === 'en' ? 'Hide filters' : 'Masquer les filtres',
+          toolbarFiltersTooltipShow: language === 'en' ? 'Show filters' : 'Afficher les filtres',
+          toolbarFiltersTooltipActive: (count) =>
+            language === 'en' ? `${count} active filter(s)` : `${count} filtre(s) actif(s)`,
         }}
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={handleColumnVisibilityChange}
