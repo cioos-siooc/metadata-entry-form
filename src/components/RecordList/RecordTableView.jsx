@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { IconButton, Tooltip, Menu, MenuItem, Button } from '@material-ui/core';
 import {
   Edit,
@@ -215,21 +215,21 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
 };
 
 const RecordTableView = ({ records }) => {
-  const { config, actionHandlers, language, region, githubPublishEnabled } = useRecordListContext();
+  const { config, actionHandlers, language, region, githubPublishEnabled, listState } = useRecordListContext();
 
   const { columnVisibilityModel, handleColumnVisibilityChange, resetColumnVisibility } = useColumnVisibility(
     config.table?.columnVisibilityStorageKey || `${config.pageId}-column-visibility`,
     config.defaultColumnVisibility || {}
   );
 
-  // Filter model state
-  const [filterModel, setFilterModel] = useState({ items: [] });
+  // Shared filter/sort state across table and cards (from context)
+  const { filterModel, setFilterModel, sortModel, setSortModel, resetListState } = listState;
 
   // Reset handler for columns and filters
   const handleReset = useCallback(() => {
     resetColumnVisibility();
-    setFilterModel({ items: [] });
-  }, [resetColumnVisibility]);
+    resetListState();
+  }, [resetColumnVisibility, resetListState]);
 
   // Create column definitions for current language
   const columnDefs = useMemo(() => createColumns(language, region), [language, region]);
@@ -300,6 +300,8 @@ const RecordTableView = ({ records }) => {
         disableSelectionOnClick
         filterModel={filterModel}
         onFilterModelChange={setFilterModel}
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
         components={{
           Toolbar: CustomToolbar,
           NoRowsOverlay: () => (

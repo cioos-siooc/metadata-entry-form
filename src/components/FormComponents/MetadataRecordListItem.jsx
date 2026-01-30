@@ -341,7 +341,7 @@ const MetadataRecordListItem = ({
               )}
               {showAuthor && (
                 <Typography className={classes.infoText}>
-                  {record.userinfo?.displayName}
+                  {record.userinfo?.email}
                 </Typography>
               )}
               <Typography className={classes.infoText}>

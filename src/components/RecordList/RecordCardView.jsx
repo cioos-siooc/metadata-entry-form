@@ -1,35 +1,54 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Typography } from '@material-ui/core';
 
 import { useRecordListContext } from './context';
+import { recordToRow } from './config';
+import { applyFiltersAndSort } from './filtering';
+import CardControls from './CardControls';
 import MetadataRecordListItem from '../FormComponents/MetadataRecordListItem';
 import { I18n, En, Fr } from '../I18n';
 
 const RecordCardView = ({ records }) => {
-  const { config, actionHandlers, githubPublishEnabled } = useRecordListContext();
+  const { config, actionHandlers, githubPublishEnabled, language, listState } = useRecordListContext();
 
-  // Sort records by created date (newest first)
-  const sortedRecords = [...(records || [])].sort(
-    (a, b) => new Date(b.created) - new Date(a.created)
+  // Transform to table rows so we can reuse the same fields for filtering/sorting
+  const rows = useMemo(
+    () => (records || []).map((r, idx) => recordToRow(r, language, idx)),
+    [records, language]
   );
 
-  if (!sortedRecords || sortedRecords.length === 0) {
-    return (
-      <Typography>
-        <I18n>
-          <En>No records found.</En>
-          <Fr>Aucun enregistrement trouvé.</Fr>
-        </I18n>
-      </Typography>
-    );
-  }
+  // Apply same filters/sort as the table
+  const visibleRows = useMemo(
+    () => applyFiltersAndSort({ filterModel: listState.filterModel, sortModel: listState.sortModel }, rows),
+    [listState.filterModel, listState.sortModel, rows]
+  );
+
+  // Map rows back to original records by recordID
+  const recordById = useMemo(() => {
+    const map = new Map();
+    (records || []).forEach((rec) => map.set(rec.recordID, rec));
+    return map;
+  }, [records]);
+
+  const visibleRecords = useMemo(
+    () => visibleRows.map((row) => recordById.get(row.recordID)).filter(Boolean),
+    [visibleRows, recordById]
+  );
 
   const actions = config.actions || {};
   const cardFields = config.cardFields || {};
 
   return (
     <Box>
-      {sortedRecords.map((record) => {
+      <CardControls />
+      {(!visibleRecords || visibleRecords.length === 0) ? (
+        <Typography>
+          <I18n>
+            <En>No records found.</En>
+            <Fr>Aucun enregistrement trouvé.</Fr>
+          </I18n>
+        </Typography>
+      ) : visibleRecords.map((record) => {
         const { title, recordID } = record;
         if (!(title?.en || title?.fr)) return null;
 

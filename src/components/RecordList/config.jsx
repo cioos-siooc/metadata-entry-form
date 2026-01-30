@@ -144,13 +144,14 @@ export const submissionsConfig = {
     persistViewPreference: true,
   },
 
-  columns: ['status', 'progress', 'created', 'title'],
+  columns: ['status', 'progress', 'created', 'title', 'author'],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     progress: true,
     created: true,
+    author: false,
     actions: true,
   },
 

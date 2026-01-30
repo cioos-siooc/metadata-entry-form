@@ -158,3 +158,85 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
     resetColumnVisibility,
   };
 }
+
+// ============================================================================
+// useListState - Shared filter/sort state with persistence
+// ============================================================================
+const LIST_STATE_PREFIX = 'record-list-state-';
+
+export function useListState(pageId) {
+  const storageKey = `${LIST_STATE_PREFIX}${pageId}`;
+
+  const [filterModel, setFilterModel] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.filterModel || { items: [] };
+      }
+    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+    return { items: [] };
+  });
+
+  const [sortModel, setSortModel] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.sortModel || [];
+      }
+    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+    return [];
+  });
+
+  const persist = useCallback((next) => {
+    try {
+      const current = localStorage.getItem(storageKey);
+      const base = current ? JSON.parse(current) : {};
+      localStorage.setItem(storageKey, JSON.stringify({ ...base, ...next }));
+    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+  }, [storageKey]);
+
+  const handleFilterModelChange = useCallback((model) => {
+    setFilterModel((prev) => {
+      const hasNewItems = Array.isArray(model?.items) && model.items.length > 0;
+      const nextItems = hasNewItems ? model.items : (prev?.items || []);
+      const nextQuick = (model && Object.prototype.hasOwnProperty.call(model, 'quickFilterValues'))
+        ? (model.quickFilterValues || [])
+        : (prev?.quickFilterValues || []);
+      const nextLink = (model && Object.prototype.hasOwnProperty.call(model, 'linkOperator'))
+        ? model.linkOperator
+        : prev?.linkOperator;
+
+      const next = {
+        items: nextItems,
+        quickFilterValues: nextQuick,
+        ...(nextLink ? { linkOperator: nextLink } : {}),
+      };
+
+      // Persist the merged model
+      persist({ filterModel: next });
+      return next;
+    });
+  }, [persist]);
+
+  const handleSortModelChange = useCallback((model) => {
+    setSortModel(model);
+    persist({ sortModel: model });
+  }, [persist]);
+
+  const reset = useCallback(() => {
+    setFilterModel({ items: [] });
+    setSortModel([]);
+    try { localStorage.removeItem(storageKey); } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+  }, [storageKey]);
+
+  return {
+    filterModel,
+    setFilterModel: handleFilterModelChange,
+    sortModel,
+    setSortModel: handleSortModelChange,
+    resetListState: reset,
+  };
+}
+

@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ViewModule, TableChart } from '@material-ui/icons';
 import { useParams } from 'react-router-dom';
 
-import { useViewPreference } from './hooks';
+import { useViewPreference, useListState } from './hooks';
 import { RecordListProvider } from './context';
 import RecordTableView from './RecordTableView';
 import RecordCardView from './RecordCardView';
@@ -104,6 +104,9 @@ const RecordList = ({
     [onEditRecord, onDeleteRecord, onCloneRecord, onSubmitRecord, onTransferRecord, onGithubPublishClick]
   );
 
+  // Shared list state (filters/sort) must be created via hook at top level
+  const listState = useListState(config.pageId);
+
   const contextValue = useMemo(
     () => ({
       config,
@@ -111,8 +114,9 @@ const RecordList = ({
       language,
       region,
       githubPublishEnabled,
+      listState,
     }),
-    [config, actionHandlers, language, region, githubPublishEnabled]
+    [config, actionHandlers, language, region, githubPublishEnabled, listState]
   );
 
   if (loading) {
