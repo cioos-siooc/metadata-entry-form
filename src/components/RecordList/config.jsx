@@ -29,6 +29,10 @@ export const reviewerConfig = {
     'license',
     'verticalExtentMin',
     'verticalExtentMax',
+    'verticalExtentDirection',
+    'verticalExtentEPSG',
+    'boundingBox',
+    'polygon',
     'contacts',
     'formLanguage',
   ],
@@ -44,6 +48,10 @@ export const reviewerConfig = {
     license: false,
     verticalExtentMin: false,
     verticalExtentMax: false,
+    verticalExtentDirection: false,
+    verticalExtentEPSG: false,
+    boundingBox: false,
+    polygon: false,
     contacts: false,
     formLanguage: false,
     actions: true,
@@ -443,6 +451,57 @@ export const createColumns = (language, region) => ({
       )
     ),
   },
+
+  verticalExtentDirection: {
+    field: 'verticalExtentDirection',
+    headerName: language === 'en' ? 'Depth/Height' : 'Profondeur/Hauteur',
+    width: 120,
+    headerAlign: 'center',
+    align: 'center',
+    renderCell: (params) => {
+      if (!params.value) return '';
+      if (params.value === 'depthPositive') return language === 'en' ? 'Depth (+)' : 'Profondeur (+)';
+      if (params.value === 'heightPositive') return language === 'en' ? 'Height (+)' : 'Hauteur (+)';
+      return params.value;
+    },
+  },
+
+  verticalExtentEPSG: {
+    field: 'verticalExtentEPSG',
+    headerName: 'EPSG',
+    width: 80,
+    headerAlign: 'center',
+    align: 'center',
+  },
+
+  boundingBox: {
+    field: 'boundingBox',
+    headerName: language === 'en' ? 'Bounding Box' : 'Boîte englobante',
+    flex: 1,
+    minWidth: 180,
+    renderCell: (params) => {
+      if (!params.value) return '';
+      const { north, south, east, west } = params.value;
+      if (!north && !south && !east && !west) return '';
+      return `N:${north || '-'} S:${south || '-'} E:${east || '-'} W:${west || '-'}`;
+    },
+  },
+
+  polygon: {
+    field: 'polygon',
+    headerName: language === 'en' ? 'Polygon' : 'Polygone',
+    width: 80,
+    headerAlign: 'center',
+    align: 'center',
+    type: 'boolean',
+    renderCell: (params) => (
+      params.value ? (
+        <Check style={{ color: '#4caf50' }} fontSize="small" />
+      ) : (
+        <Close style={{ color: '#bdbdbd' }} fontSize="small" />
+      )
+    ),
+  },
 });
 
 // ============================================================================
@@ -463,7 +522,10 @@ export const recordToRow = (record, language, index) => ({
   license: record.license || '',
   verticalExtentMin: record.verticalExtentMin,
   verticalExtentMax: record.verticalExtentMax,
-  verticalExtentDirection: record.verticalExtentDirection,
+  verticalExtentDirection: record.verticalExtentDirection || '',
+  verticalExtentEPSG: record.verticalExtentEPSG || '',
+  boundingBox: record.map || null,
+  polygon: !!(record.map?.polygon && record.map.polygon !== ''),
   contacts: record.contacts || [],
   formLanguage: record.language || '',
   doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ''),
