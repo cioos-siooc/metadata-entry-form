@@ -403,7 +403,7 @@ export const createColumns = (language, region) => ({
     field: 'formLanguage',
     headerName: language === 'en' ? 'Language' : 'Langue',
     flex: 0.8,
-    minWidth: 100,
+    width: 100,
     headerAlign: 'center',
     align: 'center',
     renderCell: (params) => {
