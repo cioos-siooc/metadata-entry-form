@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Chip } from '@material-ui/core';
 import { Check, Close } from '@material-ui/icons';
 import regions from '../../regions';
@@ -339,6 +340,18 @@ export const createColumns = (language, region) => ({
     headerName: language === 'en' ? 'Title' : 'Titre',
     flex: 2,
     minWidth: 200,
+    renderCell: (params) => {
+      const titleText = params.value || '';
+      const { userID, recordID, region: rowRegionRaw } = params.row;
+      const rowRegion = rowRegionRaw || region;
+      if (!titleText || !userID || !recordID || !rowRegion) return titleText;
+      const to = `/${language}/${rowRegion}/${userID}/${recordID}`;
+      return (
+        <Link to={to} style={{ color: 'inherit', textDecoration: 'none' }}>
+          {titleText}
+        </Link>
+      );
+    },
   },
 
   author: {
