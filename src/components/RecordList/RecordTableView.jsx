@@ -227,12 +227,11 @@ const RecordTableView = ({ records }) => {
   const columns = useMemo(() => {
     const cols = (config.columns || []).map((colName) => columnDefs[colName]).filter(Boolean);
 
-    // Add actions column
+    // Add actions column - use fixed width to fit buttons only
     cols.push({
       field: 'actions',
       headerName: language === 'en' ? 'Actions' : 'Actions',
-      flex: 1.5,
-      minWidth: 200,
+      width: 180,
       sortable: false,
       filterable: false,
       renderCell: (params) => (

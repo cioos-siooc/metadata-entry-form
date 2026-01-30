@@ -1,5 +1,6 @@
 import React from 'react';
 import { Chip } from '@material-ui/core';
+import { Check, Close } from '@material-ui/icons';
 import regions from '../../regions';
 import licenses from '../../utils/licenses';
 import { percentValid } from '../../utils/validate';
@@ -23,6 +24,7 @@ export const reviewerConfig = {
     'created',
     'title',
     'author',
+    'doi',
     'abstract',
     'license',
     'verticalExtentMin',
@@ -37,6 +39,7 @@ export const reviewerConfig = {
     author: true,
     progress: true,
     created: true,
+    doi: true,
     abstract: false,
     license: false,
     verticalExtentMin: false,
@@ -424,6 +427,22 @@ export const createColumns = (language, region) => ({
       return params.value;
     },
   },
+
+  doi: {
+    field: 'doi',
+    headerName: 'DOI',
+    width: 70,
+    headerAlign: 'center',
+    align: 'center',
+    type: 'boolean',
+    renderCell: (params) => (
+      params.value ? (
+        <Check style={{ color: '#4caf50' }} fontSize="small" />
+      ) : (
+        <Close style={{ color: '#bdbdbd' }} fontSize="small" />
+      )
+    ),
+  },
 });
 
 // ============================================================================
@@ -447,5 +466,6 @@ export const recordToRow = (record, language, index) => ({
   verticalExtentDirection: record.verticalExtentDirection,
   contacts: record.contacts || [],
   formLanguage: record.language || '',
+  doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ''),
   fullRecord: record,
 });
