@@ -165,6 +165,7 @@ const MetadataRecordListItem = ({
   onDeleteClick,
   onCloneClick,
   onSubmitClick,
+  onPublishClick,
   showAuthor,
   showDeleteAction,
   showSubmitAction,
@@ -401,12 +402,10 @@ const MetadataRecordListItem = ({
           <>
              <Tooltip
                title={<I18n en="Publishing Options" fr="Options de publication" />}
-               disableHoverListener={publishMenuOpen}
-               disableFocusListener={publishMenuOpen}
-               disableTouchListener={publishMenuOpen}
+               open={!publishMenuOpen ? undefined : false}
              >
                <span>
-                <IconButton onClick={handlePublishClick}>
+                <IconButton onClick={handlePublishClick} className={classes.iconButton}>
                   <Publish />
                 </IconButton>
                </span>
@@ -417,7 +416,7 @@ const MetadataRecordListItem = ({
                onClose={handlePublishClose}
              >
                 {showPublishAction && (
-                  <MenuItem onClick={() => { onSubmitClick(); handlePublishClose(); }}>
+                  <MenuItem onClick={() => { onPublishClick?.(); handlePublishClose(); }}>
                     <Publish style={{ marginRight: 8 }}/> <I18n en="Publish" fr="Publier" />
                   </MenuItem>
                 )}

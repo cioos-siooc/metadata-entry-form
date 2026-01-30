@@ -53,7 +53,7 @@ const RecordCardView = ({ records }) => {
             showUnSubmitAction={actions.showUnSubmitAction && record.status === 'submitted'}
             showTransferButton={actions.showTransferButton}
             showDownloadButton={actions.showDownloadButton}
-            showGithubPublishAction={actions.showGithubPublishAction && record.status === 'submitted'}
+            showGithubPublishAction={actions.showGithubPublishAction && (record.status === 'submitted' || record.status === 'published')}
             githubPublishEnabled={githubPublishEnabled}
             // Action handlers
             onViewEditClick={() => actionHandlers.edit?.(recordID, userID)}
@@ -68,6 +68,7 @@ const RecordCardView = ({ records }) => {
             }}
             onUnSubmitClick={() => actionHandlers.unsubmit?.(recordID, userID)}
             onUnPublishClick={() => actionHandlers.unpublish?.(recordID, userID)}
+            onPublishClick={() => actionHandlers.publish?.(recordID, userID)}
             onTransferClick={() => actionHandlers.transfer?.(recordID, userID)}
             onGithubPublishClick={() => actionHandlers.githubPublish?.(recordID, userID)}
           />
