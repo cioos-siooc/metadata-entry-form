@@ -27,12 +27,12 @@ export const reviewerConfig = {
     'doi',
     'abstract',
     'license',
+    'boundingBox',
+    'polygon',
     'verticalExtentMin',
     'verticalExtentMax',
     'verticalExtentDirection',
     'verticalExtentEPSG',
-    'boundingBox',
-    'polygon',
     'contacts',
     'formLanguage',
   ],
@@ -375,28 +375,6 @@ export const createColumns = (language, region) => ({
     },
   },
 
-  verticalExtentMin: {
-    field: 'verticalExtentMin',
-    headerName: language === 'en' ? 'Vertical Min' : 'Étendue verticale min',
-    flex: 0.8,
-    minWidth: 100,
-    type: 'number',
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
-  },
-
-  verticalExtentMax: {
-    field: 'verticalExtentMax',
-    headerName: language === 'en' ? 'Vertical Max' : 'Étendue verticale max',
-    flex: 0.8,
-    minWidth: 100,
-    type: 'number',
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
-  },
-
   contacts: {
     field: 'contacts',
     headerName: language === 'en' ? 'Contacts' : 'Contacts',
@@ -423,16 +401,14 @@ export const createColumns = (language, region) => ({
 
   formLanguage: {
     field: 'formLanguage',
-    headerName: language === 'en' ? 'Form Language' : 'Langue du formulaire',
+    headerName: language === 'en' ? 'Language' : 'Langue',
     flex: 0.8,
     minWidth: 100,
     headerAlign: 'center',
     align: 'center',
     renderCell: (params) => {
       if (!params.value) return '';
-      if (params.value === 'en') return 'English';
-      if (params.value === 'fr') return 'Français';
-      return params.value;
+      return params.value.toUpperCase();
     },
   },
 
@@ -452,28 +428,7 @@ export const createColumns = (language, region) => ({
     ),
   },
 
-  verticalExtentDirection: {
-    field: 'verticalExtentDirection',
-    headerName: language === 'en' ? 'Depth/Height' : 'Profondeur/Hauteur',
-    width: 120,
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => {
-      if (!params.value) return '';
-      if (params.value === 'depthPositive') return language === 'en' ? 'Depth (+)' : 'Profondeur (+)';
-      if (params.value === 'heightPositive') return language === 'en' ? 'Height (+)' : 'Hauteur (+)';
-      return params.value;
-    },
-  },
-
-  verticalExtentEPSG: {
-    field: 'verticalExtentEPSG',
-    headerName: 'EPSG',
-    width: 80,
-    headerAlign: 'center',
-    align: 'center',
-  },
-
+  
   boundingBox: {
     field: 'boundingBox',
     headerName: language === 'en' ? 'Bounding Box' : 'Boîte englobante',
@@ -502,6 +457,51 @@ export const createColumns = (language, region) => ({
       )
     ),
   },
+
+  verticalExtentMin: {
+    field: 'verticalExtentMin',
+    headerName: language === 'en' ? 'Vert. Min' : 'Min. Vert.',
+    flex: 0.8,
+    minWidth: 100,
+    type: 'number',
+    headerAlign: 'center',
+    align: 'center',
+    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
+  },
+
+  verticalExtentMax: {
+    field: 'verticalExtentMax',
+    headerName: language === 'en' ? 'Vert. Max' : 'Max. Vert.',
+    flex: 0.8,
+    minWidth: 100,
+    type: 'number',
+    headerAlign: 'center',
+    align: 'center',
+    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
+  },
+  
+  verticalExtentDirection: {
+    field: 'verticalExtentDirection',
+    headerName: language === 'en' ? 'Depth/Height' : 'Profondeur/Hauteur',
+    width: 120,
+    headerAlign: 'center',
+    align: 'center',
+    renderCell: (params) => {
+      if (!params.value) return '';
+      if (params.value === 'depthPositive') return language === 'en' ? 'Depth (+)' : 'Profondeur (+)';
+      if (params.value === 'heightPositive') return language === 'en' ? 'Height (+)' : 'Hauteur (+)';
+      return params.value;
+    },
+  },
+
+  verticalExtentEPSG: {
+    field: 'verticalExtentEPSG',
+    headerName: 'EPSG',
+    width: 80,
+    headerAlign: 'center',
+    align: 'center',
+  },
+
 });
 
 // ============================================================================
