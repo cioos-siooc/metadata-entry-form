@@ -284,7 +284,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </SupplementalText>
       </QuestionText>
       <Grid container direction="row" spacing={3}>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="North" fr="Nord" />}
             value={mapData.north || ""}
@@ -294,7 +294,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="South" fr="Sud" />}
             value={mapData.south || ""}
@@ -303,7 +303,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="East" fr="Est" />}
             value={mapData.east || ""}
@@ -312,7 +312,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             value={mapData.west || ""}
             label={<I18n en="West" fr="Ouest" />}

@@ -89,7 +89,7 @@ const ContactTab = ({
   return (
     <Grid container spacing={3}>
       <Paper style={paperClass}>
-        <Grid item xs>
+        <Grid size="grow">
           <QuestionText>
             <I18n>
               <En>
@@ -156,7 +156,7 @@ const ContactTab = ({
       )}
 
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid item xs={5}>
+        <Grid size={5}>
           <LeftList
             items={contacts}
             updateItems={updateContacts}
@@ -177,11 +177,11 @@ const ContactTab = ({
           />
         </Grid>
         {contact && (
-          <Grid item xs>
+          <Grid size="grow">
             <Grid container direction="column">
               <Paper style={paperClass}>
                 <Grid container direction="column" spacing={3}>
-                  <Grid item xs>
+                  <Grid size="grow">
                     <EditContact
                       showRolePicker
                       value={contact}

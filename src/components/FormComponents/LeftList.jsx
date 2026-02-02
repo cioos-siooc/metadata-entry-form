@@ -3,7 +3,7 @@ import {
     Button,
     Grid, IconButton,
     List,
-    ListItem,
+    ListItemButton,
     ListItemSecondaryAction,
     ListItemText,
     Paper,
@@ -95,7 +95,7 @@ const LeftList = ({
   return (
       <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Typography>
               {items.length ? (leftListHeader ||(
               <I18n>
@@ -110,7 +110,7 @@ const LeftList = ({
             ))}
           </Typography>
         </Grid>
-          <Grid item xs>
+          <Grid size="grow">
           <List>
             <Container
               dragHandleSelector=".drag-handle"
@@ -120,9 +120,8 @@ const LeftList = ({
               {items.map((itemEntry, i) => {
                 return (
                   <Draggable key={i}>
-                    <ListItem
+                    <ListItemButton
                       key={i}
-                      button
                       onClick={() => setActiveItem(i)}
                     >
                       <ListItemText
@@ -226,14 +225,14 @@ const LeftList = ({
                           </span>
                         </Tooltip>
                       </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                   </Draggable>
                 );
               })}
             </Container>
           </List>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={() => handleAddNewBlankItem()}
@@ -248,7 +247,7 @@ const LeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

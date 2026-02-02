@@ -54,7 +54,7 @@ const Instruments = ({
 
   return (
     <Grid container direction="row" style={{ marginLeft: "5px" }}>
-    <Grid item xs={5}>
+    <Grid size={5}>
 
       <LeftList
               itemType='instrument'
@@ -74,12 +74,12 @@ const Instruments = ({
               />
 
     </Grid>
-      <Grid item xs>
+      <Grid size="grow">
         <Grid container direction="column">
           {instrument && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid size="grow">
                   <I18n>
                     <En>Instrument ID</En>
                     <Fr>L'ID de l'instrument</Fr>
@@ -93,7 +93,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     label={manufacturerLabel}
                     name="manufacturer"
@@ -103,7 +103,7 @@ const Instruments = ({
                     disabled={disabled}
                   />{" "}
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
@@ -112,7 +112,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography>
                     <I18n>
                       <En>Instrument Type</En>
@@ -127,7 +127,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>{" "}
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography>Description</Typography>
                   <BilingualTextInput
                     name="description"
@@ -137,7 +137,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
@@ -150,7 +150,7 @@ const Instruments = ({
                   </Button>
                 </Grid>
                   {platformList.length >= 2 && (
-                      <Grid item xs>
+                      <Grid size="grow">
                           <SupplementalText>
                               <I18n>
                                   <En>

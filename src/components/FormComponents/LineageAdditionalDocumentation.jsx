@@ -85,7 +85,7 @@ const LineageAdditionalDocumentation = ({
 
   return (
     <Grid container spacing={0}>
-      <Grid item>
+      <Grid>
         <QuestionText>
           <I18n>
             <En>Additional Documentation:</En>
@@ -106,9 +106,9 @@ const LineageAdditionalDocumentation = ({
 
 
       <Grid container item direction="row" spacing={1}>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid item xs>
+            <Grid size="grow">
               <List>
               {documentations.map((documentationItem, i) => {
                 return (
@@ -137,7 +137,7 @@ const LineageAdditionalDocumentation = ({
             </List>
           </Grid>
 
-          <Grid item xs>
+          <Grid size="grow">
             <Button
               disabled={disabled}
               startIcon={<Add />}
@@ -152,12 +152,12 @@ const LineageAdditionalDocumentation = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs>
+      <Grid size="grow">
         <Grid container direction="column">
           {documentation && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid size="grow">
                   <I18n>
                     <En>Title</En>
                     <Fr>Titre</Fr>
@@ -170,7 +170,7 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     label={
                       <I18n>
@@ -184,7 +184,7 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -205,7 +205,7 @@ const LineageAdditionalDocumentation = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}

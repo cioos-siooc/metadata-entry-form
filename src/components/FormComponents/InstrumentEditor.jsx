@@ -30,12 +30,12 @@ const InstrumentEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item xs>
+      <Grid size="grow">
         <Grid container direction="column">
           {instrument && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid size="grow">
                   <I18n>
                     <En>Instrument ID</En>
                     <Fr>L'ID de l'instrument</Fr>
@@ -49,7 +49,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     label={manufacturerLabel}
                     name="manufacturer"
@@ -59,7 +59,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />{" "}
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
@@ -68,7 +68,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography>
                     <I18n>
                       <En>Instrument Type</En>
@@ -82,7 +82,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>{" "}
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography>Description</Typography>
                   <BilingualTextInput
                     label={descriptionLabel}

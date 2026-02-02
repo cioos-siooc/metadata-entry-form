@@ -15,7 +15,8 @@
       "Bash(ls:*)",
       "Bash(curl:*)",
       "Bash(npm view:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(grep:*)"
     ]
   }
 }

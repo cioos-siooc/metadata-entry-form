@@ -131,10 +131,10 @@ const RelatedWorks = ({
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
-            <Grid item xs>
+            <Grid size="grow">
               <List>
                 <Container
                   dragHandleSelector=".drag-handle"
@@ -230,7 +230,7 @@ const RelatedWorks = ({
             </Grid>
             )}
 
-            <Grid item xs>
+            <Grid size="grow">
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -245,11 +245,11 @@ const RelatedWorks = ({
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           {resourceStep && (
           <Paper variant="outlined" style={{ padding: 10 }}>
             <Grid container direction="column" spacing={3}>
-              <Grid item xs>
+              <Grid size="grow">
                 <QuestionText>
                   <I18n>
                     <En>Enter the title of the related resource</En>
@@ -266,7 +266,7 @@ const RelatedWorks = ({
                   fullWidth
                 />
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <QuestionText>
                   <I18n>
                     <En>Enter the identifier for the related resource</En>
@@ -299,7 +299,7 @@ const RelatedWorks = ({
                   disabled={disabled}
                 />
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <QuestionText>
                   <I18n>
                     <En>Enter the identifier type</En>
@@ -318,7 +318,7 @@ const RelatedWorks = ({
                   fullWidth={false}
                 />
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <QuestionText>
                   <I18n>
                     <En>What is the relation type?</En>

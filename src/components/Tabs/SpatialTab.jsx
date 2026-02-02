@@ -1,10 +1,10 @@
 import {
-  Paper, 
-  TextField, 
-  Grid, 
-  Tooltip, 
-  IconButton, 
-  FormControlLabel, 
+  Paper,
+  TextField,
+  Grid,
+  Tooltip,
+  IconButton,
+  FormControlLabel,
   Checkbox } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -198,7 +198,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           alignItems="center"
           spacing={4}
         >
-          <Grid item xs={5}>
+          <Grid size={5}>
             <SelectInput
               value={record.verticalExtentDirection || ""}
               onChange={handleUpdateRecord("verticalExtentDirection")}
@@ -223,7 +223,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 disabled={disabled}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <TextField
               value={record.verticalExtentMin}
               onChange={handleUpdateRecord("verticalExtentMin")}
@@ -233,7 +233,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
               disabled={disabled}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid size={2}>
             <TextField
               value={record.verticalExtentMax}
               onChange={handleUpdateRecord("verticalExtentMax")}

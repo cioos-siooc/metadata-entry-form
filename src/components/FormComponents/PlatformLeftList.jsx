@@ -9,7 +9,7 @@ import {
   Grid,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
   Paper,
@@ -85,7 +85,7 @@ const PlatformLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Typography>
             {platforms.length ? (
               <I18n>
@@ -100,7 +100,7 @@ const PlatformLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           <List>
             <Container
               dragHandleSelector=".drag-handle"
@@ -110,9 +110,8 @@ const PlatformLeftList = ({
               {platforms.map((platformItem, i) => {
                 return (
                   <Draggable key={i}>
-                    <ListItem
+                    <ListItemButton
                       key={i}
-                      button
                       onClick={() => setActivePlatform(i)}
                     >
                       <ListItemText
@@ -210,14 +209,14 @@ const PlatformLeftList = ({
                           </span>
                         </Tooltip>
                       </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                   </Draggable>
                 );
               })}
             </Container>
           </List>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewPlatform}
@@ -232,7 +231,7 @@ const PlatformLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

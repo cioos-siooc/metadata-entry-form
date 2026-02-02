@@ -35,6 +35,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Select,
@@ -164,7 +165,7 @@ const useStyles = makeStyles()((theme) => ({
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9),
     },
-    "& .MuiListItem-root": {
+    "& .MuiListItemButton-root": {
       justifyContent: "center",
       paddingLeft: 0,
       paddingRight: 0,
@@ -529,9 +530,8 @@ export default function MiniDrawer({ children }) {
                   placement="right-start"
                   title={open ? "" : translations.signIn}
                 >
-                  <ListItem
+                  <ListItemButton
                     disabled={authIsLoading}
-                    button
                     key="Sign in"
                     onClick={async () => {
                       try {
@@ -550,7 +550,7 @@ export default function MiniDrawer({ children }) {
                     <AccountCircle />
                   </ListItemIcon>
                   <ListItemText primary={translations.signIn} />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
             )}
             {user && region && (
@@ -559,8 +559,7 @@ export default function MiniDrawer({ children }) {
                   placement="right-start"
                   title={open ? "" : translations.saved}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="My Records"
                     onClick={() => navigate(`${baseURL}/submissions`)}
                   >
@@ -568,14 +567,13 @@ export default function MiniDrawer({ children }) {
                       <ListAlt />
                     </ListItemIcon>
                     <ListItemText primary={translations.saved} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.published}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Region's Published Records"
                     onClick={() => navigate(`${baseURL}/published`)}
                   >
@@ -583,15 +581,14 @@ export default function MiniDrawer({ children }) {
                       <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.contacts}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Contacts"
                     onClick={() => navigate(`${baseURL}/contacts`)}
                   >
@@ -599,15 +596,14 @@ export default function MiniDrawer({ children }) {
                       <Contacts />
                     </ListItemIcon>
                     <ListItemText primary={translations.contacts} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.instruments}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="instruments"
                     onClick={() => navigate(`${baseURL}/instruments`)}
                   >
@@ -615,15 +611,14 @@ export default function MiniDrawer({ children }) {
                       <StraightenSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.instruments} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.platforms}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Platforms"
                     onClick={() => navigate(`${baseURL}/platforms`)}
                   >
@@ -631,7 +626,7 @@ export default function MiniDrawer({ children }) {
                       <DirectionsBoatSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.platforms} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 {hasSharedRecords && (
@@ -639,8 +634,7 @@ export default function MiniDrawer({ children }) {
                     placement="right-start"
                     title={open ? "" : translations.sharedWithMe}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="SharedWithMe"
                       onClick={() => navigate(`${baseURL}/shared`)}
                     >
@@ -648,7 +642,7 @@ export default function MiniDrawer({ children }) {
                         <FolderShared />
                       </ListItemIcon>
                       <ListItemText primary={translations.sharedWithMe} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                 )}
 
@@ -657,8 +651,7 @@ export default function MiniDrawer({ children }) {
                     placement="right-start"
                     title={open ? "" : translations.review}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="Review"
                       onClick={() => navigate(`${baseURL}/reviewer`)}
                     >
@@ -666,7 +659,7 @@ export default function MiniDrawer({ children }) {
                         <RateReview />
                       </ListItemIcon>
                       <ListItemText primary={translations.review} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                 )}
                 {/* Admin button moved to bottomList above account avatar */}
@@ -682,8 +675,7 @@ export default function MiniDrawer({ children }) {
             <List>
               {usingDevDatabase && (
                 <Tooltip placement="right-start" title={databaseUrl}>
-                  <ListItem
-                    button
+                  <ListItemButton
                     component="a"
                     href={databaseUrl}
                     target="_blank"
@@ -700,7 +692,7 @@ export default function MiniDrawer({ children }) {
                     <ListItemText
                       primary={translations.envConnection}
                     />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
               )}
               <Tooltip
@@ -716,8 +708,7 @@ export default function MiniDrawer({ children }) {
                     )
                 }
               >
-                <ListItem
-                  button
+                <ListItemButton
                   key="Contact Region"
                   onClick={handleContactClick}
                 >
@@ -747,14 +738,13 @@ export default function MiniDrawer({ children }) {
                       ) : null
                     }
                   />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
               <Tooltip
                 placement="right-start"
                 title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
               >
-                <ListItem
-                  button
+                <ListItemButton
                   key="Feedback"
                   id="sentry-feedback-button"
                   ref={feedbackButtonRef}
@@ -763,7 +753,7 @@ export default function MiniDrawer({ children }) {
                     <FeedbackRounded />
                   </ListItemIcon>
                   <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
               {user && (
                 <>
@@ -772,8 +762,7 @@ export default function MiniDrawer({ children }) {
                       placement="right-start"
                       title={open ? "" : translations.admin}
                     >
-                      <ListItem
-                        button
+                      <ListItemButton
                         key="Admin"
                         onClick={() => navigate(`${baseURL}/admin`)}
                       >
@@ -781,15 +770,14 @@ export default function MiniDrawer({ children }) {
                           <Settings />
                         </ListItemIcon>
                         <ListItemText primary={translations.admin} />
-                      </ListItem>
+                      </ListItemButton>
                     </Tooltip>
                   )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="userInfo"
                       onClick={handleMenuOpen}
                     >
@@ -800,7 +788,7 @@ export default function MiniDrawer({ children }) {
                         />
                       </ListItemIcon>
                       <ListItemText primary={user.displayName} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                   <Menu
                     anchorEl={anchorEl}

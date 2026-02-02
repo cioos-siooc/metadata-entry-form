@@ -131,10 +131,10 @@ const Resources = ({
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
-            <Grid item xs>
+            <Grid size="grow">
               <List>
                 <Container
                   dragHandleSelector=".drag-handle"
@@ -230,7 +230,7 @@ const Resources = ({
             </Grid>
             )}
 
-            <Grid item xs>
+            <Grid size="grow">
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -245,11 +245,11 @@ const Resources = ({
             </Grid>
           </Grid>
         </Grid>       
-        <Grid item xs>         
+        <Grid size="grow">         
           {resourceStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>         
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Enter a name for the resource</En>
@@ -266,7 +266,7 @@ const Resources = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Enter the URL for the resource</En>
@@ -309,7 +309,7 @@ const Resources = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Enter a description of the resource</En>

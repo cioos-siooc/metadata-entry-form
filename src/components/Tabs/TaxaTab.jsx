@@ -214,7 +214,7 @@ const TaxaTab = ({
                     />
 
                 </Grid>
-                <Grid item xs={3}>
+                <Grid size={3}>
                     <Button
                         disabled={
                             disabled ||
@@ -231,7 +231,7 @@ const TaxaTab = ({
                 </Grid>
 
                 <Grid container direction="row" >
-                    <Grid item xs={5}>
+                    <Grid size={5}>
                         <Grid style={{ margin: "10px" }}>
                             <Typography variant="h6">
                                 Taxa
@@ -294,7 +294,7 @@ const TaxaTab = ({
                         </Box>
                     </Grid>
 
-                    <Grid item xs={7}>
+                    <Grid size={7}>
                         <Grid style={{ margin: "10px" }} >
                             <Typography variant="h6">
                                 Details

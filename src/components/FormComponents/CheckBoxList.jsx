@@ -29,7 +29,7 @@ const CheckBoxList = ({
     <Grid container direction="row">
       {options.map((v, i) => {
         return (
-          <Grid item key={i} xs={labelSize}>
+          <Grid key={i} size={labelSize}>
             <Tooltip title={optionTooltips[i] || ""}>
               <FormControlLabel
                 disabled={disabled}

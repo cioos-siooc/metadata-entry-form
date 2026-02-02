@@ -549,7 +549,7 @@ class MetadataForm extends FormClassTemplate {
           </Tooltip>
         </Fab>
         <Grid container spacing={2} direction="row" alignItems="center">
-          <Grid item xs>
+          <Grid size="grow">
             <Tabs
               scrollButtons="auto"
               variant="fullWidth"

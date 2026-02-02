@@ -408,7 +408,7 @@ class Admin extends FormClassTemplate {
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid size="grow">
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -433,7 +433,7 @@ class Admin extends FormClassTemplate {
         ) : (
           <>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid size="grow">
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -441,7 +441,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <TextField
                   multiline
                   fullWidth
@@ -453,7 +453,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid size="grow">
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -461,7 +461,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <TextField
                   multiline
                   fullWidth
@@ -473,7 +473,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid size="grow">
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -481,7 +481,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <TextField
                   multiline
                   fullWidth
@@ -496,7 +496,7 @@ class Admin extends FormClassTemplate {
             </Paper>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="h5">
                     <I18n>
                       <En>DOI Creation Settings</En>
@@ -505,13 +505,12 @@ class Admin extends FormClassTemplate {
                   </Typography>
                 </Grid>
                 <Grid
-                  item
-                  xs={12}
+                  size={12}
                   container
                   alignItems="center"
                   justifyContent="space-between"
                 >
-                  <Grid item>
+                  <Grid>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -528,8 +527,8 @@ class Admin extends FormClassTemplate {
                     />
                   </Grid>
                   {isDoiCreationEnabled && credentialsStored && (
-                    <Grid item container spacing={2} alignItems="center">
-                      <Grid item>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid>
                         <Typography variant="body1">
                           <CheckCircleIcon
                             style={{
@@ -547,8 +546,8 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   )}
                   {isDoiCreationEnabled && !credentialsStored && (
-                    <Grid item container spacing={2} alignItems="center">
-                      <Grid item>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid>
                         <Typography variant="body1">
                           <CancelIcon
                             style={{
@@ -568,7 +567,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
                 {isDoiCreationEnabled && (
                   <>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="datacitePrefix"
                         label={
@@ -588,7 +587,7 @@ class Admin extends FormClassTemplate {
                         }
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="dataciteAccountId"
                         label={
@@ -601,7 +600,7 @@ class Admin extends FormClassTemplate {
                         fullWidth
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="datacitePass"
                         label={
@@ -638,7 +637,7 @@ class Admin extends FormClassTemplate {
             </Paper>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="h5">
                     <I18n>
                       <En>GitHub Publishing Configuration</En>
@@ -662,7 +661,7 @@ class Admin extends FormClassTemplate {
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubOwner"
                     label={
@@ -676,7 +675,7 @@ class Admin extends FormClassTemplate {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubRepo"
                     label={
@@ -690,7 +689,7 @@ class Admin extends FormClassTemplate {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubToken"
                     label="GitHub Token"
@@ -727,7 +726,7 @@ class Admin extends FormClassTemplate {
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubBranch"
                     label="Target Branch"
@@ -736,7 +735,7 @@ class Admin extends FormClassTemplate {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubFileTemplate"
                     label="File Naming Template"
@@ -746,7 +745,7 @@ class Admin extends FormClassTemplate {
                     helperText="Default: {filename}"
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <TextField
                     name="githubEnvironments"
                     label="Environments"
@@ -759,7 +758,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
               </Grid>
             </Paper>
-            <Grid item xs>
+            <Grid size="grow">
               <Button
                 startIcon={<Save />}
                 variant="contained"

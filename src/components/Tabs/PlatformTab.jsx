@@ -40,7 +40,7 @@ const PlatformTab = ({
     <div>
       <Paper style={paperClass}>
         <Grid container direction="column" spacing={0}>
-          <Grid item xs style={paperClass}>
+          <Grid size="grow" style={paperClass}>
             <QuestionText>
               <I18n>
                 <En>
@@ -99,7 +99,7 @@ const PlatformTab = ({
             />
           </Grid>
 
-          <Grid item xs style={paperClass}>
+          <Grid size="grow" style={paperClass}>
             {!noPlatform ? (
               <>
                 <Platform

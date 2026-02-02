@@ -35,7 +35,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       .length > 0;
 
   return (
-    <Grid item xs>
+    <Grid size="grow">
       <QuestionText>
         <I18n>
           <En>Appear in citation?</En>

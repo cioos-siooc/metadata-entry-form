@@ -526,7 +526,7 @@ class Reviewer extends FormClassTemplate {
           loading={this.state.githubPublishLoading}
           progressLogs={this.state.publishLogs}
         />
-        <Grid item xs>
+        <Grid size="grow">
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
@@ -560,7 +560,7 @@ class Reviewer extends FormClassTemplate {
                 <Fr>Filtres</Fr>
               </QuestionText>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid size="grow">
                   <CheckBoxList
                     value={showRecordTypes}
                     onChange={(e) => {
@@ -573,7 +573,7 @@ class Reviewer extends FormClassTemplate {
                     )}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -596,7 +596,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container direction="column">
-                        <Grid item xs>
+                        <Grid size="grow">
                           <En>Select All / None</En>
                           <Fr>Tout sélectionner/Aucun</Fr>
 
@@ -609,7 +609,7 @@ class Reviewer extends FormClassTemplate {
                             }}
                           />
                         </Grid>
-                        <Grid item xs>
+                        <Grid size="grow">
                           <CheckBoxList
                             value={showUsers}
                             onChange={(e) => {
@@ -623,7 +623,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <TextField
                     fullWidth
                     onChange={(e) => {
@@ -642,7 +642,7 @@ class Reviewer extends FormClassTemplate {
             {recordsToShow.length ? (
               <>
                 <Grid container direction="column">
-                  <Grid item xs>
+                  <Grid size="grow">
                     <Typography>
                       <I18n>
                         <En>
@@ -659,7 +659,7 @@ class Reviewer extends FormClassTemplate {
                       </I18n>
                     </Typography>
                   </Grid>
-                  <Grid item xs>
+                  <Grid size="grow">
                     <List>
                       {recordsToShow.map((record) => (
                         <RecordItem
@@ -678,7 +678,7 @@ class Reviewer extends FormClassTemplate {
               </>
             ) : (
               <Grid container direction="column">
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography>
                     <I18n>
                       <En>There are no records waiting to be reviewed.</En>

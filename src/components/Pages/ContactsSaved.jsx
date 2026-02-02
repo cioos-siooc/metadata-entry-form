@@ -110,7 +110,7 @@ class Contacts extends FormClassTemplate {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid size="grow">
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +126,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           <Typography>
             <I18n>
               <En>
@@ -141,7 +141,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid item xs>
+        <Grid size="grow">
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -154,7 +154,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid item xs>
+            <Grid size="grow">
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>

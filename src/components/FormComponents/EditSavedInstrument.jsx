@@ -69,7 +69,7 @@ class EditInstrumentClass extends FormClassTemplate {
   render() {
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid item xs>
+        <Grid size="grow">
           <InstrumentEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -78,7 +78,7 @@ class EditInstrumentClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid item xs>
+        <Grid size="grow">
           <Button
             startIcon={<Save />}
             variant="contained"

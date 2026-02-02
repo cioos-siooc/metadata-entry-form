@@ -45,7 +45,7 @@ const Platform = ({
     <div>
 
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid item xs={5}>
+        <Grid size={5}>
 
         <LeftList
                   itemType="platform"
@@ -63,11 +63,11 @@ const Platform = ({
 
         </Grid>
 
-      <Grid item xs>
+      <Grid size="grow">
         <Grid container direction="column">
         { platform && (
             <Paper style={paperClass}>
-              <Grid item xs style={paperClass}>
+              <Grid size="grow" style={paperClass}>
                 <QuestionText>
                   <I18n>
                     <En>What type of platform is it?</En>
@@ -116,7 +116,7 @@ const Platform = ({
                 />
               </Grid>
 
-              <Grid item xs style={paperClass}>
+              <Grid size="grow" style={paperClass}>
                 <QuestionText>
                   <I18n>
                     <En>What is the platform ID or code?</En>
@@ -162,7 +162,7 @@ const Platform = ({
                 />
               </Grid>
 
-              <Grid item xs style={paperClass}>
+              <Grid size="grow" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>More information about the platform</En>

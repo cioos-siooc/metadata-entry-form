@@ -6,7 +6,7 @@ import { arrayMoveImmutable as arrayMove } from "array-move";
 import { Delete, DragHandle, FileCopy, Save } from "@mui/icons-material";
 import {
   List,
-  ListItem,
+  ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
   IconButton,
@@ -87,7 +87,7 @@ const ContactLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Typography>
             {contacts.length ? (
               <I18n>
@@ -102,7 +102,7 @@ const ContactLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           <List>
             <Container
               dragHandleSelector=".drag-handle"
@@ -112,9 +112,8 @@ const ContactLeftList = ({
               {contacts.map((contactItem, i) => {
                 return (
                   <Draggable key={i}>
-                    <ListItem
+                    <ListItemButton
                       key={i}
-                      button
                       onClick={() => setActiveContact(i)}
                     >
                       <ListItemText
@@ -220,14 +219,14 @@ const ContactLeftList = ({
                           </span>
                         </Tooltip>
                       </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                   </Draggable>
                 );
               })}
             </Container>
           </List>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewContact}
@@ -242,7 +241,7 @@ const ContactLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid size="grow" style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

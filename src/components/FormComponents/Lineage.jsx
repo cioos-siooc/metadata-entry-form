@@ -152,10 +152,10 @@ const Lineage = ({
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {history && history.length > 0 && (
-            <Grid item xs>
+            <Grid size="grow">
               <List>
                 <Container
                   dragHandleSelector=".drag-handle"
@@ -251,7 +251,7 @@ const Lineage = ({
             </Grid>
             )}
 
-            <Grid item xs>
+            <Grid size="grow">
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -266,11 +266,11 @@ const Lineage = ({
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           {lineageStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
@@ -297,7 +297,7 @@ const Lineage = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <QuestionText>
                     <I18n>
                       <En>Scope</En>
@@ -327,7 +327,7 @@ const Lineage = ({
                     label={<I18n en="Scope" fr="Cadre" />}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <AdditionalDocumentation
                     documentations={lineageStep.additionalDocumentation}
                     updateDocumentations={updateLineageSubField("additionalDocumentation")}
@@ -336,7 +336,7 @@ const Lineage = ({
                     language={language}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <LineageSource
                     sources={lineageStep.source}
                     updateSources={updateLineageSubField("source")}
@@ -345,7 +345,7 @@ const Lineage = ({
                     language={language}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <ProcessingStep
                     sources={lineageStep.processingStep}
                     updateSources={updateLineageSubField("processingStep")}
