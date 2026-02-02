@@ -1,27 +1,27 @@
-
-import { 
-  validateEmail, 
-  validateURL, 
-  validateDOI, 
-  validateField 
+import { vi, describe, it, expect, test } from "vitest";
+import {
+  validateEmail,
+  validateURL,
+  validateDOI,
+  validateField
 } from '../validate';
 
 // Mock Firebase dependencies to avoid "ReadableStream" errors and side effects
 // (Note: Global mocks in setupTests.js might handle this, but explicit mocking here is safe)
-jest.mock("firebase/functions", () => ({
-  getFunctions: jest.fn(),
-  httpsCallable: jest.fn(() => jest.fn()),
+vi.mock("firebase/functions", () => ({
+  getFunctions: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn()),
 }));
 
-jest.mock("../../firebase", () => ({}));
+vi.mock("../../firebase", () => ({ default: {} }));
 
 describe('Utility: validate.js', () => {
-  
+
   describe('Basic Validators', () => {
     test('validateEmail', () => {
       expect(validateEmail('test@example.com')).toBe(true);
       expect(validateEmail('invalid-email')).toBe(false);
-      expect(validateEmail('')).toBe(true); 
+      expect(validateEmail('')).toBe(true);
     });
 
     test('validateURL', () => {
@@ -32,26 +32,26 @@ describe('Utility: validate.js', () => {
 
     test('validateDOI', () => {
       // Logic requires full URL
-      expect(validateDOI('10.1000/xyz123')).toBe(false); 
+      expect(validateDOI('10.1000/xyz123')).toBe(false);
       expect(validateDOI('https://doi.org/10.1000/xyz123')).toBe(true);
       expect(validateDOI('bad-doi')).toBe(false);
     });
   });
 
   describe('Field Validation (validateField)', () => {
-    
+
     test('Title validation', () => {
       const validRecord = { title: { en: 'Title', fr: 'Titre' } };
       const invalidRecord = { title: { en: 'Title', fr: '' } };
-      
+
       expect(validateField(validRecord, 'title')).toBeTruthy();
-      expect(validateField(invalidRecord, 'title')).toBeFalsy(); 
+      expect(validateField(invalidRecord, 'title')).toBeFalsy();
     });
 
     test('Keywords validation', () => {
        const valid = { keywords: { en: ['ocean'], fr: [] } };
        const invalid = { keywords: { en: [], fr: [] } };
-       
+
        expect(validateField(valid, 'keywords')).toBeTruthy();
        expect(validateField(invalid, 'keywords')).toBeFalsy();
     });
@@ -81,18 +81,18 @@ describe('Utility: validate.js', () => {
 
     test('Contacts validation', () => {
         const validContacts = [
-            { 
-                role: ['owner'], 
-                givenNames: 'John', 
-                lastName: 'Doe', 
+            {
+                role: ['owner'],
+                givenNames: 'John',
+                lastName: 'Doe',
                 indEmail: 'john@example.com',
-                inCitation: true 
+                inCitation: true
             },
-            { 
-                role: ['custodian'], 
-                orgName: 'Org', 
-                orgEmail: 'info@org.com', 
-                orgURL: 'https://org.com' 
+            {
+                role: ['custodian'],
+                orgName: 'Org',
+                orgEmail: 'info@org.com',
+                orgURL: 'https://org.com'
             }
         ];
 
@@ -107,7 +107,7 @@ describe('Utility: validate.js', () => {
         // Note: We need a contact set that HAS custodian but NO owner to test this specific failure
         const custodianContact = validContacts[1];
         // custodianContact has role=['custodian'], no inCitation (undefined/false)
-        const missingOwner = [custodianContact]; 
+        const missingOwner = [custodianContact];
         expect(validateField({ contacts: missingOwner }, 'contacts')).toBeFalsy();
 
         // Invalid: Bad Email

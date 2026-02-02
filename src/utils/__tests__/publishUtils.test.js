@@ -1,12 +1,15 @@
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import axios from "axios";
 import { preparePublishPayload, convertRecord } from "../publishUtils";
 import { getRecordFilename } from "../misc";
 
 // Mock dependencies
-jest.mock("axios");
-jest.mock("../misc");
-jest.mock("../../firebase", () => ({
-  options: { projectId: "test-project" },
+vi.mock("axios");
+vi.mock("../misc");
+vi.mock("../../firebase", () => ({
+  default: {
+    options: { projectId: "test-project" },
+  },
 }));
 
 describe("publishUtils", () => {
@@ -21,9 +24,8 @@ describe("publishUtils", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.REACT_APP_FUNCTION_REGION = "us-central1";
-    // Reset window location mock if needed (jest-dom handles this usually, but safe to assume defaults)
+    vi.clearAllMocks();
+    import.meta.env.VITE_FUNCTION_REGION = "us-central1";
   });
 
   describe("convertRecord", () => {
@@ -54,7 +56,7 @@ describe("publishUtils", () => {
       const originalLocation = window.location;
       delete window.location;
       window.location = { hostname: "localhost" };
-      process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS = "true";
+      import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS = "true";
 
       const mockResponse = { data: { data: "yaml content" } };
       axios.post.mockResolvedValue(mockResponse);
@@ -68,7 +70,7 @@ describe("publishUtils", () => {
 
       // Cleanup
       window.location = originalLocation;
-      delete process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS;
+      delete import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS;
     });
 
     it("should throw an error if the response is invalid", async () => {

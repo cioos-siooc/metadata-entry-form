@@ -1,22 +1,32 @@
 import React from "react";
-import { configure, mount } from "enzyme";
-
-import Adapter from "enzyme-adapter-react-16";
+import { render, screen } from "@testing-library/react";
+import { vi, describe, it, expect } from "vitest";
+import { MemoryRouter } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import Submissions from "../Pages/Submissions";
 
-configure({ adapter: new Adapter() });
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useParams: () => ({}),
+  };
+});
 
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
-  useParams: () => ({}),
-}));
+const theme = createTheme();
 
-// const mockRecords = { toJSON: () => ({ key: { title: { en: "value" } } }) };
 describe("<Submissions />", () => {
   it("Renders", () => {
-    mount(
-      <Submissions match={{ params: { region: "pacific", language: "en" } }} />
+    render(
+      <ThemeProvider theme={theme}>
+        <MemoryRouter>
+          <Submissions match={{ params: { region: "pacific", language: "en" } }} />
+        </MemoryRouter>
+      </ThemeProvider>
     );
+
+    // Verify component renders - component shows loading spinner before data loads
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 });

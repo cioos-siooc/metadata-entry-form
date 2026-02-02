@@ -1,16 +1,18 @@
-// Mock Firebase dependencies entirely to avoid import side-effects (ReadableStream error)
-const mockSet = jest.fn().mockResolvedValue(true);
-const mockChild = jest.fn().mockReturnThis();
-const mockGet = jest.fn().mockResolvedValue({
-  val: jest.fn(() => {}),
-});
-const mockRemove = jest.fn().mockResolvedValue();
-// mockRef must be an object or function that can be returned. 
-// The implementation code likely calls db.ref(dbInstance, path).
-const mockRef = jest.fn().mockReturnThis();
-const mockGetDatabase = jest.fn().mockReturnThis();
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
-jest.mock("firebase/database", () => ({
+// Mock Firebase dependencies entirely to avoid import side-effects (ReadableStream error)
+const mockSet = vi.fn().mockResolvedValue(true);
+const mockChild = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({
+  val: vi.fn(() => {}),
+});
+const mockRemove = vi.fn().mockResolvedValue();
+// mockRef must be an object or function that can be returned.
+// The implementation code likely calls db.ref(dbInstance, path).
+const mockRef = vi.fn().mockReturnThis();
+const mockGetDatabase = vi.fn().mockReturnThis();
+
+vi.mock("firebase/database", () => ({
   ref: (...args) => mockRef(...args),
   set: (...args) => mockSet(...args),
   get: (...args) => mockGet(...args),
@@ -19,24 +21,18 @@ jest.mock("firebase/database", () => ({
   getDatabase: (...args) => mockGetDatabase(...args),
 }));
 
-jest.mock('firebase/app', () => ({
-
-  initializeApp: jest.fn(),
-
+vi.mock('firebase/app', () => ({
+  initializeApp: vi.fn(),
 }));
 
-
-
-jest.mock('../firebase', () => ({}));
-
-
+vi.mock('../firebase', () => ({ default: {} }));
 
 import * as dataciteFunctions from '../utils/firebaseEnableDoiCreation';
 
 describe('Datacite Credentials Management', () => {
   beforeEach(() => {
     // Reset the database before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should create new Datacite account credentials', async () => {
@@ -57,7 +53,7 @@ describe('Datacite Credentials Management', () => {
     const region = 'hakai';
     const prefix = '10.1234';
     const authHash = 'abcd1234hash';
-    
+
     // Simulate setting data before deletion attempt
     await dataciteFunctions.newDataciteAccount(region, prefix, authHash);
 

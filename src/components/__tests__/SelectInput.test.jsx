@@ -1,21 +1,31 @@
 import React from "react";
-import { configure, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
+import { render, screen } from "@testing-library/react";
+import { vi, describe, it, expect } from "vitest";
 
 import SelectInput from "../FormComponents/SelectInput";
 
-configure({ adapter: new Adapter() });
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useParams: () => ({ language: "en" }),
+  };
+});
 
 const selectInputs = ["theOneRing", "Narya", "Nenya", "Vilya"];
+
 describe("<SelectInput />", () => {
   it("Renders", () => {
-    mount(
+    render(
       <SelectInput
         options={selectInputs}
         optionLabels={selectInputs}
-        // sdf
         value={selectInputs[0]}
       />
     );
+
+    // Verify the select component renders with the correct value
+    // MUI Select uses a combobox role
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
   });
 });

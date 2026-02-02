@@ -1,5 +1,7 @@
 // Mock Firebase to avoid ReadableStream environment issues
-jest.mock("../firebase", () => ({}));
+import { vi, it, expect } from "vitest";
+
+vi.mock("../firebase", () => ({ default: {} }));
 
 import firebase from "../firebase";
 

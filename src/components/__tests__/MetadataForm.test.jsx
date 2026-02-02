@@ -1,22 +1,33 @@
 import React from "react";
-import { configure, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { BrowserRouter } from "react-router-dom";
+import { render } from "@testing-library/react";
+import { vi, describe, it, expect } from "vitest";
+import { MemoryRouter } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import MetadataForm from "../Pages/MetadataForm";
 
-configure({ adapter: new Adapter() });
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
-  useParams: () => ({ language: "en", region: "pacific" }),
-}));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useParams: () => ({ language: "en", region: "pacific" }),
+  };
+});
+
+const theme = createTheme();
 
 describe("<MetadataForm />", () => {
   it("Renders", () => {
-    mount(
-      <BrowserRouter>
-        <MetadataForm />
-      </BrowserRouter>
+    render(
+      <ThemeProvider theme={theme}>
+        <MemoryRouter>
+          <MetadataForm />
+        </MemoryRouter>
+      </ThemeProvider>
     );
+
+    // Verify component renders - check for the form or a key element
+    // The component should render without throwing
+    expect(document.body).toBeInTheDocument();
   });
 });

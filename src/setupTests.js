@@ -1,44 +1,53 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// Vitest setup file
+// adds custom matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "regenerator-runtime/runtime";
-import 'whatwg-fetch'; 
+import "whatwg-fetch";
+import { vi } from "vitest";
+import "@testing-library/jest-dom";
 
-import { TextEncoder, TextDecoder } from 'util';
-import { ReadableStream } from 'stream/web'; 
-import { Blob, File } from 'buffer';
-import DOMException from 'domexception';
+import { TextEncoder, TextDecoder } from "util";
+import DOMException from "domexception";
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
-global.ReadableStream = ReadableStream;
-global.Blob = Blob;
-global.File = File;
 global.MessagePort = class MessagePort {};
 global.DOMException = DOMException;
 
-// Global Mock for Firebase to prevent ReadableStream errors in component tests
-jest.mock("firebase/functions", () => ({
-  getFunctions: jest.fn(),
-  httpsCallable: jest.fn(() => jest.fn()),
+// Mock ResizeObserver for MUI components
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Global Mock for Firebase to prevent errors in component tests
+vi.mock("firebase/functions", () => ({
+  getFunctions: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn()),
 }));
 
-jest.mock("firebase/database", () => ({
-  getDatabase: jest.fn(),
-  ref: jest.fn(),
-  set: jest.fn(),
-  get: jest.fn(),
-  child: jest.fn(),
-  remove: jest.fn(),
+vi.mock("firebase/database", () => ({
+  getDatabase: vi.fn(),
+  ref: vi.fn(),
+  set: vi.fn(),
+  get: vi.fn(),
+  child: vi.fn(),
+  remove: vi.fn(),
+  onValue: vi.fn(),
+  update: vi.fn(),
+  push: vi.fn(),
 }));
 
-jest.mock("firebase/app", () => ({
-  initializeApp: jest.fn(),
+vi.mock("firebase/app", () => ({
+  initializeApp: vi.fn(),
 }));
 
-jest.mock("./firebase", () => ({}));
-jest.mock("./auth", () => ({
-  getAuth: jest.fn(),
-  onAuthStateChanged: jest.fn(),
+vi.mock("./firebase", () => ({ default: {} }));
+vi.mock("./auth", () => ({
+  getAuth: vi.fn(),
+  onAuthStateChanged: vi.fn(),
+  auth: { currentUser: { uid: "test-user" } },
 }));
