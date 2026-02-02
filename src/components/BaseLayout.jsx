@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { CircularProgress, Grid } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
@@ -190,11 +190,13 @@ const BaseLayout = () => {
       </Helmet>
 
       <UserProvider>
-        <ThemeProvider theme={theme}>
-          <NavDrawer>
-            <Pages />
-          </NavDrawer>
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <NavDrawer>
+              <Pages />
+            </NavDrawer>
+          </ThemeProvider>
+        </StyledEngineProvider>
       </UserProvider>
     </>
   );
