@@ -1,10 +1,11 @@
 import React, { useContext, useRef, useEffect } from "react";
 
-import { useParams, useLocation, useHistory } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { makeStyles } from "@mui/styles";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   ExitToApp,
   Contacts,
@@ -22,7 +23,7 @@ import {
   Help,
   Warning,
   Settings,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 
 import {
   Drawer,
@@ -40,7 +41,7 @@ import {
   Tooltip,
   MenuItem,
   Menu,
-} from "@material-ui/core";
+} from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
@@ -210,7 +211,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MiniDrawer({ children }) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const classes = useStyles();
   const theme = useTheme();
@@ -330,7 +331,7 @@ export default function MiniDrawer({ children }) {
 
   const handleLogout = () => {
     handleMenuClose();
-    auth.signOut().then(() => history.push(baseURL));
+    auth.signOut().then(() => navigate(baseURL));
   };
 
   const translations = {
@@ -355,8 +356,8 @@ export default function MiniDrawer({ children }) {
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
-    process.env.REACT_APP_DEV_DEPLOYMENT ||
-    process.env.NODE_ENV === "development";
+    import.meta.env.VITE_DEV_DEPLOYMENT ||
+    import.meta.env.DEV;
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
   const feedbackButtonRef = useRef(null);
@@ -455,7 +456,7 @@ export default function MiniDrawer({ children }) {
           </Typography>
           <div className={classes.headerControls}>
             <img
-              src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
+              src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
               alt="CIOOS/SIOOC"
               width={350}
               className={classes.logoImage}
@@ -464,7 +465,7 @@ export default function MiniDrawer({ children }) {
               className={classes.languageSelector}
               value={language}
               onChange={(e) =>
-                history.push(`/${e.target.value}/${pathWithoutLang}`)
+                navigate(`/${e.target.value}/${pathWithoutLang}`)
               }
               disableUnderline
             >
@@ -517,7 +518,7 @@ export default function MiniDrawer({ children }) {
                     onClick={async () => {
                       try {
                         await signInWithGoogle();
-                        history.push(pathname);
+                        navigate(pathname);
                       } catch (error) {
                         if (error.code === 'auth/cancelled-popup-request') {
                           // ignore
@@ -543,7 +544,7 @@ export default function MiniDrawer({ children }) {
                   <ListItem
                     button
                     key="My Records"
-                    onClick={() => history.push(`${baseURL}/submissions`)}
+                    onClick={() => navigate(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
                       <ListAlt />
@@ -558,7 +559,7 @@ export default function MiniDrawer({ children }) {
                   <ListItem
                     button
                     key="Region's Published Records"
-                    onClick={() => history.push(`${baseURL}/published`)}
+                    onClick={() => navigate(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
                       <AssignmentTurnedIn />
@@ -574,7 +575,7 @@ export default function MiniDrawer({ children }) {
                   <ListItem
                     button
                     key="Contacts"
-                    onClick={() => history.push(`${baseURL}/contacts`)}
+                    onClick={() => navigate(`${baseURL}/contacts`)}
                   >
                     <ListItemIcon disabled>
                       <Contacts />
@@ -590,7 +591,7 @@ export default function MiniDrawer({ children }) {
                   <ListItem
                     button
                     key="instruments"
-                    onClick={() => history.push(`${baseURL}/instruments`)}
+                    onClick={() => navigate(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
                       <StraightenSharp />
@@ -606,7 +607,7 @@ export default function MiniDrawer({ children }) {
                   <ListItem
                     button
                     key="Platforms"
-                    onClick={() => history.push(`${baseURL}/platforms`)}
+                    onClick={() => navigate(`${baseURL}/platforms`)}
                   >
                     <ListItemIcon disabled>
                       <DirectionsBoatSharp />
@@ -623,7 +624,7 @@ export default function MiniDrawer({ children }) {
                     <ListItem
                       button
                       key="SharedWithMe"
-                      onClick={() => history.push(`${baseURL}/shared`)}
+                      onClick={() => navigate(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
@@ -641,7 +642,7 @@ export default function MiniDrawer({ children }) {
                     <ListItem
                       button
                       key="Review"
-                      onClick={() => history.push(`${baseURL}/reviewer`)}
+                      onClick={() => navigate(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
                         <RateReview />
@@ -756,7 +757,7 @@ export default function MiniDrawer({ children }) {
                       <ListItem
                         button
                         key="Admin"
-                        onClick={() => history.push(`${baseURL}/admin`)}
+                        onClick={() => navigate(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
                           <Settings />

@@ -141,7 +141,7 @@ export function getRegionLogo(regionId, language = 'en') {
   const logoObj = r.logo || {};
   const file = logoObj[language] || logoObj.en || logoObj.fr;
   if (!file) return null;
-  return `${process.env.PUBLIC_URL}/${file}`;
+  return `${import.meta.env.BASE_URL}${file}`;
 }
 
 export default regions;

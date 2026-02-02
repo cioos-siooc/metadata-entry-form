@@ -4,11 +4,11 @@ import { getRecordFilename } from "./misc";
 
 const getConvertMetadataUrl = () => {
   const { options: { projectId } } = firebase;
-  const functionRegion = process.env.REACT_APP_FUNCTION_REGION || "us-central1";
+  const functionRegion = import.meta.env.VITE_FUNCTION_REGION || "us-central1";
 
   // Check if we should use the emulator
   const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const useLocalFunctions = process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS === "true";
+  const useLocalFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
 
   if (isLocal && useLocalFunctions) {
     // Port 5001 is standard for Firebase functions and matches root firebase.json
