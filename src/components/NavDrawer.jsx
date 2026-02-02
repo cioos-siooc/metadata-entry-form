@@ -194,6 +194,23 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  contentWithDrawer: {
+    marginLeft: theme.spacing(9) + 1,
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: theme.spacing(7) + 1,
+    },
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth,
   },
   drawerPaper: {
     display: "flex",
@@ -467,6 +484,7 @@ export default function MiniDrawer({ children }) {
               onChange={(e) =>
                 navigate(`/${e.target.value}/${pathWithoutLang}`)
               }
+              variant="standard"
               disableUnderline
             >
               <MenuItem value="en">EN</MenuItem>
@@ -805,7 +823,10 @@ export default function MiniDrawer({ children }) {
           </div>
         </Drawer>
       )}
-      <main className={classes.content}>
+      <main className={clsx(classes.content, {
+        [classes.contentWithDrawer]: region && !isMobile,
+        [classes.contentShift]: open && !isMobile && region,
+      })}>
         <div className={classes.toolbar} />
         {children}
       </main>
