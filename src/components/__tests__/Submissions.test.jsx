@@ -10,7 +10,7 @@ vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
-    useParams: () => ({}),
+    useParams: () => ({ region: "pacific", language: "en" }),
   };
 });
 
@@ -26,7 +26,7 @@ describe("<Submissions />", () => {
       </ThemeProvider>
     );
 
-    // Verify component renders - component shows loading spinner before data loads
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    // Verify component renders - check for "My Records" heading
+    expect(screen.getByRole("heading", { name: /my records/i })).toBeInTheDocument();
   });
 });

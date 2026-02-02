@@ -41,7 +41,7 @@ describe("<DateInput />", () => {
       />
     );
 
-    // Check that the date picker rendered
-    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    // Check that the date picker rendered - MUI v8 date picker uses group role with spinbuttons
+    expect(screen.getByRole("group", { name: "Select date" })).toBeInTheDocument();
   });
 });

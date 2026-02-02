@@ -4,25 +4,28 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-// TextEncoder/TextDecoder must be set before any imports that use react-router v7
-import { TextEncoder, TextDecoder } from "util";
+import { vi } from "vitest";
+
+// TextEncoder/TextDecoder must be set up using vi.hoisted() so they exist
+// before vi.mock() hoisting causes react-router v7 to be imported
+vi.hoisted(() => {
+  const { TextEncoder, TextDecoder } = require("util");
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+});
+
 import DOMException from "domexception";
-
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
-
 import "regenerator-runtime/runtime";
 import "whatwg-fetch";
-import { vi } from "vitest";
 import "@testing-library/jest-dom";
-global.MessagePort = class MessagePort {};
+global.MessagePort = class MessagePort { };
 global.DOMException = DOMException;
 
 // Mock ResizeObserver for MUI components
 global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() { }
+  unobserve() { }
+  disconnect() { }
 };
 
 // Global Mock for Firebase to prevent errors in component tests
