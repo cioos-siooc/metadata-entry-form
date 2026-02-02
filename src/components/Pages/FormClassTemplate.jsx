@@ -8,10 +8,10 @@ class FormClassTemplate extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { match } = this.props;
+    const { region } = this.props;
     // Refresh data when region changes via the URL
 
-    if (match.params.region !== prevProps.match.params.region) {
+    if (region !== prevProps.region) {
       this.unsubscribeAndCloseListeners();
       this.componentDidMount();
     }

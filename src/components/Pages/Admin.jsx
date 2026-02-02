@@ -28,6 +28,7 @@ import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreat
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 import { unique } from "../../utils/misc";
 
@@ -783,4 +784,4 @@ class Admin extends FormClassTemplate {
 }
 
 Admin.contextType = UserContext;
-export default Admin;
+export default withRouter(Admin);

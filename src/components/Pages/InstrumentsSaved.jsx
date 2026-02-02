@@ -32,6 +32,7 @@ import InstrumentTitle from "../FormComponents/InstrumentTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Instruments extends FormClassTemplate {
   constructor(props) {
@@ -224,4 +225,4 @@ class Instruments extends FormClassTemplate {
     );
   }
 }
-export default Instruments;
+export default withRouter(Instruments);

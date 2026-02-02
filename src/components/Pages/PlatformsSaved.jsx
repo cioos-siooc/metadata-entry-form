@@ -32,6 +32,7 @@ import PlatformTitle from "../FormComponents/PlatformTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Platforms extends FormClassTemplate {
   constructor(props) {
@@ -224,4 +225,4 @@ class Platforms extends FormClassTemplate {
     );
   }
 }
-export default Platforms;
+export default withRouter(Platforms);

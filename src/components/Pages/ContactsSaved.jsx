@@ -32,6 +32,7 @@ import ContactTitle from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Contacts extends FormClassTemplate {
   constructor(props) {
@@ -224,4 +225,4 @@ class Contacts extends FormClassTemplate {
     );
   }
 }
-export default Contacts;
+export default withRouter(Contacts);

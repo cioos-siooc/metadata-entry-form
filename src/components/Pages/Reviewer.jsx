@@ -41,6 +41,7 @@ import {
 import { unique } from "../../utils/misc";
 import { preparePublishPayload } from "../../utils/publishUtils";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 const RecordItem = ({
   record,
@@ -695,4 +696,4 @@ class Reviewer extends FormClassTemplate {
 }
 
 Reviewer.contextType = UserContext;
-export default Reviewer;
+export default withRouter(Reviewer);

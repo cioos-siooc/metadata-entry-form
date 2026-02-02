@@ -5,6 +5,7 @@ import { Typography, List, CircularProgress, Button } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged  }from "../../auth";
 
@@ -271,4 +272,4 @@ class Submissions extends FormClassTemplate {
   }
 }
 
-export default Submissions;
+export default withRouter(Submissions);
