@@ -2,40 +2,52 @@ import React from "react";
 import {
   Route,
   HashRouter as Router,
-  Redirect,
-  Switch,
+  Navigate,
+  Routes,
 } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import regions from "../regions";
 import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
 
-const languagePath = ":language(en|fr)";
 // eg :region(pacific|atlantic..)
-const regionPath = `:region(${Object.keys(regions).join("|")})`;
+const regionPath = Object.keys(regions).join("|");
+
+// Default theme for region-select page (before a region is chosen)
+const defaultTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#52a79b", // CIOOS national color
+    },
+    secondary: {
+      main: "#1976d2",
+    },
+  },
+});
 
 const App = () => (
-  <Router basename="/">
-    <Switch>
-      <Route exact path="/">
-        <Redirect to="/en/region-select" />
-      </Route>
-      <Route
-        path={`/${languagePath}/region-select`}
-        exact
-        component={() => (
-          <NavDrawer>
-            <RegionSelect />
-          </NavDrawer>
-        )}
-      />
-      <Route path={`/${languagePath}/${regionPath}`} component={BaseLayout} />
-      <Route path="*">
-        <Redirect to="/en/region-select" />
-      </Route>
-    </Switch>
-  </Router>
+  <HelmetProvider>
+    <Router basename="/">
+      <Routes>
+        <Route path="/" element={<Navigate to="/en/region-select" replace />} />
+        <Route
+          path="/:language/region-select"
+          element={
+            <ThemeProvider theme={defaultTheme}>
+              <NavDrawer>
+                <RegionSelect />
+              </NavDrawer>
+            </ThemeProvider>
+          }
+        />
+        <Route path="/:language/:region/*" element={<BaseLayout />} />
+        <Route path="*" element={<Navigate to="/en/region-select" replace />} />
+      </Routes>
+    </Router>
+  </HelmetProvider>
 );
 
 export default App;
