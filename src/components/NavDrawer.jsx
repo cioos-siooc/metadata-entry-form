@@ -200,9 +200,9 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   contentWithDrawer: {
-    marginLeft: theme.spacing(9) + 1,
-    [theme.breakpoints.down("sm")]: {
-      marginLeft: theme.spacing(7) + 1,
+    marginLeft: theme.spacing(2) + 1,
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(9) + 1,
     },
   },
   contentShift: {
@@ -824,7 +824,7 @@ export default function MiniDrawer({ children }) {
         </Drawer>
       )}
       <main className={clsx(classes.content, {
-        [classes.contentWithDrawer]: region && !isMobile,
+        [classes.contentWithDrawer]: region && !isMobile && !open,
         [classes.contentShift]: open && !isMobile && region,
       })}>
         <div className={classes.toolbar} />
