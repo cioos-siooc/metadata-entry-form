@@ -160,9 +160,9 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: "hidden",
-    width: theme.spacing(7) + 1,
+    width: theme.spacing(7),
     [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
+      width: theme.spacing(9),
     },
     "& .MuiListItem-root": {
       justifyContent: "center",
@@ -823,10 +823,7 @@ export default function MiniDrawer({ children }) {
           </div>
         </Drawer>
       )}
-      <main className={clsx(classes.content, {
-        [classes.contentWithDrawer]: region && !isMobile && !open,
-        [classes.contentShift]: open && !isMobile && region,
-      })}>
+      <main className={classes.content}>
         <div className={classes.toolbar} />
         {children}
       </main>
