@@ -27,7 +27,7 @@ const LeftList = ({
     savedUserItems,
     saveItem,
     getBlankItem,
-    fieldsNotSavedInFirebase,
+    fieldsNotSavedInFirebase = [],
     addNewItemText,
     addSavedItemLabel,
     leftListHeader,
@@ -265,10 +265,6 @@ const LeftList = ({
       </Paper>
   )
 
-}
-
-LeftList.defaultProps = {
-    fieldsNotSavedInFirebase: [],
 }
 
 export default LeftList;
