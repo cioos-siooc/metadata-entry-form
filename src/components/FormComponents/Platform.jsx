@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 
-import {TextField, Grid, Tooltip, Paper} from "@material-ui/core";
+import {TextField, Grid, Tooltip, Paper} from "@mui/material";
 import { useParams } from "react-router-dom";
-import { OpenInNew } from "@material-ui/icons";
+import { OpenInNew } from "@mui/icons-material";
 
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "./QuestionStyles";

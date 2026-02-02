@@ -8,8 +8,8 @@ import {
   AccordionDetails,
   Tooltip,
   Checkbox,
-} from "@material-ui/core";
-import { ExpandMore } from "@material-ui/icons";
+} from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
 
 import CheckBoxList from "./CheckBoxList";
 import RequiredMark from "./RequiredMark";

@@ -1,8 +1,8 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
-import { Grid, Button } from "@material-ui/core";
-import { Save } from "@material-ui/icons";
-import {child, getDatabase, onValue, ref, update} from "firebase/database";
+import { useParams, useNavigate } from "react-router-dom";
+import { Grid, Button } from "@mui/material";
+import { Save } from "@mui/icons-material";
+import {child, getDatabase, onValue, ref, update, push} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -13,7 +13,7 @@ import FormClassTemplate from "../Pages/FormClassTemplate";
 import { paperClass } from "./QuestionStyles";
 
 
-class EditPlatform extends FormClassTemplate {
+class EditPlatformClass extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,18 +21,14 @@ class EditPlatform extends FormClassTemplate {
       type: "",
       description: { en: "", fr: "" },
     };
-    const { match } = props;
-
-    const { region } = match.params;
+    const { region } = props;
 
     const database = getDatabase(firebase)
     this.platformsRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
   }
 
   async componentDidMount() {
-    const { match } = this.props;
-
-    const { platformID } = match.params;
+    const { platformID } = this.props;
 
     if (auth.currentUser && platformID) {
       this.setState({ platformID });
@@ -53,24 +49,20 @@ class EditPlatform extends FormClassTemplate {
   }
 
   handleCancelClick() {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
-
-    history.push(`/${language}/${region}/platforms`);
+    const { language, region, navigate } = this.props;
+    navigate(`/${language}/${region}/platforms`);
   }
 
   // Create or update platform
   async handleSubmitClick() {
-    const { history, match } = this.props;
-
-    const { region, language, platformID } = match.params;
+    const { region, language, platformID, navigate } = this.props;
 
     // update
     if (platformID) update(child(this.platformsRef, platformID), this.state);
     // create
-    else this.platformsRef.push(this.state);
+    else push(this.platformsRef, this.state);
 
-    history.push(`/${language}/${region}/platforms`);
+    navigate(`/${language}/${region}/platforms`);
   }
 
   render() {
@@ -116,4 +108,18 @@ class EditPlatform extends FormClassTemplate {
   }
 }
 
-export default withRouter(EditPlatform);
+// Wrapper component to provide router params and navigate to the class component
+const EditPlatform = () => {
+  const { language, region, platformID } = useParams();
+  const navigate = useNavigate();
+  return (
+    <EditPlatformClass
+      language={language}
+      region={region}
+      platformID={platformID}
+      navigate={navigate}
+    />
+  );
+};
+
+export default EditPlatform;

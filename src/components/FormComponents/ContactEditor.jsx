@@ -8,10 +8,10 @@ import {
   Button,
   IconButton,
   InputAdornment,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+} from "@mui/material";
+import Autocomplete from "@mui/lab/Autocomplete";
 import { useDebounce } from "use-debounce";
-import { Clear, OpenInNew } from "@material-ui/icons";
+import { Clear, OpenInNew } from "@mui/icons-material";
 import { getBlankContact } from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";

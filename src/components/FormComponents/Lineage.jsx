@@ -4,7 +4,7 @@ import {
   Delete,
   FileCopy,
   DragHandle,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { Container, Draggable } from "react-smooth-dnd";
 import {
   Grid,
@@ -17,7 +17,7 @@ import {
   IconButton,
   Typography,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import arrayMove from "array-move";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy, deepEquals } from "../../utils/misc";

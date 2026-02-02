@@ -1,10 +1,7 @@
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
-
-import DateFnsUtils from "@date-io/date-fns";
 import React from "react";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import { I18n } from "../I18n";
 
@@ -22,26 +19,30 @@ function formatDate(date) {
 
 const DateInput = ({ onChange, value, name, disabled, dateStart, dateEnd }) => {
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <KeyboardDatePicker
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <DatePicker
         disabled={disabled}
-        margin="normal"
-        id="date-picker-dialog"
         label={<I18n en="Select date" fr="Sélectionner une date" />}
         format="yyyy-MM-dd"
-        value={value}
-        minDate={dateStart || "1100-01-01"}
-        maxDate={dateEnd}
+        value={value ? new Date(value) : null}
+        minDate={dateStart ? new Date(dateStart) : new Date("1100-01-01")}
+        maxDate={dateEnd ? new Date(dateEnd) : undefined}
         onChange={(dateSelected) => {
           return onChange({
             target: { name, value: formatDate(dateSelected) },
           });
         }}
-        KeyboardButtonProps={{
-          "aria-label": "change date",
+        slotProps={{
+          textField: {
+            margin: "normal",
+            id: "date-picker-dialog",
+          },
+          openPickerButton: {
+            "aria-label": "change date",
+          },
         }}
       />
-    </MuiPickersUtilsProvider>
+    </LocalizationProvider>
   );
 };
 

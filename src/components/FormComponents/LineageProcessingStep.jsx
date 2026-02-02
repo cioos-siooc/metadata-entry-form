@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Add, Delete } from "@mui/icons-material";
 import {
   TextField,
   Grid,
@@ -11,7 +11,7 @@ import {
   ListItemText,
   // Box,
 
-} from "@material-ui/core";
+} from "@mui/material";
 import validator from "validator";
 import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";

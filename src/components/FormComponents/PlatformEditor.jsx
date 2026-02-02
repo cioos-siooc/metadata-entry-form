@@ -3,8 +3,8 @@ import React from "react";
 import {
   Grid, Paper,
   TextField, Tooltip,
-} from "@material-ui/core";
-import {OpenInNew} from "@material-ui/icons";
+} from "@mui/material";
+import {OpenInNew} from "@mui/icons-material";
 import {useParams} from "react-router-dom";
 import { getBlankPlatform } from "../../utils/blankRecord";
 

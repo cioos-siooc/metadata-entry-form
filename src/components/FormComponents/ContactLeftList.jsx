@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import { Container, Draggable } from "react-smooth-dnd";
 
 import arrayMove from "array-move";
-import { Delete, DragHandle, FileCopy, Save } from "@material-ui/icons";
+import { Delete, DragHandle, FileCopy, Save } from "@mui/icons-material";
 import {
   List,
   ListItem,
@@ -15,7 +15,7 @@ import {
   Grid,
   Paper,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 import { deepCopy, deepEquals } from "../../utils/misc";
 import { paperClass } from "./QuestionStyles";
 import SelectInput from "./SelectInput";

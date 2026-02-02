@@ -12,7 +12,7 @@ import {
   CircularProgress,
   MenuItem,
   Menu,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   FileCopy,
   Delete,
@@ -24,7 +24,7 @@ import {
   TransferWithinAStation,
   OpenInNew,
   Edit,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getRecordFilename } from "../../utils/misc";

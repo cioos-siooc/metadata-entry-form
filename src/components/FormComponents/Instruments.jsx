@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { Delete } from "@material-ui/icons";
+import { Delete } from "@mui/icons-material";
 import {
   TextField,
   Grid,
   Typography,
   Button,
   Paper,
-} from "@material-ui/core";
+} from "@mui/material";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 

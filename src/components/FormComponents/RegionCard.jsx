@@ -1,13 +1,13 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
+import { makeStyles } from "@mui/styles";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
 
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
 
-import Typography from "@material-ui/core/Typography";
-import { useParams, useHistory } from "react-router-dom";
+import Typography from "@mui/material/Typography";
+import { useParams, useNavigate } from "react-router-dom";
 import regions, { getRegionLogo } from "../../regions";
 
 const useStyles = makeStyles({
@@ -70,7 +70,7 @@ const useStyles = makeStyles({
 });
 
 export default function MediaCard({ region, regionSummary, showMap = true }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { language } = useParams();
   const classes = useStyles();
 
@@ -91,7 +91,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   return (
     <Card
       className={rootClassNames.join(" ")}
-      onClick={() => history.push(`/${language}/${region}`)}
+      onClick={() => navigate(`/${language}/${region}`)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
@@ -105,7 +105,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
       tabIndex={0}
       onKeyPress={(e) => {
         if (e.key === "Enter" || e.key === " ")
-          history.push(`/${language}/${region}`);
+          navigate(`/${language}/${region}`);
       }}
       aria-label={regionInfo.title[language]}
     >
@@ -117,7 +117,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
           <div style={{ position: "relative" }}>
             <CardMedia
               className={classes.media}
-              image={`${process.env.PUBLIC_URL}/map-${region}.jpg`}
+              image={`${import.meta.env.BASE_URL}map-${region}.jpg`}
               title={regionInfo.title[language]}
               style={{ width: "100%" }}
               onError={(e) => {

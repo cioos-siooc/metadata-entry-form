@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 
 export const SupplementalText = ({ children }) => (
   <Typography variant="body2" component="div" style={{ marginTop: "10px" }}>

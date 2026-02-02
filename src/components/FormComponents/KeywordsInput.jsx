@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import Autocomplete from "@mui/lab/Autocomplete";
 
 import {
   TextField,
@@ -8,9 +8,9 @@ import {
   Grid,
   Chip,
   InputAdornment,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useParams } from "react-router-dom";
-import { ArrowDownward } from "@material-ui/icons";
+import { ArrowDownward } from "@mui/icons-material";
 import keywordList from "../../utils/keywords";
 import { En, Fr, I18n } from "../I18n";
 

@@ -9,9 +9,9 @@ import {
     Paper,
     Tooltip,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import {Container, Draggable} from "react-smooth-dnd";
-import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
+import {Delete, DragHandle, FileCopy, Save} from "@mui/icons-material";
 import arrayMove from "array-move";
 import {deepCopy, deepEquals} from "../../utils/misc";
 import {paperClass} from "./QuestionStyles";

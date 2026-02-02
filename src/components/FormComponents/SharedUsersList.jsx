@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Add, Delete } from "@mui/icons-material";
 import {
   Typography,
   Paper,
@@ -12,8 +12,8 @@ import {
   IconButton,
   ListItemSecondaryAction,
   Box,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+} from "@mui/material";
+import Autocomplete from "@mui/lab/Autocomplete";
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";

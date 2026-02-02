@@ -1,7 +1,7 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
-import { Grid, Button } from "@material-ui/core";
-import { Save } from "@material-ui/icons";
+import { useParams, useNavigate } from "react-router-dom";
+import { Grid, Button } from "@mui/material";
+import { Save } from "@mui/icons-material";
 import { getDatabase, ref, onValue, push, child, update } from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
@@ -11,7 +11,7 @@ import { En, Fr, I18n } from "../I18n";
 import ContactEditor from "./ContactEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
 
-class EditContact extends FormClassTemplate {
+class EditContactClass extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,18 +29,14 @@ class EditContact extends FormClassTemplate {
       givenNames: "",
       lastName: "",
     };
-    const { match } = props;
-
-    const { region } = match.params;
+    const { region } = props;
 
     const database = getDatabase(firebase);
     this.contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
   }
 
   async componentDidMount() {
-    const { match } = this.props;
-
-    const { contactID } = match.params;
+    const { contactID } = this.props;
 
     if (auth.currentUser && contactID) {
       this.setState({ contactID });
@@ -88,29 +84,24 @@ class EditContact extends FormClassTemplate {
   }
 
   handleCancelClick() {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
-
-    history.push(`/${language}/${region}/contacts`);
+    const { language, region, navigate } = this.props;
+    navigate(`/${language}/${region}/contacts`);
   }
 
   // Create or update contact
   async handleSubmitClick() {
-    const { history, match } = this.props;
-
-    const { region, language, contactID } = match.params;
+    const { region, language, contactID, navigate } = this.props;
 
     // update
     if (contactID) update(child(this.contactsRef, contactID), this.state);
     // create
     else push(this.contactsRef, this.state);
 
-    history.push(`/${language}/${region}/contacts`);
+    navigate(`/${language}/${region}/contacts`);
   }
 
   render() {
-    const { match } = this.props;
-    const { language } = match.params;
+    const { language } = this.props;
     const { orgName, givenNames, lastName } = this.state;
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
@@ -157,4 +148,18 @@ class EditContact extends FormClassTemplate {
   }
 }
 
-export default withRouter(EditContact);
+// Wrapper component to provide router params and navigate to the class component
+const EditContact = () => {
+  const { language, region, contactID } = useParams();
+  const navigate = useNavigate();
+  return (
+    <EditContactClass
+      language={language}
+      region={region}
+      contactID={contactID}
+      navigate={navigate}
+    />
+  );
+};
+
+export default EditContact;

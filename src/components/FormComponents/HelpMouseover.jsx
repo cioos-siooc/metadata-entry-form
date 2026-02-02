@@ -1,6 +1,6 @@
 import React from "react";
-import { HelpOutline } from "@material-ui/icons";
-import { Tooltip } from "@material-ui/core";
+import { HelpOutline } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 
 const HelpMouseover = ({ children }) => (
   <div

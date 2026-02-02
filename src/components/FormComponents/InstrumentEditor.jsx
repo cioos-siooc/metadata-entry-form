@@ -4,7 +4,7 @@ import {
   Grid, Paper,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { getBlankInstrument } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";

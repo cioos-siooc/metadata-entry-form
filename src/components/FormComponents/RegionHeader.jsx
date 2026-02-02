@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { getRegionLogo } from "../../regions";
 
