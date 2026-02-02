@@ -12,8 +12,8 @@ import {
   IconButton,
   ListItemSecondaryAction,
   Box,
+  Autocomplete,
 } from "@mui/material";
-import Autocomplete from "@mui/lab/Autocomplete";
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";

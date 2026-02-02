@@ -18,12 +18,12 @@ import { Paper,
     ListItemSecondaryAction,
     Tooltip,
     IconButton,
-    capitalize,
-    FormControlLabel, 
+    FormControlLabel,
     Checkbox,
+    Autocomplete,
 } from "@mui/material";
 import { ArrowDownward, Delete} from "@mui/icons-material";
-import Autocomplete from "@mui/lab/Autocomplete";
+import { capitalize } from "@mui/material/utils";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";

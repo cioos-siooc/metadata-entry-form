@@ -8,8 +8,8 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Autocomplete,
 } from "@mui/material";
-import Autocomplete from "@mui/lab/Autocomplete";
 import { useDebounce } from "use-debounce";
 import { Clear, OpenInNew } from "@mui/icons-material";
 import { getBlankContact } from "../../utils/blankRecord";
