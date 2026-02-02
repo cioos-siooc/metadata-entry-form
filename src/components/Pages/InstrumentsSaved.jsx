@@ -12,14 +12,14 @@ import {
   ListItemAvatar,
   CircularProgress,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   Add,
   Edit,
   Delete,
   PermContactCalendar,
   FileCopy,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import {getDatabase, onValue, ref} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";

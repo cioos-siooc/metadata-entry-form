@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 import { useParams } from "react-router-dom";
 
-import { Paper, Grid } from "@material-ui/core";
-import DragHandleIcon from "@material-ui/icons/DragHandle";
+import { Paper, Grid } from "@mui/material";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
 
 import EditContact from "../FormComponents/ContactEditor";
 

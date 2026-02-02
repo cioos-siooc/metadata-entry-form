@@ -21,9 +21,9 @@ import { Paper,
     capitalize,
     FormControlLabel, 
     Checkbox,
-} from "@material-ui/core";
-import { ArrowDownward, Delete} from "@material-ui/icons";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+} from "@mui/material";
+import { ArrowDownward, Delete} from "@mui/icons-material";
+import Autocomplete from "@mui/lab/Autocomplete";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";

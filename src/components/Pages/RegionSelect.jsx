@@ -1,7 +1,7 @@
 import React from "react";
-import { Grid, Typography, Divider } from "@material-ui/core";
+import { Grid, Typography, Divider } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { En, Fr, I18n } from "../I18n";
 import RegionCard from "../FormComponents/RegionCard";
 import regions from "../../regions";

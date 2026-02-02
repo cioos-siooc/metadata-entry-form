@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, List, CircularProgress } from "@material-ui/core";
+import { Typography, List, CircularProgress } from "@mui/material";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";

@@ -8,14 +8,14 @@ import {
   Checkbox,
   TextField,
   Paper,
-} from "@material-ui/core";
-import Snackbar from "@material-ui/core/Snackbar";
-import Alert from "@material-ui/lab/Alert";
+} from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/lab/Alert";
 
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getDatabase, ref, onValue, get } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 

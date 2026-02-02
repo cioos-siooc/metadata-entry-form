@@ -5,11 +5,11 @@ import {
   Tooltip, 
   IconButton, 
   FormControlLabel, 
-  Checkbox } from "@material-ui/core";
+  Checkbox } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import { OpenInNew } from "@material-ui/icons";
+import { OpenInNew } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
+import { Paper, Grid, FormControlLabel, Checkbox } from "@mui/material";
 import Instruments from "../FormComponents/Instruments";
 
 import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";

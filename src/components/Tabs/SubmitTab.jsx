@@ -9,7 +9,7 @@ import {
   Typography,
   Button,
   CircularProgress,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { useParams } from "react-router-dom";
 

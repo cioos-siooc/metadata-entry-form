@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Typography, CircularProgress, List } from "@material-ui/core";
+import { Typography, CircularProgress, List } from "@mui/material";
 import { getDatabase, ref, onValue, get, off } from "firebase/database";
 import { I18n, En, Fr } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";

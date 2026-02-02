@@ -5,9 +5,9 @@ import {
   Grid,
   IconButton,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useParams } from "react-router-dom";
-import { OpenInNew, Update } from "@material-ui/icons";
+import { OpenInNew, Update } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";

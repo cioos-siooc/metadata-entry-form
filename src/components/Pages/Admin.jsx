@@ -15,10 +15,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "@material-ui/core";
-import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import CancelIcon from "@material-ui/icons/Cancel";
+} from "@mui/material";
+import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { getDatabase, ref, child, onValue, update } from "firebase/database";
 import { Buffer } from 'buffer';
 
