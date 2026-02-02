@@ -20,7 +20,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import validator from "validator";
-import arrayMove from "array-move";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { associationTypeCode, identifierType } from "../../isoCodeLists";

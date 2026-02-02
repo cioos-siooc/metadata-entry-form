@@ -13,7 +13,9 @@
       "Bash(node --check:*)",
       "Bash(npx esbuild:*)",
       "Bash(ls:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm view:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

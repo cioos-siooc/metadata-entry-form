@@ -21,7 +21,7 @@ import {
  } from "@mui/material";
 import validator from "validator";
 import debounce from "just-debounce-it";
-import arrayMove from "array-move";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";

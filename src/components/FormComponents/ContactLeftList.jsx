@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 
 import { Container, Draggable } from "react-smooth-dnd";
 
-import arrayMove from "array-move";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 import { Delete, DragHandle, FileCopy, Save } from "@mui/icons-material";
 import {
   List,

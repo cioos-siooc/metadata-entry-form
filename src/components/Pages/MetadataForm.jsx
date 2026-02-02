@@ -11,7 +11,7 @@ import {
   Typography,
   LinearProgress,
 } from "@mui/material";
-import { withStyles } from "@mui/styles";
+import { withStyles } from "../../tss-cache";
 import { Save } from "@mui/icons-material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -95,7 +95,7 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const styles = (theme) => ({
+const useStyles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
   },
@@ -687,7 +687,7 @@ class MetadataForm extends FormClassTemplate {
 }
 MetadataForm.contextType = UserContext;
 
-const StyledMetadataForm = withStyles(styles)(MetadataForm);
+const StyledMetadataForm = withStyles(MetadataForm, useStyles);
 
 // Wrapper component to provide router params and navigate to the class component
 const MetadataFormWrapper = (props) => {

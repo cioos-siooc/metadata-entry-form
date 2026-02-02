@@ -3,7 +3,7 @@ import React, { useContext, useRef, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "../tss-cache";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
@@ -53,7 +53,7 @@ import { UserContext } from "../providers/UserProvider";
 
 const drawerWidth = 275;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     display: "flex",
     flexGrow: 1,
@@ -230,7 +230,7 @@ const useStyles = makeStyles((theme) => ({
 export default function MiniDrawer({ children }) {
   const navigate = useNavigate();
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 

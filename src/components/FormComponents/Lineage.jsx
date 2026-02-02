@@ -18,7 +18,7 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import arrayMove from "array-move";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy, deepEquals } from "../../utils/misc";
 import { metadataScopeCodes } from "../../isoCodeLists";

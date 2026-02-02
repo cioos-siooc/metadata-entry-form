@@ -3,16 +3,18 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import "regenerator-runtime/runtime";
-import "whatwg-fetch";
-import { vi } from "vitest";
-import "@testing-library/jest-dom";
 
+// TextEncoder/TextDecoder must be set before any imports that use react-router v7
 import { TextEncoder, TextDecoder } from "util";
 import DOMException from "domexception";
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+
+import "regenerator-runtime/runtime";
+import "whatwg-fetch";
+import { vi } from "vitest";
+import "@testing-library/jest-dom";
 global.MessagePort = class MessagePort {};
 global.DOMException = DOMException;
 

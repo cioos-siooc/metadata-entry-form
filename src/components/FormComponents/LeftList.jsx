@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {Container, Draggable} from "react-smooth-dnd";
 import {Delete, DragHandle, FileCopy, Save} from "@mui/icons-material";
-import arrayMove from "array-move";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 import {deepCopy, deepEquals} from "../../utils/misc";
 import {paperClass} from "./QuestionStyles";
 import {En, Fr, I18n} from "../I18n";

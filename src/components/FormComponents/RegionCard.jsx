@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "../../tss-cache";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 
@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import { useParams, useNavigate } from "react-router-dom";
 import regions, { getRegionLogo } from "../../regions";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     maxWidth: 380,
     display: "flex",
@@ -72,7 +72,7 @@ const useStyles = makeStyles({
 export default function MediaCard({ region, regionSummary, showMap = true }) {
   const navigate = useNavigate();
   const { language } = useParams();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const regionInfo = regions[region];
   const logoSrc = getRegionLogo(region, language);

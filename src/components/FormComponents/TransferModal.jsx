@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "../../tss-cache";
 import { Modal, TextField } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
 
@@ -20,7 +20,7 @@ function getModalStyle() {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   paper: {
     position: "absolute",
     width: 400,
@@ -41,7 +41,7 @@ export default function TransferModal({
   // result of the transger
   const [transferResult, setTransferResult] = useState(true);
   const [isTransferring, setIsTransferring] = useState(false);
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
