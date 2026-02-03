@@ -6,10 +6,11 @@
   "functions": [
     {
       "source": "functions",
+      "runtime": "nodejs24",
       "codebase": "js-functions"
     },
     {
-      "source": "python-functions", 
+      "source": "python-functions",
       "runtime": "python311",
       "codebase": "py-functions"
     }
