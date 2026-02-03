@@ -1,6 +1,6 @@
-const { onValueUpdated } = require("firebase-functions/v2/database");
-const { defineString } = require('firebase-functions/params');
+const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const { defineString } = require('firebase-functions/params');
 const nodemailer = require("nodemailer");
 const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
 const createIssue = require("./issue");
@@ -11,34 +11,23 @@ const createIssue = require("./issue");
 const gmailUser = defineString('GMAIL_USER');
 const gmailPass = defineString('GMAIL_PASS');
 
-// Lazy initialization - transporter created on first use
-let transporter = null;
+const gmailUserCred = process.env.GMAIL_USER || gmailUser.value()
+const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value()
 
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GMAIL_USER || gmailUser.value(),
-        pass: process.env.GMAIL_PASS || gmailPass.value(),
-      },
-    });
-  }
-  return transporter;
-}
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: { user: gmailUserCred, pass: gmailPassCred },
+});
 /*
 Email the reviewers for the region when a form is submitted for review
 */
-exports.notifyReviewer = onValueUpdated(
-  "/{region}/users/{userID}/records/{recordID}/status",
-  async (event) => {
+exports.notifyReviewer = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}/status")
+  .onUpdate(async ({ after, before }, context) => {
     const db = admin.database();
-    const { region, userID, recordID } = event.params;
-    const before = event.data.before.val();
-    const after = event.data.after.val();
-
+    const { region, userID, recordID } = context.params;
     // Don't notify if going from published to submitted
-    if (after === "submitted" && !before) {
+    if (after.val() === "submitted" && !before.val()) {
       const reviewersFirebase = await db
         .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
@@ -85,7 +74,7 @@ exports.notifyReviewer = onValueUpdated(
         return;
       }
       console.log("Emailing ", reviewers);
-      getTransporter().sendMail(
+      transporter.sendMail(
         mailOptionsReviewer(reviewers, title, region),
         (e, info) => {
           console.log(info);
@@ -99,16 +88,14 @@ exports.notifyReviewer = onValueUpdated(
 /*
 Email the user when a record is published
 */
-exports.notifyUser = onValueUpdated(
-  "/{region}/users/{userID}/records/{recordID}/status",
-  async (event) => {
+exports.notifyUser = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}/status")
+  .onUpdate(async ({ after }, context) => {
     const db = admin.database();
     // The userID of the author
     // We don't know the user ID of the publisher
-    const { region, userID, recordID } = event.params;
-    const after = event.data.after.val();
-
-    if (after === "published") {
+    const { region, userID, recordID } = context.params;
+    if (after.val() === "published") {
       const reviewersFirebase = await db
         .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
@@ -149,7 +136,7 @@ exports.notifyUser = onValueUpdated(
 
       // returning result
 
-      getTransporter().sendMail(
+      transporter.sendMail(
         mailOptionsAuthor(authorEmail, title, region),
         (e, info) => {
           console.log(info);

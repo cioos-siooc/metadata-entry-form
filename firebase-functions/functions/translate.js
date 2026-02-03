@@ -1,26 +1,24 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const functions = require("firebase-functions");
 const { defineString } = require('firebase-functions/params');
-const { TranslateClient, TranslateTextCommand } = require("@aws-sdk/client-translate");
+const AWS = require("aws-sdk");
 
 const awsRegion = defineString('AWS_REGION');
 const awsAccessKeyId = defineString('AWS_ACCESSKEYID');
 const awsSecretAccessKey = defineString('AWS_SECRETACCESSKEY');
 
-// Lazy initialization - client created on first use
-let translateClient = null;
+const awsRegionCred = process.env.AWS_REGION || awsRegion.value()
+const awsAccessKeyIdCred = process.env.AWS_ACCESSKEYID || awsAccessKeyId.value()
+const awsSecretAccessKeyCred = process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value()
 
-function getTranslateClient() {
-  if (!translateClient) {
-    translateClient = new TranslateClient({
-      region: process.env.AWS_REGION || awsRegion.value(),
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESSKEYID || awsAccessKeyId.value(),
-        secretAccessKey: process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value(),
-      },
-    });
-  }
-  return translateClient;
-}
+const awsAuth = {
+  region: awsRegionCred,
+  accessKeyId: awsAccessKeyIdCred,
+  secretAccessKey: awsSecretAccessKeyCred,
+};
+
+AWS.config = new AWS.Config(awsAuth);
+
+const translate = new AWS.Translate();
 
 // Translate up to 100,000 characters at a time using amazon translate
 const translateText = async (
@@ -28,27 +26,35 @@ const translateText = async (
   sourceLanguageCode,
   targetLanguageCode
 ) => {
-  const command = new TranslateTextCommand({
-    Text: originalText,
-    SourceLanguageCode: sourceLanguageCode,
-    TargetLanguageCode: targetLanguageCode,
-  });
+  return new Promise((resolve, reject) => {
+    const params = {
+      Text: originalText,
+      SourceLanguageCode: sourceLanguageCode,
+      TargetLanguageCode: targetLanguageCode,
+    };
 
-  try {
-    const data = await getTranslateClient().send(command);
-    return data;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("translateText error: ", err);
-    throw err;
-  }
+    try {
+      translate.translateText(params, (err, data) => {
+        if (err) {
+          // eslint-disable-next-line no-console
+          console.log("translateText error: ", err);
+          reject(err);
+        }
+
+        if (data) resolve(data);
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
+  });
 };
 
-exports.translate = onCall(async (request) => {
-  if (!request.auth || !request.auth.token)
-    throw new HttpsError("unauthenticated", "User must be authenticated");
+exports.translate = functions.https.onCall(async (data, context) => {
+  if (!context.auth || !context.auth.token)
+    throw new functions.https.HttpsError("unauthenticated");
 
-  const { text, fromLang } = request.data;
+  const { text, fromLang } = data;
 
   const toLang = fromLang === "en" ? "fr" : "en";
 

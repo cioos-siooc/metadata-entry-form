@@ -1,6 +1,5 @@
 const admin = require("firebase-admin");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { onValueCreated, onValueUpdated, onValueDeleted } = require("firebase-functions/v2/database");
+const functions = require("firebase-functions");
 const https = require("https");
 const axios = require("axios");
 
@@ -19,9 +18,8 @@ function getRecordFilename(record) {
 exports.getRecordFilename = getRecordFilename;
 
 // creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = onCall(
-  async (request) => {
-    const { record, fileType, region } = request.data;
+exports.downloadRecord = functions.https.onCall(
+  async ({ record, fileType, region }, context) => {
 
     let urlBase = urlBaseDefault;
     try {
@@ -57,12 +55,12 @@ async function updateXML(path, region, status = "", filename = "") {
 }
 
 // when user clicks "Save", if the record is submitted or published, update the XML
-exports.regenerateXMLforRecord = onCall(
-  async (request) => {
-    if (!request.auth || !request.auth.token)
-      throw new HttpsError("unauthenticated", "User must be authenticated");
+exports.regenerateXMLforRecord = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth || !context.auth.token)
+      throw new functions.https.HttpsError("unauthenticated");
 
-    const { path, status, region } = request.data;
+    const { path, status, region } = data;
     if (["submitted", "published"].includes(status)) updateXML(path, region);
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
@@ -72,11 +70,11 @@ exports.regenerateXMLforRecord = onCall(
 // if a record with status=submitted/published is created
 // this ONLY should happen when a submitted/published record is transferred to another user
 // when a new record is created/cloned, it would have status="" so this wouldnt run
-exports.updatesRecordCreate = onValueCreated(
-  "/{region}/users/{userID}/records/{recordID}",
-  async (event) => {
-    const record = event.data.val();
-    const { region, userID, recordID } = event.params;
+exports.updatesRecordCreate = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}")
+  .onCreate(async (snpashot, context) => {
+    const record = snpashot.val();
+    const { region, userID, recordID } = context.params;
     const path = `${region}/${userID}/${recordID}`;
     const { status } = record;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -90,16 +88,16 @@ exports.updatesRecordCreate = onValueCreated(
   });
 
 // if the record changes status we should trigger an update
-exports.updatesRecordUpdate = onValueUpdated(
-  "/{region}/users/{userID}/records/{recordID}/status",
-  (event) => {
-    const { region, userID, recordID } = event.params;
+exports.updatesRecordUpdate = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}/status")
+  .onUpdate(({ before, after }, context) => {
+    const { region, userID, recordID } = context.params;
     const path = `${region}/${userID}/${recordID}`;
 
     // record deleted event
 
-    const afterStatus = event.data.after.val();
-    const beforeStatus = event.data.before.val();
+    const afterStatus = after.val();
+    const beforeStatus = before.val();
 
     // status changed to draft
     if (
@@ -133,12 +131,12 @@ async function deleteXML(filename, region) {
 }
 
 // also trigger update when record is deleted
-exports.updatesRecordDelete = onValueDeleted(
-  "/{region}/users/{userID}/records/{recordID}",
-  (event) => {
-    const record = event.data.val();
+exports.updatesRecordDelete = functions.database
+  .ref("/{region}/users/{userID}/records/{recordID}")
+  .onDelete((snpashot, context) => {
+    const record = snpashot.val();
     const filename = getRecordFilename(record);
-    const { region } = event.params;
-
+    const { region } = context.params;
+    
     return deleteXML(filename, region);
   });
