@@ -14,7 +14,7 @@ from firebase_admin import initialize_app
 from cioos_metadata_conversion.record import Record
 
 # Determine if this is the dev project
-is_dev_project = BoolParam("REACT_APP_DEV_DEPLOYMENT", default=True)
+is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
