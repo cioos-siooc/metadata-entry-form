@@ -1,14 +1,15 @@
 const admin = require("firebase-admin");
-
-const baseUrl = "https://api.datacite.org/dois/";
-const functions = require("firebase-functions");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { logger } = require("firebase-functions");
 const axios = require("axios");
 
-// Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
-// are pulled from the admin section of the firebase db
-exports.createDraftDoi = functions.https.onCall(async (data) => {
+const baseUrl = "https://api.datacite.org/dois/";
 
-  const { record, region } = data;
+// Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails
+// are pulled from the admin section of the firebase db
+exports.createDraftDoi = onCall(async (request) => {
+
+  const { record, region } = request.data;
 
   let authHash
 
@@ -17,9 +18,9 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   } catch (error) {
       console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
-  } 
+  }
 
-  functions.logger.log(authHash);
+  logger.log(authHash);
 
   try{
     const url = `${baseUrl}`;
@@ -35,14 +36,14 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
     if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'unauthenticated',
         'Error from DataCite API: Unauthorized. Please check your API credentials.'
       );
     }
     // if the error is a 404, throw a HttpsError with the code 'not-found'
     if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'not-found',
         'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
       );
@@ -59,21 +60,21 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
     }
 
     // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    throw new HttpsError('unknown',errMessage);
   }
 });
 
-// Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentails 
+// Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentails
 // are pulled from the admin section of the firebase db
-exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
-  const { doi, region, data } = dataObj;
+exports.updateDraftDoi = onCall(async (request) => {
+  const { doi, region, data } = request.data;
   let authHash
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
     console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
-  } 
+  }
 
   try {
     const url = `${baseUrl}${doi}/`;
@@ -92,14 +93,14 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
     if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'unauthenticated',
         'Error from DataCite API: Unauthorized. Please check your API credentials.'
       );
     }
     // if the error is a 404, throw a HttpsError with the code 'not-found'
     if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'not-found',
         'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
       );
@@ -116,15 +117,15 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
     }
 
     // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    throw new HttpsError('unknown',errMessage);
   }
 });
 
-// Delete an existing draft doi on datacite tha matches doi saved in the firebase record (data). Datacite credentails 
+// Delete an existing draft doi on datacite tha matches doi saved in the firebase record (data). Datacite credentails
 // are pulled from the admin section of the firebase db
-exports.deleteDraftDoi = functions.https.onCall(async (data) => {
+exports.deleteDraftDoi = onCall(async (request) => {
 
-  const { doi, region } = data;
+  const { doi, region } = request.data;
   let authHash
 
   try {
@@ -132,7 +133,7 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
   } catch (error) {
       console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
-  } 
+  }
 
   try {
     const url = `${baseUrl}${doi}/`;
@@ -143,14 +144,14 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
     if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'unauthenticated',
         'Error from DataCite API: Unauthorized. Please check your API credentials.'
       );
     }
     // if the error is a 404, throw a HttpsError with the code 'not-found'
     if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'not-found',
         'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
       );
@@ -167,20 +168,21 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
     }
 
     // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    throw new HttpsError('unknown',errMessage);
   }
 });
 
-// Get status of doi, this could be Draft, Registered, Findable, or Unknown. The status od Findable and Registered 
+// Get status of doi, this could be Draft, Registered, Findable, or Unknown. The status od Findable and Registered
 // doi's can be determined by anyone while the status od draft doi's can only determined if they are part of the account
 // accessible using the saved datacite credentials in the admin section of the database. If the status can not be determined a
 // value of Unknown is returned
-exports.getDoiStatus = functions.https.onCall(async (data) => {
+exports.getDoiStatus = onCall(async (request) => {
 
   let prefix;
   let authHash
+  const data = request.data;
 
-  functions.logger.log(data);
+  logger.log(data);
 
   try {
     prefix = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("prefix").once("value")).val();
@@ -194,7 +196,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
   } catch (error) {
       console.error(`Error fetching Datacite Auth Hash for region ${data.region}:`, error);
       return null;
-  } 
+  }
 
   try {
     const url = `${baseUrl}${data.doi}/`;
@@ -208,7 +210,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
   } catch (err) {
     // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
     if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'unauthenticated',
         'Error from DataCite API: Unauthorized. Please check your API credentials.'
       );
@@ -232,14 +234,15 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
     }
 
     // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown', errMessage);
+    throw new HttpsError('unknown', errMessage);
   }
 
 });
 
 // helper function to get the datacite credentials from the database so they are not sent to the client
-exports.getCredentialsStored = functions.https.onCall(async (data) => {
+exports.getCredentialsStored = onCall(async (request) => {
   try {
+    const data = request.data;
     const credentialsRef = admin.database().ref('admin').child(data).child("dataciteCredentials");
     const authHashSnapshot = await credentialsRef.child("dataciteHash").once("value");
     const prefixSnapshot = await credentialsRef.child("prefix").once("value");
@@ -256,11 +259,12 @@ exports.getCredentialsStored = functions.https.onCall(async (data) => {
 });
 
 // helper function to get the datacite prefix from the database. this value is not special and can be sent to the client.
-exports.getDatacitePrefix = functions.https.onCall(async (region) => {
+exports.getDatacitePrefix = onCall(async (request) => {
   try {
+    const region = request.data;
     const prefix = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("prefix").once("value")).val();
     return prefix;
   } catch (error) {
-    throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
+    throw new Error(`Error fetching Datacite Prefix for region ${request.data}: ${error}`);
   }
 });

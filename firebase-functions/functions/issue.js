@@ -3,7 +3,6 @@ const fs = require("fs");
 const { defineString } = require('firebase-functions/params');
 
 const githubAuth = defineString('GITHUB_AUTH');
-const githubAuthCred = process.env.GITHUB_AUTH || githubAuth.value()
 
 function readIssueText(filename) {
   try {
@@ -17,7 +16,7 @@ function readIssueText(filename) {
 // Create an issue in the github repo when a metadta form record is submited for review
 async function createIssue(title, url) {
   const octokit = new Octokit({
-    auth: githubAuthCred,
+    auth: process.env.GITHUB_AUTH || githubAuth.value(),
   });
   const issueText = readIssueText("dataset-name.md");
   const input = {
