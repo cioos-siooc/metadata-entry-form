@@ -21,7 +21,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
  * SortableItem wraps each draggable item
  * Provides drag handle via the handleSelector class
  */
-export const SortableItem = ({ id, children, handleSelector = ".drag-handle" }) => {
+export const SortableItem = ({ id, children }) => {
   const {
     attributes,
     listeners,
@@ -37,30 +37,32 @@ export const SortableItem = ({ id, children, handleSelector = ".drag-handle" }) 
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Clone children and inject drag handle listeners to elements matching handleSelector
-  const childrenWithHandle = React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) return child;
-
-    return React.cloneElement(child, {
-      ref: setNodeRef,
-      style: { ...child.props.style, ...style },
-      "data-sortable-item": true,
-      // Pass listeners and attributes via a data attribute for the handle to pick up
-      "data-dnd-listeners": JSON.stringify({ isDragging }),
-    });
-  });
-
-  // Wrap in a div that handles the drag
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-    >
+    <div ref={setNodeRef} style={style} {...attributes}>
       <DragHandleContext.Provider value={{ listeners, attributes }}>
         {children}
       </DragHandleContext.Provider>
     </div>
+  );
+};
+
+export const useStableItemIds = (prefix = "item") => {
+  const idMapRef = React.useRef(new WeakMap());
+  const counterRef = React.useRef(0);
+
+  return React.useCallback(
+    (item, index) => {
+      if (item && typeof item === "object") {
+        const idMap = idMapRef.current;
+        if (!idMap.has(item)) {
+          counterRef.current += 1;
+          idMap.set(item, `${prefix}-${counterRef.current}`);
+        }
+        return idMap.get(item);
+      }
+      return `${prefix}-${index}`;
+    },
+    [prefix],
   );
 };
 
@@ -82,7 +84,11 @@ export const DragHandle = ({ children, disabled }) => {
   }
 
   return (
-    <span {...listeners} {...attributes} style={{ cursor: "grab", touchAction: "none" }}>
+    <span
+      {...listeners}
+      {...attributes}
+      style={{ cursor: "grab", touchAction: "none" }}
+    >
       {children}
     </span>
   );
@@ -110,7 +116,7 @@ export const SortableList = ({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const itemIds = items.map((item, index) => getItemId(item, index));
@@ -124,7 +130,7 @@ export const SortableList = ({
 
       onDrop({
         removedIndex: oldIndex,
-        addedIndex: newIndex
+        addedIndex: newIndex,
       });
     }
   };

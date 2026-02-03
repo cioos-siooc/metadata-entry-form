@@ -1,90 +1,106 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
-    Button,
-    Grid, IconButton,
-    List,
-    ListItemButton,
-    ListItemSecondaryAction,
-    ListItemText,
-    Paper,
-    Tooltip,
-    Typography,
+  Button,
+  Grid,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemSecondaryAction,
+  ListItemText,
+  Paper,
+  Tooltip,
+  Typography,
 } from "@mui/material";
-import {Delete, DragHandle as DragHandleIcon, FileCopy, Save} from "@mui/icons-material";
-import { SortableList, SortableItem, DragHandle, arrayMove } from "./SortableList";
-import {deepCopy, deepEquals} from "../../utils/misc";
-import {paperClass} from "./QuestionStyles";
-import {En, Fr, I18n} from "../I18n";
+import {
+  Delete,
+  DragHandle as DragHandleIcon,
+  FileCopy,
+  Save,
+} from "@mui/icons-material";
+import {
+  SortableList,
+  SortableItem,
+  DragHandle,
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
+import { deepCopy, deepEquals } from "../../utils/misc";
+import { paperClass } from "./QuestionStyles";
+import { En, Fr, I18n } from "../I18n";
 import SelectInput from "./SelectInput";
 
 const LeftList = ({
-    items,
-    updateItems,
-    activeItem,
-    setActiveItem,
-    disabled,
-    savedUserItems,
-    saveItem,
-    getBlankItem,
-    fieldsNotSavedInFirebase = [],
-    addNewItemText,
-    addSavedItemLabel,
-    leftListHeader,
-    leftListEmptyHeader,
-    itemTitle,
-    itemValidator,
-    uidFields,
+  items,
+  updateItems,
+  activeItem,
+  setActiveItem,
+  disabled,
+  savedUserItems,
+  saveItem,
+  getBlankItem,
+  fieldsNotSavedInFirebase = [],
+  addNewItemText,
+  addSavedItemLabel,
+  leftListHeader,
+  leftListEmptyHeader,
+  itemTitle,
+  itemValidator,
+  uidFields,
 }) => {
-    const [currentItems, setItems] = useState(items)
-    if (!deepEquals(currentItems, items)){
-        setItems(items)
+  const getItemId = useStableItemIds("item");
+  const [currentItems, setItems] = useState(items);
+  if (!deepEquals(currentItems, items)) {
+    setItems(items);
+  }
+
+  const onDrop = ({
+    removedIndex: dragStartIndex,
+    addedIndex: dragEndIndex,
+  }) => {
+    if (dragStartIndex === activeItem) {
+      setActiveItem(dragEndIndex);
+    } else if (dragEndIndex <= activeItem && dragStartIndex > activeItem) {
+      setActiveItem(activeItem + 1);
     }
 
-    const onDrop = ({ removedIndex: dragStartIndex, addedIndex: dragEndIndex }) => {
-        if (dragStartIndex === activeItem) {
-            setActiveItem(dragEndIndex);
-        } else if (dragEndIndex <= activeItem && dragStartIndex > activeItem){
-            setActiveItem(activeItem + 1)
-        }
+    const reorderedItems = arrayMove(
+      currentItems,
+      dragStartIndex,
+      dragEndIndex,
+    );
 
-        const reorderedItems = arrayMove(
-            currentItems,
-            dragStartIndex,
-            dragEndIndex
-        )
+    updateItems(reorderedItems);
+  };
 
-        updateItems(reorderedItems)
+  function removeItem(itemIndex) {
+    updateItems(items.filter((e, index) => index !== itemIndex));
+    if (items.length) {
+      setActiveItem(items.length - 2);
     }
+  }
 
-    function removeItem(itemIndex) {
-      updateItems(items.filter((e, index) => index !== itemIndex));
-      if (items.length) {
-        setActiveItem(items.length - 2);
-      }
-    }
+  function duplicateItem(itemIndex) {
+    const duplicatedItem = deepCopy(items[itemIndex]);
+    const fieldsToAppend = uidFields || ["id"];
 
-    function duplicateItem(itemIndex) {
-        const duplicatedItem = deepCopy(items[itemIndex]);
-        const fieldsToAppend = uidFields || ["id"]
+    const uidField = fieldsToAppend.find(
+      (fieldName) => duplicatedItem[fieldName],
+    );
+    duplicatedItem[uidField] += " (Copy)";
 
-        const uidField = fieldsToAppend.find(fieldName => duplicatedItem[fieldName])
-        duplicatedItem[uidField] += " (Copy)";
+    updateItems(items.concat(duplicatedItem));
+  }
 
-        updateItems(items.concat(duplicatedItem));
-      }
+  const savedUserItemList = Object.values(savedUserItems || {});
 
-   const savedUserItemList = Object.values(savedUserItems || {});
-
-   const handleAddFromSavedUserItem = (e) => {
+  const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
     const { role, ...contact } = savedUserItemList[index];
 
-    updateItems(
-      items.concat(deepCopy({ ...getBlankItem(), ...contact }))
-    );
+    updateItems(items.concat(deepCopy({ ...getBlankItem(), ...contact })));
     // TODO: Apply UID check for duplicates before adding to list
     setActiveItem(items.length);
-  }
+  };
 
   function handleAddNewBlankItem() {
     updateItems(items.concat(getBlankItem()));
@@ -92,32 +108,33 @@ const LeftList = ({
   }
 
   return (
-      <Paper style={paperClass}>
+    <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
         <Grid size="grow" style={{ margin: "10px" }}>
           <Typography>
-              {items.length ? (leftListHeader ||(
-              <I18n>
-                <En>Items in this record:</En>
-                <Fr>Plateforme dans cet enregistrement :</Fr>
-              </I18n>
-            )) : (leftListEmptyHeader || (
-              <I18n>
-                <En>There are no items in this record.</En>
-                <Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr>
-              </I18n>
-            ))}
+            {items.length
+              ? leftListHeader || (
+                  <I18n>
+                    <En>Items in this record:</En>
+                    <Fr>Plateforme dans cet enregistrement :</Fr>
+                  </I18n>
+                )
+              : leftListEmptyHeader || (
+                  <I18n>
+                    <En>There are no items in this record.</En>
+                    <Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr>
+                  </I18n>
+                )}
           </Typography>
         </Grid>
-          <Grid size="grow">
+        <Grid size="grow">
           <List>
-            <SortableList items={items} onDrop={onDrop}>
+            <SortableList items={items} onDrop={onDrop} getItemId={getItemId}>
               {items.map((itemEntry, i) => {
+                const itemId = getItemId(itemEntry, i);
                 return (
-                  <SortableItem key={i} id={`item-${i}`}>
-                    <ListItemButton
-                      onClick={() => setActiveItem(i)}
-                    >
+                  <SortableItem key={itemId} id={itemId}>
+                    <ListItemButton onClick={() => setActiveItem(i)}>
                       <ListItemText
                         primary={
                           <Typography
@@ -126,18 +143,15 @@ const LeftList = ({
                               width: "80%",
                             }}
                           >
-                              {itemTitle(itemEntry) || (<I18n en="New item" fr="Nouveau article" />)}
+                            {itemTitle(itemEntry) || (
+                              <I18n en="New item" fr="Nouveau article" />
+                            )}
                           </Typography>
                         }
                       />
                       <ListItemSecondaryAction>
                         <Tooltip
-                          title={
-                            <I18n
-                              en="Duplicate entry"
-                              fr="Dupliquer"
-                            />
-                          }
+                          title={<I18n en="Duplicate entry" fr="Dupliquer" />}
                         >
                           <span>
                             <IconButton
@@ -184,16 +198,19 @@ const LeftList = ({
 
                                 // at this point the contact object could have
                                 // a role field, which shouldn't be saved
-                                fieldsNotSavedInFirebase.forEach((fieldName) => {
+                                fieldsNotSavedInFirebase.forEach(
+                                  (fieldName) => {
                                     delete toSave[fieldName];
-                                })
+                                  },
+                                );
 
                                 toSave.contactID = saveItem(toSave);
 
                                 setItems(items);
                               }}
                               disabled={
-                                  ((itemValidator && itemValidator(itemEntry)) || itemEntry.id?.length === 0)
+                                (itemValidator && itemValidator(itemEntry)) ||
+                                itemEntry.id?.length === 0
                               }
                               edge="end"
                               aria-label="clone"
@@ -204,14 +221,14 @@ const LeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
+                            <I18n
+                              en="Drag to reorder"
+                              fr="Faites glisser pour réorganiser"
+                            />
                           }
                         >
                           <DragHandle disabled={disabled}>
-                            <IconButton
-                              edge="end"
-                              aria-label="reorder"
-                            >
+                            <IconButton edge="end" aria-label="reorder">
                               <DragHandleIcon />
                             </IconButton>
                           </DragHandle>
@@ -232,10 +249,12 @@ const LeftList = ({
             style={{ height: "56px", justifyContent: "emptyContact" }}
           >
             <Typography>
-                {addNewItemText || <I18n>
-                    <En>Add new item</En>
-                    <Fr>Ajouter un contact</Fr>
-                </I18n>}
+              {addNewItemText || (
+                <I18n>
+                  <En>Add new item</En>
+                  <Fr>Ajouter un contact</Fr>
+                </I18n>
+              )}
             </Typography>
           </Button>
         </Grid>
@@ -245,17 +264,20 @@ const LeftList = ({
             labelId="add-existing"
             onChange={handleAddFromSavedUserItem}
             optionLabels={savedUserItemList.map((savedItem) => {
-                return (itemTitle(savedItem))
+              return itemTitle(savedItem);
             })}
             options={savedUserItemList.map((v, i) => i)}
             disabled={!savedUserItemList.length || disabled}
-            label={addSavedItemLabel || (<I18n en="ADD SAVED ITEM" fr="AJOUTER UN ÉLÉMENT ENREGISTRÉ" />)}
+            label={
+              addSavedItemLabel || (
+                <I18n en="ADD SAVED ITEM" fr="AJOUTER UN ÉLÉMENT ENREGISTRÉ" />
+              )
+            }
           />
         </Grid>
       </Grid>
-      </Paper>
-  )
-
-}
+    </Paper>
+  );
+};
 
 export default LeftList;

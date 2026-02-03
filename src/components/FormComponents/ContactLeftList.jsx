@@ -1,7 +1,18 @@
 import React, { useCallback, useState } from "react";
 
-import { Delete, DragHandle as DragHandleIcon, FileCopy, Save } from "@mui/icons-material";
-import { SortableList, SortableItem, DragHandle, arrayMove } from "./SortableList";
+import {
+  Delete,
+  DragHandle as DragHandleIcon,
+  FileCopy,
+  Save,
+} from "@mui/icons-material";
+import {
+  SortableList,
+  SortableItem,
+  DragHandle,
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
 import {
   List,
   ListItemButton,
@@ -31,6 +42,7 @@ const ContactLeftList = ({
   userContacts,
   saveToContacts,
 }) => {
+  const getItemId = useStableItemIds("contact");
   const [currentContacts, setItems] = useState(contacts);
 
   if (!deepEquals(currentContacts, contacts)) {
@@ -38,19 +50,22 @@ const ContactLeftList = ({
   }
   //  removedIndex is dragStart
   //  addedIndex is dragEnd
-  const onDrop = useCallback(({ removedIndex, addedIndex }) => {
-    if (removedIndex === activeContact) setActiveContact(addedIndex);
-    else if (addedIndex <= activeContact && removedIndex > activeContact)
-      setActiveContact(activeContact + 1);
+  const onDrop = useCallback(
+    ({ removedIndex, addedIndex }) => {
+      if (removedIndex === activeContact) setActiveContact(addedIndex);
+      else if (addedIndex <= activeContact && removedIndex > activeContact)
+        setActiveContact(activeContact + 1);
 
-    const reorderedContacts = arrayMove(
-      currentContacts,
-      removedIndex,
-      addedIndex
-    );
+      const reorderedContacts = arrayMove(
+        currentContacts,
+        removedIndex,
+        addedIndex,
+      );
 
-    updateContacts(reorderedContacts);
-  }, [activeContact, currentContacts]);
+      updateContacts(reorderedContacts);
+    },
+    [activeContact, currentContacts],
+  );
 
   function removeItem(itemIndex) {
     updateContacts(contacts.filter((e, index) => index !== itemIndex));
@@ -67,15 +82,18 @@ const ContactLeftList = ({
 
   const contactList = Object.values(userContacts || {});
 
-  const handleAddFromSavedContacts = useCallback((e) => {
-    const index = e.target.value;
-    const { role, ...contact } = contactList[index];
+  const handleAddFromSavedContacts = useCallback(
+    (e) => {
+      const index = e.target.value;
+      const { role, ...contact } = contactList[index];
 
-    updateContacts(
-      contacts.concat(deepCopy({ ...getBlankContact(), ...contact }))
-    );
-    setActiveContact(contacts.length);
-  }, [contacts]);
+      updateContacts(
+        contacts.concat(deepCopy({ ...getBlankContact(), ...contact })),
+      );
+      setActiveContact(contacts.length);
+    },
+    [contacts],
+  );
 
   const handleAddNewContact = useCallback(() => {
     updateContacts(contacts.concat(getBlankContact()));
@@ -102,13 +120,16 @@ const ContactLeftList = ({
         </Grid>
         <Grid size="grow">
           <List>
-            <SortableList items={contacts} onDrop={onDrop}>
+            <SortableList
+              items={contacts}
+              onDrop={onDrop}
+              getItemId={getItemId}
+            >
               {contacts.map((contactItem, i) => {
+                const contactId = getItemId(contactItem, i);
                 return (
-                  <SortableItem key={i} id={`contact-${i}`}>
-                    <ListItemButton
-                      onClick={() => setActiveContact(i)}
-                    >
+                  <SortableItem key={contactId} id={contactId}>
+                    <ListItemButton onClick={() => setActiveContact(i)}>
                       <ListItemText
                         primary={
                           <Typography
@@ -123,12 +144,7 @@ const ContactLeftList = ({
                       />
                       <ListItemSecondaryAction>
                         <Tooltip
-                          title={
-                            <I18n
-                              en="Duplicate contact"
-                              fr="Dupliquer"
-                            />
-                          }
+                          title={<I18n en="Duplicate contact" fr="Dupliquer" />}
                         >
                           <span>
                             <IconButton
@@ -197,14 +213,14 @@ const ContactLeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
+                            <I18n
+                              en="Drag to reorder"
+                              fr="Faites glisser pour réorganiser"
+                            />
                           }
                         >
                           <DragHandle disabled={disabled}>
-                            <IconButton
-                              edge="end"
-                              aria-label="reorder"
-                            >
+                            <IconButton edge="end" aria-label="reorder">
                               <DragHandleIcon />
                             </IconButton>
                           </DragHandle>
