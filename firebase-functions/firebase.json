@@ -6,7 +6,7 @@
   "functions": [
     {
       "source": "functions",
-      "runtime": "nodejs24",
+      "runtime": "nodejs22",
       "codebase": "js-functions"
     },
     {
