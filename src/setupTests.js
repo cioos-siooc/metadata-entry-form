@@ -14,12 +14,10 @@ vi.hoisted(() => {
   global.TextDecoder = TextDecoder;
 });
 
-import DOMException from "domexception";
 import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 import "@testing-library/jest-dom";
 global.MessagePort = class MessagePort { };
-global.DOMException = DOMException;
 
 // Mock ResizeObserver for MUI components
 global.ResizeObserver = class ResizeObserver {

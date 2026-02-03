@@ -51,6 +51,21 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
+      include: ["src/**/*.{js,jsx}"],
+      exclude: [
+        "src/index.js",
+        "src/setupTests.js",
+        "src/serviceWorker.js",
+        "**/node_modules/**",
+        "**/__tests__/**",
+        "**/__mocks__/**",
+      ],
+      thresholds: {
+        branches: 80,
+        functions: 90,
+        lines: 95,
+        statements: 90,
+      },
     },
   },
 }));
