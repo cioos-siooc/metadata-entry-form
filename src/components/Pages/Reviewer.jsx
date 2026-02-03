@@ -642,7 +642,7 @@ class Reviewer extends FormClassTemplate {
             {recordsToShow.length ? (
               <>
                 <Grid container direction="column">
-                  <Grid size="grow">
+                  <Grid>
                     <Typography>
                       <I18n>
                         <En>
@@ -659,7 +659,7 @@ class Reviewer extends FormClassTemplate {
                       </I18n>
                     </Typography>
                   </Grid>
-                  <Grid size="grow">
+                  <Grid>
                     <List>
                       {recordsToShow.map((record) => (
                         <RecordItem
@@ -678,7 +678,7 @@ class Reviewer extends FormClassTemplate {
               </>
             ) : (
               <Grid container direction="column">
-                <Grid size="grow">
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>There are no records waiting to be reviewed.</En>
