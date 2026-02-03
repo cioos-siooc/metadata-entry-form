@@ -7,11 +7,11 @@ import {
   Avatar,
   ListItemAvatar,
   Tooltip,
-  ListItemSecondaryAction,
   IconButton,
   CircularProgress,
   MenuItem,
   Menu,
+  Box,
 } from "@mui/material";
 import {
   FileCopy,
@@ -183,7 +183,7 @@ const MetadataRecordListItem = ({
           </span>
         }
       />
-      <ListItemSecondaryAction>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         {showViewAction && (
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
@@ -235,7 +235,7 @@ const MetadataRecordListItem = ({
                disableTouchListener={publishMenuOpen}
              >
                <span>
-                <IconButton onClick={handlePublishClick}>
+                <IconButton onClick={handlePublishClick} edge="end" >
                   <Publish />
                 </IconButton>
                </span>
@@ -267,6 +267,7 @@ const MetadataRecordListItem = ({
                     disableHoverListener={githubPublishEnabled}
                     disableFocusListener={githubPublishEnabled}
                     disableTouchListener={githubPublishEnabled}
+                    placement="right"
                   >
                     <span>
                       <MenuItem
@@ -353,6 +354,7 @@ const MetadataRecordListItem = ({
                 aria-haspopup="true"
                 onClick={handleDownloadClick}
                 disabled={!isValidRecord}
+                edge="end"
               >
                 {isLoading.downloadXML ? (
                   <CircularProgress />
@@ -492,7 +494,7 @@ const MetadataRecordListItem = ({
             </IconButton>
           </span>
         </Tooltip>
-      </ListItemSecondaryAction>
+      </Box>
     </ListItem>
   );
 };
