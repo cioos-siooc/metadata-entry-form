@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { arrayMoveImmutable as arrayMove } from "array-move";
-import { Container, Draggable } from "react-smooth-dnd";
+import { SortableList, SortableItem, arrayMove } from "../FormComponents/SortableList";
 import { Paper,
     List,
     ListItem,
@@ -240,17 +239,13 @@ const TaxaTab = ({
 
                         <Box border={1} borderRadius="4px" borderColor="#ababab" margin="10px" >
                             <List>
-                                <Container
-                                    lockAxis="y"
-                                    onDrop={(d) => onDrop(d)}
-                                >
+                                <SortableList items={taxa} onDrop={onDrop}>
                                     {taxa.map((taxaItem, i) => {
                                         return (
-                                            <Draggable key={i}>
+                                            <SortableItem key={i} id={`taxa-${i}`}>
                                                 <ListItem
-                                                    key={i}
-                                                    button
                                                     onClick={() => setActiveTaxa(i)}
+                                                    sx={{ cursor: 'pointer' }}
                                                 >
                                                     <ListItemText
                                                         primary={
@@ -286,10 +281,10 @@ const TaxaTab = ({
                                                         </Tooltip>
                                                     </ListItemSecondaryAction>
                                                 </ListItem>
-                                            </Draggable>
+                                            </SortableItem>
                                         );
                                     })}
-                                </Container>
+                                </SortableList>
                             </List>
                         </Box>
                     </Grid>

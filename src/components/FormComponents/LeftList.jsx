@@ -10,9 +10,8 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
-import {Container, Draggable} from "react-smooth-dnd";
-import {Delete, DragHandle, FileCopy, Save} from "@mui/icons-material";
-import { arrayMoveImmutable as arrayMove } from "array-move";
+import {Delete, DragHandle as DragHandleIcon, FileCopy, Save} from "@mui/icons-material";
+import { SortableList, SortableItem, DragHandle, arrayMove } from "./SortableList";
 import {deepCopy, deepEquals} from "../../utils/misc";
 import {paperClass} from "./QuestionStyles";
 import {En, Fr, I18n} from "../I18n";
@@ -112,16 +111,11 @@ const LeftList = ({
         </Grid>
           <Grid size="grow">
           <List>
-            <Container
-              dragHandleSelector=".drag-handle"
-              lockAxis="y"
-              onDrop={onDrop}
-            >
+            <SortableList items={items} onDrop={onDrop}>
               {items.map((itemEntry, i) => {
                 return (
-                  <Draggable key={i}>
+                  <SortableItem key={i} id={`item-${i}`}>
                     <ListItemButton
-                      key={i}
                       onClick={() => setActiveItem(i)}
                     >
                       <ListItemText
@@ -213,23 +207,21 @@ const LeftList = ({
                             <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
                           }
                         >
-                          <span>
+                          <DragHandle disabled={disabled}>
                             <IconButton
-                              className="drag-handle"
                               edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
+                              aria-label="reorder"
                             >
-                              <DragHandle />
+                              <DragHandleIcon />
                             </IconButton>
-                          </span>
+                          </DragHandle>
                         </Tooltip>
                       </ListItemSecondaryAction>
                     </ListItemButton>
-                  </Draggable>
+                  </SortableItem>
                 );
               })}
-            </Container>
+            </SortableList>
           </List>
         </Grid>
         <Grid size="grow" style={{ margin: "10px" }}>

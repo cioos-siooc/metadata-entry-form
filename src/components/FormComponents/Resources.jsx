@@ -3,9 +3,9 @@ import {
   Add,
   Delete,
   FileCopy,
-  DragHandle,
+  DragHandle as DragHandleIcon,
 } from "@mui/icons-material";
-import { Container, Draggable } from "react-smooth-dnd";
+import { SortableList, SortableItem, DragHandle, arrayMove } from "./SortableList";
 import {
   Button, 
   Grid, 
@@ -21,7 +21,6 @@ import {
  } from "@mui/material";
 import validator from "validator";
 import debounce from "just-debounce-it";
-import { arrayMoveImmutable as arrayMove } from "array-move";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
@@ -136,18 +135,13 @@ const Resources = ({
             {resources && resources.length > 0 && (
             <Grid size="grow">
               <List>
-                <Container
-                  dragHandleSelector=".drag-handle"
-                  lockAxis="y"
-                  onDrop={onDrop}
-                >
+                <SortableList items={resources} onDrop={onDrop}>
                 {resources.map((resourceItem, idx) => {
                   return (
-                    <Draggable key={idx}>
+                    <SortableItem key={idx} id={`resource-${idx}`}>
                     <ListItem
-                      key={idx}
-                      button
                       onClick={() => setActiveResource(idx)}
+                      sx={{ cursor: 'pointer' }}
                     >
                       <ListItemText
                         primary={
@@ -209,23 +203,21 @@ const Resources = ({
                             <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
                           }
                         >
-                          <span>
+                          <DragHandle disabled={disabled}>
                             <IconButton
-                              className="drag-handle"
                               edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
+                              aria-label="reorder"
                             >
-                              <DragHandle />
+                              <DragHandleIcon />
                             </IconButton>
-                          </span>
+                          </DragHandle>
                         </Tooltip>
                       </ListItemSecondaryAction>
                     </ListItem>
-                    </Draggable>
+                    </SortableItem>
                   );
                 })}
-                </Container>
+                </SortableList>
               </List>
             </Grid>
             )}

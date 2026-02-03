@@ -3,9 +3,9 @@ import {
   Add,
   Delete,
   FileCopy,
-  DragHandle,
+  DragHandle as DragHandleIcon,
 } from "@mui/icons-material";
-import { Container, Draggable } from "react-smooth-dnd";
+import { SortableList, SortableItem, DragHandle, arrayMove } from "./SortableList";
 import {
   Grid,
   Button,
@@ -18,7 +18,6 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import { arrayMoveImmutable as arrayMove } from "array-move";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy, deepEquals } from "../../utils/misc";
 import { metadataScopeCodes } from "../../isoCodeLists";
@@ -157,18 +156,13 @@ const Lineage = ({
             {history && history.length > 0 && (
             <Grid size="grow">
               <List>
-                <Container
-                  dragHandleSelector=".drag-handle"
-                  lockAxis="y"
-                  onDrop={onDrop}
-                >
+                <SortableList items={history} onDrop={onDrop}>
                   {history.map((lineageItem, i) => {
                     return (
-                      <Draggable key={i}>
+                      <SortableItem key={i} id={`lineage-${i}`}>
                         <ListItem
-                          key={i}
-                          button
                           onClick={() => setActiveLineage(i)}
+                          sx={{ cursor: 'pointer' }}
                         >
                           <ListItemText
                             primary={
@@ -230,23 +224,21 @@ const Lineage = ({
                                 <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
                               }
                             >
-                              <span>
+                              <DragHandle disabled={disabled}>
                                 <IconButton
-                                  className="drag-handle"
                                   edge="end"
-                                  aria-label="clone"
-                                  disabled={disabled}
+                                  aria-label="reorder"
                                 >
-                                  <DragHandle />
+                                  <DragHandleIcon />
                                 </IconButton>
-                              </span>
+                              </DragHandle>
                             </Tooltip>
                           </ListItemSecondaryAction>
                         </ListItem>
-                      </Draggable>
+                      </SortableItem>
                     );
                   })}
-                </Container>
+                </SortableList>
               </List>
             </Grid>
             )}
