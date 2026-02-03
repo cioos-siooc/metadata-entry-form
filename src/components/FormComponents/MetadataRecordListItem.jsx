@@ -11,7 +11,7 @@ import {
   CircularProgress,
   MenuItem,
   Menu,
-  Box,
+  ListItemSecondaryAction,
 } from "@mui/material";
 import {
   FileCopy,
@@ -183,7 +183,7 @@ const MetadataRecordListItem = ({
           </span>
         }
       />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <ListItemSecondaryAction sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         {showViewAction && (
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
@@ -494,7 +494,7 @@ const MetadataRecordListItem = ({
             </IconButton>
           </span>
         </Tooltip>
-      </Box>
+      </ListItemSecondaryAction>
     </ListItem>
   );
 };
