@@ -35,8 +35,8 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 
 ### Backend (`firebase-functions/`)
 Serverless backend using Firebase Cloud Functions (Gen 2).
-*   **JavaScript (`functions/`)**: Handles triggers (DB updates), notifications, translations, and GitHub publishing.
-*   **Python (`python-functions/`)**: Handles heavy data processing (XML conversion).
+*   **JavaScript (`functions/`)**: Node.js 24 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
+*   **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
 
 ### Data Model & Validation
 *   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
