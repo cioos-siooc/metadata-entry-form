@@ -19,6 +19,7 @@ jobs:
       - name: Install and Build 🔧
         env:
           VITE_DEV_DEPLOYMENT: true
+          VITE_BASE_PATH: /
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
         run: npm ci && npm run build

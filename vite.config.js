@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: "/metadata-entry-form/",
+  // Use "/" for Firebase Hosting, "/metadata-entry-form/" for GitHub Pages
+  base: process.env.VITE_BASE_PATH || "/metadata-entry-form/",
   assetsInclude: ["**/*.j2"],
   resolve: {
     alias: {
