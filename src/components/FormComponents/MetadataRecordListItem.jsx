@@ -244,6 +244,7 @@ const MetadataRecordListItem = ({
                anchorEl={publishAnchorEl}
                open={publishMenuOpen}
                onClose={handlePublishClose}
+               disableScrollLock
              >
                 {showPublishAction && (
                   <MenuItem onClick={() => { onSubmitClick(); handlePublishClose(); }}>
@@ -367,6 +368,7 @@ const MetadataRecordListItem = ({
                 anchorEl={downloadAnchorEl}
                 open={downloadMenuOpen}
                 onClose={handleDownloadClose}
+                disableScrollLock
                 PaperProps={{
                   style: {
                     // maxHeight: ITEM_HEIGHT * 4.5,
