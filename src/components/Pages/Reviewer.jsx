@@ -459,7 +459,7 @@ class Reviewer extends FormClassTemplate {
         direction="column"
         justifyContent="space-between"
         alignItems="stretch"
-        spacing={3}
+        spacing={1}
       >
         <TransferModal
           open={transferModalOpen}
