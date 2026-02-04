@@ -1,5 +1,5 @@
-import React, { useMemo, useCallback, useState } from 'react';
-import { IconButton, Tooltip, Menu, MenuItem, Button } from '@material-ui/core';
+import React, { useMemo, useCallback, useState } from "react";
+import { IconButton, Tooltip, Menu, MenuItem, Button } from "@mui/material";
 import {
   Edit,
   Visibility,
@@ -10,7 +10,7 @@ import {
   TransferWithinAStation,
   CloudUpload,
   Refresh,
-} from '@material-ui/icons';
+} from "@mui/icons-material";
 import {
   DataGrid,
   GridToolbarContainer,
@@ -18,15 +18,20 @@ import {
   GridToolbarQuickFilter,
   GridToolbarExport,
   GridToolbarFilterButton,
-} from '@mui/x-data-grid';
+} from "@mui/x-data-grid";
 
-import { useRecordListContext } from './context';
-import { useColumnVisibility } from './hooks';
-import { createColumns, recordToRow } from './config';
-import { I18n } from '../I18n';
+import { useRecordListContext } from "./context";
+import { useColumnVisibility } from "./hooks";
+import { createColumns, recordToRow } from "./config";
+import { I18n } from "../I18n";
 
 // Separate component for row actions to manage menu state
-const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) => {
+const RowActions = ({
+  rowData,
+  actions,
+  actionHandlers,
+  githubPublishEnabled,
+}) => {
   const [publishAnchorEl, setPublishAnchorEl] = useState(null);
   const publishMenuOpen = Boolean(publishAnchorEl);
 
@@ -38,9 +43,9 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
     setPublishAnchorEl(null);
   };
 
-  const isPublished = rowData.status === 'published';
-  const isSubmitted = rowData.status === 'submitted';
-  const isDraft = rowData.status === '';
+  const isPublished = rowData.status === "published";
+  const isSubmitted = rowData.status === "submitted";
+  const isDraft = rowData.status === "";
 
   // Determine if we should show the grouped publish menu
   const showPublishMenu =
@@ -50,7 +55,7 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
     ((isSubmitted || isPublished) && actions.showGithubPublishAction);
 
   return (
-    <div style={{ display: 'flex', gap: '4px' }}>
+    <div style={{ display: "flex", gap: "4px" }}>
       {/* View/Edit button */}
       {(actions.showViewAction || actions.showEditAction) && (
         <Tooltip
@@ -64,7 +69,9 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
         >
           <IconButton
             size="small"
-            onClick={() => actionHandlers.edit?.(rowData.recordID, rowData.userID)}
+            onClick={() =>
+              actionHandlers.edit?.(rowData.recordID, rowData.userID)
+            }
           >
             {isPublished || actions.showViewAction ? (
               <Visibility fontSize="small" />
@@ -80,7 +87,9 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
         <Tooltip title={<I18n en="Clone" fr="Dupliquer" />}>
           <IconButton
             size="small"
-            onClick={() => actionHandlers.clone?.(rowData.recordID, rowData.userID)}
+            onClick={() =>
+              actionHandlers.clone?.(rowData.recordID, rowData.userID)
+            }
           >
             <FileCopy fontSize="small" />
           </IconButton>
@@ -92,7 +101,9 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
         <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
           <IconButton
             size="small"
-            onClick={() => actionHandlers.delete?.(rowData.recordID, rowData.userID)}
+            onClick={() =>
+              actionHandlers.delete?.(rowData.recordID, rowData.userID)
+            }
           >
             <Delete fontSize="small" />
           </IconButton>
@@ -104,7 +115,9 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
         <Tooltip title={<I18n en="Transfer" fr="Transférer" />}>
           <IconButton
             size="small"
-            onClick={() => actionHandlers.transfer?.(rowData.recordID, rowData.userID)}
+            onClick={() =>
+              actionHandlers.transfer?.(rowData.recordID, rowData.userID)
+            }
           >
             <TransferWithinAStation fontSize="small" />
           </IconButton>
@@ -113,10 +126,14 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
 
       {/* Submit (Draft -> Submitted) - standalone button for user submissions */}
       {isDraft && actions.showSubmitAction && (
-        <Tooltip title={<I18n en="Submit for review" fr="Soumettre pour examen" />}>
+        <Tooltip
+          title={<I18n en="Submit for review" fr="Soumettre pour examen" />}
+        >
           <IconButton
             size="small"
-            onClick={() => actionHandlers.submit?.(rowData.recordID, rowData.userID)}
+            onClick={() =>
+              actionHandlers.submit?.(rowData.recordID, rowData.userID)
+            }
           >
             <Publish fontSize="small" />
           </IconButton>
@@ -179,34 +196,41 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
             )}
 
             {/* GitHub Publish */}
-            {(isSubmitted || isPublished) && actions.showGithubPublishAction && (
-              <Tooltip
-                title={
-                  <I18n
-                    en="GitHub publishing not configured"
-                    fr="La publication GitHub n'est pas configurée"
-                  />
-                }
-                disableHoverListener={githubPublishEnabled}
-                disableFocusListener={githubPublishEnabled}
-                disableTouchListener={githubPublishEnabled}
-              >
-                <span>
-                  <MenuItem
-                    disabled={!githubPublishEnabled}
-                    onClick={() => {
-                      if (githubPublishEnabled) {
-                        actionHandlers.githubPublish?.(rowData.recordID, rowData.userID);
-                      }
-                      handlePublishClose();
-                    }}
-                  >
-                    <CloudUpload style={{ marginRight: 8 }} fontSize="small" />
-                    <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
-                  </MenuItem>
-                </span>
-              </Tooltip>
-            )}
+            {(isSubmitted || isPublished) &&
+              actions.showGithubPublishAction && (
+                <Tooltip
+                  title={
+                    <I18n
+                      en="GitHub publishing not configured"
+                      fr="La publication GitHub n'est pas configurée"
+                    />
+                  }
+                  disableHoverListener={githubPublishEnabled}
+                  disableFocusListener={githubPublishEnabled}
+                  disableTouchListener={githubPublishEnabled}
+                >
+                  <span>
+                    <MenuItem
+                      disabled={!githubPublishEnabled}
+                      onClick={() => {
+                        if (githubPublishEnabled) {
+                          actionHandlers.githubPublish?.(
+                            rowData.recordID,
+                            rowData.userID,
+                          );
+                        }
+                        handlePublishClose();
+                      }}
+                    >
+                      <CloudUpload
+                        style={{ marginRight: 8 }}
+                        fontSize="small"
+                      />
+                      <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
+                    </MenuItem>
+                  </span>
+                </Tooltip>
+              )}
           </Menu>
         </>
       )}
@@ -215,15 +239,33 @@ const RowActions = ({ rowData, actions, actionHandlers, githubPublishEnabled }) 
 };
 
 const RecordTableView = ({ records }) => {
-  const { config, actionHandlers, language, region, githubPublishEnabled, listState } = useRecordListContext();
+  const {
+    config,
+    actionHandlers,
+    language,
+    region,
+    githubPublishEnabled,
+    listState,
+  } = useRecordListContext();
 
-  const { columnVisibilityModel, handleColumnVisibilityChange, resetColumnVisibility } = useColumnVisibility(
-    config.table?.columnVisibilityStorageKey || `${config.pageId}-column-visibility`,
-    config.defaultColumnVisibility || {}
+  const {
+    columnVisibilityModel,
+    handleColumnVisibilityChange,
+    resetColumnVisibility,
+  } = useColumnVisibility(
+    config.table?.columnVisibilityStorageKey ||
+      `${config.pageId}-column-visibility`,
+    config.defaultColumnVisibility || {},
   );
 
   // Shared filter/sort state across table and cards (from context)
-  const { filterModel, setFilterModel, sortModel, setSortModel, resetListState } = listState;
+  const {
+    filterModel,
+    setFilterModel,
+    sortModel,
+    setSortModel,
+    resetListState,
+  } = listState;
 
   // Reset handler for columns and filters
   const handleReset = useCallback(() => {
@@ -232,16 +274,21 @@ const RecordTableView = ({ records }) => {
   }, [resetColumnVisibility, resetListState]);
 
   // Create column definitions for current language
-  const columnDefs = useMemo(() => createColumns(language, region), [language, region]);
+  const columnDefs = useMemo(
+    () => createColumns(language, region),
+    [language, region],
+  );
 
   // Build columns array from config
   const columns = useMemo(() => {
-    const cols = (config.columns || []).map((colName) => columnDefs[colName]).filter(Boolean);
+    const cols = (config.columns || [])
+      .map((colName) => columnDefs[colName])
+      .filter(Boolean);
 
     // Add actions column - use fixed width to fit buttons only
     cols.push({
-      field: 'actions',
-      headerName: language === 'en' ? 'Actions' : 'Actions',
+      field: "actions",
+      headerName: language === "en" ? "Actions" : "Actions",
       width: 180,
       sortable: false,
       filterable: false,
@@ -260,42 +307,55 @@ const RecordTableView = ({ records }) => {
 
   // Transform records to rows
   const rows = useMemo(
-    () => (records || []).map((record, index) => recordToRow(record, language, index)),
-    [records, language]
+    () =>
+      (records || []).map((record, index) =>
+        recordToRow(record, language, index),
+      ),
+    [records, language],
   );
 
   // Custom toolbar with reset button
   const CustomToolbar = useCallback(
     () => (
       <GridToolbarContainer
-        style={{ padding: '8px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}
+        style={{
+          padding: "8px",
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "8px",
+        }}
       >
         <GridToolbarQuickFilter />
         <GridToolbarFilterButton />
         <GridToolbarColumnsButton />
         <GridToolbarExport />
-        <Tooltip title={<I18n en="Reset columns & filters" fr="Réinitialiser colonnes et filtres" />}>
-          <Button
-            size="small"
-            startIcon={<Refresh />}
-            onClick={handleReset}
-          >
+        <Tooltip
+          title={
+            <I18n
+              en="Reset columns & filters"
+              fr="Réinitialiser colonnes et filtres"
+            />
+          }
+        >
+          <Button size="small" startIcon={<Refresh />} onClick={handleReset}>
             <I18n en="Reset" fr="Réinitialiser" />
           </Button>
         </Tooltip>
       </GridToolbarContainer>
     ),
-    [handleReset]
+    [handleReset],
   );
 
   return (
-    <div style={{ height: 'calc(100vh - 300px)', width: '100%' }}>
+    <div style={{ height: "calc(100vh - 300px)", width: "100%" }}>
       <DataGrid
-        sx={{ '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' } }}
+        sx={{ "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" } }}
         rows={rows}
         columns={columns}
         pageSize={config.table?.pageSize || 20}
-        rowsPerPageOptions={config.table?.rowsPerPageOptions || [10, 20, 50, 100]}
+        rowsPerPageOptions={
+          config.table?.rowsPerPageOptions || [10, 20, 50, 100]
+        }
         checkboxSelection={false}
         disableSelectionOnClick
         filterModel={filterModel}
@@ -305,25 +365,38 @@ const RecordTableView = ({ records }) => {
         components={{
           Toolbar: CustomToolbar,
           NoRowsOverlay: () => (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              {language === 'en' ? 'No records found.' : 'Aucun enregistrement trouvé.'}
+            <div style={{ padding: "20px", textAlign: "center" }}>
+              {language === "en"
+                ? "No records found."
+                : "Aucun enregistrement trouvé."}
             </div>
           ),
         }}
         localeText={{
-          toolbarColumns: language === 'en' ? 'Columns' : 'Colonnes',
-          toolbarColumnsLabel: language === 'en' ? 'Select columns' : 'Sélectionner les colonnes',
-          columnsPanelTextFieldLabel: language === 'en' ? 'Find column' : 'Rechercher une colonne',
-          columnsPanelTextFieldPlaceholder: language === 'en' ? 'Column title' : 'Titre de la colonne',
-          columnsPanelShowAllButton: language === 'en' ? 'Show all' : 'Afficher tout',
-          columnsPanelHideAllButton: language === 'en' ? 'Hide all' : 'Masquer tout',
-          toolbarQuickFilterPlaceholder: language === 'en' ? 'Search...' : 'Rechercher...',
-          toolbarFilters: language === 'en' ? 'Filters' : 'Filtres',
-          toolbarFiltersLabel: language === 'en' ? 'Show filters' : 'Afficher les filtres',
-          toolbarFiltersTooltipHide: language === 'en' ? 'Hide filters' : 'Masquer les filtres',
-          toolbarFiltersTooltipShow: language === 'en' ? 'Show filters' : 'Afficher les filtres',
+          toolbarColumns: language === "en" ? "Columns" : "Colonnes",
+          toolbarColumnsLabel:
+            language === "en" ? "Select columns" : "Sélectionner les colonnes",
+          columnsPanelTextFieldLabel:
+            language === "en" ? "Find column" : "Rechercher une colonne",
+          columnsPanelTextFieldPlaceholder:
+            language === "en" ? "Column title" : "Titre de la colonne",
+          columnsPanelShowAllButton:
+            language === "en" ? "Show all" : "Afficher tout",
+          columnsPanelHideAllButton:
+            language === "en" ? "Hide all" : "Masquer tout",
+          toolbarQuickFilterPlaceholder:
+            language === "en" ? "Search..." : "Rechercher...",
+          toolbarFilters: language === "en" ? "Filters" : "Filtres",
+          toolbarFiltersLabel:
+            language === "en" ? "Show filters" : "Afficher les filtres",
+          toolbarFiltersTooltipHide:
+            language === "en" ? "Hide filters" : "Masquer les filtres",
+          toolbarFiltersTooltipShow:
+            language === "en" ? "Show filters" : "Afficher les filtres",
           toolbarFiltersTooltipActive: (count) =>
-            language === 'en' ? `${count} active filter(s)` : `${count} filtre(s) actif(s)`,
+            language === "en"
+              ? `${count} active filter(s)`
+              : `${count} filtre(s) actif(s)`,
         }}
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={handleColumnVisibilityChange}

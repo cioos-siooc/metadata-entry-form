@@ -1,51 +1,51 @@
-import React, { useMemo } from 'react';
-import { Box, CircularProgress, IconButton, Tooltip } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { ViewModule, TableChart } from '@material-ui/icons';
-import { useParams } from 'react-router-dom';
+import React, { useMemo } from "react";
+import { Box, CircularProgress, IconButton, Tooltip } from "@mui/material";
+import { ViewModule, TableChart } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+import { makeStyles } from "../../tss-cache";
 
-import { useViewPreference, useListState } from './hooks';
-import { RecordListProvider } from './context';
-import RecordTableView from './RecordTableView';
-import RecordCardView from './RecordCardView';
-import { I18n } from '../I18n';
+import { useViewPreference, useListState } from "./hooks";
+import { RecordListProvider } from "./context";
+import RecordTableView from "./RecordTableView";
+import RecordCardView from "./RecordCardView";
+import { I18n } from "../I18n";
 
 // Re-export context utilities for external use
-export { RecordListProvider, useRecordListContext } from './context';
+export { RecordListProvider, useRecordListContext } from "./context";
 
 // ============================================================================
 // ViewToggle Component
 // ============================================================================
 
-const useToggleStyles = makeStyles((theme) => ({
+const useToggleStyles = makeStyles()((theme) => ({
   container: {
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
     marginBottom: theme.spacing(1),
     gap: theme.spacing(0.5),
   },
   button: {
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
-    '&.active': {
+    "&.active": {
       backgroundColor: theme.palette.action.selected,
     },
   },
 }));
 
 const ViewToggle = ({ viewMode, onToggle }) => {
-  const classes = useToggleStyles();
+  const { classes } = useToggleStyles();
   const { language } = useParams();
 
-  const tableLabel = language === 'fr' ? 'Tableau' : 'Table';
-  const cardsLabel = language === 'fr' ? 'Cartes' : 'Cards';
+  const tableLabel = language === "fr" ? "Tableau" : "Table";
+  const cardsLabel = language === "fr" ? "Cartes" : "Cards";
 
   return (
     <Box className={classes.container}>
       <Tooltip title={<I18n en="Card view" fr="Vue en cartes" />}>
         <IconButton
-          className={`${classes.button} ${viewMode === 'card' ? 'active' : ''}`}
-          onClick={() => viewMode !== 'card' && onToggle()}
+          className={`${classes.button} ${viewMode === "card" ? "active" : ""}`}
+          onClick={() => viewMode !== "card" && onToggle()}
           aria-label={cardsLabel}
           size="small"
         >
@@ -54,8 +54,8 @@ const ViewToggle = ({ viewMode, onToggle }) => {
       </Tooltip>
       <Tooltip title={<I18n en="Table view" fr="Vue en tableau" />}>
         <IconButton
-          className={`${classes.button} ${viewMode === 'table' ? 'active' : ''}`}
-          onClick={() => viewMode !== 'table' && onToggle()}
+          className={`${classes.button} ${viewMode === "table" ? "active" : ""}`}
+          onClick={() => viewMode !== "table" && onToggle()}
           aria-label={tableLabel}
           size="small"
         >
@@ -85,7 +85,7 @@ const RecordList = ({
   const { language, region } = useParams();
   const { viewMode, toggleView } = useViewPreference(
     config.pageId,
-    config.views?.persistViewPreference ?? true
+    config.views?.persistViewPreference ?? true,
   );
 
   // Build action handlers object
@@ -94,14 +94,24 @@ const RecordList = ({
       edit: onEditRecord,
       delete: onDeleteRecord,
       clone: onCloneRecord,
-      submit: (recordID, userID) => onSubmitRecord?.(recordID, userID, 'submitted'),
-      publish: (recordID, userID) => onSubmitRecord?.(recordID, userID, 'published'),
-      unpublish: (recordID, userID) => onSubmitRecord?.(recordID, userID, 'submitted'),
-      unsubmit: (recordID, userID) => onSubmitRecord?.(recordID, userID, ''),
+      submit: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "submitted"),
+      publish: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "published"),
+      unpublish: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "submitted"),
+      unsubmit: (recordID, userID) => onSubmitRecord?.(recordID, userID, ""),
       transfer: onTransferRecord,
       githubPublish: onGithubPublishClick,
     }),
-    [onEditRecord, onDeleteRecord, onCloneRecord, onSubmitRecord, onTransferRecord, onGithubPublishClick]
+    [
+      onEditRecord,
+      onDeleteRecord,
+      onCloneRecord,
+      onSubmitRecord,
+      onTransferRecord,
+      onGithubPublishClick,
+    ],
   );
 
   // Shared list state (filters/sort) must be created via hook at top level
@@ -116,7 +126,7 @@ const RecordList = ({
       githubPublishEnabled,
       listState,
     }),
-    [config, actionHandlers, language, region, githubPublishEnabled, listState]
+    [config, actionHandlers, language, region, githubPublishEnabled, listState],
   );
 
   if (loading) {
@@ -134,7 +144,7 @@ const RecordList = ({
       <Box>
         {showToggle && <ViewToggle viewMode={viewMode} onToggle={toggleView} />}
 
-        {viewMode === 'table' ? (
+        {viewMode === "table" ? (
           <RecordTableView records={records} />
         ) : (
           <RecordCardView records={records} />

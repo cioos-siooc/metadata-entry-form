@@ -1,18 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Chip } from '@material-ui/core';
-import { Check, Close } from '@material-ui/icons';
-import regions from '../../regions';
-import licenses from '../../utils/licenses';
-import { percentValid } from '../../utils/validate';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Chip } from "@mui/material";
+import { Check, Close } from "@mui/icons-material";
+import regions from "../../regions";
+import licenses from "../../utils/licenses";
+import { percentValid } from "../../utils/validate";
 
 // ============================================================================
 // Page Configurations
 // ============================================================================
 
 export const reviewerConfig = {
-  pageId: 'reviewer',
-  storageKey: 'reviewer-records',
+  pageId: "reviewer",
+  storageKey: "reviewer-records",
 
   views: {
     allowToggle: true,
@@ -20,22 +20,22 @@ export const reviewerConfig = {
   },
 
   columns: [
-    'status',
-    'progress',
-    'created',
-    'title',
-    'author',
-    'doi',
-    'abstract',
-    'license',
-    'boundingBox',
-    'polygon',
-    'verticalExtentMin',
-    'verticalExtentMax',
-    'verticalExtentDirection',
-    'verticalExtentEPSG',
-    'contacts',
-    'formLanguage',
+    "status",
+    "progress",
+    "created",
+    "title",
+    "author",
+    "doi",
+    "abstract",
+    "license",
+    "boundingBox",
+    "polygon",
+    "verticalExtentMin",
+    "verticalExtentMax",
+    "verticalExtentDirection",
+    "verticalExtentEPSG",
+    "contacts",
+    "formLanguage",
   ],
 
   defaultColumnVisibility: {
@@ -83,20 +83,20 @@ export const reviewerConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: 'reviewer-column-visibility',
+    columnVisibilityStorageKey: "reviewer-column-visibility",
   },
 };
 
 export const publishedConfig = {
-  pageId: 'published',
-  storageKey: 'published-records',
+  pageId: "published",
+  storageKey: "published-records",
 
   views: {
     allowToggle: true,
     persistViewPreference: true,
   },
 
-  columns: ['status', 'created', 'title', 'author'],
+  columns: ["status", "created", "title", "author"],
 
   defaultColumnVisibility: {
     title: true,
@@ -131,20 +131,20 @@ export const publishedConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: 'published-column-visibility',
+    columnVisibilityStorageKey: "published-column-visibility",
   },
 };
 
 export const submissionsConfig = {
-  pageId: 'submissions',
-  storageKey: 'submissions-records',
+  pageId: "submissions",
+  storageKey: "submissions-records",
 
   views: {
     allowToggle: true,
     persistViewPreference: true,
   },
 
-  columns: ['status', 'progress', 'created', 'title', 'author'],
+  columns: ["status", "progress", "created", "title", "author"],
 
   defaultColumnVisibility: {
     title: true,
@@ -180,7 +180,7 @@ export const submissionsConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: 'submissions-column-visibility',
+    columnVisibilityStorageKey: "submissions-column-visibility",
   },
 };
 
@@ -189,49 +189,52 @@ export const submissionsConfig = {
 // ============================================================================
 
 export const getStatusColor = (status, region) => {
-  const regionColor = regions[region]?.colors?.primary || '#006e90';
+  const regionColor = regions[region]?.colors?.primary || "#006e90";
   switch (status) {
-    case 'published':
+    case "published":
       return regionColor;
-    case 'submitted':
-      return '#f57c00';
+    case "submitted":
+      return "#f57c00";
     default:
-      return '#757575';
+      return "#757575";
   }
 };
 
 export const getStatusLabel = (status, language) => {
   const labels = {
-    published: { en: 'Published', fr: 'Publié' },
-    submitted: { en: 'Submitted', fr: 'Soumis' },
-    '': { en: 'Draft', fr: 'Brouillon' },
+    published: { en: "Published", fr: "Publié" },
+    submitted: { en: "Submitted", fr: "Soumis" },
+    "": { en: "Draft", fr: "Brouillon" },
   };
-  return labels[status]?.[language] || labels[''][language];
+  return labels[status]?.[language] || labels[""][language];
 };
 
 export const formatDate = (dateStr, language) => {
-  if (!dateStr) return '';
+  if (!dateStr) return "";
   const dateObj = new Date(dateStr);
   const now = Date.now();
   const diffMs = now - dateObj.getTime();
   const twoDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   if (diffMs > twoDaysMs) {
-    const options = { year: 'numeric', month: 'short', day: '2-digit' };
-    return dateObj.toLocaleDateString(language === 'fr' ? 'fr-CA' : 'en-CA', options);
+    const options = { year: "numeric", month: "short", day: "2-digit" };
+    return dateObj.toLocaleDateString(
+      language === "fr" ? "fr-CA" : "en-CA",
+      options,
+    );
   }
 
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   if (hours < 24) {
-    return language === 'en'
-      ? `${hours} hour${hours !== 1 ? 's' : ''} ago`
-      : `il y a ${hours} heure${hours !== 1 ? 's' : ''}`;
+    return language === "en"
+      ? `${hours} hour${hours !== 1 ? "s" : ""} ago`
+      : `il y a ${hours} heure${hours !== 1 ? "s" : ""}`;
   }
 
   const days = Math.floor(hours / 24);
-  return language === 'en'
-    ? `${days} day${days !== 1 ? 's' : ''} ago`
-    : `il y a ${days} jour${days !== 1 ? 's' : ''}`;
+  return language === "en"
+    ? `${days} day${days !== 1 ? "s" : ""} ago`
+    : `il y a ${days} jour${days !== 1 ? "s" : ""}`;
 };
 
 // ============================================================================
@@ -240,18 +243,18 @@ export const formatDate = (dateStr, language) => {
 
 export const createColumns = (language, region) => ({
   status: {
-    field: 'status',
-    headerName: language === 'en' ? 'Status' : 'Statut',
+    field: "status",
+    headerName: language === "en" ? "Status" : "Statut",
     flex: 1,
     minWidth: 130,
     maxWidth: 130,
-    headerAlign: 'center',
-    align: 'center',
-    type: 'singleSelect',
+    headerAlign: "center",
+    align: "center",
+    type: "singleSelect",
     valueOptions: [
-      { value: '', label: language === 'en' ? 'Draft' : 'Brouillon' },
-      { value: 'submitted', label: language === 'en' ? 'Submitted' : 'Soumis' },
-      { value: 'published', label: language === 'en' ? 'Published' : 'Publié' },
+      { value: "", label: language === "en" ? "Draft" : "Brouillon" },
+      { value: "submitted", label: language === "en" ? "Submitted" : "Soumis" },
+      { value: "published", label: language === "en" ? "Published" : "Publié" },
     ],
     renderCell: (params) => {
       const bgColor = getStatusColor(params.value, params.row.region || region);
@@ -260,14 +263,18 @@ export const createColumns = (language, region) => ({
         <Chip
           label={label}
           size="small"
-          style={{ backgroundColor: bgColor, color: '#ffffff', fontWeight: 500 }}
+          style={{
+            backgroundColor: bgColor,
+            color: "#ffffff",
+            fontWeight: 500,
+          }}
         />
       );
     },
     filterOperators: [
       {
-        label: language === 'en' ? 'is any of' : "est l'un de",
-        value: 'isAnyOf',
+        label: language === "en" ? "is any of" : "est l'un de",
+        value: "isAnyOf",
         getApplyFilterFn: (filterItem) => {
           if (!filterItem.value || filterItem.value.length === 0) return null;
           return (params) => filterItem.value.includes(params.value);
@@ -275,16 +282,26 @@ export const createColumns = (language, region) => ({
         InputComponent: ({ item, applyValue }) => {
           const handleFilterChange = (value) => applyValue({ ...item, value });
           return (
-            <div style={{ padding: '8px' }}>
+            <div style={{ padding: "8px" }}>
               {[
-                { value: '', label: language === 'en' ? 'Draft' : 'Brouillon' },
-                { value: 'submitted', label: language === 'en' ? 'Submitted' : 'Soumis' },
-                { value: 'published', label: language === 'en' ? 'Published' : 'Publié' },
+                { value: "", label: language === "en" ? "Draft" : "Brouillon" },
+                {
+                  value: "submitted",
+                  label: language === "en" ? "Submitted" : "Soumis",
+                },
+                {
+                  value: "published",
+                  label: language === "en" ? "Published" : "Publié",
+                },
               ].map((option) => (
-                <div key={option.value} style={{ marginBottom: '4px' }}>
+                <div key={option.value} style={{ marginBottom: "4px" }}>
                   <label
                     htmlFor={`status-filter-${option.value}`}
-                    style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
                   >
                     <input
                       id={`status-filter-${option.value}`}
@@ -297,7 +314,7 @@ export const createColumns = (language, region) => ({
                           : currentValues.filter((v) => v !== option.value);
                         handleFilterChange(newValues);
                       }}
-                      style={{ marginRight: '8px' }}
+                      style={{ marginRight: "8px" }}
                     />
                     {option.label}
                   </label>
@@ -311,24 +328,25 @@ export const createColumns = (language, region) => ({
   },
 
   progress: {
-    field: 'progress',
-    headerName: language === 'en' ? 'Progress' : 'Progrès',
+    field: "progress",
+    headerName: language === "en" ? "Progress" : "Progrès",
     flex: 0.8,
     maxWidth: 90,
-    type: 'number',
-    headerAlign: 'center',
-    align: 'center',
+    type: "number",
+    headerAlign: "center",
+    align: "center",
     renderCell: (params) => `${params.value}%`,
   },
 
   created: {
-    field: 'created',
-    headerName: language === 'en' ? 'Last Edited' : 'Dernière modification',
+    field: "created",
+    headerName: language === "en" ? "Last Edited" : "Dernière modification",
     flex: 1.2,
     maxWidth: 130,
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => (params.value ? <span>{formatDate(params.value, language)}</span> : null),
+    headerAlign: "center",
+    align: "center",
+    renderCell: (params) =>
+      params.value ? <span>{formatDate(params.value, language)}</span> : null,
     sortComparator: (v1, v2) => {
       const date1 = v1 ? new Date(v1).getTime() : 0;
       const date2 = v2 ? new Date(v2).getTime() : 0;
@@ -337,18 +355,18 @@ export const createColumns = (language, region) => ({
   },
 
   title: {
-    field: 'title',
-    headerName: language === 'en' ? 'Title' : 'Titre',
+    field: "title",
+    headerName: language === "en" ? "Title" : "Titre",
     flex: 2,
     minWidth: 200,
     renderCell: (params) => {
-      const titleText = params.value || '';
+      const titleText = params.value || "";
       const { userID, recordID, region: rowRegionRaw } = params.row;
       const rowRegion = rowRegionRaw || region;
       if (!titleText || !userID || !recordID || !rowRegion) return titleText;
       const to = `/${language}/${rowRegion}/${userID}/${recordID}`;
       return (
-        <Link to={to} style={{ color: 'inherit', textDecoration: 'none' }}>
+        <Link to={to} style={{ color: "inherit", textDecoration: "none" }}>
           {titleText}
         </Link>
       );
@@ -356,20 +374,24 @@ export const createColumns = (language, region) => ({
   },
 
   author: {
-    field: 'author',
-    headerName: language === 'en' ? 'Author' : 'Auteur',
+    field: "author",
+    headerName: language === "en" ? "Author" : "Auteur",
     flex: 1.5,
     minWidth: 180,
   },
 
   abstract: {
-    field: 'abstract',
-    headerName: language === 'en' ? 'Abstract' : 'Résumé',
+    field: "abstract",
+    headerName: language === "en" ? "Abstract" : "Résumé",
     flex: 2,
     minWidth: 200,
     renderCell: (params) => (
       <div
-        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
         title={params.value}
       >
         {params.value}
@@ -378,33 +400,43 @@ export const createColumns = (language, region) => ({
   },
 
   license: {
-    field: 'license',
-    headerName: language === 'en' ? 'License' : 'Licence',
+    field: "license",
+    headerName: language === "en" ? "License" : "Licence",
     flex: 1,
     minWidth: 150,
     renderCell: (params) => {
       const licenseData = licenses[params.value];
-      if (!licenseData) return params.value || '';
-      return licenseData.title?.[language] || licenseData.title?.en || params.value;
+      if (!licenseData) return params.value || "";
+      return (
+        licenseData.title?.[language] || licenseData.title?.en || params.value
+      );
     },
   },
 
   contacts: {
-    field: 'contacts',
-    headerName: language === 'en' ? 'Contacts' : 'Contacts',
+    field: "contacts",
+    headerName: language === "en" ? "Contacts" : "Contacts",
     flex: 1.5,
     minWidth: 200,
     sortable: false,
     renderCell: (params) => {
       const contactsList = params.value || [];
-      if (contactsList.length === 0) return '';
+      if (contactsList.length === 0) return "";
       const contactNames = contactsList
-        .map((c) => (c.givenNames || c.lastName ? `${c.givenNames || ''} ${c.lastName || ''}`.trim() : c.orgName || ''))
+        .map((c) =>
+          c.givenNames || c.lastName
+            ? `${c.givenNames || ""} ${c.lastName || ""}`.trim()
+            : c.orgName || "",
+        )
         .filter(Boolean);
-      const displayText = contactNames.join(', ');
+      const displayText = contactNames.join(", ");
       return (
         <div
-          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
           title={displayText}
         >
           {displayText}
@@ -414,108 +446,108 @@ export const createColumns = (language, region) => ({
   },
 
   formLanguage: {
-    field: 'formLanguage',
-    headerName: language === 'en' ? 'Language' : 'Langue',
+    field: "formLanguage",
+    headerName: language === "en" ? "Language" : "Langue",
     flex: 0.8,
     width: 100,
-    headerAlign: 'center',
-    align: 'center',
+    headerAlign: "center",
+    align: "center",
     renderCell: (params) => {
-      if (!params.value) return '';
+      if (!params.value) return "";
       return params.value.toUpperCase();
     },
   },
 
   doi: {
-    field: 'doi',
-    headerName: 'DOI',
+    field: "doi",
+    headerName: "DOI",
     width: 70,
-    headerAlign: 'center',
-    align: 'center',
-    type: 'boolean',
-    renderCell: (params) => (
+    headerAlign: "center",
+    align: "center",
+    type: "boolean",
+    renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: '#4caf50' }} fontSize="small" />
+        <Check style={{ color: "#4caf50" }} fontSize="small" />
       ) : (
-        <Close style={{ color: '#bdbdbd' }} fontSize="small" />
-      )
-    ),
+        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+      ),
   },
 
-  
   boundingBox: {
-    field: 'boundingBox',
-    headerName: language === 'en' ? 'Bounding Box' : 'Boîte englobante',
+    field: "boundingBox",
+    headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
     flex: 1,
     minWidth: 180,
     renderCell: (params) => {
-      if (!params.value) return '';
+      if (!params.value) return "";
       const { north, south, east, west } = params.value;
-      if (!north && !south && !east && !west) return '';
-      return `N:${north || '-'} S:${south || '-'} E:${east || '-'} W:${west || '-'}`;
+      if (!north && !south && !east && !west) return "";
+      return `N:${north || "-"} S:${south || "-"} E:${east || "-"} W:${west || "-"}`;
     },
   },
 
   polygon: {
-    field: 'polygon',
-    headerName: language === 'en' ? 'Polygon' : 'Polygone',
+    field: "polygon",
+    headerName: language === "en" ? "Polygon" : "Polygone",
     width: 80,
-    headerAlign: 'center',
-    align: 'center',
-    type: 'boolean',
-    renderCell: (params) => (
+    headerAlign: "center",
+    align: "center",
+    type: "boolean",
+    renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: '#4caf50' }} fontSize="small" />
+        <Check style={{ color: "#4caf50" }} fontSize="small" />
       ) : (
-        <Close style={{ color: '#bdbdbd' }} fontSize="small" />
-      )
-    ),
+        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+      ),
   },
 
   verticalExtentMin: {
-    field: 'verticalExtentMin',
-    headerName: language === 'en' ? 'Vert. Min' : 'Min. Vert.',
+    field: "verticalExtentMin",
+    headerName: language === "en" ? "Vert. Min" : "Min. Vert.",
     flex: 0.8,
     minWidth: 100,
-    type: 'number',
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
+    type: "number",
+    headerAlign: "center",
+    align: "center",
+    renderCell: (params) =>
+      params.value === undefined || params.value === null ? "" : params.value,
   },
 
   verticalExtentMax: {
-    field: 'verticalExtentMax',
-    headerName: language === 'en' ? 'Vert. Max' : 'Max. Vert.',
+    field: "verticalExtentMax",
+    headerName: language === "en" ? "Vert. Max" : "Max. Vert.",
     flex: 0.8,
     minWidth: 100,
-    type: 'number',
-    headerAlign: 'center',
-    align: 'center',
-    renderCell: (params) => (params.value === undefined || params.value === null ? '' : params.value),
+    type: "number",
+    headerAlign: "center",
+    align: "center",
+    renderCell: (params) =>
+      params.value === undefined || params.value === null ? "" : params.value,
   },
-  
+
   verticalExtentDirection: {
-    field: 'verticalExtentDirection',
-    headerName: language === 'en' ? 'Depth/Height' : 'Profondeur/Hauteur',
+    field: "verticalExtentDirection",
+    headerName: language === "en" ? "Depth/Height" : "Profondeur/Hauteur",
     width: 120,
-    headerAlign: 'center',
-    align: 'center',
+    headerAlign: "center",
+    align: "center",
     renderCell: (params) => {
-      if (!params.value) return '';
-      if (params.value === 'depthPositive') return language === 'en' ? 'Depth (+)' : 'Profondeur (+)';
-      if (params.value === 'heightPositive') return language === 'en' ? 'Height (+)' : 'Hauteur (+)';
+      if (!params.value) return "";
+      if (params.value === "depthPositive")
+        return language === "en" ? "Depth (+)" : "Profondeur (+)";
+      if (params.value === "heightPositive")
+        return language === "en" ? "Height (+)" : "Hauteur (+)";
       return params.value;
     },
   },
 
   verticalExtentEPSG: {
-    field: 'verticalExtentEPSG',
-    headerName: 'EPSG',
+    field: "verticalExtentEPSG",
+    headerName: "EPSG",
     width: 80,
-    headerAlign: 'center',
-    align: 'center',
+    headerAlign: "center",
+    align: "center",
   },
-
 });
 
 // ============================================================================
@@ -526,22 +558,22 @@ export const recordToRow = (record, language, index) => ({
   id: record.recordID || index,
   recordID: record.recordID,
   userID: record.userinfo?.userID,
-  title: record.title?.[language] || '',
-  status: record.status || '',
-  author: record.userinfo?.email || '',
+  title: record.title?.[language] || "",
+  status: record.status || "",
+  author: record.userinfo?.email || "",
   progress: Math.round(percentValid(record) * 100),
   created: record.created,
   region: record.region,
-  abstract: record.abstract?.[language] || '',
-  license: record.license || '',
+  abstract: record.abstract?.[language] || "",
+  license: record.license || "",
   verticalExtentMin: record.verticalExtentMin,
   verticalExtentMax: record.verticalExtentMax,
-  verticalExtentDirection: record.verticalExtentDirection || '',
-  verticalExtentEPSG: record.verticalExtentEPSG || '',
+  verticalExtentDirection: record.verticalExtentDirection || "",
+  verticalExtentEPSG: record.verticalExtentEPSG || "",
   boundingBox: record.map || null,
-  polygon: !!(record.map?.polygon && record.map.polygon !== ''),
+  polygon: !!(record.map?.polygon && record.map.polygon !== ""),
   contacts: record.contacts || [],
-  formLanguage: record.language || '',
-  doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ''),
+  formLanguage: record.language || "",
+  doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ""),
   fullRecord: record,
 });
