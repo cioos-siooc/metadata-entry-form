@@ -8,7 +8,6 @@ import {
   ExitToApp,
   Contacts,
   ListAlt,
-  AccountCircle,
   ChevronLeft,
   ChevronRight,
   RateReview,
@@ -39,7 +38,7 @@ import {
 } from "@material-ui/core";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
-import { auth, signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../auth";
+import { auth } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
 
@@ -131,7 +130,6 @@ export default function MiniDrawer({ children }) {
     user,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
-    authIsLoading,
     hasSharedRecords,
   } = useContext(UserContext);
 
@@ -153,7 +151,7 @@ export default function MiniDrawer({ children }) {
   const baseURL = `/${language}/${region}`;
 
   // if region not set, keep drawer closed
-  const [open, setOpen] = React.useState(Boolean(region));
+  const [open, setOpen] = React.useState(Boolean(region) && Boolean(user));
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -288,89 +286,6 @@ export default function MiniDrawer({ children }) {
           <List>
             {!user && region && (
               <>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.signInGoogle}
-                >
-                  <ListItem
-                    disabled={authIsLoading}
-                    button
-                    key="Sign in Google"
-                    onClick={async () => {
-                      try {
-                        await signInWithGoogle();
-                        history.push(pathname);
-                      } catch (error) {
-                        if (error.code === 'auth/cancelled-popup-request'){
-                          // ignore
-                        } else {
-                          throw error;
-                        }
-                      }
-                    }}
-                  >
-                    <ListItemIcon>
-                      <AccountCircle />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.signInGoogle} />
-                  </ListItem>
-                </Tooltip>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.signInMicrosoft}
-                >
-                  <ListItem
-                    disabled={authIsLoading}
-                    button
-                    key="Sign in Microsoft"
-                    onClick={async () => {
-                      try {
-                        await signInWithMicrosoft();
-                        history.push(pathname);
-                      } catch (error) {
-                        console.error("Microsoft Sign-In Error:", error);
-                        if (error.code === 'auth/cancelled-popup-request'){
-                          // ignore
-                        } else {
-                          throw error;
-                        }
-                      }
-                    }}
-                  >
-                    <ListItemIcon>
-                      <AccountCircle />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.signInMicrosoft} />
-                  </ListItem>
-                </Tooltip>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.signInOrcid}
-                >
-                  <ListItem
-                    disabled={authIsLoading}
-                    button
-                    key="Sign in ORCID"
-                    onClick={async () => {
-                      try {
-                        await signInWithOrcid();
-                        history.push(pathname);
-                      } catch (error) {
-                        console.error("ORCID Sign-In Error:", error);
-                        if (error.code === 'auth/cancelled-popup-request'){
-                          // ignore
-                        } else {
-                          throw error;
-                        }
-                      }
-                    }}
-                  >
-                    <ListItemIcon>
-                      <AccountCircle />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.signInOrcid} />
-                  </ListItem>
-                </Tooltip>
               </>
             )}
             {user && region && (
