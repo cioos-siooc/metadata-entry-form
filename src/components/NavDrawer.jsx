@@ -39,6 +39,7 @@ import {
   Tooltip,
   MenuItem,
   Menu,
+  Divider,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -505,7 +506,9 @@ export default function MiniDrawer({ children }) {
           </div>
             <List className={classes.sidebarList}>
               {!user && region && (
-                <Tooltip
+                <>
+                </>
+              )}
 
           {user && (
             <ListItem key="userInfo">
@@ -515,6 +518,7 @@ export default function MiniDrawer({ children }) {
               <ListItemText primary={user.displayName} />
             </ListItem>
           )}
+          </List>
           <Divider />
           <List>
             {!user && region && (
