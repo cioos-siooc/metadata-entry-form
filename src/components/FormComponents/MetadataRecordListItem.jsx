@@ -60,6 +60,7 @@ const MetadataRecordListItem = ({
   onTransferClick,
   showGithubPublishAction,
   onGithubPublishClick,
+  githubPublishEnabled = true,
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
@@ -227,7 +228,12 @@ const MetadataRecordListItem = ({
         )}
         {(showGithubPublishAction || showPublishAction || showUnPublishAction || showUnSubmitAction) && (
           <>
-             <Tooltip title={<I18n en="Publishing Options" fr="Options de publication" />}>
+             <Tooltip
+               title={<I18n en="Publishing Options" fr="Options de publication" />}
+               disableHoverListener={publishMenuOpen}
+               disableFocusListener={publishMenuOpen}
+               disableTouchListener={publishMenuOpen}
+             >
                <span>
                 <IconButton onClick={handlePublishClick}>
                   <Publish />
@@ -255,9 +261,21 @@ const MetadataRecordListItem = ({
                    </MenuItem>
                 )}
                 {showGithubPublishAction && (
-                   <MenuItem onClick={() => { if (onGithubPublishClick) onGithubPublishClick(); handlePublishClose(); }}>
-                     <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
-                   </MenuItem>
+                  <Tooltip
+                    title={<I18n en="GitHub publishing not configured" fr="La publication GitHub n’est pas configurée" />}
+                    disableHoverListener={githubPublishEnabled}
+                    disableFocusListener={githubPublishEnabled}
+                    disableTouchListener={githubPublishEnabled}
+                  >
+                    <span>
+                      <MenuItem
+                        disabled={!githubPublishEnabled}
+                        onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
+                      >
+                        <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
+                      </MenuItem>
+                    </span>
+                  </Tooltip>
                 )}
              </Menu>
           </>
