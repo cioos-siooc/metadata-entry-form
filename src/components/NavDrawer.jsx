@@ -39,7 +39,6 @@ import {
   Tooltip,
   MenuItem,
   Menu,
-  Divider,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -504,27 +503,7 @@ export default function MiniDrawer({ children }) {
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
-            <List className={classes.sidebarList}>
-              {!user && region && (
-                <>
-                </>
-              )}
-
-          {user && (
-            <ListItem key="userInfo">
-              <ListItemIcon>
-                <Avatar src={user.photoURL} />
-              </ListItemIcon>
-              <ListItemText primary={user.displayName} />
-            </ListItem>
-          )}
-          </List>
-          <Divider />
           <List>
-            {!user && region && (
-              <>
-              </>
-            )}
             {user && region && (
               <>
                 <Tooltip
@@ -737,6 +716,14 @@ export default function MiniDrawer({ children }) {
                   <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
                 </ListItem>
               </Tooltip>
+              {!user && (
+                <ListItem key="userInfo">
+                  <ListItemIcon>
+                    <Avatar style={{ width: 30, height: 30 }} />
+                  </ListItemIcon>
+                  <ListItemText/>
+                </ListItem>
+              )}
               {user && (
                 <>
                   {userIsAdmin && (
