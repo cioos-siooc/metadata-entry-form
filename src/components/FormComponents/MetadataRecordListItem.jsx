@@ -94,11 +94,13 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: "center",
     flexWrap: "nowrap",
     gap: theme.spacing(0.25),
+    flexShrink: 0,
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0.75, 1.25),
-      justifyContent: "flex-start",
+      padding: theme.spacing(1, 1.25),
+      justifyContent: "center",
       borderTop: `1px solid ${theme.palette.divider}`,
       flexWrap: "wrap",
+      width: "100%",
     },
   },
   iconButton: {

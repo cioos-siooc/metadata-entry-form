@@ -169,7 +169,7 @@ const RecordActions = ({
   };
 
   return (
-    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+    <div style={{ display: "flex", gap: "4px", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
       {/* View/Edit button */}
       {(actions.showViewAction || actions.showEditAction) && (
         <Tooltip
@@ -303,6 +303,11 @@ const RecordActions = ({
             open={publishMenuOpen}
             onClose={handlePublishClose}
             disableScrollLock
+            slotProps={{
+              paper: {
+                sx: { zIndex: 1500 },
+              },
+            }}
           >
             {/* Publish (Submitted -> Published) */}
             {isSubmitted && actions.showPublishAction && (
@@ -345,33 +350,29 @@ const RecordActions = ({
 
             {/* GitHub Publish */}
             {(isSubmitted || isPublished) && actions.showGithubPublishAction && (
-              <Tooltip
-                title={
-                  <I18n
-                    en="GitHub publishing not configured"
-                    fr="La publication GitHub n'est pas configurée"
-                  />
-                }
-                disableHoverListener={githubPublishEnabled}
-                disableFocusListener={githubPublishEnabled}
-                disableTouchListener={githubPublishEnabled}
-                placement="right"
+              <MenuItem
+                disabled={!githubPublishEnabled}
+                onClick={() => {
+                  if (githubPublishEnabled) {
+                    handlers.githubPublish?.(recordID, userID);
+                  }
+                  handlePublishClose();
+                }}
               >
-                <span>
-                  <MenuItem
-                    disabled={!githubPublishEnabled}
-                    onClick={() => {
-                      if (githubPublishEnabled) {
-                        handlers.githubPublish?.(recordID, userID);
-                      }
-                      handlePublishClose();
-                    }}
-                  >
-                    <CloudUpload style={{ marginRight: 8 }} fontSize="small" />
-                    <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
-                  </MenuItem>
-                </span>
-              </Tooltip>
+                <CloudUpload style={{ marginRight: 8 }} fontSize="small" />
+                <I18n
+                  en={
+                    githubPublishEnabled
+                      ? "Publish to GitHub"
+                      : "GitHub not configured"
+                  }
+                  fr={
+                    githubPublishEnabled
+                      ? "Publier sur GitHub"
+                      : "GitHub non configuré"
+                  }
+                />
+              </MenuItem>
             )}
           </Menu>
         </>
@@ -403,6 +404,11 @@ const RecordActions = ({
             open={downloadMenuOpen}
             onClose={handleDownloadClose}
             disableScrollLock
+            slotProps={{
+              paper: {
+                sx: { zIndex: 1500 },
+              },
+            }}
           >
             <MenuItem
               onClick={() => {
