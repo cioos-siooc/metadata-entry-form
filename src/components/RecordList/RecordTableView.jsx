@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tooltip, Button } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import {
@@ -17,6 +18,7 @@ import { I18n } from "../I18n";
 import RecordActions from "./RecordActions";
 
 const RecordTableView = ({ records }) => {
+  const navigate = useNavigate();
   const {
     config,
     actionHandlers,
@@ -140,12 +142,38 @@ const RecordTableView = ({ records }) => {
     [handleReset],
   );
 
+  // Handle row click to navigate to record
+  const handleRowClick = useCallback(
+    (params, event) => {
+      // Don't navigate if clicking on actions column or interactive elements
+      if (
+        event.target.closest('[data-field="actions"]') ||
+        event.target.closest("button") ||
+        event.target.closest("a")
+      ) {
+        return;
+      }
+      const { userID, recordID, region: rowRegion } = params.row;
+      if (userID && recordID) {
+        navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
+      }
+    },
+    [navigate, language, region],
+  );
+
   return (
-    <div style={{ height: "calc(100vh - 300px)", width: "100%" }}>
+    <div style={{ width: "100%", maxHeight: "calc(100vh - 300px)", overflow: "auto" }}>
       <DataGrid
-        sx={{ "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" } }}
+        autoHeight
+        sx={{
+          "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
+          "& .MuiDataGrid-root": { border: "none" },
+          "& .MuiDataGrid-row": { cursor: "pointer" },
+          "& .MuiDataGrid-row:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+        }}
         rows={rows}
         columns={columns}
+        onRowClick={handleRowClick}
         pageSize={config.table?.pageSize || 20}
         rowsPerPageOptions={
           config.table?.rowsPerPageOptions || [10, 20, 50, 100]
