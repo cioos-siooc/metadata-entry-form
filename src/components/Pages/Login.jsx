@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: theme.spacing(2),
-    justifyContent: "flex-start",
+    justifyContent: "center",
     padding: theme.spacing(1.5),
     textTransform: "none",
     fontSize: "1.1rem",
@@ -75,9 +75,7 @@ const Login = () => {
             </I18n>
           </Typography>
 
-          <Divider className={classes.divider} />
-
-          <Grid container direction="column" spacing={2}>
+          <Grid container direction="column" spacing={1}>
             <Grid item>
               <Button
                 variant="outlined"
