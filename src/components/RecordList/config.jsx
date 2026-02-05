@@ -76,7 +76,7 @@ export const reviewerConfig = {
     showUnPublishAction: true,
     showUnSubmitAction: true,
     showTransferButton: true,
-    showDownloadButton: false,
+    showDownloadButton: true,
     showGithubPublishAction: true,
   },
 
