@@ -44,11 +44,15 @@ const Submissions = () => {
           const allUsersRecords = recordsSnapshot.toJSON();
           const recordsObject = multipleFirebaseToJSObject(allUsersRecords);
 
-          // Convert object to array with recordID included
+          // Convert object to array with recordID and userID included
           const recordsArray = Object.entries(recordsObject || {}).map(
             ([key, record]) => ({
               ...record,
               recordID: key,
+              userinfo: {
+                ...record.userinfo,
+                userID: user.uid,
+              },
             }),
           );
 
