@@ -129,14 +129,14 @@ const CardControls = () => {
   const authorLabel = language === "en" ? "Author" : "Auteur";
 
   return (
-    <Box display="flex" gridGap={8} flexWrap="wrap" alignItems="center" mb={2}>
+    <Box display="flex" gap={2} flexWrap="wrap" alignItems="center" mb={2}>
       <TextField
         variant="outlined"
         size="small"
         label={searchLabel}
         value={quick}
         onChange={(e) => setQuick(e.target.value)}
-        style={{ minWidth: 220 }}
+        style={{ minWidth: 200 }}
       />
 
       <FormControl variant="outlined" size="small" style={{ minWidth: 200 }}>
@@ -202,7 +202,13 @@ const CardControls = () => {
         </Select>
       </FormControl>
 
-      <Button size="small" startIcon={<Refresh />} onClick={handleReset}>
+      <Button
+        variant="outlined"
+        size="small"
+        startIcon={<Refresh />}
+        onClick={handleReset}
+        sx={{ height: 40 }}
+      >
         <I18n en="Reset" fr="Réinitialiser" />
       </Button>
     </Box>

@@ -78,6 +78,12 @@ const useStyles = makeStyles()((theme) => ({
     fontWeight: 500,
     fontSize: "0.95rem",
     lineHeight: 1.3,
+    cursor: "pointer",
+    color: theme.palette.text.primary,
+    "&:hover": {
+      color: theme.palette.primary.main,
+      textDecoration: "underline",
+    },
     [theme.breakpoints.down("sm")]: {
       fontSize: "0.9rem",
     },
@@ -317,7 +323,17 @@ const MetadataRecordListItem = ({
       <CardContent className={classes.cardContent}>
         <Box className={classes.header}>
           <Box className={classes.content}>
-            <Typography className={classes.title}>
+            <Typography
+              className={classes.title}
+              onClick={onViewEditClick}
+              role="link"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  onViewEditClick();
+                }
+              }}
+            >
               {record.title?.[language]}
             </Typography>
 
@@ -420,7 +436,9 @@ const MetadataRecordListItem = ({
               title={
                 <I18n en="Publishing Options" fr="Options de publication" />
               }
-              open={!publishMenuOpen ? undefined : false}
+              disableHoverListener={publishMenuOpen}
+              disableFocusListener={publishMenuOpen}
+              disableTouchListener={publishMenuOpen}
             >
               <span>
                 <IconButton
@@ -567,6 +585,8 @@ const MetadataRecordListItem = ({
         {showDownloadButton && (
           <Tooltip
             disableHoverListener={downloadMenuOpen}
+            disableFocusListener={downloadMenuOpen}
+            disableTouchListener={downloadMenuOpen}
             title={<I18n en="Download" fr="Télécharger" />}
           >
             <span>

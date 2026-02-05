@@ -1,5 +1,12 @@
 import React, { useMemo, useCallback, useState } from "react";
-import { IconButton, Tooltip, Menu, MenuItem, Button } from "@mui/material";
+import {
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import {
   Edit,
   Visibility,
@@ -9,8 +16,17 @@ import {
   Eject,
   TransferWithinAStation,
   CloudUpload,
+  CloudDownload,
+  OpenInNew,
   Refresh,
 } from "@mui/icons-material";
+import FileSaver from "file-saver";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import recordToEML from "../../utils/recordToEML";
+import recordToDataCite from "../../utils/recordToDataCite";
+import { getRecordFilename } from "../../utils/misc";
+import { recordIsValid } from "../../utils/validate";
+import regions from "../../regions";
 import {
   DataGrid,
   GridToolbarContainer,
@@ -31,9 +47,15 @@ const RowActions = ({
   actions,
   actionHandlers,
   githubPublishEnabled,
+  language,
+  region,
+  datacitePrefix,
 }) => {
   const [publishAnchorEl, setPublishAnchorEl] = useState(null);
+  const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const publishMenuOpen = Boolean(publishAnchorEl);
+  const downloadMenuOpen = Boolean(downloadAnchorEl);
 
   const handlePublishClick = (event) => {
     setPublishAnchorEl(event.currentTarget);
@@ -43,9 +65,85 @@ const RowActions = ({
     setPublishAnchorEl(null);
   };
 
+  const handleDownloadClick = (event) => {
+    setDownloadAnchorEl(event.currentTarget);
+  };
+
+  const handleDownloadClose = () => {
+    setDownloadAnchorEl(null);
+  };
+
   const isPublished = rowData.status === "published";
   const isSubmitted = rowData.status === "submitted";
   const isDraft = rowData.status === "";
+
+  const record = rowData.fullRecord;
+  const isValidRecord = record && recordIsValid(record);
+  const catalogueURL =
+    record && isPublished
+      ? `${regions[region]?.catalogueURL?.[language] || ""}dataset/ca-cioos_${record.identifier}`
+      : null;
+
+  // Download handler
+  const handleDownloadRecord = async (fileType) => {
+    if (!record) return;
+    const extensions = {
+      erddap: "_erddap.xml",
+      xml: ".xml",
+      yaml: ".yaml",
+      eml: "_eml.xml",
+      json: ".json",
+      dataciteJson: "_dataCite.json",
+    };
+    const mimeTypes = {
+      xml: "application/xml",
+      yaml: "application/x-yaml",
+      eml: "application/xml",
+      erddap: "application/xml",
+      json: "application/json",
+      dataciteJson: "application/json",
+    };
+
+    setIsDownloading(true);
+    try {
+      let blob;
+      if (fileType === "eml") {
+        const emlStr = await recordToEML(record);
+        blob = new Blob([emlStr], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
+      } else if (fileType === "json") {
+        blob = new Blob([JSON.stringify(record, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
+      } else if (fileType === "dataciteJson") {
+        const dc = recordToDataCite(record, language, region, datacitePrefix);
+        blob = new Blob([JSON.stringify(dc, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
+      } else {
+        const functions = getFunctions();
+        const convertMetadata = httpsCallable(functions, "convert_metadata");
+        const resp = await convertMetadata({
+          record_data: record,
+          output_format: fileType,
+        });
+        const resultText = resp?.data ?? "";
+        blob = new Blob([resultText], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
+      }
+
+      FileSaver.saveAs(
+        blob,
+        `${getRecordFilename(record)}${extensions[fileType]}`,
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Determine if we should show the grouped publish menu
   const showPublishMenu =
@@ -55,7 +153,7 @@ const RowActions = ({
     ((isSubmitted || isPublished) && actions.showGithubPublishAction);
 
   return (
-    <div style={{ display: "flex", gap: "4px" }}>
+    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
       {/* View/Edit button */}
       {(actions.showViewAction || actions.showEditAction) && (
         <Tooltip
@@ -155,6 +253,7 @@ const RowActions = ({
             anchorEl={publishAnchorEl}
             open={publishMenuOpen}
             onClose={handlePublishClose}
+            disableScrollLock
           >
             {/* Publish (Submitted -> Published) */}
             {isSubmitted && actions.showPublishAction && (
@@ -234,6 +333,110 @@ const RowActions = ({
           </Menu>
         </>
       )}
+
+      {/* Download Button */}
+      {actions.showDownloadButton && (
+        <>
+          <Tooltip
+            title={<I18n en="Download" fr="Télécharger" />}
+            open={downloadMenuOpen ? false : undefined}
+          >
+            <span>
+              <IconButton
+                size="small"
+                onClick={handleDownloadClick}
+                disabled={!isValidRecord}
+              >
+                {isDownloading ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  <CloudDownload fontSize="small" />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Menu
+            anchorEl={downloadAnchorEl}
+            open={downloadMenuOpen}
+            onClose={handleDownloadClose}
+            disableScrollLock
+          >
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("iso19115-3_xml");
+                handleDownloadClose();
+              }}
+            >
+              ISO 19115-3 XML
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("yaml");
+                handleDownloadClose();
+              }}
+            >
+              YAML
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("erddap");
+                handleDownloadClose();
+              }}
+            >
+              ERDDAP snippet
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("eml");
+                handleDownloadClose();
+              }}
+            >
+              EML for OBIS IPT
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("json");
+                handleDownloadClose();
+              }}
+            >
+              Database JSON
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleDownloadRecord("dataciteJson");
+                handleDownloadClose();
+              }}
+            >
+              DATACITE JSON
+            </MenuItem>
+          </Menu>
+        </>
+      )}
+
+      {/* Catalogue Link */}
+      <Tooltip
+        title={
+          <I18n
+            en="Open catalogue entry in new window"
+            fr="Ouvrir l'entrée dans le catalogue dans une nouvelle fenêtre"
+          />
+        }
+      >
+        <span>
+          <IconButton
+            size="small"
+            disabled={!isPublished || !catalogueURL}
+            onClick={() => {
+              if (catalogueURL) {
+                const win = window.open(catalogueURL, "_blank");
+                win?.focus();
+              }
+            }}
+          >
+            <OpenInNew fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
     </div>
   );
 };
@@ -289,7 +492,8 @@ const RecordTableView = ({ records }) => {
     cols.push({
       field: "actions",
       headerName: language === "en" ? "Actions" : "Actions",
-      width: 180,
+      width: 280,
+      minWidth: 240,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -298,12 +502,15 @@ const RecordTableView = ({ records }) => {
           actions={config.actions || {}}
           actionHandlers={actionHandlers}
           githubPublishEnabled={githubPublishEnabled}
+          language={language}
+          region={region}
+          datacitePrefix=""
         />
       ),
     });
 
     return cols;
-  }, [config, columnDefs, language, actionHandlers, githubPublishEnabled]);
+  }, [config, columnDefs, language, region, actionHandlers, githubPublishEnabled]);
 
   // Transform records to rows
   const rows = useMemo(
