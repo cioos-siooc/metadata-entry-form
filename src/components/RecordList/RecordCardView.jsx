@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Box, Typography } from "@mui/material";
+import React, { useMemo, useState, useEffect } from "react";
+import { Box, Typography, TablePagination } from "@mui/material";
 
 import { useRecordListContext } from "./context";
 import { recordToRow } from "./config";
@@ -11,6 +11,12 @@ import { I18n, En, Fr } from "../I18n";
 const RecordCardView = ({ records }) => {
   const { config, actionHandlers, githubPublishEnabled, language, listState } =
     useRecordListContext();
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(
+    config.table?.pageSize || 20
+  );
 
   // Transform to table rows so we can reuse the same fields for filtering/sorting
   const rows = useMemo(
@@ -41,8 +47,33 @@ const RecordCardView = ({ records }) => {
     [visibleRows, recordById],
   );
 
+  // Paginated records
+  const paginatedRecords = useMemo(() => {
+    const start = page * rowsPerPage;
+    const end = start + rowsPerPage;
+    return visibleRecords.slice(start, end);
+  }, [visibleRecords, page, rowsPerPage]);
+
+  // Reset to first page when filters reduce results
+  useEffect(() => {
+    if (page > 0 && visibleRecords.length <= page * rowsPerPage) {
+      setPage(0);
+    }
+  }, [visibleRecords.length, page, rowsPerPage]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const actions = config.actions || {};
   const cardFields = config.cardFields || {};
+
+  const rowsPerPageOptions = config.table?.rowsPerPageOptions || [10, 20, 50, 100];
 
   return (
     <Box>
@@ -55,7 +86,7 @@ const RecordCardView = ({ records }) => {
           </I18n>
         </Typography>
       ) : (
-        visibleRecords.map((record) => {
+        paginatedRecords.map((record) => {
           const { title, recordID } = record;
           if (!(title?.en || title?.fr)) return null;
 
@@ -117,6 +148,34 @@ const RecordCardView = ({ records }) => {
             />
           );
         })
+      )}
+      {visibleRecords && visibleRecords.length > 0 && (
+        <TablePagination
+          component="div"
+          count={visibleRecords.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={rowsPerPageOptions}
+          labelRowsPerPage={
+            language === "en" ? "Cards per page:" : "Cartes par page :"
+          }
+          labelDisplayedRows={({ from, to, count }) =>
+            language === "en"
+              ? `${from}-${to} of ${count}`
+              : `${from}-${to} sur ${count}`
+          }
+          sx={{
+            mt: 2,
+            borderTop: 1,
+            borderColor: "divider",
+            "& .MuiTablePagination-toolbar": {
+              flexWrap: "wrap",
+              justifyContent: "center",
+            },
+          }}
+        />
       )}
     </Box>
   );
