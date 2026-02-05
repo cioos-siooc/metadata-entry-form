@@ -67,8 +67,10 @@ const RecordTableView = ({ records }) => {
     cols.push({
       field: "actions",
       headerName: language === "en" ? "Actions" : "Actions",
-      width: 280,
-      minWidth: 240,
+      width: 70,
+      minWidth: 60,
+      headerAlign: "center",
+      align: "center",
       sortable: false,
       filterable: false,
       renderCell: (params) => (

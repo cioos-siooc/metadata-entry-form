@@ -88,19 +88,14 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   cardActions: {
-    padding: theme.spacing(1, 1.5),
+    padding: theme.spacing(0.5, 1),
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    flexWrap: "nowrap",
-    gap: theme.spacing(0.25),
     flexShrink: 0,
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(1, 1.25),
-      justifyContent: "center",
-      borderTop: `1px solid ${theme.palette.divider}`,
-      flexWrap: "wrap",
-      width: "100%",
+      padding: theme.spacing(0.5),
+      justifyContent: "flex-end",
     },
   },
   iconButton: {
