@@ -18,7 +18,6 @@ import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
-import WhatsNew from "./Pages/WhatsNew";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
@@ -86,7 +85,6 @@ const Pages = () => {
                   element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
                 />
                 <Route path="sentry-test" element={<SentryTest />} />
-                <Route path="whats-new" element={<WhatsNew />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ErrorBoundary>

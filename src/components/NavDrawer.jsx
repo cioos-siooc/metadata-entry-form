@@ -49,6 +49,7 @@ import { firebaseConfig } from "../firebase";
 import { auth, signInWithGoogle } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
+import WhatsNewDialog from "./Pages/WhatsNew";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -269,6 +270,7 @@ export default function MiniDrawer({ children }) {
   const regionEmailLower = regionEmail.toLowerCase();
   const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
   const [emailCopied, setEmailCopied] = React.useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
@@ -764,7 +766,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="WhatsNew"
-                      onClick={() => navigate(`${baseURL}/whats-new`)}
+                      onClick={() => setWhatsNewOpen(true)}
                     >
                       <ListItemIcon>
                         <NewReleases />
@@ -830,6 +832,10 @@ export default function MiniDrawer({ children }) {
         <div className={classes.toolbar} />
         {children}
       </main>
+      <WhatsNewDialog
+        open={whatsNewOpen}
+        onClose={() => setWhatsNewOpen(false)}
+      />
     </div>
   );
 }

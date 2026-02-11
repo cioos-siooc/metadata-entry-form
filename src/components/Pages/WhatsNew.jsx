@@ -9,8 +9,12 @@ import {
   Box,
   Divider,
   Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
 } from "@mui/material";
-import { OpenInNew } from "@mui/icons-material";
+import { OpenInNew, Close } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { En, Fr, I18n } from "../I18n";
@@ -22,9 +26,6 @@ const CACHE_KEY = "github-releases-cache";
 const CACHE_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
 const useStyles = makeStyles()((theme) => ({
-  container: {
-    maxWidth: 900,
-  },
   releasePaper: {
     padding: theme.spacing(3),
     marginBottom: theme.spacing(3),
@@ -106,7 +107,7 @@ function formatReleaseDate(dateString, language) {
   });
 }
 
-const WhatsNew = () => {
+const WhatsNewDialog = ({ open, onClose }) => {
   const { language } = useParams();
   const { classes } = useStyles();
   const [releases, setReleases] = useState([]);
@@ -114,7 +115,10 @@ const WhatsNew = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!open) return;
     let cancelled = false;
+    setLoading(true);
+    setError(null);
     fetchReleases()
       .then((data) => {
         if (!cancelled) {
@@ -131,115 +135,133 @@ const WhatsNew = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" py={4}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert severity="error">
-        <I18n>
-          <En>Failed to load releases: {error}</En>
-          <Fr>Impossible de charger les versions : {error}</Fr>
-        </I18n>
-      </Alert>
-    );
-  }
+  }, [open]);
 
   return (
-    <div className={classes.container}>
-      <Typography variant="h5" gutterBottom>
-        <I18n>
-          <En>What's New</En>
-          <Fr>Quoi de neuf</Fr>
-        </I18n>
-      </Typography>
-      <Typography paragraph>
-        <I18n>
-          <En>Recent updates and releases for the Metadata Entry Tool.</En>
-          <Fr>
-            Mises à jour récentes de l'outil de saisie de métadonnées.
-          </Fr>
-        </I18n>
-      </Typography>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      scroll="paper"
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <Typography variant="h5" component="span">
+            <I18n>
+              <En>What's New</En>
+              <Fr>Quoi de neuf</Fr>
+            </I18n>
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            <I18n>
+              <En>Recent updates and releases for the Metadata Entry Tool.</En>
+              <Fr>
+                Mises à jour récentes de l'outil de saisie de métadonnées.
+              </Fr>
+            </I18n>
+          </Typography>
+        </div>
+        <IconButton onClick={onClose} aria-label="close">
+          <Close />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        {loading && (
+          <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress />
+          </Box>
+        )}
 
-      {releases.length === 0 ? (
-        <Typography color="textSecondary">
-          <I18n>
-            <En>No releases available yet.</En>
-            <Fr>Aucune version disponible pour le moment.</Fr>
-          </I18n>
-        </Typography>
-      ) : (
-        releases.map((release) => (
-          <Paper key={release.id} className={classes.releasePaper}>
-            <div className={classes.releaseHeader}>
-              <Typography variant="h6">
-                {release.name || release.tag_name}
-              </Typography>
-              <Chip
-                label={release.tag_name}
-                size="small"
-                color="primary"
-                variant="outlined"
-              />
-              {release.prerelease && (
+        {error && (
+          <Alert severity="error">
+            <I18n>
+              <En>Failed to load releases: {error}</En>
+              <Fr>Impossible de charger les versions : {error}</Fr>
+            </I18n>
+          </Alert>
+        )}
+
+        {!loading && !error && releases.length === 0 && (
+          <Typography color="textSecondary">
+            <I18n>
+              <En>No releases available yet.</En>
+              <Fr>Aucune version disponible pour le moment.</Fr>
+            </I18n>
+          </Typography>
+        )}
+
+        {!loading &&
+          !error &&
+          releases.map((release) => (
+            <Paper key={release.id} className={classes.releasePaper}>
+              <div className={classes.releaseHeader}>
+                <Typography variant="h6">
+                  {release.name || release.tag_name}
+                </Typography>
                 <Chip
-                  label={
-                    language === "fr" ? "Pré-version" : "Pre-release"
-                  }
+                  label={release.tag_name}
                   size="small"
-                  color="warning"
+                  color="primary"
+                  variant="outlined"
                 />
-              )}
-            </div>
-            <Typography variant="body2" className={classes.releaseDate}>
-              {formatReleaseDate(release.published_at, language)}
-            </Typography>
-            <Link
-              href={release.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="body2"
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
-                mb: 2,
-              }}
-            >
-              <I18n>
-                <En>View on GitHub</En>
-                <Fr>Voir sur GitHub</Fr>
-              </I18n>
-              <OpenInNew fontSize="inherit" />
-            </Link>
-            <Divider sx={{ my: 2 }} />
-            {release.body ? (
-              <div className={classes.markdownBody}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {release.body}
-                </ReactMarkdown>
+                {release.prerelease && (
+                  <Chip
+                    label={
+                      language === "fr" ? "Pré-version" : "Pre-release"
+                    }
+                    size="small"
+                    color="warning"
+                  />
+                )}
               </div>
-            ) : (
-              <Typography color="textSecondary" variant="body2">
-                <I18n>
-                  <En>No release notes provided.</En>
-                  <Fr>Aucune note de version fournie.</Fr>
-                </I18n>
+              <Typography variant="body2" className={classes.releaseDate}>
+                {formatReleaseDate(release.published_at, language)}
               </Typography>
-            )}
-          </Paper>
-        ))
-      )}
-    </div>
+              <Link
+                href={release.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="body2"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  mb: 2,
+                }}
+              >
+                <I18n>
+                  <En>View on GitHub</En>
+                  <Fr>Voir sur GitHub</Fr>
+                </I18n>
+                <OpenInNew fontSize="inherit" />
+              </Link>
+              <Divider sx={{ my: 2 }} />
+              {release.body ? (
+                <div className={classes.markdownBody}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {release.body}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <Typography color="textSecondary" variant="body2">
+                  <I18n>
+                    <En>No release notes provided.</En>
+                    <Fr>Aucune note de version fournie.</Fr>
+                  </I18n>
+                </Typography>
+              )}
+            </Paper>
+          ))}
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default WhatsNew;
+export default WhatsNewDialog;
