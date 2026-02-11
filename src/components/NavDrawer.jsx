@@ -88,7 +88,7 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
     "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)}px ${theme.spacing(4)}px ${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
       textAlign: "center",
       "&:focus": {
         backgroundColor: "transparent",
@@ -99,7 +99,7 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   feedbackButton: {
-    padding: `${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+    padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
     background: "none",
     border: "1px solid white",
     borderRadius: theme.shape.borderRadius,
@@ -200,9 +200,9 @@ const useStyles = makeStyles()((theme) => ({
     }),
   },
   contentWithDrawer: {
-    marginLeft: theme.spacing(2) + 1,
+    marginLeft: theme.spacing(2),
     [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(9) + 1,
+      marginLeft: theme.spacing(9),
     },
   },
   contentShift: {
