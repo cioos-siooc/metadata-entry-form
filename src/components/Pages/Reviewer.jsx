@@ -326,14 +326,8 @@ const Reviewer = () => {
   );
 
   return (
-    <Grid
-      container
-      direction="column"
-      justifyContent="space-between"
-      alignItems="stretch"
-      spacing={3}
-    >
-      {/* Modals */}
+    <>
+      {/* Modals (render in portal; avoid wrapper divs in Grid) */}
       <TransferModal
         open={transferModalOpen}
         onClose={() => {
@@ -410,8 +404,16 @@ const Reviewer = () => {
         </Alert>
       </Snackbar>
 
+      {/* Main content grid */}
+      <Grid
+        container
+        direction="column"
+        justifyContent="space-between"
+        alignItems="stretch"
+        spacing={1}
+      >
       {/* Header */}
-      <Grid item xs>
+      <Grid item xs style={{ paddingTop: 0 }}>
         <Typography variant="h5">
           <I18n>
             <En>Review submissions</En>
@@ -421,7 +423,7 @@ const Reviewer = () => {
         <Typography
           variant="body2"
           color="textSecondary"
-          style={{ marginTop: "8px" }}
+          style={{ marginTop: "6px" }}
         >
           <I18n>
             <En>
@@ -438,7 +440,7 @@ const Reviewer = () => {
       </Grid>
 
       {/* Record List */}
-      <Grid item xs>
+      <Grid item xs style={{ paddingTop: 0 }}>
         <RecordList
           records={records}
           config={reviewerConfig}
@@ -453,6 +455,7 @@ const Reviewer = () => {
         />
       </Grid>
     </Grid>
+    </>
   );
 };
 
