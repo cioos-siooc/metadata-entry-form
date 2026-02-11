@@ -10,7 +10,6 @@ import {
   ExitToApp,
   Contacts,
   ListAlt,
-  AccountCircle,
   ChevronLeft,
   ChevronRight,
   FeedbackRounded,
@@ -45,7 +44,7 @@ import {
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
-import { auth, signInWithGoogle } from "../auth";
+import { auth } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
 
@@ -238,7 +237,6 @@ export default function MiniDrawer({ children }) {
     user,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
-    authIsLoading,
     hasSharedRecords,
   } = useContext(UserContext);
 
@@ -260,7 +258,7 @@ export default function MiniDrawer({ children }) {
   const baseURL = `/${language}/${region}`;
 
   // if region not set, keep drawer closed
-  const [open, setOpen] = React.useState(Boolean(region));
+  const [open, setOpen] = React.useState(Boolean(region) && Boolean(user));
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -361,7 +359,9 @@ export default function MiniDrawer({ children }) {
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
-    signIn: <I18n en="Sign in" fr="Se Connecter" />,
+    signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
+    signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
+    signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Development database" fr="Base de données de développement" />,
@@ -522,36 +522,7 @@ export default function MiniDrawer({ children }) {
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
-            <List className={classes.sidebarList}>
-              {!user && region && (
-                <Tooltip
-
-                  placement="right-start"
-                  title={open ? "" : translations.signIn}
-                >
-                  <ListItemButton
-                    disabled={authIsLoading}
-                    key="Sign in"
-                    onClick={async () => {
-                      try {
-                        await signInWithGoogle();
-                        navigate(pathname);
-                      } catch (error) {
-                        if (error.code === 'auth/cancelled-popup-request') {
-                          // ignore
-                        } else {
-                          throw error;
-                        }
-                      }
-                  }}
-                >
-                  <ListItemIcon>
-                    <AccountCircle />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.signIn} />
-                </ListItemButton>
-              </Tooltip>
-            )}
+          <List>
             {user && region && (
               <>
                 <Tooltip
@@ -754,6 +725,14 @@ export default function MiniDrawer({ children }) {
                   <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
                 </ListItemButton>
               </Tooltip>
+              {!user && (
+                <ListItem key="userInfo">
+                  <ListItemIcon>
+                    <Avatar style={{ width: 30, height: 30 }} />
+                  </ListItemIcon>
+                  <ListItemText/>
+                </ListItem>
+              )}
               {user && (
                 <>
                   {userIsAdmin && (
