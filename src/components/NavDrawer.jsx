@@ -23,6 +23,7 @@ import {
   Help,
   Warning,
   Settings,
+  NewReleases,
 } from "@mui/icons-material";
 
 import {
@@ -365,6 +366,7 @@ export default function MiniDrawer({ children }) {
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Development database" fr="Base de données de développement" />,
+    whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -756,6 +758,20 @@ export default function MiniDrawer({ children }) {
               </Tooltip>
               {user && (
                 <>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.whatsNew}
+                  >
+                    <ListItemButton
+                      key="WhatsNew"
+                      onClick={() => navigate(`${baseURL}/whats-new`)}
+                    >
+                      <ListItemIcon>
+                        <NewReleases />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.whatsNew} />
+                    </ListItemButton>
+                  </Tooltip>
                   {userIsAdmin && (
                     <Tooltip
                       placement="right-start"
