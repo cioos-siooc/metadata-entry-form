@@ -158,7 +158,7 @@ const ProcessingStep = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid >
+      <Grid size="grow">
         <Grid container direction="column">
           {source && (
             <Paper style={paperClass}>

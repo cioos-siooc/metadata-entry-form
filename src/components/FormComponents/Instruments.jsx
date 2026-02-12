@@ -74,7 +74,7 @@ const Instruments = ({
               />
 
     </Grid>
-      <Grid >
+      <Grid size="grow">
         <Grid container direction="column">
           {instrument && (
             <Paper style={paperClass}>

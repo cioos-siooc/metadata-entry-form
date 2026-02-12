@@ -152,7 +152,7 @@ const LineageAdditionalDocumentation = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid >
+      <Grid size="grow">
         <Grid container direction="column">
           {documentation && (
             <Paper style={paperClass}>

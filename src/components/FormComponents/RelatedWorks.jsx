@@ -250,7 +250,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid >
+        <Grid size="grow">
           {resourceStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>

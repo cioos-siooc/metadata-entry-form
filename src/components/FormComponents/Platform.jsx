@@ -63,7 +63,7 @@ const Platform = ({
 
         </Grid>
 
-      <Grid >
+      <Grid size="grow">
         <Grid container direction="column">
         { platform && (
             <Paper style={paperClass}>
