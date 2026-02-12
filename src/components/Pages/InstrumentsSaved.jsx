@@ -110,7 +110,7 @@ class Instruments extends FormClassTemplate {
     const { modalOpen, modalKey, loading, instruments } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid size="grow">
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +126,7 @@ class Instruments extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -141,7 +141,7 @@ class Instruments extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addInstrument()}>
             <I18n>
               <En>Add instrument</En>
@@ -154,7 +154,7 @@ class Instruments extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid size="grow">
+            <Grid >
               {instruments && Object.keys(instruments).length ? (
                 <div>
                   <Typography>

@@ -110,7 +110,7 @@ class Platforms extends FormClassTemplate {
     const { modalOpen, modalKey, loading, platforms } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid size="grow">
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +126,7 @@ class Platforms extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -141,7 +141,7 @@ class Platforms extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addPlatform()}>
             <I18n>
               <En>Add platform</En>
@@ -154,7 +154,7 @@ class Platforms extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid size="grow">
+            <Grid >
               {platforms && Object.keys(platforms).length ? (
                 <div>
                   <Typography>

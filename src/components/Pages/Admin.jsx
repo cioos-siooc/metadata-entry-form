@@ -408,7 +408,7 @@ class Admin extends FormClassTemplate {
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid size="grow">
+        <Grid >
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -433,7 +433,7 @@ class Admin extends FormClassTemplate {
         ) : (
           <>
             <Paper style={paperClass}>
-              <Grid size="grow">
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -441,7 +441,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid size="grow">
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -453,7 +453,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid size="grow">
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -461,7 +461,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid size="grow">
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -473,7 +473,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid size="grow">
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -481,7 +481,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid size="grow">
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -758,7 +758,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
               </Grid>
             </Paper>
-            <Grid size="grow">
+            <Grid >
               <Button
                 startIcon={<Save />}
                 variant="contained"

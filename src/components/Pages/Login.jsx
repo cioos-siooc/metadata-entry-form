@@ -75,7 +75,7 @@ const Login = () => {
           </Typography>
 
           <Grid container direction="column" spacing={1}>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth
@@ -90,7 +90,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth
@@ -105,7 +105,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth

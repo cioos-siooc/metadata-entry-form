@@ -63,11 +63,11 @@ const Platform = ({
 
         </Grid>
 
-      <Grid size="grow">
+      <Grid >
         <Grid container direction="column">
         { platform && (
             <Paper style={paperClass}>
-              <Grid size="grow" style={paperClass}>
+              <Grid  style={paperClass}>
                 <QuestionText>
                   <I18n>
                     <En>What type of platform is it?</En>
@@ -116,7 +116,7 @@ const Platform = ({
                 />
               </Grid>
 
-              <Grid size="grow" style={paperClass}>
+              <Grid  style={paperClass}>
                 <QuestionText>
                   <I18n>
                     <En>What is the platform ID or code?</En>
@@ -162,7 +162,7 @@ const Platform = ({
                 />
               </Grid>
 
-              <Grid size="grow" style={paperClass}>
+              <Grid  style={paperClass}>
         <QuestionText>
           <I18n>
             <En>More information about the platform</En>

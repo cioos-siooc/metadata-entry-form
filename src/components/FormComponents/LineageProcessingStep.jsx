@@ -113,7 +113,7 @@ const ProcessingStep = ({
       <Grid container item direction="row" spacing={1}>
       <Grid size={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid size="grow">
+            <Grid >
 
               <List spacing={1}>
               {sources.map((sourceItem, i) => {
@@ -143,7 +143,7 @@ const ProcessingStep = ({
             </List>
           </Grid>
 
-          <Grid size="grow">
+          <Grid >
             <Button
               disabled={disabled}
               startIcon={<Add />}
@@ -158,12 +158,12 @@ const ProcessingStep = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid size="grow">
+      <Grid >
         <Grid container direction="column">
           {source && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
@@ -176,7 +176,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Typography variant="body1" component="div" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>Or link to reference documentation</En>
@@ -184,7 +184,7 @@ const ProcessingStep = ({
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Title</En>
                     <Fr>Titre</Fr>
@@ -199,7 +199,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     label={
                       <I18n>
@@ -213,7 +213,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -234,7 +234,7 @@ const ProcessingStep = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}

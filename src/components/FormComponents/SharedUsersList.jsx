@@ -119,9 +119,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <Grid size="grow">
+    <Grid >
       <Paper style={paperClass}>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             <I18n>
               <En>
@@ -148,7 +148,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
               </I18n>
             </SupplementalText>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Grid container spacing={2}>
             <Grid size={6}>
               <Autocomplete

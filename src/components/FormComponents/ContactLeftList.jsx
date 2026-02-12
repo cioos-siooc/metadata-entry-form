@@ -103,7 +103,7 @@ const ContactLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             {contacts.length ? (
               <I18n>
@@ -118,7 +118,7 @@ const ContactLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <List>
             <SortableList
               items={contacts}
@@ -233,7 +233,7 @@ const ContactLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewContact}
@@ -248,7 +248,7 @@ const ContactLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"
