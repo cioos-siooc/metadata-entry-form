@@ -68,7 +68,7 @@ class EditPlatformClass extends FormClassTemplate {
   render() {
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid size="grow">
+        <Grid >
           <PlatformEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -77,7 +77,7 @@ class EditPlatformClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button
             startIcon={<Save />}
             variant="contained"

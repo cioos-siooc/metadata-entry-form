@@ -5,10 +5,10 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Avatar,
   Grid,
-  ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
   Tooltip,
@@ -110,7 +110,7 @@ class Platforms extends FormClassTemplate {
     const { modalOpen, modalKey, loading, platforms } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid size="grow">
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +126,7 @@ class Platforms extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -141,7 +141,7 @@ class Platforms extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addPlatform()}>
             <I18n>
               <En>Add platform</En>
@@ -154,7 +154,7 @@ class Platforms extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid size="grow">
+            <Grid >
               {platforms && Object.keys(platforms).length ? (
                 <div>
                   <Typography>
@@ -167,45 +167,47 @@ class Platforms extends FormClassTemplate {
                     {Object.entries(platforms).map(([key, val]) => (
                       <ListItem
                         key={key}
-                        button
-                        onClick={() => this.editPlatform(key)}
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                              <span>
+                                <IconButton onClick={() => this.editPlatform(key)}>
+                                  <Edit />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.handleClonePlatform(key)}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.toggleModal(true, key)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        }
                       >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <PermContactCalendar />
-                          </Avatar>
-                        </ListItemAvatar>
-
-                        <ListItemText
-                          primary={PlatformTitle({ "platform": val })}
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                            <span>
-                              <IconButton onClick={() => this.editPlatform(key)}>
-                                <Edit />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.handleClonePlatform(key)}
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.toggleModal(true, key)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </ListItemSecondaryAction>
+                        <ListItemButton onClick={() => this.editPlatform(key)}>
+                          <ListItemAvatar>
+                            <Avatar>
+                              <PermContactCalendar />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={PlatformTitle({ platform: val })}
+                          />
+                        </ListItemButton>
                       </ListItem>
                     ))}
                   </List>

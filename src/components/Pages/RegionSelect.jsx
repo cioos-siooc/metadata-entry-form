@@ -39,7 +39,7 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
       <Grid container direction="column" spacing={4}>
-        <Grid size="grow">
+        <Grid >
           <Typography
             variant="h6"
             gutterBottom
@@ -64,7 +64,7 @@ export default function RegionSelect() {
         </Grid>
 
         {/* CIOOS Regional Associations */}
-        <Grid size="grow">
+        <Grid >
           <Typography variant="h5" gutterBottom align="center">
             {t(
               "CIOOS Regional Associations",
@@ -98,7 +98,7 @@ export default function RegionSelect() {
         </Grid>
 
         {/* All Organizations */}
-        <Grid size="grow">
+        <Grid >
           <Typography variant="h5" gutterBottom align="center">
             {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>

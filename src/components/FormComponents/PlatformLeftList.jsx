@@ -95,7 +95,7 @@ const PlatformLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             {platforms.length ? (
               <I18n>
@@ -110,7 +110,7 @@ const PlatformLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <List>
             <SortableList
               items={platforms}
@@ -217,7 +217,7 @@ const PlatformLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewPlatform}
@@ -232,7 +232,7 @@ const PlatformLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

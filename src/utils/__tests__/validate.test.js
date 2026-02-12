@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, test } from "vitest";
+import { vi, describe, expect, test } from "vitest";
 import {
   validateEmail,
   validateURL,
@@ -49,73 +49,73 @@ describe('Utility: validate.js', () => {
     });
 
     test('Keywords validation', () => {
-       const valid = { keywords: { en: ['ocean'], fr: [] } };
-       const invalid = { keywords: { en: [], fr: [] } };
+      const valid = { keywords: { en: ['ocean'], fr: [] } };
+      const invalid = { keywords: { en: [], fr: [] } };
 
-       expect(validateField(valid, 'keywords')).toBeTruthy();
-       expect(validateField(invalid, 'keywords')).toBeFalsy();
+      expect(validateField(valid, 'keywords')).toBeTruthy();
+      expect(validateField(invalid, 'keywords')).toBeFalsy();
     });
 
     test('Spatial Map validation', () => {
-        const validBox = {
-            map: { north: "10", south: "1", east: "10", west: "1" },
-            resourceType: "physical"
-        };
-        const invalidBox = {
-            map: { north: "1", south: "10", east: "1", west: "10" }, // N < S
-            resourceType: "physical"
-        };
+      const validBox = {
+        map: { north: "10", south: "1", east: "10", west: "1" },
+        resourceType: "physical"
+      };
+      const invalidBox = {
+        map: { north: "1", south: "10", east: "1", west: "10" }, // N < S
+        resourceType: "physical"
+      };
 
-        expect(validateField(validBox, 'map')).toBe(true);
-        expect(validateField(invalidBox, 'map')).toBe(false);
+      expect(validateField(validBox, 'map')).toBe(true);
+      expect(validateField(invalidBox, 'map')).toBe(false);
     });
 
     test('Spatial Map validation with Zero coordinates', () => {
-        const validBoxWithZero = {
-            map: { north: "10", south: "0", east: "10", west: "0" },
-            resourceType: "physical"
-        };
-        // This fails if '0' is falsy in the validation logic (fixed bug)
-        expect(validateField(validBoxWithZero, 'map')).toBe(true);
+      const validBoxWithZero = {
+        map: { north: "10", south: "0", east: "10", west: "0" },
+        resourceType: "physical"
+      };
+      // This fails if '0' is falsy in the validation logic (fixed bug)
+      expect(validateField(validBoxWithZero, 'map')).toBe(true);
     });
 
     test('Contacts validation', () => {
-        const validContacts = [
-            {
-                role: ['owner'],
-                givenNames: 'John',
-                lastName: 'Doe',
-                indEmail: 'john@example.com',
-                inCitation: true
-            },
-            {
-                role: ['custodian'],
-                orgName: 'Org',
-                orgEmail: 'info@org.com',
-                orgURL: 'https://org.com'
-            }
-        ];
+      const validContacts = [
+        {
+          role: ['owner'],
+          givenNames: 'John',
+          lastName: 'Doe',
+          indEmail: 'john@example.com',
+          inCitation: true
+        },
+        {
+          role: ['custodian'],
+          orgName: 'Org',
+          orgEmail: 'info@org.com',
+          orgURL: 'https://org.com'
+        }
+      ];
 
-        // Valid case: has owner, custodian, citation, and valid emails/urls
-        expect(validateField({ contacts: validContacts }, 'contacts')).toBeTruthy();
+      // Valid case: has owner, custodian, citation, and valid emails/urls
+      expect(validateField({ contacts: validContacts }, 'contacts')).toBeTruthy();
 
-        // Invalid: Missing Custodian
-        const missingCustodian = [validContacts[0]];
-        expect(validateField({ contacts: missingCustodian }, 'contacts')).toBeFalsy();
+      // Invalid: Missing Custodian
+      const missingCustodian = [validContacts[0]];
+      expect(validateField({ contacts: missingCustodian }, 'contacts')).toBeFalsy();
 
-        // Invalid: Missing Owner
-        // Note: We need a contact set that HAS custodian but NO owner to test this specific failure
-        const custodianContact = validContacts[1];
-        // custodianContact has role=['custodian'], no inCitation (undefined/false)
-        const missingOwner = [custodianContact];
-        expect(validateField({ contacts: missingOwner }, 'contacts')).toBeFalsy();
+      // Invalid: Missing Owner
+      // Note: We need a contact set that HAS custodian but NO owner to test this specific failure
+      const custodianContact = validContacts[1];
+      // custodianContact has role=['custodian'], no inCitation (undefined/false)
+      const missingOwner = [custodianContact];
+      expect(validateField({ contacts: missingOwner }, 'contacts')).toBeFalsy();
 
-        // Invalid: Bad Email
-        const badEmail = [
-            { ...validContacts[0], indEmail: 'bad-email' },
-            validContacts[1]
-        ];
-        expect(validateField({ contacts: badEmail }, 'contacts')).toBeFalsy();
+      // Invalid: Bad Email
+      const badEmail = [
+        { ...validContacts[0], indEmail: 'bad-email' },
+        validContacts[1]
+      ];
+      expect(validateField({ contacts: badEmail }, 'contacts')).toBeFalsy();
     });
   });
 

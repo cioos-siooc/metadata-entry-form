@@ -412,31 +412,235 @@ const Reviewer = () => {
         alignItems="stretch"
         spacing={1}
       >
-      {/* Header */}
-      <Grid item xs style={{ paddingTop: 0 }}>
-        <Typography variant="h5">
-          <I18n>
-            <En>Review submissions</En>
-            <Fr>Examen des soumissions</Fr>
-          </I18n>
-        </Typography>
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          style={{ marginTop: "6px" }}
-        >
-          <I18n>
-            <En>
-              Review, manage, and publish metadata records. Use filters to find
-              specific submissions by status, author, or title.
-            </En>
-            <Fr>
-              Examinez, gérez et publiez les enregistrements de métadonnées.
-              Utilisez les filtres pour trouver des soumissions spécifiques par
-              statut, auteur ou titre.
-            </Fr>
-          </I18n>
-        </Typography>
+        <TransferModal
+          open={transferModalOpen}
+          onClose={() => {
+            this.toggleModal("transferModalOpen", false);
+            this.setState({ transferEmail: "" });
+          }}
+          onAccept={() => this.handleTransferRecord(modalKey, modalUserID)}
+          transferUserNotFound={transferUserNotFound}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          email={transferEmail}
+          setEmail={(v) => this.setState({ transferEmail: v })}
+        />
+        <SimpleModal
+          open={deleteModalOpen}
+          onClose={() => this.toggleModal("deleteModalOpen", false)}
+          onAccept={() => this.deleteRecord(modalKey, modalUserID)}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
+        <SimpleModal
+          open={submitModalOpen}
+          onClose={() => this.toggleModal("submitModalOpen", false)}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
+          }
+          aria-labelledby="simple-modal-title"
+        />
+        <SimpleModal
+          open={publishModalOpen}
+          onClose={() => this.toggleModal("publishModalOpen", false)}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "published")
+          }
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
+        <SimpleModal
+          open={unPublishModalOpen}
+          onClose={() => this.toggleModal("unPublishModalOpen", false)}
+          onAccept={() =>
+            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
+          }
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
+        <SimpleModal
+          open={unSubmitModalOpen}
+          onClose={() => this.toggleModal("unSubmitModalOpen", false)}
+          onAccept={() => this.handleSubmitRecord(modalKey, modalUserID, "")}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        />
+        <GitHubPublishDialog
+          open={this.state.githubPublishModalOpen}
+          onClose={() => this.setState({ githubPublishModalOpen: false })}
+          onPublish={this.handleGithubPublish}
+          region={match.params.region}
+          recordTitle={
+            records.find((r) => r.recordID === modalKey)?.title?.[language] ||
+            ""
+          }
+          loading={this.state.githubPublishLoading}
+          progressLogs={this.state.publishLogs}
+        />
+        <Grid >
+          <Typography variant="h5">
+            <I18n>
+              <En>Review submissions</En>
+              <Fr>Examen des soumissions</Fr>
+            </I18n>
+          </Typography>
+        </Grid>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <>
+            <Snackbar
+              open={this.state.toastOpen}
+              autoHideDuration={6000}
+              onClose={this.closeToast}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+              <Alert onClose={this.closeToast} severity={this.state.toastSeverity} variant="filled" elevation={6}>
+                {this.state.toastMessage}
+              </Alert>
+            </Snackbar>
+            <Paper
+              style={{
+                padding: "10px",
+                margin: "10px",
+                width: "100%",
+              }}
+            >
+              <QuestionText>
+                <En>Filters</En>
+                <Fr>Filtres</Fr>
+              </QuestionText>
+              <Grid container direction="column" spacing={2}>
+                <Grid >
+                  <CheckBoxList
+                    value={showRecordTypes}
+                    onChange={(e) => {
+                      this.setState({ showRecordTypes: e });
+                    }}
+                    options={recordTypeOptions}
+                    optionLabels={["draft", "submitted", "published"].map(
+                      (status) =>
+                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
+                    )}
+                  />
+                </Grid>
+                <Grid >
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel2a-content"
+                      id="panel2a-header"
+                    >
+                      <Typography>
+                        {showUsers.length === users.length ? (
+                          <I18n
+                            en="Users (All users selected)"
+                            fr="Utilisateurs (Tous les utilisateurs)"
+                          />
+                        ) : (
+                          <I18n
+                            en={`Users (${showUsers.length}  ${selectedText})`}
+                            fr={`Utilisateurs (${showUsers.length}  ${selectedText})`}
+                          />
+                        )}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Grid container direction="column">
+                        <Grid >
+                          <En>Select All / None</En>
+                          <Fr>Tout sélectionner/Aucun</Fr>
+
+                          <Checkbox
+                            label="Show All / None"
+                            onChange={(e) => {
+                              this.setState({
+                                showUsers: e.target.checked ? users : [],
+                              });
+                            }}
+                          />
+                        </Grid>
+                        <Grid >
+                          <CheckBoxList
+                            value={showUsers}
+                            onChange={(e) => {
+                              this.setState({ showUsers: e });
+                            }}
+                            options={users}
+                            labelSize={null}
+                          />
+                        </Grid>
+                      </Grid>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
+                <Grid >
+                  <TextField
+                    fullWidth
+                    onChange={(e) => {
+                      this.setState({ recordsFilter: e.target.value });
+                    }}
+                    label={
+                      <I18n
+                        en="Search title and abstract"
+                        fr="Rechercher le titre et le résumé"
+                      />
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+            {recordsToShow.length ? (
+              <>
+                <Grid container direction="column">
+                  <Grid>
+                    <Typography>
+                      <I18n>
+                        <En>
+                          These are the submissions we have received from all
+                          users that have not yet been reviewed. To accept a
+                          record, click the 'Publish' button.
+                        </En>
+                        <Fr>
+                          Ce sont les soumissions que nous avons reçues de tous
+                          les utilisateurs qui n'ont pas encore été examinées.
+                          Pour accepter un enregistrement, cliquez sur le bouton
+                          « Publier ».
+                        </Fr>
+                      </I18n>
+                    </Typography>
+                  </Grid>
+                  <Grid>
+                    <List>
+                      {recordsToShow.map((record) => (
+                        <RecordItem
+                          key={record.recordID}
+                          record={record}
+                          // eslint-disable-next-line react/jsx-no-bind
+                          toggleModal={this.toggleModal.bind(this)}
+                          editRecord={this.editRecord.bind(this)}
+                          handleCloneRecord={this.handleCloneRecord.bind(this)}
+                          githubPublishEnabled={this.state.githubPublishEnabled}
+                        />
+                      ))}
+                    </List>
+                  </Grid>
+                </Grid>
+              </>
+            ) : (
+              <Grid container direction="column">
+                <Grid>
+                  <Typography>
+                    <I18n>
+                      <En>There are no records waiting to be reviewed.</En>
+                      <Fr>Aucun dossier n'attend d'être examiné.</Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+              </Grid>
+            )}
+          </>
+        )}
       </Grid>
 
       {/* Record List */}

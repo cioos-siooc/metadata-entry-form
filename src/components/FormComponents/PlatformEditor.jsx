@@ -35,12 +35,12 @@ const PlatformEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid size="grow">
+      <Grid >
         <Grid container direction="column">
           {platform && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>What type of platform is it?</En>
@@ -88,7 +88,7 @@ const PlatformEditor = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>What is the platform ID or code?</En>
@@ -132,7 +132,7 @@ const PlatformEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>More information about the platform</En>
