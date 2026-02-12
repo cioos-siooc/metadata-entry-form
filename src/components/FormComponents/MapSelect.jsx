@@ -1,6 +1,5 @@
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-underscore-dangle */
-import React, { useState, useRef, useCallback } from "react";
+import React, { useRef, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { TextField, Grid, Typography } from "@mui/material";
@@ -12,10 +11,9 @@ import {
   Polygon as LeafletPolygon,
   Rectangle as LeafletRectangle,
 } from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
 import { I18n, En, Fr } from "../I18n";
+import GeomanControl from "./GeomanControl";
 
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
@@ -23,46 +21,19 @@ import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
-  const featureGroupRef = useRef(null);
-  const [, setLayerError] = useState(null);
+  const drawnLayerRef = useRef(null);
+  const mapDataRef = useRef(mapData);
+  mapDataRef.current = mapData;
 
   const coordTest = /-?\d+\.?\d+/;
   const polyTest = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
 
-  // On map clear
-  const handleMapClear = useCallback(() => {
-    const emptySpatial = {
-      ...mapData,
-      north: "",
-      south: "",
-      east: "",
-      west: "",
-      polygon: "",
-      descriptionIdentifier: uuidv4(),
-    };
-    updateMap(emptySpatial);
-  }, [mapData, updateMap]);
-
-  function clearExtraLayers(drawnItems) {
-    // Only allow one box on the map at a time
-    if (!featureGroupRef.current) return;
-
-    const layerKeys = Object.keys(drawnItems);
-    if (layerKeys.length > 1) {
-      layerKeys.forEach((layerid, index) => {
-        if (index === layerKeys.length - 1) return; // Keep the last one
-        const layer = drawnItems[layerid];
-        featureGroupRef.current.removeLayer(layer);
-      });
-    }
-  }
-
   // update a mapData property using an event
   function handleBBoxChange(key) {
     return (e) => {
-      if (featureGroupRef.current) {
-        const drawnItems = featureGroupRef.current._layers;
-        clearExtraLayers(drawnItems);
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
+        drawnLayerRef.current = null;
       }
       const newData = { ...mapData, [key]: e.target.value };
       updateMap(newData);
@@ -78,17 +49,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   }
 
   function parsePolyString(polygonList) {
-    let coordList = [...polygonList.matchAll(polyTest)].map((match) => {
-      return match[0];
+    const coordList = [...polygonList.matchAll(polyTest)].map((match) => {
+      return match[0].split(",").map(Number);
     });
-
-    try {
-      coordList = coordList.map((point) => {
-        return point.split(",").map(Number);
-      });
-    } catch (error) {
-      setLayerError({ error });
-    }
 
     return coordList;
   }
@@ -100,9 +63,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   // update the polygon property using an event
   function handleChangePoly() {
     return (e) => {
-      if (featureGroupRef.current) {
-        const drawnItems = featureGroupRef.current._layers;
-        clearExtraLayers(drawnItems);
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
+        drawnLayerRef.current = null;
       }
 
       const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' };
@@ -142,70 +105,73 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     return polyTest.test(testString);
   };
 
-  const onCreated = (e) => {
-    const { layer, layerType } = e;
+  const onCreated = useCallback(
+    (e) => {
+      const { layer, shape } = e;
 
-    // remove any existing shapes
-    if (featureGroupRef.current) {
-      const drawnItems = featureGroupRef.current._layers;
-      clearExtraLayers(drawnItems);
-    }
-
-    switch (layerType) {
-      case "polygon": {
-        const points = layer.getLatLngs()[0];
-        const polygonStrings = points.map(
-          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
-        );
-        const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
-
-        const polybounds = layer.getBounds();
-
-        let { lat: north, lng: east } = polybounds.getNorthEast();
-        let { lat: south, lng: west } = polybounds.getSouthWest();
-
-        north = limitDecimals(north);
-        south = limitDecimals(south);
-        east = limitDecimals(east);
-        west = limitDecimals(west);
-
-        const newValue = { ...mapData, polygon, north, south, east, west };
-        updateMap(newValue);
+      // Remove previous drawn shape (only one shape allowed at a time)
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
       }
-        break;
+      drawnLayerRef.current = layer;
 
-      default: // Assume rectangle
-      case "rectangle": {
-        const bounds = layer.getBounds();
+      const currentMapData = mapDataRef.current;
 
-        let { lat: north, lng: east } = bounds.getNorthEast();
-        let { lat: south, lng: west } = bounds.getSouthWest();
+      switch (shape) {
+        case "Polygon": {
+          const points = layer.getLatLngs()[0];
+          const polygonStrings = points.map(
+            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+          );
+          const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
-        north = limitDecimals(north);
-        south = limitDecimals(south);
-        east = limitDecimals(east);
-        west = limitDecimals(west);
+          const polybounds = layer.getBounds();
 
-        const newValue = { ...mapData, north, south, east, west };
-        updateMap(newValue);
+          let { lat: north, lng: east } = polybounds.getNorthEast();
+          let { lat: south, lng: west } = polybounds.getSouthWest();
+
+          north = limitDecimals(north);
+          south = limitDecimals(south);
+          east = limitDecimals(east);
+          west = limitDecimals(west);
+
+          updateMap({ ...currentMapData, polygon, north, south, east, west });
+          break;
+        }
+
+        case "Rectangle":
+        default: {
+          const bounds = layer.getBounds();
+
+          let { lat: north, lng: east } = bounds.getNorthEast();
+          let { lat: south, lng: west } = bounds.getSouthWest();
+
+          north = limitDecimals(north);
+          south = limitDecimals(south);
+          east = limitDecimals(east);
+          west = limitDecimals(west);
+
+          updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+          break;
+        }
       }
-    }
-  };
-
-  const onFeatureGroupReady = useCallback((ref) => {
-    if (ref) {
-      featureGroupRef.current = ref;
-    }
-  }, []);
-
-  // Customize delete behavior
-  L.EditToolbar.Delete.include({
-    enable() {
-      // eslint-disable-next-line react/no-this-in-sfc
-      this.options.featureGroup.clearLayers();
-      handleMapClear();
     },
-  });
+    [updateMap]
+  );
+
+  const onRemove = useCallback(() => {
+    drawnLayerRef.current = null;
+    const currentMapData = mapDataRef.current;
+    updateMap({
+      ...currentMapData,
+      north: "",
+      south: "",
+      east: "",
+      west: "",
+      polygon: "",
+      descriptionIdentifier: uuidv4(),
+    });
+  }, [updateMap]);
 
   const bboxIsDrawn = Boolean(
     mapData.north || mapData.south || mapData.east || mapData.west
@@ -226,24 +192,11 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <FeatureGroup ref={onFeatureGroupReady}>
-          {disabled === false && (
-            <EditControl
-              position="topleft"
-              onCreated={onCreated}
-              draw={{
-                marker: false,
-                circle: false,
-                polyline: false,
-                circlemarker: false,
-                polygon: true,
-              }}
-              edit={{
-                edit: false,
-              }}
-            />
-          )}
+        {disabled === false && (
+          <GeomanControl onCreated={onCreated} onRemove={onRemove} />
+        )}
 
+        <FeatureGroup>
           {hasPolygon() && (
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
