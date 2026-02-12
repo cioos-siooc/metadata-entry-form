@@ -62,7 +62,10 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     Object.keys(record.sharedWith || {}).forEach((userID) => {
       const name = users[userID]?.userinfo?.displayName;
       if (name) {
-        sharedWithDetails[userID] = { name: `${name} (${users[userID]?.userinfo?.email.split("@").pop()})` };
+        const domain = users[userID]?.userinfo?.email?.split("@").pop();
+        sharedWithDetails[userID] = {
+          name: domain ? `${name} (${domain})` : name,
+        };
       }
     });
 
@@ -111,10 +114,19 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   };
 
   const shareWithOptions = Object.entries(users)
-    .map(([userID, userInfo]) => ({
-      label: `${userInfo.userinfo?.displayName} (${userInfo.userinfo?.email.split("@").pop()})`,
-      userID,
-    }))
+    .map(([userID, userInfo]) => {
+      const displayName = userInfo.userinfo?.displayName;
+      const domain = userInfo.userinfo?.email?.split("@").pop();
+      const label = displayName
+        ? domain
+          ? `${displayName} (${domain})`
+          : displayName
+        : "";
+      return {
+        label,
+        userID,
+      };
+    })
     .filter((x) => x.label)
     .sort((a, b) => a.label.localeCompare(b.label));
 
@@ -150,12 +162,12 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
         </Grid>
         <Grid  style={{ margin: "10px" }}>
           <Grid container spacing={2}>
-            <Grid size={6}>
+            <Grid item xs={6}>
               <Autocomplete
                 id="share-with-emails"
                 options={shareWithOptions}
                 getOptionLabel={(option) => option.label}
-                getOptionSelected={(option, value) =>
+                isOptionEqualToValue={(option, value) =>
                   option.userID === value.userID
                 }
                 value={currentUser}
