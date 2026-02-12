@@ -155,8 +155,8 @@ const ContactTab = ({
         </Paper>
       )}
 
-      <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid size={5}>
+      <Grid container direction="row" spacing={2} style={{ marginLeft: "5px" }}>
+        <Grid size={{ xs: 12, md: 4, lg: 3 }}>
           <LeftList
             items={contacts}
             updateItems={updateContacts}
@@ -177,7 +177,7 @@ const ContactTab = ({
           />
         </Grid>
         {contact && (
-          <Grid >
+          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             <Grid container direction="column">
               <Paper style={paperClass}>
                 <Grid container direction="column" spacing={3}>

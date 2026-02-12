@@ -263,7 +263,7 @@ const Lineage = ({
             </Grid>
           </Grid>
         </Grid>
-        <Grid >
+        <Grid size="grow">
           {lineageStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>

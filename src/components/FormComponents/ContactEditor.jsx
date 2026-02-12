@@ -123,7 +123,7 @@ const ContactEditor = ({
               </I18n>
             </QuestionText>
           </Grid>
-          <Grid  style={{ marginleft: "10px", height: "33px" }}>
+          <Grid  style={{ marginLeft: "10px", height: "33px" }}>
             {rorSearchActive ? (
               <CircularProgress size={20} />
             ) : (
