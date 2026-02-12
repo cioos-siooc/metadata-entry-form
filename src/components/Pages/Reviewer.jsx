@@ -477,7 +477,7 @@ const Reviewer = () => {
           loading={this.state.githubPublishLoading}
           progressLogs={this.state.publishLogs}
         />
-        <Grid >
+        <Grid>
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
@@ -495,7 +495,12 @@ const Reviewer = () => {
               onClose={this.closeToast}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <Alert onClose={this.closeToast} severity={this.state.toastSeverity} variant="filled" elevation={6}>
+              <Alert
+                onClose={this.closeToast}
+                severity={this.state.toastSeverity}
+                variant="filled"
+                elevation={6}
+              >
                 {this.state.toastMessage}
               </Alert>
             </Snackbar>
@@ -511,7 +516,7 @@ const Reviewer = () => {
                 <Fr>Filtres</Fr>
               </QuestionText>
               <Grid container direction="column" spacing={2}>
-                <Grid >
+                <Grid>
                   <CheckBoxList
                     value={showRecordTypes}
                     onChange={(e) => {
@@ -520,11 +525,11 @@ const Reviewer = () => {
                     options={recordTypeOptions}
                     optionLabels={["draft", "submitted", "published"].map(
                       (status) =>
-                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
+                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`,
                     )}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -547,7 +552,7 @@ const Reviewer = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container direction="column">
-                        <Grid >
+                        <Grid>
                           <En>Select All / None</En>
                           <Fr>Tout sélectionner/Aucun</Fr>
 
@@ -560,7 +565,7 @@ const Reviewer = () => {
                             }}
                           />
                         </Grid>
-                        <Grid >
+                        <Grid>
                           <CheckBoxList
                             value={showUsers}
                             onChange={(e) => {
@@ -574,7 +579,7 @@ const Reviewer = () => {
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
-                <Grid >
+                <Grid>
                   <TextField
                     fullWidth
                     onChange={(e) => {
@@ -658,7 +663,6 @@ const Reviewer = () => {
           githubPublishEnabled={githubPublishEnabled}
         />
       </Grid>
-    </Grid>
     </>
   );
 };
