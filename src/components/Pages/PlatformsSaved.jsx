@@ -5,10 +5,10 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Avatar,
   Grid,
-  ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
   Tooltip,
@@ -167,45 +167,47 @@ class Platforms extends FormClassTemplate {
                     {Object.entries(platforms).map(([key, val]) => (
                       <ListItem
                         key={key}
-                        button
-                        onClick={() => this.editPlatform(key)}
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                              <span>
+                                <IconButton onClick={() => this.editPlatform(key)}>
+                                  <Edit />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.handleClonePlatform(key)}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.toggleModal(true, key)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        }
                       >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <PermContactCalendar />
-                          </Avatar>
-                        </ListItemAvatar>
-
-                        <ListItemText
-                          primary={PlatformTitle({ "platform": val })}
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                            <span>
-                              <IconButton onClick={() => this.editPlatform(key)}>
-                                <Edit />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.handleClonePlatform(key)}
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.toggleModal(true, key)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </ListItemSecondaryAction>
+                        <ListItemButton onClick={() => this.editPlatform(key)}>
+                          <ListItemAvatar>
+                            <Avatar>
+                              <PermContactCalendar />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={PlatformTitle({ platform: val })}
+                          />
+                        </ListItemButton>
                       </ListItem>
                     ))}
                   </List>
