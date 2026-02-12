@@ -35,7 +35,7 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 
 ### Backend (`firebase-functions/`)
 Serverless backend using Firebase Cloud Functions (Gen 2).
-*   **JavaScript (`functions/`)**: Node.js 24 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
+*   **JavaScript (`functions/`)**: Node.js 22 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
 *   **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
 
 ### Data Model & Validation
