@@ -24,7 +24,6 @@ import {
 } from "firebase/database";
 
 import FormClassTemplate from "./FormClassTemplate";
-import withRouter from "../../utils/withRouter";
 import { I18n, En, Fr } from "../I18n";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
