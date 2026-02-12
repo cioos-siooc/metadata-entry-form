@@ -13,9 +13,6 @@ import NavDrawer from "./NavDrawer";
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
 
-// eg :region(pacific|atlantic..)
-const regionPath = Object.keys(regions).join("|");
-
 // Default theme for region-select page (before a region is chosen)
 const defaultTheme = createTheme({
   palette: {
