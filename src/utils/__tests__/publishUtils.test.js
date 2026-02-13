@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from "vitest";
+import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import { preparePublishPayload, convertRecord } from "../publishUtils";
 import { getRecordFilename } from "../misc";
@@ -25,7 +25,11 @@ describe("publishUtils", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    import.meta.env.VITE_FUNCTION_REGION = "us-central1";
+    vi.stubEnv("VITE_FUNCTION_REGION", "us-central1");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   describe("convertRecord", () => {
@@ -56,7 +60,7 @@ describe("publishUtils", () => {
       const originalLocation = window.location;
       delete window.location;
       window.location = { hostname: "localhost" };
-      import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS = "true";
+      vi.stubEnv("VITE_FIREBASE_LOCAL_FUNCTIONS", "true");
 
       const mockResponse = { data: { data: "yaml content" } };
       axios.post.mockResolvedValue(mockResponse);
@@ -70,7 +74,6 @@ describe("publishUtils", () => {
 
       // Cleanup
       window.location = originalLocation;
-      delete import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS;
     });
 
     it("should throw an error if the response is invalid", async () => {
