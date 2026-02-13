@@ -32,6 +32,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const doiIsValid = validateDOI(record.datasetIdentifier)
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
+    const [doiErrorMessage, setDoiErrorMessage] = useState("");
     const [debouncedDoiIdValue] = useDebounce(record.datasetIdentifier, 1000);
     const [loadingDoi, setLoadingDoi] = useState(false);
     const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
@@ -47,6 +48,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleGenerateDOI() {
         setLoadingDoi(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
         try {
@@ -87,12 +90,18 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             
         } catch (err) {
             setDoiErrorFlag(true);
-            throw new Error(`Error in handleGenerateDOI: ${err}`);
+            // Extract error message from Firebase function error
+            const errorMessage = err.message || "Failed to generate DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            // eslint-disable-next-line no-console
+            console.error("Error in handleGenerateDOI:", err);
         }
     }
 
     async function handleUpdateDraftDOI() {
         setLoadingDoiUpdate(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         try {
             const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix)
 
@@ -105,7 +114,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             }
         } catch (err) {
             setDoiErrorFlag(true);
-            throw err;
+            // Extract error message from Firebase function error
+            const errorMessage = err.message || "Failed to update DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            // eslint-disable-next-line no-console
+            console.error("Error in handleUpdateDraftDOI:", err);
         } finally {
             setLoadingDoiUpdate(false);
             setTimeout(() => {
@@ -116,6 +129,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleDeleteDOI() {
         setLoadingDoiDelete(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
         try {
@@ -154,9 +169,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 });
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.error(err);
+            console.error("Error in handleDeleteDOI:", err);
             setDoiErrorFlag(true);
-            throw err;
+            // Extract error message from Firebase function error
+            const errorMessage = err.message || "Failed to delete DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
         }
     }
    
@@ -275,12 +292,19 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
             {
                 doiErrorFlag && (
-                    <span>
-                        <I18n
-                            en="Error occurred with DOI API"
-                            fr="Une erreur s'est produite avec l'API DOI"
-                        />
-                    </span>
+                    <div style={{ color: "#d32f2f", marginTop: "10px", padding: "10px", backgroundColor: "#ffebee", borderRadius: "4px" }}>
+                        <strong>
+                            <I18n
+                                en="Error occurred with DOI API"
+                                fr="Une erreur s'est produite avec l'API DOI"
+                            />
+                        </strong>
+                        {doiErrorMessage && (
+                            <div style={{ marginTop: "5px", fontSize: "0.9em" }}>
+                                {doiErrorMessage}
+                            </div>
+                        )}
+                    </div>
                 )
             }
             {

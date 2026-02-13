@@ -33,33 +33,63 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   return response.data;
 
   } catch (err) {
-    // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
-    if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
-        'unauthenticated',
-        'Error from DataCite API: Unauthorized. Please check your API credentials.'
-      );
-    }
-    // if the error is a 404, throw a HttpsError with the code 'not-found'
-    if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
-      );
-    }
-    // initialize a default error message
-    let errMessage = 'An error occurred while creating the draft DOI.';
+    // Extract detailed error information from DataCite API response
+    let errorMessage = 'An error occurred while creating the draft DOI.';
+    let statusCode = 500;
+    let details = null;
 
-    // if there is an error response from DataCite, include the status and statusText from the API error
-    // if the error doesn't have a response, include the error message
     if (err.response) {
-      errMessage = `from DataCite API: ${err.response.status} - ${err.response.statusText}`;
+      statusCode = err.response.status;
+
+      // Try to extract detailed error information from DataCite API response
+      if (err.response.data) {
+        // DataCite API returns errors in different formats
+        if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
+          // Standard DataCite error format: { errors: [{ status: "...", title: "...", detail: "..." }] }
+          const errorList = err.response.data.errors
+            .map((e) => `${e.title || 'Error'}${e.detail ? ': ' + e.detail : ''}`)
+            .join('; ');
+          errorMessage = `DataCite API error: ${errorList}`;
+          details = err.response.data.errors;
+        } else if (err.response.data.error) {
+          // Some endpoints return { error: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.error}`;
+          details = err.response.data;
+        } else if (err.response.data.message) {
+          // Some endpoints return { message: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.message}`;
+          details = err.response.data;
+        }
+      }
+
+      // Override with specific status code messages
+      if (statusCode === 401) {
+        errorMessage = 'Unauthorized: Please check your API credentials.';
+      } else if (statusCode === 404) {
+        errorMessage = 'Not found: The resource could not be found.';
+      } else if (statusCode === 422) {
+        // Unprocessable Entity - validation error
+        if (!errorMessage.includes('DataCite API error')) {
+          errorMessage = 'Validation error: The metadata does not meet DataCite requirements.';
+        }
+      } else if (statusCode === 400) {
+        // Bad Request
+        if (!errorMessage.includes('DataCite API error')) {
+          errorMessage = 'Bad request: Invalid metadata provided.';
+        }
+      }
     } else if (err.message) {
-      errMessage = err.message;
+      errorMessage = err.message;
     }
 
-    // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    // Create error object to return detailed information
+    const errorCode = statusCode === 401 ? 'unauthenticated'
+                    : statusCode === 404 ? 'not-found'
+                    : statusCode === 422 ? 'invalid-argument'
+                    : statusCode === 400 ? 'invalid-argument'
+                    : 'unknown';
+
+    throw new functions.https.HttpsError(errorCode, errorMessage, { details, statusCode });
   }
 });
 
@@ -90,33 +120,63 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
     };
 
   } catch (err) {
-    // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
-    if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
-        'unauthenticated',
-        'Error from DataCite API: Unauthorized. Please check your API credentials.'
-      );
-    }
-    // if the error is a 404, throw a HttpsError with the code 'not-found'
-    if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
-      );
-    }
-    // initialize a default error message
-    let errMessage = 'An error occurred while updating the draft DOI.';
+    // Extract detailed error information from DataCite API response
+    let errorMessage = 'An error occurred while updating the draft DOI.';
+    let statusCode = 500;
+    let details = null;
 
-    // if there is an error response from DataCite, include the status and statusText from the API error
-    // if the error doesn't have a response, include the error message
     if (err.response) {
-      errMessage = `from DataCite API: ${err.response.status} - ${err.response.statusText}`;
+      statusCode = err.response.status;
+
+      // Try to extract detailed error information from DataCite API response
+      if (err.response.data) {
+        // DataCite API returns errors in different formats
+        if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
+          // Standard DataCite error format: { errors: [{ status: "...", title: "...", detail: "..." }] }
+          const errorList = err.response.data.errors
+            .map((e) => `${e.title || 'Error'}${e.detail ? ': ' + e.detail : ''}`)
+            .join('; ');
+          errorMessage = `DataCite API error: ${errorList}`;
+          details = err.response.data.errors;
+        } else if (err.response.data.error) {
+          // Some endpoints return { error: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.error}`;
+          details = err.response.data;
+        } else if (err.response.data.message) {
+          // Some endpoints return { message: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.message}`;
+          details = err.response.data;
+        }
+      }
+
+      // Override with specific status code messages
+      if (statusCode === 401) {
+        errorMessage = 'Unauthorized: Please check your API credentials.';
+      } else if (statusCode === 404) {
+        errorMessage = 'Not found: The DOI could not be found. It may have been deleted.';
+      } else if (statusCode === 422) {
+        // Unprocessable Entity - validation error
+        if (!errorMessage.includes('DataCite API error')) {
+          errorMessage = 'Validation error: The updated metadata does not meet DataCite requirements.';
+        }
+      } else if (statusCode === 400) {
+        // Bad Request
+        if (!errorMessage.includes('DataCite API error')) {
+          errorMessage = 'Bad request: Invalid metadata provided.';
+        }
+      }
     } else if (err.message) {
-      errMessage = err.message;
+      errorMessage = err.message;
     }
 
-    // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    // Create error object to return detailed information
+    const errorCode = statusCode === 401 ? 'unauthenticated'
+                    : statusCode === 404 ? 'not-found'
+                    : statusCode === 422 ? 'invalid-argument'
+                    : statusCode === 400 ? 'invalid-argument'
+                    : 'unknown';
+
+    throw new functions.https.HttpsError(errorCode, errorMessage, { details, statusCode });
   }
 });
 
@@ -141,33 +201,57 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
   });
   return response.status;
   } catch (err) {
-    // if the error is a 401, throw a HttpsError with the code 'unauthenticated'
-    if (err.response && err.response.status === 401) {
-      throw new functions.https.HttpsError(
-        'unauthenticated',
-        'Error from DataCite API: Unauthorized. Please check your API credentials.'
-      );
-    }
-    // if the error is a 404, throw a HttpsError with the code 'not-found'
-    if (err.response && err.response.status === 404) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'from DataCite API: Not-found. The resource is not found e.g. it fetching a DOI/Repository/Member details.'
-      );
-    }
-    // initialize a default error message
-    let errMessage = 'An error occurred while deleting the draft DOI.';
+    // Extract detailed error information from DataCite API response
+    let errorMessage = 'An error occurred while deleting the draft DOI.';
+    let statusCode = 500;
+    let details = null;
 
-    // if there is an error response from DataCite, include the status and statusText from the API error
-    // if the error doesn't have a response, include the error message
     if (err.response) {
-      errMessage = `from DataCite API: ${err.response.status} - ${err.response.statusText}`;
+      statusCode = err.response.status;
+
+      // Try to extract detailed error information from DataCite API response
+      if (err.response.data) {
+        // DataCite API returns errors in different formats
+        if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
+          // Standard DataCite error format: { errors: [{ status: "...", title: "...", detail: "..." }] }
+          const errorList = err.response.data.errors
+            .map((e) => `${e.title || 'Error'}${e.detail ? ': ' + e.detail : ''}`)
+            .join('; ');
+          errorMessage = `DataCite API error: ${errorList}`;
+          details = err.response.data.errors;
+        } else if (err.response.data.error) {
+          // Some endpoints return { error: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.error}`;
+          details = err.response.data;
+        } else if (err.response.data.message) {
+          // Some endpoints return { message: "message" }
+          errorMessage = `DataCite API error: ${err.response.data.message}`;
+          details = err.response.data;
+        }
+      }
+
+      // Override with specific status code messages
+      if (statusCode === 401) {
+        errorMessage = 'Unauthorized: Please check your API credentials.';
+      } else if (statusCode === 404) {
+        errorMessage = 'Not found: The DOI could not be found. It may have already been deleted.';
+      } else if (statusCode === 422) {
+        // Unprocessable Entity - validation error
+        if (!errorMessage.includes('DataCite API error')) {
+          errorMessage = 'Validation error: Cannot delete this DOI.';
+        }
+      }
     } else if (err.message) {
-      errMessage = err.message;
+      errorMessage = err.message;
     }
 
-    // throw a default HttpsError with the code 'unknown' and the error message
-    throw new functions.https.HttpsError('unknown',errMessage);
+    // Create error object to return detailed information
+    const errorCode = statusCode === 401 ? 'unauthenticated'
+                    : statusCode === 404 ? 'not-found'
+                    : statusCode === 422 ? 'invalid-argument'
+                    : 'unknown';
+
+    throw new functions.https.HttpsError(errorCode, errorMessage, { details, statusCode });
   }
 });
 
