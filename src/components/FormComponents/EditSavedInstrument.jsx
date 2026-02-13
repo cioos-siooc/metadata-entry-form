@@ -1,8 +1,8 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
-import { Grid, Button } from "@material-ui/core";
-import { Save } from "@material-ui/icons";
-import {child, getDatabase, onValue, ref, update} from "firebase/database";
+import { useParams, useNavigate } from "react-router-dom";
+import { Grid, Button } from "@mui/material";
+import { Save } from "@mui/icons-material";
+import {child, getDatabase, onValue, ref, update, push} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -12,7 +12,7 @@ import InstrumentEditor from "./InstrumentEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
 import { paperClass } from "./QuestionStyles";
 
-class EditInstrument extends FormClassTemplate {
+class EditInstrumentClass extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,18 +22,14 @@ class EditInstrument extends FormClassTemplate {
       type: { en: "", fr: "" },
       description: { en: "", fr: "" },
     };
-    const { match } = props;
-
-    const { region } = match.params;
+    const { region } = props;
 
     const database = getDatabase(firebase)
     this.instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`)
   }
 
   async componentDidMount() {
-    const { match } = this.props;
-
-    const { instrumentID } = match.params;
+    const { instrumentID } = this.props;
 
     if (auth.currentUser && instrumentID) {
       this.setState({ instrumentID });
@@ -54,30 +50,26 @@ class EditInstrument extends FormClassTemplate {
   }
 
   handleCancelClick() {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
-
-    history.push(`/${language}/${region}/instruments`);
+    const { language, region, navigate } = this.props;
+    navigate(`/${language}/${region}/instruments`);
   }
 
   // Create or update instrument
   async handleSubmitClick() {
-    const { history, match } = this.props;
-
-    const { region, language, instrumentID } = match.params;
+    const { region, language, instrumentID, navigate } = this.props;
 
     // update
     if (instrumentID) update(child(this.instrumentsRef, instrumentID), this.state);
     // create
-    else this.instrumentsRef.push(this.state);
+    else push(this.instrumentsRef, this.state);
 
-    history.push(`/${language}/${region}/instruments`);
+    navigate(`/${language}/${region}/instruments`);
   }
 
   render() {
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid item xs>
+        <Grid >
           <InstrumentEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -86,7 +78,7 @@ class EditInstrument extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid item xs>
+        <Grid >
           <Button
             startIcon={<Save />}
             variant="contained"
@@ -117,4 +109,18 @@ class EditInstrument extends FormClassTemplate {
   }
 }
 
-export default withRouter(EditInstrument);
+// Wrapper component to provide router params and navigate to the class component
+const EditInstrument = () => {
+  const { language, region, instrumentID } = useParams();
+  const navigate = useNavigate();
+  return (
+    <EditInstrumentClass
+      language={language}
+      region={region}
+      instrumentID={instrumentID}
+      navigate={navigate}
+    />
+  );
+};
+
+export default EditInstrument;

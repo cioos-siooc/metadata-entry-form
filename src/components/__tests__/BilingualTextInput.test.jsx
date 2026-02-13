@@ -1,31 +1,40 @@
 import React from "react";
-import { act } from "react-dom/test-utils";
-import { configure, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { TextField } from "@material-ui/core";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 
-configure({ adapter: new Adapter() });
-
-const mockEvent = { target: { value: 1, name: "en" } };
-const mockOnChange = jest.fn();
-
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
-  useParams: () => ({
-    language: "en",
-  }),
-}));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useParams: () => ({
+      language: "en",
+    }),
+  };
+});
 
 describe("<BilingualTextInput />", () => {
+  const mockOnChange = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("Updates the text when it is typed in", () => {
-    const wrapper = mount(<BilingualTextInput onChange={mockOnChange} />);
-    // sdf
-    // The first text field is english, second is french. They use the same method to change text so only testing the first is necessary
-    act(() => {
-      wrapper.find(TextField).at(0).props().onChange(mockEvent);
-    });
+    render(
+      <MemoryRouter>
+        <BilingualTextInput onChange={mockOnChange} />
+      </MemoryRouter>
+    );
+
+    // Find the English text input field
+    const textFields = screen.getAllByRole("textbox");
+    expect(textFields.length).toBeGreaterThan(0);
+
+    // Simulate typing in the first text field
+    fireEvent.change(textFields[0], { target: { value: "test", name: "en" } });
     expect(mockOnChange).toHaveBeenCalled();
   });
 });

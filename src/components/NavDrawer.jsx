@@ -1,10 +1,11 @@
 import React, { useContext, useRef, useEffect } from "react";
 
-import { useParams, useLocation, useHistory } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { makeStyles } from "../tss-cache";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   ExitToApp,
   Contacts,
@@ -21,7 +22,7 @@ import {
   Help,
   Warning,
   Settings,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 
 import {
   Drawer,
@@ -33,13 +34,14 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Select,
   Tooltip,
   MenuItem,
   Menu,
-} from "@material-ui/core";
+} from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
@@ -51,7 +53,7 @@ import { UserContext } from "../providers/UserProvider";
 
 const drawerWidth = 275;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     display: "flex",
     flexGrow: 1,
@@ -86,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
     "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)}px ${theme.spacing(4)}px ${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
       textAlign: "center",
       "&:focus": {
         backgroundColor: "transparent",
@@ -97,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   feedbackButton: {
-    padding: `${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`,
+    padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
     background: "none",
     border: "1px solid white",
     borderRadius: theme.shape.borderRadius,
@@ -158,11 +160,11 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: "hidden",
-    width: theme.spacing(7) + 1,
+    width: theme.spacing(7),
     [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
+      width: theme.spacing(9),
     },
-    "& .MuiListItem-root": {
+    "& .MuiListItemButton-root": {
       justifyContent: "center",
       paddingLeft: 0,
       paddingRight: 0,
@@ -192,6 +194,23 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  contentWithDrawer: {
+    marginLeft: theme.spacing(2),
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(9),
+    },
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth,
   },
   drawerPaper: {
     display: "flex",
@@ -209,9 +228,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MiniDrawer({ children }) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
@@ -328,7 +347,7 @@ export default function MiniDrawer({ children }) {
 
   const handleLogout = () => {
     handleMenuClose();
-    auth.signOut().then(() => history.push(baseURL));
+    auth.signOut().then(() => navigate(baseURL));
   };
 
   const translations = {
@@ -355,8 +374,8 @@ export default function MiniDrawer({ children }) {
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
-    process.env.REACT_APP_DEV_DEPLOYMENT ||
-    process.env.NODE_ENV === "development";
+    import.meta.env.VITE_DEV_DEPLOYMENT ||
+    import.meta.env.DEV;
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
   const feedbackButtonRef = useRef(null);
@@ -455,7 +474,7 @@ export default function MiniDrawer({ children }) {
           </Typography>
           <div className={classes.headerControls}>
             <img
-              src={`${process.env.PUBLIC_URL}/cioos_website_top_banner_${language}.png`}
+              src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
               alt="CIOOS/SIOOC"
               width={350}
               className={classes.logoImage}
@@ -464,8 +483,9 @@ export default function MiniDrawer({ children }) {
               className={classes.languageSelector}
               value={language}
               onChange={(e) =>
-                history.push(`/${e.target.value}/${pathWithoutLang}`)
+                navigate(`/${e.target.value}/${pathWithoutLang}`)
               }
+              variant="standard"
               disableUnderline
             >
               <MenuItem value="en">EN</MenuItem>
@@ -510,79 +530,74 @@ export default function MiniDrawer({ children }) {
                   placement="right-start"
                   title={open ? "" : translations.saved}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="My Records"
-                    onClick={() => history.push(`${baseURL}/submissions`)}
+                    onClick={() => navigate(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
                       <ListAlt />
                     </ListItemIcon>
                     <ListItemText primary={translations.saved} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.published}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Region's Published Records"
-                    onClick={() => history.push(`${baseURL}/published`)}
+                    onClick={() => navigate(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
                       <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.contacts}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Contacts"
-                    onClick={() => history.push(`${baseURL}/contacts`)}
+                    onClick={() => navigate(`${baseURL}/contacts`)}
                   >
                     <ListItemIcon disabled>
                       <Contacts />
                     </ListItemIcon>
                     <ListItemText primary={translations.contacts} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.instruments}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="instruments"
-                    onClick={() => history.push(`${baseURL}/instruments`)}
+                    onClick={() => navigate(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
                       <StraightenSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.instruments} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.platforms}
                 >
-                  <ListItem
-                    button
+                  <ListItemButton
                     key="Platforms"
-                    onClick={() => history.push(`${baseURL}/platforms`)}
+                    onClick={() => navigate(`${baseURL}/platforms`)}
                   >
                     <ListItemIcon disabled>
                       <DirectionsBoatSharp />
                     </ListItemIcon>
                     <ListItemText primary={translations.platforms} />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
 
                 {hasSharedRecords && (
@@ -590,16 +605,15 @@ export default function MiniDrawer({ children }) {
                     placement="right-start"
                     title={open ? "" : translations.sharedWithMe}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="SharedWithMe"
-                      onClick={() => history.push(`${baseURL}/shared`)}
+                      onClick={() => navigate(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
                       </ListItemIcon>
                       <ListItemText primary={translations.sharedWithMe} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                 )}
 
@@ -608,16 +622,15 @@ export default function MiniDrawer({ children }) {
                     placement="right-start"
                     title={open ? "" : translations.review}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="Review"
-                      onClick={() => history.push(`${baseURL}/reviewer`)}
+                      onClick={() => navigate(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
                         <RateReview />
                       </ListItemIcon>
                       <ListItemText primary={translations.review} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                 )}
                 {/* Admin button moved to bottomList above account avatar */}
@@ -633,8 +646,7 @@ export default function MiniDrawer({ children }) {
             <List>
               {usingDevDatabase && (
                 <Tooltip placement="right-start" title={databaseUrl}>
-                  <ListItem
-                    button
+                  <ListItemButton
                     component="a"
                     href={databaseUrl}
                     target="_blank"
@@ -651,7 +663,7 @@ export default function MiniDrawer({ children }) {
                     <ListItemText
                       primary={translations.envConnection}
                     />
-                  </ListItem>
+                  </ListItemButton>
                 </Tooltip>
               )}
               <Tooltip
@@ -667,8 +679,7 @@ export default function MiniDrawer({ children }) {
                     )
                 }
               >
-                <ListItem
-                  button
+                <ListItemButton
                   key="Contact Region"
                   onClick={handleContactClick}
                 >
@@ -698,14 +709,13 @@ export default function MiniDrawer({ children }) {
                       ) : null
                     }
                   />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
               <Tooltip
                 placement="right-start"
                 title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
               >
-                <ListItem
-                  button
+                <ListItemButton
                   key="Feedback"
                   id="sentry-feedback-button"
                   ref={feedbackButtonRef}
@@ -714,7 +724,7 @@ export default function MiniDrawer({ children }) {
                     <FeedbackRounded />
                   </ListItemIcon>
                   <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
               {!user && (
                 <ListItem key="userInfo">
@@ -731,24 +741,22 @@ export default function MiniDrawer({ children }) {
                       placement="right-start"
                       title={open ? "" : translations.admin}
                     >
-                      <ListItem
-                        button
+                      <ListItemButton
                         key="Admin"
-                        onClick={() => history.push(`${baseURL}/admin`)}
+                        onClick={() => navigate(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
                           <Settings />
                         </ListItemIcon>
                         <ListItemText primary={translations.admin} />
-                      </ListItem>
+                      </ListItemButton>
                     </Tooltip>
                   )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
                   >
-                    <ListItem
-                      button
+                    <ListItemButton
                       key="userInfo"
                       onClick={handleMenuOpen}
                     >
@@ -759,7 +767,7 @@ export default function MiniDrawer({ children }) {
                         />
                       </ListItemIcon>
                       <ListItemText primary={user.displayName} />
-                    </ListItem>
+                    </ListItemButton>
                   </Tooltip>
                   <Menu
                     anchorEl={anchorEl}

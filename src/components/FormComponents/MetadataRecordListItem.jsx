@@ -7,12 +7,12 @@ import {
   Avatar,
   ListItemAvatar,
   Tooltip,
-  ListItemSecondaryAction,
   IconButton,
   CircularProgress,
   MenuItem,
   Menu,
-} from "@material-ui/core";
+  ListItemSecondaryAction,
+} from "@mui/material";
 import {
   FileCopy,
   Delete,
@@ -24,7 +24,7 @@ import {
   TransferWithinAStation,
   OpenInNew,
   Edit,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getRecordFilename } from "../../utils/misc";
@@ -183,7 +183,7 @@ const MetadataRecordListItem = ({
           </span>
         }
       />
-      <ListItemSecondaryAction>
+      <ListItemSecondaryAction sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         {showViewAction && (
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
@@ -235,7 +235,7 @@ const MetadataRecordListItem = ({
                disableTouchListener={publishMenuOpen}
              >
                <span>
-                <IconButton onClick={handlePublishClick}>
+                <IconButton onClick={handlePublishClick} edge="end" >
                   <Publish />
                 </IconButton>
                </span>
@@ -244,6 +244,7 @@ const MetadataRecordListItem = ({
                anchorEl={publishAnchorEl}
                open={publishMenuOpen}
                onClose={handlePublishClose}
+               disableScrollLock
              >
                 {showPublishAction && (
                   <MenuItem onClick={() => { onSubmitClick(); handlePublishClose(); }}>
@@ -266,6 +267,7 @@ const MetadataRecordListItem = ({
                     disableHoverListener={githubPublishEnabled}
                     disableFocusListener={githubPublishEnabled}
                     disableTouchListener={githubPublishEnabled}
+                    placement="right"
                   >
                     <span>
                       <MenuItem
@@ -352,6 +354,7 @@ const MetadataRecordListItem = ({
                 aria-haspopup="true"
                 onClick={handleDownloadClick}
                 disabled={!isValidRecord}
+                edge="end"
               >
                 {isLoading.downloadXML ? (
                   <CircularProgress />
@@ -367,6 +370,7 @@ const MetadataRecordListItem = ({
                 anchorEl={downloadAnchorEl}
                 open={downloadMenuOpen}
                 onClose={handleDownloadClose}
+                disableScrollLock
                 PaperProps={{
                   style: {
                     // maxHeight: ITEM_HEIGHT * 4.5,

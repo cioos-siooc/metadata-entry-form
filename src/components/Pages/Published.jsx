@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, List, CircularProgress } from "@material-ui/core";
+import { Typography, List, CircularProgress } from "@mui/material";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
@@ -10,6 +10,7 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { Fr, En, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Published extends FormClassTemplate {
   constructor(props) {
@@ -148,4 +149,4 @@ class Published extends FormClassTemplate {
   }
 }
 
-export default Published;
+export default withRouter(Published);

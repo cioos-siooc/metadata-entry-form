@@ -11,7 +11,7 @@ import {
   FormGroup,
   CircularProgress,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import { I18n, En, Fr } from "../I18n";

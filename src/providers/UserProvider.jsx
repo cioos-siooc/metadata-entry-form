@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, { createContext } from "react";
-import { withRouter } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDatabase, ref, update, onValue } from "firebase/database";
@@ -11,7 +11,7 @@ import FormClassTemplate from "../components/Pages/FormClassTemplate";
 
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
-class UserProvider extends FormClassTemplate {
+class UserProviderClass extends FormClassTemplate {
   constructor(props) {
     super(props);
     this.state = {
@@ -26,9 +26,8 @@ class UserProvider extends FormClassTemplate {
   }
 
   componentDidMount = () => {
-    const { match } = this.props;
+    const { region } = this.props;
 
-    const { region } = match.params;
     this.setState({ authIsLoading: true });
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), (userAuth) => {
       if (userAuth) {
@@ -53,7 +52,7 @@ class UserProvider extends FormClassTemplate {
 
         const database = getDatabase(firebase);
         update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
-        
+
         const permissionsRef = ref(database, `admin/${region}/permissions`)
 
         onValue(permissionsRef, (permissionsFB) => {
@@ -133,4 +132,10 @@ class UserProvider extends FormClassTemplate {
   }
 }
 
-export default withRouter(UserProvider);
+// Wrapper component to provide router params to the class component
+const UserProvider = ({ children }) => {
+  const { region } = useParams();
+  return <UserProviderClass region={region}>{children}</UserProviderClass>;
+};
+
+export default UserProvider;

@@ -7,7 +7,7 @@ import {
   Checkbox,
   ListItemText,
   Input,
-} from "@material-ui/core";
+} from "@mui/material";
 import { I18n } from "../I18n";
 
 const SelectMultipleInput = ({

@@ -1,8 +1,7 @@
 import templatePath from "./emlTemplate.j2";
 import emlCoveragePath from "./emlCoverage.j2";
 import { generateCitation } from "../components/FormComponents/ApaPreview";
-
-const nunjucks = require("nunjucks");
+import nunjucks from "nunjucks";
 
 // get the full goos eov name here
 // function translateEOV() {}

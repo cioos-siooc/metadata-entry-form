@@ -5,11 +5,11 @@ import {
   TextField,
   CircularProgress,
   Tooltip,
-} from "@material-ui/core";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import TranslateIcon from "@material-ui/icons/Translate";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+} from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import TranslateIcon from "@mui/icons-material/Translate";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";

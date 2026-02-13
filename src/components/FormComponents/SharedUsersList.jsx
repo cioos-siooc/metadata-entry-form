@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Add, Delete } from "@mui/icons-material";
 import {
   Typography,
   Paper,
@@ -12,8 +12,8 @@ import {
   IconButton,
   ListItemSecondaryAction,
   Box,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+  Autocomplete,
+} from "@mui/material";
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
@@ -62,7 +62,10 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     Object.keys(record.sharedWith || {}).forEach((userID) => {
       const name = users[userID]?.userinfo?.displayName;
       if (name) {
-        sharedWithDetails[userID] = { name: `${name} (${users[userID]?.userinfo?.email.split("@").pop()})` };
+        const domain = users[userID]?.userinfo?.email?.split("@").pop();
+        sharedWithDetails[userID] = {
+          name: domain ? `${name} (${domain})` : name,
+        };
       }
     });
 
@@ -111,17 +114,26 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   };
 
   const shareWithOptions = Object.entries(users)
-    .map(([userID, userInfo]) => ({
-      label: `${userInfo.userinfo?.displayName} (${userInfo.userinfo?.email.split("@").pop()})`,
-      userID,
-    }))
+    .map(([userID, userInfo]) => {
+      const displayName = userInfo.userinfo?.displayName;
+      const domain = userInfo.userinfo?.email?.split("@").pop();
+      const label = displayName
+        ? domain
+          ? `${displayName} (${domain})`
+          : displayName
+        : "";
+      return {
+        label,
+        userID,
+      };
+    })
     .filter((x) => x.label)
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <Grid item xs>
+    <Grid >
       <Paper style={paperClass}>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             <I18n>
               <En>
@@ -148,14 +160,14 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
               </I18n>
             </SupplementalText>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Autocomplete
                 id="share-with-emails"
                 options={shareWithOptions}
                 getOptionLabel={(option) => option.label}
-                getOptionSelected={(option, value) =>
+                isOptionEqualToValue={(option, value) =>
                   option.userID === value.userID
                 }
                 value={currentUser}
@@ -195,7 +207,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid item xs={6} style={{ paddingLeft: "35px" }}>
+            <Grid size={6} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {Object.keys(sharedWithUsers).length > 0 && (

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 import { useParams } from "react-router-dom";
 
-import { Paper, Grid } from "@material-ui/core";
-import DragHandleIcon from "@material-ui/icons/DragHandle";
+import { Paper, Grid } from "@mui/material";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
 
 import EditContact from "../FormComponents/ContactEditor";
 
@@ -89,7 +89,7 @@ const ContactTab = ({
   return (
     <Grid container spacing={3}>
       <Paper style={paperClass}>
-        <Grid item xs>
+        <Grid >
           <QuestionText>
             <I18n>
               <En>
@@ -155,8 +155,8 @@ const ContactTab = ({
         </Paper>
       )}
 
-      <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid item xs={5}>
+      <Grid container direction="row" spacing={2} style={{ marginLeft: "5px" }}>
+        <Grid size={{ xs: 12, md: 4, lg: 3 }}>
           <LeftList
             items={contacts}
             updateItems={updateContacts}
@@ -177,11 +177,11 @@ const ContactTab = ({
           />
         </Grid>
         {contact && (
-          <Grid item xs>
+          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             <Grid container direction="column">
               <Paper style={paperClass}>
                 <Grid container direction="column" spacing={3}>
-                  <Grid item xs>
+                  <Grid >
                     <EditContact
                       showRolePicker
                       value={contact}

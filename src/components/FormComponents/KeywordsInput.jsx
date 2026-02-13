@@ -1,16 +1,15 @@
 import React, { useCallback, useState } from "react";
 
-import Autocomplete from "@material-ui/lab/Autocomplete";
-
 import {
   TextField,
   Button,
   Grid,
   Chip,
   InputAdornment,
-} from "@material-ui/core";
+  Autocomplete,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
-import { ArrowDownward } from "@material-ui/icons";
+import { ArrowDownward } from "@mui/icons-material";
 import keywordList from "../../utils/keywords";
 import { En, Fr, I18n } from "../I18n";
 
@@ -91,7 +90,7 @@ const KeywordsInput = ({
 
   return (
     <Grid container spacing={3} direction="column">
-      <Grid item xs>
+      <Grid >
         <Autocomplete
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
@@ -116,7 +115,7 @@ const KeywordsInput = ({
           )}
         />
       </Grid>
-      <Grid item xs>
+      <Grid >
         <TextField
           value={selectedKeywordAltLang || ""}
           onChange={(e) => setSelectedKeywordAltLang(e.target.value)}
@@ -131,7 +130,7 @@ const KeywordsInput = ({
         />
       </Grid>
 
-      <Grid item xs={3}>
+      <Grid size={3}>
         <Button
           disabled={
             disabled ||
@@ -147,7 +146,7 @@ const KeywordsInput = ({
         </Button>
       </Grid>
 
-      <Grid item xs>
+      <Grid >
         {languages
           .filter((lang) => value[lang]?.length)
           .map((lang) => (
@@ -156,7 +155,7 @@ const KeywordsInput = ({
                 {lang.toUpperCase()}
               </InputAdornment>
               <Grid container direction="row">
-                <Grid item xs>
+                <Grid >
                   {(value[lang] || []).map((keyword, i) => (
                     <Chip
                       key={i}

@@ -1,12 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 
-import { Save } from "@material-ui/icons";
+import { Save } from "@mui/icons-material";
 import {
   Typography,
   Paper,
   Grid,
   FormControl,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -93,7 +93,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   }, [userID, record.userID, record.recordID]);
 
   return (
-    <Grid item xs>
+    <Grid >
       <Paper style={paperClass}>
         {disabled && (
           <QuestionText style={{ paddingBottom: "15px" }}>

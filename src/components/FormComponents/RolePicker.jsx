@@ -8,8 +8,8 @@ import {
   AccordionDetails,
   Tooltip,
   Checkbox,
-} from "@material-ui/core";
-import { ExpandMore } from "@material-ui/icons";
+} from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
 
 import CheckBoxList from "./CheckBoxList";
 import RequiredMark from "./RequiredMark";
@@ -35,7 +35,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       .length > 0;
 
   return (
-    <Grid item xs>
+    <Grid >
       <QuestionText>
         <I18n>
           <En>Appear in citation?</En>

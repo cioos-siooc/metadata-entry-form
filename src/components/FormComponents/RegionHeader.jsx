@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { getRegionLogo } from "../../regions";
 
@@ -9,7 +9,7 @@ const RegionHeader = ({ children }) => {
   const titleText = region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item xs>
+      <Grid >
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
@@ -20,7 +20,7 @@ const RegionHeader = ({ children }) => {
           }}>{titleText}</div>
         )}
       </Grid>
-      <Grid item xs style={{ paddingLeft: "50px" }}>
+      <Grid  style={{ paddingLeft: "50px" }}>
         {children}
       </Grid>
     </Grid>

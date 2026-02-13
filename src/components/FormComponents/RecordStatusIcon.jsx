@@ -1,6 +1,6 @@
 import React from "react";
-import { Description, AssignmentTurnedIn, Drafts } from "@material-ui/icons";
-import { Tooltip } from "@material-ui/core";
+import { Description, AssignmentTurnedIn, Drafts } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import { I18n } from "../I18n";
 
 const RecordStatusIcon = ({ status }) => {

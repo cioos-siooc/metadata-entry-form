@@ -1,7 +1,7 @@
 import React from "react";
-import { Grid, Typography, Divider } from "@material-ui/core";
+import { Grid, Typography, Divider } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { En, Fr, I18n } from "../I18n";
 import RegionCard from "../FormComponents/RegionCard";
 import regions from "../../regions";
@@ -39,7 +39,7 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
       <Grid container direction="column" spacing={4}>
-        <Grid item xs>
+        <Grid >
           <Typography
             variant="h6"
             gutterBottom
@@ -64,7 +64,7 @@ export default function RegionSelect() {
         </Grid>
 
         {/* CIOOS Regional Associations */}
-        <Grid item xs>
+        <Grid >
           <Typography variant="h5" gutterBottom align="center">
             {t(
               "CIOOS Regional Associations",
@@ -81,7 +81,7 @@ export default function RegionSelect() {
               const regionInfo = regions[regionCode];
               if (!regionInfo) return null;
               return (
-                <Grid item key={regionCode} style={{ flex: "0 1 380px" }}>
+                <Grid key={regionCode} style={{ flex: "0 1 380px" }}>
                   <RegionCard
                     region={regionCode}
                     regionSummary={regionInfo.introPageText[language]}
@@ -93,12 +93,12 @@ export default function RegionSelect() {
           </Grid>
         </Grid>
 
-        <Grid item>
+        <Grid>
           <Divider />
         </Grid>
 
         {/* All Organizations */}
-        <Grid item xs>
+        <Grid >
           <Typography variant="h5" gutterBottom align="center">
             {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>
@@ -118,7 +118,7 @@ export default function RegionSelect() {
               alignItems="stretch"
             >
               {otherOrganizations.map(({ code, info }) => (
-                <Grid item key={code} style={{ flex: "0 1 380px" }}>
+                <Grid key={code} style={{ flex: "0 1 380px" }}>
                   <RegionCard
                     region={code}
                     regionSummary={info?.introPageText?.[language] || ""}

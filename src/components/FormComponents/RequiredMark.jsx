@@ -1,5 +1,5 @@
 import React from "react";
-import { Tooltip } from "@material-ui/core";
+import { Tooltip } from "@mui/material";
 import { I18n } from "../I18n";
 
 function RequiredMark({ passes }) {

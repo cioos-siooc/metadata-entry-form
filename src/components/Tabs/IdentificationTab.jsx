@@ -5,9 +5,9 @@ import {
   Grid,
   IconButton,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useParams } from "react-router-dom";
-import { OpenInNew, Update } from "@material-ui/icons";
+import { OpenInNew, Update } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";
@@ -280,7 +280,7 @@ const IdentificationTab = ({
 
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">
-          <Grid item xs>
+          <Grid >
             <QuestionText>
               <I18n>
                 <En>
@@ -334,7 +334,7 @@ const IdentificationTab = ({
               </SupplementalText>
             </QuestionText>
           </Grid>
-          <Grid item xs>
+          <Grid >
             <KeywordsInput
               value={record.keywords}
               onChange={handleUpdateRecord("keywords")}

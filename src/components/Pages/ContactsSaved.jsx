@@ -5,21 +5,21 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Avatar,
   Grid,
-  ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   Add,
   Edit,
   Delete,
   PermContactCalendar,
   FileCopy,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -32,6 +32,7 @@ import ContactTitle from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Contacts extends FormClassTemplate {
   constructor(props) {
@@ -109,7 +110,7 @@ class Contacts extends FormClassTemplate {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -125,7 +126,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -140,7 +141,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid item xs>
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -153,7 +154,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid item xs>
+            <Grid >
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>
@@ -166,45 +167,45 @@ class Contacts extends FormClassTemplate {
                     {Object.entries(contacts).map(([key, val]) => (
                       <ListItem
                         key={key}
-                        button
-                        onClick={() => this.editContact(key)}
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                              <span>
+                                <IconButton onClick={() => this.editContact(key)}>
+                                  <Edit />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.handleCloneContact(key)}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.toggleModal(true, key)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        }
                       >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <PermContactCalendar />
-                          </Avatar>
-                        </ListItemAvatar>
-
-                        <ListItemText
-                          primary={ContactTitle(val)}
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                            <span>
-                              <IconButton onClick={() => this.editContact(key)}>
-                                <Edit />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.handleCloneContact(key)}
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.toggleModal(true, key)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </ListItemSecondaryAction>
+                        <ListItemButton onClick={() => this.editContact(key)}>
+                          <ListItemAvatar>
+                            <Avatar>
+                              <PermContactCalendar />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={ContactTitle(val)} />
+                        </ListItemButton>
                       </ListItem>
                     ))}
                   </List>
@@ -224,4 +225,4 @@ class Contacts extends FormClassTemplate {
     );
   }
 }
-export default Contacts;
+export default withRouter(Contacts);

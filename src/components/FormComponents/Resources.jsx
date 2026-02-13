@@ -3,14 +3,20 @@ import {
   Add,
   Delete,
   FileCopy,
-  DragHandle,
-} from "@material-ui/icons";
-import { Container, Draggable } from "react-smooth-dnd";
+  DragHandle as DragHandleIcon,
+} from "@mui/icons-material";
 import {
-  Button, 
-  Grid, 
-  Paper, 
-  TextField, 
+  SortableList,
+  SortableItem,
+  DragHandle,
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
+import {
+  Button,
+  Grid,
+  Paper,
+  TextField,
   List,
   ListItem,
   ListItemText,
@@ -18,28 +24,24 @@ import {
   IconButton,
   Typography,
   Tooltip,
- } from "@material-ui/core";
+} from "@mui/material";
 import validator from "validator";
 import debounce from "just-debounce-it";
-import arrayMove from "array-move";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { deepCopy, deepEquals } from "../../utils/misc";
 import { validateURL } from "../../utils/validate";
-import { 
-  QuestionText, 
-  // paperClass, 
+import {
+  QuestionText,
+  // paperClass,
   SupplementalText,
 } from "./QuestionStyles";
 import { UserContext } from "../../providers/UserProvider";
 
-const Resources = ({ 
-  updateResources, 
-  resources, 
-  disabled,
-}) => {
+const Resources = ({ updateResources, resources, disabled }) => {
+  const getItemId = useStableItemIds("resource");
   const mounted = useRef(false);
   const { checkURLActive } = useContext(UserContext);
   const { language } = useParams();
@@ -50,25 +52,26 @@ const Resources = ({
 
   const debouncePool = useRef({});
 
-  useEffect( () => {
+  useEffect(() => {
+    mounted.current = true;
 
-    mounted.current = true
-
-    resources.forEach( (resource, idx) => {
-      
+    resources.forEach((resource, idx) => {
       if (resource.url && validateURL(resource.url)) {
-        if (!debouncePool.current[idx]){
-          debouncePool.current[idx] = debounce( async (innerResource) => {
-            const response = await checkURLActive(innerResource.url)
-            if (mounted.current){
-              setUrlIsActive((prevStatus) => ({ ...prevStatus, [innerResource.url]: response.data }))
+        if (!debouncePool.current[idx]) {
+          debouncePool.current[idx] = debounce(async (innerResource) => {
+            const response = await checkURLActive(innerResource.url);
+            if (mounted.current) {
+              setUrlIsActive((prevStatus) => ({
+                ...prevStatus,
+                [innerResource.url]: response.data,
+              }));
             }
           }, 500);
         }
         debouncePool.current[idx](resource);
       }
     });
-    
+
     return () => {
       mounted.current = false;
     };
@@ -81,7 +84,8 @@ const Resources = ({
   const nameLabel = <I18n en="Name" fr="Titre" />;
   const descriptionLabel = <I18n en="Description" fr="Description" />;
   const resourceStep = resources.length > 0 && resources[activeResource];
-  const urlIsValid = resourceStep && (!resourceStep.url || validateURL(resourceStep.url));
+  const urlIsValid =
+    resourceStep && (!resourceStep.url || validateURL(resourceStep.url));
 
   //  removedIndex is dragStart
   //  addedIndex is dragEnd
@@ -93,7 +97,7 @@ const Resources = ({
     const reorderedContacts = arrayMove(
       currentResources,
       removedIndex,
-      addedIndex
+      addedIndex,
     );
     updateResources(reorderedContacts);
   };
@@ -111,8 +115,8 @@ const Resources = ({
 
   function duplicateResource(i) {
     const duplicatedResource = deepCopy(resources[i]);
-    if (duplicatedResource.name?.en){
-      duplicatedResource.name.en += " (Copy)";  
+    if (duplicatedResource.name?.en) {
+      duplicatedResource.name.en += " (Copy)";
     }
     if (duplicatedResource.name?.fr) {
       duplicatedResource.name.fr += " (Copie)";
@@ -131,106 +135,102 @@ const Resources = ({
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
-            <Grid item xs>
-              <List>
-                <Container
-                  dragHandleSelector=".drag-handle"
-                  lockAxis="y"
-                  onDrop={onDrop}
-                >
-                {resources.map((resourceItem, idx) => {
-                  return (
-                    <Draggable key={idx}>
-                    <ListItem
-                      key={idx}
-                      button
-                      onClick={() => setActiveResource(idx)}
-                    >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            style={{
-                              fontWeight: activeResource === idx ? "bold" : "",
-                              marginRight: "72px",
-                            }}
+              <Grid >
+                <List>
+                  <SortableList
+                    items={resources}
+                    onDrop={onDrop}
+                    getItemId={getItemId}
+                  >
+                    {resources.map((resourceItem, idx) => {
+                      const resourceId = getItemId(resourceItem, idx);
+                      return (
+                        <SortableItem key={resourceId} id={resourceId}>
+                          <ListItem
+                            onClick={() => setActiveResource(idx)}
+                            sx={{ cursor: "pointer" }}
                           >
-                            {idx + 1}. {
-                              (resourceItem.name[language] ?? '').length <= 50 ?
-                                (resourceItem.name[language] ?? '') : `${resourceItem.name[language].substring(0, 50)}...`
-
-                            }
-                          </Typography>
-                        }
-                      />
-                      <ListItemSecondaryAction>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Duplicate contact"
-                              fr="Dupliquer"
+                            <ListItemText
+                              primary={
+                                <Typography
+                                  style={{
+                                    fontWeight:
+                                      activeResource === idx ? "bold" : "",
+                                    marginRight: "72px",
+                                  }}
+                                >
+                                  {idx + 1}.{" "}
+                                  {(resourceItem.name[language] ?? "").length <=
+                                  50
+                                    ? (resourceItem.name[language] ?? "")
+                                    : `${resourceItem.name[language].substring(0, 50)}...`}
+                                </Typography>
+                              }
                             />
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              onClick={() => duplicateResource(idx)}
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <FileCopy />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Remove from this record"
-                              fr="Supprimer de cet enregistrement"
-                            />
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              onClick={() => removeResource(idx)}
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              className="drag-handle"
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <DragHandle />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                    </Draggable>
-                  );
-                })}
-                </Container>
-              </List>
-            </Grid>
+                            <ListItemSecondaryAction>
+                              <Tooltip
+                                title={
+                                  <I18n en="Duplicate contact" fr="Dupliquer" />
+                                }
+                              >
+                                <span>
+                                  <IconButton
+                                    onClick={() => duplicateResource(idx)}
+                                    edge="end"
+                                    aria-label="clone"
+                                    disabled={disabled}
+                                  >
+                                    <FileCopy />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="Remove from this record"
+                                    fr="Supprimer de cet enregistrement"
+                                  />
+                                }
+                              >
+                                <span>
+                                  <IconButton
+                                    onClick={() => removeResource(idx)}
+                                    edge="end"
+                                    aria-label="clone"
+                                    disabled={disabled}
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="Drag to reorder"
+                                    fr="Faites glisser pour réorganiser"
+                                  />
+                                }
+                              >
+                                <DragHandle disabled={disabled}>
+                                  <IconButton edge="end" aria-label="reorder">
+                                    <DragHandleIcon />
+                                  </IconButton>
+                                </DragHandle>
+                              </Tooltip>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        </SortableItem>
+                      );
+                    })}
+                  </SortableList>
+                </List>
+              </Grid>
             )}
 
-            <Grid item xs>
+            <Grid >
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -244,18 +244,20 @@ const Resources = ({
               </Button>
             </Grid>
           </Grid>
-        </Grid>       
-        <Grid item xs>         
+        </Grid>
+        <Grid size="grow">
           {resourceStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
-              <Grid container direction="column" spacing={3}>         
-                <Grid item xs>
+              <Grid container direction="column" spacing={3}>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter a name for the resource</En>
                       <Fr>Entrez un titre pour la ressource</Fr>
                     </I18n>
-                      <RequiredMark passes={resourceStep.name?.en || resourceStep.name?.fr} />
+                    <RequiredMark
+                      passes={resourceStep.name?.en || resourceStep.name?.fr}
+                    />
                   </QuestionText>
                   <BilingualTextInput
                     name="name"
@@ -266,29 +268,29 @@ const Resources = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter the URL for the resource</En>
                       <Fr>Entrez l'URL de la ressource</Fr>
                     </I18n>
 
-                      <RequiredMark passes={validator.isURL(resourceStep.url)} />
+                    <RequiredMark passes={validator.isURL(resourceStep.url)} />
                     <SupplementalText>
                       <I18n>
                         <En>
                           <p>
                             The link may be to a formal data resource on another
-                            repository or a link to a personal online drive (e.g.
-                            Google Drive).
+                            repository or a link to a personal online drive
+                            (e.g. Google Drive).
                           </p>
                         </En>
                         <Fr>
                           <p>
                             Ce lien peut renvoyer vers une ressource de données
-                            sur un autre dépôt de données ou un lien vers
-                            un espace de stockage personnel en ligne (par exemple, Google
-                            Drive).
+                            sur un autre dépôt de données ou un lien vers un
+                            espace de stockage personnel en ligne (par exemple,
+                            Google Drive).
                           </p>
                         </Fr>
                       </I18n>
@@ -297,19 +299,30 @@ const Resources = ({
 
                   <TextField
                     helperText={
-                      (!urlIsValid && <I18n en="Invalid URL" fr="URL non valide" />)
-                        || (resourceStep.url && urlIsActive[resourceStep.url] === false && <I18n en="URL is not active" fr="L'URL n'est pas active" />)
-                        || (resourceStep.url && urlIsActive[resourceStep.url] === true && <I18n en="URL is active" fr="L'URL est active" />)
+                      (!urlIsValid && (
+                        <I18n en="Invalid URL" fr="URL non valide" />
+                      )) ||
+                      (resourceStep.url &&
+                        urlIsActive[resourceStep.url] === false && (
+                          <I18n
+                            en="URL is not active"
+                            fr="L'URL n'est pas active"
+                          />
+                        )) ||
+                      (resourceStep.url &&
+                        urlIsActive[resourceStep.url] === true && (
+                          <I18n en="URL is active" fr="L'URL est active" />
+                        ))
                     }
                     error={!urlIsValid}
                     label="URL"
-                      value={resourceStep.url}
+                    value={resourceStep.url}
                     onChange={handleResourceChange("url")}
                     fullWidth
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter a description of the resource</En>
@@ -319,7 +332,7 @@ const Resources = ({
                   <BilingualTextInput
                     name="description"
                     label={descriptionLabel}
-                      value={resourceStep.description}
+                    value={resourceStep.description}
                     onChange={handleResourceChange("description")}
                     disabled={disabled}
                   />
@@ -331,7 +344,6 @@ const Resources = ({
       </Grid>
     </Paper>
   );
-
 };
 
 export default Resources;

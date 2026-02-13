@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
   Typography,
   Button,
   Grid,
-  makeStyles,
   Snackbar,
-} from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+} from "@mui/material";
+import Alert from "@mui/material/Alert";
+import { makeStyles } from "../../tss-cache";
 import { En, Fr, I18n } from "../I18n";
 import { signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     maxWidth: 600,
     margin: "0 auto",
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Login = () => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [error, setError] = useState(null);
 
   const handleLogin = async (loginMethod) => {
@@ -75,7 +75,7 @@ const Login = () => {
           </Typography>
 
           <Grid container direction="column" spacing={1}>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth
@@ -90,7 +90,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth
@@ -105,7 +105,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
-            <Grid item>
+            <Grid>
               <Button
                 variant="outlined"
                 fullWidth

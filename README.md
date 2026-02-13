@@ -17,9 +17,9 @@ Below is the system architecture diagram which provides an overview of the data 
 For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
 
 ### High-Level Components
-*   **Frontend**: A Single Page Application (SPA) built with React (v16.x) using `create-react-app`. Uses Material-UI (v4) for UI and Leaflet for maps.
+*   **Frontend**: A Single Page Application (SPA) built with React 19 using Vite. Uses Material-UI (MUI v7) for UI and React-Leaflet for maps.
 *   **Backend**: Firebase Functions (Node.js and Python) handling business logic, triggers, and API endpoints.
-*   **Database**: Firebase Realtime Database and/or Firestore for storing metadata records and user data.
+*   **Database**: Firebase Realtime Database for storing metadata records and user data.
 *   **Authentication**: Firebase Authentication.
 *   **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting).
 
@@ -35,8 +35,8 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 
 ### Backend (`firebase-functions/`)
 Serverless backend using Firebase Cloud Functions (Gen 2).
-*   **JavaScript (`functions/`)**: Handles triggers (DB updates), notifications, translations, and GitHub publishing.
-*   **Python (`python-functions/`)**: Handles heavy data processing (XML conversion).
+*   **JavaScript (`functions/`)**: Node.js 22 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
+*   **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
 
 ### Data Model & Validation
 *   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
@@ -83,7 +83,7 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 
 ## Deploy to production site at GitHub pages
 
-Pushes to master automatically deploy to <https://cioos-siooc.github.io/metadata-entry-form/>
+Pushes to main automatically deploy to <https://cioos-siooc.github.io/metadata-entry-form/>
 
 Or manually deploy any branch with
 
@@ -158,19 +158,19 @@ AWS_SECRETACCESSKEY=
 GITHUB_AUTH=
 
 # Environment settings
-# Set REACT_APP_DEV_DEPLOYMENT to true to connect to dev Firebase project
-REACT_APP_DEV_DEPLOYMENT=false
+# Set VITE_DEV_DEPLOYMENT to true to connect to dev Firebase project
+VITE_DEV_DEPLOYMENT=false
 
 # Use local emulators for Firebase services
 # Note: if using local emulators, ensure the emulators are running (firebase emulators:start)
-REACT_APP_FIREBASE_LOCAL_FUNCTIONS=true
-REACT_APP_FIREBASE_LOCAL_DATABASE=false
+VITE_FIREBASE_LOCAL_FUNCTIONS=true
+VITE_FIREBASE_LOCAL_DATABASE=false
 
 # Google Cloud API keys
 # Prod project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
-REACT_APP_GOOGLE_CLOUD_API_KEY=
+VITE_GOOGLE_CLOUD_API_KEY=
 # Dev project: https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
-REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=
+VITE_GOOGLE_CLOUD_API_KEY_DEV=
 ```
 
 ### Using Parameterized Configuration in Firebase Functions

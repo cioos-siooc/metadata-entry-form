@@ -8,14 +8,14 @@ import {
   Checkbox,
   TextField,
   Paper,
-} from "@material-ui/core";
-import Snackbar from "@material-ui/core/Snackbar";
-import Alert from "@material-ui/lab/Alert";
+} from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getDatabase, ref, onValue, get } from "firebase/database";
 import { QuestionText } from "../FormComponents/QuestionStyles";
 
@@ -41,6 +41,7 @@ import {
 import { unique } from "../../utils/misc";
 import { preparePublishPayload } from "../../utils/publishUtils";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 const RecordItem = ({
   record,
@@ -458,7 +459,7 @@ class Reviewer extends FormClassTemplate {
         direction="column"
         justifyContent="space-between"
         alignItems="stretch"
-        spacing={3}
+        spacing={1}
       >
         <TransferModal
           open={transferModalOpen}
@@ -525,7 +526,7 @@ class Reviewer extends FormClassTemplate {
           loading={this.state.githubPublishLoading}
           progressLogs={this.state.publishLogs}
         />
-        <Grid item xs>
+        <Grid >
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
@@ -559,7 +560,7 @@ class Reviewer extends FormClassTemplate {
                 <Fr>Filtres</Fr>
               </QuestionText>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid >
                   <CheckBoxList
                     value={showRecordTypes}
                     onChange={(e) => {
@@ -572,7 +573,7 @@ class Reviewer extends FormClassTemplate {
                     )}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -595,7 +596,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container direction="column">
-                        <Grid item xs>
+                        <Grid >
                           <En>Select All / None</En>
                           <Fr>Tout sélectionner/Aucun</Fr>
 
@@ -608,7 +609,7 @@ class Reviewer extends FormClassTemplate {
                             }}
                           />
                         </Grid>
-                        <Grid item xs>
+                        <Grid >
                           <CheckBoxList
                             value={showUsers}
                             onChange={(e) => {
@@ -622,7 +623,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <TextField
                     fullWidth
                     onChange={(e) => {
@@ -641,7 +642,7 @@ class Reviewer extends FormClassTemplate {
             {recordsToShow.length ? (
               <>
                 <Grid container direction="column">
-                  <Grid item xs>
+                  <Grid>
                     <Typography>
                       <I18n>
                         <En>
@@ -658,7 +659,7 @@ class Reviewer extends FormClassTemplate {
                       </I18n>
                     </Typography>
                   </Grid>
-                  <Grid item xs>
+                  <Grid>
                     <List>
                       {recordsToShow.map((record) => (
                         <RecordItem
@@ -677,7 +678,7 @@ class Reviewer extends FormClassTemplate {
               </>
             ) : (
               <Grid container direction="column">
-                <Grid item xs>
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>There are no records waiting to be reviewed.</En>
@@ -695,4 +696,4 @@ class Reviewer extends FormClassTemplate {
 }
 
 Reviewer.contextType = UserContext;
-export default Reviewer;
+export default withRouter(Reviewer);

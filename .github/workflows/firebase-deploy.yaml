@@ -13,7 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v6
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions
@@ -41,17 +45,16 @@ jobs:
           echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
           echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
-          echo "REACT_APP_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
-          echo "REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
+          echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
+          echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
           echo "Selecting Firebase project based on branch..."
           if [ "${GITHUB_REF##*/}" = "main" ]; then
             echo "On main branch, using default project"
-            echo "REACT_APP_DEV_DEPLOYMENT=false" >> .env
+            echo "VITE_DEV_DEPLOYMENT=false" >> .env
             firebase use default
           else
             echo "On non-main branch, using dev project"
-            echo "REACT_APP_DEV_DEPLOYMENT=true" >> .env
-            export REACT_APP_DEV_DEPLOYMENT=true
+            echo "VITE_DEV_DEPLOYMENT=true" >> .env
             firebase use dev
           fi
           cp .env ../python-functions/.env
@@ -67,6 +70,6 @@ jobs:
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
+          VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
+          VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions

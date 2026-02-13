@@ -11,14 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
       - name: Install and Build 🔧
         env:
-          NODE_OPTIONS: --openssl-legacy-provider
-          REACT_APP_DEV_DEPLOYMENT: true
-          PUBLIC_URL: /
-          REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
+          VITE_DEV_DEPLOYMENT: true
+          VITE_BASE_PATH: /
+          VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
+          VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
         run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -35,7 +38,7 @@ jobs:
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
+          VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
+          VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
-          REACT_APP_DEV_DEPLOYMENT: true
+          VITE_DEV_DEPLOYMENT: true
