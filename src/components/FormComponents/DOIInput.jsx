@@ -13,7 +13,7 @@ import { getDatabase, ref, child, update } from "firebase/database";
 import { En, Fr, I18n } from "../I18n";
 
 import firebase from "../../firebase";
-import recordToDataCite from "../../utils/recordToDataCite";
+import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { validateDOI } from "../../utils/validate";
 
 import {
@@ -50,7 +50,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         const database = getDatabase(firebase);
 
         try {
-            const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+            const mappedDataCiteObject = await recordToDataCiteFromPython(record, language, region, datacitePrefix, { forUpdate: false });
 
             await createDraftDoi({
                 record: mappedDataCiteObject,
