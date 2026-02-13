@@ -60,14 +60,23 @@ export async function recordToDataCiteFromPython(
       throw new Error("Invalid response structure from convert_metadata function");
     }
 
-    const dataciteObject = response.data.data;
+    let dataciteObject = response.data.data;
 
-    // Step 2: Validate that the response is a valid DataCite object
+    // Step 2: Parse if the response is a JSON string (some output formats return strings)
+    if (typeof dataciteObject === "string") {
+      try {
+        dataciteObject = JSON.parse(dataciteObject);
+      } catch (parseError) {
+        throw new Error(`Failed to parse DataCite response as JSON: ${parseError.message}`);
+      }
+    }
+
+    // Step 3: Validate that the response is a valid DataCite object
     if (typeof dataciteObject !== "object" || Array.isArray(dataciteObject)) {
       throw new Error("DataCite response is not a valid object");
     }
 
-    // Step 3: Add the catalogue URL field (specific to region and language)
+    // Step 4: Add the catalogue URL field (specific to region and language)
     // This URL will be the permanent location of the dataset once published
     const catalogueUrl = regions[region]?.catalogueURL?.[language];
     if (!catalogueUrl) {
@@ -76,14 +85,14 @@ export async function recordToDataCiteFromPython(
 
     dataciteObject.url = `${catalogueUrl}dataset/ca-cioos_${record.identifier}`;
 
-    // Step 4: Wrap in DataCite API structure
+    // Step 5: Wrap in DataCite API structure
     const apiObject = {
       data: {
         attributes: dataciteObject,
       },
     };
 
-    // Step 5: Add type and prefix for CREATE operations (not for UPDATE)
+    // Step 6: Add type and prefix for CREATE operations (not for UPDATE)
     // For updates, these fields are not sent to the DataCite API
     if (!forUpdate) {
       apiObject.data.type = "dois";

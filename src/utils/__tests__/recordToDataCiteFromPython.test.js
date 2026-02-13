@@ -202,7 +202,7 @@ describe("recordToDataCiteFromPython", () => {
     it("should throw error if DataCite response is not an object", async () => {
       axios.post.mockResolvedValue({
         data: {
-          data: "invalid string", // Should be an object
+          data: JSON.stringify("invalid string"), // Valid JSON but represents a string, not an object
         },
       });
 
@@ -306,6 +306,45 @@ describe("recordToDataCiteFromPython", () => {
       // Should behave like CREATE with type and prefix
       expect(result.data).toHaveProperty("type", "dois");
       expect(result.data.attributes).toHaveProperty("prefix", "10.14284");
+    });
+  });
+
+  describe("JSON string response handling", () => {
+    it("should parse DataCite response if it's a JSON string", async () => {
+      const dataciteObj = createMockDataCiteResponse();
+      const mockResponse = {
+        data: {
+          data: JSON.stringify(dataciteObj), // Return as JSON string instead of object
+        },
+      };
+      axios.post.mockResolvedValue(mockResponse);
+
+      const result = await recordToDataCiteFromPython(
+        mockRecord,
+        "en",
+        "pacific",
+        "10.14284",
+        { forUpdate: false }
+      );
+
+      // Verify structure is correctly formatted despite receiving a string
+      expect(result).toHaveProperty("data.type", "dois");
+      expect(result).toHaveProperty("data.attributes.prefix", "10.14284");
+      expect(result).toHaveProperty("data.attributes.url");
+      expect(result.data.attributes).toHaveProperty("titles");
+    });
+
+    it("should throw error for invalid JSON string", async () => {
+      const mockResponse = {
+        data: {
+          data: "not valid json{", // Invalid JSON
+        },
+      };
+      axios.post.mockResolvedValue(mockResponse);
+
+      await expect(
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+      ).rejects.toThrow("Failed to parse DataCite response as JSON");
     });
   });
 });
