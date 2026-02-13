@@ -108,7 +108,7 @@ const LineageAdditionalDocumentation = ({
       <Grid container item direction="row" spacing={1}>
         <Grid size={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid size="grow">
+            <Grid >
               <List>
               {documentations.map((documentationItem, i) => {
                 return (
@@ -137,7 +137,7 @@ const LineageAdditionalDocumentation = ({
             </List>
           </Grid>
 
-          <Grid size="grow">
+          <Grid >
             <Button
               disabled={disabled}
               startIcon={<Add />}
@@ -157,7 +157,7 @@ const LineageAdditionalDocumentation = ({
           {documentation && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Title</En>
                     <Fr>Titre</Fr>
@@ -170,7 +170,7 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     label={
                       <I18n>
@@ -184,7 +184,7 @@ const LineageAdditionalDocumentation = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -205,7 +205,7 @@ const LineageAdditionalDocumentation = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}

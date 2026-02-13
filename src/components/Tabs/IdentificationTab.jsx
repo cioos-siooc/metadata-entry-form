@@ -280,7 +280,7 @@ const IdentificationTab = ({
 
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">
-          <Grid size="grow">
+          <Grid >
             <QuestionText>
               <I18n>
                 <En>
@@ -334,7 +334,7 @@ const IdentificationTab = ({
               </SupplementalText>
             </QuestionText>
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <KeywordsInput
               value={record.keywords}
               onChange={handleUpdateRecord("keywords")}

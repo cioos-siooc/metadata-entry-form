@@ -111,7 +111,7 @@ const LineageSource = ({
       <Grid container item direction="row" spacing={1}>
       <Grid size={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid size="grow">
+            <Grid >
 
               <List spacing={1}>
               {sources.map((sourceItem, i) => {
@@ -141,7 +141,7 @@ const LineageSource = ({
             </List>
           </Grid>
 
-          <Grid size="grow">
+          <Grid >
             <Button
               disabled={disabled}
               startIcon={<Add />}
@@ -161,7 +161,7 @@ const LineageSource = ({
           {source && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
@@ -174,7 +174,7 @@ const LineageSource = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Typography variant="body1" component="div" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>Or link to reference documentation</En>
@@ -182,7 +182,7 @@ const LineageSource = ({
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Title</En>
                     <Fr>Titre</Fr>
@@ -197,7 +197,7 @@ const LineageSource = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     label={
                       <I18n>
@@ -211,7 +211,7 @@ const LineageSource = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -232,7 +232,7 @@ const LineageSource = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}

@@ -5,10 +5,10 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Avatar,
   Grid,
-  ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
   Tooltip,
@@ -110,7 +110,7 @@ class Contacts extends FormClassTemplate {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid size="grow">
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +126,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -141,7 +141,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -154,7 +154,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid size="grow">
+            <Grid >
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>
@@ -167,45 +167,45 @@ class Contacts extends FormClassTemplate {
                     {Object.entries(contacts).map(([key, val]) => (
                       <ListItem
                         key={key}
-                        button
-                        onClick={() => this.editContact(key)}
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                              <span>
+                                <IconButton onClick={() => this.editContact(key)}>
+                                  <Edit />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.handleCloneContact(key)}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.toggleModal(true, key)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        }
                       >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <PermContactCalendar />
-                          </Avatar>
-                        </ListItemAvatar>
-
-                        <ListItemText
-                          primary={ContactTitle(val)}
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                            <span>
-                              <IconButton onClick={() => this.editContact(key)}>
-                                <Edit />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.handleCloneContact(key)}
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.toggleModal(true, key)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </ListItemSecondaryAction>
+                        <ListItemButton onClick={() => this.editContact(key)}>
+                          <ListItemAvatar>
+                            <Avatar>
+                              <PermContactCalendar />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={ContactTitle(val)} />
+                        </ListItemButton>
                       </ListItem>
                     ))}
                   </List>

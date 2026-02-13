@@ -93,7 +93,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   }, [userID, record.userID, record.recordID]);
 
   return (
-    <Grid size="grow">
+    <Grid >
       <Paper style={paperClass}>
         {disabled && (
           <QuestionText style={{ paddingBottom: "15px" }}>

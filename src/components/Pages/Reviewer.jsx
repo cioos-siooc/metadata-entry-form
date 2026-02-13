@@ -526,7 +526,7 @@ class Reviewer extends FormClassTemplate {
           loading={this.state.githubPublishLoading}
           progressLogs={this.state.publishLogs}
         />
-        <Grid size="grow">
+        <Grid >
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
@@ -560,7 +560,7 @@ class Reviewer extends FormClassTemplate {
                 <Fr>Filtres</Fr>
               </QuestionText>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <CheckBoxList
                     value={showRecordTypes}
                     onChange={(e) => {
@@ -573,7 +573,7 @@ class Reviewer extends FormClassTemplate {
                     )}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -596,7 +596,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container direction="column">
-                        <Grid size="grow">
+                        <Grid >
                           <En>Select All / None</En>
                           <Fr>Tout sélectionner/Aucun</Fr>
 
@@ -609,7 +609,7 @@ class Reviewer extends FormClassTemplate {
                             }}
                           />
                         </Grid>
-                        <Grid size="grow">
+                        <Grid >
                           <CheckBoxList
                             value={showUsers}
                             onChange={(e) => {
@@ -623,7 +623,7 @@ class Reviewer extends FormClassTemplate {
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     fullWidth
                     onChange={(e) => {

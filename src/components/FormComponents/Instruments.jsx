@@ -79,7 +79,7 @@ const Instruments = ({
           {instrument && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid size="grow">
+                <Grid >
                   <I18n>
                     <En>Instrument ID</En>
                     <Fr>L'ID de l'instrument</Fr>
@@ -93,7 +93,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     label={manufacturerLabel}
                     name="manufacturer"
@@ -103,7 +103,7 @@ const Instruments = ({
                     disabled={disabled}
                   />{" "}
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
@@ -112,7 +112,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Typography>
                     <I18n>
                       <En>Instrument Type</En>
@@ -127,7 +127,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>{" "}
-                <Grid size="grow">
+                <Grid >
                   <Typography>Description</Typography>
                   <BilingualTextInput
                     name="description"
@@ -137,7 +137,7 @@ const Instruments = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid size="grow">
+                <Grid >
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}
@@ -150,7 +150,7 @@ const Instruments = ({
                   </Button>
                 </Grid>
                   {platformList.length >= 2 && (
-                      <Grid size="grow">
+                      <Grid >
                           <SupplementalText>
                               <I18n>
                                   <En>

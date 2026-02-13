@@ -95,7 +95,7 @@ const InstrumentLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             {instruments.length ? (
               <I18n>
@@ -110,7 +110,7 @@ const InstrumentLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid size="grow">
+        <Grid >
           <List>
             <SortableList
               items={instruments}
@@ -218,7 +218,7 @@ const InstrumentLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewInstrument}
@@ -233,7 +233,7 @@ const InstrumentLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid size="grow" style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

@@ -106,7 +106,7 @@ class EditContactClass extends FormClassTemplate {
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid size="grow">
+        <Grid >
           <ContactEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -117,7 +117,7 @@ class EditContactClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid size="grow">
+        <Grid >
           <Button
             startIcon={<Save />}
             variant="contained"

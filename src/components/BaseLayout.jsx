@@ -29,7 +29,7 @@ const RegionLogo = ({ children }) => {
   const titleText = regions[region]?.title?.[language] || region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid size="grow">
+      <Grid >
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
@@ -40,7 +40,7 @@ const RegionLogo = ({ children }) => {
           }}>{titleText}</div>
         )}
       </Grid>
-      <Grid size="grow">
+      <Grid >
         {children}
       </Grid>
     </Grid>

@@ -90,7 +90,7 @@ const KeywordsInput = ({
 
   return (
     <Grid container spacing={3} direction="column">
-      <Grid size="grow">
+      <Grid >
         <Autocomplete
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
@@ -115,7 +115,7 @@ const KeywordsInput = ({
           )}
         />
       </Grid>
-      <Grid size="grow">
+      <Grid >
         <TextField
           value={selectedKeywordAltLang || ""}
           onChange={(e) => setSelectedKeywordAltLang(e.target.value)}
@@ -146,7 +146,7 @@ const KeywordsInput = ({
         </Button>
       </Grid>
 
-      <Grid size="grow">
+      <Grid >
         {languages
           .filter((lang) => value[lang]?.length)
           .map((lang) => (
@@ -155,7 +155,7 @@ const KeywordsInput = ({
                 {lang.toUpperCase()}
               </InputAdornment>
               <Grid container direction="row">
-                <Grid size="grow">
+                <Grid >
                   {(value[lang] || []).map((keyword, i) => (
                     <Chip
                       key={i}

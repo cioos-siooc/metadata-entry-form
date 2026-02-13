@@ -95,12 +95,12 @@ const ContactEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid size="grow">
+      <Grid >
         <Typography variant="h6">
           {ContactTitle(value)}
         </Typography>
       </Grid>
-      <Grid size="grow">
+      <Grid >
         {showRolePicker && (
           <RolePicker
             value={value}
@@ -115,7 +115,7 @@ const ContactEditor = ({
           style={{ marginTop: "10px" }}
         >
           {/* Organization */}
-          <Grid size="grow">
+          <Grid >
             <QuestionText>
               <I18n>
                 <En>Provide any information about the organization</En>
@@ -123,14 +123,14 @@ const ContactEditor = ({
               </I18n>
             </QuestionText>
           </Grid>
-          <Grid size="grow" style={{ marginleft: "10px", height: "33px" }}>
+          <Grid  style={{ marginLeft: "10px", height: "33px" }}>
             {rorSearchActive ? (
               <CircularProgress size={20} />
             ) : (
               <div style={{ height: "33px" }} />
             )}
           </Grid>
-          <Grid size="grow" style={{ marginleft: "10px" }}>
+          <Grid  style={{ marginleft: "10px" }}>
             <Autocomplete
               inputValue={rorInputValue}
               onInputChange={(e, newInputValue) => {
@@ -178,7 +178,7 @@ const ContactEditor = ({
               )}
             />
           </Grid>
-          <Grid size="grow" style={{ marginleft: "10px" }}>
+          <Grid  style={{ marginleft: "10px" }}>
             <TextField
               label={<I18n active en="ROR URL" fr="URL ROR" />}
               InputLabelProps={{ shrink: value.orgRor !== "" }}
@@ -201,7 +201,7 @@ const ContactEditor = ({
               // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
             />
           </Grid>
-          <Grid size="grow" style={{ marginleft: "10px" }}>
+          <Grid  style={{ marginleft: "10px" }}>
             <TextField
               label={<I18n en="Organization name" fr="Nom de l'organisation" />}
               value={value.orgName}
@@ -210,7 +210,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               helperText={
                 !orgURLValid && <I18n en="Invalid URL" fr="URL non valide" />
@@ -223,7 +223,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="Address" fr="Adresse" />}
               value={value.orgAdress}
@@ -232,7 +232,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="City" fr="Ville" />}
               value={value.orgCity}
@@ -241,7 +241,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="Country" fr="Pays" />}
               value={value.orgCountry}
@@ -250,7 +250,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               helperText={
                 !orgEmailValid && (
@@ -267,7 +267,7 @@ const ContactEditor = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid size="grow">
+      <Grid >
         {/* Individual */}
         <Typography>
           <I18n>
@@ -289,7 +289,7 @@ const ContactEditor = ({
             <OpenInNew style={{ verticalAlign: "middle" }} />
           </Button>
         </Typography>
-        <Grid size="grow" style={{ marginleft: "10px" }}>
+        <Grid  style={{ marginleft: "10px" }}>
           <TextField
             label={
               <I18n
@@ -320,7 +320,7 @@ const ContactEditor = ({
           />
         </Grid>
         <Grid container direction="column" spacing={1}>
-          <Grid size="grow">
+          <Grid >
             {value.givenNames && value.lastName && value.inCitation && (
               <div style={{ marginBottom: "10px" }}>
                 This name will appear in the citation as:{" "}
@@ -328,7 +328,7 @@ const ContactEditor = ({
               </div>
             )}
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="ORCID URL" fr="URL ORCID" />}
               InputLabelProps={{ shrink: value.indOrcid !== "" }}
@@ -350,7 +350,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="Given name(s)" fr="Prénom" />}
               value={value.givenNames}
@@ -368,7 +368,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               // style={{ margin: "25px" }}
               label={<I18n en="Last name" fr="Nom de famille" />}
@@ -387,7 +387,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               label={<I18n en="Position" fr="Poste occupé" />}
               value={value.indPosition}
@@ -396,7 +396,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid size="grow">
+          <Grid >
             <TextField
               helperText={
                 !indEmailValid && (

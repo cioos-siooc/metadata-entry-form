@@ -9,7 +9,7 @@ const RegionHeader = ({ children }) => {
   const titleText = region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid size="grow">
+      <Grid >
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
@@ -20,7 +20,7 @@ const RegionHeader = ({ children }) => {
           }}>{titleText}</div>
         )}
       </Grid>
-      <Grid size="grow" style={{ paddingLeft: "50px" }}>
+      <Grid  style={{ paddingLeft: "50px" }}>
         {children}
       </Grid>
     </Grid>
