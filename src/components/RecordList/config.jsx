@@ -183,6 +183,53 @@ export const submissionsConfig = {
   },
 };
 
+export const sharedConfig = {
+  pageId: "shared",
+  storageKey: "shared-records",
+
+  views: {
+    allowToggle: true,
+    persistViewPreference: true,
+  },
+
+  columns: ["created", "title", "author"],
+
+  defaultColumnVisibility: {
+    title: true,
+    author: true,
+    created: true,
+    actions: true,
+  },
+
+  cardFields: {
+    showStatus: false,
+    showProgress: false,
+    showAuthor: true,
+    showLastEdited: true,
+    showUUID: true,
+  },
+
+  actions: {
+    showViewAction: false,
+    showEditAction: true,
+    showDeleteAction: false,
+    showCloneAction: true,
+    showSubmitAction: false,
+    showPublishAction: false,
+    showUnPublishAction: false,
+    showUnSubmitAction: false,
+    showTransferButton: false,
+    showDownloadButton: true,
+    showGithubPublishAction: false,
+  },
+
+  table: {
+    pageSize: 20,
+    rowsPerPageOptions: [10, 20, 50, 100],
+    columnVisibilityStorageKey: "shared-column-visibility",
+  },
+};
+
 // ============================================================================
 // Column Helpers
 // ============================================================================
