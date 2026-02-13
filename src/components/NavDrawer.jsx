@@ -692,7 +692,7 @@ export default function MiniDrawer({ children }) {
                   {helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>
               </Tooltip>
-              <Collapse in={helpSubmenuOpen} timeout="auto" unmountOnExit>
+              <Collapse in={helpSubmenuOpen} timeout="auto">
                 <List component="div" disablePadding sx={{ borderLeft: open ? `2px solid ${theme.palette.action.disabled}` : 'none', ml: open ? '20px' : 0, pl: open ? 2 : 0 }}>
                   <Tooltip
                     placement="right-start"
