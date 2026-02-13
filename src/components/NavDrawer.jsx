@@ -23,6 +23,9 @@ import {
   Warning,
   Settings,
   NewReleases,
+  ExpandLess,
+  ExpandMore,
+  HelpOutline,
 } from "@mui/icons-material";
 
 import {
@@ -42,6 +45,7 @@ import {
   Tooltip,
   MenuItem,
   Menu,
+  Collapse,
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -278,6 +282,8 @@ export default function MiniDrawer({ children }) {
     return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
   }, [emailCopied, language]);
 
+  const [helpSubmenuOpen, setHelpSubmenuOpen] = React.useState(false);
+
   const handleCopyEmail = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -370,6 +376,7 @@ export default function MiniDrawer({ children }) {
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Development database" fr="Base de données de développement" />,
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
+    helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -672,64 +679,102 @@ export default function MiniDrawer({ children }) {
               )}
               <Tooltip
                 placement="right-start"
-                title={
-                  open
-                    ? ""
-                    : (
-                      <span>
-                        {contactLabel}
-                        {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                      </span>
-                    )
-                }
+                title={open ? "" : translations.helpSupport}
               >
                 <ListItemButton
-                  key="Contact Region"
-                  onClick={handleContactClick}
+                  key="Help Support"
+                  onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
                 >
                   <ListItemIcon>
-                    <Help />
+                    <HelpOutline />
                   </ListItemIcon>
-                  <ListItemText
-                    primary={contactLabel}
-                    secondary={
-                      regionEmailLower ? (
-                        <Tooltip
-                          title={copyTooltipText}
-                          placement="right-start"
-                        >
-                          <span
-                            data-copy-email="true"
-                            onClick={handleCopyEmail}
-                            onKeyDown={handleCopyEmailKeyDown}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                            style={{ textDecoration: 'underline', cursor: 'pointer' }}
-                          >
-                            {regionEmailLower}
+                  <ListItemText primary={translations.helpSupport} />
+                  {helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+              </Tooltip>
+              <Collapse in={helpSubmenuOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding sx={{ borderLeft: open ? `2px solid ${theme.palette.action.disabled}` : 'none', ml: open ? '20px' : 0, pl: open ? 2 : 0 }}>
+                  <Tooltip
+                    placement="right-start"
+                    title={
+                      open
+                        ? ""
+                        : (
+                          <span>
+                            {contactLabel}
+                            {regionEmailLower ? ` — ${regionEmailLower}` : ''}
                           </span>
-                        </Tooltip>
-                      ) : null
+                        )
                     }
-                  />
-                </ListItemButton>
-              </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
-              >
-                <ListItemButton
-                  key="Feedback"
-                  id="sentry-feedback-button"
-                  ref={feedbackButtonRef}
-                >
-                  <ListItemIcon>
-                    <FeedbackRounded />
-                  </ListItemIcon>
-                  <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-                </ListItemButton>
-              </Tooltip>
+                  >
+                    <ListItemButton
+                      key="Contact Region"
+                      onClick={handleContactClick}
+                      sx={{ pl: 4 }}
+                    >
+                      <ListItemIcon>
+                        <Help />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={contactLabel}
+                        secondary={
+                          regionEmailLower ? (
+                            <Tooltip
+                              title={copyTooltipText}
+                              placement="right-start"
+                            >
+                              <span
+                                data-copy-email="true"
+                                onClick={handleCopyEmail}
+                                onKeyDown={handleCopyEmailKeyDown}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                              >
+                                {regionEmailLower}
+                              </span>
+                            </Tooltip>
+                          ) : null
+                        }
+                      />
+                    </ListItemButton>
+                  </Tooltip>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+                  >
+                    <ListItemButton
+                      key="Feedback"
+                      id="sentry-feedback-button"
+                      ref={feedbackButtonRef}
+                      sx={{ pl: 4 }}
+                    >
+                      <ListItemIcon>
+                        <FeedbackRounded />
+                      </ListItemIcon>
+                      <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                    </ListItemButton>
+                  </Tooltip>
+                  {user && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.whatsNew}
+                    >
+                      <ListItemButton
+                        key="WhatsNew"
+                        onClick={() => setWhatsNewOpen(true)}
+                        sx={{ pl: 4 }}
+                      >
+                        <ListItemIcon>
+                          <NewReleases />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.whatsNew} />
+                      </ListItemButton>
+                    </Tooltip>
+                  )}
+                </List>
+              </Collapse>
               {!user && (
                 <ListItem key="userInfo">
                   <ListItemIcon>
@@ -740,20 +785,6 @@ export default function MiniDrawer({ children }) {
               )}
               {user && (
                 <>
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.whatsNew}
-                  >
-                    <ListItemButton
-                      key="WhatsNew"
-                      onClick={() => setWhatsNewOpen(true)}
-                    >
-                      <ListItemIcon>
-                        <NewReleases />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.whatsNew} />
-                    </ListItemButton>
-                  </Tooltip>
                   {userIsAdmin && (
                     <Tooltip
                       placement="right-start"
