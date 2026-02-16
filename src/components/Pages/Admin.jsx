@@ -15,6 +15,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -48,6 +52,7 @@ class Admin extends FormClassTemplate {
       datacitePrefixValid: true,
       dataciteAccountId: "",
       datacitePass: "",
+      dataciteApiDomain: "production",
       loading: false,
       showPassword: false,
       isDoiCreationEnabled: false,
@@ -92,6 +97,15 @@ class Admin extends FormClassTemplate {
             return response.data;
           }
         );
+
+        const dataciteRef = child(regionAdminRef, "dataciteCredentials");
+        onValue(dataciteRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data?.apiDomain) {
+            this.setState({ dataciteApiDomain: data.apiDomain });
+          }
+        });
+        this.listenerRefs.push(dataciteRef);
 
         const githubRef = child(regionAdminRef, "githubCredentials");
         onValue(githubRef, (snapshot) => {
@@ -187,6 +201,7 @@ class Admin extends FormClassTemplate {
         datacitePrefix: "",
         dataciteAccountId: "",
         datacitePass: "",
+        dataciteApiDomain: "production",
         credentialsStored: false,
         isDoiCreationEnabled: false,
         showDeletionDialog: false,
@@ -206,6 +221,7 @@ class Admin extends FormClassTemplate {
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
+      dataciteApiDomain,
       isDoiCreationEnabled,
       githubOwner,
       githubRepo,
@@ -238,6 +254,7 @@ class Admin extends FormClassTemplate {
 
           updates["dataciteCredentials/prefix"] = datacitePrefix;
           updates["dataciteCredentials/dataciteHash"] = base64String;
+          updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
 
           this.setState({
             datacitePass: "",
@@ -567,6 +584,43 @@ class Admin extends FormClassTemplate {
                 </Grid>
                 {isDoiCreationEnabled && (
                   <>
+                    <Grid size={12}>
+                      <FormControl>
+                        <FormLabel>
+                          <I18n>
+                            <En>DataCite API</En>
+                            <Fr>API DataCite</Fr>
+                          </I18n>
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          name="dataciteApiDomain"
+                          value={this.state.dataciteApiDomain}
+                          onChange={this.handleChange}
+                        >
+                          <FormControlLabel
+                            value="production"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Production (api.datacite.org)</En>
+                                <Fr>Production (api.datacite.org)</Fr>
+                              </I18n>
+                            }
+                          />
+                          <FormControlLabel
+                            value="test"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Test (api.test.datacite.org)</En>
+                                <Fr>Test (api.test.datacite.org)</Fr>
+                              </I18n>
+                            }
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
                     <Grid size={12}>
                       <TextField
                         name="datacitePrefix"

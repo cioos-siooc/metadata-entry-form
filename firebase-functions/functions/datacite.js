@@ -1,8 +1,24 @@
 const admin = require("firebase-admin");
 
-const baseUrl = "https://api.datacite.org/dois/";
 const functions = require("firebase-functions");
 const axios = require("axios");
+
+const API_DOMAINS = {
+  production: "https://api.datacite.org/dois/",
+  test: "https://api.test.datacite.org/dois/",
+};
+
+// Reads the configured API base URL for a region from the database.
+// Falls back to production if not set.
+async function getBaseUrl(region) {
+  try {
+    const apiDomain = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("apiDomain").once("value")).val();
+    return API_DOMAINS[apiDomain] || API_DOMAINS.production;
+  } catch (error) {
+    console.error(`Error fetching DataCite API domain for region ${region}:`, error);
+    return API_DOMAINS.production;
+  }
+}
 
 // Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
 // are pulled from the admin section of the firebase db
@@ -22,11 +38,11 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   functions.logger.log(authHash);
 
   try{
-    const url = `${baseUrl}`;
-    const response = await axios.post(url, record, {
+    const baseUrl = await getBaseUrl(region);
+    const response = await axios.post(baseUrl, record, {
     headers: {
       'Authorization': `Basic ${authHash}`,
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/vnd.api+json',
     },
   });
 
@@ -106,11 +122,12 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
   } 
 
   try {
+    const baseUrl = await getBaseUrl(region);
     const url = `${baseUrl}${doi}/`;
     const response = await axios.put(url, data, {
       headers: {
         'Authorization': `Basic ${authHash}`,
-        'Content-Type': "application/json",
+        'Content-Type': 'application/vnd.api+json',
       },
     });
 
@@ -195,6 +212,7 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
   } 
 
   try {
+    const baseUrl = await getBaseUrl(region);
     const url = `${baseUrl}${doi}/`;
     const response = await axios.delete(url, {
     headers: { 'Authorization': `Basic ${authHash}` },
@@ -281,6 +299,7 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
   } 
 
   try {
+    const baseUrl = await getBaseUrl(data.region);
     const url = `${baseUrl}${data.doi}/`;
     // TODO: limit response to just the state field. elasticsearch query syntax?
     const response = await axios.get(url, {
