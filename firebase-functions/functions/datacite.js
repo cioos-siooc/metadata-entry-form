@@ -13,7 +13,9 @@ const API_DOMAINS = {
 async function getBaseUrl(region) {
   try {
     const apiDomain = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("apiDomain").once("value")).val();
-    return API_DOMAINS[apiDomain] || API_DOMAINS.production;
+    const resolvedUrl = API_DOMAINS[apiDomain] || API_DOMAINS.production;
+    functions.logger.info("[getBaseUrl] region:", region, "| apiDomain value from DB:", apiDomain, "| resolved URL:", resolvedUrl);
+    return resolvedUrl;
   } catch (error) {
     console.error(`Error fetching DataCite API domain for region ${region}:`, error);
     return API_DOMAINS.production;
@@ -26,6 +28,8 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 
   const { record, region } = data;
 
+  functions.logger.info("[createDraftDoi] Called", { region, recordKeys: record ? Object.keys(record) : null, type: record?.data?.type, prefix: record?.data?.attributes?.prefix });
+
   let authHash
 
   try {
@@ -33,12 +37,13 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   } catch (error) {
       console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
-  } 
+  }
 
-  functions.logger.log(authHash);
+  functions.logger.info("[createDraftDoi] authHash", { present: !!authHash, length: authHash?.length });
 
   try{
     const baseUrl = await getBaseUrl(region);
+    functions.logger.info("[createDraftDoi] POSTing to:", baseUrl, "body:", JSON.stringify(record));
     const response = await axios.post(baseUrl, record, {
     headers: {
       'Authorization': `Basic ${authHash}`,
@@ -46,9 +51,11 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
     },
   });
 
+  functions.logger.info("[createDraftDoi] Success! Response status:", response.status);
   return response.data;
 
   } catch (err) {
+    functions.logger.error("[createDraftDoi] DataCite API error", { status: err.response?.status, data: err.response?.data });
     // Extract detailed error information from DataCite API response
     let errorMessage = 'An error occurred while creating the draft DOI.';
     let statusCode = 500;

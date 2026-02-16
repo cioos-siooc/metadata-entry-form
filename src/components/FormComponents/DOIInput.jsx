@@ -52,8 +52,12 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
+        console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
+
         try {
             const mappedDataCiteObject = await recordToDataCiteFromPython(record, language, region, datacitePrefix, { forUpdate: false });
+
+            console.log("[DOIInput] createDraftDoi payload", { region, mappedDataCiteObject });
 
             await createDraftDoi({
                 record: mappedDataCiteObject,
@@ -93,8 +97,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             // Extract error message from Firebase function error
             const errorMessage = err.message || "Failed to generate DOI. Please try again.";
             setDoiErrorMessage(errorMessage);
-            // eslint-disable-next-line no-console
-            console.error("Error in handleGenerateDOI:", err);
+            console.error("[DOIInput] handleGenerateDOI failed", { code: err.code, message: err.message, details: err.details });
         }
     }
 

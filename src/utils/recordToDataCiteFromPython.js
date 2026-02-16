@@ -47,12 +47,15 @@ export async function recordToDataCiteFromPython(
   try {
     // Step 1: Call Python convert_metadata to get DataCite JSON
     const url = getConvertMetadataUrl();
+    console.log("[recordToDataCite] Calling convert_metadata", { url, forUpdate, language, region, datacitePrefix });
     const response = await axios.post(url, {
       data: {
         record_data: record,
         output_format: "datacite_json",
       },
     });
+
+    console.log("[recordToDataCite] convert_metadata response status:", response.status);
 
     // Extract the DataCite object from the response
     // Response structure: { data: <converted_datacite_object> }
@@ -61,6 +64,7 @@ export async function recordToDataCiteFromPython(
     }
 
     let dataciteObject = response.data.data;
+    console.log("[recordToDataCite] Raw dataciteObject type:", typeof dataciteObject);
 
     // Step 2: Parse if the response is a JSON string (some output formats return strings)
     if (typeof dataciteObject === "string") {
@@ -99,8 +103,10 @@ export async function recordToDataCiteFromPython(
       apiObject.data.attributes.prefix = datacitePrefix;
     }
 
+    console.log("[recordToDataCite] Final DataCite API object:", JSON.stringify(apiObject, null, 2));
     return apiObject;
   } catch (error) {
+    console.error("[recordToDataCite] Error:", error);
     // Re-throw with context about what went wrong
     if (error.response) {
       // HTTP error from the convert_metadata function
