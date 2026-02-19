@@ -124,8 +124,8 @@ const regions = {
     colors: { primary: "#fcba03", secondary: "#2518ad" },
     email: "data@hakai.org",
     catalogueURL: {
-      fr: "https://example.com/",
-      en: "https://example.com/",
+      fr: "https://catalogue.dev.cioos.com/",
+      en: "https://catalogue.dev.cioos.com/",
     },
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,

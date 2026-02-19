@@ -9,9 +9,8 @@ import { vi } from "vitest";
 // TextEncoder/TextDecoder must be set up using vi.hoisted() so they exist
 // before vi.mock() hoisting causes react-router v7 to be imported
 vi.hoisted(() => {
-  const { TextEncoder, TextDecoder } = require("util");
-  global.TextEncoder = TextEncoder;
-  global.TextDecoder = TextDecoder;
+  global.TextEncoder ??= TextEncoder;
+  global.TextDecoder ??= TextDecoder;
 });
 
 import "regenerator-runtime/runtime";
