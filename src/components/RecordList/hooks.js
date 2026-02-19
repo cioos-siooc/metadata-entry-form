@@ -204,14 +204,14 @@ export function useListState(pageId) {
       const nextQuick = (model && Object.prototype.hasOwnProperty.call(model, 'quickFilterValues'))
         ? (model.quickFilterValues || [])
         : (prev?.quickFilterValues || []);
-      const nextLink = (model && Object.prototype.hasOwnProperty.call(model, 'linkOperator'))
-        ? model.linkOperator
-        : prev?.linkOperator;
+      const nextLogic = (model && Object.prototype.hasOwnProperty.call(model, 'logicOperator'))
+        ? model.logicOperator
+        : prev?.logicOperator;
 
       const next = {
         items: nextItems,
         quickFilterValues: nextQuick,
-        ...(nextLink ? { linkOperator: nextLink } : {}),
+        ...(nextLogic ? { logicOperator: nextLogic } : {}),
       };
 
       // Persist the merged model

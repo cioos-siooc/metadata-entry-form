@@ -28,18 +28,18 @@ export function applyFilters(filterModel, rows) {
     return rows.filter((row) => {
         if (!quickFilterOk(row)) return false;
         const passes = items.every((item) => {
-            const { columnField, operatorValue, value } = item;
-            if (columnField === 'status' && operatorValue === 'isAnyOf') {
+            const { field, operator, value } = item;
+            if (field === 'status' && operator === 'isAnyOf') {
                 const arr = Array.isArray(value) ? value : [];
                 return arr.includes(row.status);
             }
-            if (columnField === 'author') {
+            if (field === 'author') {
                 const needle = String(value || '').toLowerCase();
                 const hay = String(row.author || '').toLowerCase();
-                if (operatorValue === 'contains') {
+                if (operator === 'contains') {
                     return hay.includes(needle);
                 }
-                if (operatorValue === 'equals') {
+                if (operator === 'equals') {
                     return hay === needle;
                 }
                 return true;

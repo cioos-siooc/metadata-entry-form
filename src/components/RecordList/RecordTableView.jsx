@@ -174,19 +174,24 @@ const RecordTableView = ({ records }) => {
         rows={rows}
         columns={columns}
         onRowClick={handleRowClick}
-        pageSize={config.table?.pageSize || 20}
-        rowsPerPageOptions={
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: config.table?.pageSize || 20,
+              page: 0,
+            },
+          },
+        }}
+        pageSizeOptions={
           config.table?.rowsPerPageOptions || [10, 20, 50, 100]
         }
-        checkboxSelection={false}
-        disableSelectionOnClick
         filterModel={filterModel}
         onFilterModelChange={setFilterModel}
         sortModel={sortModel}
         onSortModelChange={setSortModel}
-        components={{
-          Toolbar: CustomToolbar,
-          NoRowsOverlay: () => (
+        slots={{
+          toolbar: CustomToolbar,
+          noRowsOverlay: () => (
             <div style={{ padding: "20px", textAlign: "center" }}>
               {language === "en"
                 ? "No records found."
