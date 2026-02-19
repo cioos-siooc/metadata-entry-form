@@ -174,7 +174,7 @@ export function useListState(pageId) {
         const parsed = JSON.parse(saved);
         return parsed.filterModel || { items: [] };
       }
-    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+    } catch { /* ignore storage errors */ }
     return { items: [] };
   });
 
@@ -185,7 +185,7 @@ export function useListState(pageId) {
         const parsed = JSON.parse(saved);
         return parsed.sortModel || [];
       }
-    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+    } catch { /* ignore storage errors */ }
     return [];
   });
 
@@ -228,7 +228,7 @@ export function useListState(pageId) {
   const reset = useCallback(() => {
     setFilterModel({ items: [] });
     setSortModel([]);
-    try { localStorage.removeItem(storageKey); } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+    try { localStorage.removeItem(storageKey); } catch { /* ignore storage errors */ }
   }, [storageKey]);
 
   return {
