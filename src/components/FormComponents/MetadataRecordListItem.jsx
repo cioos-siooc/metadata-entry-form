@@ -233,6 +233,7 @@ const MetadataRecordListItem = ({
               onClick={onViewEditClick}
               role="link"
               tabIndex={0}
+              aria-label={`View or edit record: ${record.title?.[language]}`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   onViewEditClick();
