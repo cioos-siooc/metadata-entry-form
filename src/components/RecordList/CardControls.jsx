@@ -54,24 +54,26 @@ const CardControls = () => {
   useEffect(() => {
     const next = debouncedQuick.trim();
     const values = next ? [next] : [];
-    setFilterModel({
-      ...(filterModel || { items: [] }),
+    setFilterModel((prev) => ({
+      ...prev,
       quickFilterValues: values,
-    });
+    }));
   }, [debouncedQuick]);
 
   // Sync author input to model (debounced)
   useEffect(() => {
     const next = debouncedAuthor.trim();
-    const otherItems = (filterModel.items || []).filter(
-      (i) => i.columnField !== "author",
-    );
-    const newItems = next
-      ? otherItems.concat([
+    setFilterModel((prev) => {
+      const otherItems = (prev.items || []).filter(
+        (i) => i.columnField !== "author",
+      );
+      const newItems = next
+        ? otherItems.concat([
           { columnField: "author", operatorValue: "contains", value: next },
         ])
-      : otherItems;
-    setFilterModel({ ...filterModel, items: newItems });
+        : otherItems;
+      return { ...prev, items: newItems };
+    });
   }, [debouncedAuthor]);
 
   const handleStatusChange = useCallback(
@@ -82,8 +84,8 @@ const CardControls = () => {
       );
       const newItems = values.length
         ? otherItems.concat([
-            { columnField: "status", operatorValue: "isAnyOf", value: values },
-          ])
+          { columnField: "status", operatorValue: "isAnyOf", value: values },
+        ])
         : otherItems;
       setFilterModel({ ...filterModel, items: newItems });
     },
@@ -108,6 +110,7 @@ const CardControls = () => {
 
   const handleReset = useCallback(() => {
     setQuick("");
+    setAuthor("");
     resetListState();
   }, [resetListState]);
 
