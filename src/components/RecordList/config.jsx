@@ -11,13 +11,6 @@ import { percentValid } from "../../utils/validate";
 
 export const reviewerConfig = {
   pageId: "reviewer",
-  storageKey: "reviewer-records",
-
-  views: {
-    allowToggle: true,
-    persistViewPreference: true,
-  },
-
   columns: [
     "status",
     "progress",
@@ -57,14 +50,6 @@ export const reviewerConfig = {
     actions: true,
   },
 
-  cardFields: {
-    showStatus: true,
-    showProgress: true,
-    showAuthor: true,
-    showLastEdited: true,
-    showUUID: true,
-  },
-
   actions: {
     showViewAction: false,
     showEditAction: true,
@@ -88,13 +73,6 @@ export const reviewerConfig = {
 
 export const publishedConfig = {
   pageId: "published",
-  storageKey: "published-records",
-
-  views: {
-    allowToggle: true,
-    persistViewPreference: true,
-  },
-
   columns: ["status", "created", "title", "author"],
 
   defaultColumnVisibility: {
@@ -103,14 +81,6 @@ export const publishedConfig = {
     author: true,
     created: true,
     actions: true,
-  },
-
-  cardFields: {
-    showStatus: true,
-    showProgress: false,
-    showAuthor: true,
-    showLastEdited: true,
-    showUUID: true,
   },
 
   actions: {
@@ -136,13 +106,6 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  storageKey: "submissions-records",
-
-  views: {
-    allowToggle: true,
-    persistViewPreference: true,
-  },
-
   columns: ["status", "progress", "created", "title", "author"],
 
   defaultColumnVisibility: {
@@ -152,14 +115,6 @@ export const submissionsConfig = {
     created: true,
     author: false,
     actions: true,
-  },
-
-  cardFields: {
-    showStatus: true,
-    showProgress: true,
-    showAuthor: false,
-    showLastEdited: true,
-    showUUID: true,
   },
 
   actions: {
@@ -185,13 +140,6 @@ export const submissionsConfig = {
 
 export const sharedConfig = {
   pageId: "shared",
-  storageKey: "shared-records",
-
-  views: {
-    allowToggle: true,
-    persistViewPreference: true,
-  },
-
   columns: ["created", "title", "author"],
 
   defaultColumnVisibility: {
@@ -199,14 +147,6 @@ export const sharedConfig = {
     author: true,
     created: true,
     actions: true,
-  },
-
-  cardFields: {
-    showStatus: false,
-    showProgress: false,
-    showAuthor: true,
-    showLastEdited: true,
-    showUUID: true,
   },
 
   actions: {

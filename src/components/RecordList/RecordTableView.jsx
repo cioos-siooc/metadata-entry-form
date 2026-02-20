@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -20,13 +20,11 @@ const RecordTableView = ({ records }) => {
     language,
     region,
     githubPublishEnabled,
-    listState,
   } = useRecordListContext();
 
   const {
     columnVisibilityModel,
     handleColumnVisibilityChange,
-    resetColumnVisibility,
   } = useColumnVisibility(
     config.table?.columnVisibilityStorageKey ||
     `${config.pageId}-column-visibility`,
@@ -166,21 +164,17 @@ const RecordTableView = ({ records }) => {
   return (
     <div style={{
       width: "100%",
-      maxWidth: "100vw",
+      minWidth: 0,
       overflow: "hidden",
       boxSizing: "border-box",
     }}>
       <DataGrid
         autoHeight={true}
         sx={{
+          width: "100%",
+          minWidth: 0,
+          border: "none",
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
-          "& .MuiDataGrid-root": {
-            border: "none",
-            width: "100%",
-            ...(isMobile && {
-              overflowX: "hidden",
-            }),
-          },
           "& .MuiDataGrid-row": {
             cursor: "pointer",
             ...(isMobile && {
@@ -233,14 +227,11 @@ const RecordTableView = ({ records }) => {
             }),
           },
           "& .MuiDataGrid-virtualScroller": {
-            ...(isMobile && {
-              overflowX: "hidden !important",
-            }),
+            overflowX: "hidden !important",
           },
           "& .MuiDataGrid-main": {
-            ...(isMobile && {
-              overflowX: "hidden !important",
-            }),
+            overflowX: "hidden !important",
+            minWidth: 0,
           },
         }}
         rows={rows}
