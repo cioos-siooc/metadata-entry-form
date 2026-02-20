@@ -9,9 +9,12 @@ import {
   IconButton,
   InputAdornment,
   Autocomplete,
+  Link,
+  Alert,
+  Box,
 } from "@mui/material";
 import { useDebounce } from "use-debounce";
-import { Clear, OpenInNew } from "@mui/icons-material";
+import { Clear, OpenInNew, Warning } from "@mui/icons-material";
 import { getBlankContact } from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
@@ -20,6 +23,8 @@ import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
+import RequestOrganizationDialog from "../Dialogs/RequestOrganizationDialog";
+import { findMatchingOrganization } from "../../utils/organizationUtils";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -37,6 +42,7 @@ function namesToCitation(givenNames, lastname) {
 
 const ContactEditor = ({
   value,
+  organizations = {},
   showRolePicker,
   disabled,
   handleClear,
@@ -49,7 +55,7 @@ const ContactEditor = ({
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.hu );
+  const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState(value.orgRor);
@@ -57,9 +63,16 @@ const ContactEditor = ({
   const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
   const [rorOptions, setRorOptions] = useState([]);
   const [rorSearchActive, setRorSearchActive] = useState(false);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
 
   // eslint-disable-next-line no-param-reassign
   value = { ...getBlankContact(), ...value };
+
+  const orgList = Object.values(organizations);
+  const selectedOrg = value.orgSlug ? organizations[value.orgSlug] : null;
+
+  // Check if current orgName matches an approved org (for historical data)
+  const suggestedOrg = !value.orgSlug && value.orgName ? findMatchingOrganization(value.orgName, organizations) : null;
 
   function updateRorOptions(newInputValue) {
     if (
@@ -93,6 +106,33 @@ const ContactEditor = ({
     };
   }, [debouncedRorInputValue]);
 
+  function handleSelectRegistryOrg(org) {
+    if (!org) {
+      updateContact("orgSlug")("");
+      return;
+    }
+
+    const updates = {
+      orgSlug: org.orgSlug,
+      orgName: language === "fr" ? org.orgNameFr || org.orgNameEn : org.orgNameEn,
+      orgNameEn: org.orgNameEn || "",
+      orgNameFr: org.orgNameFr || "",
+      orgLogoEn: org.orgLogoEn || "",
+      orgLogoFr: org.orgLogoFr || "",
+      orgAcceptedNames: org.orgAcceptedNames || [],
+      orgEmail: org.orgEmail || "",
+      orgURL: org.orgURL || "",
+      orgAdress: org.orgAdress || "",
+      orgCity: org.orgCity || "",
+      orgCountry: org.orgCountry || "",
+      orgRor: org.orgRor || "",
+    };
+
+    Object.entries(updates).forEach(([key, val]) => {
+      updateContact(key)(val);
+    });
+  }
+
   return (
     <Grid container direction="column" spacing={2}>
       <Grid >
@@ -114,70 +154,136 @@ const ContactEditor = ({
           spacing={1}
           style={{ marginTop: "10px" }}
         >
-          {/* Organization */}
+          {/* Organization Registry Search */}
           <Grid >
             <QuestionText>
               <I18n>
-                <En>Provide any information about the organization</En>
-                <Fr>Identification de l'organisation</Fr>
+                <En>Search Organization Registry</En>
+                <Fr>Rechercher dans le registre des organisations</Fr>
               </I18n>
             </QuestionText>
           </Grid>
-          <Grid  style={{ marginLeft: "10px", height: "33px" }}>
-            {rorSearchActive ? (
-              <CircularProgress size={20} />
-            ) : (
-              <div style={{ height: "33px" }} />
-            )}
-          </Grid>
-          <Grid  style={{ marginleft: "10px" }}>
+          <Grid >
             <Autocomplete
-              inputValue={rorInputValue}
-              onInputChange={(e, newInputValue) => {
-                setRorInputValue(newInputValue);
-                if (newInputValue === "") {
-                  setRorSearchActive(false);
-                } else {
-                  setRorSearchActive(true);
-                }
-              }}
               disabled={disabled}
-              onChange={(e, organization) => {
-                if (organization !== null) {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
-                    .then((response) => response.json())
-                    .then((response) => {
-                      if (!response.errors) {
-                        updateContactRor(response);
-                      } // todo: do some error handling here if search fails?
-                    })
-                    .then(() => setRorSearchActive(false))
-                    .then(() => setRorInputValue(""));
-                }
+              value={selectedOrg || null}
+              onChange={(e, org) => handleSelectRegistryOrg(org)}
+              options={orgList}
+              getOptionLabel={(org) => language === "fr" ? (org.orgNameFr || org.orgNameEn) : org.orgNameEn}
+              filterOptions={(options, { inputValue }) => {
+                const search = inputValue.toLowerCase();
+                return options.filter(o => 
+                  o.orgNameEn?.toLowerCase().includes(search) || 
+                  o.orgNameFr?.toLowerCase().includes(search) ||
+                  o.orgAcceptedNames?.some(name => name.toLowerCase().includes(search))
+                );
               }}
-              freeSolo
-              filterOptions={(x) => x}
-              getOptionLabel={(e) => {
-                const match = e.names.find((n) => n.lang === language);
-                return match ? match.value : e.names[0]?.value || "";
-              }}
-              options={rorOptions}
-              fullWidth
               renderInput={(params) => (
                 <TextField
-                  // eslint-disable-next-line react/jsx-props-no-spreading
                   {...params}
-                  label={
-                    <I18n
-                      en="Type to search Research Organization Registry (ROR)"
-                      fr="Tapez pour rechercher le registre des organismes de recherche (ROR)
-"
-                    />
-                  }
+                  label={<I18n en="Registry Organization" fr="Organisation du registre" />}
                 />
               )}
+              fullWidth
             />
+            {!selectedOrg && (
+              <Typography variant="caption" sx={{ mt: 1, display: "block" }}>
+                <I18n en="Can't find your organization?" fr="Vous ne trouvez pas votre organisation ?" />{" "}
+                <Link component="button" variant="caption" onClick={() => setRequestDialogOpen(true)}>
+                  <I18n en="Request to add it" fr="Demander à l'ajouter" />
+                </Link>
+              </Typography>
+            )}
+            {selectedOrg && (
+              <Box mt={1} display="flex" alignItems="center">
+                <Button size="small" startIcon={<Clear />} onClick={() => handleSelectRegistryOrg(null)}>
+                  <I18n en="Unlink from Registry" fr="Dissocier du registre" />
+                </Button>
+              </Box>
+            )}
           </Grid>
+
+          {suggestedOrg && (
+            <Grid >
+              <Alert severity="warning" icon={<Warning />}>
+                <I18n 
+                  en={`"${value.orgName}" matches an approved organization: `} 
+                  fr={`"${value.orgName}" correspond à une organisation approuvée : `} 
+                />
+                <Link component="button" onClick={() => handleSelectRegistryOrg(suggestedOrg)}>
+                  {language === "fr" ? suggestedOrg.orgNameFr : suggestedOrg.orgNameEn}
+                </Link>
+              </Alert>
+            </Grid>
+          )}
+
+          {/* ROR Search */}
+          {!selectedOrg && (
+            <>
+              <Grid >
+                <QuestionText>
+                  <I18n>
+                    <En>Or search Research Organization Registry (ROR)</En>
+                    <Fr>Ou rechercher dans le registre des organismes de recherche (ROR)</Fr>
+                  </I18n>
+                </QuestionText>
+              </Grid>
+              <Grid  style={{ marginLeft: "10px", height: "33px" }}>
+                {rorSearchActive ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <div style={{ height: "33px" }} />
+                )}
+              </Grid>
+              <Grid  style={{ marginleft: "10px" }}>
+                <Autocomplete
+                  inputValue={rorInputValue}
+                  onInputChange={(e, newInputValue) => {
+                    setRorInputValue(newInputValue);
+                    if (newInputValue === "") {
+                      setRorSearchActive(false);
+                    } else {
+                      setRorSearchActive(true);
+                    }
+                  }}
+                  disabled={disabled}
+                  onChange={(e, organization) => {
+                    if (organization !== null) {
+                      fetch(`https://api.ror.org/organizations/${organization.id}`)
+                        .then((response) => response.json())
+                        .then((response) => {
+                          if (!response.errors) {
+                            updateContactRor(response);
+                          }
+                        })
+                        .then(() => setRorSearchActive(false))
+                        .then(() => setRorInputValue(""));
+                    }
+                  }}
+                  freeSolo
+                  filterOptions={(x) => x}
+                  getOptionLabel={(e) => {
+                    const match = e.names.find((n) => n.lang === language);
+                    return match ? match.value : e.names[0]?.value || "";
+                  }}
+                  options={rorOptions}
+                  fullWidth
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={
+                        <I18n
+                          en="Search ROR"
+                          fr="Rechercher ROR"
+                        />
+                      }
+                    />
+                  )}
+                />
+              </Grid>
+            </>
+          )}
+
           <Grid  style={{ marginleft: "10px" }}>
             <TextField
               label={<I18n active en="ROR URL" fr="URL ROR" />}
@@ -186,7 +292,7 @@ const ContactEditor = ({
               disabled
               fullWidth
               InputProps={{
-                endAdornment: value.orgRor && (
+                endAdornment: value.orgRor && !selectedOrg && (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => {
@@ -198,7 +304,6 @@ const ContactEditor = ({
                   </InputAdornment>
                 ),
               }}
-              // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
             />
           </Grid>
           <Grid  style={{ marginleft: "10px" }}>
@@ -206,7 +311,7 @@ const ContactEditor = ({
               label={<I18n en="Organization name" fr="Nom de l'organisation" />}
               value={value.orgName}
               onChange={updateContactEvent("orgName")}
-              disabled={value.orgRor !== "" || disabled}
+              disabled={value.orgRor !== "" || selectedOrg !== null || disabled}
               fullWidth
             />
           </Grid>
@@ -216,10 +321,10 @@ const ContactEditor = ({
                 !orgURLValid && <I18n en="Invalid URL" fr="URL non valide" />
               }
               error={!orgURLValid}
-              label={<I18n en="URL" fr="URL" />}
+              label={<span><I18n en="URL" fr="URL" /> *</span>}
               value={value.orgURL}
               onChange={updateContactEvent("orgURL")}
-              disabled={value.orgRor !== "" || disabled}
+              disabled={value.orgRor !== "" || selectedOrg !== null || disabled}
               fullWidth
             />
           </Grid>
@@ -228,7 +333,7 @@ const ContactEditor = ({
               label={<I18n en="Address" fr="Adresse" />}
               value={value.orgAdress}
               onChange={updateContactEvent("orgAdress")}
-              disabled={disabled}
+              disabled={selectedOrg !== null || disabled}
               fullWidth
             />
           </Grid>
@@ -237,7 +342,7 @@ const ContactEditor = ({
               label={<I18n en="City" fr="Ville" />}
               value={value.orgCity}
               onChange={updateContactEvent("orgCity")}
-              disabled={value.orgRor !== "" || disabled}
+              disabled={value.orgRor !== "" || selectedOrg !== null || disabled}
               fullWidth
             />
           </Grid>
@@ -246,7 +351,7 @@ const ContactEditor = ({
               label={<I18n en="Country" fr="Pays" />}
               value={value.orgCountry}
               onChange={updateContactEvent("orgCountry")}
-              disabled={value.orgRor !== "" || disabled}
+              disabled={value.orgRor !== "" || selectedOrg !== null || disabled}
               fullWidth
             />
           </Grid>
@@ -262,12 +367,18 @@ const ContactEditor = ({
               value={value.orgEmail}
               onChange={updateContactEvent("orgEmail")}
               fullWidth
-              disabled={disabled}
+              disabled={selectedOrg !== null || disabled}
             />{" "}
           </Grid>
         </Grid>
       </Grid>
+
       <Grid >
+        <RequestOrganizationDialog 
+          open={requestDialogOpen} 
+          onClose={() => setRequestDialogOpen(false)} 
+          initialName={value.orgName}
+        />
         {/* Individual */}
         <Typography>
           <I18n>

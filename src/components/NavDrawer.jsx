@@ -22,6 +22,7 @@ import {
   Help,
   Warning,
   Settings,
+  CorporateFare,
 } from "@mui/icons-material";
 
 import {
@@ -298,7 +299,7 @@ export default function MiniDrawer({ children }) {
         document.execCommand('copy');
         document.body.removeChild(ta);
         done();
-      } catch (err) {
+      } catch {
         // no-op: copying failed
       }
     };
@@ -360,6 +361,7 @@ export default function MiniDrawer({ children }) {
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
+    organizations: <I18n en="Organizations" fr="Organisations" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
     signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
@@ -619,20 +621,36 @@ export default function MiniDrawer({ children }) {
                 )}
 
                 {userIsReviewer && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.review}
-                  >
-                    <ListItemButton
-                      key="Review"
-                      onClick={() => navigate(`${baseURL}/reviewer`)}
+                  <>
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
                     >
-                      <ListItemIcon>
-                        <RateReview />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.review} />
-                    </ListItemButton>
-                  </Tooltip>
+                      <ListItemButton
+                        key="Review"
+                        onClick={() => navigate(`${baseURL}/reviewer`)}
+                      >
+                        <ListItemIcon>
+                          <RateReview />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.review} />
+                      </ListItemButton>
+                    </Tooltip>
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.organizations}
+                    >
+                      <ListItemButton
+                        key="Organizations"
+                        onClick={() => navigate(`${baseURL}/organizations`)}
+                      >
+                        <ListItemIcon>
+                          <CorporateFare />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.organizations} />
+                      </ListItemButton>
+                    </Tooltip>
+                  </>
                 )}
                 {/* Admin button moved to bottomList above account avatar */}
               </>

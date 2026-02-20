@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useParams } from "react-router-dom";
 
@@ -23,6 +23,7 @@ import regions from "../../regions";
 import LeftList from "../FormComponents/LeftList";
 import ContactTitle from "../FormComponents/ContactTitle";
 import {getBlankContact} from "../../utils/blankRecord";
+import { listenToOrganizations } from "../../utils/firebaseOrganizationFunctions";
 
 const ContactTab = ({
   disabled,
@@ -37,6 +38,11 @@ const ContactTab = ({
   const updateContacts = updateRecord("contacts");
 
   const [activeContact, setActiveContact] = useState(0);
+  const [organizations, setOrganizations] = useState({});
+
+  useEffect(() => {
+    return listenToOrganizations(setOrganizations);
+  }, []);
 
   // Instead of updating record.<item> we are
   // updating record.contacts[activeContact].<item>
@@ -185,6 +191,7 @@ const ContactTab = ({
                     <EditContact
                       showRolePicker
                       value={contact}
+                      organizations={organizations}
                       handleClear={(key) => updateContact(key)("")}
                       updateContactEvent={(key) => updateContactEvent(key)}
                       updateContact={(key) => updateContact(key)}

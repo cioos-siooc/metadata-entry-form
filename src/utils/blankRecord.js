@@ -48,7 +48,13 @@ function getBlankRecord() {
 
 const blankContact = {
   role: [],
+  orgSlug: "",
   orgName: "",
+  orgNameEn: "",
+  orgNameFr: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
   orgEmail: "",
   orgURL: "",
   orgAdress: "",
@@ -65,6 +71,52 @@ const blankContact = {
 
 function getBlankContact() {
   return deepCopy(blankContact);
+}
+
+const blankOrganization = {
+  orgNameEn: "",
+  orgNameFr: "",
+  orgSlug: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
+  orgEmail: "",
+  orgURL: "",
+  orgAdress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  status: "",
+  approvedBy: "",
+  approvedAt: null,
+};
+
+function getBlankOrganization() {
+  return deepCopy(blankOrganization);
+}
+
+const blankOrganizationRequest = {
+  orgNameEn: "",
+  orgNameFr: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
+  orgEmail: "",
+  orgURL: "",
+  orgAdress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  requestedBy: "",
+  requestedByEmail: "",
+  requestedFromRegion: "",
+  requestedAt: null,
+  status: "pending",
+  reviewNote: "",
+};
+
+function getBlankOrganizationRequest() {
+  return deepCopy(blankOrganizationRequest);
 }
 
 const blankInstrument = {
@@ -89,4 +141,11 @@ function getBlankPlatform() {
   return deepCopy(blankPlatform);
 }
 
-export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};
+export {
+  getBlankRecord,
+  getBlankContact,
+  getBlankOrganization,
+  getBlankOrganizationRequest,
+  getBlankInstrument,
+  getBlankPlatform,
+};

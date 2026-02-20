@@ -1,0 +1,23 @@
+{
+    "organization-1": {
+        "orgNameEn": "Organization 1",
+        "orgNameFr": "Organisation 1",
+        "orgSlug": "organization-1",
+        "orgLogoEn": "https://organization1.com/logo.png",
+        "orgLogoFr": "https://organization1.com/logo.png",
+        "orgAcceptedNames": [
+            "org-1",
+            "Organisation-1",
+            "Org1"
+        ],
+        "orgEmail": "",
+        "orgURL": "https://www.organization1.com/",
+        "orgAdress": "",
+        "orgCity": "",
+        "orgCountry": "",
+        "orgRor": "",
+        "status": "approved",
+        "approvedBy": "system-seed",
+        "approvedAt": "2026-02-17T00:00:00.000Z"
+    }
+}
