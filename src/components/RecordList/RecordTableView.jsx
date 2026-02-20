@@ -2,13 +2,7 @@ import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import {
-  DataGrid,
-  GridToolbarContainer,
-  GridToolbarQuickFilter,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-} from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 
 import { useRecordListContext } from "./context";
 import { useColumnVisibility } from "./hooks";
@@ -150,18 +144,6 @@ const RecordTableView = ({ records }) => {
   );
 
 
-  // Custom toolbar with search
-  const CustomToolbar = useCallback(
-    () => (
-      <GridToolbarContainer sx={{ padding: "8px", gap: "8px" }}>
-        <GridToolbarQuickFilter />
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-      </GridToolbarContainer>
-    ),
-    [],
-  );
-
   // Handle row click to navigate to record
   const handleRowClick = useCallback(
     (params, event) => {
@@ -282,7 +264,6 @@ const RecordTableView = ({ records }) => {
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         slots={{
-          toolbar: CustomToolbar,
           noRowsOverlay: () => (
             <div style={{ padding: "20px", textAlign: "center" }}>
               {language === "en"
