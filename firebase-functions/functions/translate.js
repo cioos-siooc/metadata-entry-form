@@ -6,19 +6,20 @@ const awsRegion = defineString('AWS_REGION');
 const awsAccessKeyId = defineString('AWS_ACCESSKEYID');
 const awsSecretAccessKey = defineString('AWS_SECRETACCESSKEY');
 
-const awsRegionCred = process.env.AWS_REGION || awsRegion.value()
-const awsAccessKeyIdCred = process.env.AWS_ACCESSKEYID || awsAccessKeyId.value()
-const awsSecretAccessKeyCred = process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value()
+function getTranslateService() {
+  const awsRegionCred = process.env.AWS_REGION || awsRegion.value()
+  const awsAccessKeyIdCred = process.env.AWS_ACCESSKEYID || awsAccessKeyId.value()
+  const awsSecretAccessKeyCred = process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value()
 
-const awsAuth = {
-  region: awsRegionCred,
-  accessKeyId: awsAccessKeyIdCred,
-  secretAccessKey: awsSecretAccessKeyCred,
-};
+  const awsAuth = {
+    region: awsRegionCred,
+    accessKeyId: awsAccessKeyIdCred,
+    secretAccessKey: awsSecretAccessKeyCred,
+  };
 
-AWS.config = new AWS.Config(awsAuth);
-
-const translate = new AWS.Translate();
+  AWS.config = new AWS.Config(awsAuth);
+  return new AWS.Translate();
+}
 
 // Translate up to 100,000 characters at a time using amazon translate
 const translateText = async (
@@ -34,7 +35,7 @@ const translateText = async (
     };
 
     try {
-      translate.translateText(params, (err, data) => {
+      getTranslateService().translateText(params, (err, data) => {
         if (err) {
           // eslint-disable-next-line no-console
           console.log("translateText error: ", err);

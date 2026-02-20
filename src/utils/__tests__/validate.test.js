@@ -86,6 +86,7 @@ describe('Utility: validate.js', () => {
           givenNames: 'John',
           lastName: 'Doe',
           indEmail: 'john@example.com',
+          orgURL: 'https://example.com',
           inCitation: true
         },
         {
