@@ -119,8 +119,8 @@ describe("recordToDataCiteFromPython", () => {
       const testCases = [
         { region: "pacific", language: "en", expectedUrl: "https://catalogue.cioospacific.ca/" },
         { region: "pacific", language: "fr", expectedUrl: "https://catalogue.cioospacific.ca/fr/" },
-        { region: "atlantic", language: "en", expectedUrl: "https://cioosatlantic.ca/" },
-        { region: "atlantic", language: "fr", expectedUrl: "https://cioosatlantic.ca/fr/" },
+        { region: "atlantic", language: "en", expectedUrl: "https://cioosatlantic.ca/ckan/" },
+        { region: "atlantic", language: "fr", expectedUrl: "https://cioosatlantic.ca/ckan/fr/" },
         { region: "stlaurent", language: "en", expectedUrl: "https://catalogue.ogsl.ca/en/" },
         { region: "stlaurent", language: "fr", expectedUrl: "https://catalogue.ogsl.ca/" },
       ];
