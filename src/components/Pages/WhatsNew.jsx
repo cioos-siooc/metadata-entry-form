@@ -95,6 +95,8 @@ const WhatsNewDialog = ({ open, onClose }) => {
       scroll="paper"
     >
       <DialogTitle
+        scroll="paper"
+        aria-label="What's New"
         sx={{
           display: "flex",
           alignItems: "center",
@@ -132,65 +134,65 @@ const WhatsNewDialog = ({ open, onClose }) => {
         )}
 
         {releases.map((release) => (
-            <Paper key={release.id} className={classes.releasePaper}>
-              <div className={classes.releaseHeader}>
-                <Typography variant="h6">
-                  {release.name || release.tag_name}
-                </Typography>
-                <Chip
-                  label={release.tag_name}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                />
-                {release.prerelease && (
-                  <Chip
-                    label={
-                      language === "fr" ? "Pré-version" : "Pre-release"
-                    }
-                    size="small"
-                    color="warning"
-                  />
-                )}
-              </div>
-              <Typography variant="body2" className={classes.releaseDate}>
-                {formatReleaseDate(release.published_at, language)}
+          <Paper key={release.id} className={classes.releasePaper}>
+            <div className={classes.releaseHeader}>
+              <Typography variant="h6">
+                {release.name || release.tag_name}
               </Typography>
-              <Link
-                href={release.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="body2"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  mb: 2,
-                }}
-              >
-                <I18n>
-                  <En>View on GitHub</En>
-                  <Fr>Voir sur GitHub</Fr>
-                </I18n>
-                <OpenInNew fontSize="inherit" />
-              </Link>
-              <Divider sx={{ my: 2 }} />
-              {release.body ? (
-                <div className={classes.markdownBody}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {release.body}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                <Typography color="textSecondary" variant="body2">
-                  <I18n>
-                    <En>No release notes provided.</En>
-                    <Fr>Aucune note de version fournie.</Fr>
-                  </I18n>
-                </Typography>
+              <Chip
+                label={release.tag_name}
+                size="small"
+                color="primary"
+                variant="outlined"
+              />
+              {release.prerelease && (
+                <Chip
+                  label={
+                    language === "fr" ? "Pré-version" : "Pre-release"
+                  }
+                  size="small"
+                  color="warning"
+                />
               )}
-            </Paper>
-          ))}
+            </div>
+            <Typography variant="body2" className={classes.releaseDate}>
+              {formatReleaseDate(release.published_at, language)}
+            </Typography>
+            <Link
+              href={release.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="body2"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                mb: 2,
+              }}
+            >
+              <I18n>
+                <En>View on GitHub</En>
+                <Fr>Voir sur GitHub</Fr>
+              </I18n>
+              <OpenInNew fontSize="inherit" />
+            </Link>
+            <Divider sx={{ my: 2 }} />
+            {release.body ? (
+              <div className={classes.markdownBody}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {release.body}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <Typography color="textSecondary" variant="body2">
+                <I18n>
+                  <En>No release notes provided.</En>
+                  <Fr>Aucune note de version fournie.</Fr>
+                </I18n>
+              </Typography>
+            )}
+          </Paper>
+        ))}
         {releases.length > 0 && (
           <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: "divider" }}>
             <Link
