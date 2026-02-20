@@ -23,12 +23,11 @@ import {
 import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { getDatabase, ref, child, onValue, update } from "firebase/database";
+import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
-import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -196,7 +195,8 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      await deleteAllDataciteCredentials(region);
+      const database = getDatabase(firebase);
+      await remove(ref(database, `admin/${region}/dataciteCredentials`));
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",

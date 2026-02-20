@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import FileSaver from "file-saver";
 
 import {
@@ -30,11 +30,9 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { I18n, En, Fr } from "../I18n";
 import LastEdited from "./LastEdited";
 import RecordStatusIcon from "./RecordStatusIcon";
-import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
 
 const MetadataRecordListItem = ({
@@ -64,7 +62,6 @@ const MetadataRecordListItem = ({
 }) => {
   const { language, region } = useParams();
   const showCatalogueURL = record.status === "published";
-  const { datacitePrefix } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState({ downloadXML: false });
   const catalogueURL = `${regions[region].catalogueURL[language]}dataset/ca-cioos_${record.identifier}`;
   const [downloadAnchorEl, setDownloadAnchorEl] = React.useState(null);
@@ -103,9 +100,8 @@ const MetadataRecordListItem = ({
       yaml: ".yaml",
       eml: "_eml.xml",
       json: ".json",
-      dataciteJson: "_dataCite.json",
-      datacite_json: "_dataCite-test.json",
-      datacite_xml: "_dataCite-test.xml",
+      datacite_json: "_dataCite.json",
+      datacite_xml: "_dataCite.xml",
     };
     const mimeTypes = {
       xml: "application/xml",
@@ -113,7 +109,6 @@ const MetadataRecordListItem = ({
       eml: "application/xml",
       erddap: "application/xml",
       json: "application/json",
-      dataciteJson: "application/json",
       datacite_json: "application/json",
       datacite_xml: "application/xml",
     };
@@ -127,9 +122,6 @@ const MetadataRecordListItem = ({
         blob = new Blob([emlStr], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else if (fileType === "json") {
         blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
-      } else if (fileType === "dataciteJson") {
-        const dc = recordToDataCite(record, language, region, datacitePrefix);
-        blob = new Blob([JSON.stringify(dc, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
       } else {
         const functions = getFunctions();
         const convertMetadata = httpsCallable(functions, 'convert_metadata');
@@ -426,29 +418,20 @@ const MetadataRecordListItem = ({
                 <MenuItem
                   key="datacite-json"
                   onClick={() => {
-                    handleDownloadRecord("dataciteJson");
+                    handleDownloadRecord("datacite_json");
                     handleDownloadClose();
                   }}
                 >
                   DATACITE JSON
                 </MenuItem>
                 <MenuItem
-                  key="datacite-json-test"
-                  onClick={() => {
-                    handleDownloadRecord("datacite_json");
-                    handleDownloadClose();
-                  }}
-                >
-                  (test) DATACITE JSON
-                </MenuItem>
-                <MenuItem
-                  key="datacite-xml-test"
+                  key="datacite-xml"
                   onClick={() => {
                     handleDownloadRecord("datacite_xml");
                     handleDownloadClose();
                   }}
                 >
-                  (test) DATACITE XML
+                  DATACITE XML
                 </MenuItem>
               </Menu>
             </span>
