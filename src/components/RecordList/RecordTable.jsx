@@ -221,7 +221,8 @@ const RecordTable = ({
               flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "6px",
+              padding: "6px 0",
+              gap: "8px",
               margin: "4px 0",
               border: "1px solid #e0e0e0",
               borderRadius: "14px",
@@ -239,9 +240,10 @@ const RecordTable = ({
           "& .MuiDataGrid-cell": {
             ...(isMobile && {
               border: "none",
-              minWidth: "auto",
+              minWidth: "auto !important",
+              maxWidth: "none !important",
+              width: "auto !important",
               flex: "0 1 auto",
-              maxWidth: "none",
               whiteSpace: "normal",
               overflow: "visible",
               display: "inline-flex",
