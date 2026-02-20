@@ -1,26 +1,56 @@
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Box, CircularProgress } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
-import { useRecordListContext } from "./context";
 import { useColumnVisibility } from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 
-const RecordTableView = ({ records }) => {
+const RecordTable = ({
+  records,
+  config,
+  loading,
+  onEditRecord,
+  onDeleteRecord,
+  onCloneRecord,
+  onSubmitRecord,
+  onTransferRecord,
+  onGithubPublishClick,
+  githubPublishEnabled,
+}) => {
+  const { language, region } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const {
-    config,
-    actionHandlers,
-    language,
-    region,
-    githubPublishEnabled,
-  } = useRecordListContext();
+  // Build action handlers object
+  const actionHandlers = useMemo(
+    () => ({
+      edit: onEditRecord,
+      delete: onDeleteRecord,
+      clone: onCloneRecord,
+      submit: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "submitted"),
+      publish: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "published"),
+      unpublish: (recordID, userID) =>
+        onSubmitRecord?.(recordID, userID, "submitted"),
+      unsubmit: (recordID, userID) => onSubmitRecord?.(recordID, userID, ""),
+      transfer: onTransferRecord,
+      githubPublish: onGithubPublishClick,
+    }),
+    [
+      onEditRecord,
+      onDeleteRecord,
+      onCloneRecord,
+      onSubmitRecord,
+      onTransferRecord,
+      onGithubPublishClick,
+    ],
+  );
 
   const {
     columnVisibilityModel,
@@ -62,7 +92,6 @@ const RecordTableView = ({ records }) => {
       );
     } catch { /* ignore storage errors */ }
   }, [filterModel, sortModel, tableFilterKey]);
-
 
   // Create column definitions for current language
   const columnDefs = useMemo(
@@ -141,7 +170,6 @@ const RecordTableView = ({ records }) => {
     [records, language],
   );
 
-
   // Handle row click to navigate to record
   const handleRowClick = useCallback(
     (params, event) => {
@@ -160,6 +188,14 @@ const RecordTableView = ({ records }) => {
     },
     [navigate, language, region],
   );
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <div style={{
@@ -189,7 +225,6 @@ const RecordTableView = ({ records }) => {
               border: "1px solid #e0e0e0",
               borderRadius: "14px",
               backgroundColor: "#fafafa",
-              // boxSizing: "border-box",
             }),
           },
           "& .MuiDataGrid-row:hover": {
@@ -203,7 +238,6 @@ const RecordTableView = ({ records }) => {
           "& .MuiDataGrid-cell": {
             ...(isMobile && {
               border: "none",
-              // padding: "4px",
               minWidth: "auto",
               flex: "0 1 auto",
               maxWidth: "none",
@@ -217,13 +251,11 @@ const RecordTableView = ({ records }) => {
             ...(isMobile && {
               flexBasis: "100%",
               fontSize: "1rem",
-              // marginBottom: "8px",
             }),
           },
           "& .MuiDataGrid-cell[data-field='author']": {
             ...(isMobile && {
               flexBasis: "100%",
-              // marginBottom: "8px",
             }),
           },
           "& .MuiDataGrid-virtualScroller": {
@@ -296,4 +328,4 @@ const RecordTableView = ({ records }) => {
   );
 };
 
-export default RecordTableView;
+export default RecordTable;
