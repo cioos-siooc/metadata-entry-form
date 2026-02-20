@@ -24,7 +24,7 @@ const RecordTable = ({
   const { language, region } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Build action handlers object
   const actionHandlers = useMemo(
@@ -110,11 +110,13 @@ const RecordTable = ({
         const col = columnDefs[colName];
         if (!col) return null;
 
-        // On mobile, adjust column sizing to prevent overflow
+        // On mobile, use minimal widths since layout is CSS flex-wrap cards
         if (isMobile) {
+          const w = col.field === "title" ? 100 : 60;
           return {
             ...col,
-            minWidth: col.field === "title" ? 100 : 60,
+            width: w,
+            minWidth: w,
             maxWidth: col.field === "title" ? 200 : 120,
             flex: 0,
           };
@@ -201,7 +203,6 @@ const RecordTable = ({
     <div style={{
       width: "100%",
       minWidth: 0,
-      overflow: "hidden",
       boxSizing: "border-box",
     }}>
       <DataGrid
@@ -258,12 +259,12 @@ const RecordTable = ({
               flexBasis: "100%",
             }),
           },
-          "& .MuiDataGrid-virtualScroller": {
-            overflowX: "hidden !important",
-          },
           "& .MuiDataGrid-main": {
-            overflowX: "hidden !important",
             minWidth: 0,
+            ...(isMobile && {
+              margin: "0 auto",
+              maxWidth: 600,
+            }),
           },
         }}
         rows={rows}
