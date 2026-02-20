@@ -179,7 +179,37 @@ const WhatsNewDialog = ({ open, onClose }) => {
             <Divider sx={{ my: 2 }} />
             {release.body ? (
               <div className={classes.markdownBody}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  allowedElements={[
+                    "p",
+                    "br",
+                    "strong",
+                    "em",
+                    "ul",
+                    "ol",
+                    "li",
+                    "a",
+                    "img",
+                    "code",
+                    "pre",
+                    "blockquote",
+                    "h1",
+                    "h2",
+                    "h3",
+                    "h4",
+                    "h5",
+                    "h6",
+                    "hr",
+                    "table",
+                    "thead",
+                    "tbody",
+                    "tr",
+                    "th",
+                    "td",
+                    "del",
+                  ]}
+                >
                   {release.body}
                 </ReactMarkdown>
               </div>
