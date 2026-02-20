@@ -222,7 +222,7 @@ export default function MiniDrawer({ children }) {
   const baseURL = `/${language}/${region}`;
 
   // if region not set, keep drawer closed; default to open on wide screens
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(!isMobile);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -298,6 +298,11 @@ export default function MiniDrawer({ children }) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const navigateAndClose = (path) => {
+    navigate(path);
+    if (isMobile) setOpen(false);
   };
 
   const handleMenuOpen = (event) => {
@@ -409,7 +414,7 @@ export default function MiniDrawer({ children }) {
             paddingBottom: 0,
           }}
         >
-          {region && (
+          {region && isMobile && (
             <IconButton
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
@@ -459,16 +464,18 @@ export default function MiniDrawer({ children }) {
       </AppBar>
       {region && (
         <Drawer
-          variant="temporary"
+          variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
           className={classes.drawer}
           classes={{
             paper: clsx(classes.drawerPaper, classes.drawerOpen),
           }}
-          PaperProps={{
-            sx: isMobile ? { width: "100%" } : { width: drawerWidth },
-          }}
+          {...(isMobile && {
+            PaperProps: {
+              sx: { width: "100%" },
+            },
+          })}
         >
           <div className={classes.toolbar}>
             <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
@@ -490,7 +497,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="My Records"
-                    onClick={() => navigate(`${baseURL}/submissions`)}
+                    onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
                       <ListAlt />
@@ -504,7 +511,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Region's Published Records"
-                    onClick={() => navigate(`${baseURL}/published`)}
+                    onClick={() => navigateAndClose(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
                       <AssignmentTurnedIn />
@@ -519,7 +526,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Contacts"
-                    onClick={() => navigate(`${baseURL}/contacts`)}
+                    onClick={() => navigateAndClose(`${baseURL}/contacts`)}
                   >
                     <ListItemIcon disabled>
                       <Contacts />
@@ -534,7 +541,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="instruments"
-                    onClick={() => navigate(`${baseURL}/instruments`)}
+                    onClick={() => navigateAndClose(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
                       <StraightenSharp />
@@ -549,7 +556,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Platforms"
-                    onClick={() => navigate(`${baseURL}/platforms`)}
+                    onClick={() => navigateAndClose(`${baseURL}/platforms`)}
                   >
                     <ListItemIcon disabled>
                       <DirectionsBoatSharp />
@@ -565,7 +572,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="SharedWithMe"
-                      onClick={() => navigate(`${baseURL}/shared`)}
+                      onClick={() => navigateAndClose(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
@@ -582,7 +589,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="Review"
-                      onClick={() => navigate(`${baseURL}/reviewer`)}
+                      onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
                         <RateReview />
@@ -701,7 +708,7 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Admin"
-                        onClick={() => navigate(`${baseURL}/admin`)}
+                        onClick={() => navigateAndClose(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
                           <Settings />
