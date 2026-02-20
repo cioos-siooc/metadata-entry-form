@@ -201,7 +201,7 @@ const RecordTable = ({
 
   return (
     <div style={{
-      width: "100%",
+      width: "calc(100% - 12px)",
       minWidth: 0,
       boxSizing: "border-box",
     }}>
