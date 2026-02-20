@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, Button } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
@@ -34,14 +34,51 @@ const RecordTableView = ({ records }) => {
     resetColumnVisibility,
   } = useColumnVisibility(
     config.table?.columnVisibilityStorageKey ||
-      `${config.pageId}-column-visibility`,
+    `${config.pageId}-column-visibility`,
     config.defaultColumnVisibility || {},
   );
 
-  // Reset handler for columns only (DataGrid manages its own filter/sort)
+  // Table-specific filter and sort state (independent from card view)
+  const tableFilterKey = `record-table-filters-${config.pageId}`;
+  const [filterModel, setFilterModel] = useState(() => {
+    try {
+      const saved = localStorage.getItem(tableFilterKey);
+      if (saved) {
+        return JSON.parse(saved).filterModel || { items: [] };
+      }
+    } catch { /* ignore storage errors */ }
+    return { items: [] };
+  });
+
+  const [sortModel, setSortModel] = useState(() => {
+    try {
+      const saved = localStorage.getItem(tableFilterKey);
+      if (saved) {
+        return JSON.parse(saved).sortModel || [];
+      }
+    } catch { /* ignore storage errors */ }
+    return [];
+  });
+
+  // Persist table filters to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        tableFilterKey,
+        JSON.stringify({ filterModel, sortModel })
+      );
+    } catch { /* ignore storage errors */ }
+  }, [filterModel, sortModel, tableFilterKey]);
+
+  // Reset handler for columns and filters
   const handleReset = useCallback(() => {
     resetColumnVisibility();
-  }, [resetColumnVisibility]);
+    setFilterModel({ items: [] });
+    setSortModel([]);
+    try {
+      localStorage.removeItem(tableFilterKey);
+    } catch { /* ignore storage errors */ }
+  }, [resetColumnVisibility, tableFilterKey]);
 
   // Create column definitions for current language
   const columnDefs = useMemo(
@@ -175,6 +212,11 @@ const RecordTableView = ({ records }) => {
         pageSizeOptions={
           config.table?.rowsPerPageOptions || [10, 20, 50, 100]
         }
+        showToolbar={true}
+        filterModel={filterModel}
+        onFilterModelChange={setFilterModel}
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
         slots={{
           toolbar: CustomToolbar,
           noRowsOverlay: () => (
