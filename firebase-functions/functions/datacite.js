@@ -188,14 +188,14 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
   try {
     prefix = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("prefix").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Prefix for region ${data.region}:`, error);
+      functions.logger.error(`Error fetching Datacite Prefix for region ${data.region}:`, error);
       return null;
   }
 
   try {
     authHash = (await admin.database().ref('admin').child(data.region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Auth Hash for region ${data.region}:`, error);
+      functions.logger.error(`Error fetching Datacite Auth Hash for region ${data.region}:`, error);
       return null;
   } 
 
@@ -254,7 +254,7 @@ exports.getCredentialsStored = functions.https.onCall(async (data) => {
     // Check for non-null and non-empty
     return authHash && authHash !== "" && prefix && prefix !== "";
   } catch (error) {
-    console.error("Error checking Datacite credentials:", error);
+    functions.logger.error("Error checking Datacite credentials:", error);
     return false;
   }
 });
