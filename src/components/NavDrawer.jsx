@@ -60,7 +60,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("md")]: {
       zIndex: theme.zIndex.appBar,
     },
     transition: theme.transitions.create(["width", "margin"], {
@@ -129,6 +129,9 @@ const useStyles = makeStyles()((theme) => ({
     display: "block",
     height: "auto",
     marginBottom: 0,
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
   hide: {
     display: "none",
@@ -232,7 +235,7 @@ export default function MiniDrawer({ children }) {
 
   const { classes } = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isWideScreen = useMediaQuery(theme.breakpoints.up('md'));
 
   const {
