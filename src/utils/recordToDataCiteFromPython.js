@@ -103,7 +103,6 @@ export async function recordToDataCiteFromPython(
       apiObject.data.attributes.prefix = datacitePrefix;
     }
 
-    console.log("[recordToDataCite] Final DataCite API object:", JSON.stringify(apiObject, null, 2));
     return apiObject;
   } catch (error) {
     console.error("[recordToDataCite] Error:", error);
