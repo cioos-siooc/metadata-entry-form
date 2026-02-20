@@ -2,7 +2,6 @@ import React, { useContext, useRef, useEffect } from "react";
 
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
-import clsx from "clsx";
 import { makeStyles } from "../tss-cache";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -22,6 +21,7 @@ import {
   Help,
   Warning,
   Settings,
+  Language,
 } from "@mui/icons-material";
 
 import {
@@ -37,9 +37,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Select,
   Tooltip,
-  MenuItem,
   Menu,
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
@@ -71,33 +69,6 @@ const useStyles = makeStyles()((theme) => ({
   menuButton: {
     marginRight: 36,
   },
-  languageSelector: {
-    color: "white",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    width: 70,
-    "&:before": {
-      display: "none",
-    },
-    "&:after": {
-      display: "none",
-    },
-    "&:hover:not(.Mui-disabled)": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-      textAlign: "center",
-      "&:focus": {
-        backgroundColor: "transparent",
-      },
-    },
-    "& .MuiSelect-icon": {
-      color: "white",
-    },
-  },
   feedbackButton: {
     padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
     background: "none",
@@ -119,16 +90,13 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   },
-  headerControls: {
-    display: "flex",
-    alignItems: "flex-end",
-    gap: theme.spacing(1),
-    marginLeft: "auto",
-  },
   logoImage: {
     display: "block",
     height: "auto",
     marginBottom: 0,
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
   hide: {
     display: "none",
@@ -145,36 +113,6 @@ const useStyles = makeStyles()((theme) => ({
     "& .MuiListItemIcon-root": {
       display: "flex",
       alignItems: "center",
-    },
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: theme.spacing(7),
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9),
-    },
-    "& .MuiListItemButton-root": {
-      justifyContent: "center",
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    "& .MuiListItemIcon-root": {
-      minWidth: 0,
-      justifyContent: "center",
-    },
-    "& .MuiListItemText-root": {
-      display: "none",
     },
   },
   toolbar: {
@@ -194,23 +132,6 @@ const useStyles = makeStyles()((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  contentWithDrawer: {
-    marginLeft: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(9),
-    },
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: drawerWidth,
   },
   drawerPaper: {
     display: "flex",
@@ -232,8 +153,7 @@ export default function MiniDrawer({ children }) {
 
   const { classes } = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
-  const isWideScreen = useMediaQuery(theme.breakpoints.up('md'));
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
 
   const {
     user,
@@ -259,8 +179,8 @@ export default function MiniDrawer({ children }) {
 
   const baseURL = `/${language}/${region}`;
 
-  // if region not set, keep drawer closed; default to open on wide screens
-  const [open, setOpen] = React.useState(isWideScreen);
+  // Drawer starts closed on small screens, always open on large screens
+  const [open, setOpen] = React.useState(false);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -447,7 +367,7 @@ export default function MiniDrawer({ children }) {
             paddingBottom: 0,
           }}
         >
-          {region && (
+          {region && isSmall && (
             <IconButton
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
@@ -473,56 +393,38 @@ export default function MiniDrawer({ children }) {
               <Fr>Outil de saisie de métadonnées</Fr>
             </I18n>
           </Typography>
-          <div className={classes.headerControls}>
-            <img
-              src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
-              alt="CIOOS/SIOOC"
-              width={350}
-              className={classes.logoImage}
-            />
-            <Select
-              className={classes.languageSelector}
-              value={language}
-              onChange={(e) =>
-                navigate(`/${e.target.value}/${pathWithoutLang}`)
-              }
-              variant="standard"
-              disableUnderline
-            >
-              <MenuItem value="en">EN</MenuItem>
-              <MenuItem value="fr">FR</MenuItem>
-            </Select>
-          </div>
+          <img
+            src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
+            alt="CIOOS/SIOOC"
+            width={350}
+            className={classes.logoImage}
+          />
         </Toolbar>
       </AppBar>
       {region && (
         <Drawer
-          variant={isMobile ? "temporary" : "permanent"}
-          open={open}
+          variant={isSmall ? "temporary" : "permanent"}
+          open={isSmall ? open : true}
           onClose={handleDrawerClose}
-          className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open && !isMobile,
-            [classes.drawerClose]: !open && !isMobile,
-          })}
+          className={classes.drawer}
           classes={{
-            paper: clsx(classes.drawerPaper, {
-              [classes.drawerOpen]: open && !isMobile,
-              [classes.drawerClose]: !open && !isMobile,
-            }),
+            paper: classes.drawerPaper,
           }}
         >
           <div className={classes.toolbar}>
-            {isMobile && (
-              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
-                <I18n>
-                  <En>Metadata Entry Tool</En>
-                  <Fr>Outil de saisie de métadonnées</Fr>
-                </I18n>
-              </Typography>
+            {isSmall && (
+              <>
+                <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+                  <I18n>
+                    <En>Metadata Entry Tool</En>
+                    <Fr>Outil de saisie de métadonnées</Fr>
+                  </I18n>
+                </Typography>
+                <IconButton onClick={() => handleDrawerClose()}>
+                  {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
+                </IconButton>
+              </>
             )}
-            <IconButton onClick={() => handleDrawerClose()}>
-              {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
-            </IconButton>
           </div>
           <List>
             {user && region && (
@@ -645,6 +547,20 @@ export default function MiniDrawer({ children }) {
 
           <div className={classes.bottomList}>
             <List>
+              <ListItemButton onClick={() => navigate(`/${language === 'en' ? 'fr' : 'en'}/${pathWithoutLang}`)}>
+                <ListItemIcon>
+                  <Language />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <span>
+                      <span style={{ fontWeight: language === 'en' ? 'bold' : 'normal' }}>EN</span>
+                      {' | '}
+                      <span style={{ fontWeight: language === 'fr' ? 'bold' : 'normal' }}>FR</span>
+                    </span>
+                  }
+                />
+              </ListItemButton>
               {usingDevDatabase && (
                 <Tooltip placement="right-start" title={databaseUrl}>
                   <ListItemButton
