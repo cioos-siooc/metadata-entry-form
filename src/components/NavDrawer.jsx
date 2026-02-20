@@ -69,54 +69,12 @@ const useStyles = makeStyles()((theme) => ({
     }),
   },
   menuButton: {
-    marginRight: 36,
+    // padding: 5,
   },
   languageSelector: {
     color: "white",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    width: 70,
-    "&:before": {
-      display: "none",
-    },
-    "&:after": {
-      display: "none",
-    },
-    "&:hover:not(.Mui-disabled)": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-      textAlign: "center",
-      "&:focus": {
-        backgroundColor: "transparent",
-      },
-    },
     "& .MuiSelect-icon": {
       color: "white",
-    },
-  },
-  feedbackButton: {
-    padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-    background: "none",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "white",
-    fontSize: "14px",
-    fontWeight: 500,
-    fontFamily: theme.typography.fontFamily,
-    lineHeight: 1.5,
-    marginBottom: theme.spacing(1),
-    height: "auto",
-    transition: "background-color 0.2s ease",
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   },
   headerControls: {
@@ -446,7 +404,7 @@ export default function MiniDrawer({ children }) {
           className={classes.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: "flex-end",
+            alignItems: "center",
             paddingBottom: 0,
           }}
         >
@@ -456,18 +414,18 @@ export default function MiniDrawer({ children }) {
               onClick={() => setOpen(!open)}
               edge="start"
               className={classes.menuButton}
-              style={{ marginBottom: theme.spacing(1) }}
             >
               <MenuIcon />
             </IconButton>
           )}
           <Typography
             variant="h5"
-            noWrap
             style={{
               marginLeft: theme.spacing(1.25),
-              marginBottom: theme.spacing(1),
-              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
               color: "white",
             }}
           >
