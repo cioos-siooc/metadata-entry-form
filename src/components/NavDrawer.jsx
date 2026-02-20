@@ -689,7 +689,7 @@ export default function MiniDrawer({ children }) {
                     <HelpOutline />
                   </ListItemIcon>
                   <ListItemText primary={translations.helpSupport} />
-                  {helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />}
+                  {open && (helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </Tooltip>
               <Collapse in={helpSubmenuOpen} timeout="auto">
