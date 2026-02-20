@@ -139,8 +139,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         const database = getDatabase(firebase);
 
         try {
-            // Extract DOI from the full URL
-            const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+            // Extract DOI from the full URL (supports http/https and dx.doi.org)
+            const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, '');
 
             deleteDraftDoi({ doi, region })
                 .then((response) => response.data)
