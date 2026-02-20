@@ -94,9 +94,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             
         } catch (err) {
             setDoiErrorFlag(true);
-            // Extract error message from Firebase function error
             const errorMessage = err.message || "Failed to generate DOI. Please try again.";
             setDoiErrorMessage(errorMessage);
+            setLoadingDoi(false);
             console.error("[DOIInput] handleGenerateDOI failed", { code: err.code, message: err.message, details: err.details });
         }
     }
@@ -174,9 +174,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             // eslint-disable-next-line no-console
             console.error("Error in handleDeleteDOI:", err);
             setDoiErrorFlag(true);
-            // Extract error message from Firebase function error
             const errorMessage = err.message || "Failed to delete DOI. Please try again.";
             setDoiErrorMessage(errorMessage);
+            setLoadingDoiDelete(false);
         }
     }
    
