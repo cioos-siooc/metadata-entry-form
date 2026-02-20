@@ -87,8 +87,10 @@
     "yaml": "2.8.2"
   },
   "scripts": {
+    "postinstall": "node scripts/ensure-data-file.mjs",
     "dev": "vite",
     "start": "vite",
+    "prebuild": "node scripts/fetch-github-releases.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "TZ=UTC vitest",

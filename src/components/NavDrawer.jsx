@@ -649,9 +649,9 @@ export default function MiniDrawer({ children }) {
             )}
 
             {/* Logout button removed as requested */}
-           
+
           </List>
-          
+
 
           <div className={classes.bottomList}>
             <List>
@@ -780,7 +780,7 @@ export default function MiniDrawer({ children }) {
                   <ListItemIcon>
                     <Avatar style={{ width: 30, height: 30 }} />
                   </ListItemIcon>
-                  <ListItemText/>
+                  <ListItemText />
                 </ListItem>
               )}
               {user && (

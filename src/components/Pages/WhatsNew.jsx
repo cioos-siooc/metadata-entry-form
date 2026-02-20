@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import {
   Typography,
   Paper,
   Chip,
-  CircularProgress,
-  Alert,
-  Box,
   Divider,
   Link,
   Dialog,
   DialogTitle,
   DialogContent,
   IconButton,
+  Box,
 } from "@mui/material";
 import { OpenInNew, Close } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { En, Fr, I18n } from "../I18n";
 import { makeStyles } from "../../tss-cache";
-
-const GITHUB_RELEASES_URL =
-  "https://api.github.com/repos/cioos-siooc/metadata-entry-form/releases";
-const CACHE_KEY = "github-releases-cache";
-const CACHE_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
+import releasesData from "../../data/githubReleases.json";
 
 const useStyles = makeStyles()((theme) => ({
   releasePaper: {
@@ -78,26 +72,6 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-async function fetchReleases() {
-  const cached = sessionStorage.getItem(CACHE_KEY);
-  if (cached) {
-    const { data, timestamp } = JSON.parse(cached);
-    if (Date.now() - timestamp < CACHE_EXPIRY_MS) {
-      return data;
-    }
-  }
-  const response = await fetch(`${GITHUB_RELEASES_URL}?per_page=20`);
-  if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
-  }
-  const data = await response.json();
-  sessionStorage.setItem(
-    CACHE_KEY,
-    JSON.stringify({ data, timestamp: Date.now() })
-  );
-  return data;
-}
-
 function formatReleaseDate(dateString, language) {
   const date = new Date(dateString);
   return date.toLocaleDateString(language === "fr" ? "fr-CA" : "en-CA", {
@@ -110,32 +84,7 @@ function formatReleaseDate(dateString, language) {
 const WhatsNewDialog = ({ open, onClose }) => {
   const { language } = useParams();
   const { classes } = useStyles();
-  const [releases, setReleases] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    fetchReleases()
-      .then((data) => {
-        if (!cancelled) {
-          setReleases(data.filter((r) => !r.draft));
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err.message);
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+  const releases = releasesData.releases;
 
   return (
     <Dialog
@@ -173,22 +122,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        {loading && (
-          <Box display="flex" justifyContent="center" py={4}>
-            <CircularProgress />
-          </Box>
-        )}
-
-        {error && (
-          <Alert severity="error">
-            <I18n>
-              <En>Failed to load releases: {error}</En>
-              <Fr>Impossible de charger les versions : {error}</Fr>
-            </I18n>
-          </Alert>
-        )}
-
-        {!loading && !error && releases.length === 0 && (
+        {releases.length === 0 && (
           <Typography color="textSecondary">
             <I18n>
               <En>No releases available yet.</En>
@@ -197,9 +131,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
           </Typography>
         )}
 
-        {!loading &&
-          !error &&
-          releases.map((release) => (
+        {releases.map((release) => (
             <Paper key={release.id} className={classes.releasePaper}>
               <div className={classes.releaseHeader}>
                 <Typography variant="h6">
@@ -259,6 +191,27 @@ const WhatsNewDialog = ({ open, onClose }) => {
               )}
             </Paper>
           ))}
+        {releases.length > 0 && (
+          <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: "divider" }}>
+            <Link
+              href="https://github.com/cioos-siooc/metadata-entry-form/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                fontSize: "0.875rem",
+              }}
+            >
+              <I18n>
+                <En>View all releases on GitHub</En>
+                <Fr>Voir toutes les versions sur GitHub</Fr>
+              </I18n>
+              <OpenInNew fontSize="inherit" />
+            </Link>
+          </Box>
+        )}
       </DialogContent>
     </Dialog>
   );
