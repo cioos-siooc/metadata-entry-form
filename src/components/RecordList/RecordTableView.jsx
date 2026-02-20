@@ -38,20 +38,10 @@ const RecordTableView = ({ records }) => {
     config.defaultColumnVisibility || {},
   );
 
-  // Shared filter/sort state across table and cards (from context)
-  const {
-    filterModel,
-    setFilterModel,
-    sortModel,
-    setSortModel,
-    resetListState,
-  } = listState;
-
-  // Reset handler for columns and filters
+  // Reset handler for columns only (DataGrid manages its own filter/sort)
   const handleReset = useCallback(() => {
     resetColumnVisibility();
-    resetListState();
-  }, [resetColumnVisibility, resetListState]);
+  }, [resetColumnVisibility]);
 
   // Create column definitions for current language
   const columnDefs = useMemo(
@@ -185,10 +175,6 @@ const RecordTableView = ({ records }) => {
         pageSizeOptions={
           config.table?.rowsPerPageOptions || [10, 20, 50, 100]
         }
-        filterModel={filterModel}
-        onFilterModelChange={setFilterModel}
-        sortModel={sortModel}
-        onSortModelChange={setSortModel}
         slots={{
           toolbar: CustomToolbar,
           noRowsOverlay: () => (

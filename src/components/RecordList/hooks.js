@@ -160,83 +160,120 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
 }
 
 // ============================================================================
-// useListState - Shared filter/sort state with persistence
+// useCardFilters - Simple card view filter state with persistence
 // ============================================================================
-const LIST_STATE_PREFIX = 'record-list-state-';
+const CARD_FILTERS_PREFIX = 'record-card-filters-';
 
-export function useListState(pageId) {
-  const storageKey = `${LIST_STATE_PREFIX}${pageId}`;
+export function useCardFilters(pageId) {
+  const storageKey = `${CARD_FILTERS_PREFIX}${pageId}`;
 
-  const [filterModel, setFilterModel] = useState(() => {
+  const [search, setSearch] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.filterModel || { items: [] };
+        return parsed.search || '';
       }
     } catch { /* ignore storage errors */ }
-    return { items: [] };
+    return '';
   });
 
-  const [sortModel, setSortModel] = useState(() => {
+  const [author, setAuthor] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.sortModel || [];
+        return parsed.author || '';
+      }
+    } catch { /* ignore storage errors */ }
+    return '';
+  });
+
+  const [statuses, setStatuses] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed.statuses) ? parsed.statuses : [];
       }
     } catch { /* ignore storage errors */ }
     return [];
   });
 
-  const persist = useCallback((next) => {
+  const [sortField, setSortField] = useState(() => {
     try {
-      const current = localStorage.getItem(storageKey);
-      const base = current ? JSON.parse(current) : {};
-      localStorage.setItem(storageKey, JSON.stringify({ ...base, ...next }));
-    } catch (e) { /* ignore storage errors */ JSON.stringify(e); }
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.sortField || 'created';
+      }
+    } catch { /* ignore storage errors */ }
+    return 'created';
+  });
+
+  const [sortDir, setSortDir] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.sortDir || 'desc';
+      }
+    } catch { /* ignore storage errors */ }
+    return 'desc';
+  });
+
+  const persist = useCallback((state) => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch { /* ignore storage errors */ }
   }, [storageKey]);
 
-  const handleFilterModelChange = useCallback((model) => {
-    setFilterModel((prev) => {
-      const hasNewItems = Array.isArray(model?.items) && model.items.length > 0;
-      const nextItems = hasNewItems ? model.items : (prev?.items || []);
-      const nextQuick = (model && Object.prototype.hasOwnProperty.call(model, 'quickFilterValues'))
-        ? (model.quickFilterValues || [])
-        : (prev?.quickFilterValues || []);
-      const nextLogic = (model && Object.prototype.hasOwnProperty.call(model, 'logicOperator'))
-        ? model.logicOperator
-        : prev?.logicOperator;
+  const handleSetSearch = useCallback((value) => {
+    setSearch(value);
+    persist({ search: value, author, statuses, sortField, sortDir });
+  }, [persist, author, statuses, sortField, sortDir]);
 
-      const next = {
-        items: nextItems,
-        quickFilterValues: nextQuick,
-        ...(nextLogic ? { logicOperator: nextLogic } : {}),
-      };
+  const handleSetAuthor = useCallback((value) => {
+    setAuthor(value);
+    persist({ search, author: value, statuses, sortField, sortDir });
+  }, [persist, search, statuses, sortField, sortDir]);
 
-      // Persist the merged model
-      persist({ filterModel: next });
-      return next;
-    });
-  }, [persist]);
+  const handleSetStatuses = useCallback((value) => {
+    setStatuses(value);
+    persist({ search, author, statuses: value, sortField, sortDir });
+  }, [persist, search, author, sortField, sortDir]);
 
-  const handleSortModelChange = useCallback((model) => {
-    setSortModel(model);
-    persist({ sortModel: model });
-  }, [persist]);
+  const handleSetSortField = useCallback((value) => {
+    setSortField(value);
+    persist({ search, author, statuses, sortField: value, sortDir });
+  }, [persist, search, author, statuses, sortDir]);
+
+  const handleSetSortDir = useCallback((value) => {
+    setSortDir(value);
+    persist({ search, author, statuses, sortField, sortDir: value });
+  }, [persist, search, author, statuses, sortField]);
 
   const reset = useCallback(() => {
-    setFilterModel({ items: [] });
-    setSortModel([]);
+    setSearch('');
+    setAuthor('');
+    setStatuses([]);
+    setSortField('created');
+    setSortDir('desc');
     try { localStorage.removeItem(storageKey); } catch { /* ignore storage errors */ }
   }, [storageKey]);
 
   return {
-    filterModel,
-    setFilterModel: handleFilterModelChange,
-    sortModel,
-    setSortModel: handleSortModelChange,
-    resetListState: reset,
+    search,
+    setSearch: handleSetSearch,
+    author,
+    setAuthor: handleSetAuthor,
+    statuses,
+    setStatuses: handleSetStatuses,
+    sortField,
+    setSortField: handleSetSortField,
+    sortDir,
+    setSortDir: handleSetSortDir,
+    reset,
   };
 }
 

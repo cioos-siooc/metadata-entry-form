@@ -4,7 +4,7 @@ import { ViewModule, TableChart } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { makeStyles } from "../../tss-cache";
 
-import { useViewPreference, useListState } from "./hooks";
+import { useViewPreference } from "./hooks";
 import { RecordListProvider } from "./context";
 import RecordTableView from "./RecordTableView";
 import RecordCardView from "./RecordCardView";
@@ -114,9 +114,6 @@ const RecordList = ({
     ],
   );
 
-  // Shared list state (filters/sort) must be created via hook at top level
-  const listState = useListState(config.pageId);
-
   const contextValue = useMemo(
     () => ({
       config,
@@ -124,9 +121,8 @@ const RecordList = ({
       language,
       region,
       githubPublishEnabled,
-      listState,
     }),
-    [config, actionHandlers, language, region, githubPublishEnabled, listState],
+    [config, actionHandlers, language, region, githubPublishEnabled],
   );
 
   if (loading) {

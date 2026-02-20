@@ -1,26 +1,57 @@
-// Utilities to apply DataGrid-like filter and sort models to our rows
+// Utilities to apply filter and sort models to our rows
 
 // Returns a predicate for quick filter over selected string fields
-function makeQuickFilterPredicate(filterModel) {
-    const values = (filterModel && filterModel.quickFilterValues) || [];
-    if (!values.length) return () => true;
-    const needles = values.map((v) => String(v).toLowerCase());
+function makeQuickFilterPredicate(searchText) {
+    if (!searchText) return () => true;
+    const needle = String(searchText).toLowerCase();
     return (row) => {
         const haystack = [row.title, row.author, row.abstract]
             .filter(Boolean)
             .join(' \n ')
             .toLowerCase();
-        return needles.every((n) => haystack.includes(n));
+        return haystack.includes(needle);
     };
 }
 
-// Applies supported filter items from the filter model to rows
+// ============================================================================
+// applyCardFilters - Simple filter interface for card view
+// ============================================================================
+export function applyCardFilters(filters, rows) {
+    if (!filters || (!filters.search && !filters.author && (!filters.statuses || filters.statuses.length === 0))) {
+        return rows;
+    }
+
+    const { search = '', author = '', statuses = [] } = filters;
+    const quickFilterOk = makeQuickFilterPredicate(search);
+
+    return rows.filter((row) => {
+        if (!quickFilterOk(row)) return false;
+
+        // Filter by author if provided
+        if (author) {
+            const needle = String(author).toLowerCase();
+            const hay = String(row.author || '').toLowerCase();
+            if (!hay.includes(needle)) return false;
+        }
+
+        // Filter by status if provided
+        if (statuses.length > 0) {
+            if (!statuses.includes(row.status)) return false;
+        }
+
+        return true;
+    });
+}
+
+// ============================================================================
+// applyFilters - DataGrid filter model format (for table view)
+// ============================================================================
 export function applyFilters(filterModel, rows) {
     if (!filterModel || (!filterModel.items || filterModel.items.length === 0) && !filterModel.quickFilterValues?.length) {
         return rows;
     }
 
-    const quickFilterOk = makeQuickFilterPredicate(filterModel);
+    const quickFilterOk = makeQuickFilterPredicate(filterModel.quickFilterValues?.[0] || '');
 
     // Only implement operators we use: status isAnyOf
     const items = (filterModel.items || []).filter(Boolean);
@@ -78,6 +109,11 @@ export function applySort(sortModel, rows) {
     const arr = [...rows];
     arr.sort((a, b) => factor * cmp(a, b));
     return arr;
+}
+
+export function applyCardFiltersAndSort(filters, sortModel, rows) {
+    const filtered = applyCardFilters(filters, rows);
+    return applySort(sortModel, filtered);
 }
 
 export function applyFiltersAndSort({ filterModel, sortModel }, rows) {

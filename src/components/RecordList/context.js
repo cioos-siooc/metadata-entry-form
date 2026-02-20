@@ -6,13 +6,6 @@ export const RecordListContext = createContext({
   language: 'en',
   region: '',
   githubPublishEnabled: false,
-  listState: {
-    filterModel: { items: [] },
-    setFilterModel: () => { },
-    sortModel: [],
-    setSortModel: () => { },
-    resetListState: () => { },
-  },
 });
 
 export const RecordListProvider = RecordListContext.Provider;

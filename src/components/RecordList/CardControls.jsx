@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import {
   Box,
@@ -18,102 +18,65 @@ import { I18n } from "../I18n";
 
 const STATUS_OPTIONS = ["", "submitted", "published"];
 
-const CardControls = () => {
-  const { language, listState } = useRecordListContext();
-  const {
-    filterModel,
-    setFilterModel,
-    sortModel,
-    setSortModel,
-    resetListState,
-  } = listState;
+const CardControls = ({
+  filters,
+  onSearchChange,
+  onAuthorChange,
+  onStatusesChange,
+  onSortFieldChange,
+  onSortDirChange,
+  onReset,
+}) => {
+  const { language } = useRecordListContext();
 
-  // Local inputs synced with model
-  const [quick, setQuick] = useState(
-    () => filterModel.quickFilterValues?.[0] || "",
-  );
-  const [debouncedQuick] = useDebounce(quick, 300);
-  const [author, setAuthor] = useState(() => {
-    const item = (filterModel.items || []).find(
-      (i) => i.columnField === "author",
-    );
-    return item?.value || "";
-  });
-  const [debouncedAuthor] = useDebounce(author, 300);
-  const statusValues = useMemo(() => {
-    const item = (filterModel.items || []).find(
-      (i) => i.columnField === "status",
-    );
-    return Array.isArray(item?.value) ? item.value : [];
-  }, [filterModel]);
+  // Local state for debouncing text inputs
+  const [searchInput, setSearchInput] = useState(filters.search);
+  const [debouncedSearch] = useDebounce(searchInput, 300);
 
-  const sortField = sortModel?.[0]?.field || "created";
-  const sortDir = sortModel?.[0]?.sort || "desc";
+  const [authorInput, setAuthorInput] = useState(filters.author);
+  const [debouncedAuthor] = useDebounce(authorInput, 300);
 
-  // Sync quick input to model (debounced)
+  // Sync debounced values to parent
   useEffect(() => {
-    const next = debouncedQuick.trim();
-    const values = next ? [next] : [];
-    setFilterModel((prev) => ({
-      ...prev,
-      quickFilterValues: values,
-    }));
-  }, [debouncedQuick]);
+    if (debouncedSearch !== filters.search) {
+      onSearchChange(debouncedSearch);
+    }
+  }, [debouncedSearch, filters.search, onSearchChange]);
 
-  // Sync author input to model (debounced)
   useEffect(() => {
-    const next = debouncedAuthor.trim();
-    setFilterModel((prev) => {
-      const otherItems = (prev.items || []).filter(
-        (i) => i.columnField !== "author",
-      );
-      const newItems = next
-        ? otherItems.concat([
-          { columnField: "author", operatorValue: "contains", value: next },
-        ])
-        : otherItems;
-      return { ...prev, items: newItems };
-    });
-  }, [debouncedAuthor]);
+    if (debouncedAuthor !== filters.author) {
+      onAuthorChange(debouncedAuthor);
+    }
+  }, [debouncedAuthor, filters.author, onAuthorChange]);
 
   const handleStatusChange = useCallback(
     (event) => {
-      const values = event.target.value;
-      const otherItems = (filterModel.items || []).filter(
-        (i) => i.columnField !== "status",
-      );
-      const newItems = values.length
-        ? otherItems.concat([
-          { columnField: "status", operatorValue: "isAnyOf", value: values },
-        ])
-        : otherItems;
-      setFilterModel({ ...filterModel, items: newItems });
+      onStatusesChange(event.target.value);
     },
-    [filterModel, setFilterModel],
+    [onStatusesChange],
   );
 
   const handleSortField = useCallback(
     (event) => {
-      const field = event.target.value;
-      setSortModel([{ field, sort: sortDir }]);
+      onSortFieldChange(event.target.value);
     },
-    [setSortModel, sortDir],
+    [onSortFieldChange],
   );
 
   const handleSortDir = useCallback(
     (event) => {
-      const dir = event.target.value;
-      setSortModel([{ field: sortField, sort: dir }]);
+      onSortDirChange(event.target.value);
     },
-    [setSortModel, sortField],
+    [onSortDirChange],
   );
 
   const handleReset = useCallback(() => {
-    setQuick("");
-    setAuthor("");
-    resetListState();
-  }, [resetListState]);
+    setSearchInput("");
+    setAuthorInput("");
+    onReset();
+  }, [onReset]);
 
+  // Labels
   const statusLabel = language === "en" ? "Status" : "Statut";
   const draftLabel = language === "en" ? "Draft" : "Brouillon";
   const submittedLabel = language === "en" ? "Submitted" : "Soumis";
@@ -132,79 +95,90 @@ const CardControls = () => {
   const authorLabel = language === "en" ? "Author" : "Auteur";
 
   return (
-    <Box display="flex" gap={2} flexWrap="wrap" alignItems="center" mb={2}>
-      <TextField
-        variant="outlined"
-        size="small"
-        label={searchLabel}
-        value={quick}
-        onChange={(e) => setQuick(e.target.value)}
-        style={{ minWidth: 200 }}
-      />
+    <Box display="flex" gap={3} flexWrap="wrap" alignItems="flex-end" mb={2}>
+      {/* Filters Group */}
+      <Box display="flex" gap={2} flexWrap="wrap" alignItems="flex-end">
+        <TextField
+          variant="outlined"
+          size="small"
+          label={searchLabel}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          style={{ minWidth: 200 }}
+        />
 
-      <FormControl variant="outlined" size="small" style={{ minWidth: 200 }}>
-        <InputLabel>{statusLabel}</InputLabel>
-        <Select
-          multiple
-          value={statusValues}
-          onChange={handleStatusChange}
-          input={<OutlinedInput label={statusLabel} />}
-          renderValue={(selected) =>
-            (selected || []).map((s) => statusToText(s)).join(", ")
-          }
-        >
-          {STATUS_OPTIONS.map((s) => (
-            <MenuItem key={s || "draft"} value={s}>
-              <Checkbox checked={statusValues.indexOf(s) > -1} />
-              <ListItemText primary={statusToText(s)} />
+        <FormControl variant="outlined" size="small" style={{ minWidth: 200 }}>
+          <InputLabel>{statusLabel}</InputLabel>
+          <Select
+            multiple
+            value={filters.statuses}
+            onChange={handleStatusChange}
+            input={<OutlinedInput label={statusLabel} />}
+            renderValue={(selected) =>
+              (selected || []).map((s) => statusToText(s)).join(", ")
+            }
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <MenuItem key={s || "draft"} value={s}>
+                <Checkbox checked={filters.statuses.indexOf(s) > -1} />
+                <ListItemText primary={statusToText(s)} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          variant="outlined"
+          size="small"
+          label={authorLabel}
+          value={authorInput}
+          onChange={(e) => setAuthorInput(e.target.value)}
+          style={{ minWidth: 220 }}
+        />
+      </Box>
+
+      {/* Sort Group */}
+      <Box display="flex" gap={2} flexWrap="wrap" alignItems="flex-end">
+        <FormControl variant="outlined" size="small" style={{ minWidth: 160 }}>
+          <InputLabel>{sortByLabel}</InputLabel>
+          <Select
+            value={filters.sortField}
+            onChange={handleSortField}
+            label={sortByLabel}
+          >
+            <MenuItem value="created">
+              {language === "en" ? "Last Edited" : "Dernière modification"}
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+            <MenuItem value="title">
+              {language === "en" ? "Title" : "Titre"}
+            </MenuItem>
+            <MenuItem value="author">
+              {language === "en" ? "Author" : "Auteur"}
+            </MenuItem>
+            <MenuItem value="progress">
+              {language === "en" ? "Progress" : "Progrès"}
+            </MenuItem>
+          </Select>
+        </FormControl>
 
-      <TextField
-        variant="outlined"
-        size="small"
-        label={authorLabel}
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        style={{ minWidth: 220 }}
-      />
+        <FormControl variant="outlined" size="small" style={{ minWidth: 140 }}>
+          <InputLabel>{directionLabel}</InputLabel>
+          <Select
+            value={filters.sortDir}
+            onChange={handleSortDir}
+            label={directionLabel}
+          >
+            <MenuItem value="asc">
+              {language === "en" ? "Ascending" : "Croissant"}
+            </MenuItem>
+            <MenuItem value="desc">
+              {language === "en" ? "Descending" : "Décroissant"}
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      <FormControl variant="outlined" size="small" style={{ minWidth: 160 }}>
-        <InputLabel>{sortByLabel}</InputLabel>
-        <Select
-          value={sortField}
-          onChange={handleSortField}
-          label={sortByLabel}
-        >
-          <MenuItem value="created">
-            {language === "en" ? "Last Edited" : "Dernière modification"}
-          </MenuItem>
-          <MenuItem value="title">
-            {language === "en" ? "Title" : "Titre"}
-          </MenuItem>
-          <MenuItem value="author">
-            {language === "en" ? "Author" : "Auteur"}
-          </MenuItem>
-          <MenuItem value="progress">
-            {language === "en" ? "Progress" : "Progrès"}
-          </MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl variant="outlined" size="small" style={{ minWidth: 140 }}>
-        <InputLabel>{directionLabel}</InputLabel>
-        <Select value={sortDir} onChange={handleSortDir} label={directionLabel}>
-          <MenuItem value="asc">
-            {language === "en" ? "Ascending" : "Croissant"}
-          </MenuItem>
-          <MenuItem value="desc">
-            {language === "en" ? "Descending" : "Décroissant"}
-          </MenuItem>
-        </Select>
-      </FormControl>
-
+      {/* Reset Button */}
       <Button
         variant="outlined"
         size="small"

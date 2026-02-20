@@ -2,15 +2,18 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Box, Typography, TablePagination } from "@mui/material";
 
 import { useRecordListContext } from "./context";
+import { useCardFilters } from "./hooks";
 import { recordToRow } from "./config";
-import { applyFiltersAndSort } from "./filtering";
+import { applyCardFiltersAndSort } from "./filtering";
 import CardControls from "./CardControls";
 import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
 import { I18n, En, Fr } from "../I18n";
 
 const RecordCardView = ({ records }) => {
-  const { config, actionHandlers, githubPublishEnabled, language, listState } =
+  const { config, actionHandlers, githubPublishEnabled, language } =
     useRecordListContext();
+
+  const filters = useCardFilters(config.pageId);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -24,14 +27,20 @@ const RecordCardView = ({ records }) => {
     [records, language],
   );
 
-  // Apply same filters/sort as the table
+  // Apply filters and sort
+  const sortModel = [{ field: filters.sortField, sort: filters.sortDir }];
   const visibleRows = useMemo(
     () =>
-      applyFiltersAndSort(
-        { filterModel: listState.filterModel, sortModel: listState.sortModel },
+      applyCardFiltersAndSort(
+        {
+          search: filters.search,
+          author: filters.author,
+          statuses: filters.statuses,
+        },
+        sortModel,
         rows,
       ),
-    [listState.filterModel, listState.sortModel, rows],
+    [filters.search, filters.author, filters.statuses, filters.sortField, filters.sortDir, rows],
   );
 
   // Map rows back to original records by recordID
@@ -77,7 +86,15 @@ const RecordCardView = ({ records }) => {
 
   return (
     <Box>
-      <CardControls />
+      <CardControls
+        filters={filters}
+        onSearchChange={filters.setSearch}
+        onAuthorChange={filters.setAuthor}
+        onStatusesChange={filters.setStatuses}
+        onSortFieldChange={filters.setSortField}
+        onSortDirChange={filters.setSortDir}
+        onReset={filters.reset}
+      />
       {!visibleRecords || visibleRecords.length === 0 ? (
         <Typography>
           <I18n>
