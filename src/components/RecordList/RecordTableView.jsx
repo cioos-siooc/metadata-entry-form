@@ -1,24 +1,25 @@
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tooltip, Button } from "@mui/material";
-import { Refresh } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   DataGrid,
   GridToolbarContainer,
-  GridToolbarColumnsButton,
   GridToolbarQuickFilter,
-  GridToolbarExport,
+  GridToolbarColumnsButton,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 
 import { useRecordListContext } from "./context";
 import { useColumnVisibility } from "./hooks";
 import { createColumns, recordToRow } from "./config";
-import { I18n } from "../I18n";
 import RecordActions from "./RecordActions";
 
 const RecordTableView = ({ records }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const {
     config,
     actionHandlers,
@@ -70,15 +71,6 @@ const RecordTableView = ({ records }) => {
     } catch { /* ignore storage errors */ }
   }, [filterModel, sortModel, tableFilterKey]);
 
-  // Reset handler for columns and filters
-  const handleReset = useCallback(() => {
-    resetColumnVisibility();
-    setFilterModel({ items: [] });
-    setSortModel([]);
-    try {
-      localStorage.removeItem(tableFilterKey);
-    } catch { /* ignore storage errors */ }
-  }, [resetColumnVisibility, tableFilterKey]);
 
   // Create column definitions for current language
   const columnDefs = useMemo(
@@ -86,18 +78,37 @@ const RecordTableView = ({ records }) => {
     [language, region],
   );
 
-  // Build columns array from config
+  // Build columns array from config with mobile responsiveness
   const columns = useMemo(() => {
-    const cols = (config.columns || [])
-      .map((colName) => columnDefs[colName])
+    // On mobile, show only essential columns: title, status, progress, created, and actions
+    const mobileColumns = ["title", "author", "status", "progress", "created"];
+    const columnsToShow = isMobile ? mobileColumns : (config.columns || []);
+
+    const cols = columnsToShow
+      .map((colName) => {
+        const col = columnDefs[colName];
+        if (!col) return null;
+
+        // On mobile, adjust column sizing to prevent overflow
+        if (isMobile) {
+          return {
+            ...col,
+            minWidth: col.field === "title" ? 100 : 60,
+            maxWidth: col.field === "title" ? 200 : 120,
+            flex: 0,
+          };
+        }
+        return col;
+      })
       .filter(Boolean);
 
     // Add actions column
     cols.push({
       field: "actions",
       headerName: language === "en" ? "Actions" : "Actions",
-      width: 70,
-      minWidth: 60,
+      width: isMobile ? 50 : 70,
+      minWidth: isMobile ? 50 : 60,
+      flex: 0,
       headerAlign: "center",
       align: "center",
       sortable: false,
@@ -126,6 +137,7 @@ const RecordTableView = ({ records }) => {
     region,
     actionHandlers,
     githubPublishEnabled,
+    isMobile,
   ]);
 
   // Transform records to rows
@@ -137,36 +149,17 @@ const RecordTableView = ({ records }) => {
     [records, language],
   );
 
-  // Custom toolbar with reset button
+
+  // Custom toolbar with search
   const CustomToolbar = useCallback(
     () => (
-      <GridToolbarContainer
-        style={{
-          padding: "8px",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: "8px",
-        }}
-      >
+      <GridToolbarContainer sx={{ padding: "8px", gap: "8px" }}>
         <GridToolbarQuickFilter />
-        <GridToolbarFilterButton />
         <GridToolbarColumnsButton />
-        <GridToolbarExport />
-        <Tooltip
-          title={
-            <I18n
-              en="Reset columns & filters"
-              fr="Réinitialiser colonnes et filtres"
-            />
-          }
-        >
-          <Button size="small" startIcon={<Refresh />} onClick={handleReset}>
-            <I18n en="Reset" fr="Réinitialiser" />
-          </Button>
-        </Tooltip>
+        <GridToolbarFilterButton />
       </GridToolbarContainer>
     ),
-    [handleReset],
+    [],
   );
 
   // Handle row click to navigate to record
@@ -189,18 +182,89 @@ const RecordTableView = ({ records }) => {
   );
 
   return (
-    <div style={{ width: "100%", maxHeight: "calc(100vh - 300px)", overflow: "auto" }}>
+    <div style={{
+      width: "100%",
+      maxWidth: "100vw",
+      overflow: "hidden",
+      boxSizing: "border-box",
+    }}>
       <DataGrid
-        autoHeight
+        autoHeight={true}
         sx={{
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
-          "& .MuiDataGrid-root": { border: "none" },
-          "& .MuiDataGrid-row": { cursor: "pointer" },
-          "& .MuiDataGrid-row:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+          "& .MuiDataGrid-root": {
+            border: "none",
+            width: "100%",
+            ...(isMobile && {
+              overflowX: "hidden",
+            }),
+          },
+          "& .MuiDataGrid-row": {
+            cursor: "pointer",
+            ...(isMobile && {
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "6px",
+              margin: "4px 0",
+              border: "1px solid #e0e0e0",
+              borderRadius: "14px",
+              backgroundColor: "#fafafa",
+              // boxSizing: "border-box",
+            }),
+          },
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: isMobile ? "#f5f5f5" : "rgba(0, 0, 0, 0.04)",
+          },
+          "& .MuiDataGrid-columnHeader": {
+            ...(isMobile && {
+              display: "none",
+            }),
+          },
+          "& .MuiDataGrid-cell": {
+            ...(isMobile && {
+              border: "none",
+              // padding: "4px",
+              minWidth: "auto",
+              flex: "0 1 auto",
+              maxWidth: "none",
+              whiteSpace: "normal",
+              overflow: "visible",
+              display: "inline-flex",
+              alignItems: "center",
+            }),
+          },
+          "& .MuiDataGrid-cell[data-field='title']": {
+            ...(isMobile && {
+              flexBasis: "100%",
+              fontSize: "1rem",
+              // marginBottom: "8px",
+            }),
+          },
+          "& .MuiDataGrid-cell[data-field='author']": {
+            ...(isMobile && {
+              flexBasis: "100%",
+              // marginBottom: "8px",
+            }),
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            ...(isMobile && {
+              overflowX: "hidden !important",
+            }),
+          },
+          "& .MuiDataGrid-main": {
+            ...(isMobile && {
+              overflowX: "hidden !important",
+            }),
+          },
         }}
         rows={rows}
         columns={columns}
         onRowClick={handleRowClick}
+        getRowHeight={() => isMobile ? "auto" : 52}
         initialState={{
           pagination: {
             paginationModel: {
