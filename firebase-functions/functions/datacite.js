@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 
 const baseUrl = "https://api.datacite.org/dois/";
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const axios = require("axios");
 
 // Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
