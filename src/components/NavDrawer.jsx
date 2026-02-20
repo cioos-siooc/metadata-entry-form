@@ -37,7 +37,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Divider,
   Tooltip,
+  MenuItem,
   Menu,
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
@@ -104,14 +106,10 @@ const useStyles = makeStyles()((theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    whiteSpace: "nowrap",
-    "& .MuiTypography-root": {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
     "& .MuiListItemIcon-root": {
+      minWidth: 40,
       display: "flex",
+      justifyContent: "center",
       alignItems: "center",
     },
   },
@@ -134,6 +132,7 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(3),
   },
   drawerPaper: {
+    width: drawerWidth,
     display: "flex",
     flexDirection: "column",
   },
@@ -426,105 +425,79 @@ export default function MiniDrawer({ children }) {
               </>
             )}
           </div>
-          <List>
-            {user && region && (
-              <>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.saved}
+          {user && region && (
+            <>
+              {/* Records */}
+              <List>
+                <ListItemButton
+                  key="My Records"
+                  onClick={() => navigate(`${baseURL}/submissions`)}
                 >
-                  <ListItemButton
-                    key="My Records"
-                    onClick={() => navigate(`${baseURL}/submissions`)}
-                  >
-                    <ListItemIcon>
-                      <ListAlt />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.saved} />
-                  </ListItemButton>
-                </Tooltip>
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.published}
+                  <ListItemIcon>
+                    <ListAlt />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.saved} />
+                </ListItemButton>
+                <ListItemButton
+                  key="Region's Published Records"
+                  onClick={() => navigate(`${baseURL}/published`)}
                 >
-                  <ListItemButton
-                    key="Region's Published Records"
-                    onClick={() => navigate(`${baseURL}/published`)}
-                  >
-                    <ListItemIcon>
-                      <AssignmentTurnedIn />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.published} />
-                  </ListItemButton>
-                </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.contacts}
-                >
-                  <ListItemButton
-                    key="Contacts"
-                    onClick={() => navigate(`${baseURL}/contacts`)}
-                  >
-                    <ListItemIcon disabled>
-                      <Contacts />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.contacts} />
-                  </ListItemButton>
-                </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.instruments}
-                >
-                  <ListItemButton
-                    key="instruments"
-                    onClick={() => navigate(`${baseURL}/instruments`)}
-                  >
-                    <ListItemIcon disabled>
-                      <StraightenSharp />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.instruments} />
-                  </ListItemButton>
-                </Tooltip>
-
-                <Tooltip
-                  placement="right-start"
-                  title={open ? "" : translations.platforms}
-                >
-                  <ListItemButton
-                    key="Platforms"
-                    onClick={() => navigate(`${baseURL}/platforms`)}
-                  >
-                    <ListItemIcon disabled>
-                      <DirectionsBoatSharp />
-                    </ListItemIcon>
-                    <ListItemText primary={translations.platforms} />
-                  </ListItemButton>
-                </Tooltip>
-
+                  <ListItemIcon>
+                    <AssignmentTurnedIn />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.published} />
+                </ListItemButton>
                 {hasSharedRecords && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.sharedWithMe}
+                  <ListItemButton
+                    key="SharedWithMe"
+                    onClick={() => navigate(`${baseURL}/shared`)}
                   >
-                    <ListItemButton
-                      key="SharedWithMe"
-                      onClick={() => navigate(`${baseURL}/shared`)}
-                    >
-                      <ListItemIcon>
-                        <FolderShared />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.sharedWithMe} />
-                    </ListItemButton>
-                  </Tooltip>
+                    <ListItemIcon>
+                      <FolderShared />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.sharedWithMe} />
+                  </ListItemButton>
                 )}
+              </List>
 
-                {userIsReviewer && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.review}
-                  >
+              <Divider />
+
+              {/* Resources */}
+              <List>
+                <ListItemButton
+                  key="Contacts"
+                  onClick={() => navigate(`${baseURL}/contacts`)}
+                >
+                  <ListItemIcon>
+                    <Contacts />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.contacts} />
+                </ListItemButton>
+                <ListItemButton
+                  key="instruments"
+                  onClick={() => navigate(`${baseURL}/instruments`)}
+                >
+                  <ListItemIcon>
+                    <StraightenSharp />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.instruments} />
+                </ListItemButton>
+                <ListItemButton
+                  key="Platforms"
+                  onClick={() => navigate(`${baseURL}/platforms`)}
+                >
+                  <ListItemIcon>
+                    <DirectionsBoatSharp />
+                  </ListItemIcon>
+                  <ListItemText primary={translations.platforms} />
+                </ListItemButton>
+              </List>
+
+              {/* Review */}
+              {userIsReviewer && (
+                <>
+                  <Divider />
+                  <List>
                     <ListItemButton
                       key="Review"
                       onClick={() => navigate(`${baseURL}/reviewer`)}
@@ -534,18 +507,14 @@ export default function MiniDrawer({ children }) {
                       </ListItemIcon>
                       <ListItemText primary={translations.review} />
                     </ListItemButton>
-                  </Tooltip>
-                )}
-                {/* Admin button moved to bottomList above account avatar */}
-              </>
-            )}
-
-            {/* Logout button removed as requested */}
-
-          </List>
-
+                  </List>
+                </>
+              )}
+            </>
+          )}
 
           <div className={classes.bottomList}>
+            <Divider />
             <List>
               <ListItemButton onClick={() => navigate(`/${language === 'en' ? 'fr' : 'en'}/${pathWithoutLang}`)}>
                 <ListItemIcon>
@@ -562,87 +531,66 @@ export default function MiniDrawer({ children }) {
                 />
               </ListItemButton>
               {usingDevDatabase && (
-                <Tooltip placement="right-start" title={databaseUrl}>
-                  <ListItemButton
-                    component="a"
-                    href={databaseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    key="DevDBWarning"
-                    style={{
-                      fontSize: "14px",
-                      color: "#d32f2f",
-                    }}
-                  >
-                    <ListItemIcon>
-                      <Warning style={{ color: "#d32f2f" }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={translations.envConnection}
-                    />
-                  </ListItemButton>
-                </Tooltip>
-              )}
-              <Tooltip
-                placement="right-start"
-                title={
-                  open
-                    ? ""
-                    : (
-                      <span>
-                        {contactLabel}
-                        {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                      </span>
-                    )
-                }
-              >
                 <ListItemButton
-                  key="Contact Region"
-                  onClick={handleContactClick}
+                  component="a"
+                  href={databaseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  key="DevDBWarning"
+                  style={{
+                    fontSize: "14px",
+                    color: "#d32f2f",
+                  }}
                 >
                   <ListItemIcon>
-                    <Help />
+                    <Warning style={{ color: "#d32f2f" }} />
                   </ListItemIcon>
                   <ListItemText
-                    primary={contactLabel}
-                    secondary={
-                      regionEmailLower ? (
-                        <Tooltip
-                          title={copyTooltipText}
-                          placement="right-start"
-                        >
-                          <span
-                            data-copy-email="true"
-                            onClick={handleCopyEmail}
-                            onKeyDown={handleCopyEmailKeyDown}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                            style={{ textDecoration: 'underline', cursor: 'pointer' }}
-                          >
-                            {regionEmailLower}
-                          </span>
-                        </Tooltip>
-                      ) : null
-                    }
+                    primary={translations.envConnection}
                   />
                 </ListItemButton>
-              </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+              )}
+              <ListItemButton
+                key="Contact Region"
+                onClick={handleContactClick}
               >
-                <ListItemButton
-                  key="Feedback"
-                  id="sentry-feedback-button"
-                  ref={feedbackButtonRef}
-                >
-                  <ListItemIcon>
-                    <FeedbackRounded />
-                  </ListItemIcon>
-                  <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-                </ListItemButton>
-              </Tooltip>
+                <ListItemIcon>
+                  <Help />
+                </ListItemIcon>
+                <ListItemText
+                  primary={contactLabel}
+                  secondary={
+                    regionEmailLower ? (
+                      <Tooltip
+                        title={copyTooltipText}
+                        placement="right-start"
+                      >
+                        <span
+                          data-copy-email="true"
+                          onClick={handleCopyEmail}
+                          onKeyDown={handleCopyEmailKeyDown}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                          style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                        >
+                          {regionEmailLower}
+                        </span>
+                      </Tooltip>
+                    ) : null
+                  }
+                />
+              </ListItemButton>
+              <ListItemButton
+                key="Feedback"
+                id="sentry-feedback-button"
+                ref={feedbackButtonRef}
+              >
+                <ListItemIcon>
+                  <FeedbackRounded />
+                </ListItemIcon>
+                <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+              </ListItemButton>
               {!user && (
                 <ListItem key="userInfo">
                   <ListItemIcon>
@@ -654,38 +602,29 @@ export default function MiniDrawer({ children }) {
               {user && (
                 <>
                   {userIsAdmin && (
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.admin}
-                    >
-                      <ListItemButton
-                        key="Admin"
-                        onClick={() => navigate(`${baseURL}/admin`)}
-                      >
-                        <ListItemIcon>
-                          <Settings />
-                        </ListItemIcon>
-                        <ListItemText primary={translations.admin} />
-                      </ListItemButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : user.displayName}
-                  >
                     <ListItemButton
-                      key="userInfo"
-                      onClick={handleMenuOpen}
+                      key="Admin"
+                      onClick={() => navigate(`${baseURL}/admin`)}
                     >
                       <ListItemIcon>
-                        <Avatar
-                          src={user.photoURL}
-                          style={{ width: 30, height: 30 }}
-                        />
+                        <Settings />
                       </ListItemIcon>
-                      <ListItemText primary={user.displayName} />
+                      <ListItemText primary={translations.admin} />
                     </ListItemButton>
-                  </Tooltip>
+                  )}
+                  <ListItemButton
+                    key="userInfo"
+                    onClick={handleMenuOpen}
+                  >
+                    <ListItemIcon>
+                      <Avatar
+                        src={user.photoURL}
+                        imgProps={{ referrerPolicy: "no-referrer" }}
+                        style={{ width: 30, height: 30 }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText primary={user.displayName} />
+                  </ListItemButton>
                   <Menu
                     anchorEl={anchorEl}
                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
