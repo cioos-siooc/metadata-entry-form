@@ -6,6 +6,8 @@ import {
     Button,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { getDatabase, ref, child, update } from "firebase/database";
@@ -295,19 +297,15 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
             {
                 doiErrorFlag && (
-                    <div style={{ color: "#d32f2f", marginTop: "10px", padding: "10px", backgroundColor: "#ffebee", borderRadius: "4px" }}>
-                        <strong>
+                    <Alert severity="error" sx={{ mt: "10px" }}>
+                        <AlertTitle>
                             <I18n
                                 en="Error occurred with DOI API"
                                 fr="Une erreur s'est produite avec l'API DOI"
                             />
-                        </strong>
-                        {doiErrorMessage && (
-                            <div style={{ marginTop: "5px", fontSize: "0.9em" }}>
-                                {doiErrorMessage}
-                            </div>
-                        )}
-                    </div>
+                        </AlertTitle>
+                        {doiErrorMessage}
+                    </Alert>
                 )
             }
             {
