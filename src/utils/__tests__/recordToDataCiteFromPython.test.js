@@ -19,8 +19,8 @@ vi.mock("../../regions", () => ({
     },
     atlantic: {
       catalogueURL: {
-        en: "https://cioosatlantic.ca/",
-        fr: "https://cioosatlantic.ca/fr/",
+        en: "https://cioosatlantic.ca/ckan/",
+        fr: "https://cioosatlantic.ca/ckan/fr/",
       },
     },
     stlaurent: {
