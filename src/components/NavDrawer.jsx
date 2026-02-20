@@ -194,7 +194,7 @@ export default function MiniDrawer({ children }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isWideScreen = useMediaQuery(theme.breakpoints.up('md'));
+
 
   const {
     user,
@@ -221,7 +221,7 @@ export default function MiniDrawer({ children }) {
   const baseURL = `/${language}/${region}`;
 
   // if region not set, keep drawer closed; default to open on wide screens
-  const [open, setOpen] = React.useState(isWideScreen);
+  const [open, setOpen] = React.useState(false);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -458,29 +458,24 @@ export default function MiniDrawer({ children }) {
       </AppBar>
       {region && (
         <Drawer
-          variant={isMobile ? "temporary" : "permanent"}
+          variant="temporary"
           open={open}
           onClose={handleDrawerClose}
-          className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open && !isMobile,
-            [classes.drawerClose]: !open && !isMobile,
-          })}
+          className={classes.drawer}
           classes={{
-            paper: clsx(classes.drawerPaper, {
-              [classes.drawerOpen]: open && !isMobile,
-              [classes.drawerClose]: !open && !isMobile,
-            }),
+            paper: clsx(classes.drawerPaper, classes.drawerOpen),
+          }}
+          PaperProps={{
+            sx: isMobile ? { width: "100%" } : { width: drawerWidth },
           }}
         >
           <div className={classes.toolbar}>
-            {isMobile && (
-              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
-                <I18n>
-                  <En>Metadata Entry Tool</En>
-                  <Fr>Outil de saisie de métadonnées</Fr>
-                </I18n>
-              </Typography>
-            )}
+            <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+              <I18n>
+                <En>Metadata Entry Tool</En>
+                <Fr>Outil de saisie de métadonnées</Fr>
+              </I18n>
+            </Typography>
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
