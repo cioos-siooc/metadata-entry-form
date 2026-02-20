@@ -67,7 +67,7 @@ async function getBaseUrl(region) {
     functions.logger.info("[getBaseUrl] region:", region, "| apiDomain value from DB:", apiDomain, "| resolved URL:", resolvedUrl);
     return resolvedUrl;
   } catch (error) {
-    console.error(`Error fetching DataCite API domain for region ${region}:`, error);
+    functions.logger.error(`Error fetching DataCite API domain for region ${region}:`, error);
     return API_DOMAINS.production;
   }
 }
@@ -85,7 +85,7 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      functions.logger.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
   }
 
@@ -118,7 +118,7 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
-    console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+    functions.logger.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
   } 
 
@@ -155,7 +155,7 @@ exports.deleteDraftDoi = functions.https.onCall(async (data) => {
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
   } catch (error) {
-      console.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
+      functions.logger.error(`Error fetching Datacite Auth Hash for region ${region}:`, error);
       return null;
   } 
 
