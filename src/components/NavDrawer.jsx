@@ -239,6 +239,7 @@ export default function MiniDrawer({ children }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
+  const isWideScreen = useMediaQuery(theme.breakpoints.up('md'));
 
   const {
     user,
@@ -264,8 +265,8 @@ export default function MiniDrawer({ children }) {
 
   const baseURL = `/${language}/${region}`;
 
-  // if region not set, keep drawer closed
-  const [open, setOpen] = React.useState(Boolean(region) && Boolean(user));
+  // if region not set, keep drawer closed; default to open on wide screens
+  const [open, setOpen] = React.useState(isWideScreen);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
