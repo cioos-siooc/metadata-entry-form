@@ -1,6 +1,7 @@
 import React from "react";
 import { Chip } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
+import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
@@ -223,6 +224,14 @@ export const formatDate = (dateStr, language) => {
     : `il y a ${days} jour${days !== 1 ? "s" : ""}`;
 };
 
+const getStatusFilterOperators = (language) =>
+  getGridSingleSelectOperators()
+    .filter((operator) => operator.value === "isAnyOf")
+    .map((operator) => ({
+      ...operator,
+      label: language === "en" ? "is any of" : "est l'un de",
+    }));
+
 // ============================================================================
 // Column Definitions Factory
 // ============================================================================
@@ -256,60 +265,7 @@ export const createColumns = (language, region) => ({
         />
       );
     },
-    filterOperators: [
-      {
-        label: language === "en" ? "is any of" : "est l'un de",
-        value: "isAnyOf",
-        getApplyFilterFn: (filterItem) => {
-          if (!filterItem.value || filterItem.value.length === 0) return null;
-          return (params) => filterItem.value.includes(params.value);
-        },
-        InputComponent: ({ item, applyValue }) => {
-          const handleFilterChange = (value) => applyValue({ ...item, value });
-          return (
-            <div style={{ padding: "8px" }}>
-              {[
-                { value: "", label: language === "en" ? "Draft" : "Brouillon" },
-                {
-                  value: "submitted",
-                  label: language === "en" ? "Submitted" : "Soumis",
-                },
-                {
-                  value: "published",
-                  label: language === "en" ? "Published" : "Publié",
-                },
-              ].map((option) => (
-                <div key={option.value} style={{ marginBottom: "4px" }}>
-                  <label
-                    htmlFor={`status-filter-${option.value}`}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <input
-                      id={`status-filter-${option.value}`}
-                      type="checkbox"
-                      checked={(item.value || []).includes(option.value)}
-                      onChange={(e) => {
-                        const currentValues = item.value || [];
-                        const newValues = e.target.checked
-                          ? [...currentValues, option.value]
-                          : currentValues.filter((v) => v !== option.value);
-                        handleFilterChange(newValues);
-                      }}
-                      style={{ marginRight: "8px" }}
-                    />
-                    {option.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          );
-        },
-      },
-    ],
+    filterOperators: getStatusFilterOperators(language),
   },
 
   progress: {
