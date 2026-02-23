@@ -413,7 +413,7 @@ const Reviewer = () => {
         spacing={1}
       >
         {/* Header */}
-        <Grid item xs style={{ paddingTop: 0 }}>
+        <Grid style={{ paddingTop: 0 }}>
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
@@ -440,7 +440,7 @@ const Reviewer = () => {
         </Grid>
 
         {/* Record List */}
-        <Grid item xs style={{ paddingTop: 0 }}>
+        <Grid style={{ paddingTop: 0 }}>
           <RecordList
             records={records}
             config={reviewerConfig}
