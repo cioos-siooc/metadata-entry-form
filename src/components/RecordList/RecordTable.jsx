@@ -191,7 +191,7 @@ const RecordTable = ({
   return (
     <Box
       sx={{
-        width: "calc(100% - 12px)",
+        width: "100%",
         minWidth: 0,
         boxSizing: "border-box",
         ...(isMobile && {

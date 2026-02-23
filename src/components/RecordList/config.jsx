@@ -232,7 +232,6 @@ export const createColumns = (language, region) => ({
     field: "status",
     headerName: language === "en" ? "Status" : "Statut",
     flex: 1,
-    minWidth: 130,
     maxWidth: 130,
     headerAlign: "center",
     align: "center",
@@ -344,21 +343,19 @@ export const createColumns = (language, region) => ({
     field: "title",
     headerName: language === "en" ? "Title" : "Titre",
     flex: 2,
-    minWidth: 200,
   },
 
   author: {
     field: "author",
+    maxWidth: 200,
     headerName: language === "en" ? "Author" : "Auteur",
     flex: 1.5,
-    minWidth: 180,
   },
 
   abstract: {
     field: "abstract",
     headerName: language === "en" ? "Abstract" : "Résumé",
     flex: 2,
-    minWidth: 200,
     renderCell: (params) => (
       <div
         style={{
@@ -377,7 +374,6 @@ export const createColumns = (language, region) => ({
     field: "license",
     headerName: language === "en" ? "License" : "Licence",
     flex: 1,
-    minWidth: 150,
     renderCell: (params) => {
       const licenseData = licenses[params.value];
       if (!licenseData) return params.value || "";
@@ -391,7 +387,6 @@ export const createColumns = (language, region) => ({
     field: "contacts",
     headerName: language === "en" ? "Contacts" : "Contacts",
     flex: 1.5,
-    minWidth: 200,
     sortable: false,
     renderCell: (params) => {
       const contactsList = params.value || [];
@@ -423,7 +418,7 @@ export const createColumns = (language, region) => ({
     field: "formLanguage",
     headerName: language === "en" ? "Language" : "Langue",
     flex: 0.8,
-    width: 100,
+    maxWidth: 100,
     headerAlign: "center",
     align: "center",
     renderCell: (params) => {
@@ -435,7 +430,7 @@ export const createColumns = (language, region) => ({
   doi: {
     field: "doi",
     headerName: "DOI",
-    width: 70,
+    maxWidth: 70,
     headerAlign: "center",
     align: "center",
     type: "boolean",
@@ -451,7 +446,6 @@ export const createColumns = (language, region) => ({
     field: "boundingBox",
     headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
     flex: 1,
-    minWidth: 180,
     renderCell: (params) => {
       if (!params.value) return "";
       const { north, south, east, west } = params.value;
@@ -463,7 +457,7 @@ export const createColumns = (language, region) => ({
   polygon: {
     field: "polygon",
     headerName: language === "en" ? "Polygon" : "Polygone",
-    width: 80,
+    maxWidth: 80,
     headerAlign: "center",
     align: "center",
     type: "boolean",
@@ -479,7 +473,6 @@ export const createColumns = (language, region) => ({
     field: "verticalExtentMin",
     headerName: language === "en" ? "Vert. Min" : "Min. Vert.",
     flex: 0.8,
-    minWidth: 100,
     type: "number",
     headerAlign: "center",
     align: "center",
@@ -491,7 +484,6 @@ export const createColumns = (language, region) => ({
     field: "verticalExtentMax",
     headerName: language === "en" ? "Vert. Max" : "Max. Vert.",
     flex: 0.8,
-    minWidth: 100,
     type: "number",
     headerAlign: "center",
     align: "center",
@@ -502,7 +494,7 @@ export const createColumns = (language, region) => ({
   verticalExtentDirection: {
     field: "verticalExtentDirection",
     headerName: language === "en" ? "Depth/Height" : "Profondeur/Hauteur",
-    width: 120,
+    maxWidth: 120,
     headerAlign: "center",
     align: "center",
     renderCell: (params) => {
@@ -518,7 +510,7 @@ export const createColumns = (language, region) => ({
   verticalExtentEPSG: {
     field: "verticalExtentEPSG",
     headerName: "EPSG",
-    width: 80,
+    maxWidth: 80,
     headerAlign: "center",
     align: "center",
   },
