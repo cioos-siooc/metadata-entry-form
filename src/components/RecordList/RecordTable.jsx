@@ -258,6 +258,25 @@ const RecordTable = ({
               githubPublishEnabled,
             },
           }),
+          filterPanel: {
+            sx: {
+              [theme.breakpoints.down("sm")]: {
+                "& .MuiDataGrid-filterForm": {
+                  flexDirection: "column",
+                  gap: 1,
+                  "& .MuiDataGrid-filterFormDeleteIcon": {
+                    alignSelf: "flex-end",
+                  },
+                  "& .MuiDataGrid-filterFormLogicOperatorInput": {
+                    display: "none",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    width: "100%",
+                  },
+                },
+              },
+            },
+          },
         }}
         localeText={{
           toolbarColumns: language === "en" ? "Columns" : "Colonnes",
@@ -288,10 +307,10 @@ const RecordTable = ({
         columnVisibilityModel={
           isMobile
             ? {
-                ...Object.fromEntries(columns.map((col) => [col.field, false])),
-                // Keep one column visible so DataGrid renders rows
-                title: true,
-              }
+              ...Object.fromEntries(columns.map((col) => [col.field, false])),
+              // Keep one column visible so DataGrid renders rows
+              title: true,
+            }
             : columnVisibilityModel
         }
         onColumnVisibilityModelChange={handleColumnVisibilityChange}
