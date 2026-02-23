@@ -47,9 +47,11 @@
     "react-dom": "^19.2.4",
     "react-helmet-async": "^2.0.5",
     "react-leaflet": "^5.0.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.13.0",
     "react-time-ago": "^7.4.1",
     "regenerator-runtime": "^0.14.1",
+    "remark-gfm": "^4.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "tss-react": "^4.9.20",
@@ -85,8 +87,10 @@
     "yaml": "2.8.2"
   },
   "scripts": {
+    "postinstall": "node scripts/ensure-data-file.mjs",
     "dev": "vite",
     "start": "vite",
+    "prebuild": "node scripts/fetch-github-releases.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "TZ=UTC vitest",
