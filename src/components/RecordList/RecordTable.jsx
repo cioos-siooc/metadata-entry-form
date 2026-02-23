@@ -195,6 +195,7 @@ const RecordTable = ({
         minWidth: 0,
         boxSizing: "border-box",
         ...(isMobile && {
+          height: "calc(100vh - 200px)",
           "& .MuiDataGrid-columnHeaders": {
             display: "none",
           },
@@ -203,12 +204,20 @@ const RecordTable = ({
           },
           "& .MuiDataGrid-virtualScrollerContent": {
             paddingBottom: "8px",
+            width: "100% !important",
+          },
+          "& .MuiDataGrid-virtualScrollerRenderZone": {
+            width: "100%",
+          },
+          "& .MuiDataGrid-row": {
+            width: "100% !important",
+            maxWidth: "100% !important",
           },
         }),
       }}
     >
       <DataGrid
-        autoHeight={true}
+        autoHeight={!isMobile}
         sx={{
           width: "100%",
           minWidth: 0,
