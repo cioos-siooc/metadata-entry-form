@@ -66,7 +66,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("lg")]: {
       zIndex: theme.zIndex.appBar,
     },
     transition: theme.transitions.create(["width", "margin"], {
@@ -75,54 +75,12 @@ const useStyles = makeStyles()((theme) => ({
     }),
   },
   menuButton: {
-    marginRight: 36,
+    // padding: 5,
   },
   languageSelector: {
     color: "white",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    width: 70,
-    "&:before": {
-      display: "none",
-    },
-    "&:after": {
-      display: "none",
-    },
-    "&:hover:not(.Mui-disabled)": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-      textAlign: "center",
-      "&:focus": {
-        backgroundColor: "transparent",
-      },
-    },
     "& .MuiSelect-icon": {
       color: "white",
-    },
-  },
-  feedbackButton: {
-    padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-    background: "none",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "white",
-    fontSize: "14px",
-    fontWeight: 500,
-    fontFamily: theme.typography.fontFamily,
-    lineHeight: 1.5,
-    marginBottom: theme.spacing(1),
-    height: "auto",
-    transition: "background-color 0.2s ease",
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   },
   headerControls: {
@@ -135,6 +93,9 @@ const useStyles = makeStyles()((theme) => ({
     display: "block",
     height: "auto",
     marginBottom: 0,
+    [theme.breakpoints.down("lg")]: {
+      display: "none",
+    },
   },
   hide: {
     display: "none",
@@ -199,7 +160,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
+    paddingTop: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -238,8 +200,8 @@ export default function MiniDrawer({ children }) {
 
   const { classes } = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
-  const isWideScreen = useMediaQuery(theme.breakpoints.up('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+
 
   const {
     user,
@@ -266,7 +228,7 @@ export default function MiniDrawer({ children }) {
   const baseURL = `/${language}/${region}`;
 
   // if region not set, keep drawer closed; default to open on wide screens
-  const [open, setOpen] = React.useState(isWideScreen);
+  const [open, setOpen] = React.useState(!isMobile);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -345,6 +307,11 @@ export default function MiniDrawer({ children }) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const navigateAndClose = (path) => {
+    navigate(path);
+    if (isMobile) setOpen(false);
   };
 
   const handleMenuOpen = (event) => {
@@ -454,28 +421,28 @@ export default function MiniDrawer({ children }) {
           className={classes.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: "flex-end",
+            alignItems: "center",
             paddingBottom: 0,
           }}
         >
-          {region && (
+          {region && isMobile && (
             <IconButton
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
               className={classes.menuButton}
-              style={{ marginBottom: theme.spacing(1) }}
             >
               <MenuIcon />
             </IconButton>
           )}
           <Typography
             variant="h5"
-            noWrap
             style={{
               marginLeft: theme.spacing(1.25),
-              marginBottom: theme.spacing(1),
-              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
               color: "white",
             }}
           >
@@ -511,26 +478,23 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open && !isMobile,
-            [classes.drawerClose]: !open && !isMobile,
-          })}
+          className={classes.drawer}
           classes={{
-            paper: clsx(classes.drawerPaper, {
-              [classes.drawerOpen]: open && !isMobile,
-              [classes.drawerClose]: !open && !isMobile,
-            }),
+            paper: clsx(classes.drawerPaper, classes.drawerOpen),
           }}
+          {...(isMobile && {
+            PaperProps: {
+              sx: { width: "100%" },
+            },
+          })}
         >
           <div className={classes.toolbar}>
-            {isMobile && (
-              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
-                <I18n>
-                  <En>Metadata Entry Tool</En>
-                  <Fr>Outil de saisie de métadonnées</Fr>
-                </I18n>
-              </Typography>
-            )}
+            <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+              <I18n>
+                <En>Metadata Entry Tool</En>
+                <Fr>Outil de saisie de métadonnées</Fr>
+              </I18n>
+            </Typography>
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
@@ -544,7 +508,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="My Records"
-                    onClick={() => navigate(`${baseURL}/submissions`)}
+                    onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
                       <ListAlt />
@@ -558,7 +522,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Region's Published Records"
-                    onClick={() => navigate(`${baseURL}/published`)}
+                    onClick={() => navigateAndClose(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
                       <AssignmentTurnedIn />
@@ -573,7 +537,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Contacts"
-                    onClick={() => navigate(`${baseURL}/contacts`)}
+                    onClick={() => navigateAndClose(`${baseURL}/contacts`)}
                   >
                     <ListItemIcon disabled>
                       <Contacts />
@@ -588,7 +552,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="instruments"
-                    onClick={() => navigate(`${baseURL}/instruments`)}
+                    onClick={() => navigateAndClose(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
                       <StraightenSharp />
@@ -603,7 +567,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Platforms"
-                    onClick={() => navigate(`${baseURL}/platforms`)}
+                    onClick={() => navigateAndClose(`${baseURL}/platforms`)}
                   >
                     <ListItemIcon disabled>
                       <DirectionsBoatSharp />
@@ -619,7 +583,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="SharedWithMe"
-                      onClick={() => navigate(`${baseURL}/shared`)}
+                      onClick={() => navigateAndClose(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
@@ -636,7 +600,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="Review"
-                      onClick={() => navigate(`${baseURL}/reviewer`)}
+                      onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
                         <RateReview />
@@ -793,7 +757,7 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Admin"
-                        onClick={() => navigate(`${baseURL}/admin`)}
+                        onClick={() => navigateAndClose(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
                           <Settings />

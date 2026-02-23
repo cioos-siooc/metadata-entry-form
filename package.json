@@ -19,6 +19,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/lab": "^7.0.0",
     "@mui/material": "^7.3.7",
+    "@mui/x-data-grid": "^8.27.1",
     "@mui/x-date-pickers": "^8.27.0",
     "@react-leaflet/core": "^3.0.0",
     "@sentry/react": "^10.38.0",
