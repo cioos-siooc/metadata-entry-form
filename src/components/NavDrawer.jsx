@@ -596,17 +596,14 @@ export default function MiniDrawer({ children }) {
                 )}
 
                 {userIsReviewer && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.review}
-                  >
-                    <ListItemButton
-                      key="Review"
-                      onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
+                  <>
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
                     >
                       <ListItemButton
                         key="Review"
-                        onClick={() => navigate(`${baseURL}/reviewer`)}
+                        onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
                       >
                         <ListItemIcon>
                           <RateReview />
