@@ -8,6 +8,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useColumnVisibility } from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
+import MobileRecordRow from "./MobileRecordRow";
 
 const RecordTable = ({
   records,
@@ -109,18 +110,6 @@ const RecordTable = ({
       .map((colName) => {
         const col = columnDefs[colName];
         if (!col) return null;
-
-        // On mobile, use minimal widths since layout is CSS flex-wrap cards
-        if (isMobile) {
-          const w = col.field === "title" ? 100 : 60;
-          return {
-            ...col,
-            width: w,
-            minWidth: w,
-            maxWidth: col.field === "title" ? 200 : 120,
-            flex: 0,
-          };
-        }
         return col;
       })
       .filter(Boolean);
@@ -129,8 +118,8 @@ const RecordTable = ({
     cols.push({
       field: "actions",
       headerName: language === "en" ? "Actions" : "Actions",
-      width: isMobile ? 50 : 70,
-      minWidth: isMobile ? 50 : 60,
+      width: 70,
+      minWidth: 60,
       flex: 0,
       headerAlign: "center",
       align: "center",
@@ -200,11 +189,24 @@ const RecordTable = ({
   }
 
   return (
-    <div style={{
-      width: "calc(100% - 12px)",
-      minWidth: 0,
-      boxSizing: "border-box",
-    }}>
+    <Box
+      sx={{
+        width: "calc(100% - 12px)",
+        minWidth: 0,
+        boxSizing: "border-box",
+        ...(isMobile && {
+          "& .MuiDataGrid-columnHeaders": {
+            display: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            display: "none",
+          },
+          "& .MuiDataGrid-virtualScrollerContent": {
+            paddingBottom: "8px",
+          },
+        }),
+      }}
+    >
       <DataGrid
         autoHeight={true}
         sx={{
@@ -214,59 +216,6 @@ const RecordTable = ({
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
           "& .MuiDataGrid-row": {
             cursor: "pointer",
-            ...(isMobile && {
-              width: "100%",
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "6px 0",
-              gap: "8px",
-              margin: "4px 0",
-              border: "1px solid #e0e0e0",
-              borderRadius: "14px",
-              backgroundColor: "#fafafa",
-            }),
-          },
-          "& .MuiDataGrid-row:hover": {
-            backgroundColor: isMobile ? "#f5f5f5" : "rgba(0, 0, 0, 0.04)",
-          },
-          "& .MuiDataGrid-columnHeader": {
-            ...(isMobile && {
-              display: "none",
-            }),
-          },
-          "& .MuiDataGrid-cell": {
-            ...(isMobile && {
-              border: "none",
-              minWidth: "auto !important",
-              maxWidth: "none !important",
-              width: "auto !important",
-              flex: "0 1 auto",
-              whiteSpace: "normal",
-              overflow: "visible",
-              display: "inline-flex",
-              alignItems: "center",
-            }),
-          },
-          "& .MuiDataGrid-cell[data-field='title']": {
-            ...(isMobile && {
-              flexBasis: "100%",
-              fontSize: "1rem",
-            }),
-          },
-          "& .MuiDataGrid-cell[data-field='author']": {
-            ...(isMobile && {
-              flexBasis: "100%",
-            }),
-          },
-          "& .MuiDataGrid-main": {
-            minWidth: 0,
-            ...(isMobile && {
-              margin: "0 auto",
-              maxWidth: 600,
-            }),
           },
         }}
         rows={rows}
@@ -290,6 +239,7 @@ const RecordTable = ({
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         slots={{
+          ...(isMobile && { row: MobileRecordRow }),
           noRowsOverlay: () => (
             <div style={{ padding: "20px", textAlign: "center" }}>
               {language === "en"
@@ -297,6 +247,17 @@ const RecordTable = ({
                 : "Aucun enregistrement trouvé."}
             </div>
           ),
+        }}
+        slotProps={{
+          ...(isMobile && {
+            row: {
+              language,
+              region,
+              config,
+              actionHandlers,
+              githubPublishEnabled,
+            },
+          }),
         }}
         localeText={{
           toolbarColumns: language === "en" ? "Columns" : "Colonnes",
@@ -324,10 +285,18 @@ const RecordTable = ({
               ? `${count} active filter(s)`
               : `${count} filtre(s) actif(s)`,
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={
+          isMobile
+            ? {
+                ...Object.fromEntries(columns.map((col) => [col.field, false])),
+                // Keep one column visible so DataGrid renders rows
+                title: true,
+              }
+            : columnVisibilityModel
+        }
         onColumnVisibilityModelChange={handleColumnVisibilityChange}
       />
-    </div>
+    </Box>
   );
 };
 
