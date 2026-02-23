@@ -1,36 +1,21 @@
-/* eslint-disable react/jsx-no-bind */
-import React from "react";
-import {
-  Typography,
-  List,
-  Grid,
-  CircularProgress,
-  Checkbox,
-  TextField,
-  Paper,
-} from "@mui/material";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { getDatabase, ref, onValue, get } from "firebase/database";
-import { QuestionText } from "../FormComponents/QuestionStyles";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
+import { Typography, Grid, Snackbar, Alert } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import { getDatabase, ref, onValue, get, off } from "firebase/database";
 
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
-import { UserContext } from "../../providers/UserProvider";
-
-import CheckBoxList from "../FormComponents/CheckBoxList";
-
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
-import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
+import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
-
 import {
   loadRegionRecords,
   transferRecord,
@@ -38,422 +23,388 @@ import {
   submitRecord,
   cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
-import { unique } from "../../utils/misc";
 import { preparePublishPayload } from "../../utils/publishUtils";
-import FormClassTemplate from "./FormClassTemplate";
-import withRouter from "../../utils/withRouter";
+import RecordList, { reviewerConfig } from "../RecordList";
 
-const RecordItem = ({
-  record,
-  language,
-  editRecord,
-  toggleModal,
-  handleCloneRecord,
-  githubPublishEnabled,
-}) => {
-  const commonProps = {
-    record,
-    language,
-    onViewEditClick: () => editRecord(record.recordID, record.userinfo.userID),
-    onCloneClick: () =>
-      handleCloneRecord(record.recordID, record.userinfo.userID),
-    onDeleteClick: () =>
-      toggleModal(
-        "deleteModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    onTransferClick: () =>
-      toggleModal(
-        "transferModalOpen",
-        true,
-        record.recordID,
-        record.userinfo.userID
-      ),
-    showAuthor: true,
-    showTransferButton: true,
-    showDeleteAction: true,
-    showCloneAction: true,
-  };
+const Reviewer = () => {
+  const { language, region } = useParams();
+  const navigate = useNavigate();
+  const { publishRecordToGitHub } = useContext(UserContext);
 
-  const DraftRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onSubmitClick={() => {
-          return toggleModal(
-            "submitModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          );
-        }}
-        showSubmitAction
-        showEditAction
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-        showPercentComplete
-      />
-    );
-  };
-  const SubmittedRecordItem = () => (
-    <MetadataRecordListItem
-      onSubmitClick={() =>
-        toggleModal(
-          "publishModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      onUnSubmitClick={() =>
-        toggleModal(
-          "unSubmitModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      showPublishAction
-      showUnSubmitAction
-      showEditAction
-      showPercentComplete
-      showGithubPublishAction
-      githubPublishEnabled={githubPublishEnabled}
-      onGithubPublishClick={() =>
-        toggleModal(
-          "githubPublishModalOpen",
-          true,
-          record.recordID,
-          record.userinfo.userID
-        )
-      }
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...commonProps}
-    />
-  );
-  const PublishedRecordItem = () => {
-    return (
-      <MetadataRecordListItem
-        onUnPublishClick={() =>
-          toggleModal(
-            "unPublishModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          )
-        }
-        showUnPublishAction
-        showViewAction
-        showPercentComplete
-        showGithubPublishAction
-        githubPublishEnabled={githubPublishEnabled}
-        onGithubPublishClick={() =>
-          toggleModal(
-            "githubPublishModalOpen",
-            true,
-            record.recordID,
-            record.userinfo.userID
-          )
-        }
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...commonProps}
-      />
-    );
-  };
+  // Records state
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const listenerRefs = useRef([]);
+  const unsubscribeRef = useRef(null);
 
-  if (record.status === "submitted") return <SubmittedRecordItem />;
-  if (record.status === "published") return <PublishedRecordItem />;
-  return <DraftRecordItem />;
-};
+  // Modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [unPublishModalOpen, setUnPublishModalOpen] = useState(false);
+  const [unSubmitModalOpen, setUnSubmitModalOpen] = useState(false);
+  const [submitModalOpen, setSubmitModalOpen] = useState(false);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [modalKey, setModalKey] = useState("");
+  const [modalUserID, setModalUserID] = useState("");
+  const [transferEmail, setTransferEmail] = useState("");
+  const [transferUserNotFound] = useState(false);
 
-class Reviewer extends FormClassTemplate {
-  constructor(props) {
-    super(props);
-    this.state = {
-      users: [],
-      deleteModalOpen: false,
-      publishModalOpen: false,
-      unPublishModalOpen: false,
-      unSubmitModalOpen: false,
-      submitModalOpen: false,
-      transferModalOpen: false,
-      modalKey: "",
-      modalUserID: "",
-      loading: false,
-      showRecordTypes: ["submitted", "published"],
-      showUsers: [],
-      records: [],
-      recordsFilter: "",
-      recordCountsByStatus: {},
-      githubPublishModalOpen: false,
-      githubPublishLoading: false,
-      toastOpen: false,
-      toastMessage: "",
-      toastSeverity: "info",
-      publishLogs: [],
-      githubPublishEnabled: false,
-    };
-  }
+  // GitHub publish state
+  const [githubPublishModalOpen, setGithubPublishModalOpen] = useState(false);
+  const [githubPublishLoading, setGithubPublishLoading] = useState(false);
+  const [githubPublishEnabled, setGithubPublishEnabled] = useState(false);
+  const [publishLogs, setPublishLogs] = useState([]);
 
-  async componentDidMount() {
-    this.setState({ loading: true });
-    const { match } = this.props;
-    const { region } = match.params;
+  // Toast state
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastSeverity, setToastSeverity] = useState("info");
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (authUser) => {
-      if (authUser) {
-        const database = getDatabase(firebase);
-        const usersRef = ref(database, `${region}/users`);
-        const githubRef = ref(database, `admin/${region}/githubCredentials`);
-        onValue(usersRef, (regionUsersRaw) => {
-          const records = loadRegionRecords(regionUsersRaw, [
-            "",
-            "submitted",
-            "published",
-          ]);
+  // Load records on mount
+  useEffect(() => {
+    setLoading(true);
 
-          this.setState({ records, loading: false });
+    unsubscribeRef.current = onAuthStateChanged(
+      getAuth(firebase),
+      (authUser) => {
+        if (authUser) {
+          const database = getDatabase(firebase);
+          const usersRef = ref(database, `${region}/users`);
+          const githubRef = ref(database, `admin/${region}/githubCredentials`);
 
-          const users = unique(records.map((record) => record.userinfo.email));
-
-          this.setState({
-            records,
-            loading: false,
-            users,
-            showUsers: users,
+          onValue(usersRef, (regionUsersRaw) => {
+            const loadedRecords = loadRegionRecords(regionUsersRaw, [
+              "",
+              "submitted",
+              "published",
+            ]);
+            setRecords(loadedRecords);
+            setLoading(false);
           });
-        });
-        this.listenerRefs.push(usersRef);
-        onValue(githubRef, (snapshot) => {
-          const creds = snapshot.val() || {};
-          const token = creds.token || "";
-          this.setState({ githubPublishEnabled: !!token && token.trim().length > 0 });
-        });
-        this.listenerRefs.push(githubRef);
-      }
-    });
-  }
 
-  editRecord(key, userID) {
-    const { history } = this.props;
-    const { language, region } = this.props.match.params;
-    history.push(`/${language}/${region}/${userID}/${key}`);
-  }
+          onValue(githubRef, (snapshot) => {
+            const creds = snapshot.val() || {};
+            const token = creds.token || "";
+            setGithubPublishEnabled(!!token && token.trim().length > 0);
+          });
 
-  async handleTransferRecord(recordID, userID) {
-    const { match } = this.props;
-    const { region } = match.params;
-
-    return transferRecord(this.state.transferEmail, recordID, userID, region);
-  }
-
-  // user ID is that of the record owner, not the editor
-  handleCloneRecord(recordID, sourceUserID) {
-    const { match } = this.props;
-    const { region } = match.params;
-
-    if (auth.currentUser) {
-      cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
-    }
-  }
-
-  async handleSubmitRecord(key, userID, status) {
-    const { match } = this.props;
-    const { region } = match.params;
-
-    if (key && userID) {
-      this.setState({ loading: true });
-      await submitRecord(region, userID, key, status);
-      this.setState({ loading: false });
-    }
-  }
-
-  async deleteRecord(key, userID) {
-    const { match } = this.props;
-    const { region } = match.params;
-
-    if (key && userID) {
-      this.setState({ loading: true });
-      await deleteRecord(region, userID, key);
-      this.setState({ loading: false });
-    }
-  }
-
-  toggleModal(modalName, state, key = "", userID) {
-    this.setState({ modalKey: key, [modalName]: state, modalUserID: userID });
-  }
-
-  showToast = (message, severity = "info") => {
-    this.setState({ toastOpen: true, toastMessage: message, toastSeverity: severity });
-  };
-
-  closeToast = () => {
-    this.setState({ toastOpen: false });
-  };
-
-  addPublishLog = (message) => {
-    this.setState((prev) => ({ publishLogs: [...prev.publishLogs, message] }));
-  };
-
-  getLogMessage = (key, arg) => {
-    const { language } = this.props.match.params;
-    const messages = {
-      start: {
-        en: "Starting GitHub publish…",
-        fr: "Démarrage de la publication sur GitHub…",
+          listenerRefs.current.push(usersRef);
+          listenerRefs.current.push(githubRef);
+        }
       },
-      fetchConfig: {
-        en: "Fetching GitHub configuration…",
-        fr: "Récupération de la configuration GitHub…",
-      },
-      preparingPayload: {
-        en: "Preparing publish payload…",
-        fr: "Préparation du contenu de publication…",
-      },
-      publishing: {
-        en: "Publishing record to GitHub…",
-        fr: "Publication de l’enregistrement sur GitHub…",
-      },
-      markingPublished: {
-        en: "Marking record as published…",
-        fr: "Marquage de l’enregistrement comme publié…",
-      },
-      complete: {
-        en: "Publish complete ✅",
-        fr: "Publication terminée ✅",
-      },
-      error: {
-        en: (msg) => `Error: ${msg}`,
-        fr: (msg) => `Erreur : ${msg}`,
-      },
-      githubNotConfigured: {
-        en: "GitHub publishing is not configured",
-        fr: "La publication GitHub n’est pas configurée",
-      },
+    );
+
+    // Cleanup
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      listenerRefs.current.forEach((refListener) => off(refListener));
+      listenerRefs.current = [];
     };
+  }, [region]);
 
-    const entry = messages[key];
-    if (!entry) return key;
-    const value = entry[language] || entry.en;
-    return typeof value === "function" ? value(arg) : value;
-  };
+  // Helper functions
+  const showToast = useCallback((message, severity = "info") => {
+    setToastMessage(message);
+    setToastSeverity(severity);
+    setToastOpen(true);
+  }, []);
 
-  handleGithubPublish = async (environments, commitMessage) => {
-    if (!this.state.githubPublishEnabled) {
-      this.showToast(this.getLogMessage("githubNotConfigured"), "warning");
-      return;
+  const closeToast = useCallback(() => {
+    setToastOpen(false);
+  }, []);
+
+  const addPublishLog = useCallback((message) => {
+    setPublishLogs((prev) => [...prev, message]);
+  }, []);
+
+  const getLogMessage = useCallback(
+    (key, arg) => {
+      const messages = {
+        start: {
+          en: "Starting GitHub publish...",
+          fr: "Démarrage de la publication sur GitHub...",
+        },
+        fetchConfig: {
+          en: "Fetching GitHub configuration...",
+          fr: "Récupération de la configuration GitHub...",
+        },
+        preparingPayload: {
+          en: "Preparing publish payload...",
+          fr: "Préparation du contenu de publication...",
+        },
+        publishing: {
+          en: "Publishing record to GitHub...",
+          fr: "Publication de l'enregistrement sur GitHub...",
+        },
+        markingPublished: {
+          en: "Marking record as published...",
+          fr: "Marquage de l'enregistrement comme publié...",
+        },
+        complete: {
+          en: "Publish complete",
+          fr: "Publication terminée",
+        },
+        error: {
+          en: (msg) => `Error: ${msg}`,
+          fr: (msg) => `Erreur : ${msg}`,
+        },
+        githubNotConfigured: {
+          en: "GitHub publishing is not configured",
+          fr: "La publication GitHub n'est pas configurée",
+        },
+      };
+
+      const entry = messages[key];
+      if (!entry) return key;
+      const value = entry[language] || entry.en;
+      return typeof value === "function" ? value(arg) : value;
+    },
+    [language],
+  );
+
+  // Toggle modal helper
+  const toggleModal = useCallback(
+    (modalSetter, state, key = "", userID = "") => {
+      setModalKey(key);
+      setModalUserID(userID);
+      modalSetter(state);
+    },
+    [],
+  );
+
+  // Action handlers
+  const handleEditRecord = useCallback(
+    (recordID, userID) => {
+      navigate(`/${language}/${region}/${userID}/${recordID}`);
+    },
+    [navigate, language, region],
+  );
+
+  const handleCloneRecord = useCallback(
+    (recordID, sourceUserID) => {
+      if (auth.currentUser) {
+        cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
+      }
+    },
+    [region],
+  );
+
+  const handleDeleteRecord = useCallback(
+    (recordID, userID) => {
+      toggleModal(setDeleteModalOpen, true, recordID, userID);
+    },
+    [toggleModal],
+  );
+
+  const confirmDelete = useCallback(async () => {
+    if (modalKey && modalUserID) {
+      setLoading(true);
+      await deleteRecord(region, modalUserID, modalKey);
+      setLoading(false);
     }
-    this.setState({ githubPublishLoading: true, publishLogs: [] });
-    try {
-      const { match } = this.props;
-      const { region } = match.params;
-      const { publishRecordToGitHub } = this.context;
+  }, [region, modalKey, modalUserID]);
 
-      this.addPublishLog(this.getLogMessage("start"));
-      const record = this.state.records.find((r) => r.recordID === this.state.modalKey);
-      if (!record) throw new Error("Record not found in state.");
+  const handleTransferRecord = useCallback(
+    (recordID, userID) => {
+      toggleModal(setTransferModalOpen, true, recordID, userID);
+    },
+    [toggleModal],
+  );
 
-      // Fetch GitHub config for file naming template
-      this.addPublishLog(this.getLogMessage("fetchConfig"));
-      const db = getDatabase(firebase);
-      const configSnapshot = await get(ref(db, `admin/${region}/githubCredentials`));
-      const config = configSnapshot.val() || {};
-
-      this.addPublishLog(this.getLogMessage("preparingPayload"));
-      const payload = await preparePublishPayload(record, environments, commitMessage, config, region);
-
-      this.addPublishLog(this.getLogMessage("publishing"));
-      await publishRecordToGitHub({
-        ...payload,
-        recordId: this.state.modalKey,
-        userId: this.state.modalUserID,
-        region,
-      });
-
-      this.addPublishLog(this.getLogMessage("markingPublished"));
-      await this.handleSubmitRecord(this.state.modalKey, this.state.modalUserID, "published");
-      this.showToast("Published to GitHub successfully!", "success");
-      this.addPublishLog(this.getLogMessage("complete"));
-      this.setState({ githubPublishModalOpen: false });
-    } catch (error) {
-      console.error("Publish error:", error);
-      this.showToast(`Error publishing: ${error.message}`, "error");
-      this.addPublishLog(this.getLogMessage("error", error.message));
-    } finally {
-      this.setState({ githubPublishLoading: false });
+  const confirmTransfer = useCallback(async () => {
+    if (modalKey && modalUserID) {
+      return transferRecord(transferEmail, modalKey, modalUserID, region);
     }
-  };
+    return false;
+  }, [transferEmail, modalKey, modalUserID, region]);
 
-  render() {
-    const {
+  const handleSubmitRecord = useCallback(
+    (recordID, userID, newStatus) => {
+      const record = records.find((r) => r.recordID === recordID);
+
+      if (newStatus === "submitted") {
+        // Draft -> Submitted
+        toggleModal(setSubmitModalOpen, true, recordID, userID);
+      } else if (newStatus === "published") {
+        // Submitted -> Published
+        toggleModal(setPublishModalOpen, true, recordID, userID);
+      } else if (newStatus === "" && record?.status === "submitted") {
+        // Submitted -> Draft (unsubmit)
+        toggleModal(setUnSubmitModalOpen, true, recordID, userID);
+      } else if (newStatus === "submitted" && record?.status === "published") {
+        // Published -> Submitted (unpublish)
+        toggleModal(setUnPublishModalOpen, true, recordID, userID);
+      }
+    },
+    [records, toggleModal],
+  );
+
+  const confirmSubmitRecord = useCallback(
+    async (status) => {
+      if (modalKey && modalUserID) {
+        setLoading(true);
+        await submitRecord(region, modalUserID, modalKey, status);
+        setLoading(false);
+      }
+    },
+    [region, modalKey, modalUserID],
+  );
+
+  // GitHub publish handler
+  const handleGithubPublishClick = useCallback((recordID, userID) => {
+    setModalKey(recordID);
+    setModalUserID(userID);
+    setPublishLogs([]);
+    setGithubPublishModalOpen(true);
+  }, []);
+
+  const handleGithubPublish = useCallback(
+    async (environments, commitMessage) => {
+      if (!githubPublishEnabled) {
+        showToast(getLogMessage("githubNotConfigured"), "warning");
+        return;
+      }
+
+      setGithubPublishLoading(true);
+      setPublishLogs([]);
+
+      try {
+        addPublishLog(getLogMessage("start"));
+        const record = records.find((r) => r.recordID === modalKey);
+        if (!record) throw new Error("Record not found in state.");
+
+        // Fetch GitHub config for file naming template
+        addPublishLog(getLogMessage("fetchConfig"));
+        const db = getDatabase(firebase);
+        const configSnapshot = await get(
+          ref(db, `admin/${region}/githubCredentials`),
+        );
+        const config = configSnapshot.val() || {};
+
+        addPublishLog(getLogMessage("preparingPayload"));
+        const payload = await preparePublishPayload(
+          record,
+          environments,
+          commitMessage,
+          config,
+          region,
+        );
+
+        addPublishLog(getLogMessage("publishing"));
+        await publishRecordToGitHub({
+          ...payload,
+          recordId: modalKey,
+          userId: modalUserID,
+          region,
+        });
+
+        addPublishLog(getLogMessage("markingPublished"));
+        await submitRecord(region, modalUserID, modalKey, "published");
+
+        showToast("Published to GitHub successfully!", "success");
+        addPublishLog(getLogMessage("complete"));
+        setGithubPublishModalOpen(false);
+      } catch (error) {
+        console.error("Publish error:", error);
+        showToast(`Error publishing: ${error.message}`, "error");
+        addPublishLog(getLogMessage("error", error.message));
+      } finally {
+        setGithubPublishLoading(false);
+      }
+    },
+    [
+      githubPublishEnabled,
       records,
-      recordsFilter,
-      showRecordTypes,
-      showUsers,
-      deleteModalOpen,
-      transferModalOpen,
-      transferEmail,
-      transferUserNotFound,
       modalKey,
       modalUserID,
-      unPublishModalOpen,
-      publishModalOpen,
-      unSubmitModalOpen,
-      submitModalOpen,
-      loading,
-      users,
-    } = this.state;
+      region,
+      publishRecordToGitHub,
+      showToast,
+      getLogMessage,
+      addPublishLog,
+    ],
+  );
 
-    const { match } = this.props;
-    const { language } = match.params;
+  return (
+    <>
+      {/* Modals (render in portal; avoid wrapper divs in Grid) */}
+      <TransferModal
+        open={transferModalOpen}
+        onClose={() => {
+          setTransferModalOpen(false);
+          setTransferEmail("");
+        }}
+        onAccept={confirmTransfer}
+        transferUserNotFound={transferUserNotFound}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        email={transferEmail}
+        setEmail={setTransferEmail}
+      />
+      <SimpleModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onAccept={confirmDelete}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      />
+      <SimpleModal
+        open={submitModalOpen}
+        onClose={() => setSubmitModalOpen(false)}
+        onAccept={() => confirmSubmitRecord("submitted")}
+        aria-labelledby="simple-modal-title"
+      />
+      <SimpleModal
+        open={publishModalOpen}
+        onClose={() => setPublishModalOpen(false)}
+        onAccept={() => confirmSubmitRecord("published")}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      />
+      <SimpleModal
+        open={unPublishModalOpen}
+        onClose={() => setUnPublishModalOpen(false)}
+        onAccept={() => confirmSubmitRecord("submitted")}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      />
+      <SimpleModal
+        open={unSubmitModalOpen}
+        onClose={() => setUnSubmitModalOpen(false)}
+        onAccept={() => confirmSubmitRecord("")}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      />
+      <GitHubPublishDialog
+        open={githubPublishModalOpen}
+        onClose={() => setGithubPublishModalOpen(false)}
+        onPublish={handleGithubPublish}
+        region={region}
+        recordTitle={
+          records.find((r) => r.recordID === modalKey)?.title?.[language] || ""
+        }
+        loading={githubPublishLoading}
+        progressLogs={publishLogs}
+      />
 
-    const recordTypeOptions = ["", "submitted", "published"];
+      {/* Toast */}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={6000}
+        onClose={closeToast}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={closeToast}
+          severity={toastSeverity}
+          variant="filled"
+          elevation={6}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
 
-    // sort records - drafts then submitted then published
-    let recordsToShow = records
-      .filter((record) => showUsers.includes(record.userinfo.email))
-      .sort((a, b) => a.created < b.created);
-
-    // the text search
-    if (recordsFilter) {
-      recordsToShow = recordsToShow.filter((record) => {
-        const recordText = JSON.stringify([
-          record.title || {},
-          record.abstract || {},
-        ]).toUpperCase();
-        return recordText.includes(recordsFilter.toUpperCase());
-      });
-    }
-
-    const recordCountsByStatus = {
-      draft: (recordsToShow.filter((record) => record.status === "") || [])
-        .length,
-      submitted: (
-        recordsToShow.filter((record) => record.status === "submitted") || []
-      ).length,
-      published: (
-        recordsToShow.filter((record) => record.status === "published") || []
-      ).length,
-    };
-
-    recordsToShow = recordsToShow.filter((record) =>
-      showRecordTypes.includes(record.status)
-    );
-
-    recordsToShow = recordsToShow.sort((a, b) => {
-      return (
-        showRecordTypes.indexOf(a.status) > showRecordTypes.indexOf(b.status)
-      );
-    });
-
-    const recordStatusTranslate = {
-      draft: { en: "Draft", fr: "Brouillon" },
-      submitted: { en: "Submitted", fr: "Soumis" },
-      published: { en: "Published", fr: "Publié" },
-    };
-    const selectedText = language === "fr" ? "sélectionnés" : "selected";
-    return (
+      {/* Main content grid */}
       <Grid
         container
         direction="column"
@@ -461,239 +412,51 @@ class Reviewer extends FormClassTemplate {
         alignItems="stretch"
         spacing={1}
       >
-        <TransferModal
-          open={transferModalOpen}
-          onClose={() => {
-            this.toggleModal("transferModalOpen", false);
-            this.setState({ transferEmail: "" });
-          }}
-          onAccept={() => this.handleTransferRecord(modalKey, modalUserID)}
-          transferUserNotFound={transferUserNotFound}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          email={transferEmail}
-          setEmail={(v) => this.setState({ transferEmail: v })}
-        />
-        <SimpleModal
-          open={deleteModalOpen}
-          onClose={() => this.toggleModal("deleteModalOpen", false)}
-          onAccept={() => this.deleteRecord(modalKey, modalUserID)}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        />
-        <SimpleModal
-          open={submitModalOpen}
-          onClose={() => this.toggleModal("submitModalOpen", false)}
-          onAccept={() =>
-            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
-          }
-          aria-labelledby="simple-modal-title"
-        />
-        <SimpleModal
-          open={publishModalOpen}
-          onClose={() => this.toggleModal("publishModalOpen", false)}
-          onAccept={() =>
-            this.handleSubmitRecord(modalKey, modalUserID, "published")
-          }
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        />
-        <SimpleModal
-          open={unPublishModalOpen}
-          onClose={() => this.toggleModal("unPublishModalOpen", false)}
-          onAccept={() =>
-            this.handleSubmitRecord(modalKey, modalUserID, "submitted")
-          }
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        />
-        <SimpleModal
-          open={unSubmitModalOpen}
-          onClose={() => this.toggleModal("unSubmitModalOpen", false)}
-          onAccept={() => this.handleSubmitRecord(modalKey, modalUserID, "")}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        />
-        <GitHubPublishDialog
-          open={this.state.githubPublishModalOpen}
-          onClose={() => this.setState({ githubPublishModalOpen: false })}
-          onPublish={this.handleGithubPublish}
-          region={match.params.region}
-          recordTitle={
-            records.find((r) => r.recordID === modalKey)?.title?.[language] ||
-            ""
-          }
-          loading={this.state.githubPublishLoading}
-          progressLogs={this.state.publishLogs}
-        />
-        <Grid >
+        {/* Header */}
+        <Grid style={{ paddingTop: 0 }}>
           <Typography variant="h5">
             <I18n>
               <En>Review submissions</En>
               <Fr>Examen des soumissions</Fr>
             </I18n>
           </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            style={{ marginTop: "6px" }}
+          >
+            <I18n>
+              <En>
+                Review, manage, and publish metadata records. Use filters to find
+                specific submissions by status, author, or title.
+              </En>
+              <Fr>
+                Examinez, gérez et publiez les enregistrements de métadonnées.
+                Utilisez les filtres pour trouver des soumissions spécifiques par
+                statut, auteur ou titre.
+              </Fr>
+            </I18n>
+          </Typography>
         </Grid>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <Snackbar
-              open={this.state.toastOpen}
-              autoHideDuration={6000}
-              onClose={this.closeToast}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-              <Alert onClose={this.closeToast} severity={this.state.toastSeverity} variant="filled" elevation={6}>
-                {this.state.toastMessage}
-              </Alert>
-            </Snackbar>
-            <Paper
-              style={{
-                padding: "10px",
-                margin: "10px",
-                width: "100%",
-              }}
-            >
-              <QuestionText>
-                <En>Filters</En>
-                <Fr>Filtres</Fr>
-              </QuestionText>
-              <Grid container direction="column" spacing={2}>
-                <Grid >
-                  <CheckBoxList
-                    value={showRecordTypes}
-                    onChange={(e) => {
-                      this.setState({ showRecordTypes: e });
-                    }}
-                    options={recordTypeOptions}
-                    optionLabels={["draft", "submitted", "published"].map(
-                      (status) =>
-                        `${recordStatusTranslate[status][language]} (${recordCountsByStatus[status]})`
-                    )}
-                  />
-                </Grid>
-                <Grid >
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2a-content"
-                      id="panel2a-header"
-                    >
-                      <Typography>
-                        {showUsers.length === users.length ? (
-                          <I18n
-                            en="Users (All users selected)"
-                            fr="Utilisateurs (Tous les utilisateurs)"
-                          />
-                        ) : (
-                          <I18n
-                            en={`Users (${showUsers.length}  ${selectedText})`}
-                            fr={`Utilisateurs (${showUsers.length}  ${selectedText})`}
-                          />
-                        )}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container direction="column">
-                        <Grid >
-                          <En>Select All / None</En>
-                          <Fr>Tout sélectionner/Aucun</Fr>
 
-                          <Checkbox
-                            label="Show All / None"
-                            onChange={(e) => {
-                              this.setState({
-                                showUsers: e.target.checked ? users : [],
-                              });
-                            }}
-                          />
-                        </Grid>
-                        <Grid >
-                          <CheckBoxList
-                            value={showUsers}
-                            onChange={(e) => {
-                              this.setState({ showUsers: e });
-                            }}
-                            options={users}
-                            labelSize={null}
-                          />
-                        </Grid>
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                </Grid>
-                <Grid >
-                  <TextField
-                    fullWidth
-                    onChange={(e) => {
-                      this.setState({ recordsFilter: e.target.value });
-                    }}
-                    label={
-                      <I18n
-                        en="Search title and abstract"
-                        fr="Rechercher le titre et le résumé"
-                      />
-                    }
-                  />
-                </Grid>
-              </Grid>
-            </Paper>
-            {recordsToShow.length ? (
-              <>
-                <Grid container direction="column">
-                  <Grid>
-                    <Typography>
-                      <I18n>
-                        <En>
-                          These are the submissions we have received from all
-                          users that have not yet been reviewed. To accept a
-                          record, click the 'Publish' button.
-                        </En>
-                        <Fr>
-                          Ce sont les soumissions que nous avons reçues de tous
-                          les utilisateurs qui n'ont pas encore été examinées.
-                          Pour accepter un enregistrement, cliquez sur le bouton
-                          « Publier ».
-                        </Fr>
-                      </I18n>
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <List>
-                      {recordsToShow.map((record) => (
-                        <RecordItem
-                          key={record.recordID}
-                          record={record}
-                          // eslint-disable-next-line react/jsx-no-bind
-                          toggleModal={this.toggleModal.bind(this)}
-                          editRecord={this.editRecord.bind(this)}
-                          handleCloneRecord={this.handleCloneRecord.bind(this)}
-                          githubPublishEnabled={this.state.githubPublishEnabled}
-                        />
-                      ))}
-                    </List>
-                  </Grid>
-                </Grid>
-              </>
-            ) : (
-              <Grid container direction="column">
-                <Grid>
-                  <Typography>
-                    <I18n>
-                      <En>There are no records waiting to be reviewed.</En>
-                      <Fr>Aucun dossier n'attend d'être examiné.</Fr>
-                    </I18n>
-                  </Typography>
-                </Grid>
-              </Grid>
-            )}
-          </>
-        )}
+        {/* Record List */}
+        <Grid style={{ paddingTop: 0 }}>
+          <RecordList
+            records={records}
+            config={reviewerConfig}
+            loading={loading}
+            onEditRecord={handleEditRecord}
+            onDeleteRecord={handleDeleteRecord}
+            onCloneRecord={handleCloneRecord}
+            onSubmitRecord={handleSubmitRecord}
+            onTransferRecord={handleTransferRecord}
+            onGithubPublishClick={handleGithubPublishClick}
+            githubPublishEnabled={githubPublishEnabled}
+          />
+        </Grid>
       </Grid>
-    );
-  }
-}
+    </>
+  );
+};
 
-Reviewer.contextType = UserContext;
-export default withRouter(Reviewer);
+export default Reviewer;
