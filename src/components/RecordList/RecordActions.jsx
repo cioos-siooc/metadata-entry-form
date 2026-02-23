@@ -26,7 +26,6 @@ import {
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import recordToEML from "../../utils/recordToEML";
-import recordToDataCite from "../../utils/recordToDataCiteFromPython";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
