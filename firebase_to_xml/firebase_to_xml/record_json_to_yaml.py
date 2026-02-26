@@ -201,7 +201,7 @@ def record_json_to_yaml(record):
                 "organization": {
                     "name": contact.get("orgName"),
                     "url": contact.get("orgURL"),
-                    "address": contact.get("orgAdress"),
+                    "address": contact.get("orgAddress"),
                     "city": contact.get("orgCity"),
                     "country": contact.get("orgCountry"),
                     "email": contact.get("orgEmail"),

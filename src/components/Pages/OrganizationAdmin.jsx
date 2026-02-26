@@ -43,6 +43,7 @@ import { I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 import withRouter from "../../utils/withRouter";
 import { UserContext } from "../../providers/UserProvider";
+import LogoUpload from "../FormComponents/LogoUpload";
 
 class OrganizationAdmin extends FormClassTemplate {
   constructor(props) {
@@ -376,6 +377,40 @@ class OrganizationAdmin extends FormClassTemplate {
                   required
                 />
               </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField 
+                  fullWidth 
+                  label="Email" 
+                  value={editingOrg?.orgEmail || ""} 
+                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgEmail: e.target.value } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <LogoUpload 
+                  label="Logo (EN)"
+                  value={editingOrg?.orgLogoEn || ""}
+                  path={`logos/${editingOrg?.orgSlug || 'temp'}/en`}
+                  onChange={(url) => this.setState({ editingOrg: { ...editingOrg, orgLogoEn: url } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <LogoUpload 
+                  label="Logo (FR)"
+                  value={editingOrg?.orgLogoFr || ""}
+                  path={`logos/${editingOrg?.orgSlug || 'temp'}/fr`}
+                  onChange={(url) => this.setState({ editingOrg: { ...editingOrg, orgLogoFr: url } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField 
+                  fullWidth 
+                  label="Address" 
+                  multiline
+                  rows={2}
+                  value={editingOrg?.orgAddress || ""} 
+                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgAddress: e.target.value } })}
+                />
+              </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
@@ -445,6 +480,40 @@ class OrganizationAdmin extends FormClassTemplate {
                   label="URL" 
                   value={reviewingRequest?.orgURL || ""} 
                   onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgURL: e.target.value } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField 
+                  fullWidth 
+                  label="Email" 
+                  value={reviewingRequest?.orgEmail || ""} 
+                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgEmail: e.target.value } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <LogoUpload 
+                  label="Logo (EN)"
+                  value={reviewingRequest?.orgLogoEn || ""}
+                  path={`logos/${slugify(reviewingRequest?.orgNameEn || 'temp')}/en`}
+                  onChange={(url) => this.setState({ reviewingRequest: { ...reviewingRequest, orgLogoEn: url } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <LogoUpload 
+                  label="Logo (FR)"
+                  value={reviewingRequest?.orgLogoFr || ""}
+                  path={`logos/${slugify(reviewingRequest?.orgNameEn || 'temp')}/fr`}
+                  onChange={(url) => this.setState({ reviewingRequest: { ...reviewingRequest, orgLogoFr: url } })}
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField 
+                  fullWidth 
+                  label="Address" 
+                  multiline
+                  rows={2}
+                  value={reviewingRequest?.orgAddress || ""} 
+                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgAddress: e.target.value } })}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>

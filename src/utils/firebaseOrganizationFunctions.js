@@ -75,7 +75,7 @@ export async function approveOrganizationRequest(requestId, requestData, orgSlug
     orgAcceptedNames: requestData.orgAcceptedNames || [],
     orgEmail: requestData.orgEmail || "",
     orgURL: requestData.orgURL || "",
-    orgAdress: requestData.orgAdress || "",
+    orgAddress: requestData.orgAddress || "",
     orgCity: requestData.orgCity || "",
     orgCountry: requestData.orgCountry || "",
     orgRor: requestData.orgRor || "",

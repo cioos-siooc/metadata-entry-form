@@ -15,6 +15,8 @@ import { submitOrganizationRequest } from "../../utils/firebaseOrganizationFunct
 import { getBlankOrganizationRequest } from "../../utils/blankRecord";
 import { UserContext } from "../../providers/UserProvider";
 import { I18n } from "../I18n";
+import LogoUpload from "../FormComponents/LogoUpload";
+import { slugify } from "../../utils/organizationUtils";
 
 export default function RequestOrganizationDialog({ open, onClose, initialName = "" }) {
   const { user } = useContext(UserContext);
@@ -102,6 +104,40 @@ export default function RequestOrganizationDialog({ open, onClose, initialName =
               value={request.orgURL} 
               onChange={(e) => setRequest({ ...request, orgURL: e.target.value })}
               required
+            />
+          </Grid>
+          <Grid size={{ xs: 6 }}>
+            <TextField 
+              fullWidth 
+              label="Email" 
+              value={request.orgEmail} 
+              onChange={(e) => setRequest({ ...request, orgEmail: e.target.value })}
+            />
+          </Grid>
+          <Grid size={{ xs: 6 }}>
+            <LogoUpload 
+              label="Logo (EN)"
+              value={request.orgLogoEn}
+              path={`logos/requests/${slugify(request.orgNameEn || 'temp')}/en`}
+              onChange={(url) => setRequest({ ...request, orgLogoEn: url })}
+            />
+          </Grid>
+          <Grid size={{ xs: 6 }}>
+            <LogoUpload 
+              label="Logo (FR)"
+              value={request.orgLogoFr}
+              path={`logos/requests/${slugify(request.orgNameEn || 'temp')}/fr`}
+              onChange={(url) => setRequest({ ...request, orgLogoFr: url })}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TextField 
+              fullWidth 
+              label="Address" 
+              multiline
+              rows={2}
+              value={request.orgAddress} 
+              onChange={(e) => setRequest({ ...request, orgAddress: e.target.value })}
             />
           </Grid>
           <Grid size={{ xs: 12 }}>

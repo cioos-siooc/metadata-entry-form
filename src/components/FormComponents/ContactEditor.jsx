@@ -122,7 +122,7 @@ const ContactEditor = ({
       orgAcceptedNames: org.orgAcceptedNames || [],
       orgEmail: org.orgEmail || "",
       orgURL: org.orgURL || "",
-      orgAdress: org.orgAdress || "",
+      orgAddress: org.orgAddress || "",
       orgCity: org.orgCity || "",
       orgCountry: org.orgCountry || "",
       orgRor: org.orgRor || "",
@@ -331,8 +331,8 @@ const ContactEditor = ({
           <Grid >
             <TextField
               label={<I18n en="Address" fr="Adresse" />}
-              value={value.orgAdress}
-              onChange={updateContactEvent("orgAdress")}
+              value={value.orgAddress}
+              onChange={updateContactEvent("orgAddress")}
               disabled={selectedOrg !== null || disabled}
               fullWidth
             />
