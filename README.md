@@ -3,7 +3,10 @@
 [![Run Build and Tests](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml/badge.svg)](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-CIOOS Metadata entry form
+CIOOS Metadata entry form 
+
+Production: <https://form.cioos.ca>
+Development: <https://cioos-metadata-form-dev-258dc--development-tc36g7it.web.app/>
 
 ## Project Goal
 The primary goal of this project is to provide a user-friendly web interface for creating, editing, and managing metadata records for the Canadian Integrated Ocean Observing System (CIOOS). It facilitates the collection of high-quality metadata that complies with standards (ISO 19115), supports bilingual content (English/French), and integrates with external systems like GitHub and DataCite (for DOIs).
