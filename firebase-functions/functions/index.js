@@ -1,4 +1,6 @@
 const admin = require("firebase-admin");
+admin.initializeApp();
+
 const { translate } = require("./translate");
 const { checkURLActive } = require("./serverUtils");
 const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, getCredentialsStored, getDatacitePrefix } = require("./datacite");
@@ -10,9 +12,10 @@ const {
   downloadRecord,
   regenerateXMLforRecord,
 } = require("./updates");
-const { githubPublishRecord } = require("./githubPublish");
-
-admin.initializeApp();
+const { 
+  githubPublishRecord, 
+  processOrganizationTask
+} = require("./githubPublish");
 
 exports.translate = translate;
 exports.notifyReviewer = notifyReviewer;
@@ -30,3 +33,4 @@ exports.checkURLActive = checkURLActive;
 exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
 exports.githubPublishRecord = githubPublishRecord;
+exports.processOrganizationTask = processOrganizationTask;

@@ -108,6 +108,8 @@ class UserProviderClass extends FormClassTemplate {
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
+    const publishOrganizationToGitHub = httpsCallable(functions, "githubPublishOrganization");
+    const syncOrganizationsFromGitHub = httpsCallable(functions, "syncOrganizationsFromGitHub");
 
     return (
       <UserContext.Provider
@@ -124,6 +126,8 @@ class UserProviderClass extends FormClassTemplate {
           getCredentialsStored,
           getDatacitePrefix,
           publishRecordToGitHub,
+          publishOrganizationToGitHub,
+          syncOrganizationsFromGitHub,
         }}
       >
         {children}

@@ -15,10 +15,11 @@ import { submitOrganizationRequest } from "../../utils/firebaseOrganizationFunct
 import { getBlankOrganizationRequest } from "../../utils/blankRecord";
 import { UserContext } from "../../providers/UserProvider";
 import { I18n } from "../I18n";
-import LogoUpload from "../FormComponents/LogoUpload";
 import { slugify } from "../../utils/organizationUtils";
+import { getDatabase, ref, push, set } from "firebase/database";
+import firebase from "../../firebase";
 
-export default function RequestOrganizationDialog({ open, onClose, initialName = "" }) {
+export default function RequestOrganizationDialog({ open, onClose, onSuccess, initialName = "" }) {
   const { user } = useContext(UserContext);
   const { region } = useParams();
   const [request, setRequest] = useState({
@@ -38,8 +39,19 @@ export default function RequestOrganizationDialog({ open, onClose, initialName =
     };
 
     submitOrganizationRequest(requestData).then(() => {
+      // Auto-publish pending request to GitHub
+      const orgSlug = slugify(requestData.orgNameEn);
+      const database = getDatabase(firebase);
+      const taskId = push(ref(database, "admin/test/organizationTasks")).key;
+      set(ref(database, `admin/test/organizationTasks/${taskId}`), {
+        type: "publish",
+        organization: { ...requestData, orgSlug, status: "pending" },
+        commitMessage: `New organization request: ${orgSlug}`,
+        requestedAt: new Date().toISOString(),
+        status: "pending",
+      });
       onClose();
-      alert("Organization request submitted. An admin will review it shortly.");
+      if (onSuccess) onSuccess();
     });
   };
 
@@ -71,6 +83,26 @@ export default function RequestOrganizationDialog({ open, onClose, initialName =
               label="Organization Name (FR)" 
               value={request.orgNameFr} 
               onChange={(e) => setRequest({ ...request, orgNameFr: e.target.value })}
+            />
+          </Grid>
+          <Grid size={{ xs: 6 }}>
+            <TextField 
+              fullWidth 
+              label="Description (EN)" 
+              multiline
+              rows={2}
+              value={request.orgDescriptionEn} 
+              onChange={(e) => setRequest({ ...request, orgDescriptionEn: e.target.value })}
+            />
+          </Grid>
+          <Grid size={{ xs: 6 }}>
+            <TextField 
+              fullWidth 
+              label="Description (FR)" 
+              multiline
+              rows={2}
+              value={request.orgDescriptionFr} 
+              onChange={(e) => setRequest({ ...request, orgDescriptionFr: e.target.value })}
             />
           </Grid>
           <Grid size={{ xs: 6 }}>
@@ -115,19 +147,21 @@ export default function RequestOrganizationDialog({ open, onClose, initialName =
             />
           </Grid>
           <Grid size={{ xs: 6 }}>
-            <LogoUpload 
-              label="Logo (EN)"
+            <TextField 
+              fullWidth 
+              label="Logo URL (EN)" 
               value={request.orgLogoEn}
-              path={`logos/requests/${slugify(request.orgNameEn || 'temp')}/en`}
-              onChange={(url) => setRequest({ ...request, orgLogoEn: url })}
+              onChange={(e) => setRequest({ ...request, orgLogoEn: e.target.value })}
+              helperText="SVG format preferred; PNG, JPG, JPEG also accepted."
             />
           </Grid>
           <Grid size={{ xs: 6 }}>
-            <LogoUpload 
-              label="Logo (FR)"
+            <TextField 
+              fullWidth 
+              label="Logo URL (FR)" 
               value={request.orgLogoFr}
-              path={`logos/requests/${slugify(request.orgNameEn || 'temp')}/fr`}
-              onChange={(url) => setRequest({ ...request, orgLogoFr: url })}
+              onChange={(e) => setRequest({ ...request, orgLogoFr: e.target.value })}
+              helperText="SVG format preferred; PNG, JPG, JPEG also accepted."
             />
           </Grid>
           <Grid size={{ xs: 12 }}>
@@ -143,12 +177,13 @@ export default function RequestOrganizationDialog({ open, onClose, initialName =
           <Grid size={{ xs: 12 }}>
             <TextField 
               fullWidth 
-              label="Acronyms / Accepted Name Variants" 
+              label="Aliases" 
               placeholder="e.g. DFO, MPO (one per line)"
               multiline
               rows={2}
               value={request.orgAcceptedNames} 
               onChange={(e) => setRequest({ ...request, orgAcceptedNames: e.target.value })}
+              helperText="Acronyms and alternate names for this organization"
             />
           </Grid>
         </Grid>
