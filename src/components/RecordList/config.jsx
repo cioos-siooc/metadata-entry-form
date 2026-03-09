@@ -482,7 +482,7 @@ export const recordToRow = (record, language, index) => ({
   userID: record.userinfo?.userID,
   title: record.title?.[language] || "",
   status: record.status || "",
-  author: record.userinfo?.email || "",
+  author: record.userinfo?.displayName || "",
   progress: Math.round(percentValid(record) * 100),
   created: record.created,
   region: record.region,
