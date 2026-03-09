@@ -51,7 +51,7 @@ const Shared = () => {
                     const recordDetails = recordSnapshot.val();
                     if (recordDetails) {
                       const jsRecord = firebaseToJSObject(recordDetails);
-                      const userInfo = { email: recordDetails.userinfo?.displayName || "" };
+                      const userInfo = { email: recordDetails.userinfo?.email || "" };
                       return standardizeRecord(jsRecord, userInfo, authorID, recordID);
                     }
                     throw new Error(
