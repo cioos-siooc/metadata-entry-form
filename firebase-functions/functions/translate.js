@@ -17,7 +17,7 @@ const translateText = async (
 ) => {
   try {
     const response = await client.chat({
-      model: "command-translate",
+      model: "command-a-translate-08-2025",
       messages: [
         {
           role: "user",
