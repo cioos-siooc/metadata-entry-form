@@ -16,6 +16,11 @@ on:
         description: 'Tag to deploy to production (e.g. v1.2.3)'
         required: true
         type: string
+      skip_cross_trigger:
+        description: 'Skip triggering the other deployment workflow (prevents loops)'
+        required: false
+        default: 'false'
+        type: string
 
 jobs:
   deploy:
@@ -27,7 +32,7 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
       - name: Check if user is repo admin
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
         run: |
           PERMISSION=$(gh api repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission --jq '.permission' 2>/dev/null || echo "none")
           if [ "$PERMISSION" != "admin" ]; then
@@ -106,3 +111,11 @@ jobs:
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
+      - name: Trigger GitHub Pages deployment
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
+        run: |
+          gh workflow run github-pages-deploy.yaml \
+            --field tag=${{ github.event.inputs.tag }} \
+            --field skip_cross_trigger=true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

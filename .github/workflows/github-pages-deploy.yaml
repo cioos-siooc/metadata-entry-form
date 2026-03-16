@@ -4,6 +4,16 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy to GitHub Pages (e.g. v1.2.3)'
+        required: true
+        type: string
+      skip_cross_trigger:
+        description: 'Skip triggering the other deployment workflow (prevents loops)'
+        required: false
+        default: 'false'
+        type: string
 permissions:
   contents: write
 jobs:
@@ -12,6 +22,29 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+      - name: Check if user is repo admin
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
+        run: |
+          PERMISSION=$(gh api repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission --jq '.permission' 2>/dev/null || echo "none")
+          if [ "$PERMISSION" != "admin" ]; then
+            echo "Error: Only repository admins can trigger manual deployments"
+            echo "User '${{ github.actor }}' has '$PERMISSION' permission, not 'admin'"
+            exit 1
+          fi
+          echo "User '${{ github.actor }}' verified as repo admin"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate tag exists
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git fetch --tags
+          if ! git rev-parse "${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag '${{ github.event.inputs.tag }}' does not exist"
+            exit 1
+          fi
+          echo "Tag '${{ github.event.inputs.tag }}' found"
 
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
@@ -34,3 +67,11 @@ jobs:
         env:
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
+      - name: Trigger Firebase Functions deployment
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
+        run: |
+          gh workflow run firebase-deploy.yaml \
+            --field tag=${{ github.event.inputs.tag }} \
+            --field skip_cross_trigger=true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

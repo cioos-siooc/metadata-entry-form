@@ -84,49 +84,55 @@ In the container, run the following steps:
 Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
 
 
-## Deploy to production site at GitHub pages
+## Deployment Overview
 
-Pushes to main automatically deploy to <https://cioos-siooc.github.io/metadata-entry-form/>
+### Frontend Deployment
 
-Or manually deploy any branch with
+- **Development**: Firebase Hosting preview sites are created for all pull requests and commits to the `development` branch. Check the pull request comments on GitHub for preview links. Handled by the `firebase-hosting-pull-request.yml` GitHub action. Preview sites are deleted after 30 days of inactivity.
+- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yml` GitHub action.
 
-`npm run deploy`
+### Firebase Functions Deployment
 
-## Deploy to dev preview sites
+Firebase Functions deploy automatically on version tags (`v*`) to production and on commits to the `development` branch or pull requests to development. Manual redeploys of production tags require repository admin approval.
 
-Firebase hosted preview sites are created for all pull requests. Once a pull request is generated, check the pull request comments on github for the link to the preview site. Deployment is handled by the `firebase-hosting-pull-request.yml` github action. Preview sites are deleted during a pull request close event or after 30 days of inactivity on the pull request. Any commit to the pull request branch will reset the timer.
+#### Automated Deployments
 
-## Deployment and Configuration of Firebase Functions
+- **Development**: Commits to the `development` branch automatically deploy Firebase Functions to the development Firebase project
+- **Pull Requests**: Functions changes in pull requests automatically deploy to the development project for testing
+- **Production**: Version tags (e.g., `v1.0.0`) automatically deploy to the production Firebase project. Both frontend and functions are deployed together.
 
-Our Firebase Functions infrastructure utilizes both GitHub Actions for automated and manual deployments and parameterized configuration for management of environment variables and credentials.
+#### Manual Redeployment (Admin Only)
 
-### Automated and Manual Deployment with GitHub Actions
+Repository admins can manually redeploy a previously-released version tag to production. Triggering either workflow automatically triggers the other with the same tag.
 
-We use a GitHub Actions workflow named `firebase-deploy` for deploying Firebase Functions. This workflow is triggered automatically on push to the main branch but can also be executed manually for feature branches.
+**To redeploy both frontend and functions together:**
+1. Go to the "Actions" tab in the GitHub repository
+2. Select either:
+   - `Deploy firebase functions` workflow, OR
+   - `Build and Deploy to Github pages` workflow
+3. Click "Run workflow"
+4. Enter the tag name to deploy (e.g., `v1.0.0`)
+5. Click "Run workflow"
 
-#### Workflow Features
+**How it works:**
+- If you trigger `Deploy firebase functions`, it deploys functions first, then automatically triggers the GitHub Pages workflow
+- If you trigger `Build and Deploy to Github pages`, it deploys the frontend first, then automatically triggers the Firebase Functions workflow
+- Both workflows verify you are a repo admin and validate the tag exists before deploying
+- Loop prevention: The second workflow (triggered automatically) skips the admin check since it's already been validated
 
-- **Automated Deployments on Push to Main**: Ensures that any changes merged into the main branch are automatically deployed to Firebase.
-- **Manual Deployment Option**: Allows for manual deployments of specific branches, useful for testing changes in feature branches. 
-- **Environment Variables and Secrets**: Uses GitHub Secrets to populate a virtual `.env` file with necessary configurations for the deployment process.
+**Note**: Only repository admins can trigger manual deployments.
 
-#### Manual Deployment Steps
+### Deploying to Development Project (Local)
 
-1. Go to the "Actions" tab in the GitHub repository.
-2. Select the `firebase-deploy` workflow.
-3. Click "Run workflow", select the branch to deploy, and initiate the workflow.
-
-### Deploying to Development Project
-
-To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" development project, follow these steps:
+To deploy updated Firebase functions locally to the "cioos-metadata-form-dev-258dc" development project:
 
 1. **Login** to firebase
-  
+
     ```bash
     firebase login
     ```
 
-2. **Ensure your local setup is linked to the correct Firebase project** by using the Firebase CLI to login and select the "cioos-metadata-form-dev-258dc" project.
+2. **Select the development Firebase project**:
 
     ```bash
     firebase use cioos-metadata-form-dev-258dc
@@ -134,14 +140,13 @@ To deploy updated Firebase functions to the "cioos-metadata-form-dev-258dc" deve
 
 3. **Make necessary changes to your Firebase functions.**
 
-4. **Deploy the changes by running the command:**
-From the `./firebase-functions/functions` directory run the command:
+4. **Deploy the changes from the `./firebase-functions/functions` directory**:
 
     ```bash
     firebase deploy --only functions
     ```
 
-This will deploy the updated functions to the development project. The GitHub Action for deploying to the preview URL is already configured to use this development project, ensuring that any previews generated from pull requests will interact with the updated dev functions instead of the production version.
+**Automated GitHub-based deployments**: Pull requests and commits to the `development` branch automatically deploy to the development project via GitHub Actions, so manual local deploys are only needed for quick testing.
 
 #### GitHub Secrets and .env File Creation
 
