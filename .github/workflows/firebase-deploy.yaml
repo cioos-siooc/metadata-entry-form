@@ -2,10 +2,20 @@ name: Deploy firebase functions
 on:
   push:
     branches:
-      - '**'
+      - development
+    paths:
+      - "firebase-functions/**"
+    tags:
+      - 'v*'
+  pull_request:
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy to production (e.g. v1.2.3)'
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -14,6 +24,29 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+      - name: Check if user is repo admin
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          PERMISSION=$(gh api repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission --jq '.permission' 2>/dev/null || echo "none")
+          if [ "$PERMISSION" != "admin" ]; then
+            echo "Error: Only repository admins can trigger manual deployments"
+            echo "User '${{ github.actor }}' has '$PERMISSION' permission, not 'admin'"
+            exit 1
+          fi
+          echo "User '${{ github.actor }}' verified as repo admin"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate tag exists
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git fetch --tags
+          if ! git rev-parse "${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag '${{ github.event.inputs.tag }}' does not exist"
+            exit 1
+          fi
+          echo "Tag '${{ github.event.inputs.tag }}' found"
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
         with:
@@ -47,13 +80,13 @@ jobs:
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
-          echo "Selecting Firebase project based on branch..."
-          if [ "${GITHUB_REF##*/}" = "main" ]; then
-            echo "On main branch, using default project"
+          echo "Selecting Firebase project based on event type..."
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] || [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "Deploying to production"
             echo "VITE_DEV_DEPLOYMENT=false" >> .env
             firebase use default
           else
-            echo "On non-main branch, using dev project"
+            echo "On dev branch or PR, deploying to dev"
             echo "VITE_DEV_DEPLOYMENT=true" >> .env
             firebase use dev
           fi

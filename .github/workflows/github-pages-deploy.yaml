@@ -1,15 +1,13 @@
 name: Build and Deploy to Github pages
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - '**/.md'
+    tags:
+      - 'v*'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
   build-and-deploy:
-    concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️

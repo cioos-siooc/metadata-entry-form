@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
+const { onCall } = require("firebase-functions/v2/https");
 const https = require("https");
 const axios = require("axios");
 
@@ -18,21 +19,29 @@ function getRecordFilename(record) {
 exports.getRecordFilename = getRecordFilename;
 
 // creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = functions.https.onCall(
-  async ({ record, fileType, region }, context) => {
+exports.downloadRecord = onCall(async (request) => {
+  const { record, fileType, region } = request.data || {};
 
-    let urlBase = urlBaseDefault;
-    try {
-      urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
-    } catch (error) {
-      console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
-    }
-
-    const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
-    const response = await axios.post(url, record);
-    return response.data;
+  let urlBase = urlBaseDefault;
+  try {
+    urlBase =
+      (await admin
+        .database()
+        .ref("admin")
+        .child(region)
+        .child("recordGeneratorURL")
+        .once("value"))?.val() ?? urlBaseDefault;
+  } catch (error) {
+    console.error(
+      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
+      error
+    );
   }
-);
+
+  const url = `${urlBase}recordTo${String(fileType || "").toUpperCase()}`;
+  const response = await axios.post(url, record);
+  return response.data;
+});
 
 async function updateXML(path, region, status = "", filename = "") {
 
