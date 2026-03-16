@@ -32,7 +32,7 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
       - name: Check if user is repo admin
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           PERMISSION=$(gh api repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission --jq '.permission' 2>/dev/null || echo "none")
           if [ "$PERMISSION" != "admin" ]; then
@@ -43,15 +43,6 @@ jobs:
           echo "User '${{ github.actor }}' verified as repo admin"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Validate tag exists
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          git fetch --tags
-          if ! git rev-parse "${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
-            echo "Tag '${{ github.event.inputs.tag }}' does not exist"
-            exit 1
-          fi
-          echo "Tag '${{ github.event.inputs.tag }}' found"
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
         with:

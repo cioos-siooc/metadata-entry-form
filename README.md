@@ -89,7 +89,7 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 ### Frontend Deployment
 
 - **Development**: Firebase Hosting preview sites are created for all pull requests and commits to the `development` branch. Check the pull request comments on GitHub for preview links. Handled by the `firebase-hosting-pull-request.yml` GitHub action. Preview sites are deleted after 30 days of inactivity.
-- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yml` GitHub action.
+- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
 
 ### Firebase Functions Deployment
 
@@ -118,7 +118,7 @@ Repository admins can manually redeploy a previously-released version tag to pro
 - If you trigger `Deploy firebase functions`, it deploys functions first, then automatically triggers the GitHub Pages workflow
 - If you trigger `Build and Deploy to Github pages`, it deploys the frontend first, then automatically triggers the Firebase Functions workflow
 - Both workflows verify you are a repo admin and validate the tag exists before deploying
-- Loop prevention: The second workflow (triggered automatically) skips the admin check since it's already been validated
+- Loop prevention: The cross-triggered workflow deploys but does not trigger the other workflow back
 
 **Note**: Only repository admins can trigger manual deployments.
 
