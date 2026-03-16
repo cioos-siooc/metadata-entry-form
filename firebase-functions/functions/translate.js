@@ -8,6 +8,7 @@ const cohereApiKeyCred = process.env.COHERE_API_KEY || cohereApiKey.value();
 
 const client = new CohereClientV2({
   token: cohereApiKeyCred,
+  clientName: "cioos-metadata-entry-form",
 });
 
 function buildGlossaryPrompt(sourceLanguageCode, targetLanguageCode) {
