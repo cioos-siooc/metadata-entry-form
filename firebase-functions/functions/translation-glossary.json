@@ -1,0 +1,11 @@
+[
+  { "en": "CIOOS", "fr": "SIOOC" },
+  { "en": "mooring", "fr": "mouillage" },
+  { "en": "moorings", "fr": "mouillages" },
+  { "en": "Essential Ocean Variables", "fr": "Variables océaniques essentielles" },
+  { "en": "EOV", "fr": "VOE" },
+  { "en": "ocean observing", "fr": "observation océanique" },
+  { "en": "metadata", "fr": "métadonnées" },
+  { "en": "dataset", "fr": "jeu de données" },
+  { "en": "datasets", "fr": "jeux de données" }
+]
