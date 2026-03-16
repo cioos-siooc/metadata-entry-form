@@ -157,10 +157,8 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 GMAIL_USER=
 GMAIL_PASS=
 
-# AWS Translate credentials
-AWS_REGION=
-AWS_ACCESSKEYID=
-AWS_SECRETACCESSKEY=
+# Cohere API key for translations
+COHERE_API_KEY=
 
 # GitHub token (repo + pages scopes) for issue generation
 GITHUB_AUTH=

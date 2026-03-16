@@ -70,9 +70,7 @@ jobs:
           echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
           echo "GMAIL_PASS=${{ secrets.GMAIL_PASS }}" >> .env
           echo "DATACITE_AUTH_HASH=${{ secrets.DATACITE_AUTH_HASH }}" >> .env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-          echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
-          echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
+          echo "COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
@@ -95,9 +93,7 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           DATACITE_AUTH_HASH: ${{ secrets.DATACITE_AUTH_HASH }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
-          AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}

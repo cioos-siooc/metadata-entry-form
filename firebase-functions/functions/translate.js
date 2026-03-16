@@ -1,53 +1,47 @@
 const functions = require("firebase-functions");
 const { defineString } = require('firebase-functions/params');
-const AWS = require("aws-sdk");
+const { CohereClientV2 } = require("cohere-ai");
 
-const awsRegion = defineString('AWS_REGION');
-const awsAccessKeyId = defineString('AWS_ACCESSKEYID');
-const awsSecretAccessKey = defineString('AWS_SECRETACCESSKEY');
+const cohereApiKey = defineString('COHERE_API_KEY');
+const cohereApiKeyCred = process.env.COHERE_API_KEY || cohereApiKey.value();
 
-const awsRegionCred = process.env.AWS_REGION || awsRegion.value()
-const awsAccessKeyIdCred = process.env.AWS_ACCESSKEYID || awsAccessKeyId.value()
-const awsSecretAccessKeyCred = process.env.AWS_SECRETACCESSKEY || awsSecretAccessKey.value()
+const client = new CohereClientV2({
+  token: cohereApiKeyCred,
+});
 
-const awsAuth = {
-  region: awsRegionCred,
-  accessKeyId: awsAccessKeyIdCred,
-  secretAccessKey: awsSecretAccessKeyCred,
-};
-
-AWS.config = new AWS.Config(awsAuth);
-
-const translate = new AWS.Translate();
-
-// Translate up to 100,000 characters at a time using amazon translate
+// Translate up to 5000 characters at a time using Cohere
 const translateText = async (
   originalText,
   sourceLanguageCode,
   targetLanguageCode
 ) => {
-  return new Promise((resolve, reject) => {
-    const params = {
-      Text: originalText,
-      SourceLanguageCode: sourceLanguageCode,
-      TargetLanguageCode: targetLanguageCode,
-    };
+  try {
+    const response = await client.chat({
+      model: "command-translate",
+      messages: [
+        {
+          role: "user",
+          content: `Translate the following text from ${sourceLanguageCode === 'en' ? 'English' : 'French'} to ${targetLanguageCode === 'en' ? 'English' : 'French'}. Only provide the translation, nothing else:\n\n${originalText}`,
+        },
+      ],
+    });
 
-    try {
-      translate.translateText(params, (err, data) => {
-        if (err) {
-          // eslint-disable-next-line no-console
-          console.log("translateText error: ", err);
-          reject(err);
-        }
-
-        if (data) resolve(data);
-      });
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
+    // Extract the translation from the response
+    if (
+      response.message &&
+      response.message.content &&
+      response.message.content.length > 0
+    ) {
+      const translatedText = response.message.content[0].text;
+      return { TranslatedText: translatedText };
+    } else {
+      throw new Error("No translation received from Cohere API");
     }
-  });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("translateText error: ", err);
+    throw err;
+  }
 };
 
 exports.translate = functions.https.onCall(async (data, context) => {
