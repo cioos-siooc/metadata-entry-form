@@ -41,6 +41,17 @@ Serverless backend using Firebase Cloud Functions (Gen 2).
 *   **JavaScript (`functions/`)**: Node.js 22 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
 *   **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
 
+### Translation
+The app uses [Cohere](https://cohere.com/) to translate bilingual fields between English and French. The translation is handled by a Firebase Cloud Function in `firebase-functions/functions/translate.js`.
+
+A domain-specific glossary is maintained in `firebase-functions/functions/translation-glossary.json` to ensure accurate translation of oceanographic and CIOOS-specific terminology. To add a new term, append an entry to the JSON array:
+
+```json
+{ "en": "mooring", "fr": "mouillage" }
+```
+
+The glossary is automatically injected into the translation prompt based on the translation direction.
+
 ### Data Model & Validation
 *   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
 *   A record contains bilingual fields (objects with `en`/`fr` keys).
