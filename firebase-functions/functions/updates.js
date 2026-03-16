@@ -1,6 +1,5 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
-const { onCall } = require("firebase-functions/v2/https");
 const https = require("https");
 const axios = require("axios");
 
@@ -19,8 +18,8 @@ function getRecordFilename(record) {
 exports.getRecordFilename = getRecordFilename;
 
 // creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = onCall(async (request) => {
-  const { record, fileType, region } = request.data || {};
+exports.downloadRecord = functions.https.onCall(async (data, context) => {
+  const { record, fileType, region } = data || {};
 
   let urlBase = urlBaseDefault;
   try {
