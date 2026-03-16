@@ -12,30 +12,6 @@
     "fr": "mouillages"
   },
   {
-    "en": "Essential Ocean Variables",
-    "fr": "Variables océaniques essentielles"
-  },
-  {
-    "en": "EOV",
-    "fr": "VOE"
-  },
-  {
-    "en": "ocean observing",
-    "fr": "observation océanique"
-  },
-  {
-    "en": "metadata",
-    "fr": "métadonnées"
-  },
-  {
-    "en": "dataset",
-    "fr": "jeu de données"
-  },
-  {
-    "en": "datasets",
-    "fr": "jeux de données"
-  },
-  {
     "en": "DFO",
     "fr": "MPO"
   },
@@ -58,9 +34,5 @@
   {
     "en": "Department of Fisheries and Oceans",
     "fr": "Ministère des Pêches et des Océans"
-  },
-  {
-    "en": "DFO",
-    "fr": "MPO"
   }
 ]
