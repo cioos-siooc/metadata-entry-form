@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python3 -c \"from cioos_metadata_conversion import record; import inspect; print\\(inspect.getfile\\(record\\)\\)\")"
-    ]
-  }
-}
