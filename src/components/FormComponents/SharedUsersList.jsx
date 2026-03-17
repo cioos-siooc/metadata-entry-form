@@ -25,6 +25,7 @@ import {
 const SharedUsersList = ({ record, updateRecord, region }) => {
   const [users, setUsers] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const [inputValue, setInputValue] = useState("");
   const [sharedWithUsers, setSharedWithUsers] = useState({});
   const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
   const authorID = record.userID
@@ -128,6 +129,13 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
       };
     })
     .filter((x) => x.label)
+    .reduce((acc, current) => {
+      // Avoid duplicates by checking if label already exists
+      if (!acc.find((item) => item.label === current.label)) {
+        acc.push(current);
+      }
+      return acc;
+    }, [])
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
@@ -171,6 +179,8 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                   option.userID === value.userID
                 }
                 value={currentUser}
+                inputValue={inputValue}
+                onInputChange={(_, newValue) => setInputValue(newValue)}
                 onChange={(event, newValue) => setCurrentUser(newValue)}
                 fullWidth
                 filterSelectedOptions
@@ -181,11 +191,20 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                     label={<I18n en="Share with..." fr="Partager avec..." />}
                     variant="outlined"
                     style={{ marginTop: "16px" }}
+                    error={inputValue && !currentUser}
+                    helperText={
+                      inputValue && !currentUser && (
+                        <I18n
+                          en="User not found. Please select from the list."
+                          fr="Utilisateur non trouvé. Veuillez sélectionner dans la liste."
+                        />
+                      )
+                    }
                   />
                 )}
               />
               <Button
-                disabled={shareRecordDisabled}
+                disabled={shareRecordDisabled || !currentUser}
                 startIcon={<Add />}
                 onClick={() => {
                   if (currentUser) {

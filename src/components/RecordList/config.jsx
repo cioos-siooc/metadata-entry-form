@@ -1,6 +1,7 @@
 import React from "react";
 import { Chip } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
+import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
@@ -223,6 +224,14 @@ export const formatDate = (dateStr, language) => {
     : `il y a ${days} jour${days !== 1 ? "s" : ""}`;
 };
 
+const getStatusFilterOperators = (language) =>
+  getGridSingleSelectOperators()
+    .filter((operator) => operator.value === "isAnyOf")
+    .map((operator) => ({
+      ...operator,
+      label: language === "en" ? "is any of" : "est l'un de",
+    }));
+
 // ============================================================================
 // Column Definitions Factory
 // ============================================================================
@@ -232,7 +241,6 @@ export const createColumns = (language, region) => ({
     field: "status",
     headerName: language === "en" ? "Status" : "Statut",
     flex: 1,
-    minWidth: 130,
     maxWidth: 130,
     headerAlign: "center",
     align: "center",
@@ -257,60 +265,7 @@ export const createColumns = (language, region) => ({
         />
       );
     },
-    filterOperators: [
-      {
-        label: language === "en" ? "is any of" : "est l'un de",
-        value: "isAnyOf",
-        getApplyFilterFn: (filterItem) => {
-          if (!filterItem.value || filterItem.value.length === 0) return null;
-          return (params) => filterItem.value.includes(params.value);
-        },
-        InputComponent: ({ item, applyValue }) => {
-          const handleFilterChange = (value) => applyValue({ ...item, value });
-          return (
-            <div style={{ padding: "8px" }}>
-              {[
-                { value: "", label: language === "en" ? "Draft" : "Brouillon" },
-                {
-                  value: "submitted",
-                  label: language === "en" ? "Submitted" : "Soumis",
-                },
-                {
-                  value: "published",
-                  label: language === "en" ? "Published" : "Publié",
-                },
-              ].map((option) => (
-                <div key={option.value} style={{ marginBottom: "4px" }}>
-                  <label
-                    htmlFor={`status-filter-${option.value}`}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <input
-                      id={`status-filter-${option.value}`}
-                      type="checkbox"
-                      checked={(item.value || []).includes(option.value)}
-                      onChange={(e) => {
-                        const currentValues = item.value || [];
-                        const newValues = e.target.checked
-                          ? [...currentValues, option.value]
-                          : currentValues.filter((v) => v !== option.value);
-                        handleFilterChange(newValues);
-                      }}
-                      style={{ marginRight: "8px" }}
-                    />
-                    {option.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          );
-        },
-      },
-    ],
+    filterOperators: getStatusFilterOperators(language),
   },
 
   progress: {
@@ -344,21 +299,19 @@ export const createColumns = (language, region) => ({
     field: "title",
     headerName: language === "en" ? "Title" : "Titre",
     flex: 2,
-    minWidth: 200,
   },
 
   author: {
     field: "author",
+    maxWidth: 200,
     headerName: language === "en" ? "Author" : "Auteur",
     flex: 1.5,
-    minWidth: 180,
   },
 
   abstract: {
     field: "abstract",
     headerName: language === "en" ? "Abstract" : "Résumé",
     flex: 2,
-    minWidth: 200,
     renderCell: (params) => (
       <div
         style={{
@@ -377,7 +330,6 @@ export const createColumns = (language, region) => ({
     field: "license",
     headerName: language === "en" ? "License" : "Licence",
     flex: 1,
-    minWidth: 150,
     renderCell: (params) => {
       const licenseData = licenses[params.value];
       if (!licenseData) return params.value || "";
@@ -391,7 +343,6 @@ export const createColumns = (language, region) => ({
     field: "contacts",
     headerName: language === "en" ? "Contacts" : "Contacts",
     flex: 1.5,
-    minWidth: 200,
     sortable: false,
     renderCell: (params) => {
       const contactsList = params.value || [];
@@ -423,7 +374,7 @@ export const createColumns = (language, region) => ({
     field: "formLanguage",
     headerName: language === "en" ? "Language" : "Langue",
     flex: 0.8,
-    width: 100,
+    maxWidth: 100,
     headerAlign: "center",
     align: "center",
     renderCell: (params) => {
@@ -435,7 +386,7 @@ export const createColumns = (language, region) => ({
   doi: {
     field: "doi",
     headerName: "DOI",
-    width: 70,
+    maxWidth: 70,
     headerAlign: "center",
     align: "center",
     type: "boolean",
@@ -451,7 +402,6 @@ export const createColumns = (language, region) => ({
     field: "boundingBox",
     headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
     flex: 1,
-    minWidth: 180,
     renderCell: (params) => {
       if (!params.value) return "";
       const { north, south, east, west } = params.value;
@@ -463,7 +413,7 @@ export const createColumns = (language, region) => ({
   polygon: {
     field: "polygon",
     headerName: language === "en" ? "Polygon" : "Polygone",
-    width: 80,
+    maxWidth: 80,
     headerAlign: "center",
     align: "center",
     type: "boolean",
@@ -479,7 +429,6 @@ export const createColumns = (language, region) => ({
     field: "verticalExtentMin",
     headerName: language === "en" ? "Vert. Min" : "Min. Vert.",
     flex: 0.8,
-    minWidth: 100,
     type: "number",
     headerAlign: "center",
     align: "center",
@@ -491,7 +440,6 @@ export const createColumns = (language, region) => ({
     field: "verticalExtentMax",
     headerName: language === "en" ? "Vert. Max" : "Max. Vert.",
     flex: 0.8,
-    minWidth: 100,
     type: "number",
     headerAlign: "center",
     align: "center",
@@ -502,7 +450,7 @@ export const createColumns = (language, region) => ({
   verticalExtentDirection: {
     field: "verticalExtentDirection",
     headerName: language === "en" ? "Depth/Height" : "Profondeur/Hauteur",
-    width: 120,
+    maxWidth: 120,
     headerAlign: "center",
     align: "center",
     renderCell: (params) => {
@@ -518,7 +466,7 @@ export const createColumns = (language, region) => ({
   verticalExtentEPSG: {
     field: "verticalExtentEPSG",
     headerName: "EPSG",
-    width: 80,
+    maxWidth: 80,
     headerAlign: "center",
     align: "center",
   },
@@ -534,7 +482,7 @@ export const recordToRow = (record, language, index) => ({
   userID: record.userinfo?.userID,
   title: record.title?.[language] || "",
   status: record.status || "",
-  author: record.userinfo?.email || "",
+  author: record.userinfo?.displayName || "",
   progress: Math.round(percentValid(record) * 100),
   created: record.created,
   region: record.region,
