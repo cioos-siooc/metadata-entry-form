@@ -2,6 +2,10 @@ name: Close PR delete firebase channel
 on:
   pull_request:
     types: [closed]
+
+permissions:
+  deployments: write
+
 jobs:
   delete_firebase_channel:
     runs-on: ubuntu-latest
@@ -21,3 +25,22 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: cioos-metadata-form-dev-258dc
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
+      - name: Deactivate GitHub Deployment Environment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const environment = `preview-pr-${context.payload.pull_request.number}`;
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment,
+            });
+            for (const deployment of deployments.data) {
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.id,
+                state: 'inactive',
+                description: 'PR closed, preview environment destroyed',
+              });
+            }
