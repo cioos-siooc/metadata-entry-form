@@ -9,15 +9,22 @@ permissions:
   pull-requests: write
 
 jobs:
-  auto-label:
-    if: github.event.action == 'opened'
+  auto-label-and-check:
     runs-on: ubuntu-latest
     steps:
       - name: Auto-label PR based on branch name
         uses: actions/github-script@v7
         with:
           script: |
-            const branch = context.payload.pull_request.head.ref;
+            const pr = context.payload.pull_request;
+            const branch = pr.head.ref;
+
+            // Skip auto-labeling if PR already has labels
+            if (pr.labels.length > 0) {
+              core.info(`PR already has ${pr.labels.length} label(s). Skipping auto-label.`);
+              return;
+            }
+
             const prefixToLabel = {
               'feature/': 'enhancement',
               'enhancement/': 'enhancement',
@@ -42,7 +49,7 @@ jobs:
                 await github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: context.payload.pull_request.number,
+                  issue_number: pr.number,
                   labels: [label],
                 });
                 core.info(`Applied label "${label}" based on branch prefix "${prefix}"`);
@@ -51,12 +58,7 @@ jobs:
             }
             core.warning(`No matching prefix found for branch "${branch}". Label manually.`);
 
-  check-label:
-    needs: [auto-label]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Re-fetch PR labels
+      - name: Check for at least one label
         uses: actions/github-script@v7
         with:
           script: |
