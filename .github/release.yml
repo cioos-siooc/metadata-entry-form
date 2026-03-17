@@ -1,0 +1,35 @@
+changelog:
+  exclude:
+    labels:
+      - dependencies
+      - duplicate
+      - invalid
+      - wontfix
+      - on hold
+      - build
+      - style
+      - test
+    authors:
+      - dependabot
+      - dependabot[bot]
+  categories:
+    - title: "✨ New Features"
+      labels:
+        - enhancement
+      description: "New capabilities added to the metadata entry form."
+    - title: "🗺️ UX Improvements"
+      labels:
+        - UX Improvement
+      description: "Changes that improve how the form looks or feels."
+    - title: "🐛 Bug Fixes"
+      labels:
+        - bug
+        - hotfix
+      description: "Issues that have been resolved."
+    - title: "🔄 Refactoring"
+      labels:
+        - refactor
+    - title: "🔧 Other Changes"
+      labels:
+        - "*"
+      description: "Internal improvements and maintenance."

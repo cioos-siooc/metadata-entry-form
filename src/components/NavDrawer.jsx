@@ -22,6 +22,10 @@ import {
   Help,
   Warning,
   Settings,
+  NewReleases,
+  ExpandLess,
+  ExpandMore,
+  HelpOutline,
 } from "@mui/icons-material";
 
 import {
@@ -41,6 +45,7 @@ import {
   Tooltip,
   MenuItem,
   Menu,
+  Collapse,
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
@@ -48,6 +53,7 @@ import { firebaseConfig } from "../firebase";
 import { auth } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
+import WhatsNewDialog from "./Pages/WhatsNew";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -60,7 +66,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("lg")]: {
       zIndex: theme.zIndex.appBar,
     },
     transition: theme.transitions.create(["width", "margin"], {
@@ -69,54 +75,12 @@ const useStyles = makeStyles()((theme) => ({
     }),
   },
   menuButton: {
-    marginRight: 36,
+    // padding: 5,
   },
   languageSelector: {
     color: "white",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    width: 70,
-    "&:before": {
-      display: "none",
-    },
-    "&:after": {
-      display: "none",
-    },
-    "&:hover:not(.Mui-disabled)": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    "& .MuiSelect-select": {
-      padding: `${theme.spacing(0.75)} ${theme.spacing(4)} ${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-      textAlign: "center",
-      "&:focus": {
-        backgroundColor: "transparent",
-      },
-    },
     "& .MuiSelect-icon": {
       color: "white",
-    },
-  },
-  feedbackButton: {
-    padding: `${theme.spacing(0.75)} ${theme.spacing(1.5)}`,
-    background: "none",
-    border: "1px solid white",
-    borderRadius: theme.shape.borderRadius,
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "white",
-    fontSize: "14px",
-    fontWeight: 500,
-    fontFamily: theme.typography.fontFamily,
-    lineHeight: 1.5,
-    marginBottom: theme.spacing(1),
-    height: "auto",
-    transition: "background-color 0.2s ease",
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   },
   headerControls: {
@@ -129,6 +93,9 @@ const useStyles = makeStyles()((theme) => ({
     display: "block",
     height: "auto",
     marginBottom: 0,
+    [theme.breakpoints.down("lg")]: {
+      display: "none",
+    },
   },
   hide: {
     display: "none",
@@ -193,7 +160,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
+    paddingTop: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -232,7 +200,8 @@ export default function MiniDrawer({ children }) {
 
   const { classes } = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+
 
   const {
     user,
@@ -258,8 +227,8 @@ export default function MiniDrawer({ children }) {
 
   const baseURL = `/${language}/${region}`;
 
-  // if region not set, keep drawer closed
-  const [open, setOpen] = React.useState(Boolean(region) && Boolean(user));
+  // if region not set, keep drawer closed; default to open on wide screens
+  const [open, setOpen] = React.useState(!isMobile);
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
@@ -267,6 +236,7 @@ export default function MiniDrawer({ children }) {
   const regionEmailLower = regionEmail.toLowerCase();
   const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
   const [emailCopied, setEmailCopied] = React.useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
@@ -274,6 +244,8 @@ export default function MiniDrawer({ children }) {
     }
     return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
   }, [emailCopied, language]);
+
+  const [helpSubmenuOpen, setHelpSubmenuOpen] = React.useState(false);
 
   const handleCopyEmail = (e) => {
     e.preventDefault();
@@ -337,6 +309,11 @@ export default function MiniDrawer({ children }) {
     setOpen(false);
   };
 
+  const navigateAndClose = (path) => {
+    navigate(path);
+    if (isMobile) setOpen(false);
+  };
+
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -366,6 +343,8 @@ export default function MiniDrawer({ children }) {
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Development database" fr="Base de données de développement" />,
+    whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
+    helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
@@ -442,28 +421,28 @@ export default function MiniDrawer({ children }) {
           className={classes.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
-            alignItems: "flex-end",
+            alignItems: "center",
             paddingBottom: 0,
           }}
         >
-          {region && (
+          {region && isMobile && (
             <IconButton
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
               className={classes.menuButton}
-              style={{ marginBottom: theme.spacing(1) }}
             >
               <MenuIcon />
             </IconButton>
           )}
           <Typography
             variant="h5"
-            noWrap
             style={{
               marginLeft: theme.spacing(1.25),
-              marginBottom: theme.spacing(1),
-              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
               color: "white",
             }}
           >
@@ -499,26 +478,23 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open && !isMobile,
-            [classes.drawerClose]: !open && !isMobile,
-          })}
+          className={classes.drawer}
           classes={{
-            paper: clsx(classes.drawerPaper, {
-              [classes.drawerOpen]: open && !isMobile,
-              [classes.drawerClose]: !open && !isMobile,
-            }),
+            paper: clsx(classes.drawerPaper, classes.drawerOpen),
           }}
+          {...(isMobile && {
+            PaperProps: {
+              sx: { width: "100%" },
+            },
+          })}
         >
           <div className={classes.toolbar}>
-            {isMobile && (
-              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
-                <I18n>
-                  <En>Metadata Entry Tool</En>
-                  <Fr>Outil de saisie de métadonnées</Fr>
-                </I18n>
-              </Typography>
-            )}
+            <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+              <I18n>
+                <En>Metadata Entry Tool</En>
+                <Fr>Outil de saisie de métadonnées</Fr>
+              </I18n>
+            </Typography>
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
@@ -532,7 +508,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="My Records"
-                    onClick={() => navigate(`${baseURL}/submissions`)}
+                    onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
                       <ListAlt />
@@ -546,7 +522,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Region's Published Records"
-                    onClick={() => navigate(`${baseURL}/published`)}
+                    onClick={() => navigateAndClose(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
                       <AssignmentTurnedIn />
@@ -561,7 +537,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Contacts"
-                    onClick={() => navigate(`${baseURL}/contacts`)}
+                    onClick={() => navigateAndClose(`${baseURL}/contacts`)}
                   >
                     <ListItemIcon disabled>
                       <Contacts />
@@ -576,7 +552,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="instruments"
-                    onClick={() => navigate(`${baseURL}/instruments`)}
+                    onClick={() => navigateAndClose(`${baseURL}/instruments`)}
                   >
                     <ListItemIcon disabled>
                       <StraightenSharp />
@@ -591,7 +567,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Platforms"
-                    onClick={() => navigate(`${baseURL}/platforms`)}
+                    onClick={() => navigateAndClose(`${baseURL}/platforms`)}
                   >
                     <ListItemIcon disabled>
                       <DirectionsBoatSharp />
@@ -607,7 +583,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="SharedWithMe"
-                      onClick={() => navigate(`${baseURL}/shared`)}
+                      onClick={() => navigateAndClose(`${baseURL}/shared`)}
                     >
                       <ListItemIcon>
                         <FolderShared />
@@ -624,7 +600,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="Review"
-                      onClick={() => navigate(`${baseURL}/reviewer`)}
+                      onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
                     >
                       <ListItemIcon>
                         <RateReview />
@@ -638,9 +614,9 @@ export default function MiniDrawer({ children }) {
             )}
 
             {/* Logout button removed as requested */}
-           
+
           </List>
-          
+
 
           <div className={classes.bottomList}>
             <List>
@@ -668,70 +644,108 @@ export default function MiniDrawer({ children }) {
               )}
               <Tooltip
                 placement="right-start"
-                title={
-                  open
-                    ? ""
-                    : (
-                      <span>
-                        {contactLabel}
-                        {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                      </span>
-                    )
-                }
+                title={open ? "" : translations.helpSupport}
               >
                 <ListItemButton
-                  key="Contact Region"
-                  onClick={handleContactClick}
+                  key="Help Support"
+                  onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
                 >
                   <ListItemIcon>
-                    <Help />
+                    <HelpOutline />
                   </ListItemIcon>
-                  <ListItemText
-                    primary={contactLabel}
-                    secondary={
-                      regionEmailLower ? (
-                        <Tooltip
-                          title={copyTooltipText}
-                          placement="right-start"
-                        >
-                          <span
-                            data-copy-email="true"
-                            onClick={handleCopyEmail}
-                            onKeyDown={handleCopyEmailKeyDown}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                            style={{ textDecoration: 'underline', cursor: 'pointer' }}
-                          >
-                            {regionEmailLower}
+                  <ListItemText primary={translations.helpSupport} />
+                  {open && (helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
+                </ListItemButton>
+              </Tooltip>
+              <Collapse in={helpSubmenuOpen} timeout="auto">
+                <List component="div" disablePadding sx={{ borderLeft: open ? `2px solid ${theme.palette.action.disabled}` : 'none', ml: open ? '20px' : 0, pl: open ? 2 : 0 }}>
+                  <Tooltip
+                    placement="right-start"
+                    title={
+                      open
+                        ? ""
+                        : (
+                          <span>
+                            {contactLabel}
+                            {regionEmailLower ? ` — ${regionEmailLower}` : ''}
                           </span>
-                        </Tooltip>
-                      ) : null
+                        )
                     }
-                  />
-                </ListItemButton>
-              </Tooltip>
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
-              >
-                <ListItemButton
-                  key="Feedback"
-                  id="sentry-feedback-button"
-                  ref={feedbackButtonRef}
-                >
-                  <ListItemIcon>
-                    <FeedbackRounded />
-                  </ListItemIcon>
-                  <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
-                </ListItemButton>
-              </Tooltip>
+                  >
+                    <ListItemButton
+                      key="Contact Region"
+                      onClick={handleContactClick}
+                      sx={{ pl: 4 }}
+                    >
+                      <ListItemIcon>
+                        <Help />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={contactLabel}
+                        secondary={
+                          regionEmailLower ? (
+                            <Tooltip
+                              title={copyTooltipText}
+                              placement="right-start"
+                            >
+                              <span
+                                data-copy-email="true"
+                                onClick={handleCopyEmail}
+                                onKeyDown={handleCopyEmailKeyDown}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
+                                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                              >
+                                {regionEmailLower}
+                              </span>
+                            </Tooltip>
+                          ) : null
+                        }
+                      />
+                    </ListItemButton>
+                  </Tooltip>
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
+                  >
+                    <ListItemButton
+                      key="Feedback"
+                      id="sentry-feedback-button"
+                      ref={feedbackButtonRef}
+                      sx={{ pl: 4 }}
+                    >
+                      <ListItemIcon>
+                        <FeedbackRounded />
+                      </ListItemIcon>
+                      <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                    </ListItemButton>
+                  </Tooltip>
+                  {user && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.whatsNew}
+                    >
+                      <ListItemButton
+                        key="WhatsNew"
+                        onClick={() => setWhatsNewOpen(true)}
+                        sx={{ pl: 4 }}
+                      >
+                        <ListItemIcon>
+                          <NewReleases />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.whatsNew} />
+                      </ListItemButton>
+                    </Tooltip>
+                  )}
+                </List>
+              </Collapse>
               {!user && (
                 <ListItem key="userInfo">
                   <ListItemIcon>
                     <Avatar style={{ width: 30, height: 30 }} />
                   </ListItemIcon>
-                  <ListItemText/>
+                  <ListItemText />
                 </ListItem>
               )}
               {user && (
@@ -743,7 +757,7 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Admin"
-                        onClick={() => navigate(`${baseURL}/admin`)}
+                        onClick={() => navigateAndClose(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
                           <Settings />
@@ -794,6 +808,10 @@ export default function MiniDrawer({ children }) {
         <div className={classes.toolbar} />
         {children}
       </main>
+      <WhatsNewDialog
+        open={whatsNewOpen}
+        onClose={() => setWhatsNewOpen(false)}
+      />
     </div>
   );
 }
