@@ -1,19 +1,19 @@
 import React from "react";
-import { act } from "react-dom/test-utils";
-import { configure, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-
-import { Checkbox } from "@material-ui/core";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
 import CheckBoxList from "../FormComponents/CheckBoxList";
 
-configure({ adapter: new Adapter() });
-
-const mockOnChange = jest.fn();
-const checkboxInputs = ["theOneRing", "Narya", "Nenya", "Vilya"];
 describe("<CheckBoxList />", () => {
+  const mockOnChange = vi.fn();
+  const checkboxInputs = ["theOneRing", "Narya", "Nenya", "Vilya"];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("Changes the checkbox when clicked", () => {
-    const wrapper = mount(
+    render(
       <CheckBoxList
         value={["theOneRing", "Narya"]}
         options={checkboxInputs}
@@ -22,14 +22,14 @@ describe("<CheckBoxList />", () => {
       />
     );
 
-    act(() => {
-      wrapper
-        .find(Checkbox)
-        .at(0)
-        .props()
-        .onChange({ target: { value: "theOneRing" } });
-    });
+    // Find all checkboxes
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes.length).toBe(4);
 
+    // Click on the first checkbox (theOneRing - which is currently checked)
+    fireEvent.click(checkboxes[0]);
+
+    // Since theOneRing was checked and we clicked it, it should be removed
     expect(mockOnChange).toHaveBeenCalledWith(["Narya"]);
   });
 });

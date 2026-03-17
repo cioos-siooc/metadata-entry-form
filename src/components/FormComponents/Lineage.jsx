@@ -3,9 +3,15 @@ import {
   Add,
   Delete,
   FileCopy,
+  DragHandle as DragHandleIcon,
+} from "@mui/icons-material";
+import {
+  SortableList,
+  SortableItem,
   DragHandle,
-} from "@material-ui/icons";
-import { Container, Draggable } from "react-smooth-dnd";
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
 import {
   Grid,
   Button,
@@ -17,13 +23,12 @@ import {
   IconButton,
   Typography,
   Tooltip,
-} from "@material-ui/core";
-import arrayMove from "array-move";
+} from "@mui/material";
 import { En, Fr, I18n } from "../I18n";
 import { deepCopy, deepEquals } from "../../utils/misc";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import RequiredMark from "./RequiredMark";
-import AdditionalDocumentation from "./LineageAdditionalDocumentation"
+import AdditionalDocumentation from "./LineageAdditionalDocumentation";
 import LineageSource from "./LineageSource";
 import ProcessingStep from "./LineageProcessingStep";
 import SelectInput from "./SelectInput";
@@ -46,12 +51,12 @@ const Lineage = ({
   language,
   metadataScope,
 }) => {
-
+  const getItemId = useStableItemIds("lineage");
   const [activeLineage, setActiveLineage] = useState(0);
   const [currentLineage, setCurrentLineage] = useState(history);
 
   const filteredMetadataScopeCodes = Object.keys(metadataScopeCodes)
-    .filter(key => ["DataCollectionSampling", metadataScope].includes(key))
+    .filter((key) => ["DataCollectionSampling", metadataScope].includes(key))
     .reduce((obj, key) => {
       return {
         ...obj,
@@ -59,17 +64,13 @@ const Lineage = ({
       };
     }, {});
 
-
-
-
   function addLineage() {
     updateLineage(history.concat(deepCopy(emptyLineage)));
     setActiveLineage(history.length);
-  };
+  }
 
   function updateLineageField(key) {
     return (e) => {
-
       const lineageCopy = [...history];
       lineageCopy[activeLineage][key] = e.target.value;
       updateLineage(lineageCopy);
@@ -84,18 +85,17 @@ const Lineage = ({
   }
 
   function removeLineage(i) {
-    updateLineage(
-      history.filter((e, index) => index !== i)
-    );
+    updateLineage(history.filter((e, index) => index !== i));
     if (history.length) setActiveLineage(history.length - 2);
-  };
+  }
 
   if (typeof history === "string") {
-    const item = deepCopy(emptyLineage)
-    if (history !== '') {
+    const item = deepCopy(emptyLineage);
+    if (history !== "") {
       item.statement = {
-        en: history, fr: history,
-      }
+        en: history,
+        fr: history,
+      };
     }
     updateLineage([deepCopy(item)]);
   }
@@ -121,137 +121,134 @@ const Lineage = ({
     const reorderedContacts = arrayMove(
       currentLineage,
       removedIndex,
-      addedIndex
+      addedIndex,
     );
     updateLineage(reorderedContacts);
   };
 
   const handleLineageScopeChange = () => {
     return (e) => {
-      const newEvent = { target: { value: metadataScopeCodes[e.target.value]?.isoValue } };
+      const newEvent = {
+        target: { value: metadataScopeCodes[e.target.value]?.isoValue },
+      };
       updateLineageField("scopeIso")(newEvent);
       updateLineageField("scope")(e);
     };
-  }
+  };
 
   if (!deepEquals(currentLineage, history)) {
     setCurrentLineage(history);
   }
   const lineageStep = history.length > 0 && history[activeLineage];
 
-  if (lineageStep && !lineageStep.scope){
+  if (lineageStep && !lineageStep.scope) {
     lineageStep.scope = metadataScope;
   }
 
-  if (typeof history === 'string' || history instanceof String) {
-    // eslint-disable-next-line no-param-reassign
-    history = []
-    
+  if (typeof history === "string" || history instanceof String) {
+     
+    history = [];
   }
 
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {history && history.length > 0 && (
-            <Grid item xs>
-              <List>
-                <Container
-                  dragHandleSelector=".drag-handle"
-                  lockAxis="y"
-                  onDrop={onDrop}
-                >
-                  {history.map((lineageItem, i) => {
-                    return (
-                      <Draggable key={i}>
-                        <ListItem
-                          key={i}
-                          button
-                          onClick={() => setActiveLineage(i)}
-                        >
-                          <ListItemText
-                            primary={
-                              <Typography
-                                style={{
-                                  fontWeight: activeLineage === i ? "bold" : "",
-                                  marginRight: "72px",
-                                }}
-                              >
-                                {i + 1}. {
-                                  (lineageItem.statement[language] ?? '').length <= 50 ?
-                                    (lineageItem.statement[language] ?? '') : `${lineageItem.statement[language].substring(0, 50)}...`
-
+              <Grid >
+                <List>
+                  <SortableList
+                    items={history}
+                    onDrop={onDrop}
+                    getItemId={getItemId}
+                  >
+                    {history.map((lineageItem, i) => {
+                      const lineageId = getItemId(lineageItem, i);
+                      return (
+                        <SortableItem key={lineageId} id={lineageId}>
+                          <ListItem
+                            onClick={() => setActiveLineage(i)}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            <ListItemText
+                              primary={
+                                <Typography
+                                  style={{
+                                    fontWeight:
+                                      activeLineage === i ? "bold" : "",
+                                    marginRight: "72px",
+                                  }}
+                                >
+                                  {i + 1}.{" "}
+                                  {(lineageItem.statement[language] ?? "")
+                                    .length <= 50
+                                    ? (lineageItem.statement[language] ?? "")
+                                    : `${lineageItem.statement[language].substring(0, 50)}...`}
+                                </Typography>
+                              }
+                            />
+                            <ListItemSecondaryAction>
+                              <Tooltip
+                                title={
+                                  <I18n en="Duplicate contact" fr="Dupliquer" />
                                 }
-                              </Typography>
-                            }
-                          />
-                          <ListItemSecondaryAction>
-                            <Tooltip
-                              title={
-                                <I18n
-                                  en="Duplicate contact"
-                                  fr="Dupliquer"
-                                />
-                              }
-                            >
-                              <span>
-                                <IconButton
-                                  onClick={() => duplicateLineage(i)}
-                                  edge="end"
-                                  aria-label="clone"
-                                  disabled={disabled}
-                                >
-                                  <FileCopy />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                            <Tooltip
-                              title={
-                                <I18n
-                                  en="Remove from this record"
-                                  fr="Supprimer de cet enregistrement"
-                                />
-                              }
-                            >
-                              <span>
-                                <IconButton
-                                  onClick={() => removeLineage(i)}
-                                  edge="end"
-                                  aria-label="clone"
-                                  disabled={disabled}
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                            <Tooltip
-                              title={
-                                <I18n en="Drag to reorder" fr="Faites glisser pour réorganiser" />
-                              }
-                            >
-                              <span>
-                                <IconButton
-                                  className="drag-handle"
-                                  edge="end"
-                                  aria-label="clone"
-                                  disabled={disabled}
-                                >
-                                  <DragHandle />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      </Draggable>
-                    );
-                  })}
-                </Container>
-              </List>
-            </Grid>
+                              >
+                                <span>
+                                  <IconButton
+                                    onClick={() => duplicateLineage(i)}
+                                    edge="end"
+                                    aria-label="clone"
+                                    disabled={disabled}
+                                  >
+                                    <FileCopy />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="Remove from this record"
+                                    fr="Supprimer de cet enregistrement"
+                                  />
+                                }
+                              >
+                                <span>
+                                  <IconButton
+                                    onClick={() => removeLineage(i)}
+                                    edge="end"
+                                    aria-label="clone"
+                                    disabled={disabled}
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="Drag to reorder"
+                                    fr="Faites glisser pour réorganiser"
+                                  />
+                                }
+                              >
+                                <DragHandle disabled={disabled}>
+                                  <IconButton edge="end" aria-label="reorder">
+                                    <DragHandleIcon />
+                                  </IconButton>
+                                </DragHandle>
+                              </Tooltip>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        </SortableItem>
+                      );
+                    })}
+                  </SortableList>
+                </List>
+              </Grid>
             )}
 
-            <Grid item xs>
+            <Grid >
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -266,26 +263,33 @@ const Lineage = ({
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs>
+        <Grid size="grow">
           {lineageStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>
-                <Grid item xs>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
                       <Fr>Titre de la généalogie des données</Fr>
                     </I18n>
-                    <RequiredMark passes={lineageStep.statement?.en || lineageStep.statement?.fr} />
+                    <RequiredMark
+                      passes={
+                        lineageStep.statement?.en || lineageStep.statement?.fr
+                      }
+                    />
                     <SupplementalText>
                       <I18n>
                         <En>
-                          General explanation of the lineage step or sampling methods. For detailed
-                          processing steps or methods use the processing and method step question
+                          General explanation of the lineage step or sampling
+                          methods. For detailed processing steps or methods use
+                          the processing and method step question
                         </En>
                         <Fr>
-                          Expliquez dans un cadre général la généalogie des données et/ou les méthodes d’échantillonnage.
-                          Pour fournir une explication plus détaillée, utilisez la section correspondante.
+                          Expliquez dans un cadre général la généalogie des
+                          données et/ou les méthodes d’échantillonnage. Pour
+                          fournir une explication plus détaillée, utilisez la
+                          section correspondante.
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -297,7 +301,7 @@ const Lineage = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Scope</En>
@@ -306,10 +310,12 @@ const Lineage = ({
                     <SupplementalText>
                       <I18n>
                         <En>
-                          Type of resource and/or extent to which the lineage information applies.
+                          Type of resource and/or extent to which the lineage
+                          information applies.
                         </En>
                         <Fr>
-                          Type de ressource et/ou d'étendue pour laquelle les informations sur l'origine s'appliquent.
+                          Type de ressource et/ou d'étendue pour laquelle les
+                          informations sur l'origine s'appliquent.
                         </Fr>
                       </I18n>
                     </SupplementalText>
@@ -318,25 +324,26 @@ const Lineage = ({
                     value={lineageStep.scope}
                     onChange={handleLineageScopeChange()}
                     options={Object.keys(filteredMetadataScopeCodes)}
-                    optionLabels={Object.values(filteredMetadataScopeCodes)
-                      .map(
-                      ({ title }) => title[language]
+                    optionLabels={Object.values(filteredMetadataScopeCodes).map(
+                      ({ title }) => title[language],
                     )}
                     disabled={disabled}
                     fullWidth
                     label={<I18n en="Scope" fr="Cadre" />}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <AdditionalDocumentation
                     documentations={lineageStep.additionalDocumentation}
-                    updateDocumentations={updateLineageSubField("additionalDocumentation")}
+                    updateDocumentations={updateLineageSubField(
+                      "additionalDocumentation",
+                    )}
                     disabled={disabled}
                     paperClass={paperClass}
                     language={language}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <LineageSource
                     sources={lineageStep.source}
                     updateSources={updateLineageSubField("source")}
@@ -345,7 +352,7 @@ const Lineage = ({
                     language={language}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <ProcessingStep
                     sources={lineageStep.processingStep}
                     updateSources={updateLineageSubField("processingStep")}

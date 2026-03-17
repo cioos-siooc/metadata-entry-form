@@ -5,21 +5,21 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Avatar,
   Grid,
-  ListItemSecondaryAction,
   ListItemAvatar,
   CircularProgress,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   Add,
   Edit,
   Delete,
   PermContactCalendar,
   FileCopy,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import {getDatabase, onValue, ref} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
@@ -32,6 +32,7 @@ import InstrumentTitle from "../FormComponents/InstrumentTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 class Instruments extends FormClassTemplate {
   constructor(props) {
@@ -109,7 +110,7 @@ class Instruments extends FormClassTemplate {
     const { modalOpen, modalKey, loading, instruments } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid >
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -125,7 +126,7 @@ class Instruments extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -140,7 +141,7 @@ class Instruments extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid item xs>
+        <Grid >
           <Button startIcon={<Add />} onClick={() => this.addInstrument()}>
             <I18n>
               <En>Add instrument</En>
@@ -153,7 +154,7 @@ class Instruments extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid item xs>
+            <Grid >
               {instruments && Object.keys(instruments).length ? (
                 <div>
                   <Typography>
@@ -166,45 +167,47 @@ class Instruments extends FormClassTemplate {
                     {Object.entries(instruments).map(([key, val]) => (
                       <ListItem
                         key={key}
-                        button
-                        onClick={() => this.editInstrument(key)}
+                        disablePadding
+                        secondaryAction={
+                          <>
+                            <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
+                              <span>
+                                <IconButton onClick={() => this.editInstrument(key)}>
+                                  <Edit />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.handleCloneInstrument(key)}
+                                >
+                                  <FileCopy />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                              <span>
+                                <IconButton
+                                  onClick={() => this.toggleModal(true, key)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        }
                       >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <PermContactCalendar />
-                          </Avatar>
-                        </ListItemAvatar>
-
-                        <ListItemText
-                          primary={InstrumentTitle({instrument:val})}
-                        />
-                        <ListItemSecondaryAction>
-                          <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
-                            <span>
-                              <IconButton onClick={() => this.editInstrument(key)}>
-                                <Edit />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Clone" fr="Clone" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.handleCloneInstrument(key)}
-                              >
-                                <FileCopy />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                            <span>
-                              <IconButton
-                                onClick={() => this.toggleModal(true, key)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </ListItemSecondaryAction>
+                        <ListItemButton onClick={() => this.editInstrument(key)}>
+                          <ListItemAvatar>
+                            <Avatar>
+                              <PermContactCalendar />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={InstrumentTitle({ instrument: val })}
+                          />
+                        </ListItemButton>
                       </ListItem>
                     ))}
                   </List>
@@ -224,4 +227,4 @@ class Instruments extends FormClassTemplate {
     );
   }
 }
-export default Instruments;
+export default withRouter(Instruments);

@@ -1,6 +1,6 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
+import { makeStyles } from "../../tss-cache";
+import Modal from "@mui/material/Modal";
 import { En, Fr, I18n } from "../I18n";
 
 function rand() {
@@ -18,7 +18,7 @@ function getModalStyle() {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   paper: {
     position: "absolute",
     width: 400,
@@ -35,7 +35,7 @@ export default function SimpleModal({
   onAccept,
   modalQuestion,
 }) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
 

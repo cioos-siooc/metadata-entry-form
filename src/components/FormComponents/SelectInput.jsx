@@ -6,12 +6,12 @@ import {
   InputLabel,
   Typography,
   Tooltip,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles } from "../../tss-cache";
 
 import { I18n } from "../I18n";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   formControl: {
     minWidth: 200,
   },
@@ -29,7 +29,7 @@ const SelectInput = ({
   label,
   fullWidth = true,
 }) => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <FormControl

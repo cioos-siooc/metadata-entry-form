@@ -1,4 +1,7 @@
 {
+  "database": {
+    "rules": "firebase-functions/database.rules.json"
+  },
   "functions": [
     {
       "source": "firebase-functions/python-functions",
@@ -6,7 +9,7 @@
     },
     {
       "source": "firebase-functions/functions",
-      "runtime": "nodejs20"
+      "runtime": "nodejs22"
     }
   ],
   "emulators": {
@@ -20,6 +23,12 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
 }

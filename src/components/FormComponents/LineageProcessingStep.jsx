@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Add, Delete } from "@material-ui/icons";
+import { Add, Delete } from "@mui/icons-material";
 import {
   TextField,
   Grid,
@@ -11,7 +11,7 @@ import {
   ListItemText,
   // Box,
 
-} from "@material-ui/core";
+} from "@mui/material";
 import validator from "validator";
 import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
@@ -88,7 +88,7 @@ const ProcessingStep = ({
 
   return (
     <Grid container spacing={0}>
-      <Grid item>
+      <Grid>
         <QuestionText>
           <I18n>
             <En>Processing or Method Step:</En>
@@ -111,9 +111,9 @@ const ProcessingStep = ({
         </QuestionText>
       </Grid>
       <Grid container item direction="row" spacing={1}>
-      <Grid item xs={4}>
+      <Grid size={4}>
           <Grid container direction="column" spacing={1}>
-            <Grid item xs>
+            <Grid >
 
               <List spacing={1}>
               {sources.map((sourceItem, i) => {
@@ -143,7 +143,7 @@ const ProcessingStep = ({
             </List>
           </Grid>
 
-          <Grid item xs>
+          <Grid >
             <Button
               disabled={disabled}
               startIcon={<Add />}
@@ -158,12 +158,12 @@ const ProcessingStep = ({
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs>
+      <Grid size="grow">
         <Grid container direction="column">
           {source && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid >
                   <I18n>
                     <En>Description</En>
                     <Fr>Description</Fr>
@@ -176,7 +176,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <Typography variant="body1" component="div" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>Or link to reference documentation</En>
@@ -184,7 +184,7 @@ const ProcessingStep = ({
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <I18n>
                     <En>Title</En>
                     <Fr>Titre</Fr>
@@ -199,7 +199,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <TextField
                     label={
                       <I18n>
@@ -213,7 +213,7 @@ const ProcessingStep = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -234,7 +234,7 @@ const ProcessingStep = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <Button
                     startIcon={<Delete />}
                     disabled={disabled}

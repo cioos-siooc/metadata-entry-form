@@ -2,10 +2,25 @@ name: Deploy firebase functions
 on:
   push:
     branches:
-      - '**'
+      - development
+    paths:
+      - "firebase-functions/**"
+    tags:
+      - 'v*'
+  pull_request:
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy to production (e.g. v1.2.3)'
+        required: true
+        type: string
+      skip_cross_trigger:
+        description: 'Skip triggering the other deployment workflow (prevents loops)'
+        required: false
+        default: 'false'
+        type: string
 
 jobs:
   deploy:
@@ -13,7 +28,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
+      - name: Check if user is repo admin
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          PERMISSION=$(gh api repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission --jq '.permission' 2>/dev/null || echo "none")
+          if [ "$PERMISSION" != "admin" ]; then
+            echo "Error: Only repository admins can trigger manual deployments"
+            echo "User '${{ github.actor }}' has '$PERMISSION' permission, not 'admin'"
+            exit 1
+          fi
+          echo "User '${{ github.actor }}' verified as repo admin"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions
@@ -41,17 +74,16 @@ jobs:
           echo "AWS_ACCESSKEYID=${{ secrets.AWS_ACCESSKEYID }}" >> .env
           echo "AWS_SECRETACCESSKEY=${{ secrets.AWS_SECRETACCESSKEY }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
-          echo "REACT_APP_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
-          echo "REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
-          echo "Selecting Firebase project based on branch..."
-          if [ "${GITHUB_REF##*/}" = "main" ]; then
-            echo "On main branch, using default project"
-            echo "REACT_APP_DEV_DEPLOYMENT=false" >> .env
+          echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
+          echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
+          echo "Selecting Firebase project based on event type..."
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] || [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "Deploying to production"
+            echo "VITE_DEV_DEPLOYMENT=false" >> .env
             firebase use default
           else
-            echo "On non-main branch, using dev project"
-            echo "REACT_APP_DEV_DEPLOYMENT=true" >> .env
-            export REACT_APP_DEV_DEPLOYMENT=true
+            echo "On dev branch or PR, deploying to dev"
+            echo "VITE_DEV_DEPLOYMENT=true" >> .env
             firebase use dev
           fi
           cp .env ../python-functions/.env
@@ -67,6 +99,14 @@ jobs:
           AWS_ACCESSKEYID: ${{ secrets.AWS_ACCESSKEYID }}
           AWS_SECRETACCESSKEY: ${{ secrets.AWS_SECRETACCESSKEY }}
           GITHUB_AUTH: ${{ secrets.ISSUE_CREATOR_PAT }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
-          REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
+          VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
+          VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
+      - name: Trigger GitHub Pages deployment
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
+        run: |
+          gh workflow run github-pages-deploy.yaml \
+            --field tag=${{ github.event.inputs.tag }} \
+            --field skip_cross_trigger=true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

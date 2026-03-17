@@ -15,22 +15,32 @@ function getRecordFilename(record) {
     .replace(/[^a-zA-Z0-9]/g, "_");
 }
 
+exports.getRecordFilename = getRecordFilename;
+
 // creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = functions.https.onCall(
-  async ({ record, fileType, region }, context) => {
+exports.downloadRecord = functions.https.onCall(async (data, context) => {
+  const { record, fileType, region } = data || {};
 
-    let urlBase = urlBaseDefault;
-    try {
-      urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
-    } catch (error) {
-      console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
-    }
-
-    const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
-    const response = await axios.post(url, record);
-    return response.data;
+  let urlBase = urlBaseDefault;
+  try {
+    urlBase =
+      (await admin
+        .database()
+        .ref("admin")
+        .child(region)
+        .child("recordGeneratorURL")
+        .once("value"))?.val() ?? urlBaseDefault;
+  } catch (error) {
+    console.error(
+      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
+      error
+    );
   }
-);
+
+  const url = `${urlBase}recordTo${String(fileType || "").toUpperCase()}`;
+  const response = await axios.post(url, record);
+  return response.data;
+});
 
 async function updateXML(path, region, status = "", filename = "") {
 

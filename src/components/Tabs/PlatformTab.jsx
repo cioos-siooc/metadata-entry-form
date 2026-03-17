@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { Paper, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
+import { Paper, Grid, FormControlLabel, Checkbox } from "@mui/material";
 import Instruments from "../FormComponents/Instruments";
 
 import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";
@@ -40,7 +40,7 @@ const PlatformTab = ({
     <div>
       <Paper style={paperClass}>
         <Grid container direction="column" spacing={0}>
-          <Grid item xs style={paperClass}>
+          <Grid  style={paperClass}>
             <QuestionText>
               <I18n>
                 <En>
@@ -99,7 +99,7 @@ const PlatformTab = ({
             />
           </Grid>
 
-          <Grid item xs style={paperClass}>
+          <Grid  style={paperClass}>
             {!noPlatform ? (
               <>
                 <Platform

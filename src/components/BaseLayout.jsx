@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { Route, Switch, useParams } from "react-router-dom";
-import { Helmet } from "react-helmet";
-import { CircularProgress, Grid } from "@material-ui/core";
-import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import { Route, Routes, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { CircularProgress, Grid } from "@mui/material";
+import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
@@ -19,29 +19,39 @@ import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
-import regions from "../regions";
+import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
-  const imgPath = `/cioos-${region}-${language}.png`;
+  const logoSrc = getRegionLogo(region, language);
+  const titleText = regions[region]?.title?.[language] || region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item xs>
-        <img src={process.env.PUBLIC_URL + imgPath} alt={region} />
+      <Grid>
+        {logoSrc ? (
+          <img src={logoSrc} alt={region} />
+        ) : (
+          <div style={{
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            padding: '10px 0',
+          }}>{titleText}</div>
+        )}
       </Grid>
-      <Grid item xs style={{ paddingLeft: "50px" }}>
+      <Grid>
         {children}
       </Grid>
     </Grid>
   );
 };
-const Pages = ({ match }) => {
-  const { 
-    loggedIn, 
-    authIsLoading, 
-    isReviewer: userIsReviewer, 
+
+const Pages = () => {
+  const {
+    loggedIn,
+    authIsLoading,
+    isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
   } = useContext(UserContext);
   return (
@@ -52,46 +62,31 @@ const Pages = ({ match }) => {
         <RegionLogo>
           {loggedIn ? (
             <ErrorBoundary>
-              <Switch>
-                <Route path={`${match.path}/`} exact component={Submissions} />
-                <Route path={`${match.path}/new`} component={MetadataForm} />
+              <Routes>
+                <Route index element={<Submissions />} />
+                <Route path="new" element={<MetadataForm />} />
+                <Route path="contacts/:contactID" element={<EditContact />} />
+                <Route path="contacts/new" element={<EditContact />} />
+                <Route path="contacts" element={<Contacts />} />
+                <Route path="instruments/:instrumentID" element={<EditInstrument />} />
+                <Route path="instruments" element={<Instruments />} />
+                <Route path="platforms/:platformID" element={<EditPlatform />} />
+                <Route path="platforms" element={<Platforms />} />
+                <Route path="shared" element={<Shared />} />
+                <Route path=":userID/:recordID" element={<MetadataForm />} />
+                <Route path="submissions" element={<Submissions />} />
+                <Route path="published" element={<Published />} />
                 <Route
-                  path={`${match.path}/contacts/:contactID`}
-                  component={EditContact}
-                />
-                <Route
-                  path={`${match.path}/contacts/new`}
-                  component={EditContact}
-                />
-                <Route path={`${match.path}/contacts`} component={Contacts} />
-                <Route path={`${match.path}/instruments/:instrumentID`} component={EditInstrument} />
-                <Route path={`${match.path}/instruments`} component={Instruments} />
-                <Route path={`${match.path}/platforms/:platformID`} component={EditPlatform} />
-                <Route path={`${match.path}/platforms`} component={Platforms} />
-                <Route path={`${match.path}/shared`} component={Shared} />
-                <Route
-                  path={`${match.path}/:userID/:recordID`}
-                  component={MetadataForm}
+                  path="reviewer"
+                  element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
                 />
                 <Route
-                  path={`${match.path}/submissions`}
-                  component={Submissions}
+                  path="admin"
+                  element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
                 />
-                <Route path={`${match.path}/published`} component={Published} />
-                <Route 
-                  path={`${match.path}/reviewer`} 
-                  component={userIsAdmin || userIsReviewer ? Reviewer : NotFound} 
-                />
-                <Route 
-                  path={`${match.path}/admin`} 
-                  component={userIsAdmin || userIsReviewer ? Admin : NotFound} 
-                />
-                <Route
-                  path={`${match.path}/sentry-test`}
-                  component={SentryTest}
-                />
-                <Route path="*" component={NotFound} />
-              </Switch>
+                <Route path="sentry-test" element={<SentryTest />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </ErrorBoundary>
           ) : (
             <Login />
@@ -101,43 +96,70 @@ const Pages = ({ match }) => {
     </>
   );
 };
-const BaseLayout = ({ match }) => {
+
+const BaseLayout = () => {
   const { region, language } = useParams();
 
   const theme = createTheme({
-    overrides: {
+    components: {
       MuiTooltip: {
-        tooltip: {
-          fontSize: "1em",
+        styleOverrides: {
+          tooltip: {
+            fontSize: "1em",
+          },
         },
       },
       MuiFormControlLabel: {
-        root: {
-          '&.Mui-disabled': {
-            '& .MuiCheckbox-root': {
-              color: '#ababab', 
-            },
-            '& .MuiTypography-root': {
-              color: '#ababab',
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              '& .MuiCheckbox-root': {
+                color: '#ababab',
+              },
+              '& .MuiTypography-root': {
+                color: '#ababab',
+              },
             },
           },
         },
       },
       MuiInputBase: {
-        input: {
-          '&.Mui-disabled': {
-            color: '#ababab',
+        styleOverrides: {
+          input: {
+            '&.Mui-disabled': {
+              color: '#ababab',
+              WebkitTextFillColor: '#ababab',
+            },
           },
         },
       },
       MuiAccordionDetails: {
-        root: {
-          flexDirection: 'column',
+        styleOverrides: {
+          root: {
+            flexDirection: 'column',
+          },
         },
       },
       MuiTypography: {
-        root: {
-          whiteSpace: 'pre-wrap',
+        styleOverrides: {
+          root: {
+            whiteSpace: 'pre-wrap',
+          },
+        },
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: "outlined",
+        },
+      },
+      MuiSelect: {
+        defaultProps: {
+          variant: "outlined",
+        },
+      },
+      MuiButton: {
+        defaultProps: {
+          variant: "outlined",
         },
       },
     },
@@ -147,17 +169,6 @@ const BaseLayout = ({ match }) => {
       },
       secondary: {
         main: regions[region].colors.secondary,
-      },
-    },
-    props: {
-      MuiTextField: {
-        variant: "outlined",
-      },
-      MuiSelect: {
-        variant: "outlined",
-      },
-      MuiButton: {
-        variant: "outlined",
       },
     },
   });
@@ -173,17 +184,19 @@ const BaseLayout = ({ match }) => {
         <link
           rel="icon"
           type="image/png"
-          href={`${process.env.PUBLIC_URL}/favicons/${region}.ico`}
+          href={`/favicons/${region}.ico`}
           sizes="16x16"
         />
       </Helmet>
 
       <UserProvider>
-        <ThemeProvider theme={theme}>
-          <NavDrawer>
-            <Pages match={match} />
-          </NavDrawer>
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <NavDrawer>
+              <Pages />
+            </NavDrawer>
+          </ThemeProvider>
+        </StyledEngineProvider>
       </UserProvider>
     </>
   );

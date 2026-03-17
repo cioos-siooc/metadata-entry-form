@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Chip } from "@material-ui/core";
+import { Chip } from "@mui/material";
 import { I18n } from "../I18n";
 
 const StatusChip = ({ status }) => {

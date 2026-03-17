@@ -1,202 +1,161 @@
-import React from "react";
-
-import { Typography, CircularProgress, List } from "@material-ui/core";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Typography, Box } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, get, off } from "firebase/database";
-import { I18n, En, Fr } from "../I18n";
-import FormClassTemplate from "./FormClassTemplate";
 import firebase from "../../firebase";
+import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import {
-  multipleFirebaseToJSObject,
   cloneRecord,
+  standardizeRecord,
 } from "../../utils/firebaseRecordFunctions";
+import { firebaseToJSObject } from "../../utils/misc";
+import { Fr, En, I18n } from "../I18n";
+import RecordList, { sharedConfig } from "../RecordList";
 
-import { getAuth, onAuthStateChanged } from "../../auth";
+const Shared = () => {
+  const { language, region } = useParams();
+  const navigate = useNavigate();
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const listenerRefs = useRef([]);
+  const unsubscribeRef = useRef(null);
 
-import MetadataRecordListItem from "../FormComponents/MetadataRecordListItem";
+  // Load shared records on mount
+  useEffect(() => {
+    setLoading(true);
 
-class Shared extends FormClassTemplate {
-  constructor(props) {
-    super(props);
-    this.state = {
-      sharedRecords: {},
-      loading: false,
+    unsubscribeRef.current = onAuthStateChanged(
+      getAuth(firebase),
+      async (user) => {
+        if (user) {
+          const database = getDatabase(firebase);
+          const sharesRef = ref(database, `${region}/shares/${user.uid}`);
+
+          onValue(sharesRef, async (snapshot) => {
+            const sharesSnapshot = snapshot.val();
+
+            if (!sharesSnapshot) {
+              setRecords([]);
+              setLoading(false);
+              return;
+            }
+
+            const recordsPromises = [];
+
+            Object.entries(sharesSnapshot || {}).forEach(
+              ([authorID, recordsByAuthor]) => {
+                Object.keys(recordsByAuthor || {}).forEach((recordID) => {
+                  const recordPath = `${region}/users/${authorID}/records/${recordID}`;
+                  const recordRef = ref(database, recordPath);
+                  const recordPromise = get(recordRef).then((recordSnapshot) => {
+                    const recordDetails = recordSnapshot.val();
+                    if (recordDetails) {
+                      const jsRecord = firebaseToJSObject(recordDetails);
+                      const userInfo = { email: recordDetails.userinfo?.email || "" };
+                      return standardizeRecord(jsRecord, userInfo, authorID, recordID);
+                    }
+                    throw new Error(
+                      `No details found for record ${recordID} by author ${authorID}`,
+                    );
+                  });
+                  recordsPromises.push(recordPromise);
+                });
+              },
+            );
+
+            try {
+              const loadedRecords = await Promise.all(recordsPromises);
+              setRecords(loadedRecords);
+            } catch (error) {
+              console.error("Error loading shared records:", error);
+              setRecords([]);
+            } finally {
+              setLoading(false);
+            }
+          });
+
+          listenerRefs.current.push(sharesRef);
+        } else {
+          setRecords([]);
+          setLoading(false);
+        }
+      },
+    );
+
+    // Cleanup
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      listenerRefs.current.forEach((refListener) => off(refListener));
+      listenerRefs.current = [];
     };
-    this.unsubscribe = null;
-    this.listenerRefs = [];
-    this.handleCloneRecord = this.handleCloneRecord.bind(this);
-  }
+  }, [region]);
 
-  async loadSharedRecords() {
-    this.setState({ loading: true });
-    const { match } = this.props;
-    const { region } = match.params;
-    const database = getDatabase();
+  // Action handlers
+  const handleEditRecord = useCallback(
+    (recordID, userID) => {
+      navigate(`/${language}/${region}/${userID}/${recordID}`);
+    },
+    [navigate, language, region],
+  );
 
-    // Set up a listener for changes in authentication state
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
-      if (user) {
-        // Reference to the 'shares' node for the current user in the specified region
-        const sharesRef = ref(database, `${region}/shares/${user.uid}`);
-        this.listenerRefs.push(sharesRef);
-
-        // Listen for changes in the shares data
-        onValue(sharesRef, async (snapshot) => {
-          // Snapshot of the user's shares
-          const sharesSnapshot = snapshot.val();
-
-          // Initialize an array to hold promises for fetching each shared record
-          const recordsPromises = [];
-
-          // Iterate over each shared record, organized by authorID under the user's ID
-          Object.entries(sharesSnapshot || {}).forEach(([authorID, recordsByAuthor]) => {
-            // Iterate over each recordID shared by this author
-            Object.keys(recordsByAuthor || {}).forEach((recordID) => {
-              // Construct the path to the actual record data based on its authorID and recordID
-              const recordPath = `${region}/users/${authorID}/records/${recordID}`;
-              const recordRef = ref(database, recordPath);
-              // Fetch the record's details and store the promise in the array
-              const recordPromise = get(recordRef).then((recordSnapshot) => {
-                const recordDetails = recordSnapshot.val();
-                if (recordDetails) {
-                  // Return the complete record details, ensuring all data fields are included
-                  return {
-                    ...recordDetails, 
-                    recordID,
-                  };
-                }
-                throw new Error(`No details found for record ${recordID} by author ${authorID}`);
-              });
-              recordsPromises.push(recordPromise); // Collect the promise
-            });
-          });
-
-          // Await the resolution of all record detail promises
-          const records = await Promise.all(recordsPromises);
-          // Accumulate the records into an object mapping record IDs to record details
-          const sharedRecords = records.reduce((acc, record) => {
-            acc[record.recordID] = record; // Map each record by its ID
-            return acc;
-          }, {});
-
-          // Update the component state with the fetched shared records and set loading to false
-          this.setState({
-            sharedRecords: multipleFirebaseToJSObject(sharedRecords),
-            loading: false,
-          });
-        });
-
-        // Keep a reference to the listener to remove it when the component unmounts
-        this.listenerRefs.push(sharesRef);
+  const handleCloneRecord = useCallback(
+    (recordID, sourceUserID) => {
+      if (auth.currentUser) {
+        cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
       }
-    });
-  }
+    },
+    [region],
+  );
 
-  componentWillUnmount() {
-    // fixes error Can't perform a React state update on an unmounted component
-    this.unsubscribeAndCloseListeners();
-  }
+  return (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        <I18n>
+          <En>Shared with me</En>
+          <Fr>Partagé avec moi</Fr>
+        </I18n>
+      </Typography>
 
-  unsubscribeAndCloseListeners() {
-    if (this.unsubscribe) this.unsubscribe();
-    if (this.listenerRefs.length) {
-      this.listenerRefs.forEach((refListener) => off(refListener));
-    }
-  }
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        <I18n>
+          <En>
+            The following records have been shared with you for editing.
+          </En>
+          <Fr>
+            Les enregistrements suivants ont été partagés avec vous pour
+            modification.
+          </Fr>
+        </I18n>
+      </Typography>
 
-  async componentDidMount() {
-    this.loadSharedRecords();
-  }
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        <I18n>
+          <En>You can edit them, but you cannot submit or delete.</En>
+          <Fr>
+            Vous pouvez les modifier, mais vous ne pouvez pas les
+            soumettre ou les supprimer.
+          </Fr>
+        </I18n>
+      </Typography>
 
-  editRecord(key, authorID) {
-    const { match, history } = this.props;
-    const { language, region } = match.params;
-    history.push(`/${language}/${region}/${authorID}/${key}`);
-  }
+      <RecordList
+        records={records}
+        config={sharedConfig}
+        loading={loading}
+        onEditRecord={handleEditRecord}
+        onCloneRecord={handleCloneRecord}
+      />
 
-  handleCloneRecord(recordID, authorID) {
-    const { region } = this.props.match.params;
-  
-    const { currentUser } = getAuth(firebase);
-    if (currentUser) {
-      cloneRecord(recordID, authorID, currentUser.uid, region)
-    } 
-  }
-
-  render() {
-    const { sharedRecords, loading } = this.state;
-
-    const recordDateSort = (a, b) =>
-      new Date(b[1].created) - new Date(a[1].created);
-
-    return (
-      <div>
-        <Typography variant="h5">
+      {!loading && records.length === 0 && (
+        <Typography>
           <I18n>
-            <En>Shared with me</En>
-            <Fr>Partagé avec moi</Fr>
+            <En>You don't have any records shared with you.</En>
+            <Fr>Vous n'avez aucun enregistrement partagé avec vous.</Fr>
           </I18n>
         </Typography>
-
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <span>
-            <div>
-              <Typography style={{ marginTop: "20px" }}>
-                <I18n>
-                  <En>
-                    The following records have been shared with you for editing.
-                  </En>
-                  <Fr>
-                    Les enregistrements suivants ont été partagés avec vous pour
-                    modification.
-                  </Fr>
-                </I18n>
-              </Typography>
-              <Typography>
-                <I18n>
-                  <En>You can edit them, but you cannot submit or delete.</En>
-                  <Fr>
-                    Vous pouvez les modifier, mais vous ne pouvez pas les
-                    soumettre ou les supprimer.
-                  </Fr>
-                </I18n>
-              </Typography>
-              <List>
-                {Object.entries(sharedRecords || {})
-                  .sort(recordDateSort)
-                  .map(([key, record]) => {
-                    const { title } = record;
-
-                    if (!(title?.en || !title?.fr)) return null;
-
-                    return (
-                      <MetadataRecordListItem
-                        key={key}
-                        record={record}
-                        showCloneAction
-                        onCloneClick={() => this.handleCloneRecord(key, record.userID)}
-                        showEditAction
-                        showPercentComplete
-                        onViewEditClick={() => this.editRecord(key, record.userID)}
-                      />
-                    );
-                  })}
-              </List>
-            </div>
-            {!sharedRecords && (
-              <Typography>
-                <I18n>
-                  <En>You don't have any records shared with you.</En>
-                  <Fr>Vous n'avez aucun enregistrement partagé avec vous.</Fr>
-                </I18n>
-              </Typography>
-            )}
-          </span>
-        )}
-      </div>
-    );
-  }
-}
+      )}
+    </Box>
+  );
+};
 
 export default Shared;

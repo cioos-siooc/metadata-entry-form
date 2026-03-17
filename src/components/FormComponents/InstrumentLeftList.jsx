@@ -1,28 +1,37 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-import {Container, Draggable} from "react-smooth-dnd";
-
-import arrayMove from "array-move";
-import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
+import {
+  Delete,
+  DragHandle as DragHandleIcon,
+  FileCopy,
+  Save,
+} from "@mui/icons-material";
+import {
+  SortableList,
+  SortableItem,
+  DragHandle,
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
 import {
   Button,
   Grid,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
   Paper,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import {deepCopy, deepEquals} from "../../utils/misc";
-import {paperClass} from "./QuestionStyles";
+} from "@mui/material";
+import { deepCopy, deepEquals } from "../../utils/misc";
+import { paperClass } from "./QuestionStyles";
 import SelectInput from "./SelectInput";
-import {En, Fr, I18n} from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 
 import InstrumentTitle from "./InstrumentTitle";
-import {getBlankInstrument} from "../../utils/blankRecord";
+import { getBlankInstrument } from "../../utils/blankRecord";
 
 const InstrumentLeftList = ({
   instruments,
@@ -33,6 +42,7 @@ const InstrumentLeftList = ({
   userInstruments,
   saveUpdateInstrument,
 }) => {
+  const getItemId = useStableItemIds("instrument");
   const [currentInstruments, setItems] = useState(instruments);
 
   if (!deepEquals(currentInstruments, instruments)) {
@@ -48,7 +58,7 @@ const InstrumentLeftList = ({
     const reorderedInstruments = arrayMove(
       currentInstruments,
       removedIndex,
-      addedIndex
+      addedIndex,
     );
 
     updateInstruments(reorderedInstruments);
@@ -72,7 +82,7 @@ const InstrumentLeftList = ({
     const { role, ...instrument } = instrumentList[index];
 
     updateInstruments(
-      instruments.concat(deepCopy({ ...getBlankInstrument(), ...instrument }))
+      instruments.concat(deepCopy({ ...getBlankInstrument(), ...instrument })),
     );
     setActiveInstrument(instruments.length);
   }
@@ -85,7 +95,7 @@ const InstrumentLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             {instruments.length ? (
               <I18n>
@@ -100,21 +110,18 @@ const InstrumentLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid >
           <List>
-            <Container
-              dragHandleSelector=".drag-handle"
-              lockAxis="y"
+            <SortableList
+              items={instruments}
               onDrop={onDrop}
+              getItemId={getItemId}
             >
               {instruments.map((instrumentItem, i) => {
+                const instrumentId = getItemId(instrumentItem, i);
                 return (
-                  <Draggable key={i}>
-                    <ListItem
-                      key={i}
-                      button
-                      onClick={() => setActiveInstrument(i)}
-                    >
+                  <SortableItem key={instrumentId} id={instrumentId}>
+                    <ListItemButton onClick={() => setActiveInstrument(i)}>
                       <ListItemText
                         primary={
                           <Typography
@@ -130,10 +137,7 @@ const InstrumentLeftList = ({
                       <ListItemSecondaryAction>
                         <Tooltip
                           title={
-                            <I18n
-                              en="Duplicate instrument"
-                              fr="Dupliquer"
-                            />
+                            <I18n en="Duplicate instrument" fr="Dupliquer" />
                           }
                         >
                           <span>
@@ -179,13 +183,12 @@ const InstrumentLeftList = ({
                               onClick={() => {
                                 const instrument = deepCopy(instruments[i]);
 
-                                instrument.instrumentID = saveUpdateInstrument(instrument);
+                                instrument.instrumentID =
+                                  saveUpdateInstrument(instrument);
 
                                 setItems(instruments);
                               }}
-                              disabled={
-                                instruments[i].id?.length === 0
-                              }
+                              disabled={instruments[i].id?.length === 0}
                               edge="end"
                               aria-label="clone"
                             >
@@ -195,29 +198,27 @@ const InstrumentLeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Duplicate instrument" />
+                            <I18n
+                              en="Drag to reorder"
+                              fr="Faites glisser pour réorganiser"
+                            />
                           }
                         >
-                          <span>
-                            <IconButton
-                              className="drag-handle"
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <DragHandle />
+                          <DragHandle disabled={disabled}>
+                            <IconButton edge="end" aria-label="reorder">
+                              <DragHandleIcon />
                             </IconButton>
-                          </span>
+                          </DragHandle>
                         </Tooltip>
                       </ListItemSecondaryAction>
-                    </ListItem>
-                  </Draggable>
+                    </ListItemButton>
+                  </SortableItem>
                 );
               })}
-            </Container>
+            </SortableList>
           </List>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewInstrument}
@@ -232,7 +233,7 @@ const InstrumentLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"
@@ -242,7 +243,9 @@ const InstrumentLeftList = ({
             ))}
             options={instrumentList.map((v, i) => i)}
             disabled={!instrumentList.length || disabled}
-            label={<I18n en="ADD SAVED INSTRUMENT" fr="AJOUTER UN INSTRUMENT" />}
+            label={
+              <I18n en="ADD SAVED INSTRUMENT" fr="AJOUTER UN INSTRUMENT" />
+            }
           />
         </Grid>
       </Grid>

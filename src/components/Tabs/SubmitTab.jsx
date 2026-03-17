@@ -9,7 +9,7 @@ import {
   Typography,
   Button,
   CircularProgress,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { useParams } from "react-router-dom";
 
@@ -88,7 +88,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid >
           <Typography>
             <I18n>
               <En>
@@ -118,7 +118,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           </Typography>
         </Grid>
         {submitted ? (
-          <Grid item xs>
+          <Grid >
             <Typography>
               <I18n>
                 <En>
@@ -168,7 +168,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           <>
             {recordIsValid(record) ? (
               <>
-                <Grid item xs>
+                <Grid >
                   <Typography>
                     <I18n>
                       <En>
@@ -182,7 +182,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   {isSubmitting && <CircularProgress />}
                   {!isSubmitting && showSubmitButton && (
                     <Button
@@ -205,7 +205,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
             ) : (
               <>
                 {/* Errors Section */}
-                <Grid item xs>
+                <Grid >
                   <Typography variant="h5">
                     <I18n>
                       <En>Errors</En>
@@ -214,7 +214,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid item xs>
+                <Grid >
                   <Typography>
                     <I18n>
                       <En>
@@ -230,7 +230,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid item xs>
+                <Grid >
                   {Object.keys(validationErrors).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
@@ -255,7 +255,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
             Object.keys(validationWarnings).length > 0 ? (
               <>
                 {/* Warnings Section Heading */}
-                <Grid item xs>
+                <Grid >
                   <Typography variant="h5">
                     <I18n>
                       <En>Warnings</En>
@@ -264,7 +264,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid item xs>
+                <Grid >
                   <Typography>
                     <I18n>
                       <En>
@@ -282,7 +282,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid item xs>
+                <Grid >
                   {Object.keys(validationWarnings).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">

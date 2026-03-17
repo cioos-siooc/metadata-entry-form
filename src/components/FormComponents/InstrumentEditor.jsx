@@ -4,7 +4,7 @@ import {
   Grid, Paper,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { getBlankInstrument } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";
@@ -30,12 +30,12 @@ const InstrumentEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item xs>
+      <Grid >
         <Grid container direction="column">
           {instrument && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid item xs>
+                <Grid >
                   <I18n>
                     <En>Instrument ID</En>
                     <Fr>L'ID de l'instrument</Fr>
@@ -49,7 +49,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <TextField
                     label={manufacturerLabel}
                     name="manufacturer"
@@ -59,7 +59,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />{" "}
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
@@ -68,7 +68,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid item xs>
+                <Grid >
                   <Typography>
                     <I18n>
                       <En>Instrument Type</En>
@@ -82,7 +82,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>{" "}
-                <Grid item xs>
+                <Grid >
                   <Typography>Description</Typography>
                   <BilingualTextInput
                     label={descriptionLabel}

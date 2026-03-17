@@ -10,10 +10,10 @@ import {
   Tooltip,
   Typography,
   LinearProgress,
-} from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import { Save } from "@material-ui/icons";
-import { withRouter } from "react-router-dom";
+} from "@mui/material";
+import { withStyles } from "../../tss-cache";
+import { Save } from "@mui/icons-material";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getDatabase,
   ref,
@@ -94,7 +94,7 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-const styles = (theme) => ({
+const useStyles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
   },
@@ -548,7 +548,7 @@ class MetadataForm extends FormClassTemplate {
           </Tooltip>
         </Fab>
         <Grid container spacing={2} direction="row" alignItems="center">
-          <Grid item xs>
+          <Grid size="grow">
             <Tabs
               scrollButtons="auto"
               variant="fullWidth"
@@ -685,4 +685,22 @@ class MetadataForm extends FormClassTemplate {
   }
 }
 MetadataForm.contextType = UserContext;
-export default withStyles(styles)(withRouter(MetadataForm));
+
+const StyledMetadataForm = withStyles(MetadataForm, useStyles);
+
+// Wrapper component to provide router params and navigate to the class component
+const MetadataFormWrapper = (props) => {
+  const params = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Create a match-like object for compatibility
+  const match = {
+    params,
+    url: location.pathname,
+  };
+
+  return <StyledMetadataForm {...props} match={match} history={{ push: navigate }} />;
+};
+
+export default MetadataFormWrapper;

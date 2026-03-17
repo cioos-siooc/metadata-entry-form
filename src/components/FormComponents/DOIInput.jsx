@@ -4,8 +4,8 @@ import {
     Paper,
     TextField,
     Button,
-} from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
+} from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { getDatabase, ref, child, update } from "firebase/database";

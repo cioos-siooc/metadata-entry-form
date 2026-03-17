@@ -1,16 +1,26 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { getRegionLogo } from "../../regions";
 
 const RegionHeader = ({ children }) => {
   const { language, region } = useParams();
-  const imgPath = `/cioos-${region}-${language}.png`;
+  const logoSrc = getRegionLogo(region, language);
+  const titleText = region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item xs>
-        <img src={process.env.PUBLIC_URL + imgPath} alt={region} />
+      <Grid >
+        {logoSrc ? (
+          <img src={logoSrc} alt={region} />
+        ) : (
+          <div style={{
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            padding: '10px 0',
+          }}>{titleText}</div>
+        )}
       </Grid>
-      <Grid item xs style={{ paddingLeft: "50px" }}>
+      <Grid  style={{ paddingLeft: "50px" }}>
         {children}
       </Grid>
     </Grid>

@@ -1,28 +1,37 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-import {Container, Draggable} from "react-smooth-dnd";
-
-import arrayMove from "array-move";
-import {Delete, DragHandle, FileCopy, Save} from "@material-ui/icons";
+import {
+  Delete,
+  DragHandle as DragHandleIcon,
+  FileCopy,
+  Save,
+} from "@mui/icons-material";
+import {
+  SortableList,
+  SortableItem,
+  DragHandle,
+  arrayMove,
+  useStableItemIds,
+} from "./SortableList";
 import {
   Button,
   Grid,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
   Paper,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import {deepCopy, deepEquals} from "../../utils/misc";
-import {paperClass} from "./QuestionStyles";
+} from "@mui/material";
+import { deepCopy, deepEquals } from "../../utils/misc";
+import { paperClass } from "./QuestionStyles";
 import SelectInput from "./SelectInput";
-import {En, Fr, I18n} from "../I18n";
+import { En, Fr, I18n } from "../I18n";
 
 import PlatformTitle from "./PlatformTitle";
-import {getBlankPlatform} from "../../utils/blankRecord";
+import { getBlankPlatform } from "../../utils/blankRecord";
 
 const PlatformLeftList = ({
   platforms = [],
@@ -33,6 +42,7 @@ const PlatformLeftList = ({
   userPlatforms,
   saveUpdatePlatform,
 }) => {
+  const getItemId = useStableItemIds("platform");
   const [currentPlatforms, setItems] = useState(platforms);
 
   if (!deepEquals(currentPlatforms, platforms)) {
@@ -48,7 +58,7 @@ const PlatformLeftList = ({
     const reorderedPlatforms = arrayMove(
       currentPlatforms,
       removedIndex,
-      addedIndex
+      addedIndex,
     );
 
     updatePlatforms(reorderedPlatforms);
@@ -72,7 +82,7 @@ const PlatformLeftList = ({
     const { role, ...platform } = platformList[index];
 
     updatePlatforms(
-      platforms.concat(deepCopy({ ...getBlankPlatform(), ...platform }))
+      platforms.concat(deepCopy({ ...getBlankPlatform(), ...platform })),
     );
     setActivePlatform(platforms.length);
   }
@@ -85,7 +95,7 @@ const PlatformLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Typography>
             {platforms.length ? (
               <I18n>
@@ -100,21 +110,18 @@ const PlatformLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid item xs>
+        <Grid >
           <List>
-            <Container
-              dragHandleSelector=".drag-handle"
-              lockAxis="y"
+            <SortableList
+              items={platforms}
               onDrop={onDrop}
+              getItemId={getItemId}
             >
               {platforms.map((platformItem, i) => {
+                const platformId = getItemId(platformItem, i);
                 return (
-                  <Draggable key={i}>
-                    <ListItem
-                      key={i}
-                      button
-                      onClick={() => setActivePlatform(i)}
-                    >
+                  <SortableItem key={platformId} id={platformId}>
+                    <ListItemButton onClick={() => setActivePlatform(i)}>
                       <ListItemText
                         primary={
                           <Typography
@@ -130,10 +137,7 @@ const PlatformLeftList = ({
                       <ListItemSecondaryAction>
                         <Tooltip
                           title={
-                            <I18n
-                              en="Duplicate platform"
-                              fr="Dupliquer"
-                            />
+                            <I18n en="Duplicate platform" fr="Dupliquer" />
                           }
                         >
                           <span>
@@ -183,9 +187,7 @@ const PlatformLeftList = ({
 
                                 setItems(platforms);
                               }}
-                              disabled={
-                                platforms[i].id?.length === 0
-                              }
+                              disabled={platforms[i].id?.length === 0}
                               edge="end"
                               aria-label="clone"
                             >
@@ -195,29 +197,27 @@ const PlatformLeftList = ({
                         </Tooltip>
                         <Tooltip
                           title={
-                            <I18n en="Drag to reorder" fr="Duplicate platform" />
+                            <I18n
+                              en="Drag to reorder"
+                              fr="Faites glisser pour réorganiser"
+                            />
                           }
                         >
-                          <span>
-                            <IconButton
-                              className="drag-handle"
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <DragHandle />
+                          <DragHandle disabled={disabled}>
+                            <IconButton edge="end" aria-label="reorder">
+                              <DragHandleIcon />
                             </IconButton>
-                          </span>
+                          </DragHandle>
                         </Tooltip>
                       </ListItemSecondaryAction>
-                    </ListItem>
-                  </Draggable>
+                    </ListItemButton>
+                  </SortableItem>
                 );
               })}
-            </Container>
+            </SortableList>
           </List>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewPlatform}
@@ -232,7 +232,7 @@ const PlatformLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid item xs style={{ margin: "10px" }}>
+        <Grid  style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

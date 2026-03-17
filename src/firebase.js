@@ -1,10 +1,9 @@
 import { initializeApp } from 'firebase/app'
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
-import "firebase/compat/database";
 
-const deployedOnTestServer = process.env.REACT_APP_DEV_DEPLOYMENT;
-const localFirebaseFunctions = process.env.REACT_APP_FIREBASE_LOCAL_FUNCTIONS;
-const localFirebaseDatabase = process.env.REACT_APP_FIREBASE_LOCAL_DATABASE;
+const deployedOnTestServer = import.meta.env.VITE_DEV_DEPLOYMENT;
+const localFirebaseFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS;
+const localFirebaseDatabase = import.meta.env.VITE_FIREBASE_LOCAL_DATABASE;
 
 const prodConfig = {
   // see https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-8d942
@@ -14,7 +13,7 @@ const prodConfig = {
   // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we 
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
-  apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY,
+  apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY,
   authDomain: "cioos-metadata-form-8d942.firebaseapp.com",
   databaseURL: "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-8d942",
@@ -25,7 +24,7 @@ const prodConfig = {
 };
 
 const devConfig = {
-  apiKey: process.env.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV,
+  apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY_DEV,
   authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
   databaseURL: "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-dev-258dc",
@@ -36,7 +35,7 @@ const devConfig = {
 };
 
 
-const config = process.env.NODE_ENV === "production" && !(deployedOnTestServer === "true")
+const config = import.meta.env.PROD && !(deployedOnTestServer === "true")
   ? prodConfig
   : devConfig
 

@@ -6,8 +6,8 @@ import {
   AccordionSummary,
   AccordionDetails,
   Chip,
-} from "@material-ui/core";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+} from "@mui/material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Resources from "../FormComponents/Resources";
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import Lineage from "../FormComponents/Lineage";

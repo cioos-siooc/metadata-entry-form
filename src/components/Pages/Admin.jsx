@@ -15,20 +15,20 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "@material-ui/core";
-import { Save, Visibility, VisibilityOff } from "@material-ui/icons";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import CancelIcon from "@material-ui/icons/Cancel";
-import { getDatabase, ref, child, onValue, set } from "firebase/database";
+} from "@mui/material";
+import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { getDatabase, ref, child, onValue, update } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
-import { getRegionProjects } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
+import withRouter from "../../utils/withRouter";
 
 import { unique } from "../../utils/misc";
 
@@ -54,6 +54,15 @@ class Admin extends FormClassTemplate {
       credentialsStored: false,
       showDeletionDialog: false,
       showCredentialsMissingDialog: false,
+      showErrorDialog: false,
+      errorMessage: "",
+      githubOwner: "cioos-siooc",
+      githubRepo: "cioos-siooc-forms",
+      githubToken: "",
+      githubBranch: "main",
+      githubFileTemplate: "{filename}",
+      githubEnvironments: "prod",
+      showGithubToken: false,
     };
   }
 
@@ -72,7 +81,7 @@ class Admin extends FormClassTemplate {
         const regionAdminRef = child(adminRef, region);
         const permissionsRef = child(regionAdminRef, "permissions");
 
-        const projects = await getRegionProjects(region);
+        // Projects are loaded via the realtime listener below; no prefetch needed
         const datacitePrefix = await getDatacitePrefix(region).then(
           (response) => {
             return response.data;
@@ -84,15 +93,39 @@ class Admin extends FormClassTemplate {
           }
         );
 
+        const githubRef = child(regionAdminRef, "githubCredentials");
+        onValue(githubRef, (snapshot) => {
+          const data = snapshot.val();
+          // Always update state, even if data is null (first time setup)
+          this.setState({
+            githubOwner: data?.owner || "cioos-siooc",
+            githubRepo: data?.repo || "cioos-siooc-forms",
+            githubBranch: data?.branch || "main",
+            githubFileTemplate: data?.fileTemplate || "{filename}",
+            githubEnvironments: (data?.environments || ["prod"]).join("\n"),
+            githubToken: data?.token || "",
+          });
+        });
+
+        const projectsRef = child(regionAdminRef, "projects");
+        onValue(projectsRef, (snapshot) => {
+          const projectsData = snapshot.val();
+          if (projectsData) {
+            this.setState({
+              projects: Object.values(projectsData),
+            });
+          }
+        });
+
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          // const projects = permissions.projects.split(",");
-          const admins = permissions.admins.split(",");
-          const reviewers = permissions.reviewers.split(",");
+          const admins = permissions.admins ? permissions.admins.split(",") : [];
+          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
 
+          // Do not set `projects` here to avoid overwriting the more recent
+          // value from the `projectsRef` listener above.
           this.setState({
-            projects,
             admins,
             reviewers,
             loading: false,
@@ -102,6 +135,8 @@ class Admin extends FormClassTemplate {
           });
         });
         this.listenerRefs.push(permissionsRef);
+        this.listenerRefs.push(projectsRef);
+        this.listenerRefs.push(githubRef);
       }
     });
   }
@@ -119,6 +154,11 @@ class Admin extends FormClassTemplate {
   handleClickShowPassword = () =>
     this.setState((prevState) => ({
       showPassword: !prevState.showPassword,
+    }));
+
+  handleClickShowGithubToken = () =>
+    this.setState((prevState) => ({
+      showGithubToken: !prevState.showGithubToken,
     }));
 
   handleMouseDownPassword = (event) => {
@@ -156,63 +196,80 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  save() {
+  handleSave() {
     const { match } = this.props;
     const { region } = match.params;
-
-    const { reviewers, admins, projects } = this.state;
-    const database = getDatabase(firebase);
-
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const permissionsRef = child(regionAdminRef, "permissions");
-      const projectsRef = child(regionAdminRef, "projects");
-
-      set(child(permissionsRef, "admins"), cleanArr(admins).join());
-
-      set(projectsRef, cleanArr(projects));
-      set(child(permissionsRef, "reviewers"), cleanArr(reviewers).join());
-    }
-  }
-
-  saveDoiCredentials() {
-    const { match } = this.props;
-    const { region } = match.params;
-
     const {
+      reviewers,
+      admins,
+      projects,
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
       isDoiCreationEnabled,
+      githubOwner,
+      githubRepo,
+      githubToken,
+      githubBranch,
+      githubFileTemplate,
+      githubEnvironments,
     } = this.state;
-
     const database = getDatabase(firebase);
-
-    const bufferObj = Buffer.from(
-      `${dataciteAccountId}:${datacitePass}`,
-      "utf8"
-    );
-    const base64String = bufferObj.toString("base64");
-
-    // Check if DOI creation is enabled but credentials are not stored
-    if (
-      isDoiCreationEnabled &&
-      (!datacitePrefix || !dataciteAccountId || !datacitePass)
-    ) {
-      this.setState({ showCredentialsMissingDialog: true });
-      return;
-    }
 
     if (auth.currentUser) {
       const regionAdminRef = ref(database, `admin/${region}`);
-      const dataciteRef = child(regionAdminRef, "dataciteCredentials");
+      const updates = {};
 
-      set(child(dataciteRef, "prefix"), datacitePrefix);
-      set(child(dataciteRef, "dataciteHash"), base64String);
+      // 1. Permissions
+      updates["permissions/admins"] = cleanArr(admins).join();
+      updates["permissions/reviewers"] = cleanArr(reviewers).join();
+      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
 
+      // 2. DOI Credentials if enabled
+      if (isDoiCreationEnabled) {
+        if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
+          this.setState({ showCredentialsMissingDialog: true });
+        } else {
+          const bufferObj = Buffer.from(
+            `${dataciteAccountId}:${datacitePass}`,
+            "utf8"
+          );
+          const base64String = bufferObj.toString("base64");
+
+          updates["dataciteCredentials/prefix"] = datacitePrefix;
+          updates["dataciteCredentials/dataciteHash"] = base64String;
+
+          this.setState({
+            datacitePass: "",
+            credentialsStored: true,
+          });
+        }
+      }
+
+      // 3. GitHub Credentials
+      const githubCredentials = {
+        owner: githubOwner,
+        repo: githubRepo,
+        token: githubToken,
+        branch: githubBranch,
+        fileTemplate: githubFileTemplate,
+        environments: cleanArr(githubEnvironments.split("\n")),
+      };
+      updates.githubCredentials = githubCredentials;
+
+      update(regionAdminRef, updates)
+        .catch((error) => {
+          console.error('Failed to save admin settings:', error);
+          this.setState({
+            showErrorDialog: true,
+            errorMessage: `Failed to save admin settings: ${error.message}`,
+          });
+        });
+    } else {
+      console.error('No authenticated user found');
       this.setState({
-        datacitePass: "",
-        credentialsStored: true,
+        showErrorDialog: true,
+        errorMessage: 'You must be logged in to save admin settings',
       });
     }
   }
@@ -262,11 +319,21 @@ class Admin extends FormClassTemplate {
         aria-describedby="credentials-=missing-dialog-description"
       >
         <DialogTitle id="credentials-missing-dialog-title">
-          Missing DataCite Credentials
+          <I18n>
+            <En>Missing DataCite Credentials</En>
+            <Fr>Informations d'identification DataCite manquantes</Fr>
+          </I18n>
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="credentials-missing-dialog-description">
-            Please add DataCite credentials before saving.
+            <I18n>
+              <En>
+                Other settings were saved; DataCite credentials were not. Please add credentials to enable DOI creation.
+              </En>
+              <Fr>
+                Les autres paramètres ont été enregistrés; les informations DataCite ne l'ont pas été. Ajoutez les informations pour activer la création de DOI.
+              </Fr>
+            </I18n>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -274,6 +341,35 @@ class Admin extends FormClassTemplate {
             onClick={() =>
               this.setState({ showCredentialsMissingDialog: false })
             }
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  renderErrorDialog() {
+    return (
+      <Dialog
+        open={this.state.showErrorDialog}
+        onClose={() => this.setState({ showErrorDialog: false })}
+        aria-labelledby="error-dialog-title"
+        aria-describedby="error-dialog-description"
+      >
+        <DialogTitle id="error-dialog-title">
+          Error
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="error-dialog-description">
+            {this.state.errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => this.setState({ showErrorDialog: false })}
             color="primary"
             autoFocus
           >
@@ -312,7 +408,7 @@ class Admin extends FormClassTemplate {
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid item xs>
+        <Grid >
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -337,7 +433,7 @@ class Admin extends FormClassTemplate {
         ) : (
           <>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -345,7 +441,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -357,7 +453,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -365,7 +461,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -377,7 +473,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid item xs>
+              <Grid >
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -385,7 +481,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid >
                 <TextField
                   multiline
                   fullWidth
@@ -398,23 +494,9 @@ class Admin extends FormClassTemplate {
                 />
               </Grid>
             </Paper>
-            <Grid item xs>
-              <Button
-                startIcon={<Save />}
-                variant="contained"
-                color="primary"
-                style={{ margin: 10 }}
-                onClick={() => this.save()}
-              >
-                <I18n>
-                  <En>Save Admin Settings</En>
-                  <Fr>Enregistrer</Fr>
-                </I18n>
-              </Button>
-            </Grid>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="h5">
                     <I18n>
                       <En>DOI Creation Settings</En>
@@ -423,13 +505,12 @@ class Admin extends FormClassTemplate {
                   </Typography>
                 </Grid>
                 <Grid
-                  item
-                  xs={12}
+                  size={12}
                   container
                   alignItems="center"
                   justifyContent="space-between"
                 >
-                  <Grid item>
+                  <Grid>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -446,8 +527,8 @@ class Admin extends FormClassTemplate {
                     />
                   </Grid>
                   {isDoiCreationEnabled && credentialsStored && (
-                    <Grid item container spacing={2} alignItems="center">
-                      <Grid item>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid>
                         <Typography variant="body1">
                           <CheckCircleIcon
                             style={{
@@ -465,8 +546,8 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   )}
                   {isDoiCreationEnabled && !credentialsStored && (
-                    <Grid item container spacing={2} alignItems="center">
-                      <Grid item>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid>
                         <Typography variant="body1">
                           <CancelIcon
                             style={{
@@ -486,7 +567,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
                 {isDoiCreationEnabled && (
                   <>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="datacitePrefix"
                         label={
@@ -506,7 +587,7 @@ class Admin extends FormClassTemplate {
                         }
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="dataciteAccountId"
                         label={
@@ -519,7 +600,7 @@ class Admin extends FormClassTemplate {
                         fullWidth
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <TextField
                         name="datacitePass"
                         label={
@@ -552,30 +633,154 @@ class Admin extends FormClassTemplate {
                     </Grid>
                   </>
                 )}
-                {this.state.isDoiCreationEnabled && (
-                  <Button
-                    startIcon={<Save />}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.saveDoiCredentials()}
-                    style={{ margin: 10 }}
-                  >
-                    <I18n>
-                      <En>Save DOI Settings</En>
-                      <Fr>Enregistrer les paramètres DOI</Fr>
-                    </I18n>
-                  </Button>
-                )}
               </Grid>
             </Paper>
+            <Paper style={paperClass}>
+              <Grid container spacing={2}>
+                <Grid size={12}>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>GitHub Publishing Configuration</En>
+                      <Fr>Configuration de publication GitHub</Fr>
+                    </I18n>
+                  </Typography>
+                  <Typography variant="body2" style={{ marginTop: "10px" }}>
+                    <I18n>
+                      <En>
+                        Configure the GitHub repository where metadata records will
+                        be published. This allows reviewers to push approved
+                        records directly to a GitHub repository as XML and YAML
+                        files.
+                      </En>
+                      <Fr>
+                        Configurez le référentiel GitHub où les enregistrements de
+                        métadonnées seront publiés. Cela permet aux réviseurs de
+                        pousser les enregistrements approuvés directement vers un
+                        référentiel GitHub sous forme de fichiers XML et YAML.
+                      </Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubOwner"
+                    label={
+                      <I18n>
+                        <En>Repository Owner</En>
+                        <Fr>Propriétaire du dépôt</Fr>
+                      </I18n>
+                    }
+                    value={this.state.githubOwner}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubRepo"
+                    label={
+                      <I18n>
+                        <En>Repository Name</En>
+                        <Fr>Nom du dépôt</Fr>
+                      </I18n>
+                    }
+                    value={this.state.githubRepo}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubToken"
+                    label="GitHub Token"
+                    type={this.state.showGithubToken ? "text" : "password"}
+                    value={this.state.githubToken}
+                    onChange={this.handleChange}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={this.handleClickShowGithubToken}
+                            onMouseDown={this.handleMouseDownPassword}
+                            edge="end"
+                          >
+                            {this.state.showGithubToken ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    fullWidth
+                  />
+                  <Typography variant="caption" color="textSecondary">
+                    <I18n>
+                      <En>
+                        Personal Access Token (PAT) with 'repo' scope.
+                      </En>
+                      <Fr>
+                        Jeton d'accès personnel (PAT) avec la portée 'repo'.
+                      </Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubBranch"
+                    label="Target Branch"
+                    value={this.state.githubBranch}
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubFileTemplate"
+                    label="File Naming Template"
+                    value={this.state.githubFileTemplate}
+                    onChange={this.handleChange}
+                    fullWidth
+                    helperText="Default: {filename}"
+                  />
+                </Grid>
+                <Grid size={12}>
+                  <TextField
+                    name="githubEnvironments"
+                    label="Environments"
+                    multiline
+                    value={this.state.githubEnvironments}
+                    onChange={this.handleChange}
+                    fullWidth
+                    helperText="One environment per line (e.g. prod)"
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+            <Grid >
+              <Button
+                startIcon={<Save />}
+                variant="contained"
+                color="primary"
+                style={{ margin: 10 }}
+                onClick={() => this.handleSave()}
+              >
+                <I18n>
+                  <En>Save Admin Settings</En>
+                  <Fr>Enregistrer les paramètres d'administration</Fr>
+                </I18n>
+              </Button>
+            </Grid>
           </>
         )}
         {this.renderDeletionDialog()}
         {this.renderCredentialsMissingDialog()}
+        {this.renderErrorDialog()}
       </Grid>
     );
   }
 }
 
 Admin.contextType = UserContext;
-export default Admin;
+export default withRouter(Admin);

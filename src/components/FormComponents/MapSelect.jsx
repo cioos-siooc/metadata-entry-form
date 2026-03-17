@@ -1,22 +1,19 @@
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-underscore-dangle */
-import React, {  useState } from "react";
+import React, { useRef, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { TextField, Grid, Typography } from "@material-ui/core";
+import { TextField, Grid, Typography } from "@mui/material";
 import L from "leaflet";
 import {
-  Map,
+  MapContainer,
   TileLayer,
   FeatureGroup,
-  withLeaflet,
   Polygon as LeafletPolygon,
   Rectangle as LeafletRectangle,
 } from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
 import { I18n, En, Fr } from "../I18n";
+import GeomanControl from "./GeomanControl";
 
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
@@ -24,48 +21,20 @@ import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
-  // On map clear?
-  const handleMapClear = (() => {
-    const emptySpatial = {
-      ...mapData,
-      north: "",
-      south: "",
-      east: "",
-      west: "",
-      polygon: "",
-      descriptionIdentifier: uuidv4(),
-    };
-    updateMap(emptySpatial);
-  });
-
-  const [editableFG, setEditableFG] = useState(null);
-  const [, setLayerError] = useState(null);
+  const drawnLayerRef = useRef(null);
+  const mapDataRef = useRef(mapData);
+  mapDataRef.current = mapData;
 
   const coordTest = /-?\d+\.?\d+/;
   const polyTest = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
 
-  function clearExtraLayers(drawnItems) {
-    // From https://stackoverflow.com/questions/61073568/delete-layer-before-creating-a-new-one-with-react-leaflet-draw-in-leaflet
-    // Only allow one box on the map at a time
-    // if the number of layers is bigger than 1 then delete the first
-    if (Object.keys(drawnItems).length > 1) {
-      Object.keys(drawnItems).forEach((layerid) => {
-        const existingLayers = Object.keys(editableFG.leafletElement._layers)
-          .length;
-
-        if (existingLayers === 1) return;
-
-        const layer = drawnItems[layerid];
-
-        editableFG.leafletElement.removeLayer(layer);
-      });
-    }
-  }
   // update a mapData property using an event
   function handleBBoxChange(key) {
     return (e) => {
-      const drawnItems = editableFG.leafletElement._layers;
-      clearExtraLayers(drawnItems);
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
+        drawnLayerRef.current = null;
+      }
       const newData = { ...mapData, [key]: e.target.value };
       updateMap(newData);
     };
@@ -80,17 +49,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   }
 
   function parsePolyString(polygonList) {
-    let coordList = [...polygonList.matchAll(polyTest)].map((match) => {
-      return match[0];
+    const coordList = [...polygonList.matchAll(polyTest)].map((match) => {
+      return match[0].split(",").map(Number);
     });
-
-    try {
-      coordList = coordList.map((point) => {
-        return point.split(",").map(Number);
-      });
-    } catch (error) {
-      setLayerError({ error });
-    }
 
     return coordList;
   }
@@ -100,16 +61,16 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   }
 
   // update the polygon property using an event
-  function handleChangePoly()  {
+  function handleChangePoly() {
     return (e) => {
-      if (editableFG) {
-        const drawnItems = editableFG.leafletElement._layers;
-        clearExtraLayers(drawnItems);
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
+        drawnLayerRef.current = null;
       }
 
-      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' }
+      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' };
       try {
-        const bounds = L.latLngBounds(parsePolyString(e.target.value))
+        const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
         const { lat: south, lng: west } = bounds.getSouthWest();
 
@@ -122,8 +83,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       }
 
       updateMap(newData);
-    }
-  };
+    };
+  }
 
   const hasBoundingBox = (
     testN = mapData.north,
@@ -144,113 +105,98 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     return polyTest.test(testString);
   };
 
-  const onCreated = (e) => {
-    const { layer, layerType } = e;
+  const onCreated = useCallback(
+    (e) => {
+      const { layer, shape } = e;
 
-    // remove any existing shapes
-    const drawnItems = editableFG.leafletElement._layers;
-    clearExtraLayers(drawnItems);
-
-    switch (layerType) {
-      case "polygon": {
-        const points = layer.getLatLngs()[0];
-        const polygonStrings = points.map(
-          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
-        );
-        const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
-
-        const polybounds = layer.getBounds();
-
-        let { lat: north, lng: east } = polybounds.getNorthEast();
-        let { lat: south, lng: west } = polybounds.getSouthWest();
-
-        north = limitDecimals(north);
-        south = limitDecimals(south);
-        east = limitDecimals(east);
-        west = limitDecimals(west);
-
-        const newValue = { ...mapData, polygon, north, south, east, west };
-        updateMap(newValue);
+      // Remove previous drawn shape (only one shape allowed at a time)
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
       }
-        break;
+      drawnLayerRef.current = layer;
 
-      default: // Assume rectangle
-      case "rectangle": {
-        const bounds = layer.getBounds();
+      const currentMapData = mapDataRef.current;
 
-        let { lat: north, lng: east } = bounds.getNorthEast();
-        let { lat: south, lng: west } = bounds.getSouthWest();
+      switch (shape) {
+        case "Polygon": {
+          const points = layer.getLatLngs()[0];
+          const polygonStrings = points.map(
+            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+          );
+          const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
-        north = limitDecimals(north);
-        south = limitDecimals(south);
-        east = limitDecimals(east);
-        west = limitDecimals(west);
+          const polybounds = layer.getBounds();
 
-        const newValue = { ...mapData, north, south, east, west };
-        updateMap(newValue);
+          let { lat: north, lng: east } = polybounds.getNorthEast();
+          let { lat: south, lng: west } = polybounds.getSouthWest();
+
+          north = limitDecimals(north);
+          south = limitDecimals(south);
+          east = limitDecimals(east);
+          west = limitDecimals(west);
+
+          updateMap({ ...currentMapData, polygon, north, south, east, west });
+          break;
+        }
+
+        case "Rectangle":
+        default: {
+          const bounds = layer.getBounds();
+
+          let { lat: north, lng: east } = bounds.getNorthEast();
+          let { lat: south, lng: west } = bounds.getSouthWest();
+
+          north = limitDecimals(north);
+          south = limitDecimals(south);
+          east = limitDecimals(east);
+          west = limitDecimals(west);
+
+          updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+          break;
+        }
       }
-    }
-  };
-
-  const onFeatureGroupReady = (reactFGref) => {
-    // store the featureGroup ref for future access to content
-    setEditableFG(reactFGref);
-  };
-  L.EditToolbar.Delete.include({
-    enable() {
-      // eslint-disable-next-line react/no-this-in-sfc
-      this.options.featureGroup.clearLayers();
-      handleMapClear();
     },
-  });
+    [updateMap]
+  );
+
+  const onRemove = useCallback(() => {
+    drawnLayerRef.current = null;
+    const currentMapData = mapDataRef.current;
+    updateMap({
+      ...currentMapData,
+      north: "",
+      south: "",
+      east: "",
+      west: "",
+      polygon: "",
+      descriptionIdentifier: uuidv4(),
+    });
+  }, [updateMap]);
 
   const bboxIsDrawn = Boolean(
     mapData.north || mapData.south || mapData.east || mapData.west
   );
 
-  const polyIsDrawn = Boolean(
-    mapData.polygon
-  );
+  const polyIsDrawn = Boolean(mapData.polygon);
 
   const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
 
   return (
     <div>
-      <Map
+      <MapContainer
         style={{ width: "100%", height: "55vh" }}
         center={[50, -100]}
         zoom={3}
-
-        // whenReady={loadExistingExtent}
       >
         <TileLayer
           attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <FeatureGroup
-          ref={(featureGroupRef) => {
-            onFeatureGroupReady(featureGroupRef);
-          }}
-        >
-          {disabled === false && (
-            <EditControl
-              position="topleft"
-              // onEdited={onEditPath}
-              onCreated={onCreated}
-              onMapClear={handleMapClear}
-              draw={{
-                marker: false,
-                circle: false,
-                polyline: false,
-                circlemarker: false,
-                polygon: true,
-              }}
-              edit={{
-                edit: false,
-              }}
-            />
-          )}
+        {disabled === false && (
+          <GeomanControl onCreated={onCreated} onRemove={onRemove} />
+        )}
 
+        <FeatureGroup>
           {hasPolygon() && (
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
@@ -265,7 +211,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             />
           )}
         </FeatureGroup>
-      </Map>
+      </MapContainer>
       <br />
       <QuestionText>
         <I18n>
@@ -291,7 +237,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </SupplementalText>
       </QuestionText>
       <Grid container direction="row" spacing={3}>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="North" fr="Nord" />}
             value={mapData.north || ""}
@@ -301,7 +247,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="South" fr="Sud" />}
             value={mapData.south || ""}
@@ -310,7 +256,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             label={<I18n en="East" fr="Est" />}
             value={mapData.east || ""}
@@ -319,7 +265,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <TextField
             value={mapData.west || ""}
             label={<I18n en="West" fr="Ouest" />}
@@ -366,7 +312,6 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
       />
 
-
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
         <I18n>
           <En>And optionally</En>
@@ -380,22 +325,22 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
         </I18n>
         {record.resourceType && record.resourceType.includes("biological") && (
-          <RequiredMark passes={Boolean(mapData.description)} /> 
+          <RequiredMark passes={Boolean(mapData.description)} />
         )}
         <SupplementalText>
           <I18n>
             <En>
               <p>
-                Optionally you can include a text description of the geographic 
-                area covered by this dataset or study. This field is required 
-                when filling out biological datasets but is optional for all 
+                Optionally you can include a text description of the geographic
+                area covered by this dataset or study. This field is required
+                when filling out biological datasets but is optional for all
                 other dataset types.
               </p>
             </En>
             <Fr>
               <p>
-                Vous pouvez éventuellement inclure une description textuelle 
-                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est 
+                Vous pouvez éventuellement inclure une description textuelle
+                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est
                 facultatif pour tous autre type de jeux de données.
               </p>
             </Fr>
@@ -413,4 +358,4 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   );
 };
 
-export default withLeaflet(MapSelect);
+export default MapSelect;
