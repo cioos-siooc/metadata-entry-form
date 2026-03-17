@@ -49,6 +49,10 @@ Serverless backend using Firebase Cloud Functions (Gen 2).
 ### Internationalization (i18n)
 The app is bilingual (English/French). Content fields are stored as `{ en: "...", fr: "..." }`.
 
+## Contributing
+
+See the [Contributing Guide](docs/contributing.md) for branch naming conventions, PR labeling, release notes, and CI/CD workflow details.
+
 ## Local Development Installation
 
 To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container. 
