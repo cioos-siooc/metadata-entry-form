@@ -299,23 +299,22 @@ async function performSync(config) {
             const { data: files } = await octokit.rest.repos.getContent({ owner, repo, path: `organizations/${status}`, ref: branch });
             if (!Array.isArray(files)) continue;
 
-            for (const file of files) {
-                if (file.name.endsWith(".json")) {
-                    try {
-                        const { data: contentData } = await octokit.rest.repos.getContent({ owner, repo, path: file.path, ref: branch });
-                        const orgData = JSON.parse(Buffer.from(contentData.content, 'base64').toString());
-                        const slug = orgData.orgSlug || file.name.replace(".json", "");
+            const jsonFiles = files.filter(file => file.name.endsWith(".json"));
+            await Promise.all(jsonFiles.map(async (file) => {
+                try {
+                    const { data: contentData } = await octokit.rest.repos.getContent({ owner, repo, path: file.path, ref: branch });
+                    const orgData = JSON.parse(Buffer.from(contentData.content, 'base64').toString());
+                    const slug = orgData.orgSlug || file.name.replace(".json", "");
 
-                        if (status === "approved") {
-                            await admin.database().ref(`organizations/${slug}`).set(orgData);
-                            results.approved++;
-                        } else {
-                            await admin.database().ref(`organizationRequests/${slug}`).set({ ...orgData, status });
-                            results[status]++;
-                        }
-                    } catch (e) { results.errors.push(`Error processing ${file.path}: ${e.message}`); }
-                }
-            }
+                    if (status === "approved") {
+                        await admin.database().ref(`organizations/${slug}`).set(orgData);
+                        results.approved++;
+                    } else {
+                        await admin.database().ref(`organizationRequests/${slug}`).set({ ...orgData, status });
+                        results[status]++;
+                    }
+                } catch (e) { results.errors.push(`Error processing ${file.path}: ${e.message}`); }
+            }));
         } catch (e) { if (e.status !== 404) results.errors.push(`Error listing ${status}: ${e.message}`); }
     }
     return results;

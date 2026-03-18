@@ -344,11 +344,11 @@ class OrganizationAdmin extends FormClassTemplate {
         );
 
         const timeoutId = setTimeout(() => {
-          console.error("Sync task timed out after 60 seconds");
+          console.error("Sync task timed out after 180 seconds");
           this.showSnackbar("Sync timed out. Check Firebase function logs for errors.", "error");
           unsubscribe();
           this.setState({ loading: false });
-        }, 60000);
+        }, 180000);
       })
       .catch((err) => {
         console.error("Error creating sync task:", err);
