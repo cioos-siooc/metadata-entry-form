@@ -332,25 +332,45 @@ class OrganizationAdmin extends FormClassTemplate {
     set(ref(database, `admin/test/organizationTasks/${taskId}`), taskData)
       .then(() => {
         const taskRef = ref(database, `admin/test/organizationTasks/${taskId}`);
-        const unsubscribe = onValue(taskRef, (snapshot) => {
-          const val = snapshot.val();
-          if (val && val.status === "completed") {
-            const { approved, pending, rejected, errors } = val.result;
-            let message = `Sync complete! Approved: ${approved}, Pending: ${pending}, Rejected: ${rejected}`;
-            if (errors && errors.length > 0) {
-              message += ` (${errors.length} errors)`;
+
+        const cleanup = (unsubscribeFn, timeoutId) => {
+          unsubscribeFn();
+          clearTimeout(timeoutId);
+          this.setState({ loading: false });
+        };
+
+        const unsubscribe = onValue(
+          taskRef,
+          (snapshot) => {
+            const val = snapshot.val();
+            if (val && val.status === "completed") {
+              const { approved, pending, rejected, errors } = val.result;
+              let message = `Sync complete! Approved: ${approved}, Pending: ${pending}, Rejected: ${rejected}`;
+              if (errors && errors.length > 0) {
+                message += ` (${errors.length} errors)`;
+              }
+              this.showSnackbar(message);
+              cleanup(unsubscribe, timeoutId);
+              remove(taskRef);
+            } else if (val && val.status === "error") {
+              this.showSnackbar(`Error syncing: ${val.error}`, "error");
+              cleanup(unsubscribe, timeoutId);
+              remove(taskRef);
             }
-            this.showSnackbar(message);
-            unsubscribe();
-            this.setState({ loading: false });
-            remove(taskRef);
-          } else if (val && val.status === "error") {
-            this.showSnackbar(`Error syncing: ${val.error}`, "error");
-            unsubscribe();
-            this.setState({ loading: false });
-            remove(taskRef);
+          },
+          (error) => {
+            console.error("Error listening to sync task:", error);
+            this.showSnackbar(`Error listening for sync result: ${error.message}`, "error");
+            cleanup(unsubscribe, timeoutId);
           }
-        });
+        );
+
+        const timeoutId = setTimeout(() => {
+          console.error("Sync task timed out after 60 seconds");
+          this.showSnackbar("Sync timed out. Check Firebase function logs for errors.", "error");
+          unsubscribe();
+          this.setState({ loading: false });
+        }, 60000);
       })
       .catch((err) => {
         console.error("Error creating sync task:", err);
