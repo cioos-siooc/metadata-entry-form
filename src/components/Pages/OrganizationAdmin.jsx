@@ -295,28 +295,6 @@ class OrganizationAdmin extends FormClassTemplate {
     });
   };
 
-  handleSeedData = () => {
-    this.showConfirm(
-      "This will import organizations from the seed file. Existing organizations with same slugs will be overwritten. Continue?",
-      () => {
-        fetch(`${import.meta.env.BASE_URL}organizations-seed.json`)
-          .then(res => res.json())
-          .then(data => {
-            const promises = Object.entries(data).map(([slug, org]) => 
-              createOrganization(slug, org)
-            );
-            return Promise.all(promises);
-          })
-          .then(() => {
-            this.showSnackbar("Seed data imported successfully!");
-          })
-          .catch(err => {
-            console.error("Error seeding data:", err);
-            this.showSnackbar("Error seeding data. Check console for details.", "error");
-          });
-      }
-    );
-  };
 
   handleSyncFromGitHub = () => {
     const database = getDatabase(firebase);
@@ -686,9 +664,7 @@ class OrganizationAdmin extends FormClassTemplate {
                 <Button variant="outlined" startIcon={<GitHub />} onClick={this.handleSyncFromGitHub}>
                   <I18n en="Sync from GitHub" fr="Sync de GitHub" />
                 </Button>
-                <Button variant="outlined" onClick={this.handleSeedData}>
-                  <I18n en="Seed Data" fr="Données de base" />
-                </Button>
+
                 <Button variant="contained" startIcon={<Add />} onClick={() => this.handleOpenDialog()}>
                   <I18n en="Add Organization" fr="Ajouter une organisation" />
                 </Button>
@@ -1004,7 +980,7 @@ class OrganizationAdmin extends FormClassTemplate {
               color="success" 
               variant="contained" 
               onClick={this.handleApproveRequest}
-              disabled={!reviewingRequest?.orgNameEn || !reviewingRequest?.orgURL}
+              disabled={!reviewingRequest?.orgNameEn}
             >
               Approve
             </Button>
