@@ -15,16 +15,18 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormLabel,
+  Alert,
 } from "@mui/material";
 import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { getDatabase, ref, child, onValue, update } from "firebase/database";
+import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
 import { Buffer } from 'buffer';
 
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
-import { deleteAllDataciteCredentials } from "../../utils/firebaseEnableDoiCreation";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
@@ -48,6 +50,7 @@ class Admin extends FormClassTemplate {
       datacitePrefixValid: true,
       dataciteAccountId: "",
       datacitePass: "",
+      dataciteApiDomain: "production",
       loading: false,
       showPassword: false,
       isDoiCreationEnabled: false,
@@ -92,6 +95,15 @@ class Admin extends FormClassTemplate {
             return response.data;
           }
         );
+
+        const dataciteRef = child(regionAdminRef, "dataciteCredentials");
+        onValue(dataciteRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data?.apiDomain) {
+            this.setState({ dataciteApiDomain: data.apiDomain });
+          }
+        });
+        this.listenerRefs.push(dataciteRef);
 
         const githubRef = child(regionAdminRef, "githubCredentials");
         onValue(githubRef, (snapshot) => {
@@ -182,11 +194,13 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      await deleteAllDataciteCredentials(region);
+      const database = getDatabase(firebase);
+      await remove(ref(database, `admin/${region}/dataciteCredentials`));
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",
         datacitePass: "",
+        dataciteApiDomain: "production",
         credentialsStored: false,
         isDoiCreationEnabled: false,
         showDeletionDialog: false,
@@ -206,6 +220,7 @@ class Admin extends FormClassTemplate {
       datacitePrefix,
       dataciteAccountId,
       datacitePass,
+      dataciteApiDomain,
       isDoiCreationEnabled,
       githubOwner,
       githubRepo,
@@ -238,6 +253,7 @@ class Admin extends FormClassTemplate {
 
           updates["dataciteCredentials/prefix"] = datacitePrefix;
           updates["dataciteCredentials/dataciteHash"] = base64String;
+          updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
 
           this.setState({
             datacitePass: "",
@@ -526,47 +542,64 @@ class Admin extends FormClassTemplate {
                       }
                     />
                   </Grid>
-                  {isDoiCreationEnabled && credentialsStored && (
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid>
-                        <Typography variant="body1">
-                          <CheckCircleIcon
-                            style={{
-                              color: "green",
-                              marginRight: 4,
-                              fontSize: "1.4rem",
-                            }}
-                          />
-                          <I18n>
-                            <En>Credentials Stored</En>
-                            <Fr>Identifiants Enregistrés</Fr>
-                          </I18n>
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  )}
-                  {isDoiCreationEnabled && !credentialsStored && (
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid>
-                        <Typography variant="body1">
-                          <CancelIcon
-                            style={{
-                              color: "red",
-                              marginRight: 4,
-                              fontSize: "1.4rem",
-                            }}
-                          />
-                          <I18n>
-                            <En>Please Add DataCite Credentials</En>
-                            <Fr>Identifiants Enregistrés</Fr>
-                          </I18n>
-                        </Typography>
-                      </Grid>
+                  {isDoiCreationEnabled && (
+                    <Grid size={12}>
+                      <Alert severity={credentialsStored ? "success" : "warning"}>
+                        <I18n>
+                          <En>
+                            {credentialsStored
+                              ? "DataCite credentials are saved. Enter new values below to update them."
+                              : "No DataCite credentials stored. Please enter your credentials below."}
+                          </En>
+                          <Fr>
+                            {credentialsStored
+                              ? "Les identifiants DataCite sont enregistrés. Entrez de nouvelles valeurs ci-dessous pour les mettre à jour."
+                              : "Aucun identifiant DataCite enregistré. Veuillez entrer vos identifiants ci-dessous."}
+                          </Fr>
+                        </I18n>
+                      </Alert>
                     </Grid>
                   )}
                 </Grid>
                 {isDoiCreationEnabled && (
                   <>
+                    <Grid size={12}>
+                      <FormControl>
+                        <FormLabel>
+                          <I18n>
+                            <En>DataCite API</En>
+                            <Fr>API DataCite</Fr>
+                          </I18n>
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          name="dataciteApiDomain"
+                          value={this.state.dataciteApiDomain}
+                          onChange={this.handleChange}
+                        >
+                          <FormControlLabel
+                            value="production"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Production (api.datacite.org)</En>
+                                <Fr>Production (api.datacite.org)</Fr>
+                              </I18n>
+                            }
+                          />
+                          <FormControlLabel
+                            value="test"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Test (api.test.datacite.org)</En>
+                                <Fr>Test (api.test.datacite.org)</Fr>
+                              </I18n>
+                            }
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
                     <Grid size={12}>
                       <TextField
                         name="datacitePrefix"
@@ -596,6 +629,15 @@ class Admin extends FormClassTemplate {
                             <Fr>Identifiant du compte</Fr>
                           </I18n>
                         }
+                        placeholder={credentialsStored ? "••••••••" : ""}
+                        helperText={
+                          credentialsStored && !this.state.dataciteAccountId ? (
+                            <I18n>
+                              <En>Account ID is saved. Enter a new value to update it.</En>
+                              <Fr>L'identifiant est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
+                            </I18n>
+                          ) : undefined
+                        }
                         onChange={this.handleChange}
                         fullWidth
                       />
@@ -608,6 +650,15 @@ class Admin extends FormClassTemplate {
                             <En>Password</En>
                             <Fr>Mot de passe</Fr>
                           </I18n>
+                        }
+                        placeholder={credentialsStored ? "••••••••" : ""}
+                        helperText={
+                          credentialsStored && !this.state.datacitePass ? (
+                            <I18n>
+                              <En>Password is saved. Enter a new value to update it.</En>
+                              <Fr>Le mot de passe est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
+                            </I18n>
+                          ) : undefined
                         }
                         type={showPassword ? "text" : "password"}
                         onChange={this.handleChange}
