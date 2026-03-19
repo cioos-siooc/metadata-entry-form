@@ -17,6 +17,7 @@ export const reviewerConfig = {
     "progress",
     "created",
     "title",
+    "identifier",
     "author",
     "doi",
     "abstract",
@@ -38,6 +39,7 @@ export const reviewerConfig = {
     progress: true,
     created: true,
     doi: true,
+    identifier: false,
     abstract: false,
     license: false,
     verticalExtentMin: false,
@@ -74,13 +76,14 @@ export const reviewerConfig = {
 
 export const publishedConfig = {
   pageId: "published",
-  columns: ["status", "created", "title", "author"],
+  columns: ["status", "created", "title", "identifier", "author"],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     author: true,
     created: true,
+    identifier: false,
     actions: true,
   },
 
@@ -107,13 +110,14 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  columns: ["status", "progress", "created", "title", "author"],
+  columns: ["status", "progress", "created", "title", "identifier", "author"],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     progress: true,
     created: true,
+    identifier: false,
     author: false,
     actions: true,
   },
@@ -301,6 +305,24 @@ export const createColumns = (language, region) => ({
     flex: 2,
   },
 
+  identifier: {
+    field: "identifier",
+    headerName: language === "en" ? "Identifier" : "Identifiant",
+    flex: 1.5,
+    renderCell: (params) => (
+      <div
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+        title={params.value}
+      >
+        {params.value}
+      </div>
+    ),
+  },
+
   author: {
     field: "author",
     maxWidth: 200,
@@ -481,6 +503,7 @@ export const recordToRow = (record, language, index) => ({
   recordID: record.recordID,
   userID: record.userinfo?.userID,
   title: record.title?.[language] || "",
+  identifier: record.identifier || "",
   status: record.status || "",
   author: record.userinfo?.displayName || "",
   progress: Math.round(percentValid(record) * 100),
