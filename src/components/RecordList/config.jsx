@@ -17,8 +17,8 @@ export const reviewerConfig = {
     "progress",
     "created",
     "title",
-    "identifier",
     "author",
+    "identifier",
     "doi",
     "abstract",
     "license",
@@ -76,7 +76,7 @@ export const reviewerConfig = {
 
 export const publishedConfig = {
   pageId: "published",
-  columns: ["status", "created", "title", "identifier", "author"],
+  columns: ["status", "created", "title", "author", "identifier"],
 
   defaultColumnVisibility: {
     title: true,
@@ -110,7 +110,7 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  columns: ["status", "progress", "created", "title", "identifier", "author"],
+  columns: ["status", "progress", "created", "title", "author", "identifier"],
 
   defaultColumnVisibility: {
     title: true,
