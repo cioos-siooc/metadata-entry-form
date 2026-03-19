@@ -4,6 +4,7 @@ import {
     Paper,
     TextField,
     Button,
+    Tooltip,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -15,7 +16,6 @@ import { getDatabase, ref, child, update } from "firebase/database";
 import { En, Fr, I18n } from "../I18n";
 
 import firebase from "../../firebase";
-import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { validateDOI } from "../../utils/validate";
 
 import {
@@ -57,12 +57,21 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
 
         try {
-            const mappedDataCiteObject = await recordToDataCiteFromPython(record, language, region, datacitePrefix, { forUpdate: false });
+            // Create a minimal draft DOI with just the prefix.
+            // Full metadata will be pushed when the record is submitted or published.
+            const minimalPayload = {
+                data: {
+                    type: "dois",
+                    attributes: {
+                        prefix: datacitePrefix,
+                    },
+                },
+            };
 
-            console.log("[DOIInput] createDraftDoi payload", { region, mappedDataCiteObject });
+            console.log("[DOIInput] createDraftDoi payload", { region, minimalPayload });
 
             await createDraftDoi({
-                record: mappedDataCiteObject,
+                record: minimalPayload,
                 region,
             })
                 .then((response) => {
@@ -89,6 +98,17 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     }
 
                     setDoiGenerated(true);
+
+                    // If the record is already submitted or published, push full metadata immediately
+                    if (["submitted", "published"].includes(record.status)) {
+                        try {
+                            await performUpdateDraftDoi(updatedRecord, region, language, datacitePrefix);
+                        } catch (updateErr) {
+                            console.error("[DOIInput] auto-update after generate failed", updateErr);
+                            setDoiErrorFlag(true);
+                            setDoiErrorMessage(updateErr.message || "DOI created but failed to push metadata. Try clicking Update DOI.");
+                        }
+                    }
                 })
                 .finally(() => {
                     setLoadingDoi(false);
@@ -236,62 +256,146 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             </QuestionText>
             {
                 showGenerateDoi && (
-                    <Button
-                        onClick={() => handleGenerateDOI()}
-                        disabled={generateDoiDisabled}
-                        style={{ display: "inline", marginRight: "15px" }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoi ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Generate DOI"
-                            )}
-                        </div>
-                    </Button>
-                )
-            }
-            {
-                showUpdateDoi && (
-                    <Button
-                        onClick={() => handleUpdateDraftDOI()}
-                        disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
-                        style={{ display: 'inline', marginRight: "15px" }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoiUpdate ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Update DOI"
-                            )}
-                        </div>
-                    </Button>
-                )
-            }
-            {
-                showDeleteDoi && (
-                    <Button
-                        onClick={() => handleDeleteDOI()}
-                        disabled={record.doiCreationStatus !== 'draft'}
-                        style={{ display: "inline", marginRight: "15px" }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoiDelete ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Delete DOI"
-                            )}
-                        </div>
-                    </Button>
+                    <I18n>
+                        <En>
+                            <Tooltip
+                                title={
+                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
+                                        <li><strong>Generate DOI</strong> reserves a draft DOI with DataCite (no metadata is sent yet).</li>
+                                        <li>Once the record status is <strong>submitted</strong> or <strong>published</strong>, generating a DOI will automatically include the full metadata.</li>
+                                        <li><strong>Update DOI</strong> pushes the latest metadata to DataCite. This button is only enabled when the record is submitted or published.</li>
+                                        <li><strong>Delete DOI</strong> removes a draft DOI from DataCite (only available while the DOI is in draft status).</li>
+                                    </ol>
+                                }
+                                arrow
+                                placement="top"
+                            >
+                                <div style={{ display: "inline" }}>
+                                    <Button
+                                        onClick={() => handleGenerateDOI()}
+                                        disabled={generateDoiDisabled}
+                                        style={{ display: "inline", marginRight: "15px" }}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            {loadingDoi ? (
+                                                <>
+                                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                "Generate DOI"
+                                            )}
+                                        </div>
+                                    </Button>
+                                    {showUpdateDoi && (
+                                        <Button
+                                            onClick={() => handleUpdateDraftDOI()}
+                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status)}
+                                            style={{ display: 'inline', marginRight: "15px" }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                                {loadingDoiUpdate ? (
+                                                    <>
+                                                        <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                        Loading...
+                                                    </>
+                                                ) : (
+                                                    "Update DOI"
+                                                )}
+                                            </div>
+                                        </Button>
+                                    )}
+                                    {showDeleteDoi && (
+                                        <Button
+                                            onClick={() => handleDeleteDOI()}
+                                            disabled={record.doiCreationStatus !== 'draft'}
+                                            style={{ display: "inline", marginRight: "15px" }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                                {loadingDoiDelete ? (
+                                                    <>
+                                                        <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                        Loading...
+                                                    </>
+                                                ) : (
+                                                    "Delete DOI"
+                                                )}
+                                            </div>
+                                        </Button>
+                                    )}
+                                </div>
+                            </Tooltip>
+                        </En>
+                        <Fr>
+                            <Tooltip
+                                title={
+                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
+                                        <li><strong>Générer un DOI</strong> réserve un DOI brouillon auprès de DataCite (aucune métadonnée n&apos;est envoyée).</li>
+                                        <li>Lorsque le statut est <strong>soumis</strong> ou <strong>publié</strong>, la génération inclura automatiquement les métadonnées complètes.</li>
+                                        <li><strong>Mettre à jour le DOI</strong> envoie les métadonnées les plus récentes à DataCite. Activé uniquement lorsque soumis ou publié.</li>
+                                        <li><strong>Supprimer le DOI</strong> supprime un DOI brouillon de DataCite (disponible uniquement en statut brouillon).</li>
+                                    </ol>
+                                }
+                                arrow
+                                placement="top"
+                            >
+                                <div style={{ display: "inline" }}>
+                                    <Button
+                                        onClick={() => handleGenerateDOI()}
+                                        disabled={generateDoiDisabled}
+                                        style={{ display: "inline", marginRight: "15px" }}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            {loadingDoi ? (
+                                                <>
+                                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                "Generate DOI"
+                                            )}
+                                        </div>
+                                    </Button>
+                                    {showUpdateDoi && (
+                                        <Button
+                                            onClick={() => handleUpdateDraftDOI()}
+                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status)}
+                                            style={{ display: 'inline', marginRight: "15px" }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                                {loadingDoiUpdate ? (
+                                                    <>
+                                                        <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                        Loading...
+                                                    </>
+                                                ) : (
+                                                    "Update DOI"
+                                                )}
+                                            </div>
+                                        </Button>
+                                    )}
+                                    {showDeleteDoi && (
+                                        <Button
+                                            onClick={() => handleDeleteDOI()}
+                                            disabled={record.doiCreationStatus !== 'draft'}
+                                            style={{ display: "inline", marginRight: "15px" }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                                {loadingDoiDelete ? (
+                                                    <>
+                                                        <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                        Loading...
+                                                    </>
+                                                ) : (
+                                                    "Delete DOI"
+                                                )}
+                                            </div>
+                                        </Button>
+                                    )}
+                                </div>
+                            </Tooltip>
+                        </Fr>
+                    </I18n>
                 )
             }
 
