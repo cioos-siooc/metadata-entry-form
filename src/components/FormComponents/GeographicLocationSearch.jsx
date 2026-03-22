@@ -15,6 +15,7 @@ const TYPE_FILTERS = [
   { value: "province", en: "Province", fr: "Province" },
   { value: "territory", en: "Territory", fr: "Territoire" },
   { value: "marineRegion", en: "Marine Region", fr: "Région marine" },
+  { value: "dfoBioregion", en: "DFO Bioregion", fr: "Biorégion MPO" },
   { value: "ocean", en: "Ocean", fr: "Océan" },
 ];
 
@@ -36,10 +37,14 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     const { bbox, polygon, en, fr } = selectedLocation;
     updateMap({
       ...mapData,
-      north: bbox.north,
-      south: bbox.south,
-      east: bbox.east,
-      west: bbox.west,
+      ...(bbox
+        ? {
+            north: bbox.north,
+            south: bbox.south,
+            east: bbox.east,
+            west: bbox.west,
+          }
+        : {}),
       polygon: polygon || "",
       description: { en, fr },
     });

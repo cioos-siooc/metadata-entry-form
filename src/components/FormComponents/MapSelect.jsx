@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { TextField, Grid, Typography } from "@mui/material";
@@ -10,16 +10,51 @@ import {
   FeatureGroup,
   Polygon as LeafletPolygon,
   Rectangle as LeafletRectangle,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
 import GeomanControl from "./GeomanControl";
-
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
+
+function limitDecimals(x) {
+  return Number(Number.parseFloat(x).toFixed(4));
+}
+
+const bboxCoordTest = /-?\d+\.?\d+/;
+
+// Renders an editable bbox rectangle for search-selected / pre-loaded bboxes.
+// Must be rendered inside MapContainer.
+// handleLayerEditRef must be a ref so the listener always calls the latest closure.
+const BboxLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (drawnLayerRef.current) return;
+    const { north, south, east, west } = mapData;
+    if (
+      !bboxCoordTest.test(north) ||
+      !bboxCoordTest.test(south) ||
+      !bboxCoordTest.test(east) ||
+      !bboxCoordTest.test(west)
+    )
+      return;
+
+    const rect = L.rectangle([[north, east], [south, west]]);
+    rect.addTo(map);
+    // pm:markerdragend fires only on the layer (not the map), so attach directly
+    rect.on("pm:markerdragend", () => handleLayerEditRef.current(rect));
+    rect.pm.enable({ preventMarkerRemoval: true });
+    drawnLayerRef.current = rect;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapData.north, mapData.south, mapData.east, mapData.west]);
+
+  return null;
+};
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
@@ -156,6 +191,12 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           break;
         }
       }
+
+      // Attach drag-end listener directly on the layer — pm:markerdragend
+      // fires only on the layer (not the map), so map.on() won't catch it
+      layer.on("pm:markerdragend", () => handleLayerEditRef.current(layer));
+      // Enable corner/vertex handles immediately after drawing
+      layer.pm.enable({ preventMarkerRemoval: true });
     },
     [updateMap]
   );
@@ -174,6 +215,49 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     });
   }, [updateMap]);
 
+  // Updates state from a layer's current geometry after a drag.
+  // pm:markerdragend fires only on the layer (not the map), so this is
+  // called via a ref-based listener attached directly to each layer.
+  const handleLayerEdit = useCallback(
+    (layer) => {
+      const currentMapData = mapDataRef.current;
+      const bounds = layer.getBounds();
+      let { lat: north, lng: east } = bounds.getNorthEast();
+      let { lat: south, lng: west } = bounds.getSouthWest();
+      north = limitDecimals(north);
+      south = limitDecimals(south);
+      east = limitDecimals(east);
+      west = limitDecimals(west);
+
+      if (layer instanceof L.Rectangle) {
+        updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+      } else {
+        const points = layer.getLatLngs()[0];
+        const polygonStrings = points.map(
+          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+        );
+        const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
+        updateMap({ ...currentMapData, polygon, north, south, east, west });
+      }
+    },
+    [updateMap]
+  );
+  // Ref so BboxLayer's listener always calls the latest closure
+  const handleLayerEditRef = useRef(handleLayerEdit);
+  handleLayerEditRef.current = handleLayerEdit;
+
+  // Clear any drawn layer before applying a search-selected location
+  const handleSearchSelect = useCallback(
+    (newMapData) => {
+      if (drawnLayerRef.current) {
+        drawnLayerRef.current.remove();
+        drawnLayerRef.current = null;
+      }
+      updateMap(newMapData);
+    },
+    [updateMap]
+  );
+
   const bboxIsDrawn = Boolean(
     mapData.north || mapData.south || mapData.east || mapData.west
   );
@@ -186,7 +270,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     <div>
       {!disabled && (
         <GeographicLocationSearch
-          updateMap={updateMap}
+          updateMap={handleSearchSelect}
           mapData={mapData}
           disabled={disabled}
         />
@@ -204,13 +288,22 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <GeomanControl onCreated={onCreated} onRemove={onRemove} />
         )}
 
+        {/* Editable bbox rectangle — handles appear immediately for resizing */}
+        {!disabled && (
+          <BboxLayer
+            mapData={mapData}
+            drawnLayerRef={drawnLayerRef}
+            handleLayerEditRef={handleLayerEditRef}
+          />
+        )}
+
         <FeatureGroup>
           {hasPolygon() && (
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
 
-          {/* do not draw the bounding box if we are creating a polygon */}
-          {hasBoundingBox() && !hasPolygon() && (
+          {/* Static bbox display in read-only / disabled mode */}
+          {disabled && hasBoundingBox() && !hasPolygon() && (
             <LeafletRectangle
               bounds={[
                 [mapData.north, mapData.east],
@@ -248,7 +341,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         <Grid size={2}>
           <TextField
             label={<I18n en="North" fr="Nord" />}
-            value={mapData.north || ""}
+            value={mapData.north ?? ""}
             inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
             onChange={handleBBoxChange("north")}
             type="number"
@@ -258,7 +351,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         <Grid size={2}>
           <TextField
             label={<I18n en="South" fr="Sud" />}
-            value={mapData.south || ""}
+            value={mapData.south ?? ""}
             onChange={handleBBoxChange("south")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
@@ -267,7 +360,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         <Grid size={2}>
           <TextField
             label={<I18n en="East" fr="Est" />}
-            value={mapData.east || ""}
+            value={mapData.east ?? ""}
             onChange={handleBBoxChange("east")}
             type="number"
             disabled={disabled || Boolean(mapData.polygon)}
@@ -275,7 +368,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </Grid>
         <Grid size={2}>
           <TextField
-            value={mapData.west || ""}
+            value={mapData.west ?? ""}
             label={<I18n en="West" fr="Ouest" />}
             onChange={handleBBoxChange("west")}
             type="number"
