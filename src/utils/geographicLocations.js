@@ -1,5 +1,16 @@
+// Bounding box format: { north, south, east, west }
+// Sources:
+//   StatCan  - Statistics Canada
+//   IHO      - International Hydrographic Organization Sea Areas via marineregions.org
+//   GEBCO    - General Bathymetric Chart of the Oceans via marineregions.org
+//   LME      - Large Marine Ecosystem via marineregions.org
+//   CF       - CF Conventions standardized region list
+//              https://cfconventions.org/Data/standardized-region-list/standardized-region-list.current.html
+//   DFO      - Fisheries and Oceans Canada Marine Bioregions (MRGID 50171–50183)
+//              via marineregions.org (bbox not available in gazetteer)
+
 const geographicLocations = [
-  // Provinces
+  // ── Provinces ────────────────────────────────────────────────────────────
   {
     en: "British Columbia",
     fr: "Colombie-Britannique",
@@ -80,7 +91,8 @@ const geographicLocations = [
     polygon: null,
     source: "StatCan",
   },
-  // Territories
+
+  // ── Territories ──────────────────────────────────────────────────────────
   {
     en: "Yukon",
     fr: "Yukon",
@@ -105,111 +117,240 @@ const geographicLocations = [
     polygon: null,
     source: "StatCan",
   },
-  // Marine Regions
+
+  // ── Marine Regions (IHO Sea Areas — marineregions.org) ───────────────────
   {
     en: "Gulf of St. Lawrence",
     fr: "Golfe du Saint-Laurent",
     type: "marineRegion",
-    bbox: { north: 51.3667, south: 45.5333, east: -52.625, west: -71.1667 },
+    bbox: { north: 52.222, south: 44.958, east: -54.703, west: -74.865 },
     polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4290,
   },
   {
     en: "Hudson Bay",
     fr: "Baie d'Hudson",
     type: "marineRegion",
-    bbox: { north: 66.0, south: 51.2667, east: -77.0, west: -95.0 },
+    bbox: { north: 66.026, south: 51.144, east: -75.884, west: -95.346 },
     polygon: null,
-    source: "MarineRegions",
-  },
-  {
-    en: "Labrador Sea",
-    fr: "Mer du Labrador",
-    type: "marineRegion",
-    bbox: { north: 67.0, south: 53.0, east: -42.0, west: -64.0 },
-    polygon: null,
-    source: "MarineRegions",
-  },
-  {
-    en: "Strait of Georgia",
-    fr: "Détroit de Georgie",
-    type: "marineRegion",
-    bbox: { north: 50.15, south: 48.2667, east: -122.75, west: -124.9333 },
-    polygon: null,
-    source: "MarineRegions",
-  },
-  {
-    en: "Bay of Fundy",
-    fr: "Baie de Fundy",
-    type: "marineRegion",
-    bbox: { north: 45.8667, south: 44.3, east: -64.3833, west: -66.5167 },
-    polygon: null,
-    source: "MarineRegions",
-  },
-  {
-    en: "Beaufort Sea",
-    fr: "Mer de Beaufort",
-    type: "marineRegion",
-    bbox: { north: 79.0, south: 68.0, east: -120.0, west: -141.0 },
-    polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4252,
   },
   {
     en: "Hudson Strait",
     fr: "Détroit d'Hudson",
     type: "marineRegion",
-    bbox: { north: 63.7333, south: 59.7667, east: -64.5, west: -79.5 },
+    bbox: { north: 64.98, south: 55.845, east: -64.432, west: -80.952 },
     polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4251,
+  },
+  {
+    en: "Labrador Sea",
+    fr: "Mer du Labrador",
+    type: "marineRegion",
+    bbox: { north: 60.399, south: 47.386, east: -43.675, west: -64.306 },
+    polygon: null,
+    source: "IHO",
+    mrgid: 4291,
+  },
+  {
+    en: "Bay of Fundy",
+    fr: "Baie de Fundy",
+    type: "marineRegion",
+    bbox: { north: 46.203, south: 44.088, east: -63.305, west: -67.324 },
+    polygon: null,
+    source: "IHO",
+    mrgid: 4289,
+  },
+  {
+    en: "Beaufort Sea",
+    fr: "Mer de Beaufort",
+    type: "marineRegion",
+    bbox: { north: 76.363, south: 67.597, east: -122.653, west: -156.665 },
+    polygon: null,
+    source: "IHO",
+    mrgid: 4256,
   },
   {
     en: "Davis Strait",
     fr: "Détroit de Davis",
     type: "marineRegion",
-    bbox: { north: 70.5, south: 60.0, east: -52.0, west: -70.0 },
+    bbox: { north: 70.072, south: 59.892, east: -44.462, west: -70.143 },
     polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4250,
   },
   {
     en: "Baffin Bay",
     fr: "Baie de Baffin",
     type: "marineRegion",
-    bbox: { north: 78.6667, south: 70.0, east: -57.0, west: -80.0 },
+    bbox: { north: 82.45, south: 69.617, east: -50.523, west: -82.204 },
     polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4253,
   },
   {
     en: "Gulf of Alaska",
     fr: "Golfe d'Alaska",
     type: "marineRegion",
-    bbox: { north: 61.5, south: 53.0, east: -135.0, west: -158.0 },
+    bbox: { north: 61.549, south: 54.298, east: -136.618, west: -163.358 },
     polygon: null,
-    source: "MarineRegions",
+    source: "IHO",
+    mrgid: 4312,
   },
-  // Oceans (CF Conventions)
+  {
+    en: "Scotian Shelf",
+    fr: "Plateforme Néo-Écossaise",
+    type: "marineRegion",
+    bbox: { north: 48.906, south: 42.259, east: -55.462, west: -66.844 },
+    polygon: null,
+    source: "LME",
+    mrgid: 8548,
+  },
+  {
+    en: "Grand Banks",
+    fr: "Grands Bancs",
+    type: "marineRegion",
+    bbox: { north: 49.091, south: 42.853, east: -46.878, west: -57.304 },
+    polygon: null,
+    source: "GEBCO",
+    mrgid: 4554,
+  },
+  {
+    en: "Strait of Georgia",
+    fr: "Détroit de Georgie",
+    type: "marineRegion",
+    bbox: { north: 50.15, south: 48.267, east: -122.75, west: -124.933 },
+    polygon: null,
+    source: "IHO",
+    mrgid: 18821,
+  },
+
+  // ── DFO Marine Bioregions (marineregions.org MRGID 50171–50183) ──────────
+  // Regions already covered by an IHO marineRegion entry above are omitted
+  // to avoid duplicates (Strait of Georgia 50171, Scotian Shelf 50181,
+  // Gulf of St. Lawrence 50182). Bboxes are derived from DFO bioregion maps;
+  // the Marine Regions gazetteer stores only centroids for these records.
+  {
+    en: "Southern Shelf",
+    fr: "Plateforme Sud",
+    type: "dfoBioregion",
+    bbox: { north: 50.5, south: 46.0, east: -124.0, west: -133.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50172,
+  },
+  {
+    en: "Offshore Pacific",
+    fr: "Zone extracôtière du Pacifique",
+    type: "dfoBioregion",
+    bbox: { north: 55.0, south: 47.0, east: -127.0, west: -143.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50173,
+  },
+  {
+    en: "Northern Shelf",
+    fr: "Plateforme Nord",
+    type: "dfoBioregion",
+    bbox: { north: 56.5, south: 50.0, east: -126.0, west: -134.5 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50174,
+  },
+  {
+    en: "Arctic Basin",
+    fr: "Bassin Arctique",
+    type: "dfoBioregion",
+    bbox: { north: 90.0, south: 78.0, east: 180.0, west: -180.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50175,
+  },
+  {
+    en: "Western Arctic",
+    fr: "Arctique de l'Ouest",
+    type: "dfoBioregion",
+    bbox: { north: 77.0, south: 68.0, east: -110.0, west: -141.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50176,
+  },
+  {
+    en: "Arctic Archipelago",
+    fr: "Archipel Arctique",
+    type: "dfoBioregion",
+    bbox: { north: 83.5, south: 68.0, east: -61.0, west: -120.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50177,
+  },
+  {
+    en: "Eastern Arctic",
+    fr: "Arctique de l'Est",
+    type: "dfoBioregion",
+    bbox: { north: 80.0, south: 60.0, east: -55.0, west: -100.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50178,
+  },
+  {
+    en: "Hudson Bay Complex",
+    fr: "Complexe de la baie d'Hudson",
+    type: "dfoBioregion",
+    bbox: { north: 70.0, south: 51.0, east: -64.5, west: -95.0 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50179,
+  },
+  {
+    en: "Newfoundland-Labrador Shelves",
+    fr: "Plateformes de Terre-Neuve et du Labrador",
+    type: "dfoBioregion",
+    bbox: { north: 61.0, south: 42.0, east: -42.0, west: -64.5 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50180,
+  },
+  {
+    en: "Great Lakes",
+    fr: "Grands Lacs",
+    type: "dfoBioregion",
+    bbox: { north: 49.0, south: 41.7, east: -76.0, west: -92.5 },
+    polygon: null,
+    source: "DFO",
+    mrgid: 50183,
+  },
+
+  // ── Oceans (CF Conventions + IHO bboxes via marineregions.org) ───────────
   {
     en: "North Atlantic Ocean",
     fr: "Océan Atlantique Nord",
     type: "ocean",
-    bbox: { north: 80.0, south: 0.0, east: 20.0, west: -80.0 },
+    bbox: { north: 68.639, south: -0.936, east: 12.006, west: -98.054 },
     polygon: null,
     source: "CF",
+    mrgid: 1912,
   },
   {
     en: "North Pacific Ocean",
     fr: "Océan Pacifique Nord",
     type: "ocean",
-    bbox: { north: 65.0, south: 0.0, east: -77.0, west: 99.0 },
+    bbox: { north: 66.56, south: 0.0, east: -76.99, west: 117.52 },
     polygon: null,
     source: "CF",
+    mrgid: 1908,
   },
   {
     en: "Arctic Ocean",
     fr: "Océan Arctique",
     type: "ocean",
-    bbox: { north: 90.0, south: 65.0, east: 180.0, west: -180.0 },
+    bbox: { north: 90.0, south: 51.144, east: 180.0, west: -180.0 },
     polygon: null,
     source: "CF",
+    mrgid: 1906,
   },
 ];
 
