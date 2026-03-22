@@ -19,6 +19,7 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
+import GeographicLocationSearch from "./GeographicLocationSearch";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
@@ -183,6 +184,13 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   return (
     <div>
+      {!disabled && (
+        <GeographicLocationSearch
+          updateMap={updateMap}
+          mapData={mapData}
+          disabled={disabled}
+        />
+      )}
       <MapContainer
         style={{ width: "100%", height: "55vh" }}
         center={[50, -100]}
