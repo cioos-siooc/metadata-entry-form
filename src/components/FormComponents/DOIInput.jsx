@@ -290,7 +290,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                     {showUpdateDoi && (
                                         <Button
                                             onClick={() => handleUpdateDraftDOI()}
-                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status)}
+                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status) || loadingDoi || loadingDoiUpdate}
                                             style={{ display: 'inline', marginRight: "15px" }}
                                         >
                                             <div style={{ display: "flex", alignItems: "center" }}>
@@ -308,7 +308,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                     {showDeleteDoi && (
                                         <Button
                                             onClick={() => handleDeleteDOI()}
-                                            disabled={record.doiCreationStatus !== 'draft'}
+                                            disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
                                             style={{ display: "inline", marginRight: "15px" }}
                                         >
                                             <div style={{ display: "flex", alignItems: "center" }}>
@@ -359,7 +359,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                     {showUpdateDoi && (
                                         <Button
                                             onClick={() => handleUpdateDraftDOI()}
-                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status)}
+                                            disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status) || loadingDoi || loadingDoiUpdate}
                                             style={{ display: 'inline', marginRight: "15px" }}
                                         >
                                             <div style={{ display: "flex", alignItems: "center" }}>
@@ -377,7 +377,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                     {showDeleteDoi && (
                                         <Button
                                             onClick={() => handleDeleteDOI()}
-                                            disabled={record.doiCreationStatus !== 'draft'}
+                                            disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
                                             style={{ display: "inline", marginRight: "15px" }}
                                         >
                                             <div style={{ display: "flex", alignItems: "center" }}>
