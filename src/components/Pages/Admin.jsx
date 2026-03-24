@@ -21,7 +21,7 @@ import {
   FormLabel,
   Alert,
 } from "@mui/material";
-import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Save, Delete, PlayArrow, Visibility, VisibilityOff } from "@mui/icons-material";
 import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
 import { Buffer } from 'buffer';
 
@@ -59,6 +59,8 @@ class Admin extends FormClassTemplate {
       showCredentialsMissingDialog: false,
       showErrorDialog: false,
       errorMessage: "",
+      testingCredentials: false,
+      testResult: null,
       githubOwner: "cioos-siooc",
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
@@ -210,6 +212,117 @@ class Admin extends FormClassTemplate {
     }
   };
 
+  handleClearDataciteFields = async () => {
+    const { region } = this.props.match.params;
+
+    try {
+      const database = getDatabase(firebase);
+      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      this.setState({
+        datacitePrefix: "",
+        dataciteAccountId: "",
+        datacitePass: "",
+        dataciteApiDomain: "production",
+        credentialsStored: false,
+      });
+    } catch (error) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: `Failed to clear DataCite credentials: ${error.message}`,
+      });
+    }
+  };
+
+  handleSaveDatacite = () => {
+    const { match } = this.props;
+    const { region } = match.params;
+    const {
+      datacitePrefix,
+      dataciteAccountId,
+      datacitePass,
+      dataciteApiDomain,
+      credentialsStored,
+    } = this.state;
+
+    if (!auth.currentUser) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: "You must be logged in to save DataCite settings",
+      });
+      return;
+    }
+
+    // For new credentials, all fields are required
+    if (!credentialsStored && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
+      this.setState({ showCredentialsMissingDialog: true });
+      return;
+    }
+
+    // For updates, at least one field must be provided
+    if (credentialsStored && !datacitePrefix && !dataciteAccountId && !datacitePass && !dataciteApiDomain) {
+      this.setState({ showCredentialsMissingDialog: true });
+      return;
+    }
+
+    const database = getDatabase(firebase);
+    const updates = {};
+
+    if (datacitePrefix) {
+      updates["dataciteCredentials/prefix"] = datacitePrefix;
+    }
+
+    if (dataciteAccountId && datacitePass) {
+      const bufferObj = Buffer.from(
+        `${dataciteAccountId}:${datacitePass}`,
+        "utf8"
+      );
+      updates["dataciteCredentials/dataciteHash"] = bufferObj.toString("base64");
+    }
+
+    if (dataciteApiDomain) {
+      updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
+    }
+
+    const regionAdminRef = ref(database, `admin/${region}`);
+    update(regionAdminRef, updates)
+      .then(() => {
+        this.setState({
+          datacitePass: "",
+          dataciteAccountId: "",
+          credentialsStored: true,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          showErrorDialog: true,
+          errorMessage: `Failed to save DataCite settings: ${error.message}`,
+        });
+      });
+  };
+
+  handleTestCredentials = async () => {
+    const { region } = this.props.match.params;
+    const { testDataciteCredentials } = this.context;
+
+    this.setState({ testingCredentials: true, testResult: null });
+
+    try {
+      const result = await testDataciteCredentials(region);
+      this.setState({
+        testingCredentials: false,
+        testResult: { success: true, message: result.data.message },
+      });
+    } catch (error) {
+      this.setState({
+        testingCredentials: false,
+        testResult: {
+          success: false,
+          message: error.message || "Failed to connect to DataCite API.",
+        },
+      });
+    }
+  };
+
   handleSave() {
     const { match } = this.props;
     const { region } = match.params;
@@ -217,11 +330,6 @@ class Admin extends FormClassTemplate {
       reviewers,
       admins,
       projects,
-      datacitePrefix,
-      dataciteAccountId,
-      datacitePass,
-      dataciteApiDomain,
-      isDoiCreationEnabled,
       githubOwner,
       githubRepo,
       githubToken,
@@ -240,29 +348,7 @@ class Admin extends FormClassTemplate {
       updates["permissions/reviewers"] = cleanArr(reviewers).join();
       updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
 
-      // 2. DOI Credentials if enabled
-      if (isDoiCreationEnabled) {
-        if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
-          this.setState({ showCredentialsMissingDialog: true });
-        } else {
-          const bufferObj = Buffer.from(
-            `${dataciteAccountId}:${datacitePass}`,
-            "utf8"
-          );
-          const base64String = bufferObj.toString("base64");
-
-          updates["dataciteCredentials/prefix"] = datacitePrefix;
-          updates["dataciteCredentials/dataciteHash"] = base64String;
-          updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
-
-          this.setState({
-            datacitePass: "",
-            credentialsStored: true,
-          });
-        }
-      }
-
-      // 3. GitHub Credentials
+      // 2. GitHub Credentials
       const githubCredentials = {
         owner: githubOwner,
         repo: githubRepo,
@@ -681,6 +767,59 @@ class Admin extends FormClassTemplate {
                         }}
                         fullWidth
                       />
+                    </Grid>
+                    {this.state.testResult && (
+                      <Grid size={12}>
+                        <Alert
+                          severity={this.state.testResult.success ? "success" : "error"}
+                          onClose={() => this.setState({ testResult: null })}
+                        >
+                          {this.state.testResult.message}
+                        </Alert>
+                      </Grid>
+                    )}
+                    <Grid size={12} container spacing={1} justifyContent="flex-end">
+                      <Grid>
+                        <Button
+                          startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
+                          variant="outlined"
+                          color="secondary"
+                          onClick={this.handleTestCredentials}
+                          disabled={!credentialsStored || this.state.testingCredentials}
+                        >
+                          <I18n>
+                            <En>Test Credentials</En>
+                            <Fr>Tester les identifiants</Fr>
+                          </I18n>
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          startIcon={<Delete />}
+                          variant="outlined"
+                          color="error"
+                          onClick={this.handleClearDataciteFields}
+                          disabled={!credentialsStored}
+                        >
+                          <I18n>
+                            <En>Clear DataCite Credentials</En>
+                            <Fr>Effacer les identifiants DataCite</Fr>
+                          </I18n>
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          startIcon={<Save />}
+                          variant="contained"
+                          color="primary"
+                          onClick={this.handleSaveDatacite}
+                        >
+                          <I18n>
+                            <En>{credentialsStored ? "Update" : "Save"} DataCite Settings</En>
+                            <Fr>{credentialsStored ? "Mettre à jour" : "Enregistrer"} les paramètres DataCite</Fr>
+                          </I18n>
+                        </Button>
+                      </Grid>
                     </Grid>
                   </>
                 )}
