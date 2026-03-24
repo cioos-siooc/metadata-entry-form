@@ -37,6 +37,7 @@ const MobileRecordRow = ({
   const statusLabel = getStatusLabel(row.status, language);
   const dateDisplay = formatDate(row.created, language);
   const showProgress = config?.columns?.includes("progress");
+  const showIdentifier = config?.columns?.includes("identifier");
 
   return (
     <Box
@@ -75,6 +76,21 @@ const MobileRecordRow = ({
       >
         {row.title || (language === "en" ? "Untitled" : "Sans titre")}
       </Box>
+
+      {/* Identifier */}
+      {showIdentifier && row.identifier && (
+        <Box
+          sx={{
+            fontSize: "0.75rem",
+            color: "#999",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {row.identifier}
+        </Box>
+      )}
 
       {/* Author */}
       <Box sx={{ fontSize: "0.85rem", color: "#666" }}>
