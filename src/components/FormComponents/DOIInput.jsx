@@ -6,6 +6,8 @@ import {
     Button,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { getDatabase, ref, child, update } from "firebase/database";
@@ -13,7 +15,7 @@ import { getDatabase, ref, child, update } from "firebase/database";
 import { En, Fr, I18n } from "../I18n";
 
 import firebase from "../../firebase";
-import recordToDataCite from "../../utils/recordToDataCite";
+import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { validateDOI } from "../../utils/validate";
 
 import {
@@ -32,6 +34,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const doiIsValid = validateDOI(record.datasetIdentifier)
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
+    const [doiErrorMessage, setDoiErrorMessage] = useState("");
     const [debouncedDoiIdValue] = useDebounce(record.datasetIdentifier, 1000);
     const [loadingDoi, setLoadingDoi] = useState(false);
     const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
@@ -47,10 +50,16 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleGenerateDOI() {
         setLoadingDoi(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
+        console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
+
         try {
-            const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+            const mappedDataCiteObject = await recordToDataCiteFromPython(record, language, region, datacitePrefix, { forUpdate: false });
+
+            console.log("[DOIInput] createDraftDoi payload", { region, mappedDataCiteObject });
 
             await createDraftDoi({
                 record: mappedDataCiteObject,
@@ -87,12 +96,17 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             
         } catch (err) {
             setDoiErrorFlag(true);
-            throw new Error(`Error in handleGenerateDOI: ${err}`);
+            const errorMessage = err.message || "Failed to generate DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            setLoadingDoi(false);
+            console.error("[DOIInput] handleGenerateDOI failed", { code: err.code, message: err.message, details: err.details });
         }
     }
 
     async function handleUpdateDraftDOI() {
         setLoadingDoiUpdate(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         try {
             const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix)
 
@@ -105,7 +119,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             }
         } catch (err) {
             setDoiErrorFlag(true);
-            throw err;
+            // Extract error message from Firebase function error
+            const errorMessage = err.message || "Failed to update DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            // eslint-disable-next-line no-console
+            console.error("Error in handleUpdateDraftDOI:", err);
         } finally {
             setLoadingDoiUpdate(false);
             setTimeout(() => {
@@ -116,11 +134,13 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleDeleteDOI() {
         setLoadingDoiDelete(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
         try {
-            // Extract DOI from the full URL
-            const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+            // Extract DOI from the full URL (supports http/https and dx.doi.org)
+            const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, '');
 
             deleteDraftDoi({ doi, region })
                 .then((response) => response.data)
@@ -154,9 +174,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 });
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.error(err);
+            console.error("Error in handleDeleteDOI:", err);
             setDoiErrorFlag(true);
-            throw err;
+            const errorMessage = err.message || "Failed to delete DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            setLoadingDoiDelete(false);
         }
     }
    
@@ -275,12 +297,15 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
             {
                 doiErrorFlag && (
-                    <span>
-                        <I18n
-                            en="Error occurred with DOI API"
-                            fr="Une erreur s'est produite avec l'API DOI"
-                        />
-                    </span>
+                    <Alert severity="error" sx={{ mt: "10px" }}>
+                        <AlertTitle>
+                            <I18n
+                                en="Error occurred with DOI API"
+                                fr="Une erreur s'est produite avec l'API DOI"
+                            />
+                        </AlertTitle>
+                        {doiErrorMessage}
+                    </Alert>
                 )
             }
             {
