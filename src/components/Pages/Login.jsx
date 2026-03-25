@@ -31,6 +31,9 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const enableMicrosoft = import.meta.env.VITE_AUTH_MICROSOFT !== "false";
+const enableOrcid = import.meta.env.VITE_AUTH_ORCID !== "false";
+
 const Login = () => {
   const { classes } = useStyles();
   const [error, setError] = useState(null);
@@ -90,6 +93,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
+            {enableMicrosoft && (
             <Grid>
               <Button
                 variant="outlined"
@@ -105,6 +109,8 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
+            )}
+            {enableOrcid && (
             <Grid>
               <Button
                 variant="outlined"
@@ -120,6 +126,7 @@ const Login = () => {
                 </I18n>
               </Button>
             </Grid>
+            )}
           </Grid>
         </CardContent>
       </Card>
