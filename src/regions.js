@@ -21,6 +21,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
 
   stlaurent: {
@@ -48,6 +49,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-stlaurent-en.png", fr: "cioos-stlaurent-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
@@ -70,6 +72,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
@@ -92,6 +95,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-amundsen-en.png", fr: "cioos-amundsen-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
@@ -114,6 +118,7 @@ const regions = {
     },
     showInRegionSelector: false,
     logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
   test: {
     title: { en: "Test", fr: "Test" },
@@ -130,8 +135,14 @@ const regions = {
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
     logo: { en: "cioos-en.png", fr: "cioos-fr.png" },
+    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
   },
 };
+
+// Helper to get logo container style with a sensible default
+export function getRegionLogoContainerStyle(regionId) {
+  return regions[regionId]?.logoContainerStyle || {};
+}
 
 // Helper to get logo path by language with graceful fallbacks
 // getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.

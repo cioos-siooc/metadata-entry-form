@@ -48,7 +48,7 @@ import {
   Collapse,
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
-import regions from "../regions";
+import regions, { getRegionLogo, getRegionLogoContainerStyle } from "../regions";
 import { firebaseConfig } from "../firebase";
 import { auth } from "../auth";
 
@@ -96,6 +96,26 @@ const useStyles = makeStyles()((theme) => ({
     [theme.breakpoints.down("lg")]: {
       display: "none",
     },
+  },
+  navRegionLogo: {
+    height: 55,
+    width: "auto",
+    marginRight: theme.spacing(1.5),
+    flexShrink: 0,
+  },
+  navRegionTitle: {
+    color: "white",
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+    marginRight: theme.spacing(1.5),
+    flexShrink: 0,
+  },
+  navPageTitle: {
+    color: "white",
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   hide: {
     display: "none",
@@ -351,6 +371,28 @@ export default function MiniDrawer({ children }) {
     : // CIOOS national "dominant colour" from branding doc
     "#52a79b";
 
+  const navLogoSrc = region ? getRegionLogo(region, language) : null;
+  const navRegionTitle = region ? (regions[region]?.title?.[language] || region) : null;
+  const navLogoContainerStyle = region ? getRegionLogoContainerStyle(region) : {};
+
+  const pageSegment = pathname.split('/').filter(Boolean)[2] || '';
+  const pageTitle = (() => {
+    if (!region) return <I18n en="Metadata Entry Tool" fr="Outil de saisie de métadonnées" />;
+    switch (pageSegment) {
+      case '':
+      case 'submissions': return translations.saved;
+      case 'published': return translations.published;
+      case 'new': return translations.new;
+      case 'contacts': return translations.contacts;
+      case 'instruments': return translations.instruments;
+      case 'platforms': return translations.platforms;
+      case 'shared': return translations.sharedWithMe;
+      case 'reviewer': return translations.review;
+      case 'admin': return translations.admin;
+      default: return translations.new; // /:userID/:recordID editing path
+    }
+  })();
+
   // add some text to indicate connected to dev d
   const usingDevDatabase =
     import.meta.env.VITE_DEV_DEPLOYMENT ||
@@ -435,21 +477,26 @@ export default function MiniDrawer({ children }) {
               <MenuIcon />
             </IconButton>
           )}
+          {region && (
+            navLogoSrc ? (
+              <img
+                src={navLogoSrc}
+                alt={navRegionTitle}
+                className={classes.navRegionLogo}
+                style={navLogoContainerStyle}
+              />
+            ) : (
+              <Typography variant="subtitle2" className={classes.navRegionTitle}>
+                {navRegionTitle}
+              </Typography>
+            )
+          )}
           <Typography
-            variant="h5"
-            style={{
-              marginLeft: theme.spacing(1.25),
-              minWidth: 0,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              color: "white",
-            }}
+            variant="h6"
+            style={{ marginLeft: region ? 0 : theme.spacing(1.25) }}
+            className={classes.navPageTitle}
           >
-            <I18n>
-              <En>Metadata Entry Tool</En>
-              <Fr>Outil de saisie de métadonnées</Fr>
-            </I18n>
+            {pageTitle}
           </Typography>
           <div className={classes.headerControls}>
             <img

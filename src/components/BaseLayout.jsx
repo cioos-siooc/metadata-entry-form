@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CircularProgress, Grid } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
@@ -19,33 +19,9 @@ import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
-import regions, { getRegionLogo } from "../regions";
+import regions from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
-
-const RegionLogo = ({ children }) => {
-  const { language, region } = useParams();
-  const logoSrc = getRegionLogo(region, language);
-  const titleText = regions[region]?.title?.[language] || region;
-  return (
-    <Grid container direction="column" spacing={2}>
-      <Grid>
-        {logoSrc ? (
-          <img src={logoSrc} alt={region} />
-        ) : (
-          <div style={{
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            padding: '10px 0',
-          }}>{titleText}</div>
-        )}
-      </Grid>
-      <Grid>
-        {children}
-      </Grid>
-    </Grid>
-  );
-};
 
 const Pages = () => {
   const {
@@ -58,40 +34,36 @@ const Pages = () => {
     <>
       {authIsLoading ? (
         <CircularProgress />
+      ) : loggedIn ? (
+        <ErrorBoundary>
+          <Routes>
+            <Route index element={<Submissions />} />
+            <Route path="new" element={<MetadataForm />} />
+            <Route path="contacts/:contactID" element={<EditContact />} />
+            <Route path="contacts/new" element={<EditContact />} />
+            <Route path="contacts" element={<Contacts />} />
+            <Route path="instruments/:instrumentID" element={<EditInstrument />} />
+            <Route path="instruments" element={<Instruments />} />
+            <Route path="platforms/:platformID" element={<EditPlatform />} />
+            <Route path="platforms" element={<Platforms />} />
+            <Route path="shared" element={<Shared />} />
+            <Route path=":userID/:recordID" element={<MetadataForm />} />
+            <Route path="submissions" element={<Submissions />} />
+            <Route path="published" element={<Published />} />
+            <Route
+              path="reviewer"
+              element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
+            />
+            <Route
+              path="admin"
+              element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
+            />
+            <Route path="sentry-test" element={<SentryTest />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
       ) : (
-        <RegionLogo>
-          {loggedIn ? (
-            <ErrorBoundary>
-              <Routes>
-                <Route index element={<Submissions />} />
-                <Route path="new" element={<MetadataForm />} />
-                <Route path="contacts/:contactID" element={<EditContact />} />
-                <Route path="contacts/new" element={<EditContact />} />
-                <Route path="contacts" element={<Contacts />} />
-                <Route path="instruments/:instrumentID" element={<EditInstrument />} />
-                <Route path="instruments" element={<Instruments />} />
-                <Route path="platforms/:platformID" element={<EditPlatform />} />
-                <Route path="platforms" element={<Platforms />} />
-                <Route path="shared" element={<Shared />} />
-                <Route path=":userID/:recordID" element={<MetadataForm />} />
-                <Route path="submissions" element={<Submissions />} />
-                <Route path="published" element={<Published />} />
-                <Route
-                  path="reviewer"
-                  element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
-                />
-                <Route
-                  path="admin"
-                  element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
-                />
-                <Route path="sentry-test" element={<SentryTest />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </ErrorBoundary>
-          ) : (
-            <Login />
-          )}
-        </RegionLogo>
+        <Login />
       )}
     </>
   );
