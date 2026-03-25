@@ -19,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: "100vh",
+    minHeight: "60vh",
     padding: theme.spacing(2),
     boxSizing: "border-box",
     [theme.breakpoints.down("sm")]: {
@@ -37,59 +37,58 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   cardContent: {
+    padding: theme.spacing(2.5),
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(2),
+      padding: theme.spacing(1.5),
       "&:last-child": {
-        paddingBottom: theme.spacing(2),
+        paddingBottom: theme.spacing(1.5),
       },
     },
   },
-  logo: {
-    maxHeight: 80,
+  regionLogo: {
+    maxHeight: 120,
     width: "auto",
-    marginBottom: theme.spacing(2),
     display: "block",
     [theme.breakpoints.down("sm")]: {
-      maxHeight: 60,
-      marginBottom: theme.spacing(1.5),
+      maxHeight: 90,
     },
   },
   title: {
     fontWeight: 700,
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(0.5),
     [theme.breakpoints.down("sm")]: {
       fontSize: "1.5rem",
-      marginBottom: theme.spacing(0.5),
+      marginBottom: theme.spacing(0.25),
     },
   },
   subtitle: {
     color: theme.palette.text.secondary,
-    marginBottom: theme.spacing(3),
-    fontSize: "0.95rem",
+    marginBottom: theme.spacing(2),
+    fontSize: "0.9rem",
     [theme.breakpoints.down("sm")]: {
-      fontSize: "0.85rem",
-      marginBottom: theme.spacing(2),
+      fontSize: "0.8rem",
+      marginBottom: theme.spacing(1.5),
     },
   },
   buttonStack: {
-    gap: theme.spacing(0.8),
+    gap: theme.spacing(0.6),
     [theme.breakpoints.down("sm")]: {
-      gap: theme.spacing(0.6),
+      gap: theme.spacing(0.4),
     },
   },
   button: {
-    padding: theme.spacing(1.25, 2),
+    padding: theme.spacing(1, 1.5),
     textTransform: "none",
-    fontSize: "0.95rem",
+    fontSize: "0.9rem",
     fontWeight: 600,
     borderRadius: 10,
     transition: "all 0.3s ease",
     border: `2px solid ${theme.palette.divider}`,
-    minHeight: 48,
+    minHeight: 44,
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(1, 1.5),
-      fontSize: "0.9rem",
-      minHeight: 44,
+      padding: theme.spacing(0.75, 1.25),
+      fontSize: "0.85rem",
+      minHeight: 40,
     },
     "&:hover": {
       transform: "translateY(-2px)",
@@ -98,6 +97,34 @@ const useStyles = makeStyles()((theme) => ({
     },
     "&:active": {
       transform: "translateY(0)",
+    },
+  },
+  footer: {
+    marginTop: theme.spacing(2),
+    paddingTop: theme.spacing(1.5),
+    borderTop: `1px solid ${theme.palette.divider}`,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: theme.spacing(0.5),
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.spacing(1.5),
+      paddingTop: theme.spacing(1),
+    },
+  },
+  footerLogo: {
+    maxHeight: 40,
+    width: "auto",
+    opacity: 0.7,
+    [theme.breakpoints.down("sm")]: {
+      maxHeight: 32,
+    },
+  },
+  footerText: {
+    fontSize: "0.75rem",
+    color: theme.palette.text.secondary,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.7rem",
     },
   },
 }));
@@ -124,14 +151,6 @@ const Login = () => {
     <Box className={classes.root}>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <Box display="flex" justifyContent="center" mb={2}>
-            <img
-              src={new URL("../../static/cioos-national_EN_FR.svg", import.meta.url).href}
-              alt="CIOOS"
-              className={classes.logo}
-            />
-          </Box>
-
           <Typography variant="h4" component="h1" className={classes.title} align="center">
             <I18n>
               <En>Welcome</En>
@@ -197,6 +216,20 @@ const Login = () => {
               </Button>
             )}
           </Stack>
+
+          <Box className={classes.footer}>
+            <img
+              src={new URL("../../static/cioos-national_EN_FR_min.svg", import.meta.url).href}
+              alt="CIOOS"
+              className={classes.footerLogo}
+            />
+            <Typography className={classes.footerText}>
+              <I18n>
+                <En>Managed by CIOOS</En>
+                <Fr>Géré par SIOOC</Fr>
+              </I18n>
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 
