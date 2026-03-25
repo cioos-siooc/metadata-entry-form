@@ -205,6 +205,7 @@ export default function MiniDrawer({ children }) {
 
   const {
     user,
+    loggedIn,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
     hasSharedRecords,
@@ -410,6 +411,7 @@ export default function MiniDrawer({ children }) {
     };
   }, [language, topBarBackgroundColor]);
 
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -478,7 +480,7 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          className={classes.drawer}
+          className={clsx(classes.drawer, !loggedIn && classes.hide)}
           classes={{
             paper: clsx(classes.drawerPaper, classes.drawerOpen),
           }}
