@@ -86,14 +86,17 @@ const useStyles = makeStyles()((theme) => ({
   headerControls: {
     display: "flex",
     alignItems: "flex-end",
+    alignSelf: "stretch",
     gap: theme.spacing(1),
     marginLeft: "auto",
   },
   logoImage: {
     display: "block",
     height: "auto",
-    marginBottom: 0,
-    [theme.breakpoints.down("lg")]: {
+    margin: 0,
+    padding: 0,
+    marginBottom: -1,
+    [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },
@@ -505,18 +508,20 @@ export default function MiniDrawer({ children }) {
               width={350}
               className={classes.logoImage}
             />
-            <Select
-              className={classes.languageSelector}
-              value={language}
-              onChange={(e) =>
-                navigate(`/${e.target.value}/${pathWithoutLang}`)
-              }
-              variant="standard"
-              disableUnderline
-            >
-              <MenuItem value="en">EN</MenuItem>
-              <MenuItem value="fr">FR</MenuItem>
-            </Select>
+            <span style={{ alignSelf: "center" }}>
+              <Select
+                className={classes.languageSelector}
+                value={language}
+                onChange={(e) =>
+                  navigate(`/${e.target.value}/${pathWithoutLang}`)
+                }
+                variant="standard"
+                disableUnderline
+              >
+                <MenuItem value="en">EN</MenuItem>
+                <MenuItem value="fr">FR</MenuItem>
+              </Select>
+            </span>
           </div>
         </Toolbar>
       </AppBar>
