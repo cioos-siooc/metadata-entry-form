@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -13,6 +14,7 @@ import { makeStyles } from "../../tss-cache";
 import { En, Fr, I18n } from "../I18n";
 import { signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
+import regions from "../../regions";
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -127,6 +129,22 @@ const useStyles = makeStyles()((theme) => ({
       fontSize: "0.7rem",
     },
   },
+  supportText: {
+    fontSize: "0.85rem",
+    color: theme.palette.text.secondary,
+    lineHeight: 1.5,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.75rem",
+    },
+  },
+  supportEmail: {
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+    fontWeight: 500,
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
 }));
 
 const enableMicrosoft = import.meta.env.VITE_AUTH_MICROSOFT !== "false";
@@ -134,7 +152,9 @@ const enableOrcid = import.meta.env.VITE_AUTH_ORCID !== "false";
 
 const Login = () => {
   const { classes } = useStyles();
+  const { region } = useParams();
   const [error, setError] = useState(null);
+  const regionEmail = regions[region]?.email;
 
   const handleLogin = async (loginMethod) => {
     try {
@@ -216,6 +236,20 @@ const Login = () => {
               </Button>
             )}
           </Stack>
+
+          {regionEmail && (
+            <Box sx={{ marginTop: 2, textAlign: "center" }}>
+              <Typography className={classes.supportText}>
+                <I18n>
+                  <En>For any issues, contact </En>
+                  <Fr>En cas de problème, contactez </Fr>
+                </I18n>
+                <a href={`mailto:${regionEmail}`} className={classes.supportEmail}>
+                  {regionEmail}
+                </a>
+              </Typography>
+            </Box>
+          )}
 
           <Box className={classes.footer}>
             <img
