@@ -49,6 +49,8 @@ jobs:
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_AUTH_MICROSOFT: false
+          VITE_AUTH_ORCID: false
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
