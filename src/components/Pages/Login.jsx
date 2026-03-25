@@ -101,7 +101,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     marginTop: theme.spacing(2),
-    paddingTop: theme.spacing(1.5),
+    paddingTop: theme.spacing(3),
     borderTop: `1px solid ${theme.palette.divider}`,
     display: "flex",
     flexDirection: "column",
@@ -223,12 +223,6 @@ const Login = () => {
               alt="CIOOS"
               className={classes.footerLogo}
             />
-            <Typography className={classes.footerText}>
-              <I18n>
-                <En>Managed by CIOOS</En>
-                <Fr>Géré par SIOOC</Fr>
-              </I18n>
-            </Typography>
           </Box>
         </CardContent>
       </Card>
