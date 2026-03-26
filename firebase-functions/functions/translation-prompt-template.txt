@@ -1,0 +1,2 @@
+Translate the following text from {{sourceLang}} to {{targetLang}}. Only provide the translation, nothing else.{{glossaryPrompt}}
+{{originalText}}

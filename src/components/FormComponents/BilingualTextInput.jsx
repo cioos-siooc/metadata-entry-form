@@ -41,13 +41,13 @@ const BilingualTextInput = ({
   const translateChecked =
     value?.translations?.[alternateLanguage]?.verified || false;
 
-  function setTranslationData(translations, checked) {
+  function setTranslationData(translations, checked, translationMessage) {
     return {
       ...translations,
       [alternateLanguage]: {
         verified: checked,
         ...(!checked && {
-          message: `text translated using Cohere / texte traduit à l'aide de Cohere`,
+          message: translationMessage || "text translated using Cohere / texte traduit à l'aide de Cohere",
         }),
       },
     };
@@ -147,16 +147,24 @@ const BilingualTextInput = ({
                     setAwaitingTranslation(true);
 
                     translate({ text: value[lang], fromLang: lang }).then(
-                      (translatedText) => {
+                      (result) => {
                         setAwaitingTranslation(false);
-                        const translation = translatedText.data;
+                        const data = result.data;
+                        const translation = typeof data === "object" ? data.translatedText : data;
+                        const translationMsg = typeof data === "object" ? data.translationMessage : undefined;
                         handleEvent({
                           target: {
                             name: alternateLanguage,
                             value: translation,
                           },
                         });
-                        // onTranslateComplete();
+                        // Update translation metadata with provenance info
+                        const newData = {
+                          ...value,
+                          [alternateLanguage]: translation,
+                          translations: setTranslationData(value.translations, false, translationMsg),
+                        };
+                        onChange({ target: { name, value: newData } });
                       }
                     );
                   }}

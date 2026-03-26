@@ -45,13 +45,27 @@ Serverless backend using Firebase Cloud Functions (Gen 2).
 ### Translation
 The app uses [Cohere](https://cohere.com/) to translate bilingual fields between English and French. The translation is handled by a Firebase Cloud Function in `firebase-functions/functions/translate.js`.
 
-A domain-specific glossary is maintained in `firebase-functions/functions/translation-glossary.json` to ensure accurate translation of oceanographic and CIOOS-specific terminology. To add a new term, append an entry to the JSON array:
+#### Translation Assets (cioos-commons)
 
-```json
-{ "en": "mooring", "fr": "mouillage" }
+The translation prompt and glossary are maintained in the [cioos-commons](https://github.com/cioos-siooc/cioos-commons) repository under `translation/cohere/default/`:
+
+- **`glossary.json`** — domain-specific terminology (e.g. `{ "en": "mooring", "fr": "mouillage" }`). To add a new term, append an entry to this file in cioos-commons.
+- **`prompt-template.txt`** — the system prompt template sent to Cohere with `{{sourceLang}}`, `{{targetLang}}`, `{{glossaryPrompt}}`, and `{{originalText}}` placeholders.
+
+#### Syncing Translation Config
+
+To update the translation assets from cioos-commons, run the sync script and commit the results:
+
+```bash
+cd firebase-functions/functions
+node generate-translation-config.js          # fetch from main branch
+node generate-translation-config.js abc1234  # pin a specific commit
+node generate-translation-config.js v1.2.0   # pin a specific tag
 ```
 
-The glossary is automatically injected into the translation prompt based on the translation direction.
+This fetches `glossary.json` and `prompt-template.txt` from the GitHub repo and writes them locally along with a `translation-meta.json` containing the resolved commit hash. The updated files should be committed to this repo so that deployed functions always have the correct versions.
+
+Each translation stores a provenance string (e.g. `Cohere command-a-translate-08-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
 
 ### Data Model & Validation
 *   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
