@@ -147,7 +147,7 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
   }
 });
 
-exports.processOrganizationTask = functions.database.ref('/admin/test/organizationTasks/{taskId}')
+exports.processOrganizationTask = functions.runWith({ timeoutSeconds: 540 }).database.ref('/admin/test/organizationTasks/{taskId}')
     .onWrite(async (change, context) => {
         const data = change.after.val();
         if (!data || data.status !== 'pending') return null;

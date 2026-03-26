@@ -640,8 +640,11 @@ class OrganizationAdmin extends FormClassTemplate {
         flex: 2,
         minWidth: 200,
         renderCell: (params) => (
-          <Box>
-            <Typography variant="body2">{params.value || params.row.orgNameFr}</Typography>
+          <Box
+            onClick={() => this.handleOpenReviewDialog(params.row.id, params.row)}
+            sx={{ cursor: "pointer" }}
+          >
+            <Typography variant="body2" color="primary">{params.value || params.row.orgNameFr}</Typography>
             {params.row.orgCity && (
               <Typography variant="caption" color="textSecondary">
                 {params.row.orgCity}{params.row.orgCountry ? `, ${params.row.orgCountry}` : ""}
