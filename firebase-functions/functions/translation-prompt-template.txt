@@ -1,2 +1,16 @@
-Translate the following text from {{sourceLang}} to {{targetLang}}. Only provide the translation, nothing else.{{glossaryPrompt}}
+Act as an Ocean Specialist Translator. Your mission is to provide the closest possible translation related to the ocean sector by aligning their specific terminologies.
+
+Translate the following text from {{sourceLang}} to {{targetLang}}. Only provide the translation, nothing else.
+Use the following glossary for domain-specific terms:
+(en → fr)
+- "CIOOS" → "SIOOC"
+- "mooring" → "mouillage"
+- "moorings" → "mouillages"
+- "DFO" → "MPO"
+- "Environment and Climate Change Canada" → "Environnement et Changement climatique Canada"
+- "ECCC" → "ECCC"
+- "Canadian Hydrographic Service" → "Service hydrographique du Canada"
+- "CHS" → "SHC"
+- "Department of Fisheries and Oceans" → "Ministère des Pêches et des Océans"
+- "moon-pool" → "moon-pool"
 {{originalText}}

@@ -1,6 +1,3 @@
-const path = require("path");
-const fs = require("fs");
-
 // Mock firebase-functions
 jest.mock("firebase-functions", () => ({
   https: {
@@ -26,14 +23,20 @@ jest.mock("cohere-ai", () => ({
   })),
 }));
 
-// Mock fs.readFileSync to return a known prompt template
+// Mock fs.readFileSync to return a prompt template with glossary already baked in
 jest.mock("fs", () => {
   const actual = jest.requireActual("fs");
   return {
     ...actual,
     readFileSync: jest.fn((filePath) => {
       if (filePath.includes("translation-prompt-template.txt")) {
-        return "Translate from {{sourceLang}} to {{targetLang}}.{{glossaryPrompt}}\n{{originalText}}";
+        return [
+          "Translate from {{sourceLang}} to {{targetLang}}.",
+          "Use the following glossary:",
+          "(en → fr)",
+          '- "CIOOS" → "SIOOC"',
+          "{{originalText}}",
+        ].join("\n");
       }
       return actual.readFileSync(filePath);
     }),
@@ -90,21 +93,20 @@ describe("translate.js", () => {
       expect(result.translatedText).toBe("Hello world");
     });
 
-    it("sends the prompt template with correct language substitutions", async () => {
+    it("sends the prompt with correct language substitutions", async () => {
       mockChat.mockResolvedValue({
         message: { content: [{ text: "translated" }] },
       });
 
       await translate({ text: "test input", fromLang: "en" }, authContext);
 
-      const chatCall = mockChat.mock.calls[0][0];
-      const prompt = chatCall.messages[0].content;
+      const prompt = mockChat.mock.calls[0][0].messages[0].content;
 
-      expect(prompt).toContain("from English to French");
+      expect(prompt).toContain("from Canadian English to Canadian French");
       expect(prompt).toContain("test input");
     });
 
-    it("includes glossary terms in the prompt", async () => {
+    it("includes baked-in glossary in the prompt", async () => {
       mockChat.mockResolvedValue({
         message: { content: [{ text: "translated" }] },
       });

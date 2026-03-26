@@ -19,15 +19,14 @@ const https = require("https");
 
 const REPO = "cioos-siooc/cioos-commons";
 const BASE_PATH = "translation/cohere/default";
-const FILES = ["glossary.json", "prompt-template.txt"];
+// Only need the rendered prompt template (glossary is already baked in by cioos-commons CI)
+const FILES = ["prompt-template.txt"];
 
 const FUNCTIONS_DIR = __dirname;
-const GLOSSARY_DEST = path.join(FUNCTIONS_DIR, "translation-glossary.json");
 const PROMPT_DEST = path.join(FUNCTIONS_DIR, "translation-prompt-template.txt");
 const META_DEST = path.join(FUNCTIONS_DIR, "translation-meta.json");
 
 const DEST_MAP = {
-  "glossary.json": GLOSSARY_DEST,
   "prompt-template.txt": PROMPT_DEST,
 };
 

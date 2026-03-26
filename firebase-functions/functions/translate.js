@@ -3,7 +3,6 @@ const { defineString } = require('firebase-functions/params');
 const { CohereClientV2 } = require("cohere-ai");
 const fs = require("fs");
 const path = require("path");
-const glossary = require("./translation-glossary.json");
 
 const cohereApiKey = defineString('COHERE_API_KEY');
 const cohereApiKeyCred = process.env.COHERE_API_KEY || cohereApiKey.value();
@@ -16,6 +15,7 @@ const client = new CohereClientV2({
 });
 
 // Load prompt template (synced from cioos-commons by generate-translation-config.js)
+// Glossary is already baked into the template by cioos-commons CI.
 const promptTemplate = fs.readFileSync(
   path.join(__dirname, "translation-prompt-template.txt"),
   "utf8"
@@ -29,25 +29,13 @@ try {
   // translation-meta.json may not exist in dev; that's ok
 }
 
-function buildGlossaryPrompt(sourceLanguageCode, targetLanguageCode) {
-  if (!glossary || glossary.length === 0) return "";
-
-  const entries = glossary
-    .map((term) => `- "${term[sourceLanguageCode]}" → "${term[targetLanguageCode]}"`)
-    .join("\n");
-
-  return `\nUse the following glossary for domain-specific terms:\n${entries}\n`;
-}
-
 function buildPrompt(originalText, sourceLanguageCode, targetLanguageCode) {
-  const sourceLang = sourceLanguageCode === 'en' ? 'English' : 'French';
-  const targetLang = targetLanguageCode === 'en' ? 'English' : 'French';
-  const glossaryPrompt = buildGlossaryPrompt(sourceLanguageCode, targetLanguageCode);
+  const sourceLang = sourceLanguageCode === 'en' ? 'Canadian English' : 'Canadian French';
+  const targetLang = targetLanguageCode === 'en' ? 'Canadian English' : 'Canadian French';
 
   return promptTemplate
     .replace("{{sourceLang}}", sourceLang)
     .replace("{{targetLang}}", targetLang)
-    .replace("{{glossaryPrompt}}", glossaryPrompt)
     .replace("{{originalText}}", originalText);
 }
 
