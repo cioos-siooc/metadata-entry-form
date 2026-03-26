@@ -28,7 +28,7 @@ if (!runName) {
 
 const RUN_DIR = path.resolve(__dirname, "results", runName);
 const INTERMEDIATE_PATH = path.join(RUN_DIR, "intermediate.json");
-const REPORT_PATH = path.join(RUN_DIR, "report.html");
+const REPORT_PATH = path.join(RUN_DIR, "index.html");
 const RUN_META_PATH = path.join(RUN_DIR, "run-meta.json");
 
 function escapeHtml(text) {
