@@ -6,12 +6,6 @@ import {
   TextField,
   Grid,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   IconButton,
   Dialog,
   DialogActions,
@@ -22,7 +16,10 @@ import {
   Box,
   Snackbar,
   Alert,
+  Chip,
+  Tooltip,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   Add,
   Edit,
@@ -49,6 +46,7 @@ import {
 import { getBlankOrganization } from "../../utils/blankRecord";
 import { slugify } from "../../utils/organizationUtils";
 import { I18n } from "../I18n";
+import OrganizationFormFields from "../FormComponents/OrganizationFormFields";
 import FormClassTemplate from "./FormClassTemplate";
 import withRouter from "../../utils/withRouter";
 import { UserContext } from "../../providers/UserProvider";
@@ -430,51 +428,109 @@ class OrganizationAdmin extends FormClassTemplate {
     });
   };
 
-  renderOrgTable() {
-    const { organizations, publishing } = this.state;
-    const orgList = Object.values(organizations).sort((a, b) => 
-      (a.orgNameEn || "").localeCompare(b.orgNameEn || "")
-    );
-
-    return (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name (EN)</TableCell>
-              <TableCell>Name (FR)</TableCell>
-              <TableCell>City/Country</TableCell>
-              <TableCell>ROR</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orgList.map((org) => (
-              <TableRow key={org.orgSlug}>
-                <TableCell>{org.orgNameEn}</TableCell>
-                <TableCell>{org.orgNameFr}</TableCell>
-                <TableCell>{org.orgCity}, {org.orgCountry}</TableCell>
-                <TableCell>{org.orgRor}</TableCell>
-                <TableCell align="right">
-                  <IconButton 
-                    color="primary" 
+  getOrgColumns() {
+    const { publishing } = this.state;
+    return [
+      { field: "orgNameEn", headerName: "Name (EN)", flex: 2, minWidth: 180 },
+      { field: "orgNameFr", headerName: "Name (FR)", flex: 2, minWidth: 180 },
+      { field: "orgCity", headerName: "City", flex: 1, minWidth: 100 },
+      { field: "orgCountry", headerName: "Country", flex: 1, minWidth: 100 },
+      {
+        field: "orgRor",
+        headerName: "ROR",
+        flex: 1,
+        minWidth: 120,
+        renderCell: (params) =>
+          params.value ? (
+            <a href={`https://ror.org/${params.value}`} target="_blank" rel="noreferrer">{params.value}</a>
+          ) : "",
+      },
+      {
+        field: "orgURL",
+        headerName: "URL",
+        flex: 1.2,
+        minWidth: 120,
+        renderCell: (params) =>
+          params.value ? (
+            <a href={params.value} target="_blank" rel="noreferrer" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {params.value.replace(/^https?:\/\//, "")}
+            </a>
+          ) : "",
+      },
+      {
+        field: "actions",
+        headerName: "Actions",
+        width: 140,
+        sortable: false,
+        filterable: false,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => {
+          const org = params.row;
+          return (
+            <>
+              <Tooltip title="Publish to GitHub">
+                <span>
+                  <IconButton
+                    size="small"
+                    color="primary"
                     onClick={() => this.handlePublishToGitHub(org)}
                     disabled={publishing[org.orgSlug]}
                   >
-                    {publishing[org.orgSlug] ? <CircularProgress size={24} /> : <Publish />}
+                    {publishing[org.orgSlug] ? <CircularProgress size={20} /> : <Publish />}
                   </IconButton>
-                  <IconButton onClick={() => this.handleOpenDialog(org)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => this.handleDeleteOrg(org.orgSlug)}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                </span>
+              </Tooltip>
+              <Tooltip title="Edit">
+                <IconButton size="small" onClick={() => this.handleOpenDialog(org)}>
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton size="small" onClick={() => this.handleDeleteOrg(org.orgSlug)}>
+                  <Delete />
+                </IconButton>
+              </Tooltip>
+            </>
+          );
+        },
+      },
+    ];
+  }
+
+  renderOrgTable() {
+    const { organizations } = this.state;
+    const rows = Object.values(organizations).map((org) => ({
+      id: org.orgSlug || org.orgNameEn,
+      ...org,
+    }));
+
+    return (
+      <DataGrid
+        rows={rows}
+        columns={this.getOrgColumns()}
+        autoHeight
+        showToolbar
+        initialState={{
+          pagination: { paginationModel: { pageSize: 20, page: 0 } },
+          sorting: { sortModel: [{ field: "orgNameEn", sort: "asc" }] },
+          columns: {
+            columnVisibilityModel: {
+              orgURL: false,
+            },
+          },
+        }}
+        pageSizeOptions={[10, 20, 50, 100]}
+        disableRowSelectionOnClick
+        sx={{
+          border: "none",
+          "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
+        }}
+        localeText={{
+          noRowsLabel: "No organizations found.",
+          toolbarQuickFilterPlaceholder: "Search organizations...",
+        }}
+      />
     );
   }
 
@@ -575,62 +631,141 @@ class OrganizationAdmin extends FormClassTemplate {
     );
   }
 
-  renderRequestsTable() {
-    const { requests, publishing } = this.state;
-    const requestList = Object.entries(requests)
-      .filter(([_, r]) => r.status === "pending")
-      .map(([id, r]) => ({ ...r, id }));
+  getRequestColumns() {
+    const { publishing } = this.state;
+    return [
+      {
+        field: "orgNameEn",
+        headerName: "Organization",
+        flex: 2,
+        minWidth: 200,
+        renderCell: (params) => (
+          <Box>
+            <Typography variant="body2">{params.value || params.row.orgNameFr}</Typography>
+            {params.row.orgCity && (
+              <Typography variant="caption" color="textSecondary">
+                {params.row.orgCity}{params.row.orgCountry ? `, ${params.row.orgCountry}` : ""}
+              </Typography>
+            )}
+          </Box>
+        ),
+      },
+      { field: "requestedByEmail", headerName: "Requester", flex: 1.5, minWidth: 160 },
+      { field: "requestedFromRegion", headerName: "Region", flex: 0.8, minWidth: 100 },
+      {
+        field: "requestedAt",
+        headerName: "Date",
+        flex: 1,
+        minWidth: 110,
+        renderCell: (params) =>
+          params.value ? new Date(params.value).toLocaleDateString() : "",
+        sortComparator: (v1, v2) => {
+          const d1 = v1 ? new Date(v1).getTime() : 0;
+          const d2 = v2 ? new Date(v2).getTime() : 0;
+          return d1 - d2;
+        },
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        width: 110,
+        headerAlign: "center",
+        align: "center",
+        type: "singleSelect",
+        valueOptions: [
+          { value: "pending", label: "Pending" },
+          { value: "approved", label: "Approved" },
+          { value: "rejected", label: "Rejected" },
+        ],
+        renderCell: (params) => {
+          const colors = { pending: "#f57c00", approved: "#388e3c", rejected: "#d32f2f" };
+          return (
+            <Chip
+              label={params.value}
+              size="small"
+              sx={{ bgcolor: colors[params.value] || "#757575", color: "#fff", fontWeight: 500, textTransform: "capitalize" }}
+            />
+          );
+        },
+      },
+      {
+        field: "actions",
+        headerName: "Actions",
+        width: 110,
+        sortable: false,
+        filterable: false,
+        headerAlign: "center",
+        align: "center",
+        renderCell: (params) => {
+          const req = params.row;
+          const slug = slugify(req.orgNameEn);
+          return (
+            <>
+              <Tooltip title="Publish to GitHub">
+                <span>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={() => this.handlePublishToGitHub({ ...req, orgSlug: slug, status: "pending" })}
+                    disabled={publishing[slug]}
+                  >
+                    {publishing[slug] ? <CircularProgress size={20} /> : <Publish />}
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Review">
+                <IconButton size="small" color="primary" onClick={() => this.handleOpenReviewDialog(req.id, req)}>
+                  <RateReviewIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          );
+        },
+      },
+    ];
+  }
 
-    if (requestList.length === 0) {
+  renderRequestsTable() {
+    const { requests } = this.state;
+    const rows = Object.entries(requests)
+      .map(([id, r]) => ({ id, ...r }));
+
+    if (rows.length === 0) {
       return (
         <Box p={3}>
-          <Typography color="textSecondary">No pending requests.</Typography>
+          <Typography color="textSecondary">No requests.</Typography>
         </Box>
       );
     }
 
     return (
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Organization</TableCell>
-              <TableCell>Requester</TableCell>
-              <TableCell>Region</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {requestList.map((req) => (
-              <TableRow key={req.id}>
-                <TableCell>
-                  {req.orgNameEn || req.orgNameFr}
-                  <Typography variant="caption" display="block">{req.orgCity}, {req.orgCountry}</Typography>
-                </TableCell>
-                <TableCell>{req.requestedByEmail}</TableCell>
-                <TableCell>{req.requestedFromRegion}</TableCell>
-                <TableCell>{new Date(req.requestedAt).toLocaleDateString()}</TableCell>
-                <TableCell align="right">
-                  <IconButton 
-                    color="primary" 
-                    onClick={() => {
-                        const slug = slugify(req.orgNameEn);
-                        this.handlePublishToGitHub({ ...req, orgSlug: slug, status: "pending" });
-                    }}
-                    disabled={publishing[slugify(req.orgNameEn)]}
-                  >
-                    {publishing[slugify(req.orgNameEn)] ? <CircularProgress size={24} /> : <Publish />}
-                  </IconButton>
-                  <IconButton color="primary" onClick={() => this.handleOpenReviewDialog(req.id, req)}>
-                    <RateReviewIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataGrid
+        rows={rows}
+        columns={this.getRequestColumns()}
+        autoHeight
+        showToolbar
+        getRowHeight={() => "auto"}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 20, page: 0 } },
+          sorting: { sortModel: [{ field: "requestedAt", sort: "desc" }] },
+          filter: {
+            filterModel: {
+              items: [{ field: "status", operator: "is", value: "pending" }],
+            },
+          },
+        }}
+        pageSizeOptions={[10, 20, 50, 100]}
+        disableRowSelectionOnClick
+        sx={{
+          border: "none",
+          "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
+          "& .MuiDataGrid-cell": { py: 1 },
+        }}
+        localeText={{
+          noRowsLabel: "No requests found.",
+          toolbarQuickFilterPlaceholder: "Search requests...",
+        }}
+      />
     );
   }
 
@@ -680,151 +815,22 @@ class OrganizationAdmin extends FormClassTemplate {
         <Dialog open={dialogOpen} onClose={this.handleCloseDialog} fullWidth maxWidth="md">
           <DialogTitle>{editingOrg?.orgSlug ? "Edit Organization" : "Add Organization"}</DialogTitle>
           <DialogContent>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Name (EN)" 
-                  value={editingOrg?.orgNameEn || ""} 
-                  onChange={(e) => {
-                    const newName = e.target.value;
-                    const updates = { ...editingOrg, orgNameEn: newName };
-                    // Auto-generate slug if slug was empty or matched the old auto-slug
-                    const oldAutoSlug = slugify(editingOrg?.orgNameEn || "");
-                    if (!editingOrg?.orgSlug || editingOrg?.orgSlug === oldAutoSlug) {
-                      updates.orgSlug = slugify(newName);
+            <Box sx={{ mt: 1 }}>
+              <OrganizationFormFields
+                values={editingOrg || {}}
+                onChange={(updates) => {
+                  const newOrg = { ...this.state.editingOrg, ...updates };
+                  if ("orgNameEn" in updates) {
+                    const oldAutoSlug = slugify(this.state.editingOrg?.orgNameEn || "");
+                    if (!this.state.editingOrg?.orgSlug || this.state.editingOrg?.orgSlug === oldAutoSlug) {
+                      newOrg.orgSlug = slugify(updates.orgNameEn);
                     }
-                    this.setState({ editingOrg: updates });
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Name (FR)" 
-                  value={editingOrg?.orgNameFr || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgNameFr: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Slug (unique identifier)" 
-                  value={editingOrg?.orgSlug || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") } })}
-                  helperText="Auto-generated from English name. Can be edited manually. Lowercase alphanumeric and hyphens only."
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Description (EN)" 
-                  multiline
-                  rows={3}
-                  value={editingOrg?.orgDescriptionEn || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgDescriptionEn: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Description (FR)" 
-                  multiline
-                  rows={3}
-                  value={editingOrg?.orgDescriptionFr || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgDescriptionFr: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Aliases (one per line)" 
-                  multiline 
-                  rows={3}
-                  value={Array.isArray(editingOrg?.orgAcceptedNames) ? editingOrg.orgAcceptedNames.join("\n") : editingOrg?.orgAcceptedNames || ""}
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgAcceptedNames: e.target.value } })}
-                  helperText="Acronyms and alternate names for this organization, e.g. DFO, MPO"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="City" 
-                  value={editingOrg?.orgCity || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgCity: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Country" 
-                  value={editingOrg?.orgCountry || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgCountry: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="ROR ID" 
-                  value={editingOrg?.orgRor || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgRor: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="ROR Version" 
-                  value={editingOrg?.orgRorVersion || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgRorVersion: e.target.value } })}
-                  helperText="Version of the ROR record, if applicable"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="URL" 
-                  value={editingOrg?.orgURL || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgURL: e.target.value } })}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Email" 
-                  value={editingOrg?.orgEmail || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgEmail: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Logo URL (EN)" 
-                  value={editingOrg?.orgLogoEn || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgLogoEn: e.target.value } })}
-                  helperText="Direct link to the English logo. SVG format is preferred; PNG, JPG, and JPEG are also accepted."
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Logo URL (FR)" 
-                  value={editingOrg?.orgLogoFr || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgLogoFr: e.target.value } })}
-                  helperText="Direct link to the French logo. SVG format is preferred; PNG, JPG, and JPEG are also accepted."
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Address" 
-                  multiline
-                  rows={2}
-                  value={editingOrg?.orgAddress || ""} 
-                  onChange={(e) => this.setState({ editingOrg: { ...editingOrg, orgAddress: e.target.value } })}
-                />
-              </Grid>
-            </Grid>
+                  }
+                  this.setState({ editingOrg: newOrg });
+                }}
+                showSlug
+              />
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleCloseDialog}>Cancel</Button>
@@ -836,142 +842,24 @@ class OrganizationAdmin extends FormClassTemplate {
         <Dialog open={requestReviewDialogOpen} onClose={this.handleCloseReviewDialog} fullWidth maxWidth="md">
           <DialogTitle>Review Organization Request</DialogTitle>
           <DialogContent>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Name (EN)" 
-                  value={reviewingRequest?.orgNameEn || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgNameEn: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Name (FR)" 
-                  value={reviewingRequest?.orgNameFr || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgNameFr: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Description (EN)" 
-                  multiline
-                  rows={2}
-                  value={reviewingRequest?.orgDescriptionEn || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgDescriptionEn: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Description (FR)" 
-                  multiline
-                  rows={2}
-                  value={reviewingRequest?.orgDescriptionFr || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgDescriptionFr: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Aliases (one per line)" 
-                  multiline 
-                  rows={2}
-                  value={Array.isArray(reviewingRequest?.orgAcceptedNames) ? reviewingRequest.orgAcceptedNames.join("\n") : reviewingRequest?.orgAcceptedNames || ""}
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgAcceptedNames: e.target.value } })}
-                  helperText="Acronyms and alternate names for this organization"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="City" 
-                  value={reviewingRequest?.orgCity || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgCity: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Country" 
-                  value={reviewingRequest?.orgCountry || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgCountry: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="ROR ID" 
-                  value={reviewingRequest?.orgRor || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgRor: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="ROR Version" 
-                  value={reviewingRequest?.orgRorVersion || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgRorVersion: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="URL" 
-                  value={reviewingRequest?.orgURL || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgURL: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Email" 
-                  value={reviewingRequest?.orgEmail || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgEmail: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Logo URL (EN)" 
-                  value={reviewingRequest?.orgLogoEn || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgLogoEn: e.target.value } })}
-                  helperText="SVG format preferred; PNG, JPG, JPEG also accepted."
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField 
-                  fullWidth 
-                  label="Logo URL (FR)" 
-                  value={reviewingRequest?.orgLogoFr || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgLogoFr: e.target.value } })}
-                  helperText="SVG format preferred; PNG, JPG, JPEG also accepted."
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Address" 
-                  multiline
-                  rows={2}
-                  value={reviewingRequest?.orgAddress || ""} 
-                  onChange={(e) => this.setState({ reviewingRequest: { ...reviewingRequest, orgAddress: e.target.value } })}
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField 
-                  fullWidth 
-                  label="Review Note (for rejection)" 
-                  multiline 
-                  rows={2}
-                  value={reviewNote}
-                  onChange={(e) => this.setState({ reviewNote: e.target.value })}
-                  placeholder="Only needed if rejecting the request"
-                />
-              </Grid>
-            </Grid>
+            <Box sx={{ mt: 1 }}>
+              <OrganizationFormFields
+                values={reviewingRequest || {}}
+                onChange={(updates) => {
+                  this.setState({ reviewingRequest: { ...this.state.reviewingRequest, ...updates } });
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Review Note (for rejection)"
+                multiline
+                rows={2}
+                value={reviewNote}
+                onChange={(e) => this.setState({ reviewNote: e.target.value })}
+                placeholder="Only needed if rejecting the request"
+                sx={{ mt: 2 }}
+              />
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button startIcon={<Close />} color="error" onClick={this.handleRejectRequest}>Reject</Button>
