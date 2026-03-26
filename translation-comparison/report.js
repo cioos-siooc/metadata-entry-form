@@ -82,9 +82,11 @@ function generateHtml(entries, runMeta, promptContent) {
   const records = groupByRecord(entries);
   const regions = [...new Set(entries.map((e) => e.region))].sort();
   const promptLabel = runMeta.promptTemplateCopy || "Prompt";
-  const serializedPrompt = JSON.stringify(
-    promptContent || "Prompt snapshot not available for this run."
-  )
+  const promptBase64 = Buffer.from(
+    promptContent || "Prompt snapshot not available for this run.",
+    "utf-8"
+  ).toString("base64");
+  const serializedPromptBase64 = JSON.stringify(promptBase64)
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026");
@@ -356,7 +358,7 @@ function generateHtml(entries, runMeta, promptContent) {
 
 <script>
 (function() {
-  var promptContent = ${serializedPrompt};
+  var promptBase64 = ${serializedPromptBase64};
   var PAGE_SIZE = 25;
   var currentPage = 0;
   var activeFilter = 'all';
@@ -553,7 +555,15 @@ function generateHtml(entries, runMeta, promptContent) {
   var promptBackdrop = document.getElementById('prompt-backdrop');
   var promptCode = document.getElementById('prompt-code');
 
-  promptCode.textContent = promptContent;
+  function decodeBase64Utf8(value) {
+    var binary = atob(value);
+    var bytes = Uint8Array.from(binary, function(char) {
+      return char.charCodeAt(0);
+    });
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  promptCode.textContent = decodeBase64Utf8(promptBase64);
 
   function setPromptOpen(isOpen) {
     promptSidebar.classList.toggle('is-open', isOpen);
