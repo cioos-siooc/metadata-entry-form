@@ -18,6 +18,10 @@ import {
   Alert,
   Chip,
   Tooltip,
+  Autocomplete,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -31,8 +35,9 @@ import {
   Visibility,
   VisibilityOff,
   Publish,
+  Sync,
 } from "@mui/icons-material";
-import { getDatabase, ref, onValue, update as dbUpdate, push, set, remove } from "firebase/database";
+import { getDatabase, ref, onValue, update as dbUpdate, push, set, remove, get } from "firebase/database";
 import firebase from "../../firebase";
 
 import {
@@ -40,11 +45,13 @@ import {
   listenToOrganizationRequests,
   createOrganization,
   deleteOrganization,
+  updateOrganization,
   approveOrganizationRequest,
   rejectOrganizationRequest,
+  submitOrganizationRequest,
 } from "../../utils/firebaseOrganizationFunctions";
 import { getBlankOrganization } from "../../utils/blankRecord";
-import { slugify } from "../../utils/organizationUtils";
+import { slugify, findMatchingOrganization, findFuzzyCandidates } from "../../utils/organizationUtils";
 import { I18n } from "../I18n";
 import OrganizationFormFields from "../FormComponents/OrganizationFormFields";
 import FormClassTemplate from "./FormClassTemplate";
@@ -82,6 +89,10 @@ class OrganizationAdmin extends FormClassTemplate {
       confirmOpen: false,
       confirmMessage: "",
       confirmAction: null,
+      // Sync legacy records
+      syncDialogOpen: false,
+      scanning: false,
+      scanResults: null,
     };
   }
 
@@ -353,6 +364,238 @@ class OrganizationAdmin extends FormClassTemplate {
         this.showSnackbar(`Error creating task: ${err.message}`, "error");
         this.setState({ loading: false });
       });
+  };
+
+  handleScan = async () => {
+    this.setState({ scanning: true, scanResults: null });
+    const { organizations } = this.state;
+    const regionKey = this.props.region;
+    const database = getDatabase(firebase);
+    const stats = { scanned: 0, matched: [], errors: [] };
+    const unknownMap = {};
+
+    let usersSnap;
+    try {
+      usersSnap = await get(ref(database, `${regionKey}/users`));
+    } catch (e) {
+      this.showSnackbar(`Could not read region data: ${e.message}`, "error");
+      this.setState({ scanning: false });
+      return;
+    }
+
+    if (usersSnap.exists()) {
+      const updatePromises = [];
+      usersSnap.forEach((userSnap) => {
+        const records = userSnap.child("records").val() || {};
+        Object.entries(records).forEach(([recordId, record]) => {
+          stats.scanned++;
+          const contacts = record.contacts || [];
+          contacts.forEach((contact, idx) => {
+            if (contact.orgSlug) return;
+            const name = (contact.orgNameEn || contact.orgName || "").trim();
+            if (!name) return;
+
+            const match = findMatchingOrganization(name, organizations);
+            if (match) {
+              const orgFields = {
+                orgSlug: match.orgSlug,
+                orgNameEn: match.orgNameEn || "",
+                orgNameFr: match.orgNameFr || "",
+                orgDescriptionEn: match.orgDescriptionEn || "",
+                orgDescriptionFr: match.orgDescriptionFr || "",
+                orgLogoEn: match.orgLogoEn || "",
+                orgLogoFr: match.orgLogoFr || "",
+                orgAcceptedNames: match.orgAcceptedNames || [],
+                orgEmail: match.orgEmail || "",
+                orgURL: match.orgURL || "",
+                orgAddress: match.orgAddress || "",
+                orgCity: match.orgCity || "",
+                orgCountry: match.orgCountry || "",
+                orgRor: match.orgRor || "",
+                orgRorVersion: match.orgRorVersion || "",
+              };
+              updatePromises.push(
+                dbUpdate(ref(database, `${regionKey}/users/${userSnap.key}/records/${recordId}/contacts/${idx}`), orgFields)
+                  .catch(e => stats.errors.push(`${recordId}/contacts/${idx}: ${e.message}`))
+              );
+              stats.matched.push({ orgName: name, orgSlug: match.orgSlug });
+            } else {
+              const key = name.toLowerCase();
+              if (!unknownMap[key]) unknownMap[key] = { name, count: 0, regions: new Set(), references: [] };
+              unknownMap[key].count++;
+              unknownMap[key].regions.add(regionKey);
+              unknownMap[key].references.push({ regionKey, userId: userSnap.key, recordId, contactIdx: idx });
+            }
+          });
+        });
+      });
+
+      await Promise.all(updatePromises);
+    }
+
+    const unknown = Object.values(unknownMap)
+      .sort((a, b) => b.count - a.count)
+      .map(u => ({
+        ...u,
+        regions: [...u.regions],
+        suggestions: findFuzzyCandidates(u.name, organizations),
+        resolution: null,
+      }));
+
+    this.setState({ scanning: false, scanResults: { ...stats, unknown } });
+  };
+
+  handleLinkOrg = async (unknownIdx, targetOrg) => {
+    const { scanResults } = this.state;
+    const item = scanResults.unknown[unknownIdx];
+    const database = getDatabase(firebase);
+
+    const orgFields = {
+      orgSlug: targetOrg.orgSlug,
+      orgNameEn: targetOrg.orgNameEn || "",
+      orgNameFr: targetOrg.orgNameFr || "",
+      orgDescriptionEn: targetOrg.orgDescriptionEn || "",
+      orgDescriptionFr: targetOrg.orgDescriptionFr || "",
+      orgLogoEn: targetOrg.orgLogoEn || "",
+      orgLogoFr: targetOrg.orgLogoFr || "",
+      orgAcceptedNames: targetOrg.orgAcceptedNames || [],
+      orgEmail: targetOrg.orgEmail || "",
+      orgURL: targetOrg.orgURL || "",
+      orgAddress: targetOrg.orgAddress || "",
+      orgCity: targetOrg.orgCity || "",
+      orgCountry: targetOrg.orgCountry || "",
+      orgRor: targetOrg.orgRor || "",
+      orgRorVersion: targetOrg.orgRorVersion || "",
+    };
+
+    const updates = item.references.map(({ regionKey, userId, recordId, contactIdx }) =>
+      dbUpdate(ref(database, `${regionKey}/users/${userId}/records/${recordId}/contacts/${contactIdx}`), orgFields)
+    );
+
+    // Add variant name to orgAcceptedNames if not already there
+    const existing = targetOrg.orgAcceptedNames || [];
+    if (!existing.some(n => n.toLowerCase() === item.name.toLowerCase())) {
+      updates.push(updateOrganization(targetOrg.orgSlug, { orgAcceptedNames: [...existing, item.name] }));
+    }
+
+    await Promise.all(updates);
+
+    const unknown = [...scanResults.unknown];
+    unknown[unknownIdx] = { ...item, resolution: { type: 'linked', orgSlug: targetOrg.orgSlug, orgNameEn: targetOrg.orgNameEn } };
+    this.setState({ scanResults: { ...scanResults, unknown } });
+  };
+
+  handleLinkViaRor = async (unknownIdx, rorOrg) => {
+    const { scanResults } = this.state;
+    const { user } = this.context;
+    const item = scanResults.unknown[unknownIdx];
+    const database = getDatabase(firebase);
+
+    const rorId = rorOrg.id?.replace('https://ror.org/', '') || '';
+    const displayName = rorOrg.names?.find(n => n.types?.includes('ror_display'))?.value || '';
+    const enName = rorOrg.names?.find(n => n.lang === 'en' && n.types?.includes('label'))?.value || displayName;
+    const frName = rorOrg.names?.find(n => n.lang === 'fr' && n.types?.includes('label'))?.value || '';
+    const aliases = rorOrg.names?.filter(n => n.types?.includes('alias') || n.types?.includes('acronym')).map(n => n.value) || [];
+    const website = rorOrg.links?.find(l => l.type === 'website')?.value || '';
+    const location = rorOrg.locations?.[0]?.geonames_details || {};
+
+    // Include the unrecognized variant so future scans match it
+    const mergedAliases = [...new Set([...aliases, item.name])];
+
+    const orgSlug = slugify(enName);
+    const orgData = {
+      orgSlug, orgNameEn: enName, orgNameFr: frName,
+      orgAcceptedNames: mergedAliases,
+      orgURL: website, orgEmail: '', orgAddress: '',
+      orgCity: location.name || '', orgCountry: location.country_name || '',
+      orgRor: rorId, orgRorVersion: '',
+      orgDescriptionEn: '', orgDescriptionFr: '',
+      orgLogoEn: '', orgLogoFr: '',
+      status: 'approved',
+      approvedBy: user?.email || 'admin',
+      approvedAt: new Date().toISOString(),
+    };
+
+    await createOrganization(orgSlug, orgData);
+
+    const taskId = push(ref(database, 'admin/test/organizationTasks')).key;
+    set(ref(database, `admin/test/organizationTasks/${taskId}`), {
+      type: 'publish', organization: orgData,
+      commitMessage: `Admin record sync: add org ${orgSlug} from ROR`,
+      requestedAt: new Date().toISOString(), status: 'pending',
+    });
+
+    const orgFields = {
+      orgSlug, orgNameEn: enName, orgNameFr: frName,
+      orgAcceptedNames: mergedAliases, orgURL: website,
+      orgEmail: '', orgAddress: '',
+      orgCity: location.name || '', orgCountry: location.country_name || '',
+      orgRor: rorId, orgRorVersion: '',
+      orgDescriptionEn: '', orgDescriptionFr: '',
+      orgLogoEn: '', orgLogoFr: '',
+    };
+    await Promise.all(
+      item.references.map(({ regionKey, userId, recordId, contactIdx }) =>
+        dbUpdate(ref(database, `${regionKey}/users/${userId}/records/${recordId}/contacts/${contactIdx}`), orgFields)
+      )
+    );
+
+    const unknown = [...scanResults.unknown];
+    unknown[unknownIdx] = { ...item, resolution: { type: 'linked', orgSlug, orgNameEn: enName } };
+    this.setState({ scanResults: { ...scanResults, unknown } });
+  };
+
+  handleSkipOrg = (unknownIdx) => {
+    const { scanResults } = this.state;
+    const unknown = [...scanResults.unknown];
+    unknown[unknownIdx] = { ...unknown[unknownIdx], resolution: { type: 'skipped' } };
+    this.setState({ scanResults: { ...scanResults, unknown } });
+  };
+
+  handleNewOrgForUnknown = async (unknownIdx) => {
+    const { scanResults, requests } = this.state;
+    const { user } = this.context;
+    const item = scanResults.unknown[unknownIdx];
+    const database = getDatabase(firebase);
+
+    const alreadyPending = Object.values(requests).some(
+      r => r.status === 'pending' && (r.orgNameEn || '').toLowerCase() === item.name.toLowerCase()
+    );
+    if (alreadyPending) {
+      this.showSnackbar(`"${item.name}" is already in pending requests.`, 'info');
+      return;
+    }
+
+    const requestData = {
+      orgNameEn: item.name, orgNameFr: '', orgURL: '', orgAcceptedNames: [],
+      orgEmail: '', orgAddress: '', orgCity: '', orgCountry: '',
+      orgRor: '', orgRorVersion: '', orgDescriptionEn: '', orgDescriptionFr: '',
+      orgLogoEn: '', orgLogoFr: '',
+      requestedBy: user?.uid || 'admin-sync',
+      requestedByEmail: user?.email || 'admin',
+      requestedFromRegion: item.regions[0] || 'unknown',
+      status: 'pending',
+    };
+
+    try {
+      await submitOrganizationRequest(requestData);
+      const orgSlug = slugify(item.name);
+      const taskId = push(ref(database, 'admin/test/organizationTasks')).key;
+      await set(ref(database, `admin/test/organizationTasks/${taskId}`), {
+        type: 'publish',
+        organization: { ...requestData, orgSlug, status: 'pending' },
+        commitMessage: `Admin record sync: pending org ${orgSlug}`,
+        requestedAt: new Date().toISOString(),
+        status: 'pending',
+      });
+      const unknown = [...scanResults.unknown];
+      unknown[unknownIdx] = { ...item, resolution: { type: 'pending' } };
+      this.setState({ scanResults: { ...scanResults, unknown } });
+      this.showSnackbar(`"${item.name}" added to pending requests.`);
+    } catch (e) {
+      console.error('Error creating pending org:', e);
+      this.showSnackbar(`Error creating request: ${e.message}`, 'error');
+    }
   };
 
   handleDeleteOrg = (slug) => {
@@ -799,6 +1042,10 @@ class OrganizationAdmin extends FormClassTemplate {
           {tabValue === 0 && (
             <>
               <Box mb={2} display="flex" justifyContent="flex-end" gap={2}>
+                <Button variant="outlined" startIcon={<Sync />} onClick={() => this.setState({ syncDialogOpen: true, scanResults: null })}>
+                  <I18n en="Sync Legacy Records" fr="Sync des anciens enregistrements" />
+                </Button>
+
                 <Button variant="outlined" startIcon={<GitHub />} onClick={this.handleSyncFromGitHub}>
                   <I18n en="Sync from GitHub" fr="Sync de GitHub" />
                 </Button>
@@ -890,6 +1137,92 @@ class OrganizationAdmin extends FormClassTemplate {
           </Alert>
         </Snackbar>
 
+        {/* Sync Legacy Records Dialog */}
+        {(() => {
+          const { syncDialogOpen, scanning, scanResults, organizations } = this.state;
+          const resolvedCount = scanResults ? scanResults.unknown.filter(u => u.resolution).length : 0;
+          const totalUnknown = scanResults ? scanResults.unknown.length : 0;
+          return (
+            <Dialog
+              open={syncDialogOpen}
+              onClose={() => !scanning && this.setState({ syncDialogOpen: false, scanResults: null })}
+              fullWidth
+              maxWidth="md"
+            >
+              <DialogTitle>Sync Legacy Records</DialogTitle>
+              <DialogContent>
+                {!scanning && !scanResults && (
+                  <Typography variant="body2" color="textSecondary">
+                    Scans all records across all regions to find contacts with an organization name but no
+                    registry link. Exact matches are linked automatically. Unrecognized names are shown
+                    below with suggested matches for you to confirm.
+                  </Typography>
+                )}
+                {scanning && (
+                  <Box display="flex" alignItems="center" gap={2} py={2}>
+                    <CircularProgress size={24} />
+                    <Typography>Scanning records...</Typography>
+                  </Box>
+                )}
+                {scanResults && !scanning && (
+                  <>
+                    <Box mb={2}>
+                      <Typography variant="body2">
+                        <strong>{scanResults.scanned}</strong> records scanned &mdash;{" "}
+                        <strong>{scanResults.matched.length}</strong> contact{scanResults.matched.length !== 1 ? "s" : ""} automatically linked to the registry.
+                      </Typography>
+                      {scanResults.errors.length > 0 && (
+                        <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                          {scanResults.errors.length} error{scanResults.errors.length !== 1 ? "s" : ""} during update.
+                        </Typography>
+                      )}
+                    </Box>
+                    {totalUnknown === 0 ? (
+                      <Typography color="textSecondary">No unrecognized organizations found.</Typography>
+                    ) : (
+                      <>
+                        <Typography variant="subtitle2" gutterBottom>
+                          Unrecognized organizations — {resolvedCount} of {totalUnknown} resolved
+                        </Typography>
+                        <List sx={{ maxHeight: 460, overflowY: "auto" }}>
+                          {scanResults.unknown.map((item, idx) => (
+                            <ListItem
+                              key={item.name}
+                              divider={idx < totalUnknown - 1}
+                              alignItems="flex-start"
+                              sx={{ py: 1.5, opacity: item.resolution ? 0.6 : 1 }}
+                            >
+                              <SyncOrgRow
+                                item={item}
+                                idx={idx}
+                                organizations={organizations}
+                                onLink={this.handleLinkOrg}
+                                onLinkViaRor={this.handleLinkViaRor}
+                                onSkip={this.handleSkipOrg}
+                                onNewOrg={this.handleNewOrgForUnknown}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </>
+                    )}
+                  </>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => this.setState({ syncDialogOpen: false, scanResults: null })} disabled={scanning}>
+                  {scanResults ? "Close" : "Cancel"}
+                </Button>
+                {!scanResults && (
+                  <Button variant="contained" onClick={this.handleScan} disabled={scanning}>
+                    {scanning ? <CircularProgress size={20} /> : "Run Scan"}
+                  </Button>
+                )}
+              </DialogActions>
+            </Dialog>
+          );
+        })()}
+
         {/* Confirm Dialog */}
         <Dialog open={confirmOpen} onClose={this.handleCancelConfirm}>
           <DialogTitle><I18n en="Confirm" fr="Confirmer" /></DialogTitle>
@@ -904,6 +1237,163 @@ class OrganizationAdmin extends FormClassTemplate {
       </Grid>
     );
   }
+}
+
+function SyncOrgRow({ item, idx, organizations, onLink, onLinkViaRor, onSkip, onNewOrg }) {
+  const [rorResults, setRorResults] = React.useState([]);
+  const [rorLoading, setRorLoading] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState('');
+  const debounceRef = React.useRef(null);
+
+  const searchRor = (query) => {
+    if (query.length < 2) { setRorResults([]); return; }
+    setRorLoading(true);
+    fetch(`https://api.ror.org/v2/organizations?query=${encodeURIComponent(query)}`)
+      .then(r => r.json())
+      .then(d => {
+        const localOrgs = Object.values(organizations);
+        const filtered = (d.items || []).filter(rorOrg => {
+          const rorId = rorOrg.id?.replace('https://ror.org/', '');
+          const displayName = (rorOrg.names?.find(n => n.types?.includes('ror_display'))?.value || '').toLowerCase();
+          return !localOrgs.some(o =>
+            (rorId && o.orgRor === rorId) ||
+            o.orgNameEn?.toLowerCase() === displayName
+          );
+        });
+        setRorResults(filtered);
+      })
+      .catch(() => setRorResults([]))
+      .finally(() => setRorLoading(false));
+  };
+
+  const handleInputChange = (e, value, reason) => {
+    if (reason !== 'input') return;
+    setInputValue(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => searchRor(value), 300);
+  };
+
+  const registryOptions = Object.values(organizations).map(o => ({ ...o, _source: 'registry' }));
+  const rorOptions = rorResults.map(o => ({ ...o, _source: 'ror' }));
+  const options = [...registryOptions, ...rorOptions];
+
+  const getLabel = (o) => {
+    if (o._source === 'ror') return o.names?.find(n => n.types?.includes('ror_display'))?.value || o.id || '';
+    return o.orgNameEn || '';
+  };
+
+  const handleChange = (e, option) => {
+    if (!option) return;
+    setInputValue('');
+    setRorResults([]);
+    if (option._source === 'ror') onLinkViaRor(idx, option);
+    else onLink(idx, option);
+  };
+
+  const { resolution, suggestions } = item;
+
+  if (resolution) {
+    return (
+      <Box display="flex" justifyContent="space-between" width="100%">
+        <Box>
+          <Typography variant="body2" fontWeight="medium">{item.name}</Typography>
+          <Typography variant="caption" color="textSecondary">
+            {item.count} contact{item.count !== 1 ? 's' : ''} &middot; {item.regions.join(', ')}
+          </Typography>
+        </Box>
+        <Box>
+          {resolution.type === 'linked' && <Chip size="small" color="success" label={`Linked → ${resolution.orgNameEn}`} />}
+          {resolution.type === 'pending' && <Chip size="small" color="warning" label="Added to pending" />}
+          {resolution.type === 'skipped' && <Chip size="small" label="Skipped" />}
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box width="100%">
+      <Box mb={0.5}>
+        <Typography variant="body2" fontWeight="medium">{item.name}</Typography>
+        <Typography variant="caption" color="textSecondary">
+          {item.count} contact{item.count !== 1 ? 's' : ''} &middot; {item.regions.join(', ')}
+        </Typography>
+      </Box>
+      {suggestions.length > 0 && (
+        <Box display="flex" flexWrap="wrap" gap={0.5} mb={1}>
+          {suggestions.map((s) => (
+            <Tooltip key={s.org.orgSlug} title={s.reason}>
+              <Chip
+                size="small" color="primary" variant="outlined"
+                label={s.org.orgNameEn}
+                onClick={() => onLink(idx, s.org)}
+                sx={{ cursor: 'pointer' }}
+              />
+            </Tooltip>
+          ))}
+        </Box>
+      )}
+      <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+        <Autocomplete
+          size="small"
+          options={options}
+          getOptionLabel={getLabel}
+          groupBy={(o) => o._source === 'ror' ? 'ROR' : 'Our Registry'}
+          filterOptions={(opts, { inputValue: iv }) => {
+            const s = iv.toLowerCase();
+            return opts.filter(o => {
+              if (o._source === 'ror') return true;
+              return o.orgNameEn?.toLowerCase().includes(s) ||
+                     o.orgNameFr?.toLowerCase().includes(s) ||
+                     o.orgAcceptedNames?.some(n => n.toLowerCase().includes(s));
+            });
+          }}
+          renderOption={(props, option) => {
+            if (option._source === 'ror') {
+              const loc = option.locations?.[0]?.geonames_details || {};
+              const locStr = [loc.name, loc.country_name].filter(Boolean).join(', ');
+              const acronyms = option.names?.filter(n => n.types?.includes('acronym')).map(n => n.value).join(', ');
+              return (
+                <li {...props} key={option.id}>
+                  <Box>
+                    <Typography variant="body2">
+                      {getLabel(option)}
+                      {acronyms && <Typography component="span" variant="body2" color="textSecondary"> ({acronyms})</Typography>}
+                    </Typography>
+                    {locStr && <Typography variant="caption" color="textSecondary">{locStr}</Typography>}
+                  </Box>
+                </li>
+              );
+            }
+            return <li {...props} key={option.orgSlug}>{option.orgNameEn}</li>;
+          }}
+          loading={rorLoading}
+          inputValue={inputValue}
+          onInputChange={handleInputChange}
+          onChange={handleChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search registry or ROR…"
+              size="small"
+              slotProps={{
+                input: {
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>{rorLoading ? <CircularProgress size={14} /> : null}{params.InputProps.endAdornment}</>
+                  ),
+                },
+              }}
+            />
+          )}
+          sx={{ width: 300 }}
+          blurOnSelect
+          noOptionsText={inputValue.length < 2 ? 'Type to search registry or ROR…' : 'No results found'}
+        />
+        <Button size="small" variant="outlined" onClick={() => onNewOrg(idx)}>New Org</Button>
+        <Button size="small" onClick={() => onSkip(idx)}>Skip</Button>
+      </Box>
+    </Box>
+  );
 }
 
 const RateReviewIcon = (props) => (
