@@ -93,6 +93,22 @@ export async function recordToDataCiteFromPython(
 
     dataciteObject.url = `${catalogueUrl}dataset/ca-cioos_${record.identifier}`;
 
+    // Step 4b: If no publisher was set by the conversion (no contact with publisher role),
+    // fall back to the region's organization as the default publisher.
+    if (!dataciteObject.publisher || dataciteObject.publisher.name === ":unav") {
+      const regionConfig = regions[region] || {};
+      const regionTitle = regionConfig.title?.[recordLanguage] || regionConfig.title?.en;
+      if (regionTitle) {
+        const publisher = { name: regionTitle, lang: recordLanguage };
+        if (regionConfig.ror) {
+          publisher.publisherIdentifier = regionConfig.ror;
+          publisher.publisherIdentifierScheme = "ROR";
+          publisher.schemeUri = "https://ror.org/";
+        }
+        dataciteObject.publisher = publisher;
+      }
+    }
+
     // Step 5: Wrap in DataCite API structure
     const apiObject = {
       data: {

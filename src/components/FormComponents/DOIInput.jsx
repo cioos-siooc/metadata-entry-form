@@ -26,11 +26,15 @@ import {
 
 import { UserContext } from "../../providers/UserProvider";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
+import regions from "../../regions";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
     const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix } = useContext(UserContext);
     const { language, region, userID } = useParams();
+
+    const publisherContact = (record.contacts || []).find((c) => c.role?.includes("publisher"));
+    const publisherName = publisherContact?.orgName || regions[region]?.title?.[language] || "";
     const doiIsValid = validateDOI(record.datasetIdentifier)
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
@@ -361,6 +365,15 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     </span>
                 )
             }
+
+            {showGenerateDoi && publisherName && (
+                <Alert severity="info" sx={{ mt: "10px" }}>
+                    <I18n
+                        en={`DOI Publisher: ${publisherName}${!publisherContact ? " (region default)" : ""}`}
+                        fr={`Éditeur DOI : ${publisherName}${!publisherContact ? " (par défaut de la région)" : ""}`}
+                    />
+                </Alert>
+            )}
 
             <TextField
                 style={{ marginTop: "10px" }}
