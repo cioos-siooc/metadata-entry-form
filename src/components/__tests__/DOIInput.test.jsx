@@ -70,7 +70,7 @@ describe("DOIInput", () => {
   });
 
   describe("handleGenerateDOI – minimal payload", () => {
-    it("should call createDraftDoi with a minimal payload containing only the prefix", async () => {
+    it("should call createDraftDoi with a payload containing the prefix and a doi using the first 8 chars of recordID", async () => {
       const user = userEvent.setup();
 
       mockCreateDraftDoi.mockResolvedValue({
@@ -99,6 +99,7 @@ describe("DOIInput", () => {
           data: {
             type: "dois",
             attributes: {
+              doi: "10.5678/rec-1",
               prefix: "10.5678",
             },
           },
