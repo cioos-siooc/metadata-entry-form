@@ -110,4 +110,18 @@ describe("generate-translation-config.js", () => {
     expect(meta.commonsRef).toBe("main");
     expect(result.output).toContain("cioos-commons@");
   });
+
+  it("supports pulling the latest commit from a branch", () => {
+    const result = tryRunScript("--branch main");
+    if (!result.success) {
+      console.warn("Skipping: remote cioos-commons files not available yet");
+      return;
+    }
+
+    const meta = JSON.parse(fs.readFileSync(META_PATH, "utf8"));
+    expect(meta.commonsRef).toBe("main");
+    expect(meta.commonsRefType).toBe("branch");
+    expect(meta.commonsCommit).toMatch(/^[a-f0-9]{40}$/);
+    expect(result.output).toContain("Resolved branch 'main' to commit");
+  });
 });
