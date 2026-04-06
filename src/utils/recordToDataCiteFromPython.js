@@ -80,11 +80,15 @@ export async function recordToDataCiteFromPython(
       throw new Error("DataCite response is not a valid object");
     }
 
-    // Step 4: Add the catalogue URL field (specific to region and language)
+    // Step 4: Add the catalogue URL field (specific to region and record's primary language)
     // This URL will be the permanent location of the dataset once published
-    const catalogueUrl = regions[region]?.catalogueURL?.[language];
+    const recordLanguage = record.language || language;
+    if (!recordLanguage) {
+      throw new Error("Please assign a primary language to the record before creating a DOI.");
+    }
+    const catalogueUrl = regions[region]?.catalogueURL?.[recordLanguage];
     if (!catalogueUrl) {
-      throw new Error(`Invalid region/language combination: ${region}/${language}`);
+      throw new Error(`Invalid region/language combination: ${region}/${recordLanguage}`);
     }
 
     dataciteObject.url = `${catalogueUrl}dataset/ca-cioos_${record.identifier}`;
