@@ -45,6 +45,8 @@ function renderDOIInput(recordOverrides = {}, props = {}) {
     deleteDraftDoi: mockDeleteDraftDoi,
     getDoiStatus: mockGetDoiStatus,
     datacitePrefix: "10.5678",
+    dataciteApiDomain: "production",
+    ...(props.contextValue || {}),
   };
 
   return render(
@@ -339,6 +341,66 @@ describe("DOIInput", () => {
 
       // Resolve to clean up
       resolveDelete({ data: 204 });
+    });
+  });
+
+  describe("DataCite record button", () => {
+    it("should show a DataCite record link when a valid DOI is present", () => {
+      renderDOIInput({
+        doiCreationStatus: "findable",
+        datasetIdentifier: "https://doi.org/10.5678/existing-record",
+      });
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.datacite.org/dois/10.5678%2Fexisting-record"
+      );
+      expect(recordLink).toHaveAttribute("target", "_blank");
+    });
+
+    it("should use the test DataCite domain when configured", () => {
+      renderDOIInput(
+        {
+          doiCreationStatus: "registered",
+          datasetIdentifier: "https://doi.org/10.5678/test-record",
+        },
+        {
+          contextValue: {
+            dataciteApiDomain: "test",
+          },
+        }
+      );
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.test.datacite.org/dois/10.5678%2Ftest-record"
+      );
+    });
+
+    it("should show a DataCite record link for draft DOIs", () => {
+      renderDOIInput({
+        doiCreationStatus: "draft",
+        datasetIdentifier: "https://doi.org/10.5678/draft-record",
+      });
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.datacite.org/dois/10.5678%2Fdraft-record"
+      );
+    });
+
+    it("should not show a DataCite record link when the DOI is invalid", () => {
+      renderDOIInput({
+        doiCreationStatus: "unknown",
+        datasetIdentifier: "not-a-doi",
+      });
+
+      expect(
+        screen.queryByRole("link", { name: /view datacite record/i })
+      ).not.toBeInTheDocument();
     });
   });
 });

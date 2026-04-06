@@ -30,12 +30,21 @@ import regions from "../../regions";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix } = useContext(UserContext);
+    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain } = useContext(UserContext);
     const { language, region, userID } = useParams();
 
     const publisherContact = (record.contacts || []).find((c) => c.role?.includes("publisher"));
     const publisherName = publisherContact?.orgName || regions[region]?.title?.[language] || "";
-    const doiIsValid = validateDOI(record.datasetIdentifier)
+    const doiIsValid = validateDOI(record.datasetIdentifier);
+    const dataciteDoi = doiIsValid
+        ? record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "")
+        : "";
+    const dataciteRecordBaseUrl = dataciteApiDomain === "test"
+        ? "https://doi.test.datacite.org"
+        : "https://doi.datacite.org";
+    const dataciteRecordUrl = dataciteDoi
+        ? `${dataciteRecordBaseUrl}/dois/${encodeURIComponent(dataciteDoi)}`
+        : "";
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
     const [doiErrorMessage, setDoiErrorMessage] = useState("");
@@ -47,9 +56,10 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
     const showGenerateDoi = Boolean(datacitePrefix);
-    const showDoiStatus = doiIsValid && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== ""
+    const showDoiStatus = doiIsValid && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== "";
     const showUpdateDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
     const showDeleteDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(datacitePrefix);
+    const showDataciteRecordButton = Boolean(dataciteRecordUrl);
     const mounted = useRef(false);
 
     async function handleGenerateDOI() {
@@ -86,8 +96,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 })
                 .then(async (attributes) => {
                     // Update the record object (local state) with datasetIdentifier and doiCreationStatus
-                    handleUpdateDatasetIdentifier({ target: { value: `https://doi.org/${attributes.doi}` }});
-                    handleUpdateDoiCreationStatus({ target: { value: "draft" }});
+                    handleUpdateDatasetIdentifier({ target: { value: `https://doi.org/${attributes.doi}` } });
+                    handleUpdateDoiCreationStatus({ target: { value: "draft" } });
 
                     // Save doi values to database now without waiting for the user to press save
                     // Create a new object with updated properties
@@ -120,7 +130,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 .finally(() => {
                     setLoadingDoi(false);
                 });
-            
+
         } catch (err) {
             setDoiErrorFlag(true);
             const errorMessage = err.message || "Failed to generate DOI. Please try again.";
@@ -208,7 +218,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             setLoadingDoiDelete(false);
         }
     }
-   
+
     useEffect(() => {
         mounted.current = true;
         if (debouncedDoiIdValue === '') {
@@ -338,6 +348,16 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                             <I18n en="Delete DOI" fr="Supprimer le DOI" />
                                         )}
                                     </div>
+                                </Button>
+                            )}
+                            {showDataciteRecordButton && (
+                                <Button
+                                    href={dataciteRecordUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ display: "inline", marginRight: "15px" }}
+                                >
+                                    <I18n en="View DataCite record" fr="Voir l'enregistrement DataCite" />
                                 </Button>
                             )}
                         </div>

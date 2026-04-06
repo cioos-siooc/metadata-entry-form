@@ -22,6 +22,7 @@ class UserProviderClass extends FormClassTemplate {
       isReviewer: false,
       loggedIn: false,
       hasSharedRecords: false,
+      dataciteApiDomain: "production",
     };
   }
 
@@ -51,9 +52,19 @@ class UserProviderClass extends FormClassTemplate {
           });
 
         const database = getDatabase(firebase);
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
+        update(ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
 
         const permissionsRef = ref(database, `admin/${region}/permissions`)
+        const dataciteCredentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
+
+        onValue(dataciteCredentialsRef, (snapshot) => {
+          const data = snapshot.val();
+          this.setState({
+            dataciteApiDomain: data?.apiDomain || "production",
+          });
+        });
+
+        this.listenerRefs.push(dataciteCredentialsRef);
 
         onValue(permissionsRef, (permissionsFB) => {
           const permissions = permissionsFB.toJSON();
@@ -78,9 +89,9 @@ class UserProviderClass extends FormClassTemplate {
         const sharesRef = ref(database, `${region}/shares/${uid}`);
 
         onValue(sharesRef, (snapshot) => {
-            const hasSharedRecords = snapshot.exists();
-            this.setState({ hasSharedRecords, authIsLoading: false });
-          });
+          const hasSharedRecords = snapshot.exists();
+          this.setState({ hasSharedRecords, authIsLoading: false });
+        });
 
         this.listenerRefs.push(sharesRef);
 
