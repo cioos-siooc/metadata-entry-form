@@ -238,7 +238,7 @@ wheels = [
 [[package]]
 name = "cioos-metadata-conversion"
 version = "0.1.0"
-source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=fix%2Fdatacite-schema#ac8ae56b729601dab2caa6585e9ae5477879f04b" }
+source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=fix%2Fdatacite-schema#003071ea733d8c7feacb25bc3133c15f4c2d1715" }
 dependencies = [
     { name = "cffconvert" },
     { name = "click" },
