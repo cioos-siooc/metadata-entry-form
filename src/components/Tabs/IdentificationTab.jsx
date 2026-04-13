@@ -11,6 +11,7 @@ import { OpenInNew, Update } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";
+import { isOnlyOther } from "../../utils/normalizeResourceType";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
@@ -186,7 +187,7 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
-      {(!record.resourceType || !(record.resourceType.includes('other') && record.resourceType.length === 1)) && (
+      {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>

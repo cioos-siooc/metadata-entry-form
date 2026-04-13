@@ -13,6 +13,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
+import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
 
 import { QuestionText, SupplementalText } from "./QuestionStyles";
@@ -324,7 +325,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
           <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
         </I18n>
-        {record.resourceType && record.resourceType.includes("biological") && (
+        {record.resourceType && resourceTypeIncludes(record.resourceType, "biota") && (
           <RequiredMark passes={Boolean(mapData.description)} />
         )}
         <SupplementalText>

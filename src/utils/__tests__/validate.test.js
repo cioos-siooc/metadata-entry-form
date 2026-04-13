@@ -79,6 +79,34 @@ describe('Utility: validate.js', () => {
       expect(validateField(validBoxWithZero, 'map')).toBe(true);
     });
 
+    test('Spatial Map validation requires description for biota (ISO) datasets', () => {
+      const biotaNoDesc = {
+        map: { north: "", south: "", east: "", west: "" },
+        resourceType: ["biota"],
+      };
+      expect(validateField(biotaNoDesc, 'map')).toBeFalsy();
+
+      const biotaWithDesc = {
+        map: { north: "", south: "", east: "", west: "", description: "Northwest Atlantic" },
+        resourceType: ["biota"],
+      };
+      expect(validateField(biotaWithDesc, 'map')).toBeTruthy();
+    });
+
+    test('Spatial Map validation requires description for legacy biological datasets', () => {
+      const biologicalNoDesc = {
+        map: { north: "", south: "", east: "", west: "" },
+        resourceType: ["biological"],
+      };
+      expect(validateField(biologicalNoDesc, 'map')).toBeFalsy();
+
+      const biologicalWithDesc = {
+        map: { north: "", south: "", east: "", west: "", description: "Northwest Atlantic" },
+        resourceType: ["biological"],
+      };
+      expect(validateField(biologicalWithDesc, 'map')).toBeTruthy();
+    });
+
     test('Contacts validation', () => {
       const validContacts = [
         {

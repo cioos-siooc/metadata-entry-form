@@ -2,6 +2,7 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
+import { resourceTypeIncludes } from "./normalizeResourceType";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -162,7 +163,7 @@ const validators = {
           validateLongitude(west)) ||
         (polygon && polygonIsValid(polygon)) ||
         !record.resourceType  ||
-        (Array.isArray(record.resourceType) && record.resourceType.includes("biological") && description)
+        (resourceTypeIncludes(record.resourceType, "biota") && description)
       );
     },
   },
