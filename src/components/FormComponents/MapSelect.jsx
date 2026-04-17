@@ -21,11 +21,15 @@ import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
 
-function limitDecimals(x) {
-  return Number(Number.parseFloat(x).toFixed(4));
-}
-
 const bboxCoordTest = /-?\d+\.?\d+/;
+
+// Module-level polygon parser so BboxLayer/PolygonLayer can use it.
+function parsePolyString(polygonList) {
+  const polyPattern = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
+  return [...polygonList.matchAll(polyPattern)].map((match) =>
+    match[0].split(",").map(Number)
+  );
+}
 
 // Renders an editable bbox rectangle for search-selected / pre-loaded bboxes.
 // Must be rendered inside MapContainer.
@@ -56,13 +60,35 @@ const BboxLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
   return null;
 };
 
+// Renders an editable polygon for search-selected / pre-loaded polygons.
+// Analogous to BboxLayer but for polygon geometry.
+const PolygonLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (drawnLayerRef.current) return;
+    if (!mapData.polygon) return;
+
+    const coords = parsePolyString(mapData.polygon);
+    if (coords.length < 3) return;
+
+    const poly = L.polygon(coords);
+    poly.addTo(map);
+    poly.on("pm:markerdragend", () => handleLayerEditRef.current(poly));
+    poly.pm.enable({ preventMarkerRemoval: true });
+    drawnLayerRef.current = poly;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapData.polygon]);
+
+  return null;
+};
+
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
   const mapDataRef = useRef(mapData);
   mapDataRef.current = mapData;
 
   const coordTest = /-?\d+\.?\d+/;
-  const polyTest = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
 
   // update a mapData property using an event
   function handleBBoxChange(key) {
@@ -82,14 +108,6 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       const newData = { ...mapData, [key]: e.target.value };
       updateMap(newData);
     };
-  }
-
-  function parsePolyString(polygonList) {
-    const coordList = [...polygonList.matchAll(polyTest)].map((match) => {
-      return match[0].split(",").map(Number);
-    });
-
-    return coordList;
   }
 
   function limitDecimals(x) {
@@ -135,10 +153,6 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       coordTest.test(testW);
 
     return test;
-  };
-
-  const hasPolygon = (testString = mapData.polygon) => {
-    return polyTest.test(testString);
   };
 
   const onCreated = useCallback(
@@ -289,7 +303,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         )}
 
         {/* Editable bbox rectangle — handles appear immediately for resizing */}
-        {!disabled && (
+        {!disabled && !polyIsDrawn && (
           <BboxLayer
             mapData={mapData}
             drawnLayerRef={drawnLayerRef}
@@ -297,13 +311,23 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           />
         )}
 
+        {/* Editable polygon — handles appear immediately for vertex editing */}
+        {!disabled && polyIsDrawn && (
+          <PolygonLayer
+            mapData={mapData}
+            drawnLayerRef={drawnLayerRef}
+            handleLayerEditRef={handleLayerEditRef}
+          />
+        )}
+
         <FeatureGroup>
-          {hasPolygon() && (
+          {/* Static polygon display in read-only / disabled mode */}
+          {disabled && polyIsDrawn && (
             <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
           )}
 
           {/* Static bbox display in read-only / disabled mode */}
-          {disabled && hasBoundingBox() && !hasPolygon() && (
+          {disabled && hasBoundingBox() && !polyIsDrawn && (
             <LeafletRectangle
               bounds={[
                 [mapData.north, mapData.east],
