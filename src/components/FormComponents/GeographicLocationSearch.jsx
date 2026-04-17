@@ -17,6 +17,7 @@ const TYPE_FILTERS = [
   { value: "marineRegion", en: "Marine Region", fr: "Région marine" },
   { value: "dfoBioregion", en: "DFO Bioregion", fr: "Biorégion MPO" },
   { value: "ocean", en: "Ocean", fr: "Océan" },
+  { value: "city", en: "City", fr: "Ville" },
 ];
 
 const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
