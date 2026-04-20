@@ -30,8 +30,8 @@ const { default: DOIInput } = await import(
 // --- Helpers ---
 
 const baseRecord = {
-  identifier: "rec-1",
-  recordID: "rec-1",
+  identifier: "rec-1234567890abcdef",
+  recordID: "rec-1234567890abcdef",
   datasetIdentifier: "",
   doiCreationStatus: "",
   status: "",
@@ -72,7 +72,7 @@ describe("DOIInput", () => {
   });
 
   describe("handleGenerateDOI – minimal payload", () => {
-    it("should call createDraftDoi with a payload containing the prefix and a doi using the first 8 chars of recordID", async () => {
+    it("should call createDraftDoi with a payload containing the prefix and a doi using the first 16 chars of recordID", async () => {
       const user = userEvent.setup();
 
       mockCreateDraftDoi.mockResolvedValue({
@@ -86,7 +86,7 @@ describe("DOIInput", () => {
         },
       });
 
-      renderDOIInput({ recordID: "rec-1", doiCreationStatus: "", status: "" });
+      renderDOIInput({ doiCreationStatus: "", status: "" });
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       await user.click(generateBtn);
@@ -101,7 +101,7 @@ describe("DOIInput", () => {
           data: {
             type: "dois",
             attributes: {
-              doi: "10.5678/rec-1",
+              doi: "10.5678/rec-1234567890ab",
               prefix: "10.5678",
             },
           },

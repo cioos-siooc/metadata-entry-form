@@ -71,10 +71,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
 
         try {
-            // Create a minimal draft DOI using the prefix and the first 8 characters
-            // of the record UID as the suffix, so DOIs are deterministic and traceable.
-            // Full metadata will be pushed when the record is submitted or published.
-            const doiSuffix = record.recordID.substring(0, 8);
+            // Use the first 16 characters of the record ID as the DOI suffix,
+            // so DOIs are deterministic and traceable to the record.
+            const doiSuffix = record.recordID.substring(0, 16);
             const minimalPayload = {
                 data: {
                     type: "dois",
