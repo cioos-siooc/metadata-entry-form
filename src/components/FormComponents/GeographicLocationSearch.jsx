@@ -9,11 +9,92 @@ import {
   CircularProgress,
   Divider,
   Typography,
+  Chip,
 } from "@mui/material";
+import Apartment from "@mui/icons-material/Apartment";
+import Home from "@mui/icons-material/Home";
+import LocationCity from "@mui/icons-material/LocationCity";
+import Place from "@mui/icons-material/Place";
+import Map from "@mui/icons-material/Map";
+import Park from "@mui/icons-material/Park";
+import Forest from "@mui/icons-material/Forest";
+import Waves from "@mui/icons-material/Waves";
+import Water from "@mui/icons-material/Water";
+import BeachAccess from "@mui/icons-material/BeachAccess";
+import Landscape from "@mui/icons-material/Landscape";
+import AcUnit from "@mui/icons-material/AcUnit";
+import Flight from "@mui/icons-material/Flight";
+import DirectionsBoat from "@mui/icons-material/DirectionsBoat";
+import Train from "@mui/icons-material/Train";
+import DirectionsCar from "@mui/icons-material/DirectionsCar";
+import Security from "@mui/icons-material/Security";
+import Hiking from "@mui/icons-material/Hiking";
 import axios from "axios";
 import { useDebounce } from "use-debounce";
 import { I18n, En, Fr } from "../I18n";
 import geographicLocations from "../../utils/geographicLocations";
+
+const CONCISE_CODE_META = {
+  // Administrative
+  PROV: { Icon: Map, en: "Province", fr: "Province" },
+  TERR: { Icon: Map, en: "Territory", fr: "Territoire" },
+  GEOG: { Icon: Map, en: "Geographic Area", fr: "Zone géographique" },
+  // Settlements
+  CITY: { Icon: Apartment, en: "City", fr: "Ville" },
+  TOWN: { Icon: Home, en: "Town", fr: "Ville" },
+  VILG: { Icon: Home, en: "Village", fr: "Village" },
+  HAM: { Icon: Home, en: "Hamlet", fr: "Hameau" },
+  UTM: { Icon: LocationCity, en: "Upper Tier Municipality", fr: "Municipalité de palier supérieur" },
+  LTM: { Icon: LocationCity, en: "Lower Tier Municipality", fr: "Municipalité de palier inférieur" },
+  STM: { Icon: LocationCity, en: "Single Tier Municipality", fr: "Municipalité à palier unique" },
+  MUN1: { Icon: LocationCity, en: "Municipality", fr: "Municipalité" },
+  MUN2: { Icon: LocationCity, en: "Municipal Area", fr: "Zone municipale" },
+  UNP: { Icon: Place, en: "Unincorporated Place", fr: "Lieu non constitué" },
+  IR: { Icon: Home, en: "Indian Reserve", fr: "Réserve indienne" },
+  // Conservation / vegetation
+  PARK: { Icon: Park, en: "Conservation Area", fr: "Aire de conservation" },
+  FOR: { Icon: Forest, en: "Forest", fr: "Forêt" },
+  VEGL: { Icon: Forest, en: "Low Vegetation", fr: "Basse végétation" },
+  // Water
+  RIV: { Icon: Water, en: "River", fr: "Rivière" },
+  RIVF: { Icon: Water, en: "River Feature", fr: "Élément fluvial" },
+  FALL: { Icon: Water, en: "Falls", fr: "Chutes" },
+  LAKE: { Icon: Water, en: "Lake", fr: "Lac" },
+  SPRG: { Icon: Water, en: "Spring", fr: "Source" },
+  CHAN: { Icon: Water, en: "Channel", fr: "Chenal" },
+  RAP: { Icon: Water, en: "Rapids", fr: "Rapides" },
+  HYDR: { Icon: Water, en: "Hydraulic Construction", fr: "Construction hydraulique" },
+  // Sea / coastal
+  SEA: { Icon: Waves, en: "Sea", fr: "Mer" },
+  SEAF: { Icon: Waves, en: "Sea Feature", fr: "Élément marin" },
+  SEAU: { Icon: Waves, en: "Undersea Feature", fr: "Élément sous-marin" },
+  BAY: { Icon: Waves, en: "Bay", fr: "Baie" },
+  CAPE: { Icon: Waves, en: "Cape", fr: "Cap" },
+  SHL: { Icon: Waves, en: "Shoal", fr: "Haut-fond" },
+  BCH: { Icon: BeachAccess, en: "Beach", fr: "Plage" },
+  ISL: { Icon: BeachAccess, en: "Island", fr: "Île" },
+  MAR: { Icon: DirectionsBoat, en: "Marine Navigation Feature", fr: "Élément de navigation marine" },
+  // Terrain
+  CLF: { Icon: Landscape, en: "Cliff", fr: "Falaise" },
+  MTN: { Icon: Landscape, en: "Mountain", fr: "Montagne" },
+  VALL: { Icon: Landscape, en: "Valley", fr: "Vallée" },
+  PLN: { Icon: Landscape, en: "Plain", fr: "Plaine" },
+  CAVE: { Icon: Landscape, en: "Cave", fr: "Grotte" },
+  CRAT: { Icon: Landscape, en: "Crater", fr: "Cratère" },
+  GLAC: { Icon: AcUnit, en: "Glacier", fr: "Glacier" },
+  // Military
+  MIL: { Icon: Security, en: "Military Area", fr: "Zone militaire" },
+  // Infrastructure
+  RAIL: { Icon: Train, en: "Railway Feature", fr: "Élément ferroviaire" },
+  ROAD: { Icon: DirectionsCar, en: "Road Feature", fr: "Élément routier" },
+  AIR: { Icon: Flight, en: "Air Navigation Feature", fr: "Élément de navigation aérienne" },
+  // Recreation / sites
+  RECR: { Icon: Hiking, en: "Recreational Site", fr: "Site récréatif" },
+  RES: { Icon: Hiking, en: "Natural Resources Site", fr: "Site de ressources naturelles" },
+  CAMP: { Icon: Hiking, en: "Campsite", fr: "Camping" },
+  SITE: { Icon: Place, en: "Site", fr: "Site" },
+  MISC: { Icon: Place, en: "Miscellaneous", fr: "Divers" },
+};
 
 const GEONAMES_API = "https://geogratis.gc.ca/services/geoname";
 
@@ -221,6 +302,26 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
             </I18n>
           )
         }
+        renderOption={(props, option) => {
+          const meta = CONCISE_CODE_META[option.concise];
+          const { key, ...rest } = props;
+          return (
+            <Box component="li" key={key} {...rest} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {meta && (
+                <meta.Icon fontSize="small" sx={{ color: "text.secondary", flexShrink: 0 }} />
+              )}
+              <span style={{ flexGrow: 1 }}>{option.label}</span>
+              {meta && (
+                <Chip
+                  label={meta[language] || meta.en}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
+                />
+              )}
+            </Box>
+          );
+        }}
         renderInput={(params) => (
           <TextField
             {...params}
