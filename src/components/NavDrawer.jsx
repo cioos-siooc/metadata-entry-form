@@ -8,21 +8,21 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   ExitToApp,
-  Contacts,
-  ListAlt,
+  ContactsOutlined as Contacts,
+  ListAltOutlined as ListAlt,
   ChevronLeft,
   ChevronRight,
-  FeedbackRounded,
-  RateReview,
+  FeedbackOutlined as FeedbackRounded,
+  RateReviewOutlined as RateReview,
   Menu as MenuIcon,
-  AssignmentTurnedIn,
-  StraightenSharp,
-  DirectionsBoatSharp,
-  FolderShared,
-  Help,
-  Warning,
-  Settings,
-  NewReleases,
+  AssignmentTurnedInOutlined as AssignmentTurnedIn,
+  StraightenOutlined as StraightenSharp,
+  DirectionsBoatOutlined as DirectionsBoatSharp,
+  FolderSharedOutlined as FolderShared,
+  HelpOutlineOutlined as Help,
+  WarningAmberOutlined as Warning,
+  SettingsOutlined as Settings,
+  NewReleasesOutlined as NewReleases,
   ExpandLess,
   ExpandMore,
   HelpOutline,
@@ -41,12 +41,15 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Select,
   Tooltip,
   MenuItem,
   Menu,
   Collapse,
+  Divider,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
@@ -57,7 +60,7 @@ import WhatsNewDialog from "./Pages/WhatsNew";
 
 import { UserContext } from "../providers/UserProvider";
 
-const drawerWidth = 275;
+const drawerWidth = 260;
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -74,9 +77,7 @@ const useStyles = makeStyles()((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  menuButton: {
-    // padding: 5,
-  },
+  menuButton: {},
   languageSelector: {
     color: "white",
     "& .MuiSelect-icon": {
@@ -85,13 +86,14 @@ const useStyles = makeStyles()((theme) => ({
   },
   headerControls: {
     display: "flex",
-    alignItems: "flex-end",
-    gap: theme.spacing(1),
+    alignItems: "center",
+    gap: theme.spacing(1.5),
     marginLeft: "auto",
   },
   logoImage: {
     display: "block",
-    height: "auto",
+    height: 36,
+    width: "auto",
     marginBottom: 0,
     [theme.breakpoints.down("lg")]: {
       display: "none",
@@ -127,7 +129,7 @@ const useStyles = makeStyles()((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: "hidden",
-    width: theme.spacing(7),
+    width: theme.spacing(8),
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9),
     },
@@ -149,13 +151,12 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: "center",
     justifyContent: "flex-end",
     padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
     ...theme.mixins.toolbar,
   },
   appBarToolbar: {
     minHeight: 64,
     [theme.breakpoints.up("sm")]: {
-      minHeight: 70,
+      minHeight: 68,
     },
   },
   content: {
@@ -188,10 +189,71 @@ const useStyles = makeStyles()((theme) => ({
     flexGrow: 1,
   },
   sidebarList: {
-    paddingTop: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  },
+  sectionLabel: {
+    fontSize: "0.7rem",
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: theme.palette.text.secondary,
+    backgroundColor: "transparent",
+    lineHeight: 1.4,
+    paddingLeft: theme.spacing(1.5),
+    paddingTop: theme.spacing(1.5),
+    paddingBottom: theme.spacing(0.5),
+  },
+  navItem: {
+    borderRadius: theme.shape.borderRadius,
+    marginBottom: 2,
+    paddingLeft: theme.spacing(1.5),
+    paddingRight: theme.spacing(1.5),
+    minHeight: 40,
+    position: "relative",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      left: -2,
+      top: "22%",
+      bottom: "22%",
+      width: 3,
+      borderRadius: 2,
+      backgroundColor: "transparent",
+      transition: theme.transitions.create("background-color", {
+        duration: theme.transitions.duration.shortest,
+      }),
+    },
+    "&.Mui-selected": {
+      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+      "&::before": {
+        backgroundColor: theme.palette.primary.main,
+      },
+      "& .MuiListItemText-primary": {
+        color: theme.palette.primary.main,
+        fontWeight: 600,
+      },
+      "& .MuiListItemIcon-root": {
+        color: theme.palette.primary.main,
+      },
+      "&:hover": {
+        backgroundColor: alpha(theme.palette.primary.main, 0.14),
+      },
+    },
+    "& .MuiListItemIcon-root": {
+      color: theme.palette.text.secondary,
+      minWidth: 36,
+    },
+    "& .MuiListItemText-primary": {
+      fontSize: "0.875rem",
+      fontWeight: 500,
+    },
   },
   bottomList: {
     marginTop: "auto",
+    borderTop: `1px solid ${theme.palette.divider}`,
+    paddingTop: theme.spacing(0.5),
   },
 }));
 
@@ -499,19 +561,30 @@ export default function MiniDrawer({ children }) {
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
           </div>
-          <List>
+          <List className={classes.sidebarList}>
             {user && region && (
               <>
+                {open && (
+                  <ListSubheader
+                    disableSticky
+                    className={classes.sectionLabel}
+                    component="div"
+                  >
+                    <I18n en="Workspace" fr="Espace de travail" />
+                  </ListSubheader>
+                )}
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.saved}
                 >
                   <ListItemButton
                     key="My Records"
+                    className={classes.navItem}
+                    selected={pathname.includes("/submissions") || /\/[^/]+\/[^/]+$/.test(pathname)}
                     onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
-                      <ListAlt />
+                      <ListAlt fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={translations.saved} />
                   </ListItemButton>
@@ -522,25 +595,56 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Region's Published Records"
+                    className={classes.navItem}
+                    selected={pathname.includes("/published")}
                     onClick={() => navigateAndClose(`${baseURL}/published`)}
                   >
                     <ListItemIcon>
-                      <AssignmentTurnedIn />
+                      <AssignmentTurnedIn fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
                   </ListItemButton>
                 </Tooltip>
+                {hasSharedRecords && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.sharedWithMe}
+                  >
+                    <ListItemButton
+                      key="SharedWithMe"
+                      className={classes.navItem}
+                      selected={pathname.includes("/shared")}
+                      onClick={() => navigateAndClose(`${baseURL}/shared`)}
+                    >
+                      <ListItemIcon>
+                        <FolderShared fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.sharedWithMe} />
+                    </ListItemButton>
+                  </Tooltip>
+                )}
 
+                {open && (
+                  <ListSubheader
+                    disableSticky
+                    className={classes.sectionLabel}
+                    component="div"
+                  >
+                    <I18n en="Library" fr="Bibliothèque" />
+                  </ListSubheader>
+                )}
                 <Tooltip
                   placement="right-start"
                   title={open ? "" : translations.contacts}
                 >
                   <ListItemButton
                     key="Contacts"
+                    className={classes.navItem}
+                    selected={pathname.includes("/contacts")}
                     onClick={() => navigateAndClose(`${baseURL}/contacts`)}
                   >
-                    <ListItemIcon disabled>
-                      <Contacts />
+                    <ListItemIcon>
+                      <Contacts fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={translations.contacts} />
                   </ListItemButton>
@@ -552,10 +656,12 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="instruments"
+                    className={classes.navItem}
+                    selected={pathname.includes("/instruments")}
                     onClick={() => navigateAndClose(`${baseURL}/instruments`)}
                   >
-                    <ListItemIcon disabled>
-                      <StraightenSharp />
+                    <ListItemIcon>
+                      <StraightenSharp fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={translations.instruments} />
                   </ListItemButton>
@@ -567,59 +673,53 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Platforms"
+                    className={classes.navItem}
+                    selected={pathname.includes("/platforms")}
                     onClick={() => navigateAndClose(`${baseURL}/platforms`)}
                   >
-                    <ListItemIcon disabled>
-                      <DirectionsBoatSharp />
+                    <ListItemIcon>
+                      <DirectionsBoatSharp fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={translations.platforms} />
                   </ListItemButton>
                 </Tooltip>
 
-                {hasSharedRecords && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.sharedWithMe}
-                  >
-                    <ListItemButton
-                      key="SharedWithMe"
-                      onClick={() => navigateAndClose(`${baseURL}/shared`)}
-                    >
-                      <ListItemIcon>
-                        <FolderShared />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.sharedWithMe} />
-                    </ListItemButton>
-                  </Tooltip>
-                )}
-
                 {userIsReviewer && (
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : translations.review}
-                  >
-                    <ListItemButton
-                      key="Review"
-                      onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
+                  <>
+                    {open && (
+                      <ListSubheader
+                        disableSticky
+                        className={classes.sectionLabel}
+                        component="div"
+                      >
+                        <I18n en="Review" fr="Révision" />
+                      </ListSubheader>
+                    )}
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.review}
                     >
-                      <ListItemIcon>
-                        <RateReview />
-                      </ListItemIcon>
-                      <ListItemText primary={translations.review} />
-                    </ListItemButton>
-                  </Tooltip>
+                      <ListItemButton
+                        key="Review"
+                        className={classes.navItem}
+                        selected={pathname.includes("/reviewer")}
+                        onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
+                      >
+                        <ListItemIcon>
+                          <RateReview fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.review} />
+                      </ListItemButton>
+                    </Tooltip>
+                  </>
                 )}
-                {/* Admin button moved to bottomList above account avatar */}
               </>
             )}
-
-            {/* Logout button removed as requested */}
-
           </List>
 
 
           <div className={classes.bottomList}>
-            <List>
+            <List sx={{ px: 1, py: 0.5 }}>
               {usingDevDatabase && (
                 <Tooltip placement="right-start" title={databaseUrl}>
                   <ListItemButton
@@ -628,16 +728,18 @@ export default function MiniDrawer({ children }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     key="DevDBWarning"
-                    style={{
-                      fontSize: "14px",
-                      color: "#d32f2f",
+                    className={classes.navItem}
+                    sx={{
+                      color: "error.main",
+                      "& .MuiListItemIcon-root": { color: "error.main" },
                     }}
                   >
                     <ListItemIcon>
-                      <Warning style={{ color: "#d32f2f" }} />
+                      <Warning fontSize="small" />
                     </ListItemIcon>
                     <ListItemText
                       primary={translations.envConnection}
+                      primaryTypographyProps={{ fontSize: "0.8125rem" }}
                     />
                   </ListItemButton>
                 </Tooltip>
@@ -648,54 +750,70 @@ export default function MiniDrawer({ children }) {
               >
                 <ListItemButton
                   key="Help Support"
+                  className={classes.navItem}
                   onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
                 >
                   <ListItemIcon>
-                    <HelpOutline />
+                    <HelpOutline fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary={translations.helpSupport} />
                   {open && (helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </Tooltip>
               <Collapse in={helpSubmenuOpen} timeout="auto">
-                <List component="div" disablePadding sx={{ borderLeft: open ? `2px solid ${theme.palette.action.disabled}` : 'none', ml: open ? '20px' : 0, pl: open ? 2 : 0 }}>
+                <List
+                  component="div"
+                  disablePadding
+                  sx={{
+                    ml: open ? 2 : 0,
+                    pl: open ? 1 : 0,
+                    borderLeft: open
+                      ? `1px solid ${theme.palette.divider}`
+                      : "none",
+                  }}
+                >
                   <Tooltip
                     placement="right-start"
                     title={
-                      open
-                        ? ""
-                        : (
-                          <span>
-                            {contactLabel}
-                            {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                          </span>
-                        )
+                      open ? "" : (
+                        <span>
+                          {contactLabel}
+                          {regionEmailLower ? ` — ${regionEmailLower}` : ""}
+                        </span>
+                      )
                     }
                   >
                     <ListItemButton
                       key="Contact Region"
+                      className={classes.navItem}
                       onClick={handleContactClick}
-                      sx={{ pl: 4 }}
+                      sx={{ pl: open ? 2 : 1.5 }}
                     >
                       <ListItemIcon>
-                        <Help />
+                        <Help fontSize="small" />
                       </ListItemIcon>
                       <ListItemText
                         primary={contactLabel}
+                        primaryTypographyProps={{ fontSize: "0.8125rem" }}
                         secondary={
                           regionEmailLower ? (
-                            <Tooltip
-                              title={copyTooltipText}
-                              placement="right-start"
-                            >
+                            <Tooltip title={copyTooltipText} placement="right-start">
                               <span
                                 data-copy-email="true"
                                 onClick={handleCopyEmail}
                                 onKeyDown={handleCopyEmailKeyDown}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                                aria-label={
+                                  language === "fr"
+                                    ? "Copier l'adresse courriel"
+                                    : "Copy email address"
+                                }
+                                style={{
+                                  textDecoration: "underline",
+                                  cursor: "pointer",
+                                  fontSize: "0.75rem",
+                                }}
                               >
                                 {regionEmailLower}
                               </span>
@@ -713,12 +831,16 @@ export default function MiniDrawer({ children }) {
                       key="Feedback"
                       id="sentry-feedback-button"
                       ref={feedbackButtonRef}
-                      sx={{ pl: 4 }}
+                      className={classes.navItem}
+                      sx={{ pl: open ? 2 : 1.5 }}
                     >
                       <ListItemIcon>
-                        <FeedbackRounded />
+                        <FeedbackRounded fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                      <ListItemText
+                        primary={<I18n en="Feedback" fr="Commentaires" />}
+                        primaryTypographyProps={{ fontSize: "0.8125rem" }}
+                      />
                     </ListItemButton>
                   </Tooltip>
                   {user && (
@@ -728,13 +850,17 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="WhatsNew"
+                        className={classes.navItem}
                         onClick={() => setWhatsNewOpen(true)}
-                        sx={{ pl: 4 }}
+                        sx={{ pl: open ? 2 : 1.5 }}
                       >
                         <ListItemIcon>
-                          <NewReleases />
+                          <NewReleases fontSize="small" />
                         </ListItemIcon>
-                        <ListItemText primary={translations.whatsNew} />
+                        <ListItemText
+                          primary={translations.whatsNew}
+                          primaryTypographyProps={{ fontSize: "0.8125rem" }}
+                        />
                       </ListItemButton>
                     </Tooltip>
                   )}
@@ -757,42 +883,64 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Admin"
+                        className={classes.navItem}
+                        selected={pathname.includes("/admin")}
                         onClick={() => navigateAndClose(`${baseURL}/admin`)}
                       >
                         <ListItemIcon>
-                          <Settings />
+                          <Settings fontSize="small" />
                         </ListItemIcon>
                         <ListItemText primary={translations.admin} />
                       </ListItemButton>
                     </Tooltip>
                   )}
+                  <Divider sx={{ my: 0.5 }} />
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
                   >
                     <ListItemButton
                       key="userInfo"
+                      className={classes.navItem}
                       onClick={handleMenuOpen}
+                      sx={{ minHeight: 52 }}
                     >
                       <ListItemIcon>
                         <Avatar
                           src={user.photoURL}
-                          style={{ width: 30, height: 30 }}
+                          style={{ width: 32, height: 32 }}
                         />
                       </ListItemIcon>
-                      <ListItemText primary={user.displayName} />
+                      <ListItemText
+                        primary={user.displayName}
+                        primaryTypographyProps={{
+                          fontWeight: 600,
+                          fontSize: "0.875rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                        secondary={user.email}
+                        secondaryTypographyProps={{
+                          fontSize: "0.72rem",
+                          color: "text.secondary",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      />
                     </ListItemButton>
                   </Tooltip>
                   <Menu
                     anchorEl={anchorEl}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
                     keepMounted
-                    transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    transformOrigin={{ vertical: "bottom", horizontal: "left" }}
                     open={isMenuOpen}
                     onClose={handleMenuClose}
                   >
                     <MenuItem onClick={handleLogout}>
-                      <ListItemIcon style={{ minWidth: '40px' }}>
+                      <ListItemIcon style={{ minWidth: "40px" }}>
                         <ExitToApp fontSize="small" />
                       </ListItemIcon>
                       <Typography variant="inherit">{translations.logout}</Typography>

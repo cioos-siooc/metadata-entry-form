@@ -1,43 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
+import FormSection from "../FormShell/FormSection";
 import {
   SortableList,
   SortableItem,
   arrayMove,
   useStableItemIds,
 } from "../FormComponents/SortableList";
-import {
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  TableContainer,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  Box,
-  ListItemSecondaryAction,
-  Tooltip,
-  IconButton,
-  FormControlLabel,
-  Checkbox,
-  Autocomplete,
-} from "@mui/material";
+import { List, ListItem, ListItemText, Paper, Typography, Grid, TextField, Button, TableContainer, Table, TableBody, TableRow, TableCell, Box, ListItemSecondaryAction, Tooltip, IconButton, FormControlLabel, Checkbox, Autocomplete } from "@mui/material";
 import { ArrowDownward, Delete } from "@mui/icons-material";
 import { capitalize } from "@mui/material/utils";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";
 import { En, Fr, I18n } from "../I18n";
-import {
-  paperClass,
-  QuestionText,
-  SupplementalText,
-} from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
 
@@ -158,7 +134,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
 
   return (
     <Grid>
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>
@@ -201,9 +177,9 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
             </I18n>
           }
         />
-      </Paper>
+      </FormSection>
       {!noTaxa ? (
-        <Paper style={paperClass}>
+        <FormSection>
           <Grid container direction="column" spacing={0}>
             <Autocomplete
               inputValue={inputValue}
@@ -372,7 +348,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               </Box>
             </Grid>
           </Grid>
-        </Paper>
+        </FormSection>
       ) : (
         ""
       )}

@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CircularProgress, Grid } from "@mui/material";
-import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { CircularProgress, Grid, CssBaseline } from "@mui/material";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { getAppTheme } from "../theme/createAppTheme";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
@@ -100,78 +101,7 @@ const Pages = () => {
 const BaseLayout = () => {
   const { region, language } = useParams();
 
-  const theme = createTheme({
-    components: {
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: {
-            fontSize: "1em",
-          },
-        },
-      },
-      MuiFormControlLabel: {
-        styleOverrides: {
-          root: {
-            '&.Mui-disabled': {
-              '& .MuiCheckbox-root': {
-                color: '#ababab',
-              },
-              '& .MuiTypography-root': {
-                color: '#ababab',
-              },
-            },
-          },
-        },
-      },
-      MuiInputBase: {
-        styleOverrides: {
-          input: {
-            '&.Mui-disabled': {
-              color: '#ababab',
-              WebkitTextFillColor: '#ababab',
-            },
-          },
-        },
-      },
-      MuiAccordionDetails: {
-        styleOverrides: {
-          root: {
-            flexDirection: 'column',
-          },
-        },
-      },
-      MuiTypography: {
-        styleOverrides: {
-          root: {
-            whiteSpace: 'pre-wrap',
-          },
-        },
-      },
-      MuiTextField: {
-        defaultProps: {
-          variant: "outlined",
-        },
-      },
-      MuiSelect: {
-        defaultProps: {
-          variant: "outlined",
-        },
-      },
-      MuiButton: {
-        defaultProps: {
-          variant: "outlined",
-        },
-      },
-    },
-    palette: {
-      primary: {
-        main: regions[region].colors.primary,
-      },
-      secondary: {
-        main: regions[region].colors.secondary,
-      },
-    },
-  });
+  const theme = getAppTheme(region);
   const title = {
     en: `${regions[region].title[language]} Metadata Intake Form`,
     fr: `Formulaire de réception des métadonnées ${regions[region].title[language]}`,
@@ -192,6 +122,7 @@ const BaseLayout = () => {
       <UserProvider>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
+            <CssBaseline />
             <NavDrawer>
               <Pages />
             </NavDrawer>

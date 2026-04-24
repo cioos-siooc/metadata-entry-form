@@ -1,19 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
+import FormSection from "../FormShell/FormSection";
 
-import {
-  Paper,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Button,
-  CircularProgress,
-} from "@mui/material";
+import { Grid, List, ListItem, ListItemText, Typography, Button, CircularProgress } from "@mui/material";
 
 import { useParams } from "react-router-dom";
 
-import { paperClass } from "../FormComponents/QuestionStyles";
+
 
 import { En, Fr, I18n } from "../I18n";
 import {
@@ -86,7 +78,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   }, [record, userID]);
 
   return (
-    <Paper style={paperClass}>
+    <FormSection>
       <Grid container direction="column" spacing={3}>
         <Grid >
           <Typography>
@@ -307,7 +299,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           </>
         )}
       </Grid>
-    </Paper>
+    </FormSection>
   );
 };
 export default SubmitTab;

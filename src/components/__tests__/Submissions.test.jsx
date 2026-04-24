@@ -14,10 +14,15 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+vi.mock("../../providers/UserProvider", () => ({
+  UserContext: React.createContext({ user: { displayName: "Test" } }),
+  default: ({ children }) => children,
+}));
+
 const theme = createTheme();
 
 describe("<Submissions />", () => {
-  it("Renders", () => {
+  it("Renders the dashboard entry point", () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
@@ -26,7 +31,9 @@ describe("<Submissions />", () => {
       </ThemeProvider>
     );
 
-    // Verify component renders - check for "My Records" heading
-    expect(screen.getByRole("heading", { name: /my records/i })).toBeInTheDocument();
+    // Dashboard surfaces a primary "New record" CTA and a welcome heading.
+    expect(
+      screen.getByRole("button", { name: /new record/i })
+    ).toBeInTheDocument();
   });
 });

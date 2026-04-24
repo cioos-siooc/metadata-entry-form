@@ -1,124 +1,126 @@
-import React from "react";
-import { Grid, Typography, Divider } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { Box, Grid, Typography, Divider, Stack } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { En, Fr, I18n } from "../I18n";
 import RegionCard from "../FormComponents/RegionCard";
 import regions from "../../regions";
+import LandingHero from "../Landing/LandingHero";
+import RegionSearch from "../Landing/RegionSearch";
+
+const RA_CODES = ["pacific", "stlaurent", "atlantic"];
 
 export default function RegionSelect() {
   const { language } = useParams();
+  const [query, setQuery] = useState("");
   const title = {
     en: "Metadata Intake Form",
     fr: "Formulaire de réception des métadonnées",
   };
 
-  // CIOOS Regional Associations to feature at top
-  const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
-  // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
-  const otherOrganizations = Object.entries(regions)
-    .filter(([code, regionInfo]) => !raCodes.includes(code) && regionInfo.showInRegionSelector)
-    .map(([code, regionInfo]) => ({ code, info: regionInfo }));
+  const { raRegions, otherOrganizations, allFiltered } = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const matches = (regionInfo, code) => {
+      if (!q) return true;
+      const title = regionInfo?.title?.[language] || regionInfo?.title?.en || "";
+      const titleOther = regionInfo?.title?.fr || "";
+      return (
+        title.toLowerCase().includes(q) ||
+        titleOther.toLowerCase().includes(q) ||
+        code.toLowerCase().includes(q)
+      );
+    };
 
-  // Sort by translated title / name
-  otherOrganizations.sort((a, b) => {
-    const getName = (o) =>
-      o.info?.title?.[language] || o.info?.title?.en || o.code;
-    return getName(a).localeCompare(
-      getName(b),
-      language === "fr" ? "fr" : "en",
-      { sensitivity: "base" }
-    );
-  });
+    const ra = RA_CODES
+      .map((code) => ({ code, info: regions[code] }))
+      .filter(({ info }) => info && info.showInRegionSelector)
+      .filter(({ info, code }) => matches(info, code));
+
+    const others = Object.entries(regions)
+      .filter(([code, regionInfo]) => !RA_CODES.includes(code) && regionInfo.showInRegionSelector)
+      .map(([code, info]) => ({ code, info }))
+      .filter(({ info, code }) => matches(info, code))
+      .sort((a, b) => {
+        const getName = (o) =>
+          o.info?.title?.[language] || o.info?.title?.en || o.code;
+        return getName(a).localeCompare(
+          getName(b),
+          language === "fr" ? "fr" : "en",
+          { sensitivity: "base" }
+        );
+      });
+
+    return {
+      raRegions: ra,
+      otherOrganizations: others,
+      allFiltered: ra.length + others.length,
+    };
+  }, [query, language]);
 
   const t = (en, fr) => (language === "fr" ? fr : en);
 
   return (
-    <>
+    <Box sx={{ maxWidth: 1200, mx: "auto", px: { xs: 0, md: 2 } }}>
       <Helmet>
         <title>{title[language]}</title>
       </Helmet>
-      <Grid container direction="column" spacing={4}>
-        <Grid >
-          <Typography
-            variant="h6"
-            gutterBottom
-            align="center"
-            justifyContent="center"
-          >
-            <I18n>
-              <En>
-                Welcome to the CIOOS Metadata Entry Tool.
-                <br />
-                To get started, please select your Regional Association or
-                browse collaborating organizations.
-              </En>
-              <Fr>
-                Bienvenue dans l'outil de saisie de métadonnées du SIOOC.
-                <br />
-                Pour commencer, sélectionnez votre association régionale ou
-                parcourez les organisations partenaires.
-              </Fr>
-            </I18n>
-          </Typography>
-        </Grid>
 
-        {/* CIOOS Regional Associations */}
-        <Grid >
-          <Typography variant="h5" gutterBottom align="center">
-            {t(
-              "CIOOS Regional Associations",
-              "Associations régionales du SIOOC"
-            )}
-          </Typography>
-          <Grid
-            container
-            spacing={4}
-            justifyContent="center"
-            alignItems="stretch"
-          >
-            {raCodes.map((regionCode) => {
-              const regionInfo = regions[regionCode];
-              if (!regionInfo) return null;
-              return (
-                <Grid key={regionCode} style={{ flex: "0 1 380px" }}>
+      <LandingHero />
+
+      <RegionSearch
+        value={query}
+        onChange={setQuery}
+        resultCount={allFiltered}
+        language={language}
+      />
+
+      <Stack spacing={6}>
+        {raRegions.length > 0 && (
+          <Box>
+            <Stack spacing={1} sx={{ mb: 3 }}>
+              <Typography
+                variant="overline"
+                sx={{ color: "primary.main", fontWeight: 700, letterSpacing: "0.12em" }}
+              >
+                {t("Regional Associations", "Associations régionales")}
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                {t(
+                  "CIOOS Regional Associations",
+                  "Associations régionales du SIOOC"
+                )}
+              </Typography>
+            </Stack>
+            <Grid container spacing={3} alignItems="stretch">
+              {raRegions.map(({ code, info }) => (
+                <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard
-                    region={regionCode}
-                    regionSummary={regionInfo.introPageText[language]}
+                    region={code}
+                    regionSummary={info.introPageText[language]}
                     showMap
                   />
                 </Grid>
-              );
-            })}
-          </Grid>
-        </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
 
-        <Grid>
-          <Divider />
-        </Grid>
-
-        {/* All Organizations */}
-        <Grid >
-          <Typography variant="h5" gutterBottom align="center">
-            {t("Affiliated Organizations", "Organisations affiliées")}
-          </Typography>
-          {otherOrganizations.length === 0 && (
-            <Typography variant="body2" align="center">
-              {t(
-                "No affiliated organizations found.",
-                "Aucune organisation affiliée trouvée."
-              )}
-            </Typography>
-          )}
-          {otherOrganizations.length > 0 && (
-            <Grid
-              container
-              spacing={4}
-              justifyContent="center"
-              alignItems="stretch"
-            >
+        {otherOrganizations.length > 0 && (
+          <Box>
+            <Divider sx={{ mb: 4 }} />
+            <Stack spacing={1} sx={{ mb: 3 }}>
+              <Typography
+                variant="overline"
+                sx={{ color: "text.secondary", fontWeight: 700, letterSpacing: "0.12em" }}
+              >
+                {t("Affiliated Organizations", "Organisations affiliées")}
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                {t("Collaborating organizations", "Organisations collaboratrices")}
+              </Typography>
+            </Stack>
+            <Grid container spacing={3} alignItems="stretch">
               {otherOrganizations.map(({ code, info }) => (
-                <Grid key={code} style={{ flex: "0 1 380px" }}>
+                <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard
                     region={code}
                     regionSummary={info?.introPageText?.[language] || ""}
@@ -127,9 +129,20 @@ export default function RegionSelect() {
                 </Grid>
               ))}
             </Grid>
-          )}
-        </Grid>
-      </Grid>
-    </>
+          </Box>
+        )}
+
+        {allFiltered === 0 && query && (
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              {t(
+                `No regions match "${query}".`,
+                `Aucune région ne correspond à "${query}".`
+              )}
+            </Typography>
+          </Box>
+        )}
+      </Stack>
+    </Box>
   );
 }

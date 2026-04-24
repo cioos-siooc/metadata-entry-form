@@ -1,5 +1,6 @@
 import React from "react";
-import { Paper } from "@mui/material";
+import FormSection from "../FormShell/FormSection";
+import {  } from "@mui/material";
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -14,7 +15,7 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
   const updateResources = updateRecord("associated_resources");
   return (
     <div>
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <En>Enter links to other metadata records, publications or works that are
             related to the primary resources this metadata record describes.
@@ -45,7 +46,7 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
             </I18n>
           </SupplementalText>
         </QuestionText>
-      </Paper>
+      </FormSection>
       <RelatedWorks
         paperClass={paperClass}
         resources={record.associated_resources || []}

@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  Paper,
-  TextField,
-  Grid,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import FormSection from "../FormShell/FormSection";
+import { TextField, Grid, IconButton, Tooltip } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
@@ -21,11 +16,7 @@ import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
 
-import {
-  QuestionText,
-  SupplementalText,
-  paperClass,
-} from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 
 import regions from "../../regions";
 
@@ -63,7 +54,7 @@ const IdentificationTab = ({
     <div>
 
       {projects.length ? (
-        <Paper style={paperClass}>
+        <FormSection>
           <QuestionText>
             <I18n>
               <En>
@@ -83,12 +74,12 @@ const IdentificationTab = ({
             optionLabels={projects}
             disabled={disabled}
           />
-        </Paper>
+        </FormSection>
       ) : (
         <div />
       )}
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -185,9 +176,9 @@ const IdentificationTab = ({
           disabled={disabled}
           multiline
         />
-      </Paper>
+      </FormSection>
       {(!record.resourceType || !(record.resourceType.includes('other') && record.resourceType.length === 1)) && (
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -276,9 +267,9 @@ const IdentificationTab = ({
             </div>
           );
         })}
-        </Paper>)}
+        </FormSection>)}
 
-      <Paper style={paperClass}>
+      <FormSection>
         <Grid container spacing={3} direction="column">
           <Grid >
             <QuestionText>
@@ -342,9 +333,9 @@ const IdentificationTab = ({
             />
           </Grid>
         </Grid>
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the status of this dataset?</En>
@@ -371,9 +362,9 @@ const IdentificationTab = ({
           fullWidth={false}
           style={{ width: "200px" }}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the start date when data was first collected?</En>
@@ -405,8 +396,8 @@ const IdentificationTab = ({
           disabled={disabled}
           dateStart={record.dateStart || undefined}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -425,9 +416,9 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("datePublished")}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>The version number of this dataset. For example, 1.1</En>
@@ -443,9 +434,9 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           fullWidth
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -485,9 +476,9 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("dateRevised")}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
@@ -600,8 +591,8 @@ const IdentificationTab = ({
           options={licensesSorted.map((l) => l.code)}
           disabled={disabled}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What are the limitations affecting the dataset?</En>
@@ -642,7 +633,7 @@ const IdentificationTab = ({
           multiline
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
     </div>
   );
 };

@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Typography, Button, Box } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Typography, Box, Stack, Card } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import { Fr, En, I18n } from "../I18n";
+import { I18n } from "../I18n";
 import {
   multipleFirebaseToJSObject,
   cloneRecord,
@@ -14,8 +13,10 @@ import {
   returnRecordToDraft,
 } from "../../utils/firebaseRecordFunctions";
 import SimpleModal from "../FormComponents/SimpleModal";
-import regions from "../../regions";
 import RecordList, { submissionsConfig } from "../RecordList";
+import DashboardHero from "../Dashboard/DashboardHero";
+import StatCards from "../Dashboard/StatCards";
+import GettingStarted from "../Dashboard/GettingStarted";
 
 const Submissions = () => {
   const { language, region } = useParams();
@@ -132,6 +133,8 @@ const Submissions = () => {
     }
   }, [region, modalKey]);
 
+  const isEmpty = !loading && records.length === 0;
+
   return (
     <Box>
       <SimpleModal
@@ -156,66 +159,29 @@ const Submissions = () => {
         aria-describedby="simple-modal-description"
       />
 
-      <Typography variant="h5" gutterBottom>
-        <I18n>
-          <En>My Records</En>
-          <Fr>Mes dossiers</Fr>
-        </I18n>
-      </Typography>
+      <DashboardHero />
 
-      <Typography variant="body2" paragraph>
-        <I18n>
-          <En>
-            To start a new record, click on "New Record" and begin adding
-            information. To continue working on a record, select it from the
-            list below. Once your record is completed and information has been
-            provided for all mandatory fields, you can submit your record for
-            review by clicking the "Submit for review" icon to the right of your
-            record title. The record will not be published until it is reviewed
-            and approved by {regions[region]?.title?.[language]} staff.
-          </En>
-          <Fr>
-            Afin de soumettre vos métadonnées, cliquez sur « Nouvel
-            enregistrement » et ajoutez-y les informations demandées. Si vous
-            désirez reprendre la saisie d'un formulaire déjà entamé,
-            sélectionnez-le dans la liste ci-dessous. Lorsque les informations
-            sont saisies pour tous les champs obligatoires, vous pouvez
-            soumettre vos métadonnées pour validation en cliquant sur l'icône «
-            soumettre pour validation ». Vos métadonnées seront publiées
-            lorsqu'elles auront été validées et approuvées par un professionel{" "}
-            {regions[region]?.titleFrPossessive}.
-          </Fr>
-        </I18n>
-      </Typography>
+      <StatCards records={records} loading={loading} />
 
-      <Box mb={1.5}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => navigate(`/${language}/${region}/new`)}
-        >
-          <I18n en="New Record" fr="Nouvel enregistrement" />
-        </Button>
-      </Box>
-
-      <RecordList
-        records={records}
-        config={submissionsConfig}
-        loading={loading}
-        onEditRecord={handleEditRecord}
-        onDeleteRecord={handleDeleteRecord}
-        onCloneRecord={handleCloneRecord}
-        onSubmitRecord={handleSubmitRecord}
-      />
-
-      {!loading && records.length === 0 && (
-        <Typography>
-          <I18n>
-            <En>You don't have any records.</En>
-            <Fr>Vous n'avez pas d'historique de saisie.</Fr>
-          </I18n>
-        </Typography>
+      {isEmpty ? (
+        <GettingStarted />
+      ) : (
+        <Stack spacing={2}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <I18n en="Your records" fr="Vos enregistrements" />
+          </Typography>
+          <Card variant="outlined" sx={{ p: 0, overflow: "hidden" }}>
+            <RecordList
+              records={records}
+              config={submissionsConfig}
+              loading={loading}
+              onEditRecord={handleEditRecord}
+              onDeleteRecord={handleDeleteRecord}
+              onCloneRecord={handleCloneRecord}
+              onSubmitRecord={handleSubmitRecord}
+            />
+          </Card>
+        </Stack>
       )}
     </Box>
   );

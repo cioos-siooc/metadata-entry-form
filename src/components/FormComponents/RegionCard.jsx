@@ -1,174 +1,158 @@
 import React from "react";
-import { makeStyles } from "../../tss-cache";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
-
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import { useParams, useNavigate } from "react-router-dom";
+import { alpha } from "@mui/material/styles";
 import regions, { getRegionLogo } from "../../regions";
 
-const useStyles = makeStyles()({
-  root: {
-    maxWidth: 380,
-    display: "flex",
-    flexDirection: "column",
-    transition:
-      "filter 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease",
-    cursor: "pointer",
-    position: "relative",
-    overflow: "hidden",
-  },
-  media: {
-    height: 260, // increased height for better map/logo visibility
-    transition: "filter 0.4s ease, transform 0.4s ease",
-    backgroundPosition: "bottom center", // align image content to bottom
-  },
-  colorOverlay: {
-    content: '""',
-    position: "absolute",
-    inset: 0,
-    width: "100%",
-    height: "100%",
-    opacity: 0,
-    transition: "opacity 0.35s ease",
-    pointerEvents: "none",
-    zIndex: 1,
-  },
-  hovered: {
-    "& $media": {
-      filter: "brightness(0.85) saturate(140%)",
-      transform: "scale(1.015)",
-    },
-    "& $colorOverlay": {
-      opacity: 0.18,
-    },
-    boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
-  },
-  actionArea: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    alignItems: "stretch",
-    position: "relative",
-    zIndex: 2,
-  },
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    flexGrow: 1,
-  },
-  summaryClamp: {
-    display: "-webkit-box",
-    WebkitLineClamp: 5,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-    textAlign: "center",
-  },
-});
-
-export default function MediaCard({ region, regionSummary, showMap = true }) {
+export default function RegionCard({ region, regionSummary, showMap = true }) {
   const navigate = useNavigate();
   const { language } = useParams();
-  const { classes } = useStyles();
 
   const regionInfo = regions[region];
   const logoSrc = getRegionLogo(region, language);
+  const primaryColor = regionInfo?.colors?.primary || "#52a79b";
 
-  // Fixed heights:
-  // RA cards (showMap) -> 470px; Affiliated (no map) -> 240px
-  const fixedHeight = showMap ? 470 : 240;
-
-  const rootClassNames = [classes.root];
-
-  const [hover, setHover] = React.useState(false);
-  if (hover) rootClassNames.push(classes.hovered);
-
-  const primaryColor = regionInfo?.colors?.primary || "#666";
+  // RA cards (showMap) are taller to accommodate a map preview; affiliated
+  // cards are compact.
+  const fixedHeight = showMap ? 470 : 280;
 
   return (
     <Card
-      className={rootClassNames.join(" ")}
+      variant="outlined"
       onClick={() => navigate(`/${language}/${region}`)}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      style={{
-        height: fixedHeight,
-        minWidth: 360,
-        borderTop: `6px solid ${primaryColor}`,
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate(`/${language}/${region}`);
+        }
       }}
       role="button"
       tabIndex={0}
-      onKeyPress={(e) => {
-        if (e.key === "Enter" || e.key === " ")
-          navigate(`/${language}/${region}`);
-      }}
-      aria-label={regionInfo.title[language]}
+      aria-label={regionInfo?.title?.[language] || region}
+      sx={(theme) => ({
+        height: fixedHeight,
+        cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
+        borderColor: alpha(primaryColor, 0.25),
+        transition: theme.transitions.create(
+          ["transform", "box-shadow", "border-color"],
+          { duration: theme.transitions.duration.short }
+        ),
+        "&:hover, &:focus-visible": {
+          transform: "translateY(-3px)",
+          boxShadow: theme.shadows[3],
+          borderColor: primaryColor,
+          "& .regioncard-media": {
+            filter: "saturate(115%) brightness(1.03)",
+            transform: "scale(1.02)",
+          },
+          "& .regioncard-accent": {
+            transform: "translateY(0)",
+          },
+        },
+        "&:focus-visible": {
+          outline: `3px solid ${alpha(primaryColor, 0.35)}`,
+          outlineOffset: 2,
+        },
+      })}
     >
+      <Box
+        className="regioncard-accent"
+        aria-hidden
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          bgcolor: primaryColor,
+          zIndex: 2,
+          transform: "translateY(-2px)",
+          transition: "transform 200ms cubic-bezier(0.2,0,0,1)",
+        }}
+      />
       <CardActionArea
-        className={classes.actionArea}
-        style={{ alignItems: "stretch" }}
+        component="div"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch",
+          height: "100%",
+          "&:focus-visible": { outline: "none" },
+        }}
       >
         {showMap && (
-          <div style={{ position: "relative" }}>
-            <CardMedia
-              className={classes.media}
-              image={`${import.meta.env.BASE_URL}map-${region}.jpg`}
-              title={regionInfo.title[language]}
-              style={{ width: "100%" }}
+          <CardMedia
+            className="regioncard-media"
+            image={`${import.meta.env.BASE_URL}map-${region}.jpg`}
+            title={regionInfo?.title?.[language] || region}
+            sx={(theme) => ({
+              height: 240,
+              backgroundPosition: "center",
+              transition: theme.transitions.create(["filter", "transform"], {
+                duration: theme.transitions.duration.standard,
+              }),
+            })}
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
+        )}
+        <CardContent
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.5,
+            px: 3,
+            py: 2.5,
+          }}
+        >
+          {logoSrc ? (
+            <Box
+              component="img"
+              src={logoSrc}
+              alt={region}
+              sx={{
+                maxWidth: 260,
+                maxHeight: 72,
+                height: "auto",
+                objectFit: "contain",
+              }}
               onError={(e) => {
                 e.target.style.display = "none";
               }}
             />
-          </div>
-        )}
-        <CardContent className={classes.content} style={{ width: "100%" }}>
-          <div style={{ textAlign: "center" }}>
-            {logoSrc ? (
-              <img
-                src={logoSrc}
-                alt={region}
-                style={{
-                  margin: "10px auto",
-                  maxWidth: 300,
-                  maxHeight: 80,
-                  display: "block",
-                }}
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
-              />
-            ) : (
-              <div style={{
-                margin: '10px auto',
-                maxWidth: 300,
-                maxHeight: 80,
-                display: 'block',
-                fontSize: '1.4rem',
-                fontWeight: 600,
-              }}>{regionInfo.title[language] || region}</div>
-            )}
-          </div>
+          ) : (
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700, textAlign: "center" }}
+            >
+              {regionInfo?.title?.[language] || region}
+            </Typography>
+          )}
           <Typography
             variant="body2"
-            color="textSecondary"
-            component="p"
-            className={classes.summaryClamp}
-            style={{ marginTop: 8 }}
+            sx={{
+              color: "text.secondary",
+              textAlign: "center",
+              display: "-webkit-box",
+              WebkitLineClamp: 4,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              lineHeight: 1.55,
+            }}
           >
             {regionSummary}
           </Typography>
         </CardContent>
-        {/* Full-card overlay for consistent hover tint */}
-        <div
-          className={classes.colorOverlay}
-          style={{ backgroundColor: primaryColor }}
-          aria-hidden="true"
-        />
       </CardActionArea>
     </Card>
   );

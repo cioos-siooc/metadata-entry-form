@@ -6,24 +6,16 @@ import {
   Routes,
 } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import regions from "../regions";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
+import { getAppTheme } from "../theme/createAppTheme";
 
 // Default theme for region-select page (before a region is chosen)
-const defaultTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#52a79b", // CIOOS national color
-    },
-    secondary: {
-      main: "#1976d2",
-    },
-  },
-});
+const defaultTheme = getAppTheme();
 
 const App = () => (
   <HelmetProvider>
@@ -33,11 +25,14 @@ const App = () => (
         <Route
           path="/:language/region-select"
           element={
-            <ThemeProvider theme={defaultTheme}>
-              <NavDrawer>
-                <RegionSelect />
-              </NavDrawer>
-            </ThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={defaultTheme}>
+                <CssBaseline />
+                <NavDrawer>
+                  <RegionSelect />
+                </NavDrawer>
+              </ThemeProvider>
+            </StyledEngineProvider>
           }
         />
         <Route path="/:language/:region/*" element={<BaseLayout />} />

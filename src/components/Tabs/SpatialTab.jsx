@@ -1,12 +1,6 @@
-import {
-  Paper,
-  TextField,
-  Grid,
-  Tooltip,
-  IconButton,
-  FormControlLabel,
-  Checkbox } from "@mui/material";
+import { TextField, Grid, Tooltip, IconButton, FormControlLabel, Checkbox } from "@mui/material";
 import React from "react";
+import FormSection from "../FormShell/FormSection";
 import { useParams } from "react-router-dom";
 
 import { OpenInNew } from "@mui/icons-material";
@@ -18,11 +12,7 @@ import MapSelect from "../FormComponents/MapSelect";
 import SelectInput from "../FormComponents/SelectInput";
 import { depthDirections } from "../../isoCodeLists";
 
-import {
-  QuestionText,
-  SupplementalText,
-  paperClass,
-} from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 
 const OpenEPSGDefn = ({ url }) => {
@@ -52,7 +42,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
 
   return (
     <Grid>
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText style={{ paddingBottom: "15px" }}>
           <I18n>
             <En>What is the spatial extent of the dataset?</En>
@@ -107,8 +97,8 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           disabled={disabled}
           record={record}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the vertical extent of the dataset in meters?</En>
@@ -245,7 +235,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           </Grid>
         </Grid>
         ) : ("")}
-      </Paper>
+      </FormSection>
     </Grid>
   );
 };
