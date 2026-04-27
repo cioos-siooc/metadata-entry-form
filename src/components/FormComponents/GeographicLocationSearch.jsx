@@ -30,6 +30,7 @@ import DirectionsCar from "@mui/icons-material/DirectionsCar";
 import Security from "@mui/icons-material/Security";
 import Hiking from "@mui/icons-material/Hiking";
 import axios from "axios";
+import simplify from "simplify-js";
 import { useDebounce } from "use-debounce";
 import { I18n, En, Fr } from "../I18n";
 import geographicLocations from "../../utils/geographicLocations";
@@ -122,13 +123,52 @@ function extractBbox(geometry) {
   };
 }
 
+// Shoelace formula — used to pick the largest ring from a MultiPolygon.
+function ringArea(ring) {
+  let sum = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    sum += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+  }
+  return Math.abs(sum / 2);
+}
+
+// Iteratively simplify until at most maxVertices remain. Geoman renders one
+// draggable handle per vertex, so an unbounded ring (e.g. Northumberland Strait)
+// will lock the tab.
+const MAX_VERTICES = 250;
+const INITIAL_TOLERANCE = 0.005;
+
+function simplifyRing(ring) {
+  const points = ring.map(([lng, lat]) => ({ x: lng, y: lat }));
+  let tolerance = INITIAL_TOLERANCE;
+  let simplified = simplify(points, tolerance, true);
+  while (simplified.length > MAX_VERTICES && tolerance < 5) {
+    tolerance *= 2;
+    simplified = simplify(points, tolerance, true);
+  }
+  return simplified.map(({ x, y }) => [x, y]);
+}
+
+function round4(n) {
+  return Number(n.toFixed(4));
+}
+
 function extractPolygon(geometry) {
   if (!geometry) return "";
   let ring;
-  if (geometry.type === "Polygon") ring = geometry.coordinates[0];
-  else if (geometry.type === "MultiPolygon") ring = geometry.coordinates[0][0];
-  else return "";
-  return ring.map(([lng, lat]) => `${lat},${lng}`).join(" ");
+  if (geometry.type === "Polygon") {
+    ring = geometry.coordinates[0];
+  } else if (geometry.type === "MultiPolygon") {
+    // Each polygon's first sub-ring is its outer boundary; pick the largest.
+    ring = geometry.coordinates
+      .map((poly) => poly[0])
+      .reduce((a, b) => (ringArea(a) >= ringArea(b) ? a : b));
+  } else {
+    return "";
+  }
+  if (!ring || ring.length < 3) return "";
+  const simplified = simplifyRing(ring);
+  return simplified.map(([lng, lat]) => `${round4(lat)},${round4(lng)}`).join(" ");
 }
 
 const TYPE_FILTERS = [
