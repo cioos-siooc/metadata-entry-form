@@ -72,7 +72,7 @@ describe("DOIInput", () => {
   });
 
   describe("handleGenerateDOI – minimal payload", () => {
-    it("should call createDraftDoi with a payload containing the prefix and a doi using the first 16 chars of recordID", async () => {
+    it("should call createDraftDoi with only the prefix when suffix mode is 'default' (DataCite auto-generates the suffix)", async () => {
       const user = userEvent.setup();
 
       mockCreateDraftDoi.mockResolvedValue({
@@ -101,12 +101,72 @@ describe("DOIInput", () => {
           data: {
             type: "dois",
             attributes: {
-              doi: "10.5678/rec-1234567890ab",
               prefix: "10.5678",
             },
           },
         },
         region: "pacific",
+      });
+    });
+
+    it("should use the record identifier as the suffix when suffix mode is 'identifier'", async () => {
+      const user = userEvent.setup();
+
+      mockCreateDraftDoi.mockResolvedValue({
+        data: {
+          data: {
+            attributes: { doi: "10.5678/rec-1234567890abcdef", state: "draft" },
+          },
+        },
+      });
+
+      renderDOIInput(
+        { doiCreationStatus: "", status: "" },
+        { contextValue: { doiSuffixModes: ["identifier"] } }
+      );
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      await user.click(generateBtn);
+
+      await waitFor(() => {
+        expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
+      });
+
+      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+        doi: "10.5678/rec-1234567890abcdef",
+        prefix: "10.5678",
+      });
+    });
+
+    it("should use a user-entered suffix when suffix mode is 'manual'", async () => {
+      const user = userEvent.setup();
+
+      mockCreateDraftDoi.mockResolvedValue({
+        data: {
+          data: {
+            attributes: { doi: "10.5678/my-custom-suffix", state: "draft" },
+          },
+        },
+      });
+
+      renderDOIInput(
+        { doiCreationStatus: "", status: "" },
+        { contextValue: { doiSuffixModes: ["manual"] } }
+      );
+
+      const suffixField = screen.getByRole("textbox", { name: /doi suffix/i });
+      await user.type(suffixField, "my-custom-suffix");
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      await user.click(generateBtn);
+
+      await waitFor(() => {
+        expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
+      });
+
+      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+        doi: "10.5678/my-custom-suffix",
+        prefix: "10.5678",
       });
     });
 

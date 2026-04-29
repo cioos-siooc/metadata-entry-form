@@ -5,6 +5,11 @@ import {
     TextField,
     Button,
     Tooltip,
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -30,8 +35,20 @@ import regions from "../../regions";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain } = useContext(UserContext);
+    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain, doiSuffixModes } = useContext(UserContext);
     const { language, region, userID } = useParams();
+    const availableSuffixModes =
+        Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
+            ? doiSuffixModes
+            : ["default"];
+    const [selectedSuffixMode, setSelectedSuffixMode] = useState(availableSuffixModes[0]);
+    const [manualSuffix, setManualSuffix] = useState("");
+
+    useEffect(() => {
+        if (!availableSuffixModes.includes(selectedSuffixMode)) {
+            setSelectedSuffixMode(availableSuffixModes[0]);
+        }
+    }, [availableSuffixModes, selectedSuffixMode]);
 
     const publisherContact = (record.contacts || []).find((c) => c.role?.includes("publisher"));
     const publisherName = publisherContact?.orgName || regions[region]?.title?.[language] || "";
@@ -54,7 +71,13 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
     const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
 
-    const generateDoiDisabled = doiGenerated || loadingDoi || (record.doiCreationStatus !== "" || record.recordID === "");
+    const generateDoiDisabled =
+        doiGenerated
+        || loadingDoi
+        || record.doiCreationStatus !== ""
+        || record.recordID === ""
+        || (selectedSuffixMode === "manual" && !manualSuffix.trim())
+        || (selectedSuffixMode === "identifier" && !(record.identifier || "").trim());
     const showGenerateDoi = Boolean(datacitePrefix);
     const showDoiStatus = doiIsValid && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== "";
     const showUpdateDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
@@ -71,16 +94,29 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
 
         try {
-            // Use the first 16 characters of the record ID as the DOI suffix,
-            // so DOIs are deterministic and traceable to the record.
-            const doiSuffix = record.recordID.substring(0, 16);
+            let doiSuffix = "";
+            if (selectedSuffixMode === "identifier") {
+                doiSuffix = (record.identifier || "").trim();
+                if (!doiSuffix) {
+                    throw new Error("Record identifier is empty; cannot use it as the DOI suffix.");
+                }
+            } else if (selectedSuffixMode === "manual") {
+                doiSuffix = manualSuffix.trim();
+                if (!doiSuffix) {
+                    throw new Error("Please enter a DOI suffix value.");
+                }
+            }
+
+            const payloadAttributes = {
+                prefix: datacitePrefix,
+            };
+            if (doiSuffix) {
+                payloadAttributes.doi = `${datacitePrefix}/${doiSuffix}`;
+            }
             const minimalPayload = {
                 data: {
                     type: "dois",
-                    attributes: {
-                        doi: `${datacitePrefix}/${doiSuffix}`,
-                        prefix: datacitePrefix,
-                    },
+                    attributes: payloadAttributes,
                 },
             };
 
@@ -270,6 +306,55 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     </SupplementalText>
                 )}
             </QuestionText>
+            {showGenerateDoi && availableSuffixModes.length > 1 && (
+                <FormControl component="fieldset" sx={{ mt: 1, mb: 1, display: "block" }}>
+                    <FormLabel component="legend">
+                        <I18n en="DOI Suffix" fr="Suffixe DOI" />
+                    </FormLabel>
+                    <RadioGroup
+                        row
+                        value={selectedSuffixMode}
+                        onChange={(e) => setSelectedSuffixMode(e.target.value)}
+                    >
+                        {availableSuffixModes.includes("default") && (
+                            <FormControlLabel
+                                value="default"
+                                control={<Radio />}
+                                label={<I18n en="Auto-generated" fr="Généré automatiquement" />}
+                            />
+                        )}
+                        {availableSuffixModes.includes("identifier") && (
+                            <FormControlLabel
+                                value="identifier"
+                                control={<Radio />}
+                                label={<I18n en="Form identifier" fr="Identifiant du formulaire" />}
+                            />
+                        )}
+                        {availableSuffixModes.includes("manual") && (
+                            <FormControlLabel
+                                value="manual"
+                                control={<Radio />}
+                                label={<I18n en="Manual" fr="Manuel" />}
+                            />
+                        )}
+                    </RadioGroup>
+                </FormControl>
+            )}
+            {showGenerateDoi && selectedSuffixMode === "manual" && (
+                <TextField
+                    label={<I18n en="DOI Suffix" fr="Suffixe DOI" />}
+                    value={manualSuffix}
+                    onChange={(e) => setManualSuffix(e.target.value)}
+                    fullWidth
+                    sx={{ mb: 1 }}
+                    helperText={
+                        <I18n
+                            en={`Will produce: ${datacitePrefix}/${manualSuffix || "<suffix>"}`}
+                            fr={`Donnera : ${datacitePrefix}/${manualSuffix || "<suffixe>"}`}
+                        />
+                    }
+                />
+            )}
             {
                 showGenerateDoi && (
                     <Tooltip

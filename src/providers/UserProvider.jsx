@@ -23,6 +23,7 @@ class UserProviderClass extends FormClassTemplate {
       loggedIn: false,
       hasSharedRecords: false,
       dataciteApiDomain: "production",
+      doiSuffixModes: ["default"],
     };
   }
 
@@ -61,6 +62,10 @@ class UserProviderClass extends FormClassTemplate {
           const data = snapshot.val();
           this.setState({
             dataciteApiDomain: data?.apiDomain || "production",
+            doiSuffixModes:
+              Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0
+                ? data.doiSuffixModes
+                : ["default"],
           });
         });
 
