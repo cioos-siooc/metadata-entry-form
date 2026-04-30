@@ -93,7 +93,7 @@
     "start": "vite",
     "prebuild": "node scripts/fetch-github-releases.mjs",
     "build": "vite build",
-    "preview": "vite preview",
+"preview": "vite preview",
     "test": "TZ=UTC vitest",
     "test:watch": "TZ=UTC vitest --watch",
     "predeploy": "npm run build",
