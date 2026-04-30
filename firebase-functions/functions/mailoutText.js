@@ -17,17 +17,6 @@ const regionNames = {
   test: { en: "Test", fr: "Test" },
 };
 
-function camelToTitle(str) {
-  return str
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (s) => s.toUpperCase())
-    .trim();
-}
-
-function truncate(text, maxLen) {
-  if (!text) return "";
-  return text.length > maxLen ? text.slice(0, maxLen) + "…" : text;
-}
 
 function row(label, value) {
   if (!value) return "";
@@ -41,9 +30,6 @@ function mailOptionsReviewer(
   region,
   authorName,
   authorEmail,
-  abstractEn,
-  abstractFr,
-  eov,
   orgName,
   userID,
   recordID,
@@ -56,7 +42,6 @@ function mailOptionsReviewer(
   const reviewerUrlEn = `https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}/reviewer`;
   const reviewerUrlFr = `https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}/reviewer`;
 
-  const eovList = eov && eov.length ? eov.map(camelToTitle).join(", ") : null;
   const submittedBy = authorName
     ? `${authorName} &lt;${authorEmail}&gt;`
     : authorEmail;
@@ -68,14 +53,10 @@ function mailOptionsReviewer(
     html: `
 <p><b>New record submitted for review</b></p>
 <table cellpadding="4">
-  ${row("Title (EN)", titleEn)}
-  ${row("Title (FR)", titleFr)}
+  ${row("Title", titleEn)}
   ${row("Submitted by", submittedBy)}
   ${row("Organization", orgName)}
   ${row("Region", regionEn)}
-  ${row("Essential Ocean Variables", eovList)}
-  ${row("Abstract (EN)", truncate(abstractEn, 400))}
-  ${row("Abstract (FR)", truncate(abstractFr, 400))}
 </table>
 <p>
   <a href="${recordUrl}">View record</a> &nbsp;|&nbsp;
@@ -86,14 +67,10 @@ function mailOptionsReviewer(
 
 <p><b>Nouveau dossier soumis pour examen</b></p>
 <table cellpadding="4">
-  ${row("Titre (EN)", titleEn)}
-  ${row("Titre (FR)", titleFr)}
+  ${row("Titre", titleFr)}
   ${row("Soumis par", submittedBy)}
   ${row("Organisation", orgName)}
   ${row("Région", regionFr)}
-  ${row("Variables océaniques essentielles", eovList)}
-  ${row("Résumé (EN)", truncate(abstractEn, 400))}
-  ${row("Résumé (FR)", truncate(abstractFr, 400))}
 </table>
 <p>
   <a href="${recordUrl}">Voir l'enregistrement</a> &nbsp;|&nbsp;
@@ -110,16 +87,14 @@ function mailOptionsAuthor(authorEmail, titleEn, titleFr, region) {
     html: `
 <p><b>Approved</b></p>
 <p>Your metadata record has been approved by a reviewer.</p>
-${titleEn ? `<p>Title (EN): ${titleEn}</p>` : ""}
-${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
+${titleEn ? `<p>Title: ${titleEn}</p>` : ""}
 <p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}">Go to form</a></p>
 
 <hr>
 
 <p><b>Approuvé</b></p>
 <p>Votre enregistrement de métadonnées a été approuvé par un réviseur.</p>
-${titleEn ? `<p>Titre (EN) : ${titleEn}</p>` : ""}
-${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
+${titleFr ? `<p>Titre : ${titleFr}</p>` : ""}
 <p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}">Accéder au formulaire</a></p>`,
   };
 }

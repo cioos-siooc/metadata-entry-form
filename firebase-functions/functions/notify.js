@@ -75,9 +75,6 @@ exports.notifyReviewer = functions.database
       }
 
       const authorName = authorUserInfo.displayName || "";
-      const abstractEn = record.abstract && record.abstract.en;
-      const abstractFr = record.abstract && record.abstract.fr;
-      const eov = record.eov || [];
       const custodian = (record.contacts || []).find(
         (c) => c.role && c.role.includes("custodian")
       );
@@ -92,9 +89,6 @@ exports.notifyReviewer = functions.database
           region,
           authorName,
           authorEmail,
-          abstractEn,
-          abstractFr,
-          eov,
           orgName,
           userID,
           recordID,
