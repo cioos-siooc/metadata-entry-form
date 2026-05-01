@@ -11,6 +11,7 @@ const {
   regenerateXMLforRecord,
 } = require("./updates");
 const { githubPublishRecord } = require("./githubPublish");
+const { shareRecord, unshareRecord, claimPendingShares } = require("./share");
 
 admin.initializeApp();
 
@@ -31,3 +32,6 @@ exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
 exports.testDataciteCredentials = testDataciteCredentials;
 exports.githubPublishRecord = githubPublishRecord;
+exports.shareRecord = shareRecord;
+exports.unshareRecord = unshareRecord;
+exports.claimPendingShares = claimPendingShares;

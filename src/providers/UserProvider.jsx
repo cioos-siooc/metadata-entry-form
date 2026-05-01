@@ -53,6 +53,14 @@ class UserProviderClass extends FormClassTemplate {
         const database = getDatabase(firebase);
         update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
 
+        // Promote any share invitations addressed to this user's email
+        // (queued while they didn't have an account yet) into real shares.
+        const claimPendingShares = httpsCallable(functions, "claimPendingShares");
+        claimPendingShares({ region }).catch((err) => {
+          // Non-fatal: the user can still use the app if this fails.
+          Sentry.captureException(err);
+        });
+
         const permissionsRef = ref(database, `admin/${region}/permissions`)
 
         onValue(permissionsRef, (permissionsFB) => {

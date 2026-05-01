@@ -56,4 +56,75 @@ function mailOptionsAuthor(authorEmail, title, region) {
               </div>`, // email content in HTML
   };
 }
-module.exports = { mailOptionsReviewer, mailOptionsAuthor };
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function mailOptionsShareNotice(recipientEmail, authorName, title, region) {
+  const safeAuthor = escapeHtml(authorName);
+  const safeTitle = escapeHtml(title);
+  return {
+    from:
+      "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: recipientEmail,
+    subject: "A CIOOS metadata record has been shared with you",
+    html: `<div>
+                      <p style="font-size: 16px;">A record has been shared with you</p>
+                      ${safeAuthor} has shared the metadata record "${safeTitle}" with you for editing.
+                      You can access it from the "Shared with me" page at
+                      <a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}/shared">https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}/shared</a>
+                  </div>
+                  <div>
+                      <hr>
+                  </div>
+                  <div>
+                      <p style="font-size: 16px;">Un enregistrement a été partagé avec vous</p>
+                      ${safeAuthor} a partagé l'enregistrement de métadonnées "${safeTitle}" avec vous pour modification.
+                      Vous pouvez y accéder depuis la page « Partagé avec moi » à
+                      <a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}/shared">https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}/shared</a>
+                  </div>
+            `,
+  };
+}
+
+function mailOptionsShareInvite(recipientEmail, authorName, title, region) {
+  const safeAuthor = escapeHtml(authorName);
+  const safeTitle = escapeHtml(title);
+  return {
+    from:
+      "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: recipientEmail,
+    subject:
+      "You've been invited to collaborate on a CIOOS metadata record",
+    html: `<div>
+                      <p style="font-size: 16px;">You've been invited to collaborate</p>
+                      ${safeAuthor} has invited you to collaborate on the CIOOS metadata record "${safeTitle}".
+                      Sign in with this email address at
+                      <a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}">https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}</a>
+                      and the record will appear under "Shared with me".
+                  </div>
+                  <div>
+                      <hr>
+                  </div>
+                  <div>
+                      <p style="font-size: 16px;">Vous avez été invité à collaborer</p>
+                      ${safeAuthor} vous a invité à collaborer sur l'enregistrement de métadonnées CIOOS "${safeTitle}".
+                      Connectez-vous avec cette adresse e-mail à
+                      <a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}">https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}</a>
+                      et l'enregistrement apparaîtra sous « Partagé avec moi ».
+                  </div>
+            `,
+  };
+}
+
+module.exports = {
+  mailOptionsReviewer,
+  mailOptionsAuthor,
+  mailOptionsShareNotice,
+  mailOptionsShareInvite,
+};

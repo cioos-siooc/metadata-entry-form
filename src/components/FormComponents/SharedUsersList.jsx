@@ -1,270 +1,467 @@
-import React, { useEffect, useState } from "react";
-import { Add, Delete } from "@mui/icons-material";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  PersonAdd,
+  Delete,
+  Group,
+  Lock,
+} from "@mui/icons-material";
 import {
   Typography,
   Paper,
-  Grid,
   TextField,
   Button,
   List,
   ListItem,
   ListItemText,
+  ListItemAvatar,
+  Avatar,
   IconButton,
-  ListItemSecondaryAction,
   Box,
+  Stack,
+  Divider,
   Autocomplete,
+  Alert,
+  Snackbar,
+  CircularProgress,
+  Tooltip,
 } from "@mui/material";
+import { getDatabase, ref, onValue, off } from "firebase/database";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
-import { paperClass, SupplementalText } from "./QuestionStyles";
+import firebase from "../../firebase";
+import { paperClass } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
-import {
-  loadRegionUsers,
-  updateSharedRecord,
-} from "../../utils/firebaseRecordFunctions";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const initialFor = (text) => {
+  const t = (text || "").trim();
+  return t ? t[0].toUpperCase() : "?";
+};
 
 const SharedUsersList = ({ record, updateRecord, region }) => {
-  const [users, setUsers] = useState({});
-  const [currentUser, setCurrentUser] = useState(null);
+  const authorID = record.userID;
+  const [contacts, setContacts] = useState({});
   const [inputValue, setInputValue] = useState("");
-  const [sharedWithUsers, setSharedWithUsers] = useState({});
-  const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
-  const authorID = record.userID
+  const [feedback, setFeedback] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [pendingUid, setPendingUid] = useState(null);
 
-  // fetching users based on region
+  const recordSaved = Boolean(record.recordID);
+
+  // Subscribe to the author's own contacts list (the same list used for
+  // citations). No directory of other users is ever fetched.
   useEffect(() => {
-    let isMounted = true;
-
-    if (record.recordID) {
-      setShareRecordDisabled(false)
-    }
-
-    const fetchRegionUsers = async () => {
-      try {
-        const regionUsers = await loadRegionUsers(region);
-
-        if (isMounted) {
-          setUsers(regionUsers);
-        }
-      } catch (error) {
-        throw new Error(`Error loading region users: ${error}`);
-      }
-    };
-
-    fetchRegionUsers();
-
+    if (!authorID || !region) return undefined;
+    const database = getDatabase(firebase);
+    const contactsRef = ref(database, `${region}/users/${authorID}/contacts`);
+    const unsubscribe = onValue(contactsRef, (snapshot) => {
+      setContacts(snapshot.val() || {});
+    });
     return () => {
-      isMounted = false;
+      off(contactsRef);
+      if (typeof unsubscribe === "function") unsubscribe();
     };
-  }, [region, record.recordID]);
+  }, [authorID, region]);
 
-  // Updates state with user emails for each userID in record.sharedWith, to track which users a record is shared with.
-  useEffect(() => {
-    const sharedWithDetails = {};
-    Object.keys(record.sharedWith || {}).forEach((userID) => {
-      const name = users[userID]?.userinfo?.displayName;
-      if (name) {
-        const domain = users[userID]?.userinfo?.email?.split("@").pop();
-        sharedWithDetails[userID] = {
-          name: domain ? `${name} (${domain})` : name,
+  const contactSuggestions = useMemo(() => {
+    const seen = new Set();
+    return Object.values(contacts)
+      .map((contact) => {
+        const email = (contact && contact.indEmail ? contact.indEmail : "").trim();
+        if (!email || !EMAIL_RE.test(email)) return null;
+        const name = [contact.givenNames, contact.lastName]
+          .filter(Boolean)
+          .join(" ")
+          .trim();
+        const org = contact.orgName ? String(contact.orgName).trim() : "";
+        const lowered = email.toLowerCase();
+        return {
+          email: lowered,
+          name: name || email,
+          org,
+          searchKey: `${name} ${lowered} ${org}`.toLowerCase(),
+        };
+      })
+      .filter((entry) => {
+        if (!entry) return false;
+        if (seen.has(entry.email)) return false;
+        seen.add(entry.email);
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [contacts]);
+
+  const typedEmail = (
+    typeof inputValue === "string" ? inputValue : ""
+  )
+    .trim()
+    .toLowerCase();
+  const typedEmailValid = EMAIL_RE.test(typedEmail);
+  const showInvalidEmail = Boolean(typedEmail) && !typedEmailValid;
+
+  const handleShare = async () => {
+    if (!typedEmailValid || !recordSaved || busy) return;
+    setBusy(true);
+    setFeedback(null);
+    try {
+      const functions = getFunctions();
+      const shareRecord = httpsCallable(functions, "shareRecord");
+      await shareRecord({
+        region,
+        recordID: record.recordID,
+        recipientEmail: typedEmail,
+      });
+      setInputValue("");
+      setFeedback({ kind: "success" });
+    } catch (err) {
+      setFeedback({ kind: "error", message: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleUnshare = async (recipientUid) => {
+    if (busy) return;
+    setBusy(true);
+    setPendingUid(recipientUid);
+    setFeedback(null);
+    try {
+      const functions = getFunctions();
+      const unshareRecord = httpsCallable(functions, "unshareRecord");
+      await unshareRecord({
+        region,
+        recordID: record.recordID,
+        recipientUid,
+      });
+      const updated = { ...(record.sharedWith || {}) };
+      delete updated[recipientUid];
+      updateRecord("sharedWith")(updated);
+      setFeedback({ kind: "removed" });
+    } catch (err) {
+      setFeedback({ kind: "error", message: err.message });
+    } finally {
+      setBusy(false);
+      setPendingUid(null);
+    }
+  };
+
+  const sharedWithEntries = Object.entries(record.sharedWith || {})
+    .map(([recipientUid, value]) => {
+      if (value && typeof value === "object") {
+        return {
+          recipientUid,
+          displayName: value.displayName || "",
+          email: value.email || "",
+          legacy: false,
         };
       }
+      return { recipientUid, displayName: "", email: "", legacy: true };
+    })
+    .sort((a, b) => {
+      const an = a.displayName || a.email || "";
+      const bn = b.displayName || b.email || "";
+      return an.localeCompare(bn);
     });
 
-    setSharedWithUsers(sharedWithDetails);
-  }, [record.sharedWith, users]);
-
-  // Function to add an email to the sharedWith list
-  const addUserToSharedWith = (userID) => {
-    const updatedSharedWith = {
-      ...record.sharedWith,
-      [userID]: true,
-    };
-
-    setSharedWithUsers(updatedSharedWith);
-
-    updateRecord("sharedWith")(updatedSharedWith);
-
-    const shareRecordAsync = async () => {
-      try {
-        await updateSharedRecord(userID, record.recordID, authorID, region, true);
-      } catch (error) {
-        throw new Error(`Failed to update shared record: ${error}`);
-      }
-    };
-
-    shareRecordAsync();
-  };
-
-  // Function to remove an email from the sharedWith list
-  const removeUserFromSharedWith = (userID) => {
-    if (record.sharedWith && record.sharedWith[userID]) {
-      const updatedSharedWith = { ...record.sharedWith };
-      delete updatedSharedWith[userID];
-      updateRecord("sharedWith")(updatedSharedWith);
-
-      const unshareRecordAsync = async () => {
-        try {
-          await updateSharedRecord(userID, record.recordID, authorID, region, false);
-        } catch (error) {
-          throw new Error(`Failed to unshare the record: ${error}`);
-        }
-      };
-
-      unshareRecordAsync();
-    }
-  };
-
-  const shareWithOptions = Object.entries(users)
-    .map(([userID, userInfo]) => {
-      const displayName = userInfo.userinfo?.displayName;
-      const domain = userInfo.userinfo?.email?.split("@").pop();
-      const label = displayName
-        ? domain
-          ? `${displayName} (${domain})`
-          : displayName
-        : "";
-      return {
-        label,
-        userID,
-      };
-    })
-    .filter((x) => x.label)
-    .reduce((acc, current) => {
-      // Avoid duplicates by checking if label already exists
-      if (!acc.find((item) => item.label === current.label)) {
-        acc.push(current);
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => a.label.localeCompare(b.label));
+  const sharedCount = sharedWithEntries.length;
 
   return (
-    <Grid >
-      <Paper style={paperClass}>
-        <Grid  style={{ margin: "10px" }}>
-          <Typography>
+    <Paper style={paperClass} elevation={2}>
+      <Box sx={{ p: 2 }}>
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+          <Group color="primary" />
+          <Typography variant="h6" component="div">
             <I18n>
-              <En>
-                To share editing access with another user, start typing their
-                name and select from the suggestions.
-              </En>
-              <Fr>
-                Pour partager l'accès en modification avec un autre utilisateur,
-                commencez à saisir son nom avant de le sélectionner parmi les
-                suggestions.
-              </Fr>
+              <En>Share editing access</En>
+              <Fr>Partager l'accès en modification</Fr>
             </I18n>
           </Typography>
-          <SupplementalText>
-              <I18n>
-                <En>
-                  <p>Please save the form before sharing access.</p>
-                </En>
-                <Fr>
-                  <p>
-                  Veuillez enregistrer le formulaire avant de partager l'accès.
-                  </p>
-                </Fr>
-              </I18n>
-            </SupplementalText>
-        </Grid>
-        <Grid  style={{ margin: "10px" }}>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Autocomplete
-                id="share-with-emails"
-                options={shareWithOptions}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) =>
-                  option.userID === value.userID
-                }
-                value={currentUser}
-                inputValue={inputValue}
-                onInputChange={(_, newValue) => setInputValue(newValue)}
-                onChange={(event, newValue) => setCurrentUser(newValue)}
-                fullWidth
-                filterSelectedOptions
-                renderInput={(params) => (
-                  <TextField
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...params}
-                    label={<I18n en="Share with..." fr="Partager avec..." />}
-                    variant="outlined"
-                    style={{ marginTop: "16px" }}
-                    error={inputValue && !currentUser}
-                    helperText={
-                      inputValue && !currentUser && (
-                        <I18n
-                          en="User not found. Please select from the list."
-                          fr="Utilisateur non trouvé. Veuillez sélectionner dans la liste."
-                        />
-                      )
-                    }
+        </Stack>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <I18n>
+            <En>
+              Enter an email address to invite a collaborator. Suggestions are
+              drawn from your saved contacts. We never reveal whether the email
+              matches an existing CIOOS account &mdash; if it doesn't, the
+              recipient is emailed an invitation and gains access automatically
+              when they sign in.
+            </En>
+            <Fr>
+              Saisissez une adresse e-mail pour inviter un collaborateur. Les
+              suggestions proviennent de vos contacts enregistrés. Nous ne
+              révélons jamais si l'adresse correspond à un compte CIOOS
+              existant &mdash; si ce n'est pas le cas, le destinataire reçoit
+              une invitation par courriel et obtient l'accès automatiquement
+              dès sa connexion.
+            </Fr>
+          </I18n>
+        </Typography>
+
+        {!recordSaved && (
+          <Alert
+            severity="info"
+            icon={<Lock fontSize="inherit" />}
+            sx={{ mb: 2 }}
+          >
+            <I18n
+              en="Save the form before sharing access."
+              fr="Enregistrez le formulaire avant de partager l'accès."
+            />
+          </Alert>
+        )}
+
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.5}
+          alignItems={{ xs: "stretch", sm: "flex-start" }}
+        >
+          <Autocomplete
+            id="share-with-email"
+            freeSolo
+            disableClearable
+            disabled={!recordSaved || busy}
+            options={contactSuggestions}
+            getOptionLabel={(option) =>
+              typeof option === "string" ? option : option.email
+            }
+            isOptionEqualToValue={(option, value) =>
+              option.email === (typeof value === "string" ? value : value?.email)
+            }
+            filterOptions={(options, state) => {
+              const q = state.inputValue.trim().toLowerCase();
+              const filtered = q
+                ? options.filter((o) => o.searchKey.includes(q))
+                : options;
+              return filtered.slice(0, 8);
+            }}
+            inputValue={inputValue}
+            onInputChange={(_, newValue) => setInputValue(newValue)}
+            onChange={(_, newValue) => {
+              if (!newValue) return;
+              if (typeof newValue === "string") {
+                setInputValue(newValue);
+              } else {
+                setInputValue(newValue.email);
+              }
+            }}
+            renderOption={(props, option) => {
+              const liProps = { ...props };
+              delete liProps.key;
+              return (
+                <li key={option.email} {...liProps}>
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ width: "100%" }}>
+                    <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
+                      {initialFor(option.name)}
+                    </Avatar>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" noWrap>
+                        {option.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        component="div"
+                        noWrap
+                      >
+                        {option.email}
+                        {option.org ? ` · ${option.org}` : ""}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </li>
+              );
+            }}
+            sx={{ flex: 1 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={
+                  <I18n
+                    en="Email address"
+                    fr="Adresse e-mail"
                   />
-                )}
-              />
-              <Button
-                disabled={shareRecordDisabled || !currentUser}
-                startIcon={<Add />}
-                onClick={() => {
-                  if (currentUser) {
-                    addUserToSharedWith(currentUser.userID);
-                    setCurrentUser(null);
+                }
+                placeholder="name@example.org"
+                variant="outlined"
+                type="email"
+                size="small"
+                error={showInvalidEmail}
+                helperText={
+                  showInvalidEmail ? (
+                    <I18n
+                      en="Enter a valid email address."
+                      fr="Saisissez une adresse e-mail valide."
+                    />
+                  ) : null
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && typedEmailValid && !busy) {
+                    event.preventDefault();
+                    handleShare();
                   }
                 }}
-                style={{
-                  height: "46px",
-                  justifyContent: "center",
-                  marginTop: "15px",
-                }}
-              >
-                <Typography>
-                  <I18n>
-                    <En>Share Record</En>
-                    <Fr>Partager l'enregistrement</Fr>
-                  </I18n>
-                </Typography>
-              </Button>
-            </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
-              <Box style={{ margin: "10px" }}>
-                <Typography style={{ fontWeight: "bold" }}>
-                  {Object.keys(sharedWithUsers).length > 0 && (
-                    <I18n>
-                      <En>Users this record is shared with:</En>
-                      <Fr>
-                        Utilisateurs avec lesquels cet enregistrement est
-                        partagé :
-                      </Fr>
-                    </I18n>
-                  )}
-                </Typography>
-                <List>
-                  {Object.entries(sharedWithUsers).map(
-                    ([userID, userDetails], index) => (
-                      <ListItem key={index}>
-                        <ListItemText
-                          primary={<Typography>{userDetails.name}</Typography>}
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            aria-label="delete"
-                            style={{ marginRight: "60px" }}
-                            onClick={() => removeUserFromSharedWith(userID)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    )
-                  )}
-                </List>
-              </Box>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Grid>
+              />
+            )}
+          />
+          <Button
+            variant="contained"
+            disabled={!recordSaved || !typedEmailValid || busy}
+            startIcon={
+              busy ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <PersonAdd />
+              )
+            }
+            onClick={handleShare}
+            sx={{
+              alignSelf: { xs: "stretch", sm: "flex-start" },
+              minWidth: 140,
+              height: 40,
+              flexShrink: 0,
+            }}
+          >
+            <I18n>
+              <En>Share</En>
+              <Fr>Partager</Fr>
+            </I18n>
+          </Button>
+        </Stack>
+
+        {sharedCount > 0 && (
+          <>
+            <Divider sx={{ my: 3 }} />
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              sx={{ mb: 1, textTransform: "uppercase", letterSpacing: 0.5 }}
+            >
+              <I18n>
+                <En>{`People with access (${sharedCount})`}</En>
+                <Fr>{`Personnes ayant accès (${sharedCount})`}</Fr>
+              </I18n>
+            </Typography>
+            <List disablePadding>
+              {sharedWithEntries.map(
+                ({ recipientUid, displayName, email, legacy }, idx) => {
+                  const isPending = pendingUid === recipientUid;
+                  const primary = legacy
+                    ? null
+                    : displayName || email || recipientUid;
+                  return (
+                    <ListItem
+                      key={recipientUid}
+                      divider={idx < sharedWithEntries.length - 1}
+                      secondaryAction={
+                        <Tooltip
+                          title={
+                            <I18n
+                              en="Remove access"
+                              fr="Retirer l'accès"
+                            />
+                          }
+                        >
+                          <span>
+                            <IconButton
+                              edge="end"
+                              aria-label="remove access"
+                              disabled={busy}
+                              onClick={() => handleUnshare(recipientUid)}
+                            >
+                              {isPending ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <Delete />
+                              )}
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      }
+                      sx={{ px: 1 }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar>
+                          {legacy ? "?" : initialFor(primary)}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          legacy ? (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              fontStyle="italic"
+                            >
+                              <I18n
+                                en="Unknown user — remove and re-share to refresh"
+                                fr="Utilisateur inconnu — retirez et repartagez pour rafraîchir"
+                              />
+                            </Typography>
+                          ) : (
+                            <Typography variant="body1">{primary}</Typography>
+                          )
+                        }
+                        secondary={
+                          legacy
+                            ? null
+                            : (
+                              <Typography variant="caption" color="text.secondary">
+                                {email ? `${email} · ` : ""}
+                                <I18n en="Editor" fr="Éditeur" />
+                              </Typography>
+                            )
+                        }
+                      />
+                    </ListItem>
+                  );
+                }
+              )}
+            </List>
+          </>
+        )}
+      </Box>
+
+      <Snackbar
+        open={feedback?.kind === "success"}
+        autoHideDuration={4000}
+        onClose={() => setFeedback(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setFeedback(null)}>
+          <I18n
+            en="Share request sent. The recipient will be notified by email."
+            fr="Demande de partage envoyée. Le destinataire sera averti par courriel."
+          />
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={feedback?.kind === "removed"}
+        autoHideDuration={3000}
+        onClose={() => setFeedback(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="info" variant="filled" onClose={() => setFeedback(null)}>
+          <I18n en="Access removed." fr="Accès retiré." />
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={feedback?.kind === "error"}
+        autoHideDuration={6000}
+        onClose={() => setFeedback(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="error" variant="filled" onClose={() => setFeedback(null)}>
+          <I18n
+            en={`Could not complete the request: ${feedback?.message || ""}`}
+            fr={`Impossible de traiter la demande : ${feedback?.message || ""}`}
+          />
+        </Alert>
+      </Snackbar>
+    </Paper>
   );
 };
 

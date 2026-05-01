@@ -9,10 +9,21 @@
       ".read": "auth.uid != null",
       "shares": {
         "$userid": {
-          // Allow write access to any authenticated user. 
-          // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
-          ".write": "auth.uid != null",
+          // Only the recipient can read their own incoming shares.
+          ".read": "auth.uid == $userid",
+          // Clients cannot write here directly. The shareRecord / unshareRecord
+          // Cloud Functions perform writes via the admin SDK, which bypasses
+          // these rules. This prevents a client from silently granting itself
+          // (or anyone else) access to records.
+          ".write": false
         }
+      },
+      "pendingShares": {
+        // Invitations addressed to email hashes for users that have not yet
+        // signed up. Written and read only by the share / claimPendingShares
+        // Cloud Functions via the admin SDK.
+        ".read": false,
+        ".write": false
       },
       "users": {
         "$userid": {
