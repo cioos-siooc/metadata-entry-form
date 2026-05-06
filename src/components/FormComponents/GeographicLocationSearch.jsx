@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Autocomplete,
@@ -7,9 +7,9 @@ import {
   ToggleButtonGroup,
   Box,
   CircularProgress,
-  Divider,
-  Typography,
   Chip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import Apartment from "@mui/icons-material/Apartment";
 import Home from "@mui/icons-material/Home";
@@ -98,6 +98,12 @@ const CONCISE_CODE_META = {
 };
 
 const GEONAMES_API = "https://geogratis.gc.ca/services/geoname";
+const GEONAME_DEBOUNCE_MS = 400;
+
+const GROUP_LABELS = {
+  predefined: { en: "Predefined regions", fr: "Régions prédéfinies" },
+  geoname: { en: "Canadian GeoNames (NRCan)", fr: "Toponymes canadiens (RNCan)" },
+};
 
 function extractBbox(geometry) {
   if (!geometry) return null;
@@ -135,18 +141,19 @@ function ringArea(ring) {
 // Iteratively simplify until at most maxVertices remain. Geoman renders one
 // draggable handle per vertex, so an unbounded ring (e.g. Northumberland Strait)
 // will lock the tab.
-const MAX_VERTICES = 250;
-const INITIAL_TOLERANCE = 0.005;
+const MAX_VERTICES = 500;
+const INITIAL_TOLERANCE = 0.001;
 
 function simplifyRing(ring) {
   const points = ring.map(([lng, lat]) => ({ x: lng, y: lat }));
+  if (points.length <= MAX_VERTICES) return { simplified: ring, wasSimplified: false };
   let tolerance = INITIAL_TOLERANCE;
   let simplified = simplify(points, tolerance, true);
   while (simplified.length > MAX_VERTICES && tolerance < 5) {
     tolerance *= 2;
     simplified = simplify(points, tolerance, true);
   }
-  return simplified.map(({ x, y }) => [x, y]);
+  return { simplified: simplified.map(({ x, y }) => [x, y]), wasSimplified: true };
 }
 
 function round4(n) {
@@ -154,7 +161,7 @@ function round4(n) {
 }
 
 function extractPolygon(geometry) {
-  if (!geometry) return "";
+  if (!geometry) return { polygon: "", wasSimplified: false };
   let ring;
   if (geometry.type === "Polygon") {
     ring = geometry.coordinates[0];
@@ -164,11 +171,14 @@ function extractPolygon(geometry) {
       .map((poly) => poly[0])
       .reduce((a, b) => (ringArea(a) >= ringArea(b) ? a : b));
   } else {
-    return "";
+    return { polygon: "", wasSimplified: false };
   }
-  if (!ring || ring.length < 3) return "";
-  const simplified = simplifyRing(ring);
-  return simplified.map(([lng, lat]) => `${round4(lat)},${round4(lng)}`).join(" ");
+  if (!ring || ring.length < 3) return { polygon: "", wasSimplified: false };
+  const { simplified, wasSimplified } = simplifyRing(ring);
+  return {
+    polygon: simplified.map(([lng, lat]) => `${round4(lat)},${round4(lng)}`).join(" "),
+    wasSimplified,
+  };
 }
 
 const TYPE_FILTERS = [
@@ -181,38 +191,52 @@ const TYPE_FILTERS = [
   { value: "city", en: "City", fr: "Ville" },
 ];
 
+// Names of curated entries (en + fr, lowercased) — geoname results matching
+// any of these are dropped so the curated polygon is preferred.
+const PREDEFINED_NAME_SET = new Set(
+  geographicLocations.flatMap((loc) => [
+    loc.en.toLowerCase(),
+    loc.fr.toLowerCase(),
+  ])
+);
+
 const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   const { language } = useParams();
   const [typeFilter, setTypeFilter] = useState("all");
-
-  const [geonameInput, setGeonameInput] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [geonameOptions, setGeonameOptions] = useState([]);
   const [geonameLoading, setGeonameLoading] = useState(false);
-  const [debouncedGeonameInput] = useDebounce(geonameInput, 400);
+  const [simplificationWarning, setSimplificationWarning] = useState(false);
+  const [debouncedInput] = useDebounce(inputValue, GEONAME_DEBOUNCE_MS);
 
   useEffect(() => {
-    if (!debouncedGeonameInput || debouncedGeonameInput.length < 2) {
+    if (!debouncedInput || debouncedInput.length < 2) {
       setGeonameOptions([]);
-      return;
+      return undefined;
     }
     let active = true;
     setGeonameLoading(true);
     axios
       .get(`${GEONAMES_API}/${language}/geonames.geojson`, {
-        params: { q: debouncedGeonameInput, num: 15 },
+        params: { q: debouncedInput, num: 15 },
       })
       .then(({ data }) => {
         if (!active) return;
         setGeonameOptions(
-          (data?.features || []).map(({ properties, geometry }) => ({
-            label: properties.name,
-            en: properties.name,
-            fr: properties.name,
-            bbox: extractBbox(geometry),
-            polygon: extractPolygon(geometry),
-            concise: properties.concise || "",
-            province: properties.province || "",
-          }))
+          (data?.features || []).map(({ properties, geometry }) => {
+            const { polygon, wasSimplified } = extractPolygon(geometry);
+            return {
+              source: "geoname",
+              label: properties.name,
+              en: properties.name,
+              fr: properties.name,
+              bbox: extractBbox(geometry),
+              polygon,
+              wasSimplified,
+              concise: properties.concise || "",
+              province: properties.province || "",
+            };
+          })
         );
       })
       .catch(() => {
@@ -224,20 +248,56 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     return () => {
       active = false;
     };
-  }, [debouncedGeonameInput, language]);
+  }, [debouncedInput, language]);
 
-  const filteredLocations =
-    typeFilter === "all"
-      ? geographicLocations
-      : geographicLocations.filter((loc) => loc.type === typeFilter);
-
-  const sortedLocations = [...filteredLocations].sort((a, b) =>
-    (a[language] || "").localeCompare(b[language] || "")
+  const predefinedOptions = useMemo(
+    () =>
+      geographicLocations
+        .map((loc) => ({
+          source: "predefined",
+          label: loc[language] || loc.en,
+          en: loc.en,
+          fr: loc.fr,
+          type: loc.type,
+          bbox: loc.bbox,
+          polygon: loc.polygon || "",
+          wasSimplified: false,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [language]
   );
 
-  function handleSelect(selectedLocation) {
-    if (!selectedLocation) return;
-    const { bbox, polygon, en, fr } = selectedLocation;
+  const allOptions = useMemo(
+    () => [...predefinedOptions, ...geonameOptions],
+    [predefinedOptions, geonameOptions]
+  );
+
+  function filterOptions(opts, state) {
+    const input = state.inputValue.toLowerCase().trim();
+    let predefined = opts.filter((o) => o.source === "predefined");
+    const geonames = opts.filter((o) => o.source === "geoname");
+
+    if (typeFilter !== "all") {
+      predefined = predefined.filter((o) => o.type === typeFilter);
+    }
+    if (input) {
+      predefined = predefined.filter(
+        (o) =>
+          o.en.toLowerCase().includes(input) ||
+          o.fr.toLowerCase().includes(input)
+      );
+    }
+
+    const dedupedGeonames = geonames.filter(
+      (g) => !PREDEFINED_NAME_SET.has(g.label.toLowerCase())
+    );
+
+    return [...predefined, ...dedupedGeonames];
+  }
+
+  function handleSelect(option) {
+    if (!option) return;
+    const { bbox, polygon, en, fr, wasSimplified } = option;
     updateMap({
       ...mapData,
       ...(bbox
@@ -251,24 +311,8 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       polygon: polygon || "",
       description: { en, fr },
     });
-  }
-
-  function handleGeonameSelect(item) {
-    if (!item) return;
-    updateMap({
-      ...mapData,
-      ...(item.bbox
-        ? {
-            north: item.bbox.north,
-            south: item.bbox.south,
-            east: item.bbox.east,
-            west: item.bbox.west,
-          }
-        : {}),
-      polygon: item.polygon || "",
-      description: { en: item.en, fr: item.fr },
-    });
-    setGeonameInput("");
+    if (wasSimplified) setSimplificationWarning(true);
+    setInputValue("");
     setGeonameOptions([]);
   }
 
@@ -292,48 +336,23 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       </ToggleButtonGroup>
 
       <Autocomplete
-        options={sortedLocations}
-        getOptionLabel={(option) => option[language] || option.en || ""}
-        onChange={(_, value) => handleSelect(value)}
-        disabled={disabled}
-        fullWidth
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label={
-              <I18n>
-                <En>Search predefined regions</En>
-                <Fr>Rechercher des régions prédéfinies</Fr>
-              </I18n>
-            }
-          />
-        )}
-      />
-
-      <Divider sx={{ my: 2 }}>
-        <Typography variant="caption" color="text.secondary">
-          <I18n>
-            <En>or search Canadian GeoNames</En>
-            <Fr>ou rechercher dans les toponymes canadiens</Fr>
-          </I18n>
-        </Typography>
-      </Divider>
-
-      <Autocomplete
-        options={geonameOptions}
+        options={allOptions}
+        value={null}
         getOptionLabel={(option) => option.label || ""}
-        filterOptions={(x) => x}
-        inputValue={geonameInput}
-        onInputChange={(_, value) => setGeonameInput(value)}
-        onChange={(_, value) => handleGeonameSelect(value)}
+        groupBy={(o) => GROUP_LABELS[o.source][language] || GROUP_LABELS[o.source].en}
+        filterOptions={filterOptions}
+        inputValue={inputValue}
+        onInputChange={(_, value) => setInputValue(value)}
+        onChange={(_, value) => handleSelect(value)}
         loading={geonameLoading}
         disabled={disabled}
         fullWidth
+        isOptionEqualToValue={(o, v) => o.source === v.source && o.label === v.label}
         noOptionsText={
-          geonameInput.length < 2 ? (
+          inputValue.length < 2 ? (
             <I18n>
-              <En>Type to search…</En>
-              <Fr>Tapez pour rechercher…</Fr>
+              <En>Type to search GeoNames…</En>
+              <Fr>Tapez pour rechercher dans les toponymes…</Fr>
             </I18n>
           ) : (
             <I18n>
@@ -343,8 +362,15 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
           )
         }
         renderOption={(props, option) => {
-          const meta = CONCISE_CODE_META[option.concise];
           const { key, ...rest } = props;
+          if (option.source === "predefined") {
+            return (
+              <Box component="li" key={key} {...rest}>
+                {option.label}
+              </Box>
+            );
+          }
+          const meta = CONCISE_CODE_META[option.concise];
           return (
             <Box component="li" key={key} {...rest} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {meta && (
@@ -367,8 +393,8 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
             {...params}
             label={
               <I18n>
-                <En>Search Canadian GeoNames (NRCan)</En>
-                <Fr>Rechercher dans les toponymes canadiens (RNCan)</Fr>
+                <En>Search regions or Canadian GeoNames</En>
+                <Fr>Rechercher des régions ou des toponymes canadiens</Fr>
               </I18n>
             }
             InputProps={{
@@ -383,6 +409,32 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
           />
         )}
       />
+
+      <Snackbar
+        open={simplificationWarning}
+        autoHideDuration={10000}
+        onClose={() => setSimplificationWarning(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSimplificationWarning(false)}
+          severity="info"
+          sx={{ width: "100%" }}
+        >
+          <I18n>
+            <En>
+              This location has a complex boundary that has been simplified to keep the map editor
+              responsive. The simplified polygon will be saved to your record. Bounding box
+              coordinates are unaffected.
+            </En>
+            <Fr>
+              Cet emplacement possède un contour complexe qui a été simplifié pour assurer la
+              réactivité de l&apos;éditeur de carte. Le polygone simplifié sera enregistré dans
+              votre fiche. Les coordonnées du cadre englobant ne sont pas affectées.
+            </Fr>
+          </I18n>
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
