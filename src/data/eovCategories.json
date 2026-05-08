@@ -1,0 +1,22 @@
+{
+  "Biogeochemical": {
+    "en": "Biogeochemical",
+    "fr": "Biogéochimie"
+  },
+  "Biology and Ecosystems": {
+    "en": "Biological and Ecosystem",
+    "fr": "Biologie et écosystèmes"
+  },
+  "Cross-disciplinary": {
+    "en": "Cross-disciplinary",
+    "fr": "Interdisciplinaire"
+  },
+  "Physical": {
+    "en": "Physical",
+    "fr": "Physique"
+  },
+  "Other": {
+    "en": "Other",
+    "fr": "Autre"
+  }
+}

@@ -7,7 +7,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { OpenInNew, Update } from "@mui/icons-material";
+import { OpenInNew, Update, Warning } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
 import { eovs, eovCategories } from "../../eovs";
@@ -216,6 +216,7 @@ const IdentificationTab = ({
         {Object.entries(eovCategories).map(([categoryKey, categoryText]) => {
           const eovsFiltered = eovs
             .filter((e) => e.category === categoryKey)
+            .filter((e) => !e.deprecated || (record.eov || []).includes(e.value))
             .sort((a, b) =>
               a[`label ${languageUpperCase}`].localeCompare(
                 b[`label ${languageUpperCase}`],
@@ -234,7 +235,9 @@ const IdentificationTab = ({
                 optionLabels={eovsFiltered.map((e) => (
                   <>
                     <Tooltip title={e[`definition ${languageUpperCase}`]}>
-                      <span>{e[`label ${languageUpperCase}`]}</span>
+                      <span style={e.deprecated ? { textDecoration: "line-through", color: "rgba(0,0,0,0.4)" } : undefined}>
+                        {e[`label ${languageUpperCase}`]}
+                      </span>
                     </Tooltip>
                     {e.url && (
                       <IconButton
@@ -266,6 +269,20 @@ const IdentificationTab = ({
                           }
                         >
                           <Update />
+                        </Tooltip>
+                      </IconButton>
+                    )}
+                    {e.deprecated && (
+                      <IconButton onClick={() => {}}>
+                        <Tooltip
+                          title={
+                            <I18n
+                              en="This EOV is deprecated and cannot be submitted. Please unselect it."
+                              fr="Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner."
+                            />
+                          }
+                        >
+                          <Warning color="warning" />
                         </Tooltip>
                       </IconButton>
                     )}

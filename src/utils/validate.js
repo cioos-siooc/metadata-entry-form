@@ -2,6 +2,7 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
+import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -91,6 +92,19 @@ const validators = {
     error: {
       en: "At least one EOV is required",
       fr: "Au moins une variable océanique essentielle est requise",
+    },
+  },
+  eovDeprecated: {
+    validation: (_, record) => {
+      const deprecatedValues = new Set(
+        eovs.filter((e) => e.deprecated).map((e) => e.value)
+      );
+      return !(record.eov || []).some((v) => deprecatedValues.has(v));
+    },
+    tab: "dataID",
+    error: {
+      en: "One or more selected EOVs are deprecated and prevent submission. Please unselect them and choose the replacement EOVs.",
+      fr: "Une ou plusieurs EOVs sélectionnées sont dépréciées et empêchent la soumission. Veuillez les désélectionner et choisir les EOVs de remplacement.",
     },
   },
   datasetIdentifier: {
