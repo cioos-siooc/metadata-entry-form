@@ -41,7 +41,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
             ? doiSuffixModes
             : ["default"];
-    const [selectedSuffixMode, setSelectedSuffixMode] = useState(availableSuffixModes[0]);
+    const [selectedSuffixMode, setSelectedSuffixMode] = useState(
+        availableSuffixModes.includes("default") ? "default" : availableSuffixModes[0]
+    );
     const [manualSuffix, setManualSuffix] = useState("");
 
     useEffect(() => {
