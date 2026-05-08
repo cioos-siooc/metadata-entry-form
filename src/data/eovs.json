@@ -218,6 +218,42 @@
     "definition EN": "Abundance refers to the number of individuals (turtles, birds or marine mammals) within a population while distribution refers to\nthe geographic or spatial extent of habitats used by individuals in the population.",
     "definition FR": "L'abondance se réfère au nombre d'individus (tortues, oiseaux ou mammifères marins) au sein d'une population tandis que la distribution se réfère à\nl'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
     "icon": "birds-mammals.svg",
+    "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511",
+    "deprecated": true,
+    "replacedBy": [
+      "seaTurtlesAbundanceAndDistribution",
+      "seabirdsAbundanceAndDistribution",
+      "marineMammalsAbundanceAndDistribution"
+    ]
+  },
+  {
+    "category": "Biology and Ecosystems",
+    "value": "seaTurtlesAbundanceAndDistribution",
+    "label EN": "Sea turtles abundance and distribution",
+    "label FR": "Abondance et distribution de tortues marines",
+    "definition EN": "Abundance refers to the number of individual sea turtles within a population while distribution refers to the geographic or spatial extent of habitats used by individuals in the population.",
+    "definition FR": "L'abondance se réfère au nombre de tortues marines au sein d'une population tandis que la distribution se réfère à l'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
+    "icon": "sea-turtles.svg",
+    "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511"
+  },
+  {
+    "category": "Biology and Ecosystems",
+    "value": "seabirdsAbundanceAndDistribution",
+    "label EN": "Seabirds abundance and distribution",
+    "label FR": "Abondance et distribution d'oiseaux marins",
+    "definition EN": "Abundance refers to the number of individual seabirds within a population while distribution refers to the geographic or spatial extent of habitats used by individuals in the population.",
+    "definition FR": "L'abondance se réfère au nombre d'oiseaux marins au sein d'une population tandis que la distribution se réfère à l'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
+    "icon": "seabirds.svg",
+    "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511"
+  },
+  {
+    "category": "Biology and Ecosystems",
+    "value": "marineMammalsAbundanceAndDistribution",
+    "label EN": "Marine mammals abundance and distribution",
+    "label FR": "Abondance et distribution de mammifères marins",
+    "definition EN": "Abundance refers to the number of individual marine mammals within a population while distribution refers to the geographic or spatial extent of habitats used by individuals in the population.",
+    "definition FR": "L'abondance se réfère au nombre de mammifères marins au sein d'une population tandis que la distribution se réfère à l'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
+    "icon": "marine-mammals.svg",
     "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511"
   },
   {
