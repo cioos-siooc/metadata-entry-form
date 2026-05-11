@@ -272,20 +272,39 @@ const IdentificationTab = ({
                         </Tooltip>
                       </IconButton>
                     )}
-                    {e.deprecated && (
-                      <IconButton onClick={() => {}}>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="This EOV is deprecated and cannot be submitted. Please unselect it."
-                              fr="Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner."
-                            />
-                          }
-                        >
-                          <Warning color="warning" />
-                        </Tooltip>
-                      </IconButton>
-                    )}
+                    {e.deprecated && (() => {
+                      const replacements = (e.replacedBy || [])
+                        .map((v) => eovs.find((x) => x.value === v))
+                        .filter(Boolean);
+                      const replacementLabelsEn = replacements
+                        .map((r) => r["label EN"])
+                        .join(", ");
+                      const replacementLabelsFr = replacements
+                        .map((r) => r["label FR"])
+                        .join(", ");
+                      return (
+                        <IconButton onClick={() => {}}>
+                          <Tooltip
+                            title={
+                              <I18n
+                                en={`This EOV is deprecated and cannot be submitted. Please unselect it${
+                                  replacementLabelsEn
+                                    ? ` and use ${replacementLabelsEn} instead`
+                                    : ""
+                                }.`}
+                                fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
+                                  replacementLabelsFr
+                                    ? ` et utiliser ${replacementLabelsFr} à la place`
+                                    : ""
+                                }.`}
+                              />
+                            }
+                          >
+                            <Warning color="warning" />
+                          </Tooltip>
+                        </IconButton>
+                      );
+                    })()}
                   </>
                 ))}
                 disabled={disabled}
