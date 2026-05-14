@@ -99,7 +99,8 @@ const validators = {
       const deprecatedValues = new Set(
         eovs.filter((e) => e.deprecated).map((e) => e.value)
       );
-      return !(record.eov || []).some((v) => deprecatedValues.has(v));
+      const eov = Array.isArray(record.eov) ? record.eov : [];
+      return !eov.some((v) => deprecatedValues.has(v));
     },
     tab: "dataID",
     error: {

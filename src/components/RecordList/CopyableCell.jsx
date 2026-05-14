@@ -1,5 +1,6 @@
 import React from "react";
-import { Tooltip, Box } from "@mui/material";
+import { Tooltip, Box, IconButton } from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 const CopyableCell = ({
   text,
@@ -29,38 +30,62 @@ const CopyableCell = ({
     );
   }
 
-  const handleClick = (e) => {
+  const handleCopy = (e) => {
     e.stopPropagation();
     onCopy(String(text));
   };
 
-  const tooltipTitle = language === "fr" ? "Cliquer pour copier" : "Click to copy";
+  const tooltipTitle = language === "fr" ? "Copier" : "Copy";
 
   return (
-    <Tooltip title={tooltipTitle} enterDelay={400} enterNextDelay={400}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        width: "100%",
+        minWidth: 0,
+        "& .copy-icon-button": {
+          opacity: 0,
+          transition: "opacity 0.15s",
+        },
+        "&:hover .copy-icon-button, &:focus-within .copy-icon-button": {
+          opacity: 1,
+        },
+        "@media (hover: none)": {
+          "& .copy-icon-button": { opacity: 1 },
+        },
+      }}
+    >
       <Box
         component="span"
-        onClick={handleClick}
         sx={{
-          cursor: "pointer",
-          display: "inline-block",
-          width: "100%",
-          padding: "2px 4px",
-          margin: "-2px -4px",
-          borderRadius: "4px",
+          flex: 1,
+          minWidth: 0,
           ...(truncate && {
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }),
-          "&:hover": {
-            backgroundColor: "rgba(0, 0, 0, 0.04)",
-          },
         }}
+        title={
+          truncate && typeof content === "string" ? content : undefined
+        }
       >
         {content}
       </Box>
-    </Tooltip>
+      <Tooltip title={tooltipTitle} enterDelay={400} enterNextDelay={400}>
+        <IconButton
+          className="copy-icon-button"
+          size="small"
+          onClick={handleCopy}
+          aria-label={tooltipTitle}
+          sx={{ padding: "2px", flexShrink: 0 }}
+        >
+          <ContentCopyIcon sx={{ fontSize: "0.95rem" }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
   );
 };
 
