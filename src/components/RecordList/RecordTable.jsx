@@ -2,13 +2,14 @@ import { useMemo, useCallback, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import { useColumnVisibility } from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";
+import copyToClipboard from "../../utils/copyToClipboard";
 
 const RecordTable = ({
   records,
@@ -94,10 +95,56 @@ const RecordTable = ({
     } catch { /* ignore storage errors */ }
   }, [filterModel, sortModel, tableFilterKey]);
 
+  // Toast state for copy-to-clipboard feedback
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastSeverity, setToastSeverity] = useState("success");
+
+  const showToast = useCallback((message, severity = "success") => {
+    setToastMessage(message);
+    setToastSeverity(severity);
+    setToastOpen(true);
+  }, []);
+
+  const closeToast = useCallback((event, reason) => {
+    if (reason === "clickaway") return;
+    setToastOpen(false);
+  }, []);
+
+  const handleNavigateToRecord = useCallback(
+    (row) => {
+      const { userID, recordID, region: rowRegion } = row;
+      if (userID && recordID) {
+        navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
+      }
+    },
+    [navigate, language, region],
+  );
+
+  const handleCopyCell = useCallback(
+    (text) => {
+      copyToClipboard(text)
+        .then(() => {
+          showToast(language === "fr" ? "Copié !" : "Copied!", "success");
+        })
+        .catch(() => {
+          showToast(
+            language === "fr" ? "Échec de la copie" : "Copy failed",
+            "error",
+          );
+        });
+    },
+    [language, showToast],
+  );
+
   // Create column definitions for current language
   const columnDefs = useMemo(
-    () => createColumns(language, region),
-    [language, region],
+    () =>
+      createColumns(language, region, {
+        onCopy: handleCopyCell,
+        onNavigate: handleNavigateToRecord,
+      }),
+    [language, region, handleCopyCell, handleNavigateToRecord],
   );
 
   // Build columns array from config with mobile responsiveness
@@ -161,25 +208,6 @@ const RecordTable = ({
     [records, language],
   );
 
-  // Handle row click to navigate to record
-  const handleRowClick = useCallback(
-    (params, event) => {
-      // Don't navigate if clicking on actions column or interactive elements
-      if (
-        event.target.closest('[data-field="actions"]') ||
-        event.target.closest("button") ||
-        event.target.closest("a")
-      ) {
-        return;
-      }
-      const { userID, recordID, region: rowRegion } = params.row;
-      if (userID && recordID) {
-        navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
-      }
-    },
-    [navigate, language, region],
-  );
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" py={4}>
@@ -223,13 +251,9 @@ const RecordTable = ({
           minWidth: 0,
           border: "none",
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
-          "& .MuiDataGrid-row": {
-            cursor: "pointer",
-          },
         }}
         rows={rows}
         columns={columns}
-        onRowClick={handleRowClick}
         getRowHeight={() => isMobile ? "auto" : 52}
         initialState={{
           pagination: {
@@ -265,6 +289,8 @@ const RecordTable = ({
               config,
               actionHandlers,
               githubPublishEnabled,
+              onCopy: handleCopyCell,
+              onNavigate: handleNavigateToRecord,
             },
           }),
           filterPanel: {
@@ -324,6 +350,22 @@ const RecordTable = ({
         }
         onColumnVisibilityModelChange={handleColumnVisibilityChange}
       />
+
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={2500}
+        onClose={closeToast}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={closeToast}
+          severity={toastSeverity}
+          variant="filled"
+          elevation={6}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
