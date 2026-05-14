@@ -1,11 +1,15 @@
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Box, CircularProgress } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
-import { useColumnVisibility } from "./hooks";
+import {
+  useColumnVisibility,
+  useRecordTableFilters,
+  markFormNavigation,
+} from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";
@@ -62,37 +66,12 @@ const RecordTable = ({
     config.defaultColumnVisibility || {},
   );
 
-  // Table-specific filter and sort state (independent from card view)
-  const tableFilterKey = `record-table-filters-${config.pageId}`;
-  const [filterModel, setFilterModel] = useState(() => {
-    try {
-      const saved = localStorage.getItem(tableFilterKey);
-      if (saved) {
-        return JSON.parse(saved).filterModel || { items: [] };
-      }
-    } catch { /* ignore storage errors */ }
-    return { items: [] };
-  });
-
-  const [sortModel, setSortModel] = useState(() => {
-    try {
-      const saved = localStorage.getItem(tableFilterKey);
-      if (saved) {
-        return JSON.parse(saved).sortModel || [];
-      }
-    } catch { /* ignore storage errors */ }
-    return [];
-  });
-
-  // Persist table filters to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        tableFilterKey,
-        JSON.stringify({ filterModel, sortModel })
-      );
-    } catch { /* ignore storage errors */ }
-  }, [filterModel, sortModel, tableFilterKey]);
+  const {
+    filterModel,
+    setFilterModel,
+    sortModel,
+    setSortModel,
+  } = useRecordTableFilters(config.pageId);
 
   // Create column definitions for current language
   const columnDefs = useMemo(
@@ -174,10 +153,11 @@ const RecordTable = ({
       }
       const { userID, recordID, region: rowRegion } = params.row;
       if (userID && recordID) {
+        markFormNavigation(config.pageId);
         navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
       }
     },
-    [navigate, language, region],
+    [navigate, language, region, config.pageId],
   );
 
   if (loading) {
