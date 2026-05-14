@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip, Tooltip } from "@mui/material";
+import { Chip } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
@@ -258,26 +258,16 @@ export const createColumns = (language, region, callbacks = {}) => ({
     renderCell: (params) => {
       const bgColor = getStatusColor(params.value, params.row.region || region);
       const label = getStatusLabel(params.value, language);
-      const tooltipTitle =
-        language === "fr" ? "Ouvrir la fiche" : "Open record";
       return (
-        <Tooltip title={tooltipTitle} enterDelay={400} enterNextDelay={400}>
-          <Chip
-            label={label}
-            size="small"
-            clickable
-            onClick={(e) => {
-              e.stopPropagation();
-              callbacks.onNavigate?.(params.row);
-            }}
-            style={{
-              backgroundColor: bgColor,
-              color: "#ffffff",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          />
-        </Tooltip>
+        <Chip
+          label={label}
+          size="small"
+          style={{
+            backgroundColor: bgColor,
+            color: "#ffffff",
+            fontWeight: 500,
+          }}
+        />
       );
     },
     filterOperators: getStatusFilterOperators(language),

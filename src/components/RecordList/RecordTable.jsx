@@ -121,6 +121,27 @@ const RecordTable = ({
     [navigate, language, region],
   );
 
+  const handleRowClick = useCallback(
+    (params, event) => {
+      // Don't navigate if the click landed on the actions column, a copy
+      // button, or another interactive element inside the row.
+      if (
+        event.target.closest('[data-field="actions"]') ||
+        event.target.closest("button") ||
+        event.target.closest("a")
+      ) {
+        return;
+      }
+      handleNavigateToRecord(params.row);
+    },
+    [handleNavigateToRecord],
+  );
+
+  const rowTooltipTitle =
+    language === "fr"
+      ? "Cliquer pour ouvrir la fiche"
+      : "Click to open the record";
+
   const handleCopyCell = useCallback(
     (text) => {
       copyToClipboard(text)
@@ -142,9 +163,8 @@ const RecordTable = ({
     () =>
       createColumns(language, region, {
         onCopy: handleCopyCell,
-        onNavigate: handleNavigateToRecord,
       }),
-    [language, region, handleCopyCell, handleNavigateToRecord],
+    [language, region, handleCopyCell],
   );
 
   // Build columns array from config with mobile responsiveness
@@ -251,9 +271,13 @@ const RecordTable = ({
           minWidth: 0,
           border: "none",
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
+          "& .MuiDataGrid-row": {
+            cursor: "pointer",
+          },
         }}
         rows={rows}
         columns={columns}
+        onRowClick={handleRowClick}
         getRowHeight={() => isMobile ? "auto" : 52}
         initialState={{
           pagination: {
@@ -282,8 +306,8 @@ const RecordTable = ({
           ),
         }}
         slotProps={{
-          ...(isMobile && {
-            row: {
+          row: isMobile
+            ? {
               language,
               region,
               config,
@@ -291,8 +315,9 @@ const RecordTable = ({
               githubPublishEnabled,
               onCopy: handleCopyCell,
               onNavigate: handleNavigateToRecord,
-            },
-          }),
+              tooltipTitle: rowTooltipTitle,
+            }
+            : { title: rowTooltipTitle },
           filterPanel: {
             sx: {
               [theme.breakpoints.down("sm")]: {

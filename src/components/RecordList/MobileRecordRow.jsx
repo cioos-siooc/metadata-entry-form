@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip, Box, Tooltip } from "@mui/material";
+import { Chip, Box } from "@mui/material";
 import { getStatusColor, getStatusLabel, formatDate } from "./config";
 import RecordActions from "./RecordActions";
 import CopyableCell from "./CopyableCell";
@@ -16,6 +16,7 @@ const MobileRecordRow = ({
   githubPublishEnabled,
   onCopy,
   onNavigate,
+  tooltipTitle,
   // Spread remaining GridRow props so DataGrid doesn't warn
   ...rest
 }) => {
@@ -26,13 +27,23 @@ const MobileRecordRow = ({
   const showIdentifier = config?.columns?.includes("identifier");
   const titleDisplay =
     row.title || (language === "en" ? "Untitled" : "Sans titre");
-  const openRecordTooltip =
-    language === "fr" ? "Ouvrir la fiche" : "Open record";
+
+  const handleCardClick = (event) => {
+    if (
+      event.target.closest("button") ||
+      event.target.closest("a")
+    ) {
+      return;
+    }
+    onNavigate?.(row);
+  };
 
   return (
     <Box
       data-id={rowId}
       data-rowindex={rest.index}
+      onClick={handleCardClick}
+      title={tooltipTitle}
       sx={{
         width: "100%",
         boxSizing: "border-box",
@@ -45,6 +56,7 @@ const MobileRecordRow = ({
         borderRadius: "14px",
         backgroundColor: selected ? "#e3f2fd" : "#fafafa",
         overflow: "hidden",
+        cursor: "pointer",
       }}
     >
       {/* Title */}
@@ -102,23 +114,15 @@ const MobileRecordRow = ({
           marginTop: "4px",
         }}
       >
-        <Tooltip title={openRecordTooltip} enterDelay={400}>
-          <Chip
-            label={statusLabel}
-            size="small"
-            clickable
-            onClick={(e) => {
-              e.stopPropagation();
-              onNavigate?.(row);
-            }}
-            style={{
-              backgroundColor: statusColor,
-              color: "#ffffff",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          />
-        </Tooltip>
+        <Chip
+          label={statusLabel}
+          size="small"
+          style={{
+            backgroundColor: statusColor,
+            color: "#ffffff",
+            fontWeight: 500,
+          }}
+        />
 
         {showProgress && (
           <Box sx={{ fontSize: "0.85rem", color: "#666" }}>
