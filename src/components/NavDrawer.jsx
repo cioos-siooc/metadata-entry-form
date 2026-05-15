@@ -105,7 +105,7 @@ const useStyles = makeStyles()((theme) => ({
     margin: 0,
     padding: 0,
     marginBottom: -1,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "none",
     },
   },
