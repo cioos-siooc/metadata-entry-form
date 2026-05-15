@@ -87,7 +87,7 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     alignItems: "flex-end",
     alignSelf: "stretch",
-    gap: theme.spacing(1),
+    gap: theme.spacing(4),
     marginLeft: "auto",
   },
   logoImage: {
@@ -497,7 +497,8 @@ export default function MiniDrawer({ children }) {
             )
           )}
           <Typography
-            variant="h6"
+            variant="h5"
+            component="h1"
             style={{ marginLeft: theme.spacing(region ? 2 : 1.25) }}
             className={classes.navPageTitle}
           >
