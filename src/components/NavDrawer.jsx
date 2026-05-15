@@ -75,7 +75,16 @@ const useStyles = makeStyles()((theme) => ({
     }),
   },
   menuButton: {
-    // padding: 5,
+    color: "white",
+    borderRadius: 0,
+    height: 56,
+    width: 56,
+    padding: 0,
+    marginLeft: theme.spacing(-2),
+    marginRight: theme.spacing(1),
+    "& .MuiSvgIcon-root": {
+      fontSize: 32,
+    },
   },
   languageSelector: {
     color: "white",
