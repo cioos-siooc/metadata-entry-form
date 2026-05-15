@@ -1,8 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Chip, Box } from "@mui/material";
 import { getStatusColor, getStatusLabel, formatDate } from "./config";
 import RecordActions from "./RecordActions";
+import CopyableCell from "./CopyableCell";
 
 const MobileRecordRow = ({
   row,
@@ -14,36 +14,36 @@ const MobileRecordRow = ({
   config,
   actionHandlers,
   githubPublishEnabled,
+  onCopy,
+  onNavigate,
+  tooltipTitle,
   // Spread remaining GridRow props so DataGrid doesn't warn
   ...rest
 }) => {
-  const navigate = useNavigate();
-
-  const handleClick = (e) => {
-    if (
-      e.target.closest("button") ||
-      e.target.closest("a") ||
-      e.target.closest('[role="menu"]')
-    ) {
-      return;
-    }
-    const { userID, recordID, region: rowRegion } = row;
-    if (userID && recordID) {
-      navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
-    }
-  };
-
   const statusColor = getStatusColor(row.status, row.region || region);
   const statusLabel = getStatusLabel(row.status, language);
   const dateDisplay = formatDate(row.created, language);
   const showProgress = config?.columns?.includes("progress");
   const showIdentifier = config?.columns?.includes("identifier");
+  const titleDisplay =
+    row.title || (language === "en" ? "Untitled" : "Sans titre");
+
+  const handleCardClick = (event) => {
+    if (
+      event.target.closest("button") ||
+      event.target.closest("a")
+    ) {
+      return;
+    }
+    onNavigate?.(row);
+  };
 
   return (
     <Box
       data-id={rowId}
       data-rowindex={rest.index}
-      onClick={handleClick}
+      onClick={handleCardClick}
+      title={tooltipTitle}
       sx={{
         width: "100%",
         boxSizing: "border-box",
@@ -55,11 +55,8 @@ const MobileRecordRow = ({
         border: "1px solid #e0e0e0",
         borderRadius: "14px",
         backgroundColor: selected ? "#e3f2fd" : "#fafafa",
-        cursor: "pointer",
         overflow: "hidden",
-        "&:hover": {
-          backgroundColor: selected ? "#bbdefb" : "#f5f5f5",
-        },
+        cursor: "pointer",
       }}
     >
       {/* Title */}
@@ -74,7 +71,13 @@ const MobileRecordRow = ({
           WebkitBoxOrient: "vertical",
         }}
       >
-        {row.title || (language === "en" ? "Untitled" : "Sans titre")}
+        <CopyableCell
+          text={row.title}
+          onCopy={onCopy}
+          language={language}
+        >
+          {titleDisplay}
+        </CopyableCell>
       </Box>
 
       {/* Identifier */}
@@ -88,13 +91,17 @@ const MobileRecordRow = ({
             whiteSpace: "nowrap",
           }}
         >
-          {row.identifier}
+          <CopyableCell
+            text={row.identifier}
+            onCopy={onCopy}
+            language={language}
+          />
         </Box>
       )}
 
       {/* Author */}
       <Box sx={{ fontSize: "0.85rem", color: "#666" }}>
-        {row.author}
+        <CopyableCell text={row.author} onCopy={onCopy} language={language} />
       </Box>
 
       {/* Bottom row: status, progress, date, actions */}
@@ -124,7 +131,11 @@ const MobileRecordRow = ({
         )}
 
         <Box sx={{ fontSize: "0.85rem", color: "#999" }}>
-          {dateDisplay}
+          <CopyableCell
+            text={dateDisplay}
+            onCopy={onCopy}
+            language={language}
+          />
         </Box>
 
         <Box sx={{ marginLeft: "auto" }}>
