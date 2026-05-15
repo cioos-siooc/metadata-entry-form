@@ -99,7 +99,8 @@ const validators = {
       const deprecatedValues = new Set(
         eovs.filter((e) => e.deprecated).map((e) => e.value)
       );
-      return !(record.eov || []).some((v) => deprecatedValues.has(v));
+      const eov = Array.isArray(record.eov) ? record.eov : [];
+      return !eov.some((v) => deprecatedValues.has(v));
     },
     tab: "dataID",
     error: {
@@ -314,10 +315,18 @@ const validators = {
   },
   instruments: {
     tab: "platformInstruments",
-    validation: (val) => val.every((instrument) => instrument.id),
+    validation: (val, record) => {
+      const platforms = record.platforms || [];
+      return val.every(
+        (instrument) =>
+          instrument.id && (platforms.length < 2 || instrument.platform)
+      );
+    },
     error: {
-      en: "Instrument ID is required",
-      fr: "L'identifiant de l'instrument est requis.",
+      en:
+        "Instrument ID is required. When multiple platforms are defined, each instrument must be associated to a platform.",
+      fr:
+        "L'identifiant de l'instrument est requis. Lorsque plusieurs plates-formes sont définies, chaque instrument doit être associé à une plate-forme.",
     },
   },
   taxa: {
