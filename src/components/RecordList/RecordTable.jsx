@@ -207,25 +207,6 @@ const RecordTable = ({
     [records, language],
   );
 
-  // Handle row click to navigate to record
-  const handleRowClick = useCallback(
-    (params, event) => {
-      // Don't navigate if clicking on actions column or interactive elements
-      if (
-        event.target.closest('[data-field="actions"]') ||
-        event.target.closest("button") ||
-        event.target.closest("a")
-      ) {
-        return;
-      }
-      const { userID, recordID, region: rowRegion } = params.row;
-      if (userID && recordID) {
-        markFormNavigation(config.pageId);
-        navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
-      }
-    },
-    [navigate, language, region, config.pageId],
-  );
 
   if (loading) {
     return (
