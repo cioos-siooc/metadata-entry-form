@@ -20,8 +20,8 @@ const regions = {
         "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
-    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
+    logo: { en: "cioos-pacific_small_EN_FW.svg", fr: "cioos-pacific_small_FR_W.svg" },
+    logoDark: { en: "cioos-pacific_small_EN.svg", fr: "cioos-pacific_small_FR.svg" },
   },
 
   stlaurent: {
@@ -71,8 +71,8 @@ const regions = {
         "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
-    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
+    logo: { en: "cioos-atlantic_small_EN_W.svg", fr: "cioos-atlantic_small_FR_W.svg" },
+    logoDark: { en: "cioos-atlantic_small_EN.svg", fr: "cioos-atlantic_small_FR.svg" },
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
@@ -94,8 +94,8 @@ const regions = {
         "Amundsen Science est l’organisme à but non-lucratif responsable du mandat scientifique du brise-glace de recherche NGCC Amundsen.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-amundsen-en.png", fr: "cioos-amundsen-fr.png" },
-    logoContainerStyle: { backgroundColor: "#fff", padding: "4px", borderRadius: "6px" },
+    logo: { en: "amundsen_logo_white.svg", fr: "amundsen_logo_white.svg" },
+    logoDark: { en: "amundsen_logo.svg", fr: "amundsen_logo.svg" },
   },
   canwin: {
     title: { en: "Canadian Watershed Information Network", fr: "Réseau canadien d'information sur les bassins versants" },
@@ -146,12 +146,13 @@ export function getRegionLogoContainerStyle(regionId) {
 
 // Helper to get logo path by language with graceful fallbacks
 // getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.
-export function getRegionLogo(regionId, language = 'en') {
+export function getRegionLogo(regionId, language = 'en', { variant = 'default' } = {}) {
   const r = regions[regionId];
   if (!r) return null;
-  const logoObj = r.logo || {};
+  const logoObj = (variant === 'dark' ? r.logoDark : null) || r.logo || {};
   const file = logoObj[language] || logoObj.en || logoObj.fr;
   if (!file) return null;
+  if (file.includes("://")) return file;
   return `${import.meta.env.BASE_URL}${file}`;
 }
 

@@ -498,7 +498,7 @@ export default function MiniDrawer({ children }) {
           )}
           <Typography
             variant="h6"
-            style={{ marginLeft: region ? 0 : theme.spacing(1.25) }}
+            style={{ marginLeft: theme.spacing(region ? 2 : 1.25) }}
             className={classes.navPageTitle}
           >
             {pageTitle}

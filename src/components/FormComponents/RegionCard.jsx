@@ -75,7 +75,7 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
   const { classes } = useStyles();
 
   const regionInfo = regions[region];
-  const logoSrc = getRegionLogo(region, language);
+  const logoSrc = getRegionLogo(region, language, { variant: "dark" });
 
   // Fixed heights:
   // RA cards (showMap) -> 470px; Affiliated (no map) -> 240px
