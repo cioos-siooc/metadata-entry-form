@@ -14,8 +14,8 @@ import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
 
-// AWS translate size limit is 5KB
-const MAX_AWS_TRANSLATE_SIZE = 5000;
+// Cohere translate size limit is 5KB
+const MAX_TRANSLATE_SIZE = 5000;
 
 const BilingualTextInput = ({
   onChange,
@@ -33,7 +33,7 @@ const BilingualTextInput = ({
   let languages;
 
   const textSizeByes = new Blob([value?.[language]]).size;
-  const textTooBig = textSizeByes >= MAX_AWS_TRANSLATE_SIZE;
+  const textTooBig = textSizeByes >= MAX_TRANSLATE_SIZE;
 
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
@@ -41,13 +41,13 @@ const BilingualTextInput = ({
   const translateChecked =
     value?.translations?.[alternateLanguage]?.verified || false;
 
-  function setTranslationData(translations, checked) {
+  function setTranslationData(translations, checked, translationMessage) {
     return {
       ...translations,
       [alternateLanguage]: {
         verified: checked,
         ...(!checked && {
-          message: `text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon`,
+          message: translationMessage || "text translated using Cohere / texte traduit à l'aide de Cohere",
         }),
       },
     };
@@ -88,7 +88,7 @@ const BilingualTextInput = ({
             [alternateLanguage]: {
               verified: false,
               message:
-                "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "text translated using Cohere / texte traduit à l'aide de Cohere",
             },
           },
         };
@@ -147,16 +147,24 @@ const BilingualTextInput = ({
                     setAwaitingTranslation(true);
 
                     translate({ text: value[lang], fromLang: lang }).then(
-                      (translatedText) => {
+                      (result) => {
                         setAwaitingTranslation(false);
-                        const translation = translatedText.data;
+                        const data = result.data;
+                        const translation = typeof data === "object" ? data.translatedText : data;
+                        const translationMsg = typeof data === "object" ? data.translationMessage : undefined;
                         handleEvent({
                           target: {
                             name: alternateLanguage,
                             value: translation,
                           },
                         });
-                        // onTranslateComplete();
+                        // Update translation metadata with provenance info
+                        const newData = {
+                          ...value,
+                          [alternateLanguage]: translation,
+                          translations: setTranslationData(value.translations, false, translationMsg),
+                        };
+                        onChange({ target: { name, value: newData } });
                       }
                     );
                   }}
@@ -188,11 +196,11 @@ const BilingualTextInput = ({
                   <I18n>
                     <En>
                       Translation is disabled because text is larger than{" "}
-                      {MAX_AWS_TRANSLATE_SIZE} characters.
+                      {MAX_TRANSLATE_SIZE} characters.
                     </En>
                     <Fr>
                       La traduction est désactivée car le texte est plus grand
-                      que {MAX_AWS_TRANSLATE_SIZE} caractères.
+                      que {MAX_TRANSLATE_SIZE} caractères.
                     </Fr>
                   </I18n>
                 )}
