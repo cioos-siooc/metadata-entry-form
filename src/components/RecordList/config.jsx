@@ -5,6 +5,7 @@ import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
+import CopyableCell from "./CopyableCell";
 
 // ============================================================================
 // Page Configurations
@@ -18,6 +19,7 @@ export const reviewerConfig = {
     "created",
     "title",
     "author",
+    "identifier",
     "doi",
     "abstract",
     "license",
@@ -38,6 +40,7 @@ export const reviewerConfig = {
     progress: true,
     created: true,
     doi: true,
+    identifier: false,
     abstract: false,
     license: false,
     verticalExtentMin: false,
@@ -74,13 +77,14 @@ export const reviewerConfig = {
 
 export const publishedConfig = {
   pageId: "published",
-  columns: ["status", "created", "title", "author"],
+  columns: ["status", "created", "title", "author", "identifier"],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     author: true,
     created: true,
+    identifier: false,
     actions: true,
   },
 
@@ -107,13 +111,14 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  columns: ["status", "progress", "created", "title", "author"],
+  columns: ["status", "progress", "created", "title", "author", "identifier"],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     progress: true,
     created: true,
+    identifier: false,
     author: false,
     actions: true,
   },
@@ -236,7 +241,7 @@ const getStatusFilterOperators = (language) =>
 // Column Definitions Factory
 // ============================================================================
 
-export const createColumns = (language, region) => ({
+export const createColumns = (language, region, callbacks = {}) => ({
   status: {
     field: "status",
     headerName: language === "en" ? "Status" : "Statut",
@@ -286,8 +291,19 @@ export const createColumns = (language, region) => ({
     maxWidth: 130,
     headerAlign: "center",
     align: "center",
-    renderCell: (params) =>
-      params.value ? <span>{formatDate(params.value, language)}</span> : null,
+    renderCell: (params) => {
+      if (!params.value) return null;
+      const display = formatDate(params.value, language);
+      return (
+        <CopyableCell
+          text={display}
+          onCopy={callbacks.onCopy}
+          language={language}
+        >
+          <span>{display}</span>
+        </CopyableCell>
+      );
+    },
     sortComparator: (v1, v2) => {
       const date1 = v1 ? new Date(v1).getTime() : 0;
       const date2 = v2 ? new Date(v2).getTime() : 0;
@@ -299,6 +315,28 @@ export const createColumns = (language, region) => ({
     field: "title",
     headerName: language === "en" ? "Title" : "Titre",
     flex: 2,
+    renderCell: (params) => (
+      <CopyableCell
+        text={params.value}
+        onCopy={callbacks.onCopy}
+        language={language}
+        truncate
+      />
+    ),
+  },
+
+  identifier: {
+    field: "identifier",
+    headerName: language === "en" ? "Identifier" : "Identifiant",
+    flex: 1.5,
+    renderCell: (params) => (
+      <CopyableCell
+        text={params.value}
+        onCopy={callbacks.onCopy}
+        language={language}
+        truncate
+      />
+    ),
   },
 
   author: {
@@ -306,6 +344,14 @@ export const createColumns = (language, region) => ({
     maxWidth: 200,
     headerName: language === "en" ? "Author" : "Auteur",
     flex: 1.5,
+    renderCell: (params) => (
+      <CopyableCell
+        text={params.value}
+        onCopy={callbacks.onCopy}
+        language={language}
+        truncate
+      />
+    ),
   },
 
   abstract: {
@@ -313,16 +359,12 @@ export const createColumns = (language, region) => ({
     headerName: language === "en" ? "Abstract" : "Résumé",
     flex: 2,
     renderCell: (params) => (
-      <div
-        style={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-        title={params.value}
-      >
-        {params.value}
-      </div>
+      <CopyableCell
+        text={params.value}
+        onCopy={callbacks.onCopy}
+        language={language}
+        truncate
+      />
     ),
   },
 
@@ -332,9 +374,18 @@ export const createColumns = (language, region) => ({
     flex: 1,
     renderCell: (params) => {
       const licenseData = licenses[params.value];
-      if (!licenseData) return params.value || "";
+      const display = licenseData
+        ? licenseData.title?.[language] ||
+          licenseData.title?.en ||
+          params.value
+        : params.value || "";
       return (
-        licenseData.title?.[language] || licenseData.title?.en || params.value
+        <CopyableCell
+          text={display}
+          onCopy={callbacks.onCopy}
+          language={language}
+          truncate
+        />
       );
     },
   },
@@ -356,16 +407,12 @@ export const createColumns = (language, region) => ({
         .filter(Boolean);
       const displayText = contactNames.join(", ");
       return (
-        <div
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-          title={displayText}
-        >
-          {displayText}
-        </div>
+        <CopyableCell
+          text={displayText}
+          onCopy={callbacks.onCopy}
+          language={language}
+          truncate
+        />
       );
     },
   },
@@ -379,7 +426,14 @@ export const createColumns = (language, region) => ({
     align: "center",
     renderCell: (params) => {
       if (!params.value) return "";
-      return params.value.toUpperCase();
+      const display = params.value.toUpperCase();
+      return (
+        <CopyableCell
+          text={display}
+          onCopy={callbacks.onCopy}
+          language={language}
+        />
+      );
     },
   },
 
@@ -406,7 +460,15 @@ export const createColumns = (language, region) => ({
       if (!params.value) return "";
       const { north, south, east, west } = params.value;
       if (!north && !south && !east && !west) return "";
-      return `N:${north || "-"} S:${south || "-"} E:${east || "-"} W:${west || "-"}`;
+      const display = `N:${north || "-"} S:${south || "-"} E:${east || "-"} W:${west || "-"}`;
+      return (
+        <CopyableCell
+          text={display}
+          onCopy={callbacks.onCopy}
+          language={language}
+          truncate
+        />
+      );
     },
   },
 
@@ -432,8 +494,16 @@ export const createColumns = (language, region) => ({
     type: "number",
     headerAlign: "center",
     align: "center",
-    renderCell: (params) =>
-      params.value === undefined || params.value === null ? "" : params.value,
+    renderCell: (params) => {
+      if (params.value === undefined || params.value === null) return "";
+      return (
+        <CopyableCell
+          text={String(params.value)}
+          onCopy={callbacks.onCopy}
+          language={language}
+        />
+      );
+    },
   },
 
   verticalExtentMax: {
@@ -443,8 +513,16 @@ export const createColumns = (language, region) => ({
     type: "number",
     headerAlign: "center",
     align: "center",
-    renderCell: (params) =>
-      params.value === undefined || params.value === null ? "" : params.value,
+    renderCell: (params) => {
+      if (params.value === undefined || params.value === null) return "";
+      return (
+        <CopyableCell
+          text={String(params.value)}
+          onCopy={callbacks.onCopy}
+          language={language}
+        />
+      );
+    },
   },
 
   verticalExtentDirection: {
@@ -455,11 +533,21 @@ export const createColumns = (language, region) => ({
     align: "center",
     renderCell: (params) => {
       if (!params.value) return "";
-      if (params.value === "depthPositive")
-        return language === "en" ? "Depth (+)" : "Profondeur (+)";
-      if (params.value === "heightPositive")
-        return language === "en" ? "Height (+)" : "Hauteur (+)";
-      return params.value;
+      let display;
+      if (params.value === "depthPositive") {
+        display = language === "en" ? "Depth (+)" : "Profondeur (+)";
+      } else if (params.value === "heightPositive") {
+        display = language === "en" ? "Height (+)" : "Hauteur (+)";
+      } else {
+        display = params.value;
+      }
+      return (
+        <CopyableCell
+          text={display}
+          onCopy={callbacks.onCopy}
+          language={language}
+        />
+      );
     },
   },
 
@@ -469,6 +557,16 @@ export const createColumns = (language, region) => ({
     maxWidth: 80,
     headerAlign: "center",
     align: "center",
+    renderCell: (params) => {
+      if (!params.value) return "";
+      return (
+        <CopyableCell
+          text={String(params.value)}
+          onCopy={callbacks.onCopy}
+          language={language}
+        />
+      );
+    },
   },
 });
 
@@ -481,6 +579,7 @@ export const recordToRow = (record, language, index) => ({
   recordID: record.recordID,
   userID: record.userinfo?.userID,
   title: record.title?.[language] || "",
+  identifier: record.identifier || "",
   status: record.status || "",
   author: record.userinfo?.displayName || "",
   progress: Math.round(percentValid(record) * 100),

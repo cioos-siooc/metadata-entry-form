@@ -4,8 +4,11 @@ import {
     Paper,
     TextField,
     Button,
+    Tooltip,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
 import { getDatabase, ref, child, update } from "firebase/database";
@@ -13,7 +16,6 @@ import { getDatabase, ref, child, update } from "firebase/database";
 import { En, Fr, I18n } from "../I18n";
 
 import firebase from "../../firebase";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { validateDOI } from "../../utils/validate";
 
 import {
@@ -32,6 +34,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const doiIsValid = validateDOI(record.datasetIdentifier)
     const [doiGenerated, setDoiGenerated] = useState(false);
     const [doiErrorFlag, setDoiErrorFlag] = useState(false);
+    const [doiErrorMessage, setDoiErrorMessage] = useState("");
     const [debouncedDoiIdValue] = useDebounce(record.datasetIdentifier, 1000);
     const [loadingDoi, setLoadingDoi] = useState(false);
     const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
@@ -47,13 +50,28 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleGenerateDOI() {
         setLoadingDoi(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
+        console.log("[DOIInput] handleGenerateDOI", { region, datacitePrefix, language, identifier: record.identifier, recordID: record.recordID });
+
         try {
-            const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
+            // Create a minimal draft DOI with just the prefix.
+            // Full metadata will be pushed when the record is submitted or published.
+            const minimalPayload = {
+                data: {
+                    type: "dois",
+                    attributes: {
+                        prefix: datacitePrefix,
+                    },
+                },
+            };
+
+            console.log("[DOIInput] createDraftDoi payload", { region, minimalPayload });
 
             await createDraftDoi({
-                record: mappedDataCiteObject,
+                record: minimalPayload,
                 region,
             })
                 .then((response) => {
@@ -80,6 +98,17 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     }
 
                     setDoiGenerated(true);
+
+                    // If the record is already submitted or published, push full metadata immediately
+                    if (["submitted", "published"].includes(record.status)) {
+                        try {
+                            await performUpdateDraftDoi(updatedRecord, region, language, datacitePrefix);
+                        } catch (updateErr) {
+                            console.error("[DOIInput] auto-update after generate failed", updateErr);
+                            setDoiErrorFlag(true);
+                            setDoiErrorMessage(updateErr.message || "DOI created but failed to push metadata. Try clicking Update DOI.");
+                        }
+                    }
                 })
                 .finally(() => {
                     setLoadingDoi(false);
@@ -87,12 +116,17 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             
         } catch (err) {
             setDoiErrorFlag(true);
-            throw new Error(`Error in handleGenerateDOI: ${err}`);
+            const errorMessage = err.message || "Failed to generate DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            setLoadingDoi(false);
+            console.error("[DOIInput] handleGenerateDOI failed", { code: err.code, message: err.message, details: err.details });
         }
     }
 
     async function handleUpdateDraftDOI() {
         setLoadingDoiUpdate(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         try {
             const statusCode = await performUpdateDraftDoi(record, region, language, datacitePrefix)
 
@@ -105,7 +139,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             }
         } catch (err) {
             setDoiErrorFlag(true);
-            throw err;
+            // Extract error message from Firebase function error
+            const errorMessage = err.message || "Failed to update DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            // eslint-disable-next-line no-console
+            console.error("Error in handleUpdateDraftDOI:", err);
         } finally {
             setLoadingDoiUpdate(false);
             setTimeout(() => {
@@ -116,11 +154,13 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     async function handleDeleteDOI() {
         setLoadingDoiDelete(true);
+        setDoiErrorFlag(false);
+        setDoiErrorMessage("");
         const database = getDatabase(firebase);
 
         try {
-            // Extract DOI from the full URL
-            const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+            // Extract DOI from the full URL (supports http/https and dx.doi.org)
+            const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, '');
 
             deleteDraftDoi({ doi, region })
                 .then((response) => response.data)
@@ -154,9 +194,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 });
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.error(err);
+            console.error("Error in handleDeleteDOI:", err);
             setDoiErrorFlag(true);
-            throw err;
+            const errorMessage = err.message || "Failed to delete DOI. Please try again.";
+            setDoiErrorMessage(errorMessage);
+            setLoadingDoiDelete(false);
         }
     }
    
@@ -214,73 +256,99 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             </QuestionText>
             {
                 showGenerateDoi && (
-                    <Button
-                        onClick={() => handleGenerateDOI()}
-                        disabled={generateDoiDisabled}
-                        style={{ display: "inline", marginRight: "15px" }}
+                    <Tooltip
+                        title={
+                            <I18n>
+                                <En>
+                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
+                                        <li><strong>Generate DOI</strong> reserves a draft DOI with DataCite (no metadata is sent yet).</li>
+                                        <li>Once the record status is <strong>submitted</strong> or <strong>published</strong>, generating a DOI will automatically include the full metadata.</li>
+                                        <li><strong>Update DOI</strong> pushes the latest metadata to DataCite. This button is only enabled when the record is submitted or published.</li>
+                                        <li><strong>Delete DOI</strong> removes a draft DOI from DataCite (only available while the DOI is in draft status).</li>
+                                    </ol>
+                                </En>
+                                <Fr>
+                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
+                                        <li><strong>Générer un DOI</strong> réserve un DOI brouillon auprès de DataCite (aucune métadonnée n&apos;est envoyée).</li>
+                                        <li>Lorsque le statut est <strong>soumis</strong> ou <strong>publié</strong>, la génération inclura automatiquement les métadonnées complètes.</li>
+                                        <li><strong>Mettre à jour le DOI</strong> envoie les métadonnées les plus récentes à DataCite. Activé uniquement lorsque soumis ou publié.</li>
+                                        <li><strong>Supprimer le DOI</strong> supprime un DOI brouillon de DataCite (disponible uniquement en statut brouillon).</li>
+                                    </ol>
+                                </Fr>
+                            </I18n>
+                        }
+                        arrow
+                        placement="top"
                     >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoi ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Generate DOI"
+                        <div style={{ display: "inline" }}>
+                            <Button
+                                onClick={() => handleGenerateDOI()}
+                                disabled={generateDoiDisabled}
+                                style={{ display: "inline", marginRight: "15px" }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    {loadingDoi ? (
+                                        <>
+                                            <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                            <I18n en="Loading..." fr="Chargement..." />
+                                        </>
+                                    ) : (
+                                        <I18n en="Generate DOI" fr="Générer un DOI" />
+                                    )}
+                                </div>
+                            </Button>
+                            {showUpdateDoi && (
+                                <Button
+                                    onClick={() => handleUpdateDraftDOI()}
+                                    disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status) || loadingDoi || loadingDoiUpdate}
+                                    style={{ display: 'inline', marginRight: "15px" }}
+                                >
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        {loadingDoiUpdate ? (
+                                            <>
+                                                <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                <I18n en="Loading..." fr="Chargement..." />
+                                            </>
+                                        ) : (
+                                            <I18n en="Update DOI" fr="Mettre à jour le DOI" />
+                                        )}
+                                    </div>
+                                </Button>
+                            )}
+                            {showDeleteDoi && (
+                                <Button
+                                    onClick={() => handleDeleteDOI()}
+                                    disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
+                                    style={{ display: "inline", marginRight: "15px" }}
+                                >
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        {loadingDoiDelete ? (
+                                            <>
+                                                <CircularProgress size={24} style={{ marginRight: "8px" }} />
+                                                <I18n en="Loading..." fr="Chargement..." />
+                                            </>
+                                        ) : (
+                                            <I18n en="Delete DOI" fr="Supprimer le DOI" />
+                                        )}
+                                    </div>
+                                </Button>
                             )}
                         </div>
-                    </Button>
-                )
-            }
-            {
-                showUpdateDoi && (
-                    <Button
-                        onClick={() => handleUpdateDraftDOI()}
-                        disabled={['not found', 'unknown'].includes(record.doiCreationStatus)}
-                        style={{ display: 'inline', marginRight: "15px" }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoiUpdate ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Update DOI"
-                            )}
-                        </div>
-                    </Button>
-                )
-            }
-            {
-                showDeleteDoi && (
-                    <Button
-                        onClick={() => handleDeleteDOI()}
-                        disabled={record.doiCreationStatus !== 'draft'}
-                        style={{ display: "inline", marginRight: "15px" }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {loadingDoiDelete ? (
-                                <>
-                                    <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                    Loading...
-                                </>
-                            ) : (
-                                "Delete DOI"
-                            )}
-                        </div>
-                    </Button>
+                    </Tooltip>
                 )
             }
 
             {
                 doiErrorFlag && (
-                    <span>
-                        <I18n
-                            en="Error occurred with DOI API"
-                            fr="Une erreur s'est produite avec l'API DOI"
-                        />
-                    </span>
+                    <Alert severity="error" sx={{ mt: "10px" }}>
+                        <AlertTitle>
+                            <I18n
+                                en="Error occurred with DOI API"
+                                fr="Une erreur s'est produite avec l'API DOI"
+                            />
+                        </AlertTitle>
+                        {doiErrorMessage}
+                    </Alert>
                 )
             }
             {

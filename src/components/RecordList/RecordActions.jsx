@@ -26,7 +26,6 @@ import {
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import recordToEML from "../../utils/recordToEML";
-import recordToDataCite from "../../utils/recordToDataCite";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
@@ -108,7 +107,8 @@ const RecordActions = ({
       yaml: ".yaml",
       eml: "_eml.xml",
       json: ".json",
-      dataciteJson: "_dataCite.json",
+      datacite_json: "_dataCite.json",
+      datacite_xml: "_dataCite.xml",
     };
 
     const mimeTypes = {
@@ -117,7 +117,8 @@ const RecordActions = ({
       eml: "application/xml",
       erddap: "application/xml",
       json: "application/json",
-      dataciteJson: "application/json",
+      datacite_json: "application/json",
+      datacite_xml: "application/xml",
     };
 
     setIsDownloading(true);
@@ -133,11 +134,6 @@ const RecordActions = ({
         });
       } else if (fileType === "json") {
         blob = new Blob([JSON.stringify(record, null, 2)], {
-          type: `${mimeTypes[fileType]};charset=utf-8`,
-        });
-      } else if (fileType === "dataciteJson") {
-        const dc = recordToDataCite(record, language, region, datacitePrefix);
-        blob = new Blob([JSON.stringify(dc, null, 2)], {
           type: `${mimeTypes[fileType]};charset=utf-8`,
         });
       } else {
@@ -570,8 +566,11 @@ const RecordActions = ({
         <MenuItem onClick={() => handleDownloadRecord("json")}>
           Database JSON
         </MenuItem>
-        <MenuItem onClick={() => handleDownloadRecord("dataciteJson")}>
-          DATACITE JSON
+        <MenuItem onClick={() => handleDownloadRecord("datacite_json")}>
+          Datacite JSON
+        </MenuItem>
+        <MenuItem onClick={() => handleDownloadRecord("datacite_xml")}>
+          Datacite XML
         </MenuItem>
       </Menu>
     </div>

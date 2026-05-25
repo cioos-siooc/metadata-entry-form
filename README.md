@@ -3,12 +3,14 @@
 [![Run Build and Tests](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml/badge.svg)](https://github.com/cioos-siooc/metadata-entry-form/actions/workflows/run-build-tests.yaml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-CIOOS Metadata entry form 
+CIOOS Metadata entry form
 
 Production: <https://form.cioos.ca>
+
 Development: <https://cioos-metadata-form-dev-258dc--development-tc36g7it.web.app/>
 
 ## Project Goal
+
 The primary goal of this project is to provide a user-friendly web interface for creating, editing, and managing metadata records for the Canadian Integrated Ocean Observing System (CIOOS). It facilitates the collection of high-quality metadata that complies with standards (ISO 19115), supports bilingual content (English/French), and integrates with external systems like GitHub and DataCite (for DOIs).
 
 ## System Architecture
@@ -20,69 +22,114 @@ Below is the system architecture diagram which provides an overview of the data 
 For a more interactive and detailed view, see the [Lucidchart Diagram](https://lucid.app/lucidchart/d9fd139b-9705-45c0-b264-930e94dbd88d/edit?viewport_loc=-881%2C-64%2C10027%2C5945%2C0_0&invitationId=inv_80257c7b-9a79-433a-aa33-e95d87793fa4).
 
 ### High-Level Components
-*   **Frontend**: A Single Page Application (SPA) built with React 19 using Vite. Uses Material-UI (MUI v7) for UI and React-Leaflet for maps.
-*   **Backend**: Firebase Functions (Node.js and Python) handling business logic, triggers, and API endpoints.
-*   **Database**: Firebase Realtime Database for storing metadata records and user data.
-*   **Authentication**: Firebase Authentication.
-*   **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting).
+
+- **Frontend**: A Single Page Application (SPA) built with React 19 using Vite. Uses Material-UI (MUI v7) for UI and React-Leaflet for maps.
+- **Backend**: Firebase Functions (Node.js and Python) handling business logic, triggers, and API endpoints.
+- **Database**: Firebase Realtime Database for storing metadata records and user data.
+- **Authentication**: Firebase Authentication.
+- **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting).
 
 ## Project Structure & Key Concepts
 
 ### Frontend (`src/`)
-*   **`src/components/Pages/`**: Top-level route components (`MetadataForm.jsx`, `Submissions.jsx`, `Admin.jsx`, `Reviewer.jsx`).
-*   **`src/components/FormComponents/`**: Reusable UI inputs (e.g., `BilingualTextInput`, `MapSelect`, `ContactEditor`).
-*   **`src/utils/`**: Core logic independent of UI.
-    *   `blankRecord.js`: Defines the JSON schema of a new metadata record.
-    *   `validate.js`: Validation rules mapping fields to error messages and tabs.
-    *   `firebase.js`: Firebase SDK initialization.
+
+- **`src/components/Pages/`**: Top-level route components (`MetadataForm.jsx`, `Submissions.jsx`, `Admin.jsx`, `Reviewer.jsx`).
+- **`src/components/FormComponents/`**: Reusable UI inputs (e.g., `BilingualTextInput`, `MapSelect`, `ContactEditor`).
+- **`src/utils/`**: Core logic independent of UI.
+  - `blankRecord.js`: Defines the JSON schema of a new metadata record.
+  - `validate.js`: Validation rules mapping fields to error messages and tabs.
+  - `firebase.js`: Firebase SDK initialization.
 
 ### Backend (`firebase-functions/`)
+
 Serverless backend using Firebase Cloud Functions (Gen 2).
-*   **JavaScript (`functions/`)**: Node.js 22 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
-*   **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
+
+- **JavaScript (`functions/`)**: Node.js 22 runtime. Handles triggers (DB updates), notifications, translations, and GitHub publishing.
+- **Python (`python-functions/`)**: Python 3.11 runtime. Handles heavy data processing (XML conversion).
+
+### Translation
+
+The app uses [Cohere](https://cohere.com/) to translate bilingual fields between English and French. The translation is handled by a Firebase Cloud Function in `firebase-functions/functions/translate.js`.
+
+#### Translation Assets (cioos-commons)
+
+The translation prompt and glossary are maintained in the [cioos-commons](https://github.com/cioos-siooc/cioos-commons) repository under `translation/cohere/default/`:
+
+- **`glossary.json`** — domain-specific terminology (e.g. `{ "en": "mooring", "fr": "mouillage" }`). To add a new term, append an entry to this file in cioos-commons.
+- **`prompt-template.txt`** — the system prompt template sent to Cohere with `{{sourceLang}}`, `{{targetLang}}`, `{{glossaryPrompt}}`, and `{{originalText}}` placeholders.
+
+#### Syncing Translation Config
+
+To update the translation assets from cioos-commons, run the sync script and commit the results:
+
+```bash
+cd firebase-functions/functions
+export GITHUB_TOKEN=your-github-token   # required if cioos-commons is private
+node generate-translation-config.js          # fetch from main branch
+node generate-translation-config.js --branch my-branch  # fetch latest commit from branch
+node generate-translation-config.js abc1234  # pin a specific commit
+node generate-translation-config.js v1.2.0   # pin a specific tag
+```
+
+This fetches `glossary.json` and `prompt-template.txt` from the GitHub repo and writes them locally along with a `translation-meta.json` containing the resolved commit hash. The updated files should be committed to this repo so that deployed functions always have the correct versions.
+
+Each translation stores a provenance string (e.g. `Cohere command-a-translate-08-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
 
 ### Data Model & Validation
-*   Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
-*   A record contains bilingual fields (objects with `en`/`fr` keys).
-*   Validation is defined in `src/utils/validate.js`.
+
+- Metadata records are stored in Firebase. The schema is defined implicitly by `src/utils/blankRecord.js`.
+- A record contains bilingual fields (objects with `en`/`fr` keys).
+- Validation is defined in `src/utils/validate.js`.
 
 ### Internationalization (i18n)
+
 The app is bilingual (English/French). Content fields are stored as `{ en: "...", fr: "..." }`.
+
+## Contributing
+
+See the [Contributing Guide](docs/contributing.md) for branch naming conventions, PR labeling, release notes, and CI/CD workflow details.
 
 ## Local Development Installation
 
-To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container. 
+To simplify the local development, we highly recommend to clone the repo locally and integrate it via vscode within the predefined Dev Container.
 
 In the container, run the following steps:
 
 1. Copy `.env.sample` to `.env`
-  ```shell
-  cp .env.sample .env
-  ```
+
+```shell
+cp .env.sample .env
+```
+
 2. Login with firebase
-  ```shell
-  firebase login
-  ```
+
+```shell
+firebase login
+```
+
 3. Select firebase project:
-  ```shell
-  firebase use dev
-  ```
+
+```shell
+firebase use dev
+```
 
 4. Go to firebase-functions directory and start the emulator, this will install the javascript and python functions dependancies and activate the firebase local emulator :
-  ```shell
-  cd firebase-functions
-  bash emulate-functions.sh 
-  ```
+
+```shell
+cd firebase-functions
+bash emulate-functions.sh
+```
+
 5. In a second terminal, start the frontent in development. From the base directory of this project run:
-  ```
-  npm install
-  npm start
-  ```
+
+```
+npm install
+npm start
+```
 
 ## Monitoring
 
 Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
-
 
 ## Deployment Overview
 
@@ -106,6 +153,7 @@ Firebase Functions deploy automatically on version tags (`v*`) to production and
 Repository admins can manually redeploy a previously-released version tag to production. Triggering either workflow automatically triggers the other with the same tag.
 
 **To redeploy both frontend and functions together:**
+
 1. Go to the "Actions" tab in the GitHub repository
 2. Select either:
    - `Deploy firebase functions` workflow, OR
@@ -115,6 +163,7 @@ Repository admins can manually redeploy a previously-released version tag to pro
 5. Click "Run workflow"
 
 **How it works:**
+
 - If you trigger `Deploy firebase functions`, it deploys functions first, then automatically triggers the GitHub Pages workflow
 - If you trigger `Build and Deploy to Github pages`, it deploys the frontend first, then automatically triggers the Firebase Functions workflow
 - Both workflows verify you are a repo admin and validate the tag exists before deploying
@@ -128,23 +177,23 @@ To deploy updated Firebase functions locally to the "cioos-metadata-form-dev-258
 
 1. **Login** to firebase
 
-    ```bash
-    firebase login
-    ```
+   ```bash
+   firebase login
+   ```
 
 2. **Select the development Firebase project**:
 
-    ```bash
-    firebase use cioos-metadata-form-dev-258dc
-    ```
+   ```bash
+   firebase use cioos-metadata-form-dev-258dc
+   ```
 
 3. **Make necessary changes to your Firebase functions.**
 
 4. **Deploy the changes from the `./firebase-functions/functions` directory**:
 
-    ```bash
-    firebase deploy --only functions
-    ```
+   ```bash
+   firebase deploy --only functions
+   ```
 
 **Automated GitHub-based deployments**: Pull requests and commits to the `development` branch automatically deploy to the development project via GitHub Actions, so manual local deploys are only needed for quick testing.
 
@@ -157,10 +206,8 @@ The workflow utilizes the following secrets to create the virtual `.env` file fo
 GMAIL_USER=
 GMAIL_PASS=
 
-# AWS Translate credentials
-AWS_REGION=
-AWS_ACCESSKEYID=
-AWS_SECRETACCESSKEY=
+# Cohere API key for translations
+COHERE_API_KEY=
 
 # GitHub token (repo + pages scopes) for issue generation
 GITHUB_AUTH=
@@ -195,7 +242,7 @@ For details on defining and accessing these parameters, refer to the [official F
 
 ### Security Considerations
 
-The use of GitHub Secrets and the creation of a virtual `.env` file during the workflow run ensures that sensitive information is handled securely, without persisting in the repository or exposing it beyond the lifecycle of the workflow execution. 
+The use of GitHub Secrets and the creation of a virtual `.env` file during the workflow run ensures that sensitive information is handled securely, without persisting in the repository or exposing it beyond the lifecycle of the workflow execution.
 
 - **Exclude `.env` Files from Version Control**: Ensure `.env` files are not included in version control to prevent exposure of sensitive data.
 - **Temporary `.env` Files**: The `.env` file created during the GitHub Actions workflow is virtual and transient. It exists only for the duration of the workflow run and is not committed to the repository.
@@ -213,7 +260,7 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 ### Define targets
 
-This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev). 
+This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev).
 Use Firebase CLI targets to manage rules deployment:
 
 ```bash
@@ -224,6 +271,7 @@ firebase target:apply database dev cioos-metadata-form-dev-258dc
 ### Configure firebase.json
 
 Update your `firebase.json` to map `.rules` files to your targets.
+
 ```json
 {
   "database": [
@@ -257,7 +305,6 @@ firebase deploy --only database:prod # For production
 
 Review the [Firebase CLI documentation](https://firebase.google.com/docs/cli) for more details on managing project resources.
 
-
 ## GitHub Publishing
 
 Reviewers and Admins can publish metadata records directly to a GitHub repository (e.g., `cioos-siooc/cioos-siooc-forms`).
@@ -268,7 +315,7 @@ Reviewers and Admins can publish metadata records directly to a GitHub repositor
 2.  Locate the "GitHub Publishing Configuration" section.
 3.  Enter the repository details (Owner, Name, Branch).
 4.  Provide a GitHub Personal Access Token (PAT) with `repo` scope.
-    *   Note: The token is stored in Firebase and protected by security rules.
+    - Note: The token is stored in Firebase and protected by security rules.
 5.  Configure file naming template (default `{filename}`) and target environments (e.g. `prod`, `dev`).
 
 ### Publishing a Record
@@ -282,10 +329,9 @@ Reviewers and Admins can publish metadata records directly to a GitHub repositor
 
 The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{region}/{environment}/{filename}.{xml|yaml}`.
 
-
 ## Hosting on github and Authentication
 
-When hosting the application in a new place there are a couple of things to update. 
+When hosting the application in a new place there are a couple of things to update.
 
 - You must add your new domain to the allowed list for authenication in firebase.
   https://console.firebase.google.com/u/0/project/cioos-metadata-form/authentication/settings
