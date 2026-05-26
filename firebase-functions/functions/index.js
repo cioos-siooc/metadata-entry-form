@@ -11,6 +11,7 @@ const {
   regenerateXMLforRecord,
 } = require("./updates");
 const { githubPublishRecord } = require("./githubPublish");
+const { mintApiToken, listApiTokens, revokeApiToken, api } = require("./apiTokens");
 
 admin.initializeApp();
 
@@ -31,3 +32,7 @@ exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
 exports.testDataciteCredentials = testDataciteCredentials;
 exports.githubPublishRecord = githubPublishRecord;
+exports.mintApiToken = mintApiToken;
+exports.listApiTokens = listApiTokens;
+exports.revokeApiToken = revokeApiToken;
+exports.api = api;

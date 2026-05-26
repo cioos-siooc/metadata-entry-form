@@ -109,6 +109,9 @@ class UserProviderClass extends FormClassTemplate {
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
+    const mintApiToken = httpsCallable(functions, "mintApiToken");
+    const listApiTokens = httpsCallable(functions, "listApiTokens");
+    const revokeApiToken = httpsCallable(functions, "revokeApiToken");
 
     return (
       <UserContext.Provider
@@ -126,6 +129,9 @@ class UserProviderClass extends FormClassTemplate {
           getDatacitePrefix,
           testDataciteCredentials,
           publishRecordToGitHub,
+          mintApiToken,
+          listApiTokens,
+          revokeApiToken,
         }}
       >
         {children}
