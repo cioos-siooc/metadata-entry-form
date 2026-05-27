@@ -79,6 +79,34 @@ function mailOptionsReviewer(
   };
 }
 
+function mailOptionsAuthorSubmissionConfirmation(
+  authorEmail,
+  titleEn,
+  titleFr,
+  region
+) {
+  const regionEn = (regionNames[region] || {}).en || region;
+  const regionFr = (regionNames[region] || {}).fr || region;
+
+  return {
+    from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: authorEmail,
+    subject: "Your CIOOS metadata record has been submitted",
+    html: `
+<p><b>Submission received</b></p>
+<p>Thank you for submitting your metadata record. ${regionEn} has been notified and will contact you if additional information is needed before your record is published.</p>
+${titleEn ? `<p>Title: ${titleEn}</p>` : ""}
+<p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}">Go to form</a></p>
+
+<hr>
+
+<p><b>Soumission reçue</b></p>
+<p>Merci d'avoir soumis votre enregistrement de métadonnées. ${regionFr} a été avisé et vous contactera si des informations supplémentaires sont nécessaires avant la publication de votre enregistrement.</p>
+${titleFr ? `<p>Titre : ${titleFr}</p>` : ""}
+<p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}">Accéder au formulaire</a></p>`,
+  };
+}
+
 function mailOptionsAuthor(authorEmail, titleEn, titleFr, region) {
   return {
     from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
@@ -99,4 +127,8 @@ ${titleFr ? `<p>Titre : ${titleFr}</p>` : ""}
   };
 }
 
-module.exports = { mailOptionsReviewer, mailOptionsAuthor };
+module.exports = {
+  mailOptionsReviewer,
+  mailOptionsAuthor,
+  mailOptionsAuthorSubmissionConfirmation,
+};
