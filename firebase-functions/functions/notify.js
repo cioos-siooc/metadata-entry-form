@@ -75,7 +75,9 @@ exports.notifyReviewer = functions.database
       }
 
       const authorName = authorUserInfo.displayName || "";
-      const custodian = (record.contacts || []).find(
+      // RTDB returns sparse arrays as objects keyed by index, so coerce to a real array.
+      const contacts = Object.values(record.contacts || {});
+      const custodian = contacts.find(
         (c) => c.role && c.role.includes("custodian")
       );
       const orgName = custodian && custodian.orgName;
