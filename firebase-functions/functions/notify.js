@@ -21,6 +21,45 @@ const transporter = nodemailer.createTransport({
 /*
 Email the reviewers for the region when a form is submitted for review
 */
+// Send a test email to the calling admin's address to verify SMTP/credentials
+// from a deployed environment. Throws an HttpsError on transport failure.
+exports.testEmailNotification = functions.https.onCall(async (data, context) => {
+  if (!context.auth || !context.auth.token || !context.auth.token.email) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'You must be signed in with a verified email to send a test email.'
+    );
+  }
+
+  const recipient = context.auth.token.email;
+  const region = (data && data.region) || 'unknown';
+
+  if (!gmailUserCred || !gmailPassCred) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Email credentials (GMAIL_USER / GMAIL_PASS) are not configured for this deployment.'
+    );
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: gmailUserCred,
+      to: recipient,
+      subject: `[CIOOS Metadata] Test email for region "${region}"`,
+      text:
+        `This is a test email from the CIOOS metadata entry form.\n\n` +
+        `Region: ${region}\n` +
+        `Sent at: ${new Date().toISOString()}\n\n` +
+        `If you received this, the notification email pipeline is working.`,
+    });
+    functions.logger.info(`[testEmailNotification] Sent to ${recipient}`, { messageId: info.messageId });
+    return { success: true, recipient, messageId: info.messageId };
+  } catch (err) {
+    functions.logger.error('[testEmailNotification] sendMail failed:', err);
+    throw new functions.https.HttpsError('internal', err.message || 'Failed to send test email.');
+  }
+});
+
 exports.notifyReviewer = functions.database
   .ref("/{region}/users/{userID}/records/{recordID}/status")
   .onUpdate(async ({ after, before }, context) => {

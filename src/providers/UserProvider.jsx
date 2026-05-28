@@ -108,6 +108,7 @@ class UserProviderClass extends FormClassTemplate {
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
+    const testEmailNotification = httpsCallable(functions, "testEmailNotification");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
 
     return (
@@ -125,6 +126,7 @@ class UserProviderClass extends FormClassTemplate {
           getCredentialsStored,
           getDatacitePrefix,
           testDataciteCredentials,
+          testEmailNotification,
           publishRecordToGitHub,
         }}
       >

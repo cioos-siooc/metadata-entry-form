@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 const { translate } = require("./translate");
 const { checkURLActive } = require("./serverUtils");
 const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, getCredentialsStored, getDatacitePrefix, testDataciteCredentials } = require("./datacite");
-const { notifyReviewer, notifyUser } = require("./notify");
+const { notifyReviewer, notifyUser, testEmailNotification } = require("./notify");
 const {
   updatesRecordCreate,
   updatesRecordUpdate,
@@ -17,6 +17,7 @@ admin.initializeApp();
 exports.translate = translate;
 exports.notifyReviewer = notifyReviewer;
 exports.notifyUser = notifyUser;
+exports.testEmailNotification = testEmailNotification;
 exports.updatesRecordUpdate = updatesRecordUpdate;
 exports.updatesRecordDelete = updatesRecordDelete;
 exports.updatesRecordCreate = updatesRecordCreate;

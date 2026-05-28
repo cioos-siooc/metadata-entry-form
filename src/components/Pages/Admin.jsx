@@ -61,6 +61,8 @@ class Admin extends FormClassTemplate {
       errorMessage: "",
       testingCredentials: false,
       testResult: null,
+      testingEmail: false,
+      emailTestResult: null,
       githubOwner: "cioos-siooc",
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
@@ -298,6 +300,32 @@ class Admin extends FormClassTemplate {
           errorMessage: `Failed to save DataCite settings: ${error.message}`,
         });
       });
+  };
+
+  handleTestEmail = async () => {
+    const { region } = this.props.match.params;
+    const { testEmailNotification } = this.context;
+
+    this.setState({ testingEmail: true, emailTestResult: null });
+
+    try {
+      const result = await testEmailNotification({ region });
+      this.setState({
+        testingEmail: false,
+        emailTestResult: {
+          success: true,
+          message: `Test email sent to ${result.data.recipient}. Check your inbox (and spam folder).`,
+        },
+      });
+    } catch (error) {
+      this.setState({
+        testingEmail: false,
+        emailTestResult: {
+          success: false,
+          message: error.message || "Failed to send test email.",
+        },
+      });
+    }
   };
 
   handleTestCredentials = async () => {
@@ -594,6 +622,30 @@ class Admin extends FormClassTemplate {
                     })
                   }
                 />
+              </Grid>
+              {this.state.emailTestResult && (
+                <Grid size={12}>
+                  <Alert
+                    severity={this.state.emailTestResult.success ? "success" : "error"}
+                    onClose={() => this.setState({ emailTestResult: null })}
+                  >
+                    {this.state.emailTestResult.message}
+                  </Alert>
+                </Grid>
+              )}
+              <Grid size={12} container justifyContent="flex-end">
+                <Button
+                  startIcon={this.state.testingEmail ? <CircularProgress size={20} /> : <PlayArrow />}
+                  variant="outlined"
+                  color="secondary"
+                  onClick={this.handleTestEmail}
+                  disabled={this.state.testingEmail}
+                >
+                  <I18n>
+                    <En>Send Test Email</En>
+                    <Fr>Envoyer un courriel de test</Fr>
+                  </I18n>
+                </Button>
               </Grid>
             </Paper>
             <Paper style={paperClass}>
