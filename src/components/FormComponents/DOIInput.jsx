@@ -35,7 +35,7 @@ import regions from "../../regions";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain, doiSuffixModes } = useContext(UserContext);
+    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain, doiSuffixModes, doiStatusManagement, publishDoi, registerDoi, hideDoi } = useContext(UserContext);
     const { language, region, userID } = useParams();
     const availableSuffixModes =
         Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
@@ -72,6 +72,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const [loadingDoiUpdate, setLoadingDoiUpdate] = useState(false);
     const [loadingDoiDelete, setLoadingDoiDelete] = useState(false);
     const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
+    const [doiStateLoading, setDoiStateLoading] = useState(false);
+    const [doiStateError, setDoiStateError] = useState("");
 
     const generateDoiDisabled =
         doiGenerated
@@ -253,6 +255,35 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             const errorMessage = err.message || "Failed to delete DOI. Please try again.";
             setDoiErrorMessage(errorMessage);
             setLoadingDoiDelete(false);
+        }
+    }
+
+    async function handleDoiStateTransition(targetState) {
+        setDoiStateLoading(true);
+        setDoiStateError("");
+        const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "");
+        const database = getDatabase(firebase);
+        try {
+            let result;
+            if (targetState === "findable") {
+                result = await publishDoi({ doi, region });
+            } else if (targetState === "registered" && record.doiCreationStatus === "draft") {
+                result = await registerDoi({ doi, region });
+            } else if (targetState === "registered" && record.doiCreationStatus === "findable") {
+                result = await hideDoi({ doi, region });
+            }
+            const newState = result?.data?.state || targetState;
+            handleUpdateDoiCreationStatus({ target: { name, value: newState } });
+            if (record.recordID) {
+                const recordsRef = ref(database, `${region}/users/${userID}/records`);
+                await update(child(recordsRef, record.recordID), { doiCreationStatus: newState });
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error("DOI state transition failed:", err);
+            setDoiStateError(err.message || "Failed to update DOI status. Please try again.");
+        } finally {
+            setDoiStateLoading(false);
         }
     }
 
@@ -471,6 +502,62 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     </span>
                 )
             }
+
+            {doiStatusManagement === "form" && doiIsValid && datacitePrefix && !["", "not found", "unknown"].includes(record.doiCreationStatus) && (
+                <div style={{ marginTop: "12px" }}>
+                    <span style={{ marginRight: "8px", fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
+                        <I18n en="DOI Status:" fr="Statut DOI :" />
+                    </span>
+                    {record.doiCreationStatus === "draft" && (
+                        <>
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                color="warning"
+                                onClick={() => handleDoiStateTransition("registered")}
+                                disabled={doiStateLoading}
+                                style={{ marginRight: "8px" }}
+                            >
+                                {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Register" fr="Enregistrer" />}
+                            </Button>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="success"
+                                onClick={() => handleDoiStateTransition("findable")}
+                                disabled={doiStateLoading}
+                            >
+                                {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
+                            </Button>
+                        </>
+                    )}
+                    {record.doiCreationStatus === "registered" && (
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="success"
+                            onClick={() => handleDoiStateTransition("findable")}
+                            disabled={doiStateLoading}
+                        >
+                            {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
+                        </Button>
+                    )}
+                    {record.doiCreationStatus === "findable" && (
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            color="warning"
+                            onClick={() => handleDoiStateTransition("registered")}
+                            disabled={doiStateLoading}
+                        >
+                            {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Demote to Registered" fr="Rétrograder à enregistré" />}
+                        </Button>
+                    )}
+                    {doiStateError && (
+                        <Alert severity="error" sx={{ mt: 1 }}>{doiStateError}</Alert>
+                    )}
+                </div>
+            )}
 
             {showGenerateDoi && publisherName && (
                 <Alert severity="info" sx={{ mt: "10px" }}>

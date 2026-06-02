@@ -24,6 +24,7 @@ class UserProviderClass extends FormClassTemplate {
       hasSharedRecords: false,
       dataciteApiDomain: "production",
       doiSuffixModes: ["default"],
+      doiStatusManagement: "datacite",
     };
   }
 
@@ -66,6 +67,7 @@ class UserProviderClass extends FormClassTemplate {
               Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0
                 ? data.doiSuffixModes
                 : ["default"],
+            doiStatusManagement: data?.doiStatusManagement || "datacite",
           });
         });
 
@@ -124,6 +126,9 @@ class UserProviderClass extends FormClassTemplate {
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
+    const publishDoi = httpsCallable(functions, "publishDoi");
+    const registerDoi = httpsCallable(functions, "registerDoi");
+    const hideDoi = httpsCallable(functions, "hideDoi");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
 
     return (
@@ -141,6 +146,9 @@ class UserProviderClass extends FormClassTemplate {
           getCredentialsStored,
           getDatacitePrefix,
           testDataciteCredentials,
+          publishDoi,
+          registerDoi,
+          hideDoi,
           publishRecordToGitHub,
         }}
       >
