@@ -6,6 +6,15 @@ import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
 import CopyableCell from "./CopyableCell";
+import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
+
+// DataCite DOI lifecycle states mapped to MUI chip colors (matches the chip
+// used in the DOI form section so the status reads the same everywhere).
+const DOI_STATE_COLOR = {
+  draft: "default",
+  registered: "warning",
+  findable: "success",
+};
 
 // ============================================================================
 // Page Configurations
@@ -21,6 +30,7 @@ export const reviewerConfig = {
     "author",
     "identifier",
     "doi",
+    "doiStatus",
     "abstract",
     "license",
     "boundingBox",
@@ -40,6 +50,7 @@ export const reviewerConfig = {
     progress: true,
     created: true,
     doi: true,
+    doiStatus: true,
     identifier: false,
     abstract: false,
     license: false,
@@ -111,13 +122,14 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  columns: ["status", "progress", "created", "title", "author", "identifier"],
+  columns: ["status", "progress", "created", "title", "author", "identifier", "doiStatus"],
 
   defaultColumnVisibility: {
     title: true,
     status: true,
     progress: true,
     created: true,
+    doiStatus: true,
     identifier: false,
     author: false,
     actions: true,
@@ -452,6 +464,34 @@ export const createColumns = (language, region, callbacks = {}) => ({
       ),
   },
 
+  doiStatus: {
+    field: "doiStatus",
+    headerName: language === "en" ? "DOI Status" : "Statut DOI",
+    flex: 1,
+    maxWidth: 130,
+    headerAlign: "center",
+    align: "center",
+    type: "singleSelect",
+    valueOptions: [
+      { value: "", label: "—" },
+      { value: "draft", label: DOI_STATE_LABELS.draft[language] },
+      { value: "registered", label: DOI_STATE_LABELS.registered[language] },
+      { value: "findable", label: DOI_STATE_LABELS.findable[language] },
+    ],
+    renderCell: (params) => {
+      const label = DOI_STATE_LABELS[params.value];
+      if (!label) return <span style={{ color: "#bdbdbd" }}>—</span>;
+      return (
+        <Chip
+          label={label[language]}
+          size="small"
+          color={DOI_STATE_COLOR[params.value] || "default"}
+        />
+      );
+    },
+    filterOperators: getStatusFilterOperators(language),
+  },
+
   boundingBox: {
     field: "boundingBox",
     headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
@@ -596,5 +636,8 @@ export const recordToRow = (record, language, index) => ({
   contacts: record.contacts || [],
   formLanguage: record.language || "",
   doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ""),
+  doiStatus: ["draft", "registered", "findable"].includes(record.doiCreationStatus)
+    ? record.doiCreationStatus
+    : "",
   fullRecord: record,
 });
