@@ -393,8 +393,12 @@ describe("DOIInput", () => {
       const deleteBtn = screen.getByRole("button", { name: /delete doi/i });
       expect(deleteBtn).not.toBeDisabled();
 
+      // Clicking Delete now opens a confirmation prompt describing the consequences.
       await user.click(deleteBtn);
+      const confirmBtn = await screen.findByRole("button", { name: /^confirm$/i });
+      await user.click(confirmBtn);
 
+      // Once confirmed, the in-flight delete disables the Delete button.
       await waitFor(() => {
         expect(deleteBtn).toBeDisabled();
       });

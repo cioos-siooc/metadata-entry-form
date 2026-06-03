@@ -10,6 +10,15 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Select,
+    MenuItem,
+    InputLabel,
+    Link,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -30,7 +39,7 @@ import {
 } from "./QuestionStyles";
 
 import { UserContext } from "../../providers/UserProvider";
-import { DoiStateChip } from "../Dialogs/DataciteStatusDialog";
+import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
 import regions from "../../regions";
 
@@ -80,6 +89,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const [doiUpdateFlag, setDoiUpdateFlag] = useState(false);
     const [doiStateLoading, setDoiStateLoading] = useState(false);
     const [doiStateError, setDoiStateError] = useState("");
+    // Confirmation prompt shown before status changes / deletion so the user
+    // sees the consequences before acting. Holds the dialog copy + the action.
+    const [confirmAction, setConfirmAction] = useState(null);
 
     const generateDoiDisabled =
         doiGenerated
@@ -100,15 +112,36 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const isOurManagedDoi = doiIsValid && record.datasetIdentifier.includes(datacitePrefix);
     const inGenerateStage = showGenerateDoi && !isOurManagedDoi;
     const inManageStage = showGenerateDoi && isOurManagedDoi;
-    const showFormStatusControls =
+
+    // Status is shown as a single dropdown. It is editable only when the region
+    // manages DOI status from the form; otherwise it just reflects the active
+    // value reported by DataCite. The selectable options follow the valid DataCite
+    // transitions from the current state (a DOI can never return to "draft").
+    const DOI_STATE_TRANSITIONS = {
+        draft: ["draft", "registered", "findable"],
+        registered: ["registered", "findable"],
+        findable: ["findable", "registered"],
+    };
+    // A draft dataset (record.status === "") can't have its DOI status changed
+    // unless the DOI was already advanced to registered/findable in the past —
+    // you shouldn't be able to register/publish a DOI for a not-yet-submitted dataset.
+    const datasetIsDraft = !["submitted", "published"].includes(record.status);
+    const statusEditable =
         doiStatusManagement === "form"
-        && doiIsValid
-        && record.datasetIdentifier.includes(datacitePrefix)
+        && (!datasetIsDraft || ["registered", "findable"].includes(record.doiCreationStatus));
+    const showStatusSelect =
+        isOurManagedDoi
         && ["draft", "registered", "findable"].includes(record.doiCreationStatus);
-    const showStatusChip =
-        doiIsValid
-        && record.datasetIdentifier.includes(datacitePrefix)
-        && ["draft", "registered", "findable"].includes(record.doiCreationStatus);
+    const statusOptions = DOI_STATE_TRANSITIONS[record.doiCreationStatus] || [record.doiCreationStatus];
+
+    // Supplemental details (publisher + landing page) shown via a compact info
+    // icon + popover instead of stacked alert banners.
+    const showPublisherInfo = showGenerateDoi && Boolean(publisherName);
+    const showLandingInfo =
+        showGenerateDoi
+        && Boolean(doiLandingUrl)
+        && (!record.datasetIdentifier || record.datasetIdentifier.includes(datacitePrefix));
+    const showDoiInfo = showPublisherInfo || showLandingInfo;
     const mounted = useRef(false);
 
     async function handleGenerateDOI() {
@@ -337,6 +370,50 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
 
 
+    // Build the consequence copy for a DOI status change, keyed on the move being made.
+    function getStatusConsequence(current, target) {
+        if (target === "registered" && current === "findable") {
+            return {
+                titleEn: "Demote this DOI to Registered?",
+                titleFr: "Rétrograder ce DOI à Enregistré ?",
+                bodyEn: "The DOI will be hidden from public discovery — it will be removed from DataCite search and metadata indexes. The DOI itself stays permanent and the landing page link keeps working; it just won't be publicly findable.",
+                bodyFr: "Le DOI sera masqué de la découverte publique — il sera retiré de la recherche et des index de métadonnées de DataCite. Le DOI reste permanent et le lien de la page de destination continue de fonctionner ; il ne sera simplement plus repérable publiquement.",
+            };
+        }
+        if (target === "registered") {
+            return {
+                titleEn: "Register this DOI?",
+                titleFr: "Enregistrer ce DOI ?",
+                bodyEn: "Registering makes the DOI permanent — it can no longer be deleted. It will not be publicly discoverable until you publish it (Findable).",
+                bodyFr: "L'enregistrement rend le DOI permanent — il ne pourra plus être supprimé. Il ne sera pas repérable publiquement tant que vous ne l'aurez pas publié (Trouvable).",
+            };
+        }
+        return {
+            titleEn: "Publish this DOI (Findable)?",
+            titleFr: "Publier ce DOI (Trouvable) ?",
+            bodyEn: "The DOI and its metadata become publicly discoverable and indexed by DataCite. This is permanent — the DOI can no longer be deleted, only demoted back to Registered (hidden) later.",
+            bodyFr: "Le DOI et ses métadonnées deviennent repérables publiquement et indexés par DataCite. Cette action est permanente — le DOI ne peut plus être supprimé, seulement rétrogradé à Enregistré (masqué) ultérieurement.",
+        };
+    }
+
+    function requestStatusChange(targetState) {
+        const c = getStatusConsequence(record.doiCreationStatus, targetState);
+        setConfirmAction({
+            ...c,
+            onConfirm: () => handleDoiStateTransition(targetState),
+        });
+    }
+
+    function requestDelete() {
+        setConfirmAction({
+            titleEn: "Delete this draft DOI?",
+            titleFr: "Supprimer ce brouillon de DOI ?",
+            bodyEn: "This permanently deletes the draft DOI from DataCite and clears the DOI field. Only draft DOIs can be deleted — once a DOI is registered or findable it becomes permanent and cannot be removed.",
+            bodyFr: "Cela supprime définitivement le brouillon de DOI de DataCite et vide le champ DOI. Seuls les brouillons de DOI peuvent être supprimés — une fois enregistré ou trouvable, un DOI devient permanent et ne peut plus être retiré.",
+            onConfirm: () => handleDeleteDOI(),
+        });
+    }
+
     const renderButtonLabel = (loading, label) =>
         loading ? (
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -357,7 +434,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 https://doi.org/10.0000/0000
             </QuestionText>
 
-            {/* The DOI value comes first, with its current DataCite status alongside it. */}
+            {/* The DOI value comes first, with its status dropdown inline beside it. */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
                 <TextField
                     style={{ flexGrow: 1 }}
@@ -374,13 +451,52 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     disabled={disabled}
                     fullWidth
                 />
-                {showStatusChip && (
-                    <div style={{ display: "flex", alignItems: "center", marginTop: "16px", whiteSpace: "nowrap" }}>
-                        <span style={{ fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
-                            <I18n en="Status:" fr="Statut :" />
-                        </span>
-                        <DoiStateChip state={record.doiCreationStatus} />
-                    </div>
+                {showStatusSelect && (
+                    <Tooltip
+                        title={
+                            doiStatusManagement === "form" && !statusEditable && !doiStateLoading
+                                ? <I18n
+                                    en="The dataset must be submitted or published before its DOI status can be changed."
+                                    fr="Le jeu de données doit être soumis ou publié avant de pouvoir modifier le statut de son DOI."
+                                />
+                                : ""
+                        }
+                        arrow
+                        placement="top"
+                    >
+                        <FormControl
+                            sx={{ minWidth: 200, flexShrink: 0 }}
+                            disabled={!statusEditable || doiStateLoading}
+                        >
+                            <InputLabel id="doi-status-label">
+                                <I18n en="DOI Status" fr="Statut du DOI" />
+                            </InputLabel>
+                            <Select
+                                labelId="doi-status-label"
+                                label={<I18n en="DOI Status" fr="Statut du DOI" />}
+                                value={record.doiCreationStatus}
+                                onChange={(e) => {
+                                    const target = e.target.value;
+                                    if (target !== record.doiCreationStatus) {
+                                        requestStatusChange(target);
+                                    }
+                                }}
+                                renderValue={(value) => (
+                                    <I18n
+                                        en={DOI_STATE_LABELS[value]?.en || value}
+                                        fr={DOI_STATE_LABELS[value]?.fr || value}
+                                    />
+                                )}
+                                endAdornment={doiStateLoading ? <CircularProgress size={18} sx={{ mr: 3 }} /> : null}
+                            >
+                                {statusOptions.map((s) => (
+                                    <MenuItem key={s} value={s}>
+                                        <I18n en={DOI_STATE_LABELS[s].en} fr={DOI_STATE_LABELS[s].fr} />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Tooltip>
                 )}
             </div>
 
@@ -457,7 +573,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     >
                         <span>
                             <Button
-                                variant="contained"
                                 onClick={() => handleGenerateDOI()}
                                 disabled={generateDoiDisabled}
                             >
@@ -468,50 +583,9 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 </div>
             )}
 
-            {/* Stage 2 — a DOI exists: manage its lifecycle status and metadata. */}
+            {/* Stage 2 — a DOI exists: manage its metadata. (Status lives inline above.) */}
             {inManageStage && (
                 <div style={{ marginTop: "16px" }}>
-                    {showFormStatusControls && (
-                        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
-                            <span style={{ fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
-                                <I18n en="Change status:" fr="Changer le statut :" />
-                            </span>
-                            {record.doiCreationStatus === "draft" && (
-                                <Button
-                                    size="small"
-                                    variant="outlined"
-                                    color="warning"
-                                    onClick={() => handleDoiStateTransition("registered")}
-                                    disabled={doiStateLoading}
-                                >
-                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Register" fr="Enregistrer" />}
-                                </Button>
-                            )}
-                            {["draft", "registered"].includes(record.doiCreationStatus) && (
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="success"
-                                    onClick={() => handleDoiStateTransition("findable")}
-                                    disabled={doiStateLoading}
-                                >
-                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
-                                </Button>
-                            )}
-                            {record.doiCreationStatus === "findable" && (
-                                <Button
-                                    size="small"
-                                    variant="outlined"
-                                    color="warning"
-                                    onClick={() => handleDoiStateTransition("registered")}
-                                    disabled={doiStateLoading}
-                                >
-                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Demote to Registered" fr="Rétrograder à enregistré" />}
-                                </Button>
-                            )}
-                        </div>
-                    )}
-
                     <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                         {showUpdateDoi && (
                             <Tooltip
@@ -556,8 +630,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                             >
                                 <span>
                                     <Button
-                                        color="error"
-                                        onClick={() => handleDeleteDOI()}
+                                        onClick={() => requestDelete()}
                                         disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
                                     >
                                         {renderButtonLabel(loadingDoiDelete, <I18n en="Delete DOI" fr="Supprimer le DOI" />)}
@@ -571,6 +644,27 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                         <Alert severity="error" sx={{ mt: 1 }}>{doiStateError}</Alert>
                     )}
                 </div>
+            )}
+
+            {showDoiInfo && (
+                <ul style={{ margin: "8px 0 0", paddingLeft: "1.4em", fontSize: "0.8rem", color: "rgba(0,0,0,0.6)" }}>
+                    {showPublisherInfo && (
+                        <li>
+                            <I18n
+                                en={`DOI Publisher: ${publisherName}${!publisherContact ? " (region default)" : ""}`}
+                                fr={`Éditeur DOI : ${publisherName}${!publisherContact ? " (par défaut de la région)" : ""}`}
+                            />
+                        </li>
+                    )}
+                    {showLandingInfo && (
+                        <li style={{ wordBreak: "break-all" }}>
+                            <I18n
+                                en={<>DOI landing page: <Link href={doiLandingUrl} target="_blank" rel="noopener noreferrer">{doiLandingUrl}</Link></>}
+                                fr={<>Page de destination du DOI : <Link href={doiLandingUrl} target="_blank" rel="noopener noreferrer">{doiLandingUrl}</Link></>}
+                            />
+                        </li>
+                    )}
+                </ul>
             )}
 
             {doiErrorFlag && (
@@ -590,23 +684,41 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 </Alert>
             )}
 
-            {showGenerateDoi && publisherName && (
-                <Alert severity="info" sx={{ mt: "10px" }}>
-                    <I18n
-                        en={`DOI Publisher: ${publisherName}${!publisherContact ? " (region default)" : ""}`}
-                        fr={`Éditeur DOI : ${publisherName}${!publisherContact ? " (par défaut de la région)" : ""}`}
-                    />
-                </Alert>
-            )}
-
-            {showGenerateDoi && doiLandingUrl && (!record.datasetIdentifier || record.datasetIdentifier.includes(datacitePrefix)) && (
-                <Alert severity="info" sx={{ mt: "10px" }}>
-                    <I18n
-                        en={<>DOI landing page: <a href={doiLandingUrl} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>{doiLandingUrl}</a></>}
-                        fr={<>Page de destination du DOI : <a href={doiLandingUrl} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>{doiLandingUrl}</a></>}
-                    />
-                </Alert>
-            )}
+            <Dialog
+                open={Boolean(confirmAction)}
+                onClose={() => setConfirmAction(null)}
+                maxWidth="sm"
+                fullWidth
+                aria-labelledby="doi-confirm-title"
+            >
+                {confirmAction && (
+                    <>
+                        <DialogTitle id="doi-confirm-title">
+                            <I18n en={confirmAction.titleEn} fr={confirmAction.titleFr} />
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText component="div">
+                                <I18n en={confirmAction.bodyEn} fr={confirmAction.bodyFr} />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setConfirmAction(null)}>
+                                <I18n en="Cancel" fr="Annuler" />
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    const { onConfirm } = confirmAction;
+                                    setConfirmAction(null);
+                                    onConfirm();
+                                }}
+                                autoFocus
+                            >
+                                <I18n en="Confirm" fr="Confirmer" />
+                            </Button>
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
         </Paper>
 
     );
