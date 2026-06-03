@@ -54,6 +54,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
     const publisherContact = (record.contacts || []).find((c) => c.role?.includes("publisher"));
     const publisherName = publisherContact?.orgName || regions[region]?.title?.[language] || "";
+    const recordLanguage = record.language || language;
+    const catalogueBaseUrl = regions[region]?.catalogueURL?.[recordLanguage];
+    const doiLandingUrl = catalogueBaseUrl && record.identifier
+        ? `${catalogueBaseUrl}dataset/ca-cioos_${record.identifier}`
+        : "";
     const doiIsValid = validateDOI(record.datasetIdentifier);
     const dataciteDoi = doiIsValid
         ? record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "")
@@ -564,6 +569,15 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     <I18n
                         en={`DOI Publisher: ${publisherName}${!publisherContact ? " (region default)" : ""}`}
                         fr={`Éditeur DOI : ${publisherName}${!publisherContact ? " (par défaut de la région)" : ""}`}
+                    />
+                </Alert>
+            )}
+
+            {showGenerateDoi && doiLandingUrl && (!record.datasetIdentifier || record.datasetIdentifier.includes(datacitePrefix)) && (
+                <Alert severity="info" sx={{ mt: "10px" }}>
+                    <I18n
+                        en={<>DOI landing page: <a href={doiLandingUrl} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>{doiLandingUrl}</a></>}
+                        fr={<>Page de destination du DOI : <a href={doiLandingUrl} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>{doiLandingUrl}</a></>}
                     />
                 </Alert>
             )}
