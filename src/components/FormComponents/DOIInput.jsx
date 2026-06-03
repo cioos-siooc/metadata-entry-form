@@ -30,6 +30,7 @@ import {
 } from "./QuestionStyles";
 
 import { UserContext } from "../../providers/UserProvider";
+import { DoiStateChip } from "../Dialogs/DataciteStatusDialog";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
 import regions from "../../regions";
 
@@ -88,10 +89,26 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         || (selectedSuffixMode === "manual" && !manualSuffix.trim())
         || (selectedSuffixMode === "identifier" && !(record.identifier || "").trim());
     const showGenerateDoi = Boolean(datacitePrefix);
-    const showDoiStatus = doiIsValid && datacitePrefix && record.doiCreationStatus && record.doiCreationStatus !== "";
     const showUpdateDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && record.datasetIdentifier.includes(datacitePrefix);
     const showDeleteDoi = doiIsValid && datacitePrefix && record.doiCreationStatus !== "" && !doiErrorFlag && record.datasetIdentifier.includes(datacitePrefix);
     const showDataciteRecordButton = Boolean(dataciteRecordUrl);
+
+    // Lifecycle stage: "manage" once a valid DOI from our DataCite prefix exists,
+    // otherwise "generate". Splitting the UI this way means only the actions
+    // relevant to the current stage are shown, instead of one always-visible blob.
+    // (validateDOI() treats an empty value as valid, so we can't switch on it alone.)
+    const isOurManagedDoi = doiIsValid && record.datasetIdentifier.includes(datacitePrefix);
+    const inGenerateStage = showGenerateDoi && !isOurManagedDoi;
+    const inManageStage = showGenerateDoi && isOurManagedDoi;
+    const showFormStatusControls =
+        doiStatusManagement === "form"
+        && doiIsValid
+        && record.datasetIdentifier.includes(datacitePrefix)
+        && ["draft", "registered", "findable"].includes(record.doiCreationStatus);
+    const showStatusChip =
+        doiIsValid
+        && record.datasetIdentifier.includes(datacitePrefix)
+        && ["draft", "registered", "findable"].includes(record.doiCreationStatus);
     const mounted = useRef(false);
 
     async function handleGenerateDOI() {
@@ -320,6 +337,16 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
 
 
+    const renderButtonLabel = (loading, label) =>
+        loading ? (
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress size={20} style={{ marginRight: "8px" }} />
+                <I18n en="Loading..." fr="Chargement..." />
+            </div>
+        ) : (
+            label
+        );
+
     return (
         <Paper style={paperClass}>
             <QuestionText>
@@ -328,240 +355,239 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
                 </I18n>{" "}
                 https://doi.org/10.0000/0000
-                {showGenerateDoi && (
+            </QuestionText>
+
+            {/* The DOI value comes first, with its current DataCite status alongside it. */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <TextField
+                    style={{ flexGrow: 1 }}
+                    name={name || "datasetIdentifier"}
+                    label={<I18n en="DOI" fr="DOI" />}
+                    helperText={
+                        record.datasetIdentifier && !doiIsValid
+                            ? <I18n en="Invalid DOI" fr="DOI non valide" />
+                            : ""
+                    }
+                    error={Boolean(record.datasetIdentifier) && !doiIsValid}
+                    value={record.datasetIdentifier}
+                    onChange={(e) => handleUpdateDatasetIdentifier(e)}
+                    disabled={disabled}
+                    fullWidth
+                />
+                {showStatusChip && (
+                    <div style={{ display: "flex", alignItems: "center", marginTop: "16px", whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
+                            <I18n en="Status:" fr="Statut :" />
+                        </span>
+                        <DoiStateChip state={record.doiCreationStatus} />
+                    </div>
+                )}
+            </div>
+
+            {/* Stage 1 — no DOI yet: reserve a draft DOI with DataCite. */}
+            {inGenerateStage && (
+                <div style={{ marginTop: "16px" }}>
                     <SupplementalText>
                         <I18n>
-                            <En>
-                                <p>Please save the form before generating a draft DOI.</p>
-                            </En>
-                            <Fr>
-                                <p>
-                                    Veuillez enregistrer le formulaire avant de générer un
-                                    brouillon de DOI.
-                                </p>
-                            </Fr>
+                            <En>Don&apos;t have a DOI yet? Reserve a draft DOI with DataCite. Please save the form first.</En>
+                            <Fr>Vous n&apos;avez pas encore de DOI ? Réservez un brouillon de DOI auprès de DataCite. Veuillez d&apos;abord enregistrer le formulaire.</Fr>
                         </I18n>
                     </SupplementalText>
-                )}
-            </QuestionText>
-            {showGenerateDoi && availableSuffixModes.length > 1 && (
-                <FormControl component="fieldset" sx={{ mt: 1, mb: 1, display: "block" }}>
-                    <FormLabel component="legend">
-                        <I18n en="DOI Suffix" fr="Suffixe DOI" />
-                    </FormLabel>
-                    <RadioGroup
-                        row
-                        value={selectedSuffixMode}
-                        onChange={(e) => setSelectedSuffixMode(e.target.value)}
-                    >
-                        {availableSuffixModes.includes("default") && (
-                            <FormControlLabel
-                                value="default"
-                                control={<Radio />}
-                                label={<I18n en="Auto-generated" fr="Généré automatiquement" />}
-                            />
-                        )}
-                        {availableSuffixModes.includes("identifier") && (
-                            <FormControlLabel
-                                value="identifier"
-                                control={<Radio />}
-                                label={<I18n en="Form identifier" fr="Identifiant du formulaire" />}
-                            />
-                        )}
-                        {availableSuffixModes.includes("manual") && (
-                            <FormControlLabel
-                                value="manual"
-                                control={<Radio />}
-                                label={<I18n en="Manual" fr="Manuel" />}
-                            />
-                        )}
-                    </RadioGroup>
-                </FormControl>
-            )}
-            {showGenerateDoi && selectedSuffixMode === "manual" && (
-                <TextField
-                    label={<I18n en="DOI Suffix" fr="Suffixe DOI" />}
-                    value={manualSuffix}
-                    onChange={(e) => setManualSuffix(e.target.value)}
-                    fullWidth
-                    sx={{ mb: 1 }}
-                    helperText={
-                        <I18n
-                            en={`Will produce: ${datacitePrefix}/${manualSuffix || "<suffix>"}`}
-                            fr={`Donnera : ${datacitePrefix}/${manualSuffix || "<suffixe>"}`}
+
+                    {availableSuffixModes.length > 1 && (
+                        <FormControl component="fieldset" sx={{ mt: 1, mb: 1, display: "block" }}>
+                            <FormLabel component="legend">
+                                <I18n en="DOI Suffix" fr="Suffixe DOI" />
+                            </FormLabel>
+                            <RadioGroup
+                                row
+                                value={selectedSuffixMode}
+                                onChange={(e) => setSelectedSuffixMode(e.target.value)}
+                            >
+                                {availableSuffixModes.includes("default") && (
+                                    <FormControlLabel
+                                        value="default"
+                                        control={<Radio />}
+                                        label={<I18n en="Auto-generated" fr="Généré automatiquement" />}
+                                    />
+                                )}
+                                {availableSuffixModes.includes("identifier") && (
+                                    <FormControlLabel
+                                        value="identifier"
+                                        control={<Radio />}
+                                        label={<I18n en="Form identifier" fr="Identifiant du formulaire" />}
+                                    />
+                                )}
+                                {availableSuffixModes.includes("manual") && (
+                                    <FormControlLabel
+                                        value="manual"
+                                        control={<Radio />}
+                                        label={<I18n en="Manual" fr="Manuel" />}
+                                    />
+                                )}
+                            </RadioGroup>
+                        </FormControl>
+                    )}
+
+                    {selectedSuffixMode === "manual" && (
+                        <TextField
+                            label={<I18n en="DOI Suffix" fr="Suffixe DOI" />}
+                            value={manualSuffix}
+                            onChange={(e) => setManualSuffix(e.target.value)}
+                            fullWidth
+                            sx={{ mb: 1 }}
+                            helperText={
+                                <I18n
+                                    en={`Will produce: ${datacitePrefix}/${manualSuffix || "<suffix>"}`}
+                                    fr={`Donnera : ${datacitePrefix}/${manualSuffix || "<suffixe>"}`}
+                                />
+                            }
                         />
-                    }
-                />
-            )}
-            {
-                showGenerateDoi && (
+                    )}
+
                     <Tooltip
                         title={
-                            <I18n>
-                                <En>
-                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
-                                        <li><strong>Generate DOI</strong> reserves a draft DOI with DataCite (no metadata is sent yet).</li>
-                                        <li>Once the record status is <strong>submitted</strong> or <strong>published</strong>, generating a DOI will automatically include the full metadata.</li>
-                                        <li><strong>Update DOI</strong> pushes the latest metadata to DataCite. This button is only enabled when the record is submitted or published.</li>
-                                        <li><strong>Delete DOI</strong> removes a draft DOI from DataCite (only available while the DOI is in draft status).</li>
-                                    </ol>
-                                </En>
-                                <Fr>
-                                    <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.85rem" }}>
-                                        <li><strong>Générer un DOI</strong> réserve un DOI brouillon auprès de DataCite (aucune métadonnée n&apos;est envoyée).</li>
-                                        <li>Lorsque le statut est <strong>soumis</strong> ou <strong>publié</strong>, la génération inclura automatiquement les métadonnées complètes.</li>
-                                        <li><strong>Mettre à jour le DOI</strong> envoie les métadonnées les plus récentes à DataCite. Activé uniquement lorsque soumis ou publié.</li>
-                                        <li><strong>Supprimer le DOI</strong> supprime un DOI brouillon de DataCite (disponible uniquement en statut brouillon).</li>
-                                    </ol>
-                                </Fr>
-                            </I18n>
+                            <I18n
+                                en="Reserves a draft DOI with DataCite (no metadata is sent yet). Once the record is submitted or published, the full metadata is included automatically."
+                                fr="Réserve un brouillon de DOI auprès de DataCite (aucune métadonnée n'est envoyée). Une fois le formulaire soumis ou publié, les métadonnées complètes sont incluses automatiquement."
+                            />
                         }
                         arrow
                         placement="top"
                     >
-                        <div style={{ display: "inline" }}>
+                        <span>
                             <Button
+                                variant="contained"
                                 onClick={() => handleGenerateDOI()}
                                 disabled={generateDoiDisabled}
-                                style={{ display: "inline", marginRight: "15px" }}
                             >
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                    {loadingDoi ? (
-                                        <>
-                                            <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                            <I18n en="Loading..." fr="Chargement..." />
-                                        </>
-                                    ) : (
-                                        <I18n en="Generate DOI" fr="Générer un DOI" />
-                                    )}
-                                </div>
+                                {renderButtonLabel(loadingDoi, <I18n en="Generate DOI" fr="Générer un DOI" />)}
                             </Button>
-                            {showUpdateDoi && (
+                        </span>
+                    </Tooltip>
+                </div>
+            )}
+
+            {/* Stage 2 — a DOI exists: manage its lifecycle status and metadata. */}
+            {inManageStage && (
+                <div style={{ marginTop: "16px" }}>
+                    {showFormStatusControls && (
+                        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
+                            <span style={{ fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
+                                <I18n en="Change status:" fr="Changer le statut :" />
+                            </span>
+                            {record.doiCreationStatus === "draft" && (
                                 <Button
-                                    onClick={() => handleUpdateDraftDOI()}
-                                    disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status) || loadingDoi || loadingDoiUpdate}
-                                    style={{ display: 'inline', marginRight: "15px" }}
+                                    size="small"
+                                    variant="outlined"
+                                    color="warning"
+                                    onClick={() => handleDoiStateTransition("registered")}
+                                    disabled={doiStateLoading}
                                 >
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        {loadingDoiUpdate ? (
-                                            <>
-                                                <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                                <I18n en="Loading..." fr="Chargement..." />
-                                            </>
-                                        ) : (
-                                            <I18n en="Update DOI" fr="Mettre à jour le DOI" />
-                                        )}
-                                    </div>
+                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Register" fr="Enregistrer" />}
                                 </Button>
                             )}
-                            {showDeleteDoi && (
+                            {["draft", "registered"].includes(record.doiCreationStatus) && (
                                 <Button
-                                    onClick={() => handleDeleteDOI()}
-                                    disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
-                                    style={{ display: "inline", marginRight: "15px" }}
+                                    size="small"
+                                    variant="contained"
+                                    color="success"
+                                    onClick={() => handleDoiStateTransition("findable")}
+                                    disabled={doiStateLoading}
                                 >
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        {loadingDoiDelete ? (
-                                            <>
-                                                <CircularProgress size={24} style={{ marginRight: "8px" }} />
-                                                <I18n en="Loading..." fr="Chargement..." />
-                                            </>
-                                        ) : (
-                                            <I18n en="Delete DOI" fr="Supprimer le DOI" />
-                                        )}
-                                    </div>
+                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
                                 </Button>
                             )}
-                            {showDataciteRecordButton && (
+                            {record.doiCreationStatus === "findable" && (
                                 <Button
-                                    href={dataciteRecordUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ display: "inline", marginRight: "15px" }}
+                                    size="small"
+                                    variant="outlined"
+                                    color="warning"
+                                    onClick={() => handleDoiStateTransition("registered")}
+                                    disabled={doiStateLoading}
                                 >
-                                    <I18n en="View DataCite record" fr="Voir l'enregistrement DataCite" />
+                                    {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Demote to Registered" fr="Rétrograder à enregistré" />}
                                 </Button>
                             )}
                         </div>
-                    </Tooltip>
-                )
-            }
+                    )}
 
-            {
-                doiErrorFlag && (
-                    <Alert severity="error" sx={{ mt: "10px" }}>
-                        <AlertTitle>
-                            <I18n
-                                en="Error occurred with DOI API"
-                                fr="Une erreur s'est produite avec l'API DOI"
-                            />
-                        </AlertTitle>
-                        {doiErrorMessage}
-                    </Alert>
-                )
-            }
-            {
-                doiUpdateFlag && (
-                    <span>
-                        <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
-                    </span>
-                )
-            }
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                        {showUpdateDoi && (
+                            <Tooltip
+                                title={
+                                    <I18n
+                                        en="Push the latest metadata to DataCite. Enabled only when the record is submitted or published."
+                                        fr="Envoie les métadonnées les plus récentes à DataCite. Activé uniquement lorsque le formulaire est soumis ou publié."
+                                    />
+                                }
+                                arrow
+                                placement="top"
+                            >
+                                <span>
+                                    <Button
+                                        onClick={() => handleUpdateDraftDOI()}
+                                        disabled={['not found', 'unknown'].includes(record.doiCreationStatus) || !["submitted", "published"].includes(record.status) || loadingDoi || loadingDoiUpdate}
+                                    >
+                                        {renderButtonLabel(loadingDoiUpdate, <I18n en="Update DOI" fr="Mettre à jour le DOI" />)}
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                        )}
+                        {showDataciteRecordButton && (
+                            <Button
+                                href={dataciteRecordUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <I18n en="View DataCite record" fr="Voir l'enregistrement DataCite" />
+                            </Button>
+                        )}
+                        {showDeleteDoi && (
+                            <Tooltip
+                                title={
+                                    <I18n
+                                        en="Removes this draft DOI from DataCite. Available only while the DOI is in draft status."
+                                        fr="Supprime ce brouillon de DOI de DataCite. Disponible uniquement tant que le DOI est au statut brouillon."
+                                    />
+                                }
+                                arrow
+                                placement="top"
+                            >
+                                <span>
+                                    <Button
+                                        color="error"
+                                        onClick={() => handleDeleteDOI()}
+                                        disabled={record.doiCreationStatus !== 'draft' || loadingDoiDelete || loadingDoi}
+                                    >
+                                        {renderButtonLabel(loadingDoiDelete, <I18n en="Delete DOI" fr="Supprimer le DOI" />)}
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                        )}
+                    </div>
 
-            {doiStatusManagement === "form" && doiIsValid && datacitePrefix && !["", "not found", "unknown"].includes(record.doiCreationStatus) && (
-                <div style={{ marginTop: "12px" }}>
-                    <span style={{ marginRight: "8px", fontSize: "0.875rem", color: "rgba(0,0,0,0.6)" }}>
-                        <I18n en="DOI Status:" fr="Statut DOI :" />
-                    </span>
-                    {record.doiCreationStatus === "draft" && (
-                        <>
-                            <Button
-                                size="small"
-                                variant="outlined"
-                                color="warning"
-                                onClick={() => handleDoiStateTransition("registered")}
-                                disabled={doiStateLoading}
-                                style={{ marginRight: "8px" }}
-                            >
-                                {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Register" fr="Enregistrer" />}
-                            </Button>
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="success"
-                                onClick={() => handleDoiStateTransition("findable")}
-                                disabled={doiStateLoading}
-                            >
-                                {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
-                            </Button>
-                        </>
-                    )}
-                    {record.doiCreationStatus === "registered" && (
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="success"
-                            onClick={() => handleDoiStateTransition("findable")}
-                            disabled={doiStateLoading}
-                        >
-                            {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Publish (Findable)" fr="Publier (Trouvable)" />}
-                        </Button>
-                    )}
-                    {record.doiCreationStatus === "findable" && (
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            color="warning"
-                            onClick={() => handleDoiStateTransition("registered")}
-                            disabled={doiStateLoading}
-                        >
-                            {doiStateLoading ? <CircularProgress size={16} /> : <I18n en="Demote to Registered" fr="Rétrograder à enregistré" />}
-                        </Button>
-                    )}
                     {doiStateError && (
                         <Alert severity="error" sx={{ mt: 1 }}>{doiStateError}</Alert>
                     )}
                 </div>
+            )}
+
+            {doiErrorFlag && (
+                <Alert severity="error" sx={{ mt: "10px" }}>
+                    <AlertTitle>
+                        <I18n
+                            en="Error occurred with DOI API"
+                            fr="Une erreur s'est produite avec l'API DOI"
+                        />
+                    </AlertTitle>
+                    {doiErrorMessage}
+                </Alert>
+            )}
+            {doiUpdateFlag && (
+                <Alert severity="success" sx={{ mt: "10px" }}>
+                    <I18n en="DOI has been updated" fr="Le DOI a été mis à jour" />
+                </Alert>
             )}
 
             {showGenerateDoi && publisherName && (
@@ -581,20 +607,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     />
                 </Alert>
             )}
-
-            <TextField
-                style={{ marginTop: "10px" }}
-                name={name || "datasetIdentifier"}
-                helperText={
-                    (doiIsValid ? "" : <I18n en="Invalid DOI" fr="DOI non valide" />)
-                    || (showDoiStatus && <I18n en={`DOI Status: ${record.doiCreationStatus}`} fr={`Statut DOI: ${record.doiCreationStatus}`} />)
-                }
-                error={!doiIsValid}
-                value={record.datasetIdentifier}
-                onChange={(e) => handleUpdateDatasetIdentifier(e)}
-                disabled={disabled}
-                fullWidth
-            />
         </Paper>
 
     );

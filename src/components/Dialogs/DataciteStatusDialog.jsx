@@ -11,13 +11,13 @@ import {
 } from "@mui/material";
 import { I18n, En, Fr } from "../I18n";
 
-const DOI_STATE_LABELS = {
+export const DOI_STATE_LABELS = {
   draft: { en: "Draft", fr: "Brouillon" },
   registered: { en: "Registered", fr: "Enregistré" },
   findable: { en: "Findable", fr: "Trouvable" },
 };
 
-function DoiStateChip({ state }) {
+export function DoiStateChip({ state }) {
   const colorMap = { draft: "default", registered: "warning", findable: "success" };
   const label = DOI_STATE_LABELS[state];
   if (!label) return null;
