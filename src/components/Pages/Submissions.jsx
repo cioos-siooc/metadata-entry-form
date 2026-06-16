@@ -16,6 +16,7 @@ import {
 import SimpleModal from "../FormComponents/SimpleModal";
 import regions from "../../regions";
 import RecordList, { submissionsConfig } from "../RecordList";
+import { markFormNavigation } from "../RecordList/hooks";
 
 const Submissions = () => {
   const { language, region } = useParams();
@@ -77,6 +78,7 @@ const Submissions = () => {
     (recordID) => {
       const { currentUser } = auth;
       if (currentUser) {
+        markFormNavigation(submissionsConfig.pageId);
         navigate(`/${language}/${region}/${currentUser.uid}/${recordID}`);
       }
     },
@@ -193,7 +195,10 @@ const Submissions = () => {
           variant="contained"
           color="primary"
           startIcon={<Add />}
-          onClick={() => navigate(`/${language}/${region}/new`)}
+          onClick={() => {
+            markFormNavigation(submissionsConfig.pageId);
+            navigate(`/${language}/${region}/new`);
+          }}
         >
           <I18n en="New Record" fr="Nouvel enregistrement" />
         </Button>
