@@ -83,6 +83,14 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
 
     if (!record.metadataScope) {
       handleUpdateRecord("metadataScope")({ target: { value: 'Dataset' } });
+      handleUpdateRecord("metadataScopeIso")({
+        target: { value: metadataScopeCodes.Dataset.isoValue },
+      });
+    } else if (!record.metadataScopeIso && metadataScopeCodes[record.metadataScope]) {
+      // Backfill ISO value for records saved before this fix
+      handleUpdateRecord("metadataScopeIso")({
+        target: { value: metadataScopeCodes[record.metadataScope].isoValue },
+      });
     }
 
     return () => {
