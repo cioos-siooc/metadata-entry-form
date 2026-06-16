@@ -1,0 +1,14 @@
+{
+  "name": "translation-comparison",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-off tool to compare AWS Translate vs Cohere translations",
+  "scripts": {
+    "compare": "node compare.js",
+    "report": "node report.js",
+    "compare-runs": "node compare-runs.js"
+  },
+  "dependencies": {
+    "cohere-ai": "^7.9.0"
+  }
+}
