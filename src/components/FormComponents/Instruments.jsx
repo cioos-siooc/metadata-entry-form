@@ -67,8 +67,8 @@ const Instruments = ({
               saveItem={saveUpdateInstrument}
               leftListHeader={<I18n><En>Instruments in this record:</En><Fr>Instruments dans cet enregistrement :</Fr></I18n>}
               leftListEmptyHeader={<I18n><En>There are no instruments in this record.</En><Fr>Il n'y a aucun instrument dans cet enregistrement.</Fr></I18n>}
-              addSavedItemLabel={<I18n><En>ADD SAVED INSTRUMENT</En><Fr>Ajouter un instrument enregistré</Fr></I18n>}
-              addNewItemText={<I18n><En>ADD NEW INSTRUMENT</En><Fr>Ajouter un instrument</Fr></I18n>}
+              addSavedItemLabel={<I18n><En>Add saved instrument</En><Fr>Ajouter un instrument enregistré</Fr></I18n>}
+              addNewItemText={<I18n><En>Add new instrument</En><Fr>Ajouter un instrument</Fr></I18n>}
               getBlankItem={getBlankInstrument}
               itemTitle={(instrumentItem) => InstrumentTitle({instrument:instrumentItem})}
               />

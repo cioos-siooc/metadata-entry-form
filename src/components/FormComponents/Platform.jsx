@@ -59,8 +59,8 @@ const Platform = ({
                   getBlankItem={getBlankPlatform}
                   leftListHeader={<I18n><En>Platforms in this record:</En><Fr>Plateformes dans cet enregistrement :</Fr></I18n>}
                   leftListEmptyHeader={<I18n><En>There are no platforms in this record.</En><Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr></I18n>}
-                  addSavedItemLabel={<I18n><En>ADD SAVED PLATFORM</En><Fr>Ajouter une plateforme enregistrée</Fr></I18n>}
-                  addNewItemText={<I18n><En>ADD NEW PLATFORM</En><Fr>Ajouter une plateforme</Fr></I18n>}
+                  addSavedItemLabel={<I18n><En>Add saved platform</En><Fr>Ajouter une plateforme enregistrée</Fr></I18n>}
+                  addNewItemText={<I18n><En>Add new platform</En><Fr>Ajouter une plateforme</Fr></I18n>}
                   itemTitle={(platformItem) => PlatformTitle({"platform":platformItem})}
                   />
 
