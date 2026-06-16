@@ -23,10 +23,13 @@ const transporter = nodemailer.createTransport({
   auth: { user: gmailUserCred, pass: gmailPassCred },
 });
 // RTDB returns sparse arrays as objects keyed by index (e.g. {"0": ..., "2": ...}),
-// so callers cannot assume record.contacts is an Array. Coerce, then find the custodian's org.
+// so callers cannot assume record.contacts (or a contact's role) is an Array.
+// Coerce both with Object.values, then find the custodian's org.
 exports.findCustodianOrgName = (record) => {
   const contacts = Object.values((record && record.contacts) || {});
-  const custodian = contacts.find((c) => c && c.role && c.role.includes("custodian"));
+  const custodian = contacts.find((c) =>
+    Object.values((c && c.role) || {}).includes("custodian")
+  );
   return custodian && custodian.orgName;
 };
 

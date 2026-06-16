@@ -59,6 +59,19 @@ describe("findCustodianOrgName", () => {
     expect(findCustodianOrgName(record)).toBeUndefined();
   });
 
+  test("finds custodian when role is an object (RTDB sparse-array form — regression)", () => {
+    // RTDB returns role (an array of role strings) as an index-keyed object;
+    // a plain object has no .includes, which previously threw a TypeError and
+    // aborted the function before the reviewer email was sent.
+    const record = {
+      contacts: {
+        0: { role: { 0: "owner" }, orgName: "Other Org" },
+        1: { role: { 0: "custodian", 1: "owner" }, orgName: "Custodian Org" },
+      },
+    };
+    expect(findCustodianOrgName(record)).toBe("Custodian Org");
+  });
+
   test("tolerates contacts entries with no role field", () => {
     const record = {
       contacts: {
