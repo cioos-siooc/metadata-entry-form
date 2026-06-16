@@ -592,7 +592,7 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-              {!["model"].includes(record.metadataScope) && (
+              {!["model"].includes(record.metadataScopeIso) && (
                 <Tab
                   fullWidth
                   classes={{ root: classes.tabRoot }}

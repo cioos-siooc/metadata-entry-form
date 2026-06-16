@@ -81,8 +81,8 @@ const regions = {
     colors: { primary: "#E31837", secondary: "#77777A" },
     email: "info@as.ulaval.ca",
     catalogueURL: {
-      fr: "https://catalogue.amundsenscience.ca/fr/",
-      en: "https://catalogue.amundsenscience.ca/",
+      fr: "https://catalogue.amundsenscience.com/fr/",
+      en: "https://catalogue.amundsenscience.com/",
     },
     introPageText: {
       en:
