@@ -2,7 +2,11 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const { defineString } = require('firebase-functions/params');
 const nodemailer = require("nodemailer");
-const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
+const {
+  mailOptionsReviewer,
+  mailOptionsAuthor,
+  mailOptionsAuthorSubmissionConfirmation,
+} = require("./mailoutText");
 const createIssue = require("./issue");
 
 /**
@@ -72,6 +76,22 @@ exports.notifyReviewer = functions.database
           `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`
         );
       }
+
+      console.log("Emailing submission confirmation to author", authorEmail);
+      transporter.sendMail(
+        mailOptionsAuthorSubmissionConfirmation(
+          authorEmail,
+          titleEn,
+          titleFr,
+          region
+        ),
+        (e, info) => {
+          console.log(info);
+          if (e) {
+            console.log(e);
+          }
+        }
+      );
 
       if (reviewers.includes(authorEmail)) {
         console.log("Author is a reviewer, don't notifiy other reviewers");
