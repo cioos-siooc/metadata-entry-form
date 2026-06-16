@@ -25,6 +25,7 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { preparePublishPayload } from "../../utils/publishUtils";
 import RecordList, { reviewerConfig } from "../RecordList";
+import { markFormNavigation } from "../RecordList/hooks";
 
 const Reviewer = () => {
   const { language, region } = useParams();
@@ -175,6 +176,7 @@ const Reviewer = () => {
   // Action handlers
   const handleEditRecord = useCallback(
     (recordID, userID) => {
+      markFormNavigation(reviewerConfig.pageId);
       navigate(`/${language}/${region}/${userID}/${recordID}`);
     },
     [navigate, language, region],
