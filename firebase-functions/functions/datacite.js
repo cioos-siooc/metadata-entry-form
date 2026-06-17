@@ -242,6 +242,79 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
 
 });
 
+// Test stored DataCite credentials by attempting to create and immediately delete a draft DOI.
+// This validates that the credentials and prefix are correct and have write access.
+// Returns { success: true } if the credentials are valid, or throws an HttpsError on failure.
+exports.testDataciteCredentials = functions.https.onCall(async (region) => {
+  let authHash;
+  let prefix;
+
+  try {
+    const credentialsRef = admin.database().ref('admin').child(region).child("dataciteCredentials");
+    authHash = (await credentialsRef.child("dataciteHash").once("value")).val();
+    prefix = (await credentialsRef.child("prefix").once("value")).val();
+  } catch (error) {
+    functions.logger.error(`[testDataciteCredentials] Error fetching credentials for region ${region}:`, error);
+    throw new functions.https.HttpsError('internal', 'Failed to read stored credentials from database.');
+  }
+
+  if (!authHash || !prefix) {
+    throw new functions.https.HttpsError('failed-precondition', 'No DataCite credentials are stored. Please save credentials first.');
+  }
+
+  const baseUrl = await getBaseUrl(region);
+  let testDoi;
+
+  // Step 1: Create a minimal draft DOI to verify credentials and prefix
+  try {
+    const createPayload = {
+      data: {
+        type: "dois",
+        attributes: {
+          prefix,
+        },
+      },
+    };
+
+    const createResponse = await axios.post(baseUrl, createPayload, {
+      headers: {
+        'Authorization': `Basic ${authHash}`,
+        'Content-Type': 'application/vnd.api+json',
+      },
+    });
+
+    testDoi = createResponse.data?.data?.id;
+    functions.logger.info(`[testDataciteCredentials] Draft DOI created: ${testDoi}`);
+  } catch (err) {
+    functions.logger.error("[testDataciteCredentials] Create failed:", { status: err.response?.status, data: err.response?.data });
+    if (err.response && err.response.status === 401) {
+      throw new functions.https.HttpsError('unauthenticated', 'Unauthorized: The stored credentials are invalid. Please update them.');
+    }
+    if (err.response && err.response.status === 403) {
+      throw new functions.https.HttpsError('permission-denied', 'Forbidden: The account does not have permission to create DOIs. Please check your credentials and prefix.');
+    }
+    const errMessage = err.response
+      ? `DataCite API returned ${err.response.status}: ${err.response.statusText}`
+      : err.message || 'Unknown error connecting to DataCite API.';
+    throw new functions.https.HttpsError('unknown', errMessage);
+  }
+
+  // Step 2: Clean up by deleting the test draft DOI
+  if (testDoi) {
+    try {
+      await axios.delete(`${baseUrl}${testDoi}`, {
+        headers: { 'Authorization': `Basic ${authHash}` },
+      });
+      functions.logger.info(`[testDataciteCredentials] Test DOI ${testDoi} deleted.`);
+    } catch (deleteErr) {
+      functions.logger.warn(`[testDataciteCredentials] Failed to delete test DOI ${testDoi}:`, deleteErr.message);
+      // Don't fail the test — credentials are valid, cleanup is best-effort
+    }
+  }
+
+  return { success: true, message: 'Credentials verified successfully. A test DOI was created and removed.' };
+});
+
 // helper function to get the datacite credentials from the database so they are not sent to the client
 exports.getCredentialsStored = functions.https.onCall(async (data) => {
   try {

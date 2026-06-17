@@ -107,6 +107,7 @@ class UserProviderClass extends FormClassTemplate {
     const checkURLActive = httpsCallable(functions, "checkURLActive");
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
+    const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
     const publishOrganizationToGitHub = httpsCallable(functions, "githubPublishOrganization");
     const syncOrganizationsFromGitHub = httpsCallable(functions, "syncOrganizationsFromGitHub");
@@ -125,6 +126,7 @@ class UserProviderClass extends FormClassTemplate {
           checkURLActive,
           getCredentialsStored,
           getDatacitePrefix,
+          testDataciteCredentials,
           publishRecordToGitHub,
           publishOrganizationToGitHub,
           syncOrganizationsFromGitHub,

@@ -14,7 +14,7 @@
   },
   "main": "index.js",
   "dependencies": {
-    "aws-sdk": "^2.1693.0",
+    "cohere-ai": "^7.9.0",
     "axios": "^1.13.4",
     "cors": "2.8.6",
     "firebase": "^12.8.0",
