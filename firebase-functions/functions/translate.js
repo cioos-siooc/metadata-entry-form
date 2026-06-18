@@ -68,7 +68,10 @@ const translateText = async (
       response.message.content &&
       response.message.content.length > 0
     ) {
-      const translatedText = response.message.content[0].text;
+      let translatedText = response.message.content[0].text;
+      // Strip <text_to_translate> wrapper tags if the model echoes them back
+      const match = translatedText.match(/<text_to_translate>\s*([\s\S]*?)\s*<\/text_to_translate>/);
+      if (match) translatedText = match[1];
       return { TranslatedText: translatedText };
     } else {
       throw new Error("No translation received from Cohere API");

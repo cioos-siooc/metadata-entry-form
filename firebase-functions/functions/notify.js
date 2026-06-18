@@ -22,6 +22,17 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: { user: gmailUserCred, pass: gmailPassCred },
 });
+// RTDB returns sparse arrays as objects keyed by index (e.g. {"0": ..., "2": ...}),
+// so callers cannot assume record.contacts (or a contact's role) is an Array.
+// Coerce both with Object.values, then find the custodian's org.
+exports.findCustodianOrgName = (record) => {
+  const contacts = Object.values((record && record.contacts) || {});
+  const custodian = contacts.find((c) =>
+    Object.values((c && c.role) || {}).includes("custodian")
+  );
+  return custodian && custodian.orgName;
+};
+
 /*
 Email the reviewers for the region when a form is submitted for review
 */
@@ -95,10 +106,7 @@ exports.notifyReviewer = functions.database
       }
 
       const authorName = authorUserInfo.displayName || "";
-      const custodian = (record.contacts || []).find(
-        (c) => c.role && c.role.includes("custodian")
-      );
-      const orgName = custodian && custodian.orgName;
+      const orgName = exports.findCustodianOrgName(record);
 
       console.log("Emailing ", reviewers);
       transporter.sendMail(
