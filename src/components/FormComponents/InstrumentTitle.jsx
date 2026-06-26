@@ -6,21 +6,22 @@ import { I18n } from "../I18n";
 // creates text from an instrument in the form
 // <instrumentName> - <instrumentType>
 function getInstrumentTitleFromNames(instrument) {
-    const { id, manufacturer } = instrument;
-    const titleParts = [manufacturer, id];
+  const { id, manufacturer } = instrument;
+  const titleParts = [manufacturer, id];
 
-    return titleParts
-        .filter((e) => e)
-        .map((e) => e.trim())
-        .filter((e) => e)
-        .join(" - ");
+  return titleParts
+    .filter((e) => e)
+    .map((e) => e.trim())
+    .filter((e) => e)
+    .join(" - ");
 }
 
-function InstrumentTitle({instrument}) {
-    return (
-        getInstrumentTitleFromNames(instrument) ||
-        (<I18n en="New instrument" fr="Nouvel instrument" />)
-    );
+function InstrumentTitle({ instrument }) {
+  return (
+    getInstrumentTitleFromNames(instrument) || (
+      <I18n en="New instrument" fr="Nouvel instrument" />
+    )
+  );
 }
 
 export default InstrumentTitle;

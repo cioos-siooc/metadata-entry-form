@@ -48,17 +48,26 @@ const Shared = () => {
                 Object.keys(recordsByAuthor || {}).forEach((recordID) => {
                   const recordPath = `${region}/users/${authorID}/records/${recordID}`;
                   const recordRef = ref(database, recordPath);
-                  const recordPromise = get(recordRef).then((recordSnapshot) => {
-                    const recordDetails = recordSnapshot.val();
-                    if (recordDetails) {
-                      const jsRecord = firebaseToJSObject(recordDetails);
-                      const userInfo = { email: recordDetails.userinfo?.email || "" };
-                      return standardizeRecord(jsRecord, userInfo, authorID, recordID);
-                    }
-                    throw new Error(
-                      `No details found for record ${recordID} by author ${authorID}`,
-                    );
-                  });
+                  const recordPromise = get(recordRef).then(
+                    (recordSnapshot) => {
+                      const recordDetails = recordSnapshot.val();
+                      if (recordDetails) {
+                        const jsRecord = firebaseToJSObject(recordDetails);
+                        const userInfo = {
+                          email: recordDetails.userinfo?.email || "",
+                        };
+                        return standardizeRecord(
+                          jsRecord,
+                          userInfo,
+                          authorID,
+                          recordID,
+                        );
+                      }
+                      throw new Error(
+                        `No details found for record ${recordID} by author ${authorID}`,
+                      );
+                    },
+                  );
                   recordsPromises.push(recordPromise);
                 });
               },
@@ -120,9 +129,7 @@ const Shared = () => {
 
       <Typography variant="body2" sx={{ mb: 2 }}>
         <I18n>
-          <En>
-            The following records have been shared with you for editing.
-          </En>
+          <En>The following records have been shared with you for editing.</En>
           <Fr>
             Les enregistrements suivants ont été partagés avec vous pour
             modification.
@@ -134,8 +141,8 @@ const Shared = () => {
         <I18n>
           <En>You can edit them, but you cannot submit or delete.</En>
           <Fr>
-            Vous pouvez les modifier, mais vous ne pouvez pas les
-            soumettre ou les supprimer.
+            Vous pouvez les modifier, mais vous ne pouvez pas les soumettre ou
+            les supprimer.
           </Fr>
         </I18n>
       </Typography>

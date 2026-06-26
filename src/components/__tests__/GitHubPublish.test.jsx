@@ -52,7 +52,7 @@ describe("<GitHubPublishDialog />", () => {
         onClose={mockOnClose}
         onPublish={mockOnPublish}
         region={region}
-      />
+      />,
     );
 
     expect(screen.getByText("Publish to GitHub")).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("<GitHubPublishDialog />", () => {
         onClose={mockOnClose}
         onPublish={mockOnPublish}
         region={region}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -81,7 +81,7 @@ describe("<GitHubPublishDialog />", () => {
         onClose={mockOnClose}
         onPublish={mockOnPublish}
         region={region}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -99,7 +99,7 @@ describe("<GitHubPublishDialog />", () => {
     // Expected: ['prod'] and the default commit message
     expect(mockOnPublish).toHaveBeenCalledWith(
       ["prod"],
-      expect.stringContaining("Publish metadata record")
+      expect.stringContaining("Publish metadata record"),
     );
   });
 
@@ -110,7 +110,7 @@ describe("<GitHubPublishDialog />", () => {
         onClose={mockOnClose}
         onPublish={mockOnPublish}
         region={region}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -129,7 +129,10 @@ describe("<GitHubPublishDialog />", () => {
     const publishButton = screen.getByRole("button", { name: /Publish/i });
     fireEvent.click(publishButton);
 
-    expect(mockOnPublish).toHaveBeenCalledWith(["dev"], "fix: updated metadata");
+    expect(mockOnPublish).toHaveBeenCalledWith(
+      ["dev"],
+      "fix: updated metadata",
+    );
   });
 
   it("shows loading state when loading is true", () => {
@@ -140,7 +143,7 @@ describe("<GitHubPublishDialog />", () => {
         onPublish={mockOnPublish}
         region={region}
         loading={true}
-      />
+      />,
     );
 
     // Should show CircularProgress (via the progressbar role)

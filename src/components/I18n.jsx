@@ -1,15 +1,18 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-const spanInLanguage = (lang) => ({ children }) => {
-  const { language } = useParams();
-  return language === lang && <>{children}</>;
+const spanInLanguage = (lang) => {
+  const SpanInLanguage = ({ children }) => {
+    const { language } = useParams();
+    return language === lang && <>{children}</>;
+  };
+  return SpanInLanguage;
 };
 
 export const En = spanInLanguage("en");
 export const Fr = spanInLanguage("fr");
 
-/* 
+/*
   This component can be used with attributes only, eg
   <I18n en="boat" fr="bateau"/>
 
@@ -30,13 +33,12 @@ export const I18n = (props) => {
   // If this component used via attributes
   if (en || fr) {
     if (en && fr) return language === "en" ? en : fr;
-    // eslint-disable-next-line no-console
+
     console.error("Tag missing french or english!");
     return null;
   }
 
   if (Array.isArray(children) && children.length !== 2) {
-    // eslint-disable-next-line no-console
     console.error(props, "Tag missing french or english!");
   }
 

@@ -48,7 +48,7 @@ describe("performUpdateDraftDoi", () => {
       "en",
       "pacific",
       "10.1234",
-      { forUpdate: true }
+      { forUpdate: true },
     );
   });
 
@@ -61,7 +61,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -78,7 +78,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -95,7 +95,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -112,7 +112,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -140,30 +140,26 @@ describe("performUpdateDraftDoi", () => {
       mockRecord,
       "pacific",
       "en",
-      "10.1234"
+      "10.1234",
     );
 
     expect(result).toBe(200);
   });
 
   it("should propagate errors from recordToDataCiteFromPython", async () => {
-    mockRecordToDataCite.mockRejectedValue(
-      new Error("Conversion failed")
-    );
+    mockRecordToDataCite.mockRejectedValue(new Error("Conversion failed"));
 
     await expect(
-      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234")
+      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234"),
     ).rejects.toThrow("Conversion failed");
   });
 
   it("should propagate errors from updateDraftDoi", async () => {
     mockRecordToDataCite.mockResolvedValue({ data: { attributes: {} } });
-    mockUpdateDraftDoi.mockRejectedValue(
-      new Error("DOI not found")
-    );
+    mockUpdateDraftDoi.mockRejectedValue(new Error("DOI not found"));
 
     await expect(
-      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234")
+      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234"),
     ).rejects.toThrow("DOI not found");
   });
 });

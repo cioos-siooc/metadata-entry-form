@@ -2,16 +2,14 @@
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
 
-import os
-import re
 import json
 import logging
-
-from firebase_functions import https_fn
-from firebase_functions.params import BoolParam
-from firebase_admin import initialize_app
+import re
 
 from cioos_metadata_conversion.record import Record
+from firebase_admin import initialize_app
+from firebase_functions import https_fn
+from firebase_functions.params import BoolParam
 
 # Determine if this is the dev project
 is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)

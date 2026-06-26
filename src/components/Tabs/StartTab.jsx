@@ -1,12 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 
 import { Save } from "@mui/icons-material";
-import {
-  Typography,
-  Paper,
-  Grid,
-  FormControl,
-} from "@mui/material";
+import { Typography, Paper, Grid, FormControl } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -17,41 +12,51 @@ import DOIInput from "../FormComponents/DOIInput";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
-import { paperClass, QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import {
+  paperClass,
+  QuestionText,
+  SupplementalText,
+} from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
 import themesList from "../../utils/themes";
 
-
 import SelectInput from "../FormComponents/SelectInput";
 
-const {DataCollectionSampling, ...filtereMetadataScopeCodes} = metadataScopeCodes;
-const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }) => {
+const filtereMetadataScopeCodes = Object.fromEntries(
+  Object.entries(metadataScopeCodes).filter(
+    ([key]) => key !== "DataCollectionSampling",
+  ),
+);
+const StartTab = ({
+  disabled,
+  record,
+  updateRecord,
+  handleUpdateRecord,
+  userID,
+}) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
-  const [showShareRecord, setShowShareRecord] = useState(false)
+  const [showShareRecord, setShowShareRecord] = useState(false);
   const mounted = useRef(false);
 
   function themes() {
-
-    const foundWord = themesList.find((e) => e[language])
-    if (foundWord){
-      return foundWord[language]
-    } 
-    return {}
+    const foundWord = themesList.find((e) => e[language]);
+    if (foundWord) {
+      return foundWord[language];
+    }
+    return {};
   }
 
-
   const updateResourceType = (value) => {
-    if(Array.isArray(value) && value.length === 1 && value.includes('other')){
-      if (Array.isArray(record.eov)){
-          if(!record.eov.includes('other')){
-            updateRecord("eov")([...record.eov, "other"])
-          }
-        else{
-            updateRecord("eov")(["other"])
+    if (Array.isArray(value) && value.length === 1 && value.includes("other")) {
+      if (Array.isArray(record.eov)) {
+        if (!record.eov.includes("other")) {
+          updateRecord("eov")([...record.eov, "other"]);
+        } else {
+          updateRecord("eov")(["other"]);
         }
       }
     }
@@ -60,26 +65,30 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
 
   const handleMetadataScopeChange = () => {
     return (e) => {
-      const newEvent = { target: { value: metadataScopeCodes[e.target.value]?.isoValue }};
+      const newEvent = {
+        target: { value: metadataScopeCodes[e.target.value]?.isoValue },
+      };
       handleUpdateRecord("metadataScopeIso")(newEvent);
       handleUpdateRecord("metadataScope")(e);
     };
-  }
+  };
 
- 
   useEffect(() => {
     mounted.current = true;
 
     if (!record.language) {
-      handleUpdateRecord("language")({ target: {value: language}});
+      handleUpdateRecord("language")({ target: { value: language } });
     }
 
     if (!record.metadataScope) {
-      handleUpdateRecord("metadataScope")({ target: { value: 'Dataset' } });
+      handleUpdateRecord("metadataScope")({ target: { value: "Dataset" } });
       handleUpdateRecord("metadataScopeIso")({
         target: { value: metadataScopeCodes.Dataset.isoValue },
       });
-    } else if (!record.metadataScopeIso && metadataScopeCodes[record.metadataScope]) {
+    } else if (
+      !record.metadataScopeIso &&
+      metadataScopeCodes[record.metadataScope]
+    ) {
       // Backfill ISO value for records saved before this fix
       handleUpdateRecord("metadataScopeIso")({
         target: { value: metadataScopeCodes[record.metadataScope].isoValue },
@@ -92,7 +101,6 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   }, [language]);
 
   useEffect(() => {
-
     const isNewRecord = !record.recordID;
 
     if (userID === record.userID || isNewRecord) {
@@ -101,7 +109,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   }, [userID, record.userID, record.recordID]);
 
   return (
-    <Grid >
+    <Grid>
       <Paper style={paperClass}>
         {disabled && (
           <QuestionText style={{ paddingBottom: "15px" }}>
@@ -125,8 +133,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <I18n>
             <En>
               Welcome to the {regionInfo.title.en} Metadata Entry Tool, the
-              first step in making your data discoverable and accessible. This information will be used to create a metadata record
-              for your dataset that will allow it to be searchable through the{" "}
+              first step in making your data discoverable and accessible. This
+              information will be used to create a metadata record for your
+              dataset that will allow it to be searchable through the{" "}
               {regionInfo.catalogueTitle.en}. Please fill out each field with as
               much detail as possible. The metadata record will help describe
               this dataset for others to determine if it is relevant for their
@@ -137,15 +146,15 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             </En>
             <Fr>
               Bienvenue dans le formulaire de saisie de métadonnées{" "}
-              {regionInfo.titleFrPossessive}. Cet outil constitue la première étape du
-              processus de partage de vos données. Les renseignements fournis serviront
-              à créer le profil de métadonnées de votre jeu de données. Ces
-              métadonnées facilitent l’accessibilité et la découvrabilité de vos
-              données via le {regionInfo.catalogueTitle.fr}
+              {regionInfo.titleFrPossessive}. Cet outil constitue la première
+              étape du processus de partage de vos données. Les renseignements
+              fournis serviront à créer le profil de métadonnées de votre jeu de
+              données. Ces métadonnées facilitent l’accessibilité et la
+              découvrabilité de vos données via le{" "}
+              {regionInfo.catalogueTitle.fr}
               . Elles rendent également vos jeux de données interopérables avec
-              d’autres systèmes de diffusion. Aussi, nous vous invitons
-              à remplir les champs requis de la façon la plus
-              exhaustive possible.
+              d’autres systèmes de diffusion. Aussi, nous vous invitons à
+              remplir les champs requis de la façon la plus exhaustive possible.
               <br />
               <br /> Les questions concernant le formulaire peuvent être
               adressées à{" "}
@@ -199,17 +208,17 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
                 more text to translate.
               </En>
               <Fr>
-                Certains champs peuvent contenir du texte à la fois en français et
-                en anglais. Toutefois, seules les traductions du titre et de la
-                description sont obligatoires. Le bouton « Traduire» génère
-                automatiquement une traduction dans l'autre langue. Une description
-                exhaustive améliorera la précision de la traduction.
+                Certains champs peuvent contenir du texte à la fois en français
+                et en anglais. Toutefois, seules les traductions du titre et de
+                la description sont obligatoires. Le bouton « Traduire» génère
+                automatiquement une traduction dans l'autre langue. Une
+                description exhaustive améliorera la précision de la traduction.
               </Fr>
             </I18n>
           </li>
         </ul>
       </Paper>
-      
+
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -238,9 +247,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
                   Le titre doit être suffisamment précis pour que l'utilisateur
                   n'ait pas à ouvrir le jeu de données pour en comprendre le
                   contenu. Le titre ne doit pas comporter d'acronymes, de
-                  caractères spéciaux ou de termes techniques spécifiques à un domaine.
-                  Ceci apparaîtra comme titre de votre jeu de données dans le{" "}
-                  {regionInfo.catalogueTitle.fr}.
+                  caractères spéciaux ou de termes techniques spécifiques à un
+                  domaine. Ceci apparaîtra comme titre de votre jeu de données
+                  dans le {regionInfo.catalogueTitle.fr}.
                 </p>
               </Fr>
             </I18n>
@@ -253,7 +262,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           disabled={disabled}
         />
       </Paper>
-      
+
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>
@@ -261,17 +270,16 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             <Fr>Quel est le type de ressource?</Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "metadataScope")} />
-
         </QuestionText>
         <SelectInput
           value={record.metadataScope || ""}
           onChange={handleMetadataScopeChange()}
           options={Object.keys(filtereMetadataScopeCodes)}
           optionLabels={Object.values(filtereMetadataScopeCodes).map(
-            ({ title }) => title[language]
+            ({ title }) => title[language],
           )}
           optionTooltips={Object.values(filtereMetadataScopeCodes).map(
-            ({ text }) => text[language]
+            ({ text }) => text[language],
           )}
           disabled={disabled}
           fullWidth={false}
@@ -284,7 +292,10 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the theme of this record?</En>
-              <Fr>À quelle discipline scientifique ce jeu de données est-il associé ?</Fr>
+              <Fr>
+                À quelle discipline scientifique ce jeu de données est-il
+                associé ?
+              </Fr>
             </I18n>
             {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
             <RequiredMark passes={record.resourceType} />
@@ -298,7 +309,6 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
             onChange={(v) => updateResourceType(v)}
             options={["oceanographic", "biological", "other"]}
             optionLabels={themes()}
-              
             disabled={disabled}
           />
         </FormControl>
@@ -327,13 +337,13 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
         handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
         disabled={disabled}
       />
-      
+
       {showShareRecord && (
         <SharedUsersList
-        region={region}
-        updateRecord={updateRecord}
-        record={record}
-      />
+          region={region}
+          updateRecord={updateRecord}
+          record={record}
+        />
       )}
     </Grid>
   );

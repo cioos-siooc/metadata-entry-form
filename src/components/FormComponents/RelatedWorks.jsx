@@ -143,7 +143,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
         <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
-              <Grid >
+              <Grid>
                 <List>
                   <SortableList
                     items={resources}
@@ -235,7 +235,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
               </Grid>
             )}
 
-            <Grid >
+            <Grid>
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -254,7 +254,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
           {resourceStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter the title of the related resource</En>
@@ -273,7 +273,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     fullWidth
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier for the related resource</En>
@@ -309,7 +309,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter the identifier type</En>
@@ -330,7 +330,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>What is the relation type?</En>
@@ -368,9 +368,8 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                         </En>
                         <Fr>
                           <p>
-                            Spécifiez la relation entre la ressource
-                            principale (A) et la ressource connexe (B). Par
-                            exemple :
+                            Spécifiez la relation entre la ressource principale
+                            (A) et la ressource connexe (B). Par exemple :
                           </p>
                           <ul>
                             «»

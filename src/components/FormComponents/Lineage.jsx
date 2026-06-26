@@ -146,7 +146,6 @@ const Lineage = ({
   }
 
   if (typeof history === "string" || history instanceof String) {
-     
     history = [];
   }
 
@@ -156,7 +155,7 @@ const Lineage = ({
         <Grid size={3}>
           <Grid container direction="column" spacing={2}>
             {history && history.length > 0 && (
-              <Grid >
+              <Grid>
                 <List>
                   <SortableList
                     items={history}
@@ -248,7 +247,7 @@ const Lineage = ({
               </Grid>
             )}
 
-            <Grid >
+            <Grid>
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -267,7 +266,7 @@ const Lineage = ({
           {lineageStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Lineage Title</En>
@@ -301,7 +300,7 @@ const Lineage = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Scope</En>
@@ -332,7 +331,7 @@ const Lineage = ({
                     label={<I18n en="Scope" fr="Cadre" />}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <AdditionalDocumentation
                     documentations={lineageStep.additionalDocumentation}
                     updateDocumentations={updateLineageSubField(
@@ -343,7 +342,7 @@ const Lineage = ({
                     language={language}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <LineageSource
                     sources={lineageStep.source}
                     updateSources={updateLineageSubField("source")}
@@ -352,7 +351,7 @@ const Lineage = ({
                     language={language}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <ProcessingStep
                     sources={lineageStep.processingStep}
                     updateSources={updateLineageSubField("processingStep")}

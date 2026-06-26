@@ -224,7 +224,10 @@ const Reviewer = () => {
     (recordID, userID, newStatus) => {
       const record = records.find((r) => r.recordID === recordID);
 
-      if (newStatus === "submitted") {
+      if (newStatus === "submitted" && record?.status === "published") {
+        // Published -> Submitted (unpublish)
+        toggleModal(setUnPublishModalOpen, true, recordID, userID);
+      } else if (newStatus === "submitted") {
         // Draft -> Submitted
         toggleModal(setSubmitModalOpen, true, recordID, userID);
       } else if (newStatus === "published") {
@@ -233,9 +236,6 @@ const Reviewer = () => {
       } else if (newStatus === "" && record?.status === "submitted") {
         // Submitted -> Draft (unsubmit)
         toggleModal(setUnSubmitModalOpen, true, recordID, userID);
-      } else if (newStatus === "submitted" && record?.status === "published") {
-        // Published -> Submitted (unpublish)
-        toggleModal(setUnPublishModalOpen, true, recordID, userID);
       }
     },
     [records, toggleModal],
@@ -429,13 +429,13 @@ const Reviewer = () => {
           >
             <I18n>
               <En>
-                Review, manage, and publish metadata records. Use filters to find
-                specific submissions by status, author, or title.
+                Review, manage, and publish metadata records. Use filters to
+                find specific submissions by status, author, or title.
               </En>
               <Fr>
                 Examinez, gérez et publiez les enregistrements de métadonnées.
-                Utilisez les filtres pour trouver des soumissions spécifiques par
-                statut, auteur ou titre.
+                Utilisez les filtres pour trouver des soumissions spécifiques
+                par statut, auteur ou titre.
               </Fr>
             </I18n>
           </Typography>
