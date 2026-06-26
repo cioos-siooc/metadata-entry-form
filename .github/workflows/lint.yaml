@@ -1,0 +1,44 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [development, main]
+
+permissions:
+  contents: read
+  packages: read
+  statuses: write
+
+jobs:
+  lint:
+    name: Lint changed files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # super-linter needs full history to diff against the base branch.
+          fetch-depth: 0
+
+      - name: Super-linter
+        uses: super-linter/super-linter/slim@v7
+        env:
+          # Only validate files changed in the PR, deferring to the repo's
+          # own eslint / prettier / ruff configs.
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: development
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Use repo-root configs instead of .github/linters/.
+          LINTER_RULES_PATH: .
+          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.mjs
+
+          # Enable only the validators we use. Everything else stays off so the
+          # check is fast and matches local tooling.
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_PYTHON_RUFF: true
+          VALIDATE_JAVASCRIPT_PRETTIER: true
+          VALIDATE_JSON_PRETTIER: true
+          VALIDATE_CSS_PRETTIER: true
+          VALIDATE_MARKDOWN_PRETTIER: true
+          VALIDATE_YAML_PRETTIER: true
