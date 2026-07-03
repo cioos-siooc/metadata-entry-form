@@ -21,7 +21,7 @@ describe("<SelectInput />", () => {
         options={selectInputs}
         optionLabels={selectInputs}
         value={selectInputs[0]}
-      />
+      />,
     );
 
     // Verify the select component renders with the correct value

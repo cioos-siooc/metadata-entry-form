@@ -17,7 +17,10 @@ export default function RegionSelect() {
   const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
   // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
   const otherOrganizations = Object.entries(regions)
-    .filter(([code, regionInfo]) => !raCodes.includes(code) && regionInfo.showInRegionSelector)
+    .filter(
+      ([code, regionInfo]) =>
+        !raCodes.includes(code) && regionInfo.showInRegionSelector,
+    )
     .map(([code, regionInfo]) => ({ code, info: regionInfo }));
 
   // Sort by translated title / name
@@ -27,7 +30,7 @@ export default function RegionSelect() {
     return getName(a).localeCompare(
       getName(b),
       language === "fr" ? "fr" : "en",
-      { sensitivity: "base" }
+      { sensitivity: "base" },
     );
   });
 
@@ -39,7 +42,7 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
       <Grid container direction="column" spacing={4}>
-        <Grid >
+        <Grid>
           <Typography
             variant="h6"
             gutterBottom
@@ -64,11 +67,11 @@ export default function RegionSelect() {
         </Grid>
 
         {/* CIOOS Regional Associations */}
-        <Grid >
+        <Grid>
           <Typography variant="h5" gutterBottom align="center">
             {t(
               "CIOOS Regional Associations",
-              "Associations régionales du SIOOC"
+              "Associations régionales du SIOOC",
             )}
           </Typography>
           <Grid
@@ -98,7 +101,7 @@ export default function RegionSelect() {
         </Grid>
 
         {/* All Organizations */}
-        <Grid >
+        <Grid>
           <Typography variant="h5" gutterBottom align="center">
             {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>
@@ -106,7 +109,7 @@ export default function RegionSelect() {
             <Typography variant="body2" align="center">
               {t(
                 "No affiliated organizations found.",
-                "Aucune organisation affiliée trouvée."
+                "Aucune organisation affiliée trouvée.",
               )}
             </Typography>
           )}

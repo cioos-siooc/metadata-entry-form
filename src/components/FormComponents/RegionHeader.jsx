@@ -9,20 +9,22 @@ const RegionHeader = ({ children }) => {
   const titleText = region;
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid >
+      <Grid>
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
-          <div style={{
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            padding: '10px 0',
-          }}>{titleText}</div>
+          <div
+            style={{
+              fontSize: "1.8rem",
+              fontWeight: 600,
+              padding: "10px 0",
+            }}
+          >
+            {titleText}
+          </div>
         )}
       </Grid>
-      <Grid  style={{ paddingLeft: "50px" }}>
-        {children}
-      </Grid>
+      <Grid style={{ paddingLeft: "50px" }}>{children}</Grid>
     </Grid>
   );
 };

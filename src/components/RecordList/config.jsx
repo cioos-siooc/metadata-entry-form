@@ -396,9 +396,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
     renderCell: (params) => {
       const licenseData = licenses[params.value];
       const display = licenseData
-        ? licenseData.title?.[language] ||
-          licenseData.title?.en ||
-          params.value
+        ? licenseData.title?.[language] || licenseData.title?.en || params.value
         : params.value || "";
       return (
         <CopyableCell

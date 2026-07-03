@@ -6,7 +6,9 @@ const { CohereClientV2 } = require("cohere-ai");
 // --- CLI args ---
 function getArg(name) {
   const idx = process.argv.indexOf(`--${name}`);
-  return idx !== -1 && idx + 1 < process.argv.length ? process.argv[idx + 1] : null;
+  return idx !== -1 && idx + 1 < process.argv.length
+    ? process.argv[idx + 1]
+    : null;
 }
 
 const isProduction = process.argv.includes("--production");
@@ -14,18 +16,22 @@ const MODEL = "command-a-03-2025";
 
 const EXPORT_PATH = path.resolve(
   __dirname,
-  "../cioos-metadata-form-dev-258dc-default-rtdb-export (2).json"
+  "../cioos-metadata-form-dev-258dc-default-rtdb-export (2).json",
 );
 const PROMPT_TEMPLATE_PATH = path.resolve(
   __dirname,
-  "../firebase-functions/functions/translation-prompt-template.txt"
+  "../firebase-functions/functions/translation-prompt-template.txt",
 );
 
 // Prompt template with glossary already baked in (synced from cioos-commons)
 const promptTemplate = fs.readFileSync(PROMPT_TEMPLATE_PATH, "utf-8");
 
 // Generate run name from model + prompt hash
-const promptHash = crypto.createHash("sha1").update(promptTemplate).digest("hex").slice(0, 7);
+const promptHash = crypto
+  .createHash("sha1")
+  .update(promptTemplate)
+  .digest("hex")
+  .slice(0, 7);
 const runName = getArg("run") || `${MODEL}-${promptHash}`;
 
 // Per-run output directory
@@ -48,8 +54,10 @@ const client = new CohereClientV2({
 });
 
 async function translateWithCohere(text, sourceLang, targetLang) {
-  const sourceName = sourceLang === "en" ? "Canadian English" : "Canadian French";
-  const targetName = targetLang === "en" ? "Canadian English" : "Canadian French";
+  const sourceName =
+    sourceLang === "en" ? "Canadian English" : "Canadian French";
+  const targetName =
+    targetLang === "en" ? "Canadian English" : "Canadian French";
 
   let truncated = false;
   let input = text;
@@ -106,7 +114,7 @@ function extractTranslatedFields(data) {
           if (!fieldData || !fieldData.translations) continue;
 
           for (const [targetLang, translationMeta] of Object.entries(
-            fieldData.translations
+            fieldData.translations,
           )) {
             // Only include AWS translations
             if (
@@ -155,13 +163,18 @@ function textCacheKey(sourceLang, targetLang, text) {
 
 function loadTextCache() {
   if (fs.existsSync(TEXT_CACHE_PATH)) {
-    return new Map(Object.entries(JSON.parse(fs.readFileSync(TEXT_CACHE_PATH, "utf-8"))));
+    return new Map(
+      Object.entries(JSON.parse(fs.readFileSync(TEXT_CACHE_PATH, "utf-8"))),
+    );
   }
   return new Map();
 }
 
 function saveTextCache(textCache) {
-  fs.writeFileSync(TEXT_CACHE_PATH, JSON.stringify(Object.fromEntries(textCache), null, 2));
+  fs.writeFileSync(
+    TEXT_CACHE_PATH,
+    JSON.stringify(Object.fromEntries(textCache), null, 2),
+  );
 }
 
 function loadCache() {
@@ -197,7 +210,9 @@ class RateLimiter {
   throttle() {
     const prev = this.maxPerMinute;
     this.maxPerMinute = Math.max(5, Math.floor(this.maxPerMinute * 0.6));
-    process.stdout.write(`\n  THROTTLE: rate limit hit, reducing from ${prev} to ${this.maxPerMinute} req/min\n`);
+    process.stdout.write(
+      `\n  THROTTLE: rate limit hit, reducing from ${prev} to ${this.maxPerMinute} req/min\n`,
+    );
   }
 
   async acquire() {
@@ -285,8 +300,12 @@ async function runComparison() {
     console.log("All fields already cached, nothing to translate.");
   } else {
     const tier = isProduction ? "production" : "trial";
-    console.log(`Translating ${toTranslate.length} fields (${tier} tier: ${CONCURRENCY} concurrent, ${MAX_REQUESTS_PER_MIN} req/min)...`);
-    console.log(`Tip: use --production flag if you have a production API key.\n`);
+    console.log(
+      `Translating ${toTranslate.length} fields (${tier} tier: ${CONCURRENCY} concurrent, ${MAX_REQUESTS_PER_MIN} req/min)...`,
+    );
+    console.log(
+      `Tip: use --production flag if you have a production API key.\n`,
+    );
     const startTime = Date.now();
     let completed = 0;
     let lastSaveAt = 0;
@@ -305,10 +324,19 @@ async function runComparison() {
         const MAX_RETRIES = 3;
         let success = false;
 
-        const textKey = textCacheKey(entry.sourceLang, entry.targetLang, entry.sourceText);
+        const textKey = textCacheKey(
+          entry.sourceLang,
+          entry.targetLang,
+          entry.sourceText,
+        );
         if (textCache.has(textKey)) {
           const cached = textCache.get(textKey);
-          const completeEntry = { ...entry, cohereTranslation: cached.text, truncated: cached.truncated, model: cached.model || MODEL };
+          const completeEntry = {
+            ...entry,
+            cohereTranslation: cached.text,
+            truncated: cached.truncated,
+            model: cached.model || MODEL,
+          };
           if (existing) {
             results[results.indexOf(existing)] = completeEntry;
           } else {
@@ -326,7 +354,7 @@ async function runComparison() {
             const result = await translateWithCohere(
               entry.sourceText,
               entry.sourceLang,
-              entry.targetLang
+              entry.targetLang,
             );
 
             const completeEntry = {
@@ -343,19 +371,27 @@ async function runComparison() {
               results.push(completeEntry);
             }
             cacheIndex.set(key, completeEntry);
-            textCache.set(textKey, { text: result.text, truncated: result.truncated, model: MODEL });
+            textCache.set(textKey, {
+              text: result.text,
+              truncated: result.truncated,
+              model: MODEL,
+            });
             saveTextCache(textCache);
             newCount++;
             success = true;
             break;
           } catch (err) {
-            const statusCode = err.statusCode || err.status || err.response?.status;
-            const is429 = statusCode === 429 ||
+            const statusCode =
+              err.statusCode || err.status || err.response?.status;
+            const is429 =
+              statusCode === 429 ||
               (err.message && err.message.includes("429")) ||
               (err.message && /rate.?limit/i.test(err.message)) ||
               (err.message && /too many requests/i.test(err.message));
 
-            process.stdout.write(`\n  [attempt ${attempt + 1}] ${is429 ? "RATE LIMIT" : "ERROR"} (status=${statusCode ?? "n/a"}): ${err.message}\n`);
+            process.stdout.write(
+              `\n  [attempt ${attempt + 1}] ${is429 ? "RATE LIMIT" : "ERROR"} (status=${statusCode ?? "n/a"}): ${err.message}\n`,
+            );
 
             if (is429 && attempt < MAX_RETRIES) {
               limiter.throttle();
@@ -366,7 +402,9 @@ async function runComparison() {
             }
 
             errorCount++;
-            process.stdout.write(`\n  ERROR [${entry.field}] ${entry.id}: ${err.message}\n`);
+            process.stdout.write(
+              `\n  ERROR [${entry.field}] ${entry.id}: ${err.message}\n`,
+            );
             const errorEntry = {
               ...entry,
               cohereTranslation: `[ERROR: ${err.message}]`,
@@ -424,7 +462,9 @@ async function runComparison() {
   console.log(`  New translations: ${newCount}`);
   console.log(`  Errors: ${errorCount}`);
   console.log(`  Results saved to: ${RUN_DIR}`);
-  console.log(`\nRun 'node report.js --run ${runName}' to generate the HTML report.`);
+  console.log(
+    `\nRun 'node report.js --run ${runName}' to generate the HTML report.`,
+  );
 }
 
 runComparison().catch((err) => {

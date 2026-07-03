@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { createContext } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
@@ -39,21 +38,22 @@ class UserProviderClass extends FormClassTemplate {
           username: email,
         });
 
-
         // should be replaced with getDatacitePrefix but can't as this function is not async
         const functions = getFunctions();
         const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
-        getDatacitePrefix(region)
-          .then((prefix) => {
-            this.setState({
-              datacitePrefix: prefix?.data,
-            });
+        getDatacitePrefix(region).then((prefix) => {
+          this.setState({
+            datacitePrefix: prefix?.data,
           });
+        });
 
         const database = getDatabase(firebase);
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
+        update(ref(database, `${region}/users/${uid}/userinfo`), {
+          displayName,
+          email,
+        });
 
-        const permissionsRef = ref(database, `admin/${region}/permissions`)
+        const permissionsRef = ref(database, `admin/${region}/permissions`);
 
         onValue(permissionsRef, (permissionsFB) => {
           const permissions = permissionsFB.toJSON();
@@ -78,12 +78,11 @@ class UserProviderClass extends FormClassTemplate {
         const sharesRef = ref(database, `${region}/shares/${uid}`);
 
         onValue(sharesRef, (snapshot) => {
-            const hasSharedRecords = snapshot.exists();
-            this.setState({ hasSharedRecords, authIsLoading: false });
-          });
+          const hasSharedRecords = snapshot.exists();
+          this.setState({ hasSharedRecords, authIsLoading: false });
+        });
 
         this.listenerRefs.push(sharesRef);
-
       } else {
         this.setState({
           loggedIn: false,
@@ -98,17 +97,29 @@ class UserProviderClass extends FormClassTemplate {
     const { children } = this.props;
     const functions = getFunctions();
     const translate = httpsCallable(functions, "translate");
-    const regenerateXMLforRecord = httpsCallable(functions, "regenerateXMLforRecord");
+    const regenerateXMLforRecord = httpsCallable(
+      functions,
+      "regenerateXMLforRecord",
+    );
     const downloadRecord = httpsCallable(functions, "downloadRecord");
     const createDraftDoi = httpsCallable(functions, "createDraftDoi");
     const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
     const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
     const getDoiStatus = httpsCallable(functions, "getDoiStatus");
     const checkURLActive = httpsCallable(functions, "checkURLActive");
-    const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
+    const getCredentialsStored = httpsCallable(
+      functions,
+      "getCredentialsStored",
+    );
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
-    const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
-    const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
+    const testDataciteCredentials = httpsCallable(
+      functions,
+      "testDataciteCredentials",
+    );
+    const publishRecordToGitHub = httpsCallable(
+      functions,
+      "githubPublishRecord",
+    );
 
     return (
       <UserContext.Provider

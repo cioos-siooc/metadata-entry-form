@@ -8,7 +8,10 @@ jest.mock("firebase-functions", () => ({
   https: {
     onCall: (handler) => handler,
     HttpsError: class extends Error {
-      constructor(code, message) { super(message); this.code = code; }
+      constructor(code, message) {
+        super(message);
+        this.code = code;
+      }
     },
   },
 }));

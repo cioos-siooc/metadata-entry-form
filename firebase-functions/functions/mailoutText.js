@@ -17,7 +17,6 @@ const regionNames = {
   test: { en: "Test", fr: "Test" },
 };
 
-
 function row(label, value) {
   if (!value) return "";
   return `<tr><td><b>${label}</b></td><td>${value}</td></tr>`;
@@ -33,7 +32,7 @@ function mailOptionsReviewer(
   orgName,
   userID,
   recordID,
-  language
+  language,
 ) {
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;
@@ -85,7 +84,7 @@ function mailOptionsAuthorSubmissionConfirmation(
   authorEmail,
   titleEn,
   titleFr,
-  region
+  region,
 ) {
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;

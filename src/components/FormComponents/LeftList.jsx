@@ -95,7 +95,7 @@ const LeftList = ({
 
   const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
-    const { role, ...contact } = savedUserItemList[index];
+    const { ...contact } = savedUserItemList[index];
 
     updateItems(items.concat(deepCopy({ ...getBlankItem(), ...contact })));
     // TODO: Apply UID check for duplicates before adding to list
@@ -110,7 +110,7 @@ const LeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             {items.length
               ? leftListHeader || (
@@ -127,7 +127,7 @@ const LeftList = ({
                 )}
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <List>
             <SortableList items={items} onDrop={onDrop} getItemId={getItemId}>
               {items.map((itemEntry, i) => {
@@ -241,7 +241,7 @@ const LeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={() => handleAddNewBlankItem()}
@@ -258,7 +258,7 @@ const LeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

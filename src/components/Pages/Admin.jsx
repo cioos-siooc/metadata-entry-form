@@ -21,9 +21,22 @@ import {
   FormLabel,
   Alert,
 } from "@mui/material";
-import { Save, Delete, PlayArrow, Visibility, VisibilityOff } from "@mui/icons-material";
-import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
-import { Buffer } from 'buffer';
+import {
+  Save,
+  Delete,
+  PlayArrow,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+import {
+  getDatabase,
+  ref,
+  child,
+  onValue,
+  update,
+  remove,
+} from "firebase/database";
+import { Buffer } from "buffer";
 
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
@@ -90,12 +103,12 @@ class Admin extends FormClassTemplate {
         const datacitePrefix = await getDatacitePrefix(region).then(
           (response) => {
             return response.data;
-          }
+          },
         );
         const credentialsStored = await getCredentialsStored(region).then(
           (response) => {
             return response.data;
-          }
+          },
         );
 
         const dataciteRef = child(regionAdminRef, "dataciteCredentials");
@@ -134,8 +147,12 @@ class Admin extends FormClassTemplate {
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          const admins = permissions.admins ? permissions.admins.split(",") : [];
-          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
+          const admins = permissions.admins
+            ? permissions.admins.split(",")
+            : [];
+          const reviewers = permissions.reviewers
+            ? permissions.reviewers.split(",")
+            : [];
 
           // Do not set `projects` here to avoid overwriting the more recent
           // value from the `projectsRef` listener above.
@@ -159,7 +176,6 @@ class Admin extends FormClassTemplate {
     // Check if credentialsStored state has changed
     if (prevState.credentialsStored !== this.state.credentialsStored) {
       if (this.state.credentialsStored) {
-        // eslint-disable-next-line react/no-did-update-set-state
         this.setState({ isDoiCreationEnabled: true });
       }
     }
@@ -253,13 +269,22 @@ class Admin extends FormClassTemplate {
     }
 
     // For new credentials, all fields are required
-    if (!credentialsStored && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
+    if (
+      !credentialsStored &&
+      (!datacitePrefix || !dataciteAccountId || !datacitePass)
+    ) {
       this.setState({ showCredentialsMissingDialog: true });
       return;
     }
 
     // For updates, at least one field must be provided
-    if (credentialsStored && !datacitePrefix && !dataciteAccountId && !datacitePass && !dataciteApiDomain) {
+    if (
+      credentialsStored &&
+      !datacitePrefix &&
+      !dataciteAccountId &&
+      !datacitePass &&
+      !dataciteApiDomain
+    ) {
       this.setState({ showCredentialsMissingDialog: true });
       return;
     }
@@ -274,9 +299,10 @@ class Admin extends FormClassTemplate {
     if (dataciteAccountId && datacitePass) {
       const bufferObj = Buffer.from(
         `${dataciteAccountId}:${datacitePass}`,
-        "utf8"
+        "utf8",
       );
-      updates["dataciteCredentials/dataciteHash"] = bufferObj.toString("base64");
+      updates["dataciteCredentials/dataciteHash"] =
+        bufferObj.toString("base64");
     }
 
     if (dataciteApiDomain) {
@@ -359,19 +385,18 @@ class Admin extends FormClassTemplate {
       };
       updates.githubCredentials = githubCredentials;
 
-      update(regionAdminRef, updates)
-        .catch((error) => {
-          console.error('Failed to save admin settings:', error);
-          this.setState({
-            showErrorDialog: true,
-            errorMessage: `Failed to save admin settings: ${error.message}`,
-          });
+      update(regionAdminRef, updates).catch((error) => {
+        console.error("Failed to save admin settings:", error);
+        this.setState({
+          showErrorDialog: true,
+          errorMessage: `Failed to save admin settings: ${error.message}`,
         });
+      });
     } else {
-      console.error('No authenticated user found');
+      console.error("No authenticated user found");
       this.setState({
         showErrorDialog: true,
-        errorMessage: 'You must be logged in to save admin settings',
+        errorMessage: "You must be logged in to save admin settings",
       });
     }
   }
@@ -430,10 +455,13 @@ class Admin extends FormClassTemplate {
           <DialogContentText id="credentials-missing-dialog-description">
             <I18n>
               <En>
-                Other settings were saved; DataCite credentials were not. Please add credentials to enable DOI creation.
+                Other settings were saved; DataCite credentials were not. Please
+                add credentials to enable DOI creation.
               </En>
               <Fr>
-                Les autres paramètres ont été enregistrés; les informations DataCite ne l'ont pas été. Ajoutez les informations pour activer la création de DOI.
+                Les autres paramètres ont été enregistrés; les informations
+                DataCite ne l'ont pas été. Ajoutez les informations pour activer
+                la création de DOI.
               </Fr>
             </I18n>
           </DialogContentText>
@@ -461,9 +489,7 @@ class Admin extends FormClassTemplate {
         aria-labelledby="error-dialog-title"
         aria-describedby="error-dialog-description"
       >
-        <DialogTitle id="error-dialog-title">
-          Error
-        </DialogTitle>
+        <DialogTitle id="error-dialog-title">Error</DialogTitle>
         <DialogContent>
           <DialogContentText id="error-dialog-description">
             {this.state.errorMessage}
@@ -510,7 +536,7 @@ class Admin extends FormClassTemplate {
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -535,7 +561,7 @@ class Admin extends FormClassTemplate {
         ) : (
           <>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -543,7 +569,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -555,7 +581,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -563,7 +589,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -575,7 +601,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -583,7 +609,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -630,7 +656,9 @@ class Admin extends FormClassTemplate {
                   </Grid>
                   {isDoiCreationEnabled && (
                     <Grid size={12}>
-                      <Alert severity={credentialsStored ? "success" : "warning"}>
+                      <Alert
+                        severity={credentialsStored ? "success" : "warning"}
+                      >
                         <I18n>
                           <En>
                             {credentialsStored
@@ -719,8 +747,14 @@ class Admin extends FormClassTemplate {
                         helperText={
                           credentialsStored && !this.state.dataciteAccountId ? (
                             <I18n>
-                              <En>Account ID is saved. Enter a new value to update it.</En>
-                              <Fr>L'identifiant est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
+                              <En>
+                                Account ID is saved. Enter a new value to update
+                                it.
+                              </En>
+                              <Fr>
+                                L'identifiant est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
+                              </Fr>
                             </I18n>
                           ) : undefined
                         }
@@ -741,8 +775,14 @@ class Admin extends FormClassTemplate {
                         helperText={
                           credentialsStored && !this.state.datacitePass ? (
                             <I18n>
-                              <En>Password is saved. Enter a new value to update it.</En>
-                              <Fr>Le mot de passe est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
+                              <En>
+                                Password is saved. Enter a new value to update
+                                it.
+                              </En>
+                              <Fr>
+                                Le mot de passe est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
+                              </Fr>
                             </I18n>
                           ) : undefined
                         }
@@ -771,21 +811,36 @@ class Admin extends FormClassTemplate {
                     {this.state.testResult && (
                       <Grid size={12}>
                         <Alert
-                          severity={this.state.testResult.success ? "success" : "error"}
+                          severity={
+                            this.state.testResult.success ? "success" : "error"
+                          }
                           onClose={() => this.setState({ testResult: null })}
                         >
                           {this.state.testResult.message}
                         </Alert>
                       </Grid>
                     )}
-                    <Grid size={12} container spacing={1} justifyContent="flex-end">
+                    <Grid
+                      size={12}
+                      container
+                      spacing={1}
+                      justifyContent="flex-end"
+                    >
                       <Grid>
                         <Button
-                          startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
+                          startIcon={
+                            this.state.testingCredentials ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <PlayArrow />
+                            )
+                          }
                           variant="outlined"
                           color="secondary"
                           onClick={this.handleTestCredentials}
-                          disabled={!credentialsStored || this.state.testingCredentials}
+                          disabled={
+                            !credentialsStored || this.state.testingCredentials
+                          }
                         >
                           <I18n>
                             <En>Test Credentials</En>
@@ -815,8 +870,16 @@ class Admin extends FormClassTemplate {
                           onClick={this.handleSaveDatacite}
                         >
                           <I18n>
-                            <En>{credentialsStored ? "Update" : "Save"} DataCite Settings</En>
-                            <Fr>{credentialsStored ? "Mettre à jour" : "Enregistrer"} les paramètres DataCite</Fr>
+                            <En>
+                              {credentialsStored ? "Update" : "Save"} DataCite
+                              Settings
+                            </En>
+                            <Fr>
+                              {credentialsStored
+                                ? "Mettre à jour"
+                                : "Enregistrer"}{" "}
+                              les paramètres DataCite
+                            </Fr>
                           </I18n>
                         </Button>
                       </Grid>
@@ -837,16 +900,17 @@ class Admin extends FormClassTemplate {
                   <Typography variant="body2" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>
-                        Configure the GitHub repository where metadata records will
-                        be published. This allows reviewers to push approved
-                        records directly to a GitHub repository as XML and YAML
-                        files.
+                        Configure the GitHub repository where metadata records
+                        will be published. This allows reviewers to push
+                        approved records directly to a GitHub repository as XML
+                        and YAML files.
                       </En>
                       <Fr>
-                        Configurez le référentiel GitHub où les enregistrements de
-                        métadonnées seront publiés. Cela permet aux réviseurs de
-                        pousser les enregistrements approuvés directement vers un
-                        référentiel GitHub sous forme de fichiers XML et YAML.
+                        Configurez le référentiel GitHub où les enregistrements
+                        de métadonnées seront publiés. Cela permet aux réviseurs
+                        de pousser les enregistrements approuvés directement
+                        vers un référentiel GitHub sous forme de fichiers XML et
+                        YAML.
                       </Fr>
                     </I18n>
                   </Typography>
@@ -907,9 +971,7 @@ class Admin extends FormClassTemplate {
                   />
                   <Typography variant="caption" color="textSecondary">
                     <I18n>
-                      <En>
-                        Personal Access Token (PAT) with 'repo' scope.
-                      </En>
+                      <En>Personal Access Token (PAT) with 'repo' scope.</En>
                       <Fr>
                         Jeton d'accès personnel (PAT) avec la portée 'repo'.
                       </Fr>
@@ -948,7 +1010,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
               </Grid>
             </Paper>
-            <Grid >
+            <Grid>
               <Button
                 startIcon={<Save />}
                 variant="contained"

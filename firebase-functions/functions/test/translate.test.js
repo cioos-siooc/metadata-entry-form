@@ -44,9 +44,13 @@ jest.mock("fs", () => {
 });
 
 // Mock translation-meta.json
-jest.mock("../translation-meta.json", () => ({
-  commonsVersion: "abc1234",
-}), { virtual: true });
+jest.mock(
+  "../translation-meta.json",
+  () => ({
+    commonsVersion: "abc1234",
+  }),
+  { virtual: true },
+);
 
 const { translate } = require("../translate");
 
@@ -60,7 +64,7 @@ describe("translate.js", () => {
   describe("translate cloud function", () => {
     it("rejects unauthenticated requests", async () => {
       await expect(
-        translate({ text: "hello", fromLang: "en" }, { auth: null })
+        translate({ text: "hello", fromLang: "en" }, { auth: null }),
       ).rejects.toThrow();
     });
 
@@ -71,12 +75,14 @@ describe("translate.js", () => {
 
       const result = await translate(
         { text: "Hello world", fromLang: "en" },
-        authContext
+        authContext,
       );
 
       expect(result.translatedText).toBe("Bonjour le monde");
       expect(result.translationMessage).toContain("Cohere");
-      expect(result.translationMessage).toContain("command-a-translate-08-2025");
+      expect(result.translationMessage).toContain(
+        "command-a-translate-08-2025",
+      );
       expect(result.translationMessage).toContain("cioos-commons@abc1234");
     });
 
@@ -87,7 +93,7 @@ describe("translate.js", () => {
 
       const result = await translate(
         { text: "Bonjour le monde", fromLang: "fr" },
-        authContext
+        authContext,
       );
 
       expect(result.translatedText).toBe("Hello world");
@@ -125,7 +131,7 @@ describe("translate.js", () => {
       });
 
       await expect(
-        translate({ text: "hello", fromLang: "en" }, authContext)
+        translate({ text: "hello", fromLang: "en" }, authContext),
       ).rejects.toThrow("No translation received from Cohere API");
     });
 
@@ -133,7 +139,7 @@ describe("translate.js", () => {
       mockChat.mockRejectedValue(new Error("API rate limit"));
 
       await expect(
-        translate({ text: "hello", fromLang: "en" }, authContext)
+        translate({ text: "hello", fromLang: "en" }, authContext),
       ).rejects.toThrow("API rate limit");
     });
   });

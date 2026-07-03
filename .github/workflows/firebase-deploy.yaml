@@ -6,20 +6,20 @@ on:
     paths:
       - "firebase-functions/**"
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to deploy to production (e.g. v1.2.3)'
+        description: "Tag to deploy to production (e.g. v1.2.3)"
         required: true
         type: string
       skip_cross_trigger:
-        description: 'Skip triggering the other deployment workflow (prevents loops)'
+        description: "Skip triggering the other deployment workflow (prevents loops)"
         required: false
-        default: 'false'
+        default: "false"
         type: string
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: "22.x"
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions
@@ -55,7 +55,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions/functions
-      - name: Install UV 
+      - name: Install UV
         uses: astral-sh/setup-uv@v6
       - name: Install Python environment in venv
         working-directory: firebase-functions/python-functions

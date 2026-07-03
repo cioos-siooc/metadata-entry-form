@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app'
+import { initializeApp } from "firebase/app";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 const deployedOnTestServer = import.meta.env.VITE_DEV_DEPLOYMENT;
@@ -10,7 +10,7 @@ const prodConfig = {
   // and https://console.cloud.google.com/apis/credentials?project=cioos-metadata-form-dev-258dc
   // for api key location which is then stored in a github secret and added to several
   // github actions to support testing and deployment.
-  // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we 
+  // see https://firebase.google.com/docs/projects/api-keys for a discussion of why we
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
   apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY,
@@ -26,7 +26,8 @@ const prodConfig = {
 const devConfig = {
   apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY_DEV,
   authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
-  databaseURL: "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
+  databaseURL:
+    "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-dev-258dc",
   storageBucket: "cioos-metadata-form-dev-258dc.firebasestorage.app",
   messagingSenderId: "141560007794",
@@ -34,13 +35,16 @@ const devConfig = {
   measurementId: "G-BSKRHNR1EW",
 };
 
+const config =
+  import.meta.env.PROD && !(deployedOnTestServer === "true")
+    ? prodConfig
+    : devConfig;
 
-const config = import.meta.env.PROD && !(deployedOnTestServer === "true")
-  ? prodConfig
-  : devConfig
-
-if (window.location.hostname === "localhost" && localFirebaseDatabase === "true") {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form"
+if (
+  window.location.hostname === "localhost" &&
+  localFirebaseDatabase === "true"
+) {
+  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form";
 }
 
 const App = initializeApp(config);
@@ -49,12 +53,13 @@ const App = initializeApp(config);
 export const firebaseConfig = config;
 
 // // uncomment below to use firebase emulator for local development
-if (window.location.hostname === "localhost" && localFirebaseFunctions === "true") {
+if (
+  window.location.hostname === "localhost" &&
+  localFirebaseFunctions === "true"
+) {
   const functions = getFunctions(App);
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   connectFunctionsEmulator(functions, "127.0.0.1", 5002);
 }
 
-
 export default App;
-

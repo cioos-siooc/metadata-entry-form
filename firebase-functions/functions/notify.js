@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const { defineString } = require('firebase-functions/params');
+const { defineString } = require("firebase-functions/params");
 const nodemailer = require("nodemailer");
 const {
   mailOptionsReviewer,
@@ -12,11 +12,11 @@ const createIssue = require("./issue");
 /**
  * Here we're using Gmail to send
  */
-const gmailUser = defineString('GMAIL_USER');
-const gmailPass = defineString('GMAIL_PASS');
+const gmailUser = defineString("GMAIL_USER");
+const gmailPass = defineString("GMAIL_PASS");
 
-const gmailUserCred = process.env.GMAIL_USER || gmailUser.value()
-const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value()
+const gmailUserCred = process.env.GMAIL_USER || gmailUser.value();
+const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value();
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 exports.findCustodianOrgName = (record) => {
   const contacts = Object.values((record && record.contacts) || {});
   const custodian = contacts.find((c) =>
-    Object.values((c && c.role) || {}).includes("custodian")
+    Object.values((c && c.role) || {}).includes("custodian"),
   );
   return custodian && custodian.orgName;
 };
@@ -76,7 +76,7 @@ exports.notifyReviewer = functions.database
         console.log("Creating github issue");
         await createIssue(
           title,
-          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`
+          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`,
         );
       }
 
@@ -86,14 +86,14 @@ exports.notifyReviewer = functions.database
           authorEmail,
           titleEn,
           titleFr,
-          region
+          region,
         ),
         (e, info) => {
           console.log(info);
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
 
       if (reviewers.includes(authorEmail)) {
@@ -120,14 +120,14 @@ exports.notifyReviewer = functions.database
           orgName,
           userID,
           recordID,
-          language
+          language,
         ),
         (e, info) => {
           console.log(info);
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
     }
   });
@@ -171,7 +171,6 @@ exports.notifyUser = functions.database
       console.log("Emailing ", authorEmail);
 
       const record = recordFB.toJSON();
-      const { language } = record;
       const titleEn = record.title && record.title.en;
       const titleFr = record.title && record.title.fr;
 
@@ -187,7 +186,7 @@ exports.notifyUser = functions.database
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
     }
   });

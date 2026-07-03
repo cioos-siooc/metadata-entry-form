@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import React, { useRef, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -68,7 +67,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
 
-      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' };
+      const newData = {
+        ...mapData,
+        polygon: e.target.value,
+        north: "",
+        south: "",
+        east: "",
+        west: "",
+      };
       try {
         const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
@@ -78,7 +84,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         newData.south = limitDecimals(south);
         newData.east = limitDecimals(east);
         newData.west = limitDecimals(west);
-      } catch (ignore) {
+      } catch {
         // ignore bounds errors as a missing or invalid polygon string should not take down the app
       }
 
@@ -90,7 +96,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     testN = mapData.north,
     testS = mapData.south,
     testE = mapData.east,
-    testW = mapData.west
+    testW = mapData.west,
   ) => {
     const test =
       coordTest.test(testN) &&
@@ -121,7 +127,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         case "Polygon": {
           const points = layer.getLatLngs()[0];
           const polygonStrings = points.map(
-            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`,
           );
           const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
@@ -151,12 +157,19 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           east = limitDecimals(east);
           west = limitDecimals(west);
 
-          updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+          updateMap({
+            ...currentMapData,
+            north,
+            south,
+            east,
+            west,
+            polygon: "",
+          });
           break;
         }
       }
     },
-    [updateMap]
+    [updateMap],
   );
 
   const onRemove = useCallback(() => {
@@ -174,7 +187,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   }, [updateMap]);
 
   const bboxIsDrawn = Boolean(
-    mapData.north || mapData.south || mapData.east || mapData.west
+    mapData.north || mapData.south || mapData.east || mapData.west,
   );
 
   const polyIsDrawn = Boolean(mapData.polygon);
@@ -298,7 +311,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
               with the same point. Eg,
             </En>
             <Fr>
-              La suite de coordonnées doit commencer et se terminer par le même point. Par exemple,
+              La suite de coordonnées doit commencer et se terminer par le même
+              point. Par exemple,
             </Fr>
           </I18n>{" "}
           48,-128 56,-133 56,-147 48,-128
@@ -321,8 +335,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
       <QuestionText>
         <I18n>
-          <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
-          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
+          <En>
+            Describe the Geographic Extent of the dataset. Required for
+            Biological datasets
+          </En>
+          <Fr>
+            Décrivez l'étendue géographique du jeu de données. Obligatoire pour
+            les jeux de données biologiques
+          </Fr>
         </I18n>
         {record.resourceType && record.resourceType.includes("biological") && (
           <RequiredMark passes={Boolean(mapData.description)} />
@@ -339,9 +359,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             </En>
             <Fr>
               <p>
-                Vous pouvez éventuellement inclure une description textuelle
-                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est
-                facultatif pour tous autre type de jeux de données.
+                Vous pouvez éventuellement inclure une description textuelle de
+                la zone géographique. Ce champ est obligatoire pour des jeux de
+                données biologiques, mais est facultatif pour tous autre type de
+                jeux de données.
               </p>
             </Fr>
           </I18n>

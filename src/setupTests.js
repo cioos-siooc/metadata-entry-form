@@ -16,13 +16,13 @@ vi.hoisted(() => {
 import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 import "@testing-library/jest-dom";
-global.MessagePort = class MessagePort { };
+global.MessagePort = class MessagePort {};
 
 // Mock ResizeObserver for MUI components
 global.ResizeObserver = class ResizeObserver {
-  observe() { }
-  unobserve() { }
-  disconnect() { }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 };
 
 // Mock window.matchMedia for responsive hooks

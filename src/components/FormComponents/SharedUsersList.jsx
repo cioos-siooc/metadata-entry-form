@@ -28,14 +28,14 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   const [inputValue, setInputValue] = useState("");
   const [sharedWithUsers, setSharedWithUsers] = useState({});
   const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
-  const authorID = record.userID
+  const authorID = record.userID;
 
   // fetching users based on region
   useEffect(() => {
     let isMounted = true;
 
     if (record.recordID) {
-      setShareRecordDisabled(false)
+      setShareRecordDisabled(false);
     }
 
     const fetchRegionUsers = async () => {
@@ -86,7 +86,13 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
     const shareRecordAsync = async () => {
       try {
-        await updateSharedRecord(userID, record.recordID, authorID, region, true);
+        await updateSharedRecord(
+          userID,
+          record.recordID,
+          authorID,
+          region,
+          true,
+        );
       } catch (error) {
         throw new Error(`Failed to update shared record: ${error}`);
       }
@@ -104,7 +110,13 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
       const unshareRecordAsync = async () => {
         try {
-          await updateSharedRecord(userID, record.recordID, authorID, region, false);
+          await updateSharedRecord(
+            userID,
+            record.recordID,
+            authorID,
+            region,
+            false,
+          );
         } catch (error) {
           throw new Error(`Failed to unshare the record: ${error}`);
         }
@@ -139,9 +151,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <Grid >
+    <Grid>
       <Paper style={paperClass}>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             <I18n>
               <En>
@@ -156,19 +168,19 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
             </I18n>
           </Typography>
           <SupplementalText>
-              <I18n>
-                <En>
-                  <p>Please save the form before sharing access.</p>
-                </En>
-                <Fr>
-                  <p>
+            <I18n>
+              <En>
+                <p>Please save the form before sharing access.</p>
+              </En>
+              <Fr>
+                <p>
                   Veuillez enregistrer le formulaire avant de partager l'accès.
-                  </p>
-                </Fr>
-              </I18n>
-            </SupplementalText>
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Autocomplete
@@ -186,14 +198,14 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 filterSelectedOptions
                 renderInput={(params) => (
                   <TextField
-                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
                     label={<I18n en="Share with..." fr="Partager avec..." />}
                     variant="outlined"
                     style={{ marginTop: "16px" }}
                     error={inputValue && !currentUser}
                     helperText={
-                      inputValue && !currentUser && (
+                      inputValue &&
+                      !currentUser && (
                         <I18n
                           en="User not found. Please select from the list."
                           fr="Utilisateur non trouvé. Veuillez sélectionner dans la liste."
@@ -234,7 +246,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                       <En>Users this record is shared with:</En>
                       <Fr>
                         Utilisateurs avec lesquels cet enregistrement est
-                        partagé :
+                        partagé :
                       </Fr>
                     </I18n>
                   )}
@@ -256,7 +268,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                           </IconButton>
                         </ListItemSecondaryAction>
                       </ListItem>
-                    )
+                    ),
                   )}
                 </List>
               </Box>
