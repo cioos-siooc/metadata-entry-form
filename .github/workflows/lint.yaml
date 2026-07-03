@@ -6,39 +6,29 @@ on:
 
 permissions:
   contents: read
-  packages: read
-  statuses: write
 
 jobs:
-  lint:
-    name: Lint changed files
+  lint-js:
+    name: ESLint + Prettier
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          # super-linter needs full history to diff against the base branch.
-          fetch-depth: 0
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx prettier --check "**/*.{js,jsx,json,css,md,yaml,yml,html}"
 
-      - name: Super-linter
-        uses: super-linter/super-linter/slim@v7
-        env:
-          # Only validate files changed in the PR, deferring to the repo's
-          # own eslint / prettier / ruff configs.
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: development
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-          # Use repo-root configs instead of .github/linters/.
-          LINTER_RULES_PATH: .
-          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.mjs
-
-          # Enable only the validators we use. Everything else stays off so the
-          # check is fast and matches local tooling.
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_PYTHON_RUFF: true
-          VALIDATE_JAVASCRIPT_PRETTIER: true
-          VALIDATE_JSON_PRETTIER: true
-          VALIDATE_CSS_PRETTIER: true
-          VALIDATE_MARKDOWN_PRETTIER: true
-          VALIDATE_YAML_PRETTIER: true
+  lint-python:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
