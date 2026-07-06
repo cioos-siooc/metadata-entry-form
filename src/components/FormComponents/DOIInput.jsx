@@ -494,7 +494,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                                         en="The dataset must be submitted or published before its DOI status can be changed."
                                         fr="Le jeu de données doit être soumis ou publié avant de pouvoir modifier le statut de son DOI."
                                     />
-                                : ""
+                                    : ""
                         }
                         arrow
                         placement="top"
