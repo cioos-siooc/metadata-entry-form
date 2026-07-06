@@ -70,7 +70,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         ? `${catalogueBaseUrl}dataset/ca-cioos_${record.identifier}`
         : "";
     const doiIsValid = validateDOI(record.datasetIdentifier);
-    const dataciteDoi = doiIsValid
+    const dataciteDoi = doiIsValid && record.datasetIdentifier
         ? record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "")
         : "";
     const dataciteRecordBaseUrl = dataciteApiDomain === "test"
@@ -109,7 +109,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     // otherwise "generate". Splitting the UI this way means only the actions
     // relevant to the current stage are shown, instead of one always-visible blob.
     // (validateDOI() treats an empty value as valid, so we can't switch on it alone.)
-    const isOurManagedDoi = doiIsValid && record.datasetIdentifier.includes(datacitePrefix);
+    const isOurManagedDoi = doiIsValid && !!record.datasetIdentifier && record.datasetIdentifier.includes(datacitePrefix);
     const inGenerateStage = showGenerateDoi && !isOurManagedDoi;
     const inManageStage = showGenerateDoi && isOurManagedDoi;
 
