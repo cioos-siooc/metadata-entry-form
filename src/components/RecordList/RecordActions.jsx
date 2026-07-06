@@ -24,7 +24,7 @@ import {
   ChevronRight,
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { convertMetadata } from "../../api/actions";
 import recordToEML from "../../utils/recordToEML";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
@@ -138,11 +138,10 @@ const RecordActions = ({
         });
       } else {
         // Server-side conversion
-        const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, "convert_metadata");
         const resp = await convertMetadata({
-          record_data: record,
-          output_format: fileType,
+          region,
+          record,
+          outputFormat: fileType,
         });
         const resultText = resp?.data ?? "";
         blob = new Blob([resultText], {

@@ -5,33 +5,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react()],
-    // Use "/" for Firebase Hosting, "/metadata-entry-form/" for GitHub Pages
-    base: env.VITE_BASE_PATH || "/metadata-entry-form/",
+    // Self-hosted deployments serve from the root; override for sub-path hosting
+    base: env.VITE_BASE_PATH || "/",
     assetsInclude: ["**/*.j2"],
-    resolve: {
-      alias: {
-        stream: "stream-browserify",
-        buffer: "buffer",
-        util: "util",
-        path: "path-browserify",
-        crypto: "crypto-browserify",
-        http: "stream-http",
-        https: "https-browserify",
-        querystring: "querystring-es3",
-        url: "url",
-      },
-    },
     define: {
-      "process.env": {},
+      // use-debounce reads global.document when flushOnExit is set
       global: "globalThis",
-    },
-    optimizeDeps: {
-      include: ["buffer"],
-      esbuildOptions: {
-        define: {
-          global: "globalThis",
-        },
-      },
     },
     build: {
       outDir: "build",
@@ -44,6 +23,11 @@ export default defineConfig(({ mode }) => {
       cors: true,
       headers: {
         "Access-Control-Allow-Origin": "*",
+      },
+      // Self-hosted dev stack (docker-compose.dev.yml): same-origin API + auth
+      proxy: {
+        "/api": env.VITE_API_PROXY_TARGET || "http://localhost:3001",
+        "/auth": env.VITE_AUTH_PROXY_TARGET || "http://localhost:8080",
       },
     },
     test: {

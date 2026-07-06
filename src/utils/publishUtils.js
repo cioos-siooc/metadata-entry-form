@@ -1,43 +1,19 @@
-import axios from "axios";
-import firebase from "../firebase";
+import { convertMetadata } from "../api/actions";
 import { getRecordFilename } from "./misc";
 
-const getConvertMetadataUrl = () => {
-  const {
-    options: { projectId },
-  } = firebase;
-  const functionRegion = import.meta.env.VITE_FUNCTION_REGION || "us-central1";
-
-  // Check if we should use the emulator
-  const isLocal =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1";
-  const useLocalFunctions =
-    import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
-
-  if (isLocal && useLocalFunctions) {
-    // Port 5001 is standard for Firebase functions and matches root firebase.json
-    return `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
-  }
-
-  return `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
-};
-
 /**
- * Converts a record to the specified format using the cloud function.
+ * Converts a record to the specified format using the metadata conversion API.
  */
-export const convertRecord = async (record, format) => {
-  const url = getConvertMetadataUrl();
+export const convertRecord = async (record, format, region) => {
   try {
-    const response = await axios.post(url, {
-      data: {
-        record_data: record,
-        output_format: format,
-      },
+    const response = await convertMetadata({
+      region,
+      record,
+      outputFormat: format,
     });
 
-    if (response.data && response.data.data) {
-      return response.data.data;
+    if (response && response.data) {
+      return response.data;
     }
     throw new Error("Invalid response from conversion service");
   } catch (error) {
@@ -74,8 +50,8 @@ export const preparePublishPayload = async (
   filenameBase = filenameBase.replace("{title}", sanitizedTitle);
 
   const [xmlContent, yamlContent] = await Promise.all([
-    convertRecord(record, "iso19115-3_xml"),
-    convertRecord(record, "yaml"),
+    convertRecord(record, "iso19115-3_xml", region),
+    convertRecord(record, "yaml", region),
   ]);
   // Store only the record JSON, excluding database-specific user info
   const recordForJson = { ...record };

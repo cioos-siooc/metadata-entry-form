@@ -40,31 +40,34 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-// Global Mock for Firebase to prevent errors in component tests
-vi.mock("firebase/functions", () => ({
-  getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => vi.fn()),
+// Global mocks so component tests never touch Keycloak or the network
+vi.mock("keycloak-js", () => ({
+  default: class KeycloakMock {
+    constructor() {
+      this.authenticated = true;
+      this.subject = "test-user";
+      this.token = "test-token";
+      this.tokenParsed = {
+        email: "test@example.org",
+        name: "Test User",
+        email_verified: true,
+      };
+      this.init = vi.fn().mockResolvedValue(true);
+      this.login = vi.fn();
+      this.logout = vi.fn();
+      this.updateToken = vi.fn().mockResolvedValue(true);
+    }
+  },
 }));
 
-vi.mock("firebase/database", () => ({
-  getDatabase: vi.fn(),
-  ref: vi.fn(),
-  set: vi.fn(),
-  get: vi.fn(),
-  child: vi.fn(),
-  remove: vi.fn(),
-  onValue: vi.fn(),
-  update: vi.fn(),
-  push: vi.fn(),
-}));
-
-vi.mock("firebase/app", () => ({
-  initializeApp: vi.fn(),
-}));
-
-vi.mock("./firebase", () => ({ default: {} }));
-vi.mock("./auth", () => ({
-  getAuth: vi.fn(),
-  onAuthStateChanged: vi.fn(),
-  auth: { currentUser: { uid: "test-user" } },
-}));
+vi.mock("./api/client", async () => {
+  const actual = await vi.importActual("./api/client");
+  return {
+    ...actual,
+    apiFetch: vi.fn().mockResolvedValue(null),
+    get: vi.fn().mockResolvedValue(null),
+    post: vi.fn().mockResolvedValue(null),
+    put: vi.fn().mockResolvedValue(null),
+    del: vi.fn().mockResolvedValue(null),
+  };
+});

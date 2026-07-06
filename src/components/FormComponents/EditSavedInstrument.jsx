@@ -1,17 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button } from "@mui/material";
 import { Save } from "@mui/icons-material";
-import {
-  child,
-  getDatabase,
-  onValue,
-  ref,
-  update,
-  push,
-} from "firebase/database";
-import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { instruments as instrumentsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 
 import { En, Fr, I18n } from "../I18n";
 
@@ -29,25 +21,22 @@ class EditInstrumentClass extends FormClassTemplate {
       type: { en: "", fr: "" },
       description: { en: "", fr: "" },
     };
-    const { region } = props;
-
-    const database = getDatabase(firebase);
-    this.instrumentsRef = ref(
-      database,
-      `${region}/users/${auth.currentUser.uid}/instruments`,
-    );
   }
 
-  async componentDidMount() {
-    const { instrumentID } = this.props;
+  componentDidMount() {
+    this.loadData();
+  }
 
-    if (auth.currentUser && instrumentID) {
-      this.setState({ instrumentID });
-      const instrumentRef = child(this.instrumentsRef, instrumentID);
-      onValue(instrumentRef, (instrument) =>
-        this.setState(instrument.toJSON()),
+  async loadData() {
+    const { region, instrumentID, userID } = this.props;
+
+    if (userID && instrumentID) {
+      const instrument = await instrumentsAPI.getOne(
+        region,
+        userID,
+        instrumentID,
       );
-      this.listenerRefs.push(instrumentRef);
+      if (instrument) this.safeSetState(instrument);
     }
   }
 
@@ -68,13 +57,13 @@ class EditInstrumentClass extends FormClassTemplate {
 
   // Create or update instrument
   async handleSubmitClick() {
-    const { region, language, instrumentID, navigate } = this.props;
+    const { region, language, instrumentID, userID, navigate } = this.props;
 
     // update
     if (instrumentID)
-      update(child(this.instrumentsRef, instrumentID), this.state);
+      await instrumentsAPI.update(region, userID, instrumentID, this.state);
     // create
-    else push(this.instrumentsRef, this.state);
+    else await instrumentsAPI.create(region, userID, this.state);
 
     navigate(`/${language}/${region}/instruments`);
   }
@@ -122,15 +111,18 @@ class EditInstrumentClass extends FormClassTemplate {
   }
 }
 
-// Wrapper component to provide router params and navigate to the class component
+// Wrapper component to provide router params, navigate, and the signed-in
+// user's ID to the class component
 const EditInstrument = () => {
   const { language, region, instrumentID } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   return (
     <EditInstrumentClass
       language={language}
       region={region}
       instrumentID={instrumentID}
+      userID={user?.uid}
       navigate={navigate}
     />
   );

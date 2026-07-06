@@ -17,8 +17,8 @@ import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import regions from "../../regions";
 // Single source of truth: parse the glossary directly from the prompt template
-// synced from cioos-commons by firebase-functions/functions/generate-translation-config.js.
-import promptTemplate from "../../../firebase-functions/functions/translation-prompt-template.txt?raw";
+// used by the API's translate service (synced from cioos-commons).
+import promptTemplate from "../../../server/src/services/translation-prompt-template.txt?raw";
 
 const TRANSLATION_SERVICE = "Cohere";
 const TRANSLATION_MODEL = "command-a-translate-08-2025";

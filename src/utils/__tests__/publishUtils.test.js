@@ -1,16 +1,13 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import axios from "axios";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { convertMetadata } from "../../api/actions";
 import { preparePublishPayload, convertRecord } from "../publishUtils";
 import { getRecordFilename } from "../misc";
 
 // Mock dependencies
-vi.mock("axios");
-vi.mock("../misc");
-vi.mock("../../firebase", () => ({
-  default: {
-    options: { projectId: "test-project" },
-  },
+vi.mock("../../api/actions", () => ({
+  convertMetadata: vi.fn(),
 }));
+vi.mock("../misc");
 
 describe("publishUtils", () => {
   const mockRecord = {
@@ -25,69 +22,34 @@ describe("publishUtils", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("VITE_FUNCTION_REGION", "us-central1");
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe("convertRecord", () => {
-    it("should call the conversion endpoint and return data on success", async () => {
-      const mockResponse = {
-        data: {
-          data: "<xml>content</xml>",
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+    it("should call the conversion API and return data on success", async () => {
+      convertMetadata.mockResolvedValue({ data: "<xml>content</xml>" });
 
-      const result = await convertRecord(mockRecord, "iso19115-3_xml");
+      const result = await convertRecord(mockRecord, "iso19115-3_xml", "hakai");
 
-      expect(axios.post).toHaveBeenCalledWith(
-        "https://us-central1-test-project.cloudfunctions.net/convert_metadata",
-        {
-          data: {
-            record_data: mockRecord,
-            output_format: "iso19115-3_xml",
-          },
-        },
-      );
+      expect(convertMetadata).toHaveBeenCalledWith({
+        region: "hakai",
+        record: mockRecord,
+        outputFormat: "iso19115-3_xml",
+      });
       expect(result).toBe("<xml>content</xml>");
     });
 
-    it("should use local emulator URL when running locally", async () => {
-      // Mock window.location
-      const originalLocation = window.location;
-      delete window.location;
-      window.location = { hostname: "localhost" };
-      vi.stubEnv("VITE_FIREBASE_LOCAL_FUNCTIONS", "true");
-
-      const mockResponse = { data: { data: "yaml content" } };
-      axios.post.mockResolvedValue(mockResponse);
-
-      await convertRecord(mockRecord, "yaml");
-
-      expect(axios.post).toHaveBeenCalledWith(
-        expect.stringContaining("http://localhost:5001"),
-        expect.any(Object),
-      );
-
-      // Cleanup
-      window.location = originalLocation;
-    });
-
     it("should throw an error if the response is invalid", async () => {
-      axios.post.mockResolvedValue({ data: {} });
+      convertMetadata.mockResolvedValue({ data: null });
 
-      await expect(convertRecord(mockRecord, "yaml")).rejects.toThrow(
+      await expect(convertRecord(mockRecord, "yaml", "hakai")).rejects.toThrow(
         "Invalid response from conversion service",
       );
     });
 
     it("should throw an error if the request fails", async () => {
-      axios.post.mockRejectedValue(new Error("Network error"));
+      convertMetadata.mockRejectedValue(new Error("Network error"));
 
-      await expect(convertRecord(mockRecord, "yaml")).rejects.toThrow(
+      await expect(convertRecord(mockRecord, "yaml", "hakai")).rejects.toThrow(
         "Failed to convert record to yaml: Network error",
       );
     });
@@ -98,10 +60,10 @@ describe("publishUtils", () => {
       // Mock helper functions
       getRecordFilename.mockReturnValue("test-record-filename");
 
-      // Mock convertRecord responses (since it calls axios)
-      axios.post
-        .mockResolvedValueOnce({ data: { data: "<xml>content</xml>" } }) // First call (xml)
-        .mockResolvedValueOnce({ data: { data: "yaml: content" } }); // Second call (yaml)
+      // Mock convertRecord responses (since it calls convertMetadata)
+      convertMetadata
+        .mockResolvedValueOnce({ data: "<xml>content</xml>" }) // First call (xml)
+        .mockResolvedValueOnce({ data: "yaml: content" }); // Second call (yaml)
 
       const environments = ["prod", "dev"];
       const commitMessage = "feat: update record";
@@ -120,6 +82,19 @@ describe("publishUtils", () => {
       const expectedFilenameBase = "metadata/test-record-filename";
 
       expect(getRecordFilename).toHaveBeenCalledWith(mockRecord);
+
+      // The conversion API is called with the region so the request can be
+      // routed correctly
+      expect(convertMetadata).toHaveBeenCalledWith({
+        region,
+        record: mockRecord,
+        outputFormat: "iso19115-3_xml",
+      });
+      expect(convertMetadata).toHaveBeenCalledWith({
+        region,
+        record: mockRecord,
+        outputFormat: "yaml",
+      });
 
       expect(payload.commitMessage).toBe(commitMessage);
       expect(payload.files).toHaveLength(7); // (xml,yaml,json)*2 envs + 1 top-level records json
@@ -160,7 +135,7 @@ describe("publishUtils", () => {
 
     it("should handle default commit message", async () => {
       getRecordFilename.mockReturnValue("test");
-      axios.post.mockResolvedValue({ data: { data: "content" } });
+      convertMetadata.mockResolvedValue({ data: "content" });
 
       const payload = await preparePublishPayload(
         mockRecord,
@@ -183,7 +158,7 @@ describe("publishUtils", () => {
         fileTemplate: "records/{uuid}/{title}",
       };
 
-      axios.post.mockResolvedValue({ data: { data: "content" } });
+      convertMetadata.mockResolvedValue({ data: "content" });
 
       const payload = await preparePublishPayload(
         mockRecord,

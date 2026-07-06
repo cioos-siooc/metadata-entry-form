@@ -6,14 +6,10 @@ import {
   validateField,
 } from "../validate";
 
-// Mock Firebase dependencies to avoid "ReadableStream" errors and side effects
-// (Note: Global mocks in setupTests.js might handle this, but explicit mocking here is safe)
-vi.mock("firebase/functions", () => ({
-  getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => vi.fn()),
+// Mock the API actions module so validators never touch the network
+vi.mock("../../api/actions", () => ({
+  checkURLActive: vi.fn().mockResolvedValue({ data: true }),
 }));
-
-vi.mock("../../firebase", () => ({ default: {} }));
 
 describe("Utility: validate.js", () => {
   describe("Basic Validators", () => {

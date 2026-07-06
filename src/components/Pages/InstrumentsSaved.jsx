@@ -20,14 +20,8 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@mui/icons-material";
-import { getDatabase, onValue, ref } from "firebase/database";
-import firebase from "../../firebase";
-import { auth } from "../../auth";
-import {
-  newInstrument,
-  cloneInstrument,
-  deleteInstrument,
-} from "../../utils/firebaseInstrumentFunctions";
+import { instruments as instrumentsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 import InstrumentTitle from "../FormComponents/InstrumentTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
@@ -45,42 +39,47 @@ class Instruments extends FormClassTemplate {
     };
   }
 
-  async componentDidMount() {
-    this.setState({ loading: true });
-
-    const { match } = this.props;
-    const { region } = match.params;
-
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        const database = getDatabase(firebase);
-        const instrumentsRef = ref(
-          database,
-          `${region}/users/${user.uid}/instruments`,
-        );
-        onValue(instrumentsRef, (records) =>
-          this.setState({ instruments: records.toJSON(), loading: false }),
-        );
-        this.listenerRefs.push(instrumentsRef);
-      }
-    });
+  componentDidMount() {
+    this.loadData();
   }
 
-  handleDeleteInstrument(instrumentID) {
+  async loadData() {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      deleteInstrument(region, auth.currentUser.uid, instrumentID);
+    if (!user) return;
+
+    this.safeSetState({ loading: true });
+    try {
+      const instruments = await instrumentsAPI.list(region, user.uid);
+      this.safeSetState({ instruments: instruments || {}, loading: false });
+    } catch (error) {
+      console.error("Error loading instruments:", error);
+      this.safeSetState({ loading: false });
     }
   }
 
-  handleCloneInstrument(instrumentID) {
+  async handleDeleteInstrument(instrumentID) {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      return cloneInstrument(region, auth.currentUser.uid, instrumentID);
+    if (user) {
+      await instrumentsAPI.remove(region, user.uid, instrumentID);
+      this.loadData();
+    }
+  }
+
+  async handleCloneInstrument(instrumentID) {
+    const { match } = this.props;
+    const { region } = match.params;
+    const { user } = this.context;
+
+    if (user) {
+      await instrumentsAPI.clone(region, user.uid, instrumentID);
+      this.loadData();
+      return true;
     }
     return false;
   }
@@ -88,10 +87,11 @@ class Instruments extends FormClassTemplate {
   addInstrument() {
     const { history, match } = this.props;
     const { language, region } = match.params;
+    const { user } = this.context;
 
     // render different page with 'save' button?
-    if (auth.currentUser) {
-      newInstrument(region, auth.currentUser.uid).then((key) => {
+    if (user) {
+      instrumentsAPI.create(region, user.uid, {}).then((key) => {
         history.push(`/${language}/${region}/instruments/${key}`);
       });
     }
@@ -238,4 +238,6 @@ class Instruments extends FormClassTemplate {
     );
   }
 }
+Instruments.contextType = UserContext;
+
 export default withRouter(Instruments);

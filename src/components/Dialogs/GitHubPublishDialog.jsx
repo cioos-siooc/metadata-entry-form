@@ -12,8 +12,7 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
-import { getDatabase, ref, onValue } from "firebase/database";
-import firebase from "../../firebase";
+import { getGithubCredentials } from "../../api/admin";
 import { I18n, En, Fr } from "../I18n";
 
 export default function GitHubPublishDialog({
@@ -31,24 +30,34 @@ export default function GitHubPublishDialog({
 
   useEffect(() => {
     if (open && region) {
-      const db = getDatabase(firebase);
-      const configRef = ref(db, `admin/${region}/githubCredentials`);
-      const unsub = onValue(configRef, (snapshot) => {
-        const val = snapshot.val();
-        if (val && val.environments) {
-          setEnvironments(val.environments);
-          if (val.environments.length === 1) {
-            setSelectedEnvironments([val.environments[0]]);
+      let cancelled = false;
+
+      getGithubCredentials(region)
+        .then((config) => {
+          if (cancelled) return;
+          // The API may expose the environment list under `environments` or
+          // `environment`; normalize to an array.
+          const envs = config?.environments ?? config?.environment;
+          const envList = Array.isArray(envs) ? envs : envs ? [envs] : [];
+          if (envList.length) {
+            setEnvironments(envList);
+            if (envList.length === 1) {
+              setSelectedEnvironments([envList[0]]);
+            }
+          } else {
+            setEnvironments(["prod"]); // Fallback
           }
-        } else {
-          setEnvironments(["prod"]); // Fallback
-        }
-      });
+        })
+        .catch(() => {
+          if (!cancelled) setEnvironments(["prod"]); // Fallback
+        });
 
       // Default commit message
       setCommitMessage(`Publish metadata record: ${recordTitle || ""}`);
 
-      return () => unsub();
+      return () => {
+        cancelled = true;
+      };
     }
     return undefined;
   }, [open, region, recordTitle]);

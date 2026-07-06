@@ -16,7 +16,8 @@ import {
   signInWithGoogle,
   signInWithMicrosoft,
   signInWithOrcid,
-} from "../../auth";
+  signInWithKeycloak,
+} from "../../auth/keycloak";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
 import regions from "../../regions";
 
@@ -153,6 +154,9 @@ const useStyles = makeStyles()((theme) => ({
 
 const enableMicrosoft = import.meta.env.VITE_AUTH_MICROSOFT !== "false";
 const enableOrcid = import.meta.env.VITE_AUTH_ORCID !== "false";
+// Local Keycloak accounts (self-hosted deployments without OAuth providers,
+// and the dev realm's seeded users)
+const enableLocal = import.meta.env.VITE_AUTH_LOCAL === "true";
 
 const Login = () => {
   const { classes } = useStyles();
@@ -239,6 +243,19 @@ const Login = () => {
                 <I18n>
                   <En>ORCID</En>
                   <Fr>ORCID</Fr>
+                </I18n>
+              </Button>
+            )}
+            {enableLocal && (
+              <Button
+                variant="outlined"
+                fullWidth
+                className={classes.button}
+                onClick={() => handleLogin(signInWithKeycloak)}
+              >
+                <I18n>
+                  <En>Sign in with local account</En>
+                  <Fr>Se connecter avec un compte local</Fr>
                 </I18n>
               </Button>
             )}

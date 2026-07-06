@@ -5,11 +5,10 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
-import { getDatabase, ref, child, update } from "firebase/database";
 
 import { En, Fr, I18n } from "../I18n";
 
-import firebase from "../../firebase";
+import { saveRecord } from "../../api/records";
 import { validateDOI } from "../../utils/validate";
 
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
@@ -26,7 +25,7 @@ const DOIInput = ({
 }) => {
   const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix } =
     useContext(UserContext);
-  const { language, region, userID } = useParams();
+  const { language, region } = useParams();
   const doiIsValid = validateDOI(record.datasetIdentifier);
   const [doiGenerated, setDoiGenerated] = useState(false);
   const [doiErrorFlag, setDoiErrorFlag] = useState(false);
@@ -65,7 +64,6 @@ const DOIInput = ({
     setLoadingDoi(true);
     setDoiErrorFlag(false);
     setDoiErrorMessage("");
-    const database = getDatabase(firebase);
 
     console.log("[DOIInput] handleGenerateDOI", {
       region,
@@ -106,7 +104,7 @@ const DOIInput = ({
           });
           handleUpdateDoiCreationStatus({ target: { value: "draft" } });
 
-          // Save doi values to database now without waiting for the user to press save
+          // Save doi values to the database now without waiting for the user to press save
           // Create a new object with updated properties
           const updatedRecord = {
             ...record,
@@ -114,14 +112,9 @@ const DOIInput = ({
             doiCreationStatus: "draft",
           };
 
-          // Save the updated record to the Firebase database
-          const recordsRef = ref(database, `${region}/users/${userID}/records`);
-
+          // Persist the updated record via the records API
           if (record.recordID) {
-            await update(child(recordsRef, record.recordID), {
-              datasetIdentifier: updatedRecord.datasetIdentifier,
-              doiCreationStatus: updatedRecord.doiCreationStatus,
-            });
+            await saveRecord(region, record.recordID, updatedRecord);
           }
 
           setDoiGenerated(true);
@@ -204,7 +197,6 @@ const DOIInput = ({
     setLoadingDoiDelete(true);
     setDoiErrorFlag(false);
     setDoiErrorMessage("");
-    const database = getDatabase(firebase);
 
     try {
       // Extract DOI from the full URL (supports http/https and dx.doi.org)
@@ -228,17 +220,9 @@ const DOIInput = ({
               doiCreationStatus: "",
             };
 
-            // Save the updated record to the Firebase database
-            const recordsRef = ref(
-              database,
-              `${region}/users/${userID}/records`,
-            );
-
+            // Persist the updated record via the records API
             if (record.recordID) {
-              await update(child(recordsRef, record.recordID), {
-                datasetIdentifier: updatedRecord.datasetIdentifier,
-                doiCreationStatus: updatedRecord.doiCreationStatus,
-              });
+              await saveRecord(region, record.recordID, updatedRecord);
             }
 
             setDoiGenerated(false);

@@ -1,0 +1,38 @@
+name: Deploy
+
+# Deploys the compose stack to a host over SSH. Gated by GitHub environments:
+# the `development` environment deploys on pushes to the development branch,
+# `production` deploys on version tags (after image publish completes).
+#
+# Required environment secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY,
+# DEPLOY_PATH (directory on the host containing docker-compose.yml + deploy/.env)
+
+on:
+  workflow_run:
+    workflows: ["Build and publish Docker images"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options: [development, production]
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || (startsWith(github.event.workflow_run.head_branch, 'v') && 'production' || 'development') }}
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            docker compose --env-file deploy/.env pull
+            docker compose --env-file deploy/.env up -d
+            docker system prune -f

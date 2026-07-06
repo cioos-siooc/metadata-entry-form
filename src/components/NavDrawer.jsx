@@ -49,8 +49,7 @@ import {
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
-import { firebaseConfig } from "../firebase";
-import { auth } from "../auth";
+import { signOut } from "../auth/keycloak";
 
 import { En, Fr, I18n } from "./I18n";
 import WhatsNewDialog from "./Pages/WhatsNew";
@@ -319,7 +318,8 @@ export default function MiniDrawer({ children }) {
   };
 
   const handleLogout = () => {
-    auth.signOut().then(() => navigate(baseURL));
+    // Keycloak logout redirects the browser; no navigate needed
+    signOut();
   };
 
   const translations = {
@@ -353,11 +353,12 @@ export default function MiniDrawer({ children }) {
     : // CIOOS national "dominant colour" from branding doc
       "#52a79b";
 
-  // add some text to indicate connected to dev d
+  // add some text to indicate connected to dev deployment
   const usingDevDatabase =
     import.meta.env.VITE_DEV_DEPLOYMENT || import.meta.env.DEV;
-  // Derive database URL from firebase config (injected at build) if not production
-  const databaseUrl = usingDevDatabase ? firebaseConfig?.databaseURL || "" : "";
+  const databaseUrl = usingDevDatabase
+    ? import.meta.env.VITE_API_BASE_URL || "/api"
+    : "";
   const feedbackButtonRef = useRef(null);
   const feedbackWidgetRef = useRef(null);
 

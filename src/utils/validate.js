@@ -1,13 +1,9 @@
 import validator from "validator";
-import { getFunctions, httpsCallable } from "firebase/functions";
-// eslint-disable-next-line no-unused-vars
-import firebase from "../firebase"; // this is needed to make the test pass.
+import { checkURLActive } from "../api/actions";
 import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
-const functions = getFunctions();
-const checkURLActive = httpsCallable(functions, "checkURLActive");
 
 // See https://stackoverflow.com/a/48524047/7416701
 export const doiRegexp =
