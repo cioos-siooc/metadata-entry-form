@@ -3,6 +3,7 @@
 Server-side metadata conversion utilities implemented as Firebase (Google Cloud) Functions in Python 3.11.
 
 ### Contents
+
 1. Quick start
 2. Directory layout
 3. Environment & virtualenv (`.venv` + `venv` symlink)
@@ -15,7 +16,9 @@ Server-side metadata conversion utilities implemented as Firebase (Google Cloud)
 10. Troubleshooting
 
 ---
+
 ### 1. Quick start
+
 ```bash
 cd firebase-functions/python-functions
 uv venv venv  # create virtual environment in venv folder

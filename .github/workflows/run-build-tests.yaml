@@ -1,12 +1,11 @@
 name: Run Build and Tests
-on: 
-    push:
-    workflow_dispatch:
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
-  build:
+  frontend:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         node-version: [22.x]
@@ -17,23 +16,63 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
+          cache: npm
       - run: npm ci
-      - name: Create .env file 
-        run: | 
-          echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env 
-          echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env 
       - run: npm run build --if-present
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run test
         env:
           CI: true
+
+  server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: cioos_metadata
+          POSTGRES_USER: cioos
+          POSTGRES_PASSWORD: devpassword
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U cioos -d cioos_metadata"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+        working-directory: server
+      - name: Run migrations
+        run: npx node-pg-migrate --migrations-dir migrations --migration-file-language sql up
+        working-directory: server
+        env:
+          DATABASE_URL: postgres://cioos:devpassword@localhost:5433/cioos_metadata
+      - name: Run server tests
+        run: npx jest
+        working-directory: server
+        env:
+          CI: true
+          DATABASE_URL: postgres://cioos:devpassword@localhost:5433/cioos_metadata
+
+  converter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: pip install fastapi httpx pytest
+        working-directory: converter
+      - name: Run converter tests
+        run: python -m pytest test_main.py
+        working-directory: converter

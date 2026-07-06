@@ -24,10 +24,32 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 ### High-Level Components
 
 - **Frontend**: A Single Page Application (SPA) built with React 19 using Vite. Uses Material-UI (MUI v7) for UI and React-Leaflet for maps.
-- **Backend**: Firebase Functions (Node.js and Python) handling business logic, triggers, and API endpoints.
-- **Database**: Firebase Realtime Database for storing metadata records and user data.
-- **Authentication**: Firebase Authentication.
-- **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting).
+- **Backend** (`server/`): Node.js Fastify API — all data operations, DataCite DOI management, Cohere translations, email notifications, GitHub publishing, and XML-regeneration hooks.
+- **Converter** (`converter/`): Python FastAPI service wrapping [cioos-metadata-conversion](https://github.com/cioos-siooc/cioos-metadata-conversion) — record → XML/YAML/JSON/ERDDAP conversion and WAF file management.
+- **Database**: PostgreSQL. Records are stored as JSONB documents with extracted columns for querying; roles are per-region email lists.
+- **Authentication**: Keycloak (self-hosted), brokering Google, Microsoft and ORCID sign-in. The API validates OIDC bearer tokens. Served behind nginx same-origin with the SPA and API (no CORS).
+- **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting), any SMTP server (notifications).
+
+### Self-hosting quickstart
+
+```bash
+cp deploy/.env.example deploy/.env   # fill in passwords, keys, SMTP, PUBLIC_URL
+docker compose --env-file deploy/.env up -d
+# optional Web-Accessible-Folder for catalogue harvesting:
+docker compose --env-file deploy/.env --profile waf up -d
+```
+
+Services: `web` (nginx, SPA + proxy), `api`, `keycloak`, `postgres`, `converter`, and optionally `waf`. Configure the Google/Microsoft/ORCID identity providers in the Keycloak admin console (the imported realm `cioos` ships them disabled with placeholder secrets), or use local Keycloak accounts (`VITE_AUTH_LOCAL=true`).
+
+### Local development
+
+```bash
+cp deploy/.env.example deploy/.env
+docker compose --env-file deploy/.env -f docker-compose.yml -f docker-compose.dev.yml up -d
+npm install && npm run dev   # Vite proxies /api and /auth to the containers
+```
+
+The dev realm seeds three local users: `dev-author`, `dev-reviewer`, `dev-admin` (password `dev`). Outgoing email is caught by mailpit at <http://localhost:8025>. The API runs with `--watch` against `server/src`; server tests: `cd server && npx jest` (needs the dev postgres on port 5433). One-time data migration from the legacy Firebase deployment: see `migration/README.md`.
 
 ## Project Structure & Key Concepts
 
@@ -125,6 +147,29 @@ bash emulate-functions.sh
 ```
 npm install
 npm start
+```
+
+## Linting & Pre-commit Hooks
+
+The repo is linted with **ruff** (Python), **eslint** + **prettier** (JavaScript/JSX),
+and **prettier** for Markdown/JSON/CSS/YAML. These run automatically before each
+commit via [pre-commit](https://pre-commit.com/), and again on every pull request
+through [super-linter](https://github.com/super-linter/super-linter).
+
+Set up the local hooks once after cloning:
+
+```shell
+pip install pre-commit   # or: uv tool install pre-commit / brew install pre-commit
+pre-commit install
+```
+
+Useful commands:
+
+```shell
+pre-commit run --all-files   # lint/format the whole repo
+npm run lint                 # eslint check (JS/JSX)
+npm run format               # prettier write (JS/JSON/CSS/MD/YAML/HTML)
+ruff check . && ruff format  # run inside a Python package directory
 ```
 
 ## Monitoring

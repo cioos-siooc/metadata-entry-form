@@ -79,7 +79,7 @@ const PlatformLeftList = ({
 
   function handleAddFromSavedPlatforms(e) {
     const index = e.target.value;
-    const { role, ...platform } = platformList[index];
+    const { ...platform } = platformList[index];
 
     updatePlatforms(
       platforms.concat(deepCopy({ ...getBlankPlatform(), ...platform })),
@@ -95,7 +95,7 @@ const PlatformLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             {platforms.length ? (
               <I18n>
@@ -110,7 +110,7 @@ const PlatformLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <List>
             <SortableList
               items={platforms}
@@ -217,7 +217,7 @@ const PlatformLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewPlatform}
@@ -232,13 +232,13 @@ const PlatformLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedPlatforms}
-            optionLabels={platformList.map((platformItem) => (
-              <PlatformTitle platform={platformItem} />
+            optionLabels={platformList.map((platformItem, i) => (
+              <PlatformTitle key={i} platform={platformItem} />
             ))}
             options={platformList.map((v, i) => i)}
             disabled={!platformList.length || disabled}

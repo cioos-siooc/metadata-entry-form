@@ -26,7 +26,7 @@ import {
   Edit,
 } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { convertMetadata } from "../../api/actions";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
@@ -72,7 +72,7 @@ const MetadataRecordListItem = ({
   const handleDownloadClose = () => {
     setDownloadAnchorEl(null);
   };
-  
+
   const [publishAnchorEl, setPublishAnchorEl] = React.useState(null);
   const publishMenuOpen = Boolean(publishAnchorEl);
   const handlePublishClick = (event) => {
@@ -83,7 +83,6 @@ const MetadataRecordListItem = ({
   };
 
   if (!record.title) {
-    // eslint-disable-next-line no-console
     console.log(record);
     return <></>;
   }
@@ -119,20 +118,31 @@ const MetadataRecordListItem = ({
       // Local generation cases we keep as-is
       if (fileType === "eml") {
         const emlStr = await recordToEML(record);
-        blob = new Blob([emlStr], { type: `${mimeTypes[fileType]};charset=utf-8` });
+        blob = new Blob([emlStr], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
       } else if (fileType === "json") {
-        blob = new Blob([JSON.stringify(record, null, 2)], { type: `${mimeTypes[fileType]};charset=utf-8` });
+        blob = new Blob([JSON.stringify(record, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
       } else {
-        const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, 'convert_metadata');
-        const resp = await convertMetadata({ record_data: record, output_format: fileType});
-        const resultText = resp?.data ?? '';
-        blob = new Blob([resultText], { type: `${mimeTypes[fileType]};charset=utf-8` });
+        // Server-side conversion
+        const resp = await convertMetadata({
+          region,
+          record,
+          outputFormat: fileType,
+        });
+        const resultText = resp?.data ?? "";
+        blob = new Blob([resultText], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
       }
 
-      FileSaver.saveAs(blob, `${getRecordFilename(record)}${extensions[fileType]}`);
+      FileSaver.saveAs(
+        blob,
+        `${getRecordFilename(record)}${extensions[fileType]}`,
+      );
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
     } finally {
       setIsLoading({ downloadXML: false });
@@ -175,7 +185,9 @@ const MetadataRecordListItem = ({
           </span>
         }
       />
-      <ListItemSecondaryAction sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <ListItemSecondaryAction
+        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      >
         {showViewAction && (
           <Tooltip title={<I18n en="View" fr="Vue" />}>
             <span>
@@ -218,60 +230,93 @@ const MetadataRecordListItem = ({
             </span>
           </Tooltip>
         )}
-        {(showGithubPublishAction || showPublishAction || showUnPublishAction || showUnSubmitAction) && (
+        {(showGithubPublishAction ||
+          showPublishAction ||
+          showUnPublishAction ||
+          showUnSubmitAction) && (
           <>
-             <Tooltip
-               title={<I18n en="Publishing Options" fr="Options de publication" />}
-               disableHoverListener={publishMenuOpen}
-               disableFocusListener={publishMenuOpen}
-               disableTouchListener={publishMenuOpen}
-             >
-               <span>
-                <IconButton onClick={handlePublishClick} edge="end" >
+            <Tooltip
+              title={
+                <I18n en="Publishing Options" fr="Options de publication" />
+              }
+              disableHoverListener={publishMenuOpen}
+              disableFocusListener={publishMenuOpen}
+              disableTouchListener={publishMenuOpen}
+            >
+              <span>
+                <IconButton onClick={handlePublishClick} edge="end">
                   <Publish />
                 </IconButton>
-               </span>
-             </Tooltip>
-             <Menu
-               anchorEl={publishAnchorEl}
-               open={publishMenuOpen}
-               onClose={handlePublishClose}
-               disableScrollLock
-             >
-                {showPublishAction && (
-                  <MenuItem onClick={() => { onSubmitClick(); handlePublishClose(); }}>
-                    <Publish style={{ marginRight: 8 }}/> <I18n en="Publish" fr="Publier" />
-                  </MenuItem>
-                )}
-                {showUnPublishAction && (
-                   <MenuItem onClick={() => { onUnPublishClick(); handlePublishClose(); }}>
-                     <Eject style={{ marginRight: 8 }}/> <I18n en="Un-publish" fr="De-Publier" />
-                   </MenuItem>
-                )}
-                {showUnSubmitAction && (
-                   <MenuItem onClick={() => { onUnSubmitClick(); handlePublishClose(); }}>
-                     <Eject style={{ marginRight: 8 }}/> <I18n en="Return to draft" fr="Revenir au brouillon" />
-                   </MenuItem>
-                )}
-                {showGithubPublishAction && (
-                  <Tooltip
-                    title={<I18n en="GitHub publishing not configured" fr="La publication GitHub n’est pas configurée" />}
-                    disableHoverListener={githubPublishEnabled}
-                    disableFocusListener={githubPublishEnabled}
-                    disableTouchListener={githubPublishEnabled}
-                    placement="right"
-                  >
-                    <span>
-                      <MenuItem
-                        disabled={!githubPublishEnabled}
-                        onClick={() => { if (onGithubPublishClick && githubPublishEnabled) onGithubPublishClick(); handlePublishClose(); }}
-                      >
-                        <CloudUpload style={{ marginRight: 8 }}/> <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
-                      </MenuItem>
-                    </span>
-                  </Tooltip>
-                )}
-             </Menu>
+              </span>
+            </Tooltip>
+            <Menu
+              anchorEl={publishAnchorEl}
+              open={publishMenuOpen}
+              onClose={handlePublishClose}
+              disableScrollLock
+            >
+              {showPublishAction && (
+                <MenuItem
+                  onClick={() => {
+                    onSubmitClick();
+                    handlePublishClose();
+                  }}
+                >
+                  <Publish style={{ marginRight: 8 }} />{" "}
+                  <I18n en="Publish" fr="Publier" />
+                </MenuItem>
+              )}
+              {showUnPublishAction && (
+                <MenuItem
+                  onClick={() => {
+                    onUnPublishClick();
+                    handlePublishClose();
+                  }}
+                >
+                  <Eject style={{ marginRight: 8 }} />{" "}
+                  <I18n en="Un-publish" fr="De-Publier" />
+                </MenuItem>
+              )}
+              {showUnSubmitAction && (
+                <MenuItem
+                  onClick={() => {
+                    onUnSubmitClick();
+                    handlePublishClose();
+                  }}
+                >
+                  <Eject style={{ marginRight: 8 }} />{" "}
+                  <I18n en="Return to draft" fr="Revenir au brouillon" />
+                </MenuItem>
+              )}
+              {showGithubPublishAction && (
+                <Tooltip
+                  title={
+                    <I18n
+                      en="GitHub publishing not configured"
+                      fr="La publication GitHub n’est pas configurée"
+                    />
+                  }
+                  disableHoverListener={githubPublishEnabled}
+                  disableFocusListener={githubPublishEnabled}
+                  disableTouchListener={githubPublishEnabled}
+                  placement="right"
+                >
+                  <span>
+                    <MenuItem
+                      disabled={!githubPublishEnabled}
+                      onClick={() => {
+                        if (onGithubPublishClick && githubPublishEnabled)
+                          onGithubPublishClick();
+                        handlePublishClose();
+                      }}
+                    >
+                      <CloudUpload style={{ marginRight: 8 }} />{" "}
+                      <I18n en="Publish to GitHub" fr="Publier sur GitHub" />
+                    </MenuItem>
+                  </span>
+                </Tooltip>
+              )}
+            </Menu>
           </>
         )}
 
@@ -322,11 +367,15 @@ const MetadataRecordListItem = ({
               </span>
             </Tooltip>
           ))}
-        
+
         {showCloneAction && (
           <Tooltip title={<I18n en="Clone" fr="Cloner" />}>
             <span>
-              <IconButton onClick={() => onCloneClick()} edge="end" aria-label="clone">
+              <IconButton
+                onClick={() => onCloneClick()}
+                edge="end"
+                aria-label="clone"
+              >
                 <FileCopy />
               </IconButton>
             </span>
@@ -334,9 +383,10 @@ const MetadataRecordListItem = ({
         )}
 
         {showDownloadButton && (
-          <Tooltip 
+          <Tooltip
             disableHoverListener={downloadMenuOpen}
-            title={<I18n en="Download" fr="Télécharger" />}>
+            title={<I18n en="Download" fr="Télécharger" />}
+          >
             <span>
               <IconButton
                 aria-label="more"

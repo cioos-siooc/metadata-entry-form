@@ -20,14 +20,8 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@mui/icons-material";
-import { getDatabase, ref, onValue } from "firebase/database";
-import firebase from "../../firebase";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import {
-  newContact,
-  cloneContact,
-  deleteContact,
-} from "../../utils/firebaseContactFunctions";
+import { contacts as contactsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 import ContactTitle from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
@@ -45,39 +39,47 @@ class Contacts extends FormClassTemplate {
     };
   }
 
-  async componentDidMount() {
-    this.setState({ loading: true });
-
-    const { match } = this.props;
-    const { region } = match.params;
-
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (user) => {
-      if (user) {
-        const database = getDatabase(firebase);
-        const contactsRef = ref(database, `${region}/users/${user.uid}/contacts`);
-        onValue(contactsRef, (records) =>
-          this.setState({ contacts: records.toJSON(), loading: false })
-        );
-        this.listenerRefs.push(contactsRef);
-      }
-    });
+  componentDidMount() {
+    this.loadData();
   }
 
-  handleDeleteContact(contactID) {
+  async loadData() {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      deleteContact(region, auth.currentUser.uid, contactID);
+    if (!user) return;
+
+    this.safeSetState({ loading: true });
+    try {
+      const contacts = await contactsAPI.list(region, user.uid);
+      this.safeSetState({ contacts: contacts || {}, loading: false });
+    } catch (error) {
+      console.error("Error loading contacts:", error);
+      this.safeSetState({ loading: false });
     }
   }
 
-  handleCloneContact(contactID) {
+  async handleDeleteContact(contactID) {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      return cloneContact(region, auth.currentUser.uid, contactID);
+    if (user) {
+      await contactsAPI.remove(region, user.uid, contactID);
+      this.loadData();
+    }
+  }
+
+  async handleCloneContact(contactID) {
+    const { match } = this.props;
+    const { region } = match.params;
+    const { user } = this.context;
+
+    if (user) {
+      await contactsAPI.clone(region, user.uid, contactID);
+      this.loadData();
+      return true;
     }
     return false;
   }
@@ -85,10 +87,11 @@ class Contacts extends FormClassTemplate {
   addContact() {
     const { history, match } = this.props;
     const { language, region } = match.params;
+    const { user } = this.context;
 
     // render different page with 'save' button?
-    if (auth.currentUser) {
-      newContact(region, auth.currentUser.uid).then((key) => {
+    if (user) {
+      contactsAPI.create(region, user.uid, {}).then((key) => {
         history.push(`/${language}/${region}/contacts/${key}`);
       });
     }
@@ -110,7 +113,7 @@ class Contacts extends FormClassTemplate {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +129,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -141,7 +144,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -154,7 +157,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>
@@ -172,7 +175,9 @@ class Contacts extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editContact(key)}>
+                                <IconButton
+                                  onClick={() => this.editContact(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
@@ -186,7 +191,9 @@ class Contacts extends FormClassTemplate {
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}
@@ -225,4 +232,6 @@ class Contacts extends FormClassTemplate {
     );
   }
 }
+Contacts.contextType = UserContext;
+
 export default withRouter(Contacts);

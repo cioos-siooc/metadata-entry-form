@@ -147,9 +147,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
               />
               {release.prerelease && (
                 <Chip
-                  label={
-                    language === "fr" ? "Pré-version" : "Pre-release"
-                  }
+                  label={language === "fr" ? "Pré-version" : "Pre-release"}
                   size="small"
                   color="warning"
                 />

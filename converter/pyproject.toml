@@ -1,0 +1,17 @@
+[project]
+name = "cioos-metadata-converter"
+version = "0.1.0"
+description = "Metadata conversion service: record JSON -> XML/YAML/JSON/ERDDAP, plus WAF file management"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "cioos-metadata-conversion @ git+https://github.com/cioos-siooc/cioos-metadata-conversion.git@fix/datacite-schema",
+]
+
+[build-system]
+requires = ["setuptools<81"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["converter"]

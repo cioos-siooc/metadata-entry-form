@@ -13,18 +13,16 @@ function objectToArray(obj) {
       Object.keys(v).forEach((key) => {
         try {
           v[key] = objectToArray(v[key]);
-        }
-        catch (error) {
-          if (error instanceof TypeError)
-            return v[key];
+        } catch (error) {
+          if (error instanceof TypeError) return v[key];
         }
         return v[key];
-      })
-      return v
-    })
-    return newObj
+      });
+      return v;
+    });
+    return newObj;
   }
-  return obj
+  return obj;
 }
 
 /*
@@ -34,7 +32,7 @@ export function firebaseToJSObject(input) {
   if (!input) return null;
   const out = deepCopy(input);
   Object.keys(out).forEach((key) => {
-    out[key] = objectToArray(out[key])
+    out[key] = objectToArray(out[key]);
 
     //  special case
     if (input.keywords)
@@ -46,7 +44,6 @@ export function firebaseToJSObject(input) {
   if (out.contacts) {
     Object.values(out.contacts).forEach((contact) => {
       if (contact.role) {
-        // eslint-disable-next-line no-param-reassign
         contact.role = Object.values(contact.role);
       }
     });
@@ -69,7 +66,7 @@ export const trimStringsInObject = (obj) =>
 export function getRecordFilename(record) {
   return `${record.title[record.language].slice(
     0,
-    30
+    30,
   )}_${record.identifier.slice(0, 5)}`
     .trim()
     .toLowerCase()

@@ -1,143 +1,111 @@
-/* eslint-disable camelcase */
-import React, { createContext } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { getDatabase, ref, update, onValue } from "firebase/database";
 
-import { getAuth, onAuthStateChanged } from "../auth";
-import firebase from "../firebase";
-import FormClassTemplate from "../components/Pages/FormClassTemplate";
+import { initAuth, currentUser } from "../auth/keycloak";
+import { get } from "../api/client";
+import * as actions from "../api/actions";
 
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
-class UserProviderClass extends FormClassTemplate {
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: null,
-      authIsLoading: false,
-      admins: [],
-      reviewers: [],
-      isReviewer: false,
-      loggedIn: false,
-      hasSharedRecords: false,
-    };
-  }
-
-  componentDidMount = () => {
-    const { region } = this.props;
-
-    this.setState({ authIsLoading: true });
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), (userAuth) => {
-      if (userAuth) {
-        const { displayName, email, uid } = userAuth;
-        this.setState({ user: userAuth, authIsLoading: false, loggedIn: true });
-
-        Sentry.setUser({
-          email,
-          username: email,
-        });
-
-
-        // should be replaced with getDatacitePrefix but can't as this function is not async
-        const functions = getFunctions();
-        const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
-        getDatacitePrefix(region)
-          .then((prefix) => {
-            this.setState({
-              datacitePrefix: prefix?.data,
-            });
-          });
-
-        const database = getDatabase(firebase);
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
-
-        const permissionsRef = ref(database, `admin/${region}/permissions`)
-
-        onValue(permissionsRef, (permissionsFB) => {
-          const permissions = permissionsFB.toJSON();
-
-          const admins = permissions?.admins || "";
-          const reviewers = permissions?.reviewers || "";
-
-          const isAdmin = admins.includes(email);
-          const isReviewer = reviewers.includes(email);
-
-          this.setState({
-            admins,
-            reviewers,
-            isAdmin,
-            isReviewer,
-          });
-        });
-
-        this.listenerRefs.push(permissionsRef);
-
-        // real-time listener for shared records
-        const sharesRef = ref(database, `${region}/shares/${uid}`);
-
-        onValue(sharesRef, (snapshot) => {
-            const hasSharedRecords = snapshot.exists();
-            this.setState({ hasSharedRecords, authIsLoading: false });
-          });
-
-        this.listenerRefs.push(sharesRef);
-
-      } else {
-        this.setState({
-          loggedIn: false,
-          authIsLoading: false,
-        });
-      }
-      this.setState({ user: userAuth, authIsLoading: false });
-    });
-  };
-
-  render() {
-    const { children } = this.props;
-    const functions = getFunctions();
-    const translate = httpsCallable(functions, "translate");
-    const regenerateXMLforRecord = httpsCallable(functions, "regenerateXMLforRecord");
-    const downloadRecord = httpsCallable(functions, "downloadRecord");
-    const createDraftDoi = httpsCallable(functions, "createDraftDoi");
-    const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
-    const deleteDraftDoi = httpsCallable(functions, "deleteDraftDoi");
-    const getDoiStatus = httpsCallable(functions, "getDoiStatus");
-    const checkURLActive = httpsCallable(functions, "checkURLActive");
-    const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
-    const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
-    const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
-    const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
-
-    return (
-      <UserContext.Provider
-        value={{
-          ...this.state,
-          translate,
-          regenerateXMLforRecord,
-          downloadRecord,
-          createDraftDoi,
-          updateDraftDoi,
-          deleteDraftDoi,
-          getDoiStatus,
-          checkURLActive,
-          getCredentialsStored,
-          getDatacitePrefix,
-          testDataciteCredentials,
-          publishRecordToGitHub,
-        }}
-      >
-        {children}
-      </UserContext.Provider>
-    );
-  }
-}
-
-// Wrapper component to provide router params to the class component
 const UserProvider = ({ children }) => {
   const { region } = useParams();
-  return <UserProviderClass region={region}>{children}</UserProviderClass>;
+  const [state, setState] = useState({
+    user: null,
+    authIsLoading: true,
+    loggedIn: false,
+    isAdmin: false,
+    isReviewer: false,
+    isSuperadmin: false,
+    admins: [],
+    reviewers: [],
+    hasSharedRecords: false,
+    datacitePrefix: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setState((prev) => ({ ...prev, authIsLoading: true }));
+      const authenticated = await initAuth().catch(() => false);
+      const user = authenticated ? currentUser() : null;
+
+      if (!user) {
+        if (!cancelled) {
+          setState((prev) => ({
+            ...prev,
+            user: null,
+            loggedIn: false,
+            authIsLoading: false,
+          }));
+        }
+        return;
+      }
+
+      Sentry.setUser({ email: user.email, username: user.email });
+
+      // Session bootstrap: server derives roles and provisions the user row
+      // (replaces the userinfo write + permissions listener).
+      let me = {};
+      let permissions = { admins: [], reviewers: [] };
+      if (region) {
+        [me, permissions] = await Promise.all([
+          get(`/regions/${region}/me`).catch(() => ({})),
+          get(`/regions/${region}/admin/permissions`).catch(() => ({
+            admins: [],
+            reviewers: [],
+          })),
+        ]);
+      } else {
+        // Region-less pages (region select, region admin) still need the
+        // global profile for isSuperadmin and the server-side user id.
+        me = await get("/me").catch(() => ({}));
+      }
+
+      if (!cancelled) {
+        setState({
+          // uid is the server-side user id so record ownership checks line up
+          user: { ...user, uid: me.userID ?? user.uid },
+          loggedIn: true,
+          authIsLoading: false,
+          isAdmin: Boolean(me.isAdmin),
+          isReviewer: Boolean(me.isReviewer),
+          isSuperadmin: Boolean(me.isSuperadmin),
+          admins: permissions.admins ?? [],
+          reviewers: permissions.reviewers ?? [],
+          hasSharedRecords: Boolean(me.hasSharedRecords),
+          datacitePrefix: me.datacitePrefix ?? null,
+        });
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [region]);
+
+  const contextValue = useMemo(
+    () => ({
+      ...state,
+      translate: actions.translate,
+      regenerateXMLforRecord: actions.regenerateXMLforRecord,
+      downloadRecord: actions.downloadRecord,
+      createDraftDoi: actions.createDraftDoi,
+      updateDraftDoi: actions.updateDraftDoi,
+      deleteDraftDoi: actions.deleteDraftDoi,
+      getDoiStatus: actions.getDoiStatus,
+      checkURLActive: actions.checkURLActive,
+      getCredentialsStored: actions.getCredentialsStored,
+      getDatacitePrefix: actions.getDatacitePrefix,
+      testDataciteCredentials: actions.testDataciteCredentials,
+      publishRecordToGitHub: actions.githubPublishRecord,
+    }),
+    [state],
+  );
+
+  return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
 
 export default UserProvider;

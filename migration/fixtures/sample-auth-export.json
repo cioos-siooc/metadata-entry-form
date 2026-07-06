@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "localId": "fixture-uid-alice",
+      "email": "alice@fixture.example",
+      "providerUserInfo": [
+        { "providerId": "google.com", "email": "alice.alt@fixture.example" }
+      ]
+    },
+    {
+      "localId": "fixture-uid-bob",
+      "email": "bob@fixture.example",
+      "providerUserInfo": [{ "providerId": "github.com", "email": "bob@fixture.example" }]
+    }
+  ]
+}

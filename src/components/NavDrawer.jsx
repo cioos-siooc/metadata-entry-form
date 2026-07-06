@@ -22,6 +22,7 @@ import {
   Help,
   Warning,
   Settings,
+  DynamicForm,
   Link as LinkIcon,
   NewReleases,
   ExpandLess,
@@ -49,8 +50,7 @@ import {
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
-import { firebaseConfig } from "../firebase";
-import { auth } from "../auth";
+import { signOut } from "../auth/keycloak";
 
 import { En, Fr, I18n } from "./I18n";
 import WhatsNewDialog from "./Pages/WhatsNew";
@@ -201,14 +201,14 @@ export default function MiniDrawer({ children }) {
 
   const { classes } = useStyles();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const {
     user,
     loggedIn,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
+    isSuperadmin: userIsSuperadmin,
     hasSharedRecords,
   } = useContext(UserContext);
 
@@ -234,18 +234,20 @@ export default function MiniDrawer({ children }) {
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
-  const regionEmail = (regionInfo?.email || "");
+  const regionEmail = regionInfo?.email || "";
   const regionEmailLower = regionEmail.toLowerCase();
-  const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
+  const contactLabel =
+    language === "fr" ? "Contacter la région" : "Contact Region";
   const [emailCopied, setEmailCopied] = React.useState(false);
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
-  const [connectedAccountsOpen, setConnectedAccountsOpen] = React.useState(false);
+  const [connectedAccountsOpen, setConnectedAccountsOpen] =
+    React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
-      return language === 'fr' ? 'Copié !' : 'Copied!';
+      return language === "fr" ? "Copié !" : "Copied!";
     }
-    return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
+    return language === "fr" ? "Cliquer pour copier" : "Click to copy";
   }, [emailCopied, language]);
 
   const [helpSubmenuOpen, setHelpSubmenuOpen] = React.useState(false);
@@ -263,48 +265,50 @@ export default function MiniDrawer({ children }) {
 
     const fallbackCopy = () => {
       try {
-        const ta = document.createElement('textarea');
+        const ta = document.createElement("textarea");
         ta.value = regionEmailLower;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'absolute';
-        ta.style.left = '-9999px';
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(ta);
         done();
-      } catch (err) {
+      } catch {
         // no-op: copying failed
       }
     };
 
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(regionEmailLower).then(done).catch(fallbackCopy);
+      navigator.clipboard
+        .writeText(regionEmailLower)
+        .then(done)
+        .catch(fallbackCopy);
     } else {
       fallbackCopy();
     }
   };
 
   const handleCopyEmailKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       handleCopyEmail(e);
     }
   };
 
   const handleContactClick = (e) => {
     // If clicking within the email copy element, do not trigger mailto
-    if (e && e.target && e.target.closest('[data-copy-email]')) {
+    if (e && e.target && e.target.closest("[data-copy-email]")) {
       e.preventDefault();
       return;
     }
     const subject = encodeURIComponent(
-      language === 'fr'
+      language === "fr"
         ? `Formulaire ${regionInfo.title.fr} – Question`
-        : `${regionInfo.title.en} Form – Question`
+        : `${regionInfo.title.en} Form – Question`,
     );
     window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
   };
-
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -316,7 +320,8 @@ export default function MiniDrawer({ children }) {
   };
 
   const handleLogout = () => {
-    auth.signOut().then(() => navigate(baseURL));
+    // Keycloak logout redirects the browser; no navigate needed
+    signOut();
   };
 
   const translations = {
@@ -326,30 +331,38 @@ export default function MiniDrawer({ children }) {
     instruments: <I18n en="Instruments" fr="Instruments" />,
     platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
+    forms: <I18n en="Forms" fr="Formulaires" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
-    signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
-    signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
+    regionAdmin: <I18n en="Manage regions" fr="Gérer les régions" />,
+    signInGoogle: (
+      <I18n en="Sign in with Google" fr="Se connecter avec Google" />
+    ),
+    signInMicrosoft: (
+      <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />
+    ),
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
     connectedAccounts: <I18n en="Connected accounts" fr="Comptes connectés" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Development database" fr="Base de données de développement" />,
+    envConnection: (
+      <I18n en="Development database" fr="Base de données de développement" />
+    ),
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
     helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
-  const topBarBackgroundColor = region
-    ? regions[region].colors.primary
-    : // CIOOS national "dominant colour" from branding doc
+  const topBarBackgroundColor =
+    (region && regions[region].colors?.primary) ||
+    // CIOOS national "dominant colour" from branding doc
     "#52a79b";
 
-  // add some text to indicate connected to dev d
+  // add some text to indicate connected to dev deployment
   const usingDevDatabase =
-    import.meta.env.VITE_DEV_DEPLOYMENT ||
-    import.meta.env.DEV;
-  // Derive database URL from firebase config (injected at build) if not production
-  const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
+    import.meta.env.VITE_DEV_DEPLOYMENT || import.meta.env.DEV;
+  const databaseUrl = usingDevDatabase
+    ? import.meta.env.VITE_API_BASE_URL || "/api"
+    : "";
   const feedbackButtonRef = useRef(null);
   const feedbackWidgetRef = useRef(null);
 
@@ -358,7 +371,10 @@ export default function MiniDrawer({ children }) {
     const el = feedbackButtonRef.current;
 
     // Remove previous widget if it exists
-    if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+    if (
+      feedbackWidgetRef.current &&
+      typeof feedbackWidgetRef.current.remove === "function"
+    ) {
       feedbackWidgetRef.current.remove();
       feedbackWidgetRef.current = null;
     }
@@ -368,23 +384,35 @@ export default function MiniDrawer({ children }) {
         colorScheme: "light",
         triggerLabel: language === "fr" ? "Commentaires" : "Feedback",
         submitButtonLabel: language === "fr" ? "Envoyer" : "Send Feedback",
-        formTitle: language === "fr" ? "Envoyer des commentaires" : "Send Feedback",
+        formTitle:
+          language === "fr" ? "Envoyer des commentaires" : "Send Feedback",
         cancelButtonLabel: language === "fr" ? "Annuler" : "Cancel",
         nameLabel: language === "fr" ? "Nom" : "Name",
         namePlaceholder: language === "fr" ? "Votre nom" : "Your name",
         emailLabel: language === "fr" ? "Courriel" : "Email",
-        emailPlaceholder: language === "fr" ? "votre.courriel@exemple.com" : "your.email@example.com",
+        emailPlaceholder:
+          language === "fr"
+            ? "votre.courriel@exemple.com"
+            : "your.email@example.com",
         messageLabel: language === "fr" ? "Description" : "Description",
-        messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
-        successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
+        messagePlaceholder:
+          language === "fr"
+            ? "Quoi s'est-il passé ? Qu'attendiez-vous ?"
+            : "What happened? What did you expect?",
+        successMessageText:
+          language === "fr"
+            ? "Merci pour vos commentaires !"
+            : "Thank you for your feedback!",
         enableScreenshot: true,
         autoInject: false,
         onFormOpen: () => {
           // Add click handler to backdrop to close on single click
           setTimeout(() => {
-            const backdrop = document.querySelector('[data-sentry-feedback-backdrop]');
+            const backdrop = document.querySelector(
+              "[data-sentry-feedback-backdrop]",
+            );
             if (backdrop) {
-              backdrop.style.pointerEvents = 'auto';
+              backdrop.style.pointerEvents = "auto";
             }
           }, 0);
         },
@@ -397,20 +425,19 @@ export default function MiniDrawer({ children }) {
     }
 
     return () => {
-      if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
+      if (
+        feedbackWidgetRef.current &&
+        typeof feedbackWidgetRef.current.remove === "function"
+      ) {
         feedbackWidgetRef.current.remove();
       }
     };
   }, [language, topBarBackgroundColor]);
 
-
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={classes.appBar}
-      >
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar
           className={classes.appBarToolbar}
           style={{
@@ -483,7 +510,10 @@ export default function MiniDrawer({ children }) {
           })}
         >
           <div className={classes.toolbar}>
-            <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+            <Typography
+              variant="subtitle1"
+              style={{ flexGrow: 1, paddingLeft: 16, fontWeight: "bold" }}
+            >
               <I18n>
                 <En>Metadata Entry Tool</En>
                 <Fr>Outil de saisie de métadonnées</Fr>
@@ -522,6 +552,21 @@ export default function MiniDrawer({ children }) {
                       <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
+                  </ListItemButton>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.forms}
+                >
+                  <ListItemButton
+                    key="Forms"
+                    onClick={() => navigateAndClose(`${baseURL}/forms`)}
+                  >
+                    <ListItemIcon>
+                      <DynamicForm />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.forms} />
                   </ListItemButton>
                 </Tooltip>
 
@@ -608,9 +653,7 @@ export default function MiniDrawer({ children }) {
             )}
 
             {/* Logout button removed as requested */}
-
           </List>
-
 
           <div className={classes.bottomList}>
             <List>
@@ -630,9 +673,7 @@ export default function MiniDrawer({ children }) {
                     <ListItemIcon>
                       <Warning style={{ color: "#d32f2f" }} />
                     </ListItemIcon>
-                    <ListItemText
-                      primary={translations.envConnection}
-                    />
+                    <ListItemText primary={translations.envConnection} />
                   </ListItemButton>
                 </Tooltip>
               )}
@@ -652,18 +693,28 @@ export default function MiniDrawer({ children }) {
                 </ListItemButton>
               </Tooltip>
               <Collapse in={helpSubmenuOpen} timeout="auto">
-                <List component="div" disablePadding sx={{ borderLeft: open ? `2px solid ${theme.palette.action.disabled}` : 'none', ml: open ? '20px' : 0, pl: open ? 2 : 0 }}>
+                <List
+                  component="div"
+                  disablePadding
+                  sx={{
+                    borderLeft: open
+                      ? `2px solid ${theme.palette.action.disabled}`
+                      : "none",
+                    ml: open ? "20px" : 0,
+                    pl: open ? 2 : 0,
+                  }}
+                >
                   <Tooltip
                     placement="right-start"
                     title={
-                      open
-                        ? ""
-                        : (
-                          <span>
-                            {contactLabel}
-                            {regionEmailLower ? ` — ${regionEmailLower}` : ''}
-                          </span>
-                        )
+                      open ? (
+                        ""
+                      ) : (
+                        <span>
+                          {contactLabel}
+                          {regionEmailLower ? ` — ${regionEmailLower}` : ""}
+                        </span>
+                      )
                     }
                   >
                     <ListItemButton
@@ -688,8 +739,15 @@ export default function MiniDrawer({ children }) {
                                 onKeyDown={handleCopyEmailKeyDown}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={language === 'fr' ? "Copier l'adresse courriel" : 'Copy email address'}
-                                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                                aria-label={
+                                  language === "fr"
+                                    ? "Copier l'adresse courriel"
+                                    : "Copy email address"
+                                }
+                                style={{
+                                  textDecoration: "underline",
+                                  cursor: "pointer",
+                                }}
                               >
                                 {regionEmailLower}
                               </span>
@@ -712,7 +770,9 @@ export default function MiniDrawer({ children }) {
                       <ListItemIcon>
                         <FeedbackRounded />
                       </ListItemIcon>
-                      <ListItemText primary={<I18n en="Feedback" fr="Commentaires" />} />
+                      <ListItemText
+                        primary={<I18n en="Feedback" fr="Commentaires" />}
+                      />
                     </ListItemButton>
                   </Tooltip>
                   {user && (
@@ -760,6 +820,24 @@ export default function MiniDrawer({ children }) {
                       </ListItemButton>
                     </Tooltip>
                   )}
+                  {userIsSuperadmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.regionAdmin}
+                    >
+                      <ListItemButton
+                        key="RegionAdmin"
+                        onClick={() =>
+                          navigateAndClose(`/${language}/region-admin`)
+                        }
+                      >
+                        <ListItemIcon>
+                          <Settings />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.regionAdmin} />
+                      </ListItemButton>
+                    </Tooltip>
+                  )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
@@ -784,11 +862,16 @@ export default function MiniDrawer({ children }) {
                         primary={user.displayName}
                         secondary={user.email}
                         secondaryTypographyProps={{
-                          variant: 'caption',
-                          sx: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+                          variant: "caption",
+                          sx: {
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          },
                         }}
                       />
-                      {open && (accountSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
+                      {open &&
+                        (accountSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
                   </Tooltip>
                   <Collapse in={accountSubmenuOpen && open} timeout="auto">
@@ -797,7 +880,7 @@ export default function MiniDrawer({ children }) {
                       disablePadding
                       sx={{
                         borderLeft: `2px solid ${theme.palette.action.disabled}`,
-                        ml: '20px',
+                        ml: "20px",
                         pl: 2,
                       }}
                     >
@@ -809,12 +892,14 @@ export default function MiniDrawer({ children }) {
                         <ListItemIcon>
                           <LinkIcon />
                         </ListItemIcon>
-                        <ListItemText primary={translations.connectedAccounts} />
+                        <ListItemText
+                          primary={translations.connectedAccounts}
+                        />
                       </ListItemButton>
                       <ListItemButton
                         key="Logout"
                         onClick={handleLogout}
-                        sx={{ pl: 4, color: 'error.main' }}
+                        sx={{ pl: 4, color: "error.main" }}
                       >
                         <ListItemIcon>
                           <ExitToApp color="error" />

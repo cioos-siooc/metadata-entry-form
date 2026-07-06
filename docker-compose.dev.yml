@@ -1,0 +1,55 @@
+# Development override: backend services in docker, SPA on the host with HMR.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   npm run dev   (Vite proxies /api and /auth to these containers)
+services:
+  postgres:
+    ports:
+      # host 5433 to avoid clashing with a locally-running postgres
+      - "5433:5432"
+
+  keycloak:
+    command: start-dev --import-realm --http-relative-path /auth
+    environment:
+      KC_HOSTNAME: ""
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      # dev realm: seeded dev-author/dev-reviewer/dev-admin users (password "dev"),
+      # password grant enabled for curl-based testing
+      - ./keycloak/dev:/opt/keycloak/data/import:ro
+    ports:
+      - "8080:8080"
+
+  api:
+    build: ./server
+    command: sh -c "npx node-pg-migrate --migrations-dir migrations --migration-file-language sql up && node scripts/seed-dev.js && node --watch src/index.js"
+    environment:
+      NODE_ENV: development
+      # dev-admin is a superadmin (admin of the whole service); dev-reviewer and
+      # dev-admin also get per-region roles from scripts/seed-dev.js
+      SUPERADMIN_EMAILS: admin@example.org
+      KEYCLOAK_ISSUER: http://localhost:8080/auth/realms/cioos
+      KEYCLOAK_INTERNAL_ISSUER: http://keycloak:8080/auth/realms/cioos
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+    volumes:
+      - ./server/src:/app/src:ro
+      - ./server/migrations:/app/migrations:ro
+      - ./server/scripts:/app/scripts:ro
+    ports:
+      - "3001:3001"
+
+  converter:
+    ports:
+      - "8000:8000"
+
+  # Catches all outgoing notification email in dev — UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  web:
+    profiles: ["prod-web"] # SPA runs on the host in dev; keep web out of the dev stack

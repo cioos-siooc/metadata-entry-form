@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-const functions = require("firebase-functions");
 const axios = require("axios");
 
 // Mock firebase-admin
@@ -68,7 +67,7 @@ function mockFirebaseDbReads(values) {
     };
     // child returns another chainable or terminal with once()
     obj.child.mockImplementation((fieldName) => {
-      if (values.hasOwnProperty(fieldName)) {
+      if (Object.prototype.hasOwnProperty.call(values, fieldName)) {
         return {
           once: jest.fn().mockResolvedValue({ val: () => values[fieldName] }),
           child: obj.child,
@@ -122,7 +121,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
             Authorization: "Basic dGVzdDpwYXNz",
             "Content-Type": "application/vnd.api+json",
           }),
-        })
+        }),
       );
     });
 
@@ -164,7 +163,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: { data: { type: "dois", attributes: {} } },
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "unauthenticated",
       });
@@ -191,7 +190,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: { data: { type: "dois", attributes: {} } },
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
       });
@@ -214,7 +213,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: {},
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
       });
@@ -239,7 +238,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       expect(axios.post).toHaveBeenCalledWith(
         "https://api.datacite.org/dois/",
         expect.any(Object),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -274,7 +273,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
             Authorization: "Basic dGVzdDpwYXNz",
             "Content-Type": "application/vnd.api+json",
           }),
-        })
+        }),
       );
     });
 
@@ -316,7 +315,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           doi: "10.1234/nonexistent",
           region: "pacific",
           data: {},
-        })
+        }),
       ).rejects.toMatchObject({
         code: "not-found",
         message: expect.stringContaining("may have been deleted"),
@@ -341,7 +340,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           doi: "10.1234/test",
           region: "pacific",
           data: {},
-        })
+        }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("does not meet DataCite requirements"),
@@ -372,7 +371,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           headers: expect.objectContaining({
             Authorization: "Basic dGVzdDpwYXNz",
           }),
-        })
+        }),
       );
     });
 
@@ -412,7 +411,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         deleteDraftDoi({
           doi: "10.1234/already-deleted",
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "not-found",
         message: expect.stringContaining("may have already been deleted"),
@@ -436,7 +435,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         deleteDraftDoi({
           doi: "10.1234/published",
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("Cannot delete"),
@@ -529,7 +528,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         getDoiStatus({
           doi: "10.1234/test",
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "unauthenticated",
       });
@@ -553,7 +552,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         getDoiStatus({
           doi: "10.1234/test",
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "unknown",
         message: expect.stringContaining("500"),
@@ -573,7 +572,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         getDoiStatus({
           doi: "10.1234/test",
           region: "pacific",
-        })
+        }),
       ).rejects.toMatchObject({
         code: "unknown",
         message: "Network timeout",
@@ -695,7 +694,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(getDatacitePrefix("pacific")).rejects.toThrow(
-        "Error fetching Datacite Prefix"
+        "Error fetching Datacite Prefix",
       );
     });
   });
@@ -713,14 +712,17 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           data: {
             errors: [
               { title: "Missing field", detail: "creators is required" },
-              { title: "Invalid value", detail: "publicationYear must be a number" },
+              {
+                title: "Invalid value",
+                detail: "publicationYear must be a number",
+              },
             ],
           },
         },
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("creators is required"),
@@ -743,7 +745,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }),
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("Invalid JSON payload"),
@@ -766,7 +768,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }),
       ).rejects.toMatchObject({
         code: "unknown",
         message: expect.stringContaining("Internal server error occurred"),
@@ -782,7 +784,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       axios.post.mockRejectedValue(new Error("ECONNREFUSED"));
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }),
       ).rejects.toMatchObject({
         code: "unknown",
         message: "ECONNREFUSED",

@@ -1,19 +1,17 @@
 import glob
+import json
 import os
 import traceback
 from pathlib import Path
-import json
 
+import sentry_sdk
 import yaml
 from firebase_to_xml.__main__ import get_filename
 from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
-from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from firebase_to_xml.organizations import get_record_owner
+from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from flask import Flask, jsonify, make_response, request
 from metadata_xml.template_functions import metadata_to_xml
-
-
-import sentry_sdk
 
 sentry_sdk.init(
     dsn="https://e0623f41d68caf57dc1563203f482daf@o4505071053766656.ingest.us.sentry.io/4508490893426688",
@@ -53,7 +51,8 @@ app = Flask(__name__)
 
 def delete_record(basename):
     # before writing/update a file, delete the old one
-    # this way if the status changes (and so the folder changes), we dont end up with multiple copies
+    # this way if the status changes (and so the folder changes), we dont end
+    # up with multiple copies
     # sanitize filename. just for security, the names should already be safe
     basename = "".join(
         [
@@ -105,7 +104,8 @@ def recordDelete():
     return jsonify(message="record deleted")
 
 
-# this would make us need to connect AWS Lambda to Firebase, doable, but I cant think how this would help anything
+# this would make us need to connect AWS Lambda to Firebase, doable, but I cant
+# think how this would help anything
 # create XML,YAML snippet, and write them to the WAF
 @app.route("/record")
 def recordUpdate():
