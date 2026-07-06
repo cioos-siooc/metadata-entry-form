@@ -46,6 +46,8 @@ function renderDOIInput(recordOverrides = {}, props = {}) {
     getDoiStatus: mockGetDoiStatus,
     datacitePrefix: "10.5678",
     dataciteApiDomain: "production",
+    isReviewer: true,
+    isAdmin: false,
     ...(props.contextValue || {}),
   };
 
@@ -325,6 +327,16 @@ describe("DOIInput", () => {
 
     it("should be disabled when recordID is empty", () => {
       renderDOIInput({ recordID: "", doiCreationStatus: "" });
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      expect(generateBtn).toBeDisabled();
+    });
+
+    it("should be disabled for non-reviewer/non-admin users", () => {
+      renderDOIInput(
+        { recordID: "rec-1", doiCreationStatus: "" },
+        { contextValue: { isReviewer: false, isAdmin: false } }
+      );
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       expect(generateBtn).toBeDisabled();

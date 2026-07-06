@@ -45,7 +45,20 @@ import regions from "../../regions";
 
 
 const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus, disabled }) => {
-    const { createDraftDoi, deleteDraftDoi, getDoiStatus, datacitePrefix, dataciteApiDomain, doiSuffixModes, doiStatusManagement, publishDoi, registerDoi, hideDoi } = useContext(UserContext);
+    const {
+        createDraftDoi,
+        deleteDraftDoi,
+        getDoiStatus,
+        datacitePrefix,
+        dataciteApiDomain,
+        doiSuffixModes,
+        doiStatusManagement,
+        publishDoi,
+        registerDoi,
+        hideDoi,
+        isReviewer,
+        isAdmin,
+    } = useContext(UserContext);
     const { language, region, userID } = useParams();
     const availableSuffixModes =
         Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
@@ -93,9 +106,12 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     // sees the consequences before acting. Holds the dialog copy + the action.
     const [confirmAction, setConfirmAction] = useState(null);
 
+    const canManageDoi = Boolean(isReviewer || isAdmin);
+
     const generateDoiDisabled =
         doiGenerated
         || loadingDoi
+        || !canManageDoi
         || record.doiCreationStatus !== ""
         || record.recordID === ""
         || (selectedSuffixMode === "manual" && !manualSuffix.trim())
@@ -127,7 +143,8 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     // you shouldn't be able to register/publish a DOI for a not-yet-submitted dataset.
     const datasetIsDraft = !["submitted", "published"].includes(record.status);
     const statusEditable =
-        doiStatusManagement === "form"
+        canManageDoi
+        && doiStatusManagement === "form"
         && (!datasetIsDraft || ["registered", "findable"].includes(record.doiCreationStatus));
     const showStatusSelect =
         isOurManagedDoi
@@ -145,6 +162,11 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     const mounted = useRef(false);
 
     async function handleGenerateDOI() {
+        if (!canManageDoi) {
+            setDoiErrorFlag(true);
+            setDoiErrorMessage("Only reviewers and admins can generate a DOI.");
+            return;
+        }
         setLoadingDoi(true);
         setDoiErrorFlag(false);
         setDoiErrorMessage("");
@@ -314,6 +336,10 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     }
 
     async function handleDoiStateTransition(targetState) {
+        if (!canManageDoi) {
+            setDoiStateError("Only reviewers and admins can change DOI status.");
+            return;
+        }
         setDoiStateLoading(true);
         setDoiStateError("");
         const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "");
@@ -397,6 +423,10 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
     }
 
     function requestStatusChange(targetState) {
+        if (!canManageDoi) {
+            setDoiStateError("Only reviewers and admins can change DOI status.");
+            return;
+        }
         const c = getStatusConsequence(record.doiCreationStatus, targetState);
         setConfirmAction({
             ...c,
@@ -454,11 +484,16 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 {showStatusSelect && (
                     <Tooltip
                         title={
-                            doiStatusManagement === "form" && !statusEditable && !doiStateLoading
+                            !canManageDoi
                                 ? <I18n
-                                    en="The dataset must be submitted or published before its DOI status can be changed."
-                                    fr="Le jeu de données doit être soumis ou publié avant de pouvoir modifier le statut de son DOI."
+                                    en="Only reviewers and admins can change DOI status."
+                                    fr="Seuls les réviseurs et les administrateurs peuvent modifier le statut du DOI."
                                 />
+                                : doiStatusManagement === "form" && !statusEditable && !doiStateLoading
+                                    ? <I18n
+                                        en="The dataset must be submitted or published before its DOI status can be changed."
+                                        fr="Le jeu de données doit être soumis ou publié avant de pouvoir modifier le statut de son DOI."
+                                    />
                                 : ""
                         }
                         arrow
@@ -563,10 +598,15 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
 
                     <Tooltip
                         title={
-                            <I18n
-                                en="Reserves a draft DOI with DataCite (no metadata is sent yet). Once the record is submitted or published, the full metadata is included automatically."
-                                fr="Réserve un brouillon de DOI auprès de DataCite (aucune métadonnée n'est envoyée). Une fois le formulaire soumis ou publié, les métadonnées complètes sont incluses automatiquement."
-                            />
+                            !canManageDoi
+                                ? <I18n
+                                    en="Only reviewers and admins can generate a DOI."
+                                    fr="Seuls les réviseurs et les administrateurs peuvent générer un DOI."
+                                />
+                                : <I18n
+                                    en="Reserves a draft DOI with DataCite (no metadata is sent yet). Once the record is submitted or published, the full metadata is included automatically."
+                                    fr="Réserve un brouillon de DOI auprès de DataCite (aucune métadonnée n'est envoyée). Une fois le formulaire soumis ou publié, les métadonnées complètes sont incluses automatiquement."
+                                />
                         }
                         arrow
                         placement="top"
