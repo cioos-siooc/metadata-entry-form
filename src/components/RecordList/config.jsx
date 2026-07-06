@@ -16,6 +16,25 @@ const DOI_STATE_COLOR = {
   findable: "success",
 };
 
+const normalizeForSearch = (s) =>
+  (s || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+
+const bilingualQuickFilter = (field) => (value) => {
+  if (!value) return null;
+  const q = normalizeForSearch(value);
+  return (_cellValue, row) => {
+    const v = row.fullRecord?.[field];
+    return (
+      normalizeForSearch(v?.en).includes(q) ||
+      normalizeForSearch(v?.fr).includes(q)
+    );
+  };
+};
+
 // ============================================================================
 // Page Configurations
 // ============================================================================
@@ -335,6 +354,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
         truncate
       />
     ),
+    getApplyQuickFilterFn: bilingualQuickFilter("title"),
   },
 
   identifier: {
@@ -378,6 +398,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
         truncate
       />
     ),
+    getApplyQuickFilterFn: bilingualQuickFilter("abstract"),
   },
 
   license: {

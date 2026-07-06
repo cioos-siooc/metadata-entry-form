@@ -10,6 +10,7 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { Fr, En, I18n } from "../I18n";
 import RecordList, { publishedConfig } from "../RecordList";
+import { markFormNavigation } from "../RecordList/hooks";
 
 const Published = () => {
   const { language, region } = useParams();
@@ -54,6 +55,7 @@ const Published = () => {
   // Action handlers
   const handleEditRecord = useCallback(
     (recordID, userID) => {
+      markFormNavigation(publishedConfig.pageId);
       navigate(`/${language}/${region}/${userID}/${recordID}`);
     },
     [navigate, language, region],
