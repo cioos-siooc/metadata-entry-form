@@ -25,6 +25,8 @@ import {
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { getDatabase, ref, child, update } from "firebase/database";
+import firebase from "../../firebase";
 import recordToEML from "../../utils/recordToEML";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
@@ -214,13 +216,19 @@ const RecordActions = ({
     if (choice !== "skip" && doi) {
       setDataciteDialogLoading(true);
       try {
+        let result;
         if (choice === "findable") {
-          await publishDoi({ doi, region });
+          result = await publishDoi({ doi, region });
         } else if (choice === "registered" && dataciteDialogMode === "publish") {
-          await registerDoi({ doi, region });
+          result = await registerDoi({ doi, region });
         } else if (choice === "registered" && dataciteDialogMode === "unpublish") {
-          await hideDoi({ doi, region });
+          result = await hideDoi({ doi, region });
         }
+        // Persist the new DOI status back to the record so the stored value
+        // stays in sync with DataCite (mirrors the in-form status dropdown).
+        const newState = result?.data?.state || choice;
+        const recordsRef = ref(getDatabase(firebase), `${region}/users/${uID}/records`);
+        await update(child(recordsRef, rID), { doiCreationStatus: newState });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("DataCite state transition failed:", err);
