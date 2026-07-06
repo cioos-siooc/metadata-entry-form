@@ -8,6 +8,71 @@ const API_DOMAINS = {
   test: "https://api.test.datacite.org/dois/",
 };
 
+function parseEmailList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry || "").trim().toLowerCase())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  if (typeof value === "object") {
+    return Object.values(value)
+      .map((entry) => String(entry || "").trim().toLowerCase())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+async function assertReviewerOrAdmin(context, region, actionName) {
+  const callerEmail = context?.auth?.token?.email;
+
+  if (!context?.auth || !callerEmail) {
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      `Authentication is required to ${actionName}.`
+    );
+  }
+
+  const normalizedEmail = callerEmail.trim().toLowerCase();
+
+  try {
+    const permissionsSnapshot = await admin
+      .database()
+      .ref("admin")
+      .child(region)
+      .child("permissions")
+      .once("value");
+
+    const permissions = permissionsSnapshot.val() || {};
+    const admins = parseEmailList(permissions.admins);
+    const reviewers = parseEmailList(permissions.reviewers);
+    const allowed = admins.includes(normalizedEmail) || reviewers.includes(normalizedEmail);
+
+    if (!allowed) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        `Only reviewers and admins can ${actionName}.`
+      );
+    }
+  } catch (error) {
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+
+    functions.logger.error(`[authz] Failed to verify permissions for region ${region}:`, error);
+    throw new functions.https.HttpsError(
+      "internal",
+      "Unable to verify DOI permissions."
+    );
+  }
+}
+
 // Shared error handler for DataCite API errors.
 // statusMessages is an optional object to override default messages for specific status codes.
 function handleDataCiteError(err, defaultMessage, statusMessages = {}) {
@@ -74,9 +139,11 @@ async function getBaseUrl(region) {
 
 // Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.createDraftDoi = functions.https.onCall(async (data) => {
+exports.createDraftDoi = functions.https.onCall(async (data, context) => {
 
   const { record, region } = data;
+
+  await assertReviewerOrAdmin(context, region, "create draft DOIs");
 
   functions.logger.info("[createDraftDoi] Called", { region, recordKeys: record ? Object.keys(record) : null, type: record?.data?.type, prefix: record?.data?.attributes?.prefix });
 
@@ -112,8 +179,9 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 
 // Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
+exports.updateDraftDoi = functions.https.onCall(async (dataObj, context) => {
   const { doi, region, data } = dataObj;
+  await assertReviewerOrAdmin(context, region, "update DOIs");
   let authHash
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
@@ -147,9 +215,10 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
 
 // Delete an existing draft doi on datacite tha matches doi saved in the firebase record (data). Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.deleteDraftDoi = functions.https.onCall(async (data) => {
+exports.deleteDraftDoi = functions.https.onCall(async (data, context) => {
 
   const { doi, region } = data;
+  await assertReviewerOrAdmin(context, region, "delete draft DOIs");
   let authHash
 
   try {
@@ -389,18 +458,21 @@ async function transitionDoiState(doi, region, event) {
 
 // Transition a DOI to "findable" (publicly discoverable).
 // Valid from: draft, registered.
-exports.publishDoi = functions.https.onCall(async ({ doi, region }) => {
+exports.publishDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
   return { state: await transitionDoiState(doi, region, "publish") };
 });
 
 // Transition a DOI to "registered" (metadata registered, not publicly discoverable).
 // Valid from: draft.
-exports.registerDoi = functions.https.onCall(async ({ doi, region }) => {
+exports.registerDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
   return { state: await transitionDoiState(doi, region, "register") };
 });
 
 // Demote a DOI from "findable" back to "registered" (hide from public discovery).
 // Valid from: findable.
-exports.hideDoi = functions.https.onCall(async ({ doi, region }) => {
+exports.hideDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
   return { state: await transitionDoiState(doi, region, "hide") };
 });

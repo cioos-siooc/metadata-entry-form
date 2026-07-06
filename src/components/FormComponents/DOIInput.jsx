@@ -1,5 +1,5 @@
 
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useState, useEffect, useRef, useMemo } from "react";
 import {
     Paper,
     TextField,
@@ -60,10 +60,14 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         isAdmin,
     } = useContext(UserContext);
     const { language, region, userID } = useParams();
-    const availableSuffixModes =
-        Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
-            ? doiSuffixModes
-            : ["default"];
+    const availableSuffixModes = useMemo(
+        () => (
+            Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
+                ? doiSuffixModes
+                : ["default"]
+        ),
+        [doiSuffixModes]
+    );
     const [selectedSuffixMode, setSelectedSuffixMode] = useState(
         availableSuffixModes.includes("default") ? "default" : availableSuffixModes[0]
     );
@@ -275,7 +279,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
             // Extract error message from Firebase function error
             const errorMessage = err.message || "Failed to update DOI. Please try again.";
             setDoiErrorMessage(errorMessage);
-            // eslint-disable-next-line no-console
             console.error("Error in handleUpdateDraftDOI:", err);
         } finally {
             setLoadingDoiUpdate(false);
@@ -326,7 +329,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                     setLoadingDoiDelete(false);
                 });
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error("Error in handleDeleteDOI:", err);
             setDoiErrorFlag(true);
             const errorMessage = err.message || "Failed to delete DOI. Please try again.";
@@ -360,7 +362,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 await update(child(recordsRef, record.recordID), { doiCreationStatus: newState });
             }
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error("DOI state transition failed:", err);
             setDoiStateError(err.message || "Failed to update DOI status. Please try again.");
         } finally {
@@ -384,7 +385,6 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                         handleUpdateDoiCreationStatus({ target: { name, value: response.data } });
                 })
                 .catch(err => {
-                    /* eslint-disable no-console */
                     console.error(err)
                 });
         }
@@ -392,7 +392,7 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
         return () => {
             mounted.current = false;
         };
-    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid])
+    }, [debouncedDoiIdValue, getDoiStatus, doiIsValid, datacitePrefix, handleUpdateDoiCreationStatus, name, region])
 
 
 
@@ -463,6 +463,14 @@ const DOIInput = ({ record, name, handleUpdateDatasetIdentifier, handleUpdateDoi
                 </I18n>{" "}
                 https://doi.org/10.0000/0000
             </QuestionText>
+            {showGenerateDoi && (
+                <SupplementalText>
+                    <I18n
+                        en="DOI generation and DOI status management are restricted to reviewers and admins."
+                        fr="La génération des DOI et la gestion du statut des DOI sont réservées aux réviseurs et aux administrateurs."
+                    />
+                </SupplementalText>
+            )}
 
             {/* The DOI value comes first, with its status dropdown inline beside it. */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
