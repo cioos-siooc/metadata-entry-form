@@ -128,13 +128,29 @@ const regions = {
 
 // Helper to get logo path by language with graceful fallbacks
 // getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.
+// Absolute values (http(s):// or /-prefixed) are used verbatim so
+// runtime-created regions can point at hosted logos; bare filenames resolve
+// against the bundled assets as before.
 export function getRegionLogo(regionId, language = "en") {
   const r = regions[regionId];
   if (!r) return null;
   const logoObj = r.logo || {};
   const file = logoObj[language] || logoObj.en || logoObj.fr;
   if (!file) return null;
+  if (/^(https?:\/\/|\/)/.test(file)) return file;
   return `${import.meta.env.BASE_URL}${file}`;
+}
+
+// Deep-merges API-served region config into the exported object *in place*,
+// so the many modules that import `regions` statically (including non-React
+// utils) all see the fresh data. RegionsProvider gates rendering until this
+// has run. The static object above remains the offline/API-failure fallback.
+export function mergeRegions(fetched) {
+  Object.entries(fetched || {}).forEach(([id, config]) => {
+    if (!config || typeof config !== "object") return;
+    regions[id] = { ...regions[id], ...config };
+  });
+  return regions;
 }
 
 export default regions;

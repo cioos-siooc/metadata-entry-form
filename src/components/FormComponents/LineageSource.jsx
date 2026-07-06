@@ -112,7 +112,7 @@ const LineageSource = ({
         </QuestionText>
       </Grid>
       <Grid container item direction="row" spacing={1}>
-        <Grid size={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Grid container direction="column" spacing={1}>
             <Grid>
               <List spacing={1}>

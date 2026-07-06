@@ -205,7 +205,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
+            <Grid size={{ xs: 12, md: 6 }} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {Object.keys(sharedWithUsers).length > 0 && (

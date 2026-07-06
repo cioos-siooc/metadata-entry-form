@@ -13,9 +13,19 @@ export default function RegionSelect() {
     fr: "Formulaire de réception des métadonnées",
   };
 
-  // CIOOS Regional Associations to feature at top
-  const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
-  // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
+  // CIOOS Regional Associations to feature at top, flagged isRA in region
+  // config; the hardcoded list fixes their display order.
+  const raOrder = ["pacific", "stlaurent", "atlantic"];
+  const raCodes = Object.entries(regions)
+    .filter(([, regionInfo]) => regionInfo.isRA && regionInfo.showInRegionSelector)
+    .map(([code]) => code)
+    .sort((a, b) => {
+      const ia = raOrder.indexOf(a);
+      const ib = raOrder.indexOf(b);
+      if (ia !== -1 || ib !== -1) return (ia === -1 ? raOrder.length : ia) - (ib === -1 ? raOrder.length : ib);
+      return a.localeCompare(b);
+    });
+  // Build list of organizations excluding the RA codes (highlighted separately)
   const otherOrganizations = Object.entries(regions)
     .filter(
       ([code, regionInfo]) =>
@@ -87,7 +97,7 @@ export default function RegionSelect() {
                 <Grid key={regionCode} style={{ flex: "0 1 380px" }}>
                   <RegionCard
                     region={regionCode}
-                    regionSummary={regionInfo.introPageText[language]}
+                    regionSummary={regionInfo.introPageText?.[language]}
                     showMap
                   />
                 </Grid>

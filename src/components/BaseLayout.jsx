@@ -26,6 +26,10 @@ import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
+import FormTypeList from "./Pages/Forms/FormTypeList";
+import FormFill from "./Pages/Forms/FormFill";
+import MyFormSubmissions from "./Pages/Forms/MyFormSubmissions";
+import FormTypeEditor from "./Pages/Forms/FormTypeEditor";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
@@ -85,6 +89,22 @@ const Pages = () => {
                 />
                 <Route path="platforms" element={<Platforms />} />
                 <Route path="shared" element={<Shared />} />
+                <Route path="forms" element={<FormTypeList />} />
+                <Route path="forms/mine" element={<MyFormSubmissions />} />
+                <Route
+                  path="forms/:formTypeId/:submissionId"
+                  element={<FormFill />}
+                />
+                <Route
+                  path="admin/form-types"
+                  element={
+                    userIsAdmin || userIsReviewer ? (
+                      <FormTypeEditor />
+                    ) : (
+                      <NotFound />
+                    )
+                  }
+                />
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
                 <Route path="submissions" element={<Submissions />} />
                 <Route path="published" element={<Published />} />
@@ -115,6 +135,12 @@ const Pages = () => {
 
 const BaseLayout = () => {
   const { region, language } = useParams();
+
+  // Unknown region in the URL (typo, or not served by the API): 404 instead
+  // of crashing on the theme/title lookups below.
+  if (!regions[region]) {
+    return <NotFound />;
+  }
 
   const theme = createTheme({
     components: {
@@ -181,16 +207,18 @@ const BaseLayout = () => {
     },
     palette: {
       primary: {
-        main: regions[region].colors.primary,
+        // runtime-created regions may ship a minimal config without colors
+        main: regions[region].colors?.primary || "#52a79b",
       },
       secondary: {
-        main: regions[region].colors.secondary,
+        main: regions[region].colors?.secondary || "#1976d2",
       },
     },
   });
+  const regionTitle = regions[region].title?.[language] || regions[region].title?.en || region;
   const title = {
-    en: `${regions[region].title[language]} Metadata Intake Form`,
-    fr: `Formulaire de réception des métadonnées ${regions[region].title[language]}`,
+    en: `${regionTitle} Metadata Intake Form`,
+    fr: `Formulaire de réception des métadonnées ${regionTitle}`,
   };
 
   return (

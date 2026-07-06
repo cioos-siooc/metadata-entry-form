@@ -25,6 +25,13 @@ const config = {
   // 32-byte hex key for AES-256-GCM encryption of per-region credentials
   credentialsEncKey: process.env.CREDENTIALS_ENC_KEY || null,
 
+  // Comma-separated emails treated as superadmins in addition to the
+  // superadmins table (bootstrap path, not revocable via the API).
+  superadminEmails: (process.env.SUPERADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+
   smtp: {
     host: process.env.SMTP_HOST || null,
     port: parseInt(process.env.SMTP_PORT || "587", 10),

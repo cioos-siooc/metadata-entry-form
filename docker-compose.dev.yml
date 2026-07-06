@@ -22,9 +22,12 @@ services:
 
   api:
     build: ./server
-    command: sh -c "npx node-pg-migrate --migrations-dir migrations --migration-file-language sql up && node --watch src/index.js"
+    command: sh -c "npx node-pg-migrate --migrations-dir migrations --migration-file-language sql up && node scripts/seed-dev.js && node --watch src/index.js"
     environment:
       NODE_ENV: development
+      # dev-admin is a superadmin (admin of the whole service); dev-reviewer and
+      # dev-admin also get per-region roles from scripts/seed-dev.js
+      SUPERADMIN_EMAILS: admin@example.org
       KEYCLOAK_ISSUER: http://localhost:8080/auth/realms/cioos
       KEYCLOAK_INTERNAL_ISSUER: http://keycloak:8080/auth/realms/cioos
       SMTP_HOST: mailpit
@@ -33,6 +36,7 @@ services:
     volumes:
       - ./server/src:/app/src:ro
       - ./server/migrations:/app/migrations:ro
+      - ./server/scripts:/app/scripts:ro
     ports:
       - "3001:3001"
 

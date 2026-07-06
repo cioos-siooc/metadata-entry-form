@@ -22,6 +22,7 @@ import {
   Help,
   Warning,
   Settings,
+  DynamicForm,
   Link as LinkIcon,
   NewReleases,
   ExpandLess,
@@ -207,6 +208,7 @@ export default function MiniDrawer({ children }) {
     loggedIn,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
+    isSuperadmin: userIsSuperadmin,
     hasSharedRecords,
   } = useContext(UserContext);
 
@@ -329,9 +331,11 @@ export default function MiniDrawer({ children }) {
     instruments: <I18n en="Instruments" fr="Instruments" />,
     platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
+    forms: <I18n en="Forms" fr="Formulaires" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
+    regionAdmin: <I18n en="Manage regions" fr="Gérer les régions" />,
     signInGoogle: (
       <I18n en="Sign in with Google" fr="Se connecter avec Google" />
     ),
@@ -348,10 +352,10 @@ export default function MiniDrawer({ children }) {
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
     helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
-  const topBarBackgroundColor = region
-    ? regions[region].colors.primary
-    : // CIOOS national "dominant colour" from branding doc
-      "#52a79b";
+  const topBarBackgroundColor =
+    (region && regions[region].colors?.primary) ||
+    // CIOOS national "dominant colour" from branding doc
+    "#52a79b";
 
   // add some text to indicate connected to dev deployment
   const usingDevDatabase =
@@ -548,6 +552,21 @@ export default function MiniDrawer({ children }) {
                       <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
+                  </ListItemButton>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.forms}
+                >
+                  <ListItemButton
+                    key="Forms"
+                    onClick={() => navigateAndClose(`${baseURL}/forms`)}
+                  >
+                    <ListItemIcon>
+                      <DynamicForm />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.forms} />
                   </ListItemButton>
                 </Tooltip>
 
@@ -798,6 +817,24 @@ export default function MiniDrawer({ children }) {
                           <Settings />
                         </ListItemIcon>
                         <ListItemText primary={translations.admin} />
+                      </ListItemButton>
+                    </Tooltip>
+                  )}
+                  {userIsSuperadmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.regionAdmin}
+                    >
+                      <ListItemButton
+                        key="RegionAdmin"
+                        onClick={() =>
+                          navigateAndClose(`/${language}/region-admin`)
+                        }
+                      >
+                        <ListItemIcon>
+                          <Settings />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.regionAdmin} />
                       </ListItemButton>
                     </Tooltip>
                   )}

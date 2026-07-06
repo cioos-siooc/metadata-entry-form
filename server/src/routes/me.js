@@ -4,7 +4,7 @@ async function meRoutes(app) {
   // Global profile — who am I?
   app.get("/me", { preHandler: [app.authenticate] }, async (request) => {
     const { id, email, display_name: displayName } = request.user;
-    return { userID: id, email, displayName };
+    return { userID: id, email, displayName, isSuperadmin: request.isSuperadmin };
   });
 
   // Region-scoped session bootstrap: everything UserProvider needs on load.
@@ -28,6 +28,7 @@ async function meRoutes(app) {
         userID: id,
         email,
         displayName,
+        isSuperadmin: request.isSuperadmin,
         ...request.roles,
         hasSharedRecords: shares.rows.length > 0,
         datacitePrefix: datacite.rows[0]?.config?.prefix ?? null,

@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
   LinearProgress,
+  useMediaQuery,
 } from "@mui/material";
 import { withStyles } from "../../tss-cache";
 import { Save } from "@mui/icons-material";
@@ -90,6 +91,9 @@ function TabPanel({ children, value, index, ...other }) {
 const useStyles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
+    [theme.breakpoints.down("md")]: {
+      minWidth: "72px",
+    },
   },
   fab: {
     position: "fixed",
@@ -494,8 +498,9 @@ class MetadataForm extends FormClassTemplate {
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid size="grow">
             <Tabs
-              scrollButtons="auto"
-              variant="fullWidth"
+              scrollButtons={this.props.isSmallScreen ? true : "auto"}
+              allowScrollButtonsMobile
+              variant={this.props.isSmallScreen ? "scrollable" : "fullWidth"}
               value={tabIndex}
               onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
               aria-label="simple tabs example"
@@ -637,6 +642,8 @@ const MetadataFormWrapper = (props) => {
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  // 8-9 tabs at 115px don't fit below ~1000px; switch to scrollable tabs
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   // Create a match-like object for compatibility
   const match = {
@@ -645,7 +652,12 @@ const MetadataFormWrapper = (props) => {
   };
 
   return (
-    <StyledMetadataForm {...props} match={match} history={{ push: navigate }} />
+    <StyledMetadataForm
+      {...props}
+      match={match}
+      history={{ push: navigate }}
+      isSmallScreen={isSmallScreen}
+    />
   );
 };
 

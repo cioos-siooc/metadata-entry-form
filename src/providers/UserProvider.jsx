@@ -16,6 +16,7 @@ const UserProvider = ({ children }) => {
     loggedIn: false,
     isAdmin: false,
     isReviewer: false,
+    isSuperadmin: false,
     admins: [],
     reviewers: [],
     hasSharedRecords: false,
@@ -56,6 +57,10 @@ const UserProvider = ({ children }) => {
             reviewers: [],
           })),
         ]);
+      } else {
+        // Region-less pages (region select, region admin) still need the
+        // global profile for isSuperadmin and the server-side user id.
+        me = await get("/me").catch(() => ({}));
       }
 
       if (!cancelled) {
@@ -66,6 +71,7 @@ const UserProvider = ({ children }) => {
           authIsLoading: false,
           isAdmin: Boolean(me.isAdmin),
           isReviewer: Boolean(me.isReviewer),
+          isSuperadmin: Boolean(me.isSuperadmin),
           admins: permissions.admins ?? [],
           reviewers: permissions.reviewers ?? [],
           hasSharedRecords: Boolean(me.hasSharedRecords),

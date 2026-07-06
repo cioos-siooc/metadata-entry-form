@@ -1,7 +1,7 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { TextField, Grid, Typography } from "@mui/material";
+import { Alert, TextField, Grid, Typography } from "@mui/material";
 import L from "leaflet";
 import {
   MapContainer,
@@ -18,9 +18,12 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
+import UseMyLocationButton from "./UseMyLocationButton";
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
+  const mapRef = useRef(null);
+  const [locationError, setLocationError] = useState(null);
   const mapDataRef = useRef(mapData);
   mapDataRef.current = mapData;
 
@@ -186,6 +189,26 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     });
   }, [updateMap]);
 
+  // Fill the bounding box with a small area (~0.1° half-width) around the
+  // device's location and fly the map there.
+  function handleLocated({ latitude, longitude }) {
+    setLocationError(null);
+    if (drawnLayerRef.current) {
+      drawnLayerRef.current.remove();
+      drawnLayerRef.current = null;
+    }
+    const half = 0.1;
+    const north = limitDecimals(Math.min(latitude + half, 90));
+    const south = limitDecimals(Math.max(latitude - half, -90));
+    const east = limitDecimals(Math.min(longitude + half, 180));
+    const west = limitDecimals(Math.max(longitude - half, -180));
+    updateMap({ ...mapDataRef.current, north, south, east, west, polygon: "" });
+    mapRef.current?.flyToBounds([
+      [north, east],
+      [south, west],
+    ]);
+  }
+
   const bboxIsDrawn = Boolean(
     mapData.north || mapData.south || mapData.east || mapData.west,
   );
@@ -197,7 +220,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   return (
     <div>
       <MapContainer
-        style={{ width: "100%", height: "55vh" }}
+        ref={mapRef}
+        style={{ width: "100%", height: "clamp(300px, 55vh, 700px)" }}
         center={[50, -100]}
         zoom={3}
       >
@@ -249,8 +273,29 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           </I18n>
         </SupplementalText>
       </QuestionText>
-      <Grid container direction="row" spacing={3}>
-        <Grid size={2}>
+
+      {locationError && (
+        <Alert
+          severity="warning"
+          onClose={() => setLocationError(null)}
+          style={{ marginBottom: "10px" }}
+        >
+          {locationError === "denied" ? (
+            <I18n
+              en="Location permission denied — enter coordinates manually or draw on the map."
+              fr="Autorisation de localisation refusée — saisissez les coordonnées manuellement ou dessinez sur la carte."
+            />
+          ) : (
+            <I18n
+              en="Could not determine your location."
+              fr="Impossible de déterminer votre position."
+            />
+          )}
+        </Alert>
+      )}
+
+      <Grid container direction="row" spacing={3} alignItems="center">
+        <Grid size={{ xs: 6, sm: 3, md: 2 }}>
           <TextField
             label={<I18n en="North" fr="Nord" />}
             value={mapData.north || ""}
@@ -260,7 +305,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid size={2}>
+        <Grid size={{ xs: 6, sm: 3, md: 2 }}>
           <TextField
             label={<I18n en="South" fr="Sud" />}
             value={mapData.south || ""}
@@ -269,7 +314,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid size={2}>
+        <Grid size={{ xs: 6, sm: 3, md: 2 }}>
           <TextField
             label={<I18n en="East" fr="Est" />}
             value={mapData.east || ""}
@@ -278,7 +323,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
-        <Grid size={2}>
+        <Grid size={{ xs: 6, sm: 3, md: 2 }}>
           <TextField
             value={mapData.west || ""}
             label={<I18n en="West" fr="Ouest" />}
@@ -287,9 +332,16 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             disabled={disabled || Boolean(mapData.polygon)}
           />
         </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <UseMyLocationButton
+            onLocated={handleLocated}
+            onError={setLocationError}
+            disabled={disabled || Boolean(mapData.polygon)}
+          />
+        </Grid>
       </Grid>
 
-      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
+      <Typography variant="h6" style={{ margin: "20px", textAlign: "center" }}>
         <I18n>
           <En>OR</En>
           <Fr>Ou</Fr>
@@ -326,7 +378,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
       />
 
-      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
+      <Typography variant="h6" style={{ margin: "20px", textAlign: "center" }}>
         <I18n>
           <En>And optionally</En>
           <Fr>Et en option</Fr>

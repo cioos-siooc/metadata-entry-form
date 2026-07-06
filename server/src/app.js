@@ -7,6 +7,10 @@ const { meRoutes } = require("./routes/me");
 const { recordRoutes } = require("./routes/records");
 const { entityRoutes } = require("./routes/entities");
 const { adminRoutes } = require("./routes/admin");
+const { superadminRoutes } = require("./routes/superadmin");
+const { regionRoutes } = require("./routes/regions");
+const { formTypeRoutes } = require("./routes/formTypes");
+const { formSubmissionRoutes } = require("./routes/formSubmissions");
 const { serviceRoutes } = require("./routes/services");
 const { recordExportRoutes } = require("./routes/recordExport");
 
@@ -30,6 +34,10 @@ function buildApp(opts = {}) {
       api.register(recordRoutes);
       api.register(entityRoutes);
       api.register(adminRoutes);
+      api.register(superadminRoutes);
+      api.register(regionRoutes);
+      api.register(formTypeRoutes);
+      api.register(formSubmissionRoutes);
       api.register(serviceRoutes);
       api.register(recordExportRoutes);
     },

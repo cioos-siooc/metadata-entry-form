@@ -1,5 +1,5 @@
 const { randomUUID } = require("crypto");
-const { buildTestApp, signToken, authHeader } = require("./helpers");
+const { buildTestApp, signToken, authHeader, envSuperadmin } = require("./helpers");
 const { query, pool } = require("../src/db");
 const { encryptSecret, decryptSecret } = require("../src/lib/crypto");
 
@@ -22,6 +22,7 @@ describe("admin API", () => {
   let app;
   let admin;
   let user;
+  let superadmin;
 
   beforeAll(async () => {
     app = await buildTestApp();
@@ -31,6 +32,7 @@ describe("admin API", () => {
     admin.token = await signToken({ email: admin.email });
     user = { email: `user-${randomUUID()}@admin.test` };
     user.token = await signToken({ email: user.email });
+    superadmin = await envSuperadmin();
   });
 
   afterAll(async () => {
@@ -42,16 +44,25 @@ describe("admin API", () => {
     await pool.end();
   });
 
-  test("bootstrap: first permissions write allowed, later writes admin-only", async () => {
+  test("permissions are admin-only; superadmin seeds a region's first admins", async () => {
     const url = `/api/v1/regions/${REGION}/admin/permissions`;
 
-    const bootstrap = await app.inject({
+    // no bootstrap: an empty region rejects writes from regular users
+    const takeoverAttempt = await app.inject({
       method: "PUT",
       url,
-      headers: authHeader(admin.token),
+      headers: authHeader(user.token),
+      payload: { admins: [user.email], reviewers: [] },
+    });
+    expect(takeoverAttempt.statusCode).toBe(403);
+
+    const seed = await app.inject({
+      method: "PUT",
+      url,
+      headers: authHeader(superadmin.token),
       payload: { admins: [admin.email], reviewers: [] },
     });
-    expect(bootstrap.statusCode).toBe(200);
+    expect(seed.statusCode).toBe(200);
 
     const takeover = await app.inject({
       method: "PUT",

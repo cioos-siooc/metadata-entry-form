@@ -11,6 +11,11 @@ import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
+import RegionManager from "./Pages/RegionManager";
+import RegionsProvider from "../providers/RegionsProvider";
+import UserProvider from "../providers/UserProvider";
+import PWAUpdatePrompt from "./PWAUpdatePrompt";
+import OfflineBanner from "./OfflineBanner";
 
 // Default theme for region-select page (before a region is chosen)
 const defaultTheme = createTheme({
@@ -27,21 +32,43 @@ const defaultTheme = createTheme({
 const App = () => (
   <HelmetProvider>
     <Router basename="/">
-      <Routes>
-        <Route path="/" element={<Navigate to="/en/region-select" replace />} />
-        <Route
-          path="/:language/region-select"
-          element={
-            <ThemeProvider theme={defaultTheme}>
-              <NavDrawer>
-                <RegionSelect />
-              </NavDrawer>
-            </ThemeProvider>
-          }
-        />
-        <Route path="/:language/:region/*" element={<BaseLayout />} />
-        <Route path="*" element={<Navigate to="/en/region-select" replace />} />
-      </Routes>
+      {import.meta.env.PROD && <PWAUpdatePrompt />}
+      <OfflineBanner />
+      <RegionsProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={<Navigate to="/en/region-select" replace />}
+          />
+          <Route
+            path="/:language/region-select"
+            element={
+              <ThemeProvider theme={defaultTheme}>
+                <NavDrawer>
+                  <RegionSelect />
+                </NavDrawer>
+              </ThemeProvider>
+            }
+          />
+          <Route
+            path="/:language/region-admin"
+            element={
+              <ThemeProvider theme={defaultTheme}>
+                <UserProvider>
+                  <NavDrawer>
+                    <RegionManager />
+                  </NavDrawer>
+                </UserProvider>
+              </ThemeProvider>
+            }
+          />
+          <Route path="/:language/:region/*" element={<BaseLayout />} />
+          <Route
+            path="*"
+            element={<Navigate to="/en/region-select" replace />}
+          />
+        </Routes>
+      </RegionsProvider>
     </Router>
   </HelmetProvider>
 );

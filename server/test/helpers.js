@@ -9,6 +9,7 @@ process.env.KEYCLOAK_ISSUER = process.env.KEYCLOAK_ISSUER || "http://test-issuer
 process.env.CREDENTIALS_ENC_KEY =
   process.env.CREDENTIALS_ENC_KEY ||
   "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+process.env.SUPERADMIN_EMAILS = process.env.SUPERADMIN_EMAILS || "env-super@test.example";
 
 const { generateKeyPairSync, randomUUID } = require("crypto");
 const { SignJWT, createLocalJWKSet, exportJWK } = require("jose");
@@ -60,4 +61,19 @@ function authHeader(token) {
   return { authorization: `Bearer ${token}` };
 }
 
-module.exports = { buildTestApp, signToken, authHeader };
+// Shared env-configured superadmin (SUPERADMIN_EMAILS above). Pre-provisions
+// the user row with a fixed keycloak_sub so parallel test files can all mint
+// tokens for it without racing JIT provisioning into a 409.
+async function envSuperadmin() {
+  // eslint-disable-next-line global-require
+  const { query } = require("../src/db");
+  const email = "env-super@test.example";
+  const sub = "sub-env-super";
+  await query(
+    "INSERT INTO users (keycloak_sub, email, display_name) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+    [sub, email, "Env Superadmin"],
+  );
+  return { email, token: await signToken({ sub, email }) };
+}
+
+module.exports = { buildTestApp, signToken, authHeader, envSuperadmin };

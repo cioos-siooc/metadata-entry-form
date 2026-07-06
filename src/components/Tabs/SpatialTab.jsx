@@ -208,7 +208,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             alignItems="center"
             spacing={4}
           >
-            <Grid size={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <SelectInput
                 value={record.verticalExtentDirection || ""}
                 onChange={handleUpdateRecord("verticalExtentDirection")}
@@ -233,7 +233,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 disabled={disabled}
               />
             </Grid>
-            <Grid size={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField
                 value={record.verticalExtentMin}
                 onChange={handleUpdateRecord("verticalExtentMin")}
@@ -243,7 +243,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 disabled={disabled}
               />
             </Grid>
-            <Grid size={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField
                 value={record.verticalExtentMax}
                 onChange={handleUpdateRecord("verticalExtentMax")}

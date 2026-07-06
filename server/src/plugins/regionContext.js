@@ -28,8 +28,8 @@ async function regionContextPlugin(app) {
 
     request.region = region;
     request.roles = {
-      isAdmin: roles.includes("admin"),
-      isReviewer: roles.includes("reviewer"),
+      isAdmin: request.isSuperadmin || roles.includes("admin"),
+      isReviewer: request.isSuperadmin || roles.includes("reviewer"),
     };
     return undefined;
   });

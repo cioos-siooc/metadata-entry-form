@@ -22,20 +22,13 @@ async function adminRoutes(app) {
     };
   });
 
-  // Bootstrap rule preserved from database.rules.json: a region with no
-  // admins yet accepts its first permissions write from any signed-in user.
+  // Admin-only; superadmins pass everywhere, so they seed a new region's
+  // first admins (the old "no admins yet" bootstrap rule is gone — it was a
+  // takeover risk once regions became creatable at runtime).
   app.put(
     "/regions/:region/admin/permissions",
-    memberGuard,
+    adminGuard,
     async (request, reply) => {
-      const existing = await query(
-        "SELECT 1 FROM region_permissions WHERE region = $1 AND role = 'admin' LIMIT 1",
-        [request.region],
-      );
-      if (existing.rows.length && !request.roles.isAdmin) {
-        return reply.code(403).send({ error: "Admin access required" });
-      }
-
       const admins = request.body?.admins;
       const reviewers = request.body?.reviewers;
       if (!Array.isArray(admins) || !Array.isArray(reviewers)) {

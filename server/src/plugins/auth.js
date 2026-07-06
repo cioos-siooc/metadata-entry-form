@@ -71,6 +71,7 @@ async function authPlugin(app, opts) {
 
   app.decorateRequest("user", null);
   app.decorateRequest("tokenClaims", null);
+  app.decorateRequest("isSuperadmin", false);
 
   app.decorate("authenticate", async (request, reply) => {
     const header = request.headers.authorization || "";
@@ -92,6 +93,22 @@ async function authPlugin(app, opts) {
       request.tokenClaims = claims;
     } catch (err) {
       return reply.code(err.statusCode || 500).send({ error: err.message });
+    }
+
+    if (config.superadminEmails.includes(request.user.email.toLowerCase())) {
+      request.isSuperadmin = true;
+    } else {
+      const row = await query("SELECT 1 FROM superadmins WHERE email = $1", [request.user.email]);
+      request.isSuperadmin = row.rows.length > 0;
+    }
+    return undefined;
+  });
+
+  // Lives here rather than regionContext so routes without a :region param
+  // (e.g. POST /regions, /superadmins) can use it.
+  app.decorate("requireSuperadmin", async (request, reply) => {
+    if (!request.isSuperadmin) {
+      return reply.code(403).send({ error: "Superadmin access required" });
     }
     return undefined;
   });

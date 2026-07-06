@@ -126,7 +126,7 @@ const KeywordsInput = ({
         />
       </Grid>
 
-      <Grid size={3}>
+      <Grid size={{ xs: 12, md: 3 }}>
         <Button
           disabled={
             disabled ||
