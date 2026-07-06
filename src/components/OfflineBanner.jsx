@@ -20,8 +20,10 @@ export default function OfflineBanner() {
     };
   }, []);
 
+  if (!offline) return null;
+
   return (
-    <Snackbar open={offline} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+    <Snackbar open anchorOrigin={{ vertical: "top", horizontal: "center" }}>
       <Alert severity="warning">
         <I18n
           en="You are offline — the form cannot save or load records until you reconnect."
