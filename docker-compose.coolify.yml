@@ -66,6 +66,10 @@ services:
       interval: 15s
       timeout: 5s
       retries: 10
+      # First production start does an auto-build + realm import, which is slow on a
+      # loaded build host. start_period keeps those early failures from marking the
+      # container unhealthy (and Coolify aborting the deploy) before it finishes booting.
+      start_period: 120s
 
   api:
     build: ./server
@@ -105,6 +109,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+      # Waits on keycloak + runs DB migrations before listening; give it room to boot.
+      start_period: 60s
 
   converter:
     build: ./converter
