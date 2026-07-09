@@ -9,6 +9,11 @@ RUN npm ci
 
 COPY . .
 ENV VITE_BASE_PATH=/
+# Build-time auth toggles baked into the SPA. Default off to preserve existing
+# behavior; the Coolify preview sets VITE_AUTH_LOCAL=true so the dev realm's
+# seeded accounts (dev-admin etc.) can sign in via "Sign in with local account".
+ARG VITE_AUTH_LOCAL=false
+ENV VITE_AUTH_LOCAL=${VITE_AUTH_LOCAL}
 # the vite build with sourcemaps needs more heap than the node default
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN npm run build
