@@ -149,7 +149,9 @@ services:
         # Optional: raise GitHub API rate limits during the prebuild release fetch.
         GITHUB_TOKEN: ${GITHUB_TOKEN}
         # Show the "Sign in with local account" button so dev-realm users can log in.
-        VITE_AUTH_LOCAL: ${VITE_AUTH_LOCAL:-true}
+        # Hardcoded (not ${...}) so it doesn't depend on a Coolify env var being
+        # marked build-time — the value is baked straight into the build.
+        VITE_AUTH_LOCAL: "true"
     restart: unless-stopped
     environment:
       # Exposes web at Coolify's generated per-preview FQDN (nginx listens on :80).
