@@ -52,7 +52,9 @@ services:
         psql -h postgres -U cioos -d cioos_metadata -tc "SELECT 1 FROM pg_database WHERE datname='keycloak'" | grep -q 1 || psql -h postgres -U cioos -d cioos_metadata -c "CREATE DATABASE keycloak OWNER cioos"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.1
+    # Built from ./keycloak/Dockerfile so the dev realm is baked into the image
+    # (Coolify doesn't honor the ./keycloak/dev bind mount used by the plain stack).
+    build: ./keycloak
     restart: unless-stopped
     command: start --import-realm --http-relative-path /auth --proxy-headers xforwarded
     environment:
@@ -66,10 +68,6 @@ services:
       KC_HOSTNAME: ${SERVICE_URL_WEB}/auth
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${SERVICE_PASSWORD_KCADMIN}
-    volumes:
-      # Dev realm: seeded dev-author / dev-reviewer / dev-admin (password "dev") so
-      # reviewers can sign in without configuring an external identity provider.
-      - ./keycloak/dev:/opt/keycloak/data/import:ro
     depends_on:
       postgres:
         condition: service_healthy
