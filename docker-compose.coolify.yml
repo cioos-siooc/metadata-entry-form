@@ -35,6 +35,22 @@ services:
       timeout: 5s
       retries: 5
 
+  # Creates the separate `keycloak` database idempotently on every deploy. Replaces
+  # the first-boot-only postgres-init script, which doesn't run when the pgdata volume
+  # already exists or when the repo bind mount isn't honored (e.g. on Coolify).
+  db-init:
+    image: postgres:17-alpine
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        psql -h postgres -U cioos -d cioos_metadata -tc "SELECT 1 FROM pg_database WHERE datname='keycloak'" | grep -q 1 || psql -h postgres -U cioos -d cioos_metadata -c "CREATE DATABASE keycloak OWNER cioos"
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.1
     restart: unless-stopped
@@ -57,6 +73,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     healthcheck:
       test:
         [
