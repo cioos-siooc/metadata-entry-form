@@ -66,6 +66,10 @@ services:
       KC_HEALTH_ENABLED: "true"
       # Keycloak must know its externally-visible URL; Coolify generates it per preview.
       KC_HOSTNAME: ${SERVICE_URL_WEB}/auth
+      # The dev realm's client redirectUris use ${env.PUBLIC_URL}/* — this makes that
+      # placeholder resolve to the preview origin at realm-import time so login redirects
+      # back to the SPA instead of failing with "Invalid parameter: redirect_uri".
+      PUBLIC_URL: ${SERVICE_URL_WEB}
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${SERVICE_PASSWORD_KCADMIN}
     depends_on:
