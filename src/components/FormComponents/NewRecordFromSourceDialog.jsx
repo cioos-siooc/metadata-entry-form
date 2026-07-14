@@ -18,16 +18,105 @@ import {
   detectSourceType,
 } from "../../utils/createRecordFromSource";
 
-const sourceLabels = {
-  doi: <I18n en="DOI (DataCite)" fr="DOI (DataCite)" />,
-  obis: <I18n en="OBIS dataset" fr="Jeu de données OBIS" />,
-  pdc: <I18n en="Polar Data Catalogue (CCIN)" fr="Catalogue de données polaires (CCIN)" />,
-};
-
-const placeholders = {
-  doi: "https://doi.org/10.21963/13172",
-  obis: "https://obis.org/dataset/8c39a3f7-4b78-4d5a-9d4c-1f5e2a3b6c7d",
-  pdc: "13172",
+// Each source is asked for a different thing and carries its own caveats, so the
+// dialog's copy is per-source rather than one blurb covering all three.
+const sources = {
+  doi: {
+    label: <I18n en="DOI (DataCite)" fr="DOI (DataCite)" />,
+    title: (
+      <I18n en="Create a record from a DOI" fr="Créer un enregistrement à partir d'un DOI" />
+    ),
+    fieldLabel: <I18n en="DOI" fr="DOI" />,
+    placeholder: "https://doi.org/10.5281/zenodo.19077076",
+    description: (
+      <I18n>
+        <En>
+          Paste a DOI, with or without the <code>https://doi.org/</code> prefix. The
+          title, abstract, authors, keywords, licence and related identifiers will be
+          taken from its DataCite registration.
+        </En>
+        <Fr>
+          Collez un DOI, avec ou sans le préfixe <code>https://doi.org/</code>. Le
+          titre, le résumé, les auteurs, les mots-clés, la licence et les identifiants
+          associés proviendront de son enregistrement DataCite.
+        </Fr>
+      </I18n>
+    ),
+    caveat: (
+      <I18n
+        en="Only DOIs registered with DataCite can be read. Journal DOIs registered with Crossref will not be found."
+        fr="Seuls les DOI enregistrés auprès de DataCite peuvent être lus. Les DOI de revues enregistrés auprès de Crossref ne seront pas trouvés."
+      />
+    ),
+  },
+  obis: {
+    label: <I18n en="OBIS dataset" fr="Jeu de données OBIS" />,
+    title: (
+      <I18n
+        en="Create a record from an OBIS dataset"
+        fr="Créer un enregistrement à partir d'un jeu de données OBIS"
+      />
+    ),
+    fieldLabel: <I18n en="OBIS dataset ID or URL" fr="Identifiant ou URL du jeu de données OBIS" />,
+    placeholder: "https://obis.org/dataset/5422689c-d83d-44e8-87f4-a4b0a5117181",
+    description: (
+      <I18n>
+        <En>
+          Paste an OBIS dataset URL, or just its ID. Alongside the title, abstract and
+          contacts, the essential ocean variables and platforms are inferred from the
+          dataset&apos;s occurrence records.
+        </En>
+        <Fr>
+          Collez l&apos;URL d&apos;un jeu de données OBIS, ou simplement son
+          identifiant. En plus du titre, du résumé et des contacts, les variables
+          océaniques essentielles et les plateformes sont déduites des enregistrements
+          d&apos;occurrence du jeu de données.
+        </Fr>
+      </I18n>
+    ),
+    caveat: (
+      <I18n
+        en="The inferred variables and platforms are a starting point — check them before saving. This lookup can take up to a minute."
+        fr="Les variables et plateformes déduites sont un point de départ : vérifiez-les avant d'enregistrer. Cette recherche peut prendre jusqu'à une minute."
+      />
+    ),
+  },
+  pdc: {
+    label: (
+      <I18n
+        en="Polar Data Catalogue (CCIN)"
+        fr="Catalogue de données polaires (CCIN)"
+      />
+    ),
+    title: (
+      <I18n
+        en="Create a record from a Polar Data Catalogue record"
+        fr="Créer un enregistrement à partir d'un enregistrement du Catalogue de données polaires"
+      />
+    ),
+    fieldLabel: <I18n en="CCIN reference number" fr="Numéro de référence CCIN" />,
+    placeholder: "13172",
+    description: (
+      <I18n>
+        <En>
+          Enter the CCIN reference number of the Polar Data Catalogue record, for
+          example <code>13172</code>. Its ISO 19139 metadata will be read from
+          polardata.ca.
+        </En>
+        <Fr>
+          Saisissez le numéro de référence CCIN de l&apos;enregistrement du Catalogue de
+          données polaires, par exemple <code>13172</code>. Ses métadonnées ISO 19139
+          seront lues depuis polardata.ca.
+        </Fr>
+      </I18n>
+    ),
+    caveat: (
+      <I18n
+        en="PDC records carry no vertical extent or taxonomic coverage; those sections will be left empty."
+        fr="Les enregistrements du CDDP ne comportent ni étendue verticale ni couverture taxonomique ; ces sections resteront vides."
+      />
+    ),
+  },
 };
 
 /**
@@ -64,6 +153,10 @@ const NewRecordFromSourceDialog = ({
   const effectiveType = detected || sourceType;
   const canSubmit = Boolean(value.trim()) && Boolean(effectiveType) && !loading;
 
+  // sourceType is null while the dialog is closed, and the copy should follow what
+  // the user actually typed once detection disagrees with the menu item they picked.
+  const source = sources[effectiveType] || sources[sourceType] || sources.doi;
+
   async function handleSubmit() {
     setLoading(true);
     setError("");
@@ -79,30 +172,15 @@ const NewRecordFromSourceDialog = ({
 
   return (
     <Dialog open={open} onClose={loading ? undefined : onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        <I18n
-          en="Create a record from an existing source"
-          fr="Créer un enregistrement à partir d'une source existante"
-        />
-      </DialogTitle>
+      <DialogTitle>{source.title}</DialogTitle>
 
       <DialogContent>
         <DialogContentText sx={{ mb: 2 }}>
-          <I18n>
-            <En>
-              Enter a DOI, an OBIS dataset ID or URL, or a Polar Data Catalogue
-              CCIN number. The new form will open with the fields from that record
-              already filled in. Nothing is saved until you review it and click
-              save.
-            </En>
-            <Fr>
-              Saisissez un DOI, un identifiant ou une URL de jeu de données OBIS,
-              ou un numéro CCIN du Catalogue de données polaires. Le nouveau
-              formulaire s'ouvrira avec les champs de cet enregistrement déjà
-              remplis. Rien n'est enregistré tant que vous ne l'avez pas vérifié
-              et sauvegardé.
-            </Fr>
-          </I18n>
+          {source.description}{" "}
+          <I18n
+            en="Nothing is saved until you review the form and click save."
+            fr="Rien n'est enregistré tant que vous n'avez pas vérifié le formulaire et cliqué sur enregistrer."
+          />
         </DialogContentText>
 
         <TextField
@@ -110,12 +188,12 @@ const NewRecordFromSourceDialog = ({
           fullWidth
           disabled={loading}
           value={value}
-          placeholder={placeholders[sourceType]}
+          placeholder={source.placeholder}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && canSubmit) handleSubmit();
           }}
-          label={<I18n en="Identifier" fr="Identifiant" />}
+          label={source.fieldLabel}
         />
 
         {value.trim() && (
@@ -128,7 +206,7 @@ const NewRecordFromSourceDialog = ({
                 label={
                   <>
                     <I18n en="Detected: " fr="Détecté : " />
-                    {sourceLabels[detected]}
+                    {sources[detected].label}
                   </>
                 }
               />
@@ -148,12 +226,13 @@ const NewRecordFromSourceDialog = ({
           </div>
         )}
 
+        <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>
+          {source.caveat}
+        </Alert>
+
         {loading && (
           <Alert severity="info" icon={<CircularProgress size={20} />} sx={{ mt: 2 }}>
-            <I18n
-              en="Retrieving the record. OBIS datasets can take up to a minute."
-              fr="Récupération de l'enregistrement. Les jeux de données OBIS peuvent prendre jusqu'à une minute."
-            />
+            <I18n en="Retrieving the record…" fr="Récupération de l'enregistrement…" />
           </Alert>
         )}
 

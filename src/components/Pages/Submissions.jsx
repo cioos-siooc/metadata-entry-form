@@ -8,7 +8,6 @@ import {
   Divider,
   Menu,
   MenuItem,
-  Tooltip,
 } from "@mui/material";
 import { Add, ArrowDropDown } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
@@ -213,7 +212,7 @@ const Submissions = () => {
         </I18n>
       </Typography>
 
-      <Box mb={1.5} display="flex" alignItems="center" gap={1}>
+      <Box mb={1.5}>
         <ButtonGroup variant="contained" color="primary">
           <Button startIcon={<Add />} onClick={() => goToNewRecord()}>
             <I18n en="New Record" fr="Nouvel enregistrement" />
@@ -230,23 +229,6 @@ const Submissions = () => {
             <ArrowDropDown />
           </Button>
         </ButtonGroup>
-
-        <Tooltip
-          title={
-            <I18n
-              en="Creating a record from a DOI, OBIS or PDC source is experimental. Review the imported fields before saving."
-              fr="La création d'un enregistrement à partir d'une source DOI, OBIS ou CDDP est expérimentale. Vérifiez les champs importés avant d'enregistrer."
-            />
-          }
-          arrow
-        >
-          <Chip
-            size="small"
-            color="warning"
-            variant="outlined"
-            label={<I18n en="Experimental" fr="Expérimental" />}
-          />
-        </Tooltip>
 
         <Menu
           anchorEl={newRecordMenuAnchor}
@@ -273,8 +255,15 @@ const Submissions = () => {
                 setNewRecordMenuAnchor(null);
                 setSourceDialogType(type);
               }}
+              sx={{ gap: 1, justifyContent: "space-between" }}
             >
               <I18n en={en} fr={fr} />
+              <Chip
+                size="small"
+                color="warning"
+                variant="outlined"
+                label={<I18n en="Experimental" fr="Expérimental" />}
+              />
             </MenuItem>
           ))}
         </Menu>
