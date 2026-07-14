@@ -11,4 +11,6 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git", branch = "fix/datacite-schema" }
+# TODO: re-pin to main once feat/load-from-obis is merged. That branch carries the
+# load_from/ loaders (datacite, obis, pdc) used by create_record_from_source.
+cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git", branch = "feat/load-from-obis" }

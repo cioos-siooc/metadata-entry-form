@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Typography, Button, Box } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import {
+  Typography,
+  Button,
+  ButtonGroup,
+  Box,
+  Divider,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import { Add, ArrowDropDown } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import firebase from "../../firebase";
@@ -14,6 +22,7 @@ import {
   returnRecordToDraft,
 } from "../../utils/firebaseRecordFunctions";
 import SimpleModal from "../FormComponents/SimpleModal";
+import NewRecordFromSourceDialog from "../FormComponents/NewRecordFromSourceDialog";
 import regions from "../../regions";
 import RecordList, { submissionsConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
@@ -31,6 +40,18 @@ const Submissions = () => {
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState("");
+
+  // "New Record" split button menu, and the import-from-source dialog it opens
+  const [newRecordMenuAnchor, setNewRecordMenuAnchor] = useState(null);
+  const [sourceDialogType, setSourceDialogType] = useState(null);
+
+  const goToNewRecord = useCallback(
+    (state) => {
+      markFormNavigation(submissionsConfig.pageId);
+      navigate(`/${language}/${region}/new`, state ? { state } : undefined);
+    },
+    [navigate, language, region]
+  );
 
   // Load records on mount
   useEffect(() => {
@@ -191,18 +212,64 @@ const Submissions = () => {
       </Typography>
 
       <Box mb={1.5}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => {
-            markFormNavigation(submissionsConfig.pageId);
-            navigate(`/${language}/${region}/new`);
-          }}
+        <ButtonGroup variant="contained" color="primary">
+          <Button startIcon={<Add />} onClick={() => goToNewRecord()}>
+            <I18n en="New Record" fr="Nouvel enregistrement" />
+          </Button>
+          <Button
+            size="small"
+            onClick={(e) => setNewRecordMenuAnchor(e.currentTarget)}
+            aria-label={
+              language === "fr"
+                ? "Créer à partir d'une source existante"
+                : "Create from an existing source"
+            }
+          >
+            <ArrowDropDown />
+          </Button>
+        </ButtonGroup>
+
+        <Menu
+          anchorEl={newRecordMenuAnchor}
+          open={Boolean(newRecordMenuAnchor)}
+          onClose={() => setNewRecordMenuAnchor(null)}
         >
-          <I18n en="New Record" fr="Nouvel enregistrement" />
-        </Button>
+          <MenuItem
+            onClick={() => {
+              setNewRecordMenuAnchor(null);
+              goToNewRecord();
+            }}
+          >
+            <I18n en="Blank record" fr="Enregistrement vide" />
+          </MenuItem>
+          <Divider />
+          {[
+            ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
+            ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
+            ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
+          ].map(([type, en, fr]) => (
+            <MenuItem
+              key={type}
+              onClick={() => {
+                setNewRecordMenuAnchor(null);
+                setSourceDialogType(type);
+              }}
+            >
+              <I18n en={en} fr={fr} />
+            </MenuItem>
+          ))}
+        </Menu>
       </Box>
+
+      <NewRecordFromSourceDialog
+        open={Boolean(sourceDialogType)}
+        sourceType={sourceDialogType}
+        onClose={() => setSourceDialogType(null)}
+        onRecordLoaded={(prefillRecord) => {
+          setSourceDialogType(null);
+          goToNewRecord({ prefillRecord });
+        }}
+      />
 
       <RecordList
         records={records}
