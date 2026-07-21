@@ -282,13 +282,6 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   return (
     <div>
-      {!disabled && (
-        <GeographicLocationSearch
-          updateMap={handleSearchSelect}
-          mapData={mapData}
-          disabled={disabled}
-        />
-      )}
       <MapContainer
         style={{ width: "100%", height: "55vh" }}
         center={[50, -100]}
@@ -436,6 +429,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         fullWidth
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
       />
+
+      {!disabled && (
+        <GeographicLocationSearch
+          updateMap={handleSearchSelect}
+          mapData={mapData}
+          disabled={disabled}
+        />
+      )}
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
         <I18n>

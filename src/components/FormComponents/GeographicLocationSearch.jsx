@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Autocomplete,
@@ -183,12 +183,20 @@ function extractPolygon(geometry) {
 
 const TYPE_FILTERS = [
   { value: "all", en: "All", fr: "Tout" },
-  { value: "province", en: "Province", fr: "Province" },
-  { value: "territory", en: "Territory", fr: "Territoire" },
-  { value: "marineRegion", en: "Marine Region", fr: "Région marine" },
-  { value: "dfoBioregion", en: "DFO Bioregion", fr: "Biorégion MPO" },
-  { value: "ocean", en: "Ocean", fr: "Océan" },
-  { value: "city", en: "City", fr: "Ville" },
+  { value: "ocean", en: "Oceans", fr: "Océans" },
+  {
+    value: "provinceTerritory",
+    en: "Provinces and Territories",
+    fr: "Provinces et territoires",
+  },
+  { value: "marineRegion", en: "Marine Regions", fr: "Régions marines" },
+  { value: "dfoBioregion", en: "DFO Bioregions", fr: "Biorégions MPO" },
+  { value: "city", en: "Cities and Districts", fr: "Villes et municipalités" },
+  {
+    value: "other",
+    en: "Other Geographic Units and Areas",
+    fr: "Autres unités et zones géographiques",
+  },
 ];
 
 // Names of curated entries (en + fr, lowercased) — geoname results matching
@@ -208,10 +216,16 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   const [geonameLoading, setGeonameLoading] = useState(false);
   const [simplificationWarning, setSimplificationWarning] = useState(false);
   const [debouncedInput] = useDebounce(inputValue, GEONAME_DEBOUNCE_MS);
+  // Label of the just-selected option — kept in the input after selection, so we
+  // skip re-querying NRCan for it (the user hasn't typed a new search).
+  const selectedLabelRef = useRef("");
 
   useEffect(() => {
     if (!debouncedInput || debouncedInput.length < 2) {
       setGeonameOptions([]);
+      return undefined;
+    }
+    if (debouncedInput === selectedLabelRef.current) {
       return undefined;
     }
     let active = true;
@@ -277,7 +291,14 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     let predefined = opts.filter((o) => o.source === "predefined");
     const geonames = opts.filter((o) => o.source === "geoname");
 
-    if (typeFilter !== "all") {
+    if (typeFilter === "other") {
+      // "Other geographic units and areas" is the NRCan GeoNames results only.
+      predefined = [];
+    } else if (typeFilter === "provinceTerritory") {
+      predefined = predefined.filter(
+        (o) => o.type === "province" || o.type === "territory"
+      );
+    } else if (typeFilter !== "all") {
       predefined = predefined.filter((o) => o.type === typeFilter);
     }
     if (input) {
@@ -297,7 +318,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
 
   function handleSelect(option) {
     if (!option) return;
-    const { bbox, polygon, en, fr, wasSimplified } = option;
+    const { bbox, polygon, wasSimplified } = option;
     updateMap({
       ...mapData,
       ...(bbox
@@ -309,15 +330,16 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
           }
         : {}),
       polygon: polygon || "",
-      description: { en, fr },
     });
     if (wasSimplified) setSimplificationWarning(true);
-    setInputValue("");
+    // Keep the selected name visible in the field and suppress a re-search for it.
+    selectedLabelRef.current = option.label;
+    setInputValue(option.label);
     setGeonameOptions([]);
   }
 
   return (
-    <Box sx={{ marginBottom: 2 }}>
+    <Box sx={{ marginTop: 3, marginBottom: 2 }}>
       <ToggleButtonGroup
         value={typeFilter}
         exclusive
@@ -326,7 +348,20 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
         }}
         size="small"
         disabled={disabled}
-        sx={{ marginBottom: 1, flexWrap: "wrap" }}
+        sx={{
+          marginBottom: 1,
+          flexWrap: "wrap",
+          gap: 1,
+          // Render each button as a self-contained pill so wrapping to a second
+          // row looks intentional (the default grouped style collapses adjacent
+          // borders, which breaks across a line wrap).
+          "& .MuiToggleButtonGroup-grouped": {
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1,
+            "&:not(:first-of-type)": { marginLeft: 0 },
+          },
+        }}
       >
         {TYPE_FILTERS.map((f) => (
           <ToggleButton key={f.value} value={f.value}>
@@ -393,8 +428,8 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
             {...params}
             label={
               <I18n>
-                <En>Search regions or Canadian GeoNames</En>
-                <Fr>Rechercher des régions ou des toponymes canadiens</Fr>
+                <En>Add location by name</En>
+                <Fr>Ajouter un lieu par nom</Fr>
               </I18n>
             }
             InputProps={{
