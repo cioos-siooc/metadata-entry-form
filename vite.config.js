@@ -69,7 +69,10 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "build",
-      sourcemap: true,
+      // Sourcemaps for the ~6MB bundle add a ~17MB map and a large amount of
+      // peak memory in the write phase, which OOM-kills the build on small
+      // hosts (Coolify). Opt back in with VITE_SOURCEMAP=true when debugging.
+      sourcemap: env.VITE_SOURCEMAP === "true",
     },
     server: {
       port: 3000,
