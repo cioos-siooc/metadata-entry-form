@@ -18,8 +18,10 @@
 #
 # Set these in the Coolify UI (Environment Variables):
 #   CREDENTIALS_ENC_KEY  (64 hex chars: `openssl rand -hex 32`)
-#   JWT_PRIVATE_KEY, JWT_PUBLIC_KEY  (RS256 PEM: `openssl genrsa -out k 2048`,
-#                                     `openssl rsa -in k -pubout`)
+#   JWT_PRIVATE_KEY, JWT_PUBLIC_KEY  (RS256: `openssl genrsa -out k 2048`,
+#                                     `openssl rsa -in k -pubout -out k.pub`;
+#                                     set as base64 — `base64 -w0 k` — to avoid
+#                                     newline mangling in the Coolify UI)
 #   OAUTH_GOOGLE_CLIENT_ID/_SECRET, OAUTH_MICROSOFT_CLIENT_ID/_SECRET,
 #   OAUTH_ORCID_CLIENT_ID/_SECRET   (register the callback
 #       ${SERVICE_URL_WEB}/api/v1/auth/oauth/<provider>/callback with each provider)

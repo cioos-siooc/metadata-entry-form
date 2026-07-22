@@ -7,10 +7,16 @@ function required(name) {
   return value;
 }
 
-// Env vars often carry PEM keys with escaped newlines ("-----BEGIN...\n...").
+// Accepts a signing key as either a PEM (real or \n-escaped newlines) or, more
+// robustly for env/UI fields, base64-encoded PEM (a single line that cannot be
+// mangled by newline handling). Returns PEM text.
 function readPem(name) {
   const raw = process.env[name];
-  return raw ? raw.replace(/\\n/g, "\n") : null;
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (trimmed.includes("BEGIN")) return trimmed.replace(/\\n/g, "\n");
+  // No PEM header -> assume base64-encoded PEM.
+  return Buffer.from(trimmed, "base64").toString("utf8");
 }
 
 // The API signs its own access tokens (RS256). Keys come from JWT_PRIVATE_KEY /
