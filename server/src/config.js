@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { generateKeyPairSync } = require("crypto");
+const { generateKeyPairSync, createPrivateKey, createPublicKey } = require("crypto");
 
 function required(name) {
   const value = process.env[name];
@@ -7,24 +7,51 @@ function required(name) {
   return value;
 }
 
-// Accepts a signing key as either a PEM (real or \n-escaped newlines) or, more
-// robustly for env/UI fields, base64-encoded PEM (a single line that cannot be
-// mangled by newline handling). Returns PEM text.
-function readPem(name) {
-  const raw = process.env[name];
-  if (!raw) return null;
+// Builds the ordered list of PEM interpretations to try for a raw env value:
+// raw PEM, \n-unescaped PEM, and base64-decoded PEM. Deduped.
+function pemCandidates(raw) {
   const trimmed = raw.trim();
-  if (trimmed.includes("BEGIN")) return trimmed.replace(/\\n/g, "\n");
-  // No PEM header -> assume base64-encoded PEM.
-  return Buffer.from(trimmed, "base64").toString("utf8");
+  const out = [trimmed, trimmed.replace(/\\n/g, "\n")];
+  try {
+    const decoded = Buffer.from(trimmed, "base64").toString("utf8");
+    if (decoded.includes("BEGIN")) out.push(decoded, decoded.replace(/\\n/g, "\n"));
+  } catch {
+    // not base64; ignore
+  }
+  return [...new Set(out)];
 }
 
-// The API signs its own access tokens (RS256). Keys come from JWT_PRIVATE_KEY /
-// JWT_PUBLIC_KEY (PEM). Outside production we fall back to an ephemeral keypair
-// so `npm run dev` works with no setup — tokens just don't survive a restart.
+// Loads and VALIDATES an RSA signing key from env. Accepts raw PEM (real or
+// \n-escaped) or base64-encoded PEM, so the value survives any env/UI field.
+// Throws a clear, redacted error (never the opaque OpenSSL DECODER trace) if
+// nothing parses.
+function loadKey(name, kind) {
+  const raw = process.env[name];
+  if (!raw) return null;
+  const parse = kind === "private" ? createPrivateKey : createPublicKey;
+  for (const pem of pemCandidates(raw)) {
+    try {
+      parse(pem);
+      return pem;
+    } catch {
+      // try next interpretation
+    }
+  }
+  const t = raw.trim();
+  throw new Error(
+    `${name} could not be parsed as an RSA ${kind} key ` +
+      `(length=${t.length}, hasBEGIN=${t.includes("BEGIN")}, ` +
+      `looksBase64=${/^[A-Za-z0-9+/=\s]+$/.test(t)}). ` +
+      `Provide a PEM or base64-encoded PEM (base64 -w0 jwt.${kind === "private" ? "key" : "pub"}).`,
+  );
+}
+
+// The API signs its own access tokens (RS256). Outside production we fall back
+// to an ephemeral keypair so `npm run dev` works with no setup — tokens just
+// don't survive a restart.
 function loadSigningKeys() {
-  let privateKey = readPem("JWT_PRIVATE_KEY");
-  let publicKey = readPem("JWT_PUBLIC_KEY");
+  let privateKey = loadKey("JWT_PRIVATE_KEY", "private");
+  let publicKey = loadKey("JWT_PUBLIC_KEY", "public");
   if (!privateKey || !publicKey) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("JWT_PRIVATE_KEY and JWT_PUBLIC_KEY are required in production");
@@ -33,6 +60,8 @@ function loadSigningKeys() {
     privateKey = pair.privateKey.export({ type: "pkcs8", format: "pem" });
     publicKey = pair.publicKey.export({ type: "spki", format: "pem" });
     console.warn("[config] JWT_PRIVATE_KEY/JWT_PUBLIC_KEY not set; using an ephemeral dev keypair");
+  } else {
+    console.log("[config] auth signing keys loaded and validated");
   }
   return { privateKey, publicKey };
 }
