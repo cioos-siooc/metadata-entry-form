@@ -1,11 +1,14 @@
 const { randomUUID } = require("crypto");
 
 // Capture raw email tokens (normally delivered by email) and stub OIDC.
-const mailer = { sendVerifyEmail: jest.fn(), sendPasswordResetEmail: jest.fn() };
-jest.mock("../src/lib/mailer", () => mailer);
+const mockMailer = {
+  sendVerifyEmail: jest.fn().mockResolvedValue(undefined),
+  sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+};
+jest.mock("../src/lib/mailer", () => mockMailer);
 
-const oidc = { startAuth: jest.fn(), completeAuth: jest.fn() };
-jest.mock("../src/lib/oidc", () => oidc);
+const mockOidc = { startAuth: jest.fn(), completeAuth: jest.fn() };
+jest.mock("../src/lib/oidc", () => mockOidc);
 
 const { buildTestApp, authHeader } = require("./helpers");
 
@@ -33,7 +36,7 @@ describe("local auth", () => {
       payload: { email, password, name: "Local User" },
     });
     expect(reg.statusCode).toBe(201);
-    expect(mailer.sendVerifyEmail).toHaveBeenCalledWith(email, expect.any(String));
+    expect(mockMailer.sendVerifyEmail).toHaveBeenCalledWith(email, expect.any(String));
 
     // Login is blocked before verification.
     const early = await app.inject({
@@ -44,7 +47,7 @@ describe("local auth", () => {
     expect(early.statusCode).toBe(403);
 
     // Verify using the token that would have been emailed.
-    const verifyToken = mailer.sendVerifyEmail.mock.calls[0][1];
+    const verifyToken = mockMailer.sendVerifyEmail.mock.calls[0][1];
     const verified = await app.inject({
       method: "POST",
       url: "/api/v1/auth/verify-email",
@@ -158,8 +161,8 @@ describe("local auth", () => {
       payload: { email },
     });
     expect(req.statusCode).toBe(200);
-    expect(mailer.sendPasswordResetEmail).toHaveBeenCalledWith(email, expect.any(String));
-    const resetToken = mailer.sendPasswordResetEmail.mock.calls[0][1];
+    expect(mockMailer.sendPasswordResetEmail).toHaveBeenCalledWith(email, expect.any(String));
+    const resetToken = mockMailer.sendPasswordResetEmail.mock.calls[0][1];
 
     const newPassword = "brandnewsecret!";
     const reset = await app.inject({
@@ -199,7 +202,7 @@ describe("oauth (mocked provider)", () => {
 
   it("start stores a flow and redirects; callback provisions a user and sets a session", async () => {
     const state = `state-${randomUUID()}`;
-    oidc.startAuth.mockResolvedValue({
+    mockOidc.startAuth.mockResolvedValue({
       url: "https://accounts.google.com/o/oauth2/v2/auth?state=" + state,
       codeVerifier: "verifier",
       nonce: "nonce",
@@ -211,7 +214,7 @@ describe("oauth (mocked provider)", () => {
     expect(start.headers.location).toContain("accounts.google.com");
 
     const oauthEmail = `oauth-${randomUUID()}@test.example`;
-    oidc.completeAuth.mockResolvedValue({
+    mockOidc.completeAuth.mockResolvedValue({
       providerSubject: `google-${randomUUID()}`,
       email: oauthEmail,
       emailVerified: true,

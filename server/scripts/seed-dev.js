@@ -38,8 +38,8 @@ async function main() {
       );
       await pool.query(
         `INSERT INTO user_identities (user_id, provider, provider_subject, email)
-         VALUES ($1, 'local', $1, $2) ON CONFLICT (provider, provider_subject) DO NOTHING`,
-        [row.rows[0].id, email],
+         VALUES ($1, 'local', $2, $3) ON CONFLICT (provider, provider_subject) DO NOTHING`,
+        [row.rows[0].id, row.rows[0].id, email],
       );
     }
 

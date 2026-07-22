@@ -13,6 +13,7 @@ const {
 const { sendVerifyEmail, sendPasswordResetEmail } = require("../lib/mailer");
 const { startAuth, completeAuth } = require("../lib/oidc");
 const { resolveUserForIdentity } = require("../plugins/auth");
+const { getCookie, appendCookie } = require("../lib/cookies");
 
 const REFRESH_COOKIE = "refresh_token";
 const REFRESH_PATH = "/api/v1/auth";
@@ -29,14 +30,14 @@ function refreshCookieOpts() {
 }
 
 function setRefreshCookie(reply, raw) {
-  reply.setCookie(REFRESH_COOKIE, raw, {
+  appendCookie(reply, REFRESH_COOKIE, raw, {
     ...refreshCookieOpts(),
     maxAge: config.auth.refreshTokenTtlDays * 24 * 60 * 60,
   });
 }
 
 function clearRefreshCookie(reply) {
-  reply.clearCookie(REFRESH_COOKIE, refreshCookieOpts());
+  appendCookie(reply, REFRESH_COOKIE, "", { ...refreshCookieOpts(), maxAge: 0 });
 }
 
 function publicUser(user) {
@@ -77,8 +78,8 @@ async function authRoutes(app) {
       );
       const userId = inserted.rows[0].id;
       await query(
-        "INSERT INTO user_identities (user_id, provider, provider_subject, email) VALUES ($1, 'local', $1, $2)",
-        [userId, normEmail],
+        "INSERT INTO user_identities (user_id, provider, provider_subject, email) VALUES ($1, 'local', $2, $3)",
+        [userId, userId, normEmail],
       );
       const token = await createEmailToken(userId, "verify_email");
       await sendVerifyEmail(normEmail, token).catch((err) =>
@@ -89,8 +90,8 @@ async function authRoutes(app) {
       const userId = existing.rows[0].id;
       await query("UPDATE users SET password_hash = $2 WHERE id = $1", [userId, passwordHash]);
       await query(
-        "INSERT INTO user_identities (user_id, provider, provider_subject, email) VALUES ($1, 'local', $1, $2) ON CONFLICT (provider, provider_subject) DO NOTHING",
-        [userId, normEmail],
+        "INSERT INTO user_identities (user_id, provider, provider_subject, email) VALUES ($1, 'local', $2, $3) ON CONFLICT (provider, provider_subject) DO NOTHING",
+        [userId, userId, normEmail],
       );
       const token = await createEmailToken(userId, "verify_email");
       await sendVerifyEmail(normEmail, token).catch(() => {});
@@ -138,7 +139,7 @@ async function authRoutes(app) {
   });
 
   app.post("/auth/refresh", async (request, reply) => {
-    const raw = request.cookies?.[REFRESH_COOKIE];
+    const raw = getCookie(request, REFRESH_COOKIE);
     if (!raw) return reply.code(401).send({ error: "No session" });
     const rotated = await rotateRefreshToken(raw);
     if (!rotated) {
@@ -156,7 +157,7 @@ async function authRoutes(app) {
   });
 
   app.post("/auth/logout", async (request, reply) => {
-    const raw = request.cookies?.[REFRESH_COOKIE];
+    const raw = getCookie(request, REFRESH_COOKIE);
     if (raw) await revokeRefreshToken(raw);
     clearRefreshCookie(reply);
     return { ok: true };

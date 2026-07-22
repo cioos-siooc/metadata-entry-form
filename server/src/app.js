@@ -1,5 +1,4 @@
 const fastify = require("fastify");
-const cookie = require("@fastify/cookie");
 const config = require("./config");
 const { pool } = require("./db");
 const { authPlugin } = require("./plugins/auth");
@@ -28,7 +27,6 @@ function buildApp(opts = {}) {
     return { status: "ok" };
   });
 
-  app.register(cookie);
   app.register(authPlugin, opts.auth || {});
   app.register(regionContextPlugin);
   app.register(
