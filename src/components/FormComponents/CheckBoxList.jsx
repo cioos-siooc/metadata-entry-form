@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@mui/material";
 
-
 const CheckBoxList = ({
   onChange,
   value = [],
@@ -42,7 +41,7 @@ const CheckBoxList = ({
                       const val = e.target.value;
                       const newCheckedValuesArray = toggleArrayElement(
                         val,
-                        value
+                        value,
                       );
 
                       onChange(newCheckedValuesArray);

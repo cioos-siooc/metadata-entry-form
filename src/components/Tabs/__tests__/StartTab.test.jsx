@@ -35,7 +35,7 @@ const renderStartTab = (record) => {
           userID="user1"
         />
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
   return handleUpdateRecord;
 };
@@ -52,7 +52,7 @@ describe("<StartTab /> metadata scope defaults", () => {
 
     expect(valuesFor(handleUpdateRecord, "metadataScope")).toContain("Dataset");
     expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain(
-      "dataset"
+      "dataset",
     );
   });
 
@@ -63,7 +63,9 @@ describe("<StartTab /> metadata scope defaults", () => {
       map: {},
     });
 
-    expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain("model");
+    expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain(
+      "model",
+    );
   });
 
   it("does not overwrite an existing metadataScopeIso", () => {

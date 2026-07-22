@@ -13,11 +13,24 @@ export default function RegionSelect() {
     fr: "Formulaire de réception des métadonnées",
   };
 
-  // CIOOS Regional Associations to feature at top
-  const raCodes = ["pacific", "stlaurent", "atlantic"]; // order matters
-  // Build list of organizations from regions.js excluding the RA codes (highlighted separately)
+  // CIOOS Regional Associations to feature at top, flagged isRA in region
+  // config; the hardcoded list fixes their display order.
+  const raOrder = ["pacific", "stlaurent", "atlantic"];
+  const raCodes = Object.entries(regions)
+    .filter(([, regionInfo]) => regionInfo.isRA && regionInfo.showInRegionSelector)
+    .map(([code]) => code)
+    .sort((a, b) => {
+      const ia = raOrder.indexOf(a);
+      const ib = raOrder.indexOf(b);
+      if (ia !== -1 || ib !== -1) return (ia === -1 ? raOrder.length : ia) - (ib === -1 ? raOrder.length : ib);
+      return a.localeCompare(b);
+    });
+  // Build list of organizations excluding the RA codes (highlighted separately)
   const otherOrganizations = Object.entries(regions)
-    .filter(([code, regionInfo]) => !raCodes.includes(code) && regionInfo.showInRegionSelector)
+    .filter(
+      ([code, regionInfo]) =>
+        !raCodes.includes(code) && regionInfo.showInRegionSelector,
+    )
     .map(([code, regionInfo]) => ({ code, info: regionInfo }));
 
   // Sort by translated title / name
@@ -27,7 +40,7 @@ export default function RegionSelect() {
     return getName(a).localeCompare(
       getName(b),
       language === "fr" ? "fr" : "en",
-      { sensitivity: "base" }
+      { sensitivity: "base" },
     );
   });
 
@@ -39,7 +52,7 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
       <Grid container direction="column" spacing={4}>
-        <Grid >
+        <Grid>
           <Typography
             variant="h6"
             gutterBottom
@@ -64,11 +77,11 @@ export default function RegionSelect() {
         </Grid>
 
         {/* CIOOS Regional Associations */}
-        <Grid >
+        <Grid>
           <Typography variant="h5" gutterBottom align="center">
             {t(
               "CIOOS Regional Associations",
-              "Associations régionales du SIOOC"
+              "Associations régionales du SIOOC",
             )}
           </Typography>
           <Grid
@@ -84,7 +97,7 @@ export default function RegionSelect() {
                 <Grid key={regionCode} style={{ flex: "0 1 380px" }}>
                   <RegionCard
                     region={regionCode}
-                    regionSummary={regionInfo.introPageText[language]}
+                    regionSummary={regionInfo.introPageText?.[language]}
                     showMap
                   />
                 </Grid>
@@ -98,7 +111,7 @@ export default function RegionSelect() {
         </Grid>
 
         {/* All Organizations */}
-        <Grid >
+        <Grid>
           <Typography variant="h5" gutterBottom align="center">
             {t("Affiliated Organizations", "Organisations affiliées")}
           </Typography>
@@ -106,7 +119,7 @@ export default function RegionSelect() {
             <Typography variant="body2" align="center">
               {t(
                 "No affiliated organizations found.",
-                "Aucune organisation affiliée trouvée."
+                "Aucune organisation affiliée trouvée.",
               )}
             </Typography>
           )}

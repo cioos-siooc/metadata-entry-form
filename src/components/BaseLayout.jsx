@@ -2,12 +2,16 @@ import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { CircularProgress, Grid } from "@mui/material";
-import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeProvider,
+  StyledEngineProvider,
+} from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
 import Instruments from "./Pages/InstrumentsSaved";
-import Shared from "./Pages/Shared"
+import Shared from "./Pages/Shared";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
@@ -22,6 +26,10 @@ import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
+import FormTypeList from "./Pages/Forms/FormTypeList";
+import FormFill from "./Pages/Forms/FormFill";
+import MyFormSubmissions from "./Pages/Forms/MyFormSubmissions";
+import FormTypeEditor from "./Pages/Forms/FormTypeEditor";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
@@ -33,16 +41,18 @@ const RegionLogo = ({ children }) => {
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
-          <div style={{
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            padding: '10px 0',
-          }}>{titleText}</div>
+          <div
+            style={{
+              fontSize: "1.8rem",
+              fontWeight: 600,
+              padding: "10px 0",
+            }}
+          >
+            {titleText}
+          </div>
         )}
       </Grid>
-      <Grid>
-        {children}
-      </Grid>
+      <Grid>{children}</Grid>
     </Grid>
   );
 };
@@ -68,21 +78,47 @@ const Pages = () => {
                 <Route path="contacts/:contactID" element={<EditContact />} />
                 <Route path="contacts/new" element={<EditContact />} />
                 <Route path="contacts" element={<Contacts />} />
-                <Route path="instruments/:instrumentID" element={<EditInstrument />} />
+                <Route
+                  path="instruments/:instrumentID"
+                  element={<EditInstrument />}
+                />
                 <Route path="instruments" element={<Instruments />} />
-                <Route path="platforms/:platformID" element={<EditPlatform />} />
+                <Route
+                  path="platforms/:platformID"
+                  element={<EditPlatform />}
+                />
                 <Route path="platforms" element={<Platforms />} />
                 <Route path="shared" element={<Shared />} />
+                <Route path="forms" element={<FormTypeList />} />
+                <Route path="forms/mine" element={<MyFormSubmissions />} />
+                <Route
+                  path="forms/:formTypeId/:submissionId"
+                  element={<FormFill />}
+                />
+                <Route
+                  path="admin/form-types"
+                  element={
+                    userIsAdmin || userIsReviewer ? (
+                      <FormTypeEditor />
+                    ) : (
+                      <NotFound />
+                    )
+                  }
+                />
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
                 <Route path="submissions" element={<Submissions />} />
                 <Route path="published" element={<Published />} />
                 <Route
                   path="reviewer"
-                  element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />
+                  }
                 />
                 <Route
                   path="admin"
-                  element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />
+                  }
                 />
                 <Route path="sentry-test" element={<SentryTest />} />
                 <Route path="*" element={<NotFound />} />
@@ -100,6 +136,12 @@ const Pages = () => {
 const BaseLayout = () => {
   const { region, language } = useParams();
 
+  // Unknown region in the URL (typo, or not served by the API): 404 instead
+  // of crashing on the theme/title lookups below.
+  if (!regions[region]) {
+    return <NotFound />;
+  }
+
   const theme = createTheme({
     components: {
       MuiTooltip: {
@@ -112,12 +154,12 @@ const BaseLayout = () => {
       MuiFormControlLabel: {
         styleOverrides: {
           root: {
-            '&.Mui-disabled': {
-              '& .MuiCheckbox-root': {
-                color: '#ababab',
+            "&.Mui-disabled": {
+              "& .MuiCheckbox-root": {
+                color: "#ababab",
               },
-              '& .MuiTypography-root': {
-                color: '#ababab',
+              "& .MuiTypography-root": {
+                color: "#ababab",
               },
             },
           },
@@ -126,9 +168,9 @@ const BaseLayout = () => {
       MuiInputBase: {
         styleOverrides: {
           input: {
-            '&.Mui-disabled': {
-              color: '#ababab',
-              WebkitTextFillColor: '#ababab',
+            "&.Mui-disabled": {
+              color: "#ababab",
+              WebkitTextFillColor: "#ababab",
             },
           },
         },
@@ -136,14 +178,14 @@ const BaseLayout = () => {
       MuiAccordionDetails: {
         styleOverrides: {
           root: {
-            flexDirection: 'column',
+            flexDirection: "column",
           },
         },
       },
       MuiTypography: {
         styleOverrides: {
           root: {
-            whiteSpace: 'pre-wrap',
+            whiteSpace: "pre-wrap",
           },
         },
       },
@@ -165,16 +207,18 @@ const BaseLayout = () => {
     },
     palette: {
       primary: {
-        main: regions[region].colors.primary,
+        // runtime-created regions may ship a minimal config without colors
+        main: regions[region].colors?.primary || "#52a79b",
       },
       secondary: {
-        main: regions[region].colors.secondary,
+        main: regions[region].colors?.secondary || "#1976d2",
       },
     },
   });
+  const regionTitle = regions[region].title?.[language] || regions[region].title?.en || region;
   const title = {
-    en: `${regions[region].title[language]} Metadata Intake Form`,
-    fr: `Formulaire de réception des métadonnées ${regions[region].title[language]}`,
+    en: `${regionTitle} Metadata Intake Form`,
+    fr: `Formulaire de réception des métadonnées ${regionTitle}`,
   };
 
   return (

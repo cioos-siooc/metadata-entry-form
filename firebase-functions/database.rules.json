@@ -1,17 +1,17 @@
 {
   "rules": {
-    // Firebase security rules cascade, meaning that if a user is granted read or write permissions 
-    // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level. 
-    // This design requires careful structuring of rules (and data) to ensure appropriate access control 
+    // Firebase security rules cascade, meaning that if a user is granted read or write permissions
+    // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level.
+    // This design requires careful structuring of rules (and data) to ensure appropriate access control
     // throughout the database hierarchy.
     "$region": {
       // Allow read access to any authenticated user.
       ".read": "auth.uid != null",
       "shares": {
         "$userid": {
-          // Allow write access to any authenticated user. 
+          // Allow write access to any authenticated user.
           // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
-          ".write": "auth.uid != null",
+          ".write": "auth.uid != null"
         }
       },
       "users": {
@@ -23,13 +23,14 @@
               // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
               ".read": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
               // Allow write access if the authenticated users's uid exists in the 'shared with' object for the record
-              ".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()",
+              ".write": "root.child($region).child('users').child($userid).child('records').child($recordid).child('sharedWith').child(auth.uid).exists()"
             }
           }
         }
       }
     },
-    "admin": { // Section of the database dedicated to admin configurations.
+    "admin": {
+      // Section of the database dedicated to admin configurations.
       "$regionAdmin": {
         // Allow write access if admins list does not exist (bootstrapping) OR if the authenticated user's email is listed as an admin.
         ".write": "!root.child('admin').child($regionAdmin).child('permissions').child('admins').exists() || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
@@ -48,22 +49,22 @@
             // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
             ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
             // Allow read access to any authenticated user.
-            ".read": "auth.uid != null",
+            ".read": "auth.uid != null"
           },
           "reviewers": {
             // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
             ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
             // Allow read access to any authenticated user.
-            ".read": "auth.uid != null",
+            ".read": "auth.uid != null"
           },
           "dataciteCredentials": {
             // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
           }
         },
         "dataciteCredentials": {
           // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
         },
         "githubCredentials": {
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",

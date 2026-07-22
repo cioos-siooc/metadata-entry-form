@@ -1,0 +1,134 @@
+{
+  "test": {
+    "users": {
+      "fixture-uid-alice": {
+        "userinfo": {
+          "displayName": "Alice Fixture",
+          "email": "  Alice@Fixture.example "
+        },
+        "records": {
+          "fixture-rec-1": {
+            "title": { "en": "Fixture Published Record", "fr": "Enregistrement publie" },
+            "status": "published",
+            "created": "2021-05-04T12:00:00.000Z",
+            "timeFirstPublished": "2021-06-01T00:00:00.000Z",
+            "identifier": "3F2504E0-4F89-11D3-9A0C-0305E82C3301",
+            "datasetIdentifier": "https://doi.org/10.99999/fixture",
+            "filename": "fixture_published_record_3f250",
+            "language": "en",
+            "license": "CC-BY-4.0",
+            "abstract": { "en": "A published fixture record", "fr": "Un enregistrement" },
+            "keywords": { "en": { "0": "oceans", "1": "fixture" }, "fr": { "0": "oceans-fr" } },
+            "eov": { "0": "oxygen", "1": "seaSurfaceTemperature" },
+            "distribution": {
+              "0": {
+                "name": { "en": "ERDDAP", "fr": "ERDDAP" },
+                "url": { "en": "https://example.org/erddap", "fr": "" },
+                "description": { "en": "data access", "fr": "" }
+              }
+            },
+            "contacts": {
+              "0": {
+                "role": { "0": "custodian", "1": "owner" },
+                "orgName": "Fixture Org",
+                "givenNames": "Alice",
+                "lastName": "Fixture",
+                "inCitation": true
+              }
+            },
+            "map": { "north": "60", "south": "50", "east": "-120", "west": "-130", "polygon": "" },
+            "progress": "onGoing",
+            "sharedWith": { "fixture-uid-bob": true, "fixture-uid-ghost": true },
+            "lastEditedBy": { "name": "Alice Fixture", "email": "alice@fixture.example" }
+          },
+          "fixture-rec-2": {
+            "title": { "en": "Fixture Draft Missing Status", "fr": "" },
+            "created": "2022-01-15T08:30:00.000Z",
+            "identifier": "not-a-uuid",
+            "eov": { "0": "subSurfaceSalinity" },
+            "language": "fr"
+          }
+        },
+        "contacts": {
+          "fixture-contact-1": {
+            "role": { "0": "custodian" },
+            "orgName": "Fixture Org",
+            "givenNames": "Carol",
+            "lastName": "Contact",
+            "indEmail": "carol@fixture.example"
+          }
+        }
+      },
+      "fixture-uid-bob": {
+        "userinfo": {
+          "displayName": "Bob Fixture",
+          "email": "bob@fixture.example"
+        },
+        "records": {
+          "fixture-rec-3": {
+            "title": { "en": "Bob Submitted Record", "fr": "Bob soumis" },
+            "status": "submitted",
+            "created": "2023-03-03T03:03:03.000Z",
+            "language": "en"
+          }
+        },
+        "instruments": {
+          "fixture-instr-1": {
+            "id": "CTD-1",
+            "manufacturer": "Fixture Instruments Inc",
+            "type": { "en": "CTD", "fr": "CTD" }
+          }
+        }
+      },
+      "fixture-uid-noemail": {
+        "userinfo": { "displayName": "Nameless NoEmail" },
+        "platforms": {
+          "fixture-platform-1": {
+            "type": "ship",
+            "id": "FIX-SHIP-1",
+            "description": { "en": "Fixture ship", "fr": "" }
+          }
+        }
+      }
+    },
+    "shares": {
+      "fixture-uid-alice": {
+        "fixture-uid-bob": { "fixture-rec-3": { "shared": true } }
+      },
+      "fixture-uid-bob": {
+        "fixture-uid-alice": { "fixture-rec-1": { "shared": true } }
+      },
+      "fixture-uid-carol": {
+        "fixture-uid-alice": { "fixture-rec-gone": { "shared": true } }
+      }
+    }
+  },
+  "admin": {
+    "test": {
+      "permissions": {
+        "admins": " Alice@fixture.example , admin2@fixture.example",
+        "reviewers": "bob@fixture.example"
+      },
+      "projects": {
+        "-NpFixture1": "Fixture Project A",
+        "-NpFixture2": "Fixture Project B"
+      },
+      "dataciteCredentials": {
+        "prefix": "10.99999",
+        "dataciteHash": "Zml4dHVyZTpkYXRhY2l0ZS1oYXNo",
+        "apiDomain": "api.test.datacite.org"
+      },
+      "githubCredentials": {
+        "token": "ghp_fixturetoken123",
+        "owner": "fixture-org",
+        "repo": "fixture-repo",
+        "branch": "main"
+      },
+      "recordGeneratorURL": "https://fixture.example/recordGenerator"
+    },
+    "notaregion": {
+      "permissions": { "admins": "x@y.example" }
+    }
+  },
+  "someLegacyKey": { "junk": true }
+}

@@ -5,7 +5,8 @@ import {
   Tooltip,
   IconButton,
   FormControlLabel,
-  Checkbox } from "@mui/material";
+  Checkbox,
+} from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -48,7 +49,8 @@ const OpenEPSGDefn = ({ url }) => {
 };
 const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
   const { language } = useParams();
-  const noVerticalExtent = record.noVerticalExtent && record.noVerticalExtent !== "false";
+  const noVerticalExtent =
+    record.noVerticalExtent && record.noVerticalExtent !== "false";
 
   return (
     <Grid>
@@ -90,11 +92,13 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
                 <Fr>
                   Définissez la zone géographique à l'aide de l'outil qui
-                  correspond à la distribution géographique de vos données. Par exemple, 
-                  l’étendue de données relativement dispersées, localisées en haute mer 
-                  est souvent bien représentées par une zone rectangulaire, tandis qu’une représentation 
-                  polygonale excluant les terrains ou zones non échantillonnés se prête mieux à 
-                  l’étendue de données côtières, avec une résolution spatiale plus fine.
+                  correspond à la distribution géographique de vos données. Par
+                  exemple, l’étendue de données relativement dispersées,
+                  localisées en haute mer est souvent bien représentées par une
+                  zone rectangulaire, tandis qu’une représentation polygonale
+                  excluant les terrains ou zones non échantillonnés se prête
+                  mieux à l’étendue de données côtières, avec une résolution
+                  spatiale plus fine.
                 </Fr>
               </I18n>
             </div>
@@ -131,9 +135,9 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
 
                 <Fr>
-                  Cela permet de renseigner les profondeurs minimales et maximales
-                  (ou la hauteur depuis le fond marin) où l'instrument a enregistré des
-                  données.
+                  Cela permet de renseigner les profondeurs minimales et
+                  maximales (ou la hauteur depuis le fond marin) où l'instrument
+                  a enregistré des données.
                 </Fr>
               </I18n>
             </div>
@@ -185,66 +189,74 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           }
           label={
             <I18n>
-              <En>This dataset does not have a depth or height, value will be set to zero</En>
-              <Fr>Ce jeu de données n'a ni profondeur ni hauteur, la valeur sera zéro</Fr>
+              <En>
+                This dataset does not have a depth or height, value will be set
+                to zero
+              </En>
+              <Fr>
+                Ce jeu de données n'a ni profondeur ni hauteur, la valeur sera
+                zéro
+              </Fr>
             </I18n>
           }
         />
         {!noVerticalExtent ? (
-        <Grid
-          container
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={4}
-        >
-          <Grid size={5}>
-            <SelectInput
-              value={record.verticalExtentDirection || ""}
-              onChange={handleUpdateRecord("verticalExtentDirection")}
-              options={Object.keys(depthDirections)}
-              optionLabels={Object.values(depthDirections).map(
-                (e) => e[language]
-              )}
-              disabled={disabled}
-            />
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={4}
+          >
+            <Grid size={{ xs: 12, md: 5 }}>
+              <SelectInput
+                value={record.verticalExtentDirection || ""}
+                onChange={handleUpdateRecord("verticalExtentDirection")}
+                options={Object.keys(depthDirections)}
+                optionLabels={Object.values(depthDirections).map(
+                  (e) => e[language],
+                )}
+                disabled={disabled}
+              />
               <p>
-              <I18n>
-                <En>OR</En>
-                <Fr>OU</Fr>
-            </I18n>
+                <I18n>
+                  <En>OR</En>
+                  <Fr>OU</Fr>
+                </I18n>
               </p>
-            <TextField
+              <TextField
                 value={record.verticalExtentEPSG}
                 onChange={handleUpdateRecord("verticalExtentEPSG")}
                 label="EPSG code"
                 fullWidth
                 type="number"
                 disabled={disabled}
-            />
+              />
+            </Grid>
+            <Grid size={{ xs: 6, md: 2 }}>
+              <TextField
+                value={record.verticalExtentMin}
+                onChange={handleUpdateRecord("verticalExtentMin")}
+                label="Min"
+                fullWidth
+                type="number"
+                disabled={disabled}
+              />
+            </Grid>
+            <Grid size={{ xs: 6, md: 2 }}>
+              <TextField
+                value={record.verticalExtentMax}
+                onChange={handleUpdateRecord("verticalExtentMax")}
+                label="Max"
+                fullWidth
+                type="number"
+                disabled={disabled}
+              />
+            </Grid>
           </Grid>
-          <Grid size={2}>
-            <TextField
-              value={record.verticalExtentMin}
-              onChange={handleUpdateRecord("verticalExtentMin")}
-              label="Min"
-              fullWidth
-              type="number"
-              disabled={disabled}
-            />
-          </Grid>
-          <Grid size={2}>
-            <TextField
-              value={record.verticalExtentMax}
-              onChange={handleUpdateRecord("verticalExtentMax")}
-              label="Max"
-              fullWidth
-              type="number"
-              disabled={disabled}
-            />
-          </Grid>
-        </Grid>
-        ) : ("")}
+        ) : (
+          ""
+        )}
       </Paper>
     </Grid>
   );

@@ -242,11 +242,13 @@ def record_json_to_yaml(record):
     else:
         instrumentsList = record.get("instruments", [])
         platformList = record.get("platforms", [])
-        # If platforms has only one element, add it to the platform dict and add all instruments as a key
+        # If platforms has only one element, add it to the platform dict and
+        # add all instruments as a key
         if len(platformList) == 1:
             record["platforms"][0]["instruments"] = instrumentsList
             record_yaml["platform"] = record["platforms"]
-        # If platforms has more than one element, add all platforms and match instruments by platform ID
+        # If platforms has more than one element, add all platforms and match
+        # instruments by platform ID
         else:
             for platform in platformList:
                 instruments = []

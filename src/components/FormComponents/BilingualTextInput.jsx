@@ -51,7 +51,9 @@ const BilingualTextInput = ({
       [alternateLanguage]: {
         verified: checked,
         ...(!checked && {
-          message: translationMessage || "text translated using Cohere / texte traduit à l'aide de Cohere",
+          message:
+            translationMessage ||
+            "text translated using Cohere / texte traduit à l'aide de Cohere",
         }),
       },
     };
@@ -64,8 +66,8 @@ const BilingualTextInput = ({
       [e.target.name]: e.target.value,
       ...(e.target.name === alternateLanguage &&
         e.target.value && {
-        translations: translations || setTranslationData({}, false),
-      }),
+          translations: translations || setTranslationData({}, false),
+        }),
     };
     const newDataEvent = { target: { name, value: newData } };
     onChange(newDataEvent);
@@ -159,8 +161,14 @@ const BilingualTextInput = ({
                         (result) => {
                           setAwaitingTranslation(false);
                           const data = result.data;
-                          const translation = typeof data === "object" ? data.translatedText : data;
-                          const translationMsg = typeof data === "object" ? data.translationMessage : undefined;
+                          const translation =
+                            typeof data === "object"
+                              ? data.translatedText
+                              : data;
+                          const translationMsg =
+                            typeof data === "object"
+                              ? data.translationMessage
+                              : undefined;
                           handleEvent({
                             target: {
                               name: alternateLanguage,
@@ -171,10 +179,14 @@ const BilingualTextInput = ({
                           const newData = {
                             ...value,
                             [alternateLanguage]: translation,
-                            translations: setTranslationData(value.translations, false, translationMsg),
+                            translations: setTranslationData(
+                              value.translations,
+                              false,
+                              translationMsg,
+                            ),
                           };
                           onChange({ target: { name, value: newData } });
-                        }
+                        },
                       );
                     }}
                   >
@@ -227,8 +239,8 @@ const BilingualTextInput = ({
                     {MAX_TRANSLATE_SIZE} characters.
                   </En>
                   <Fr>
-                    La traduction est désactivée car le texte est plus grand
-                    que {MAX_TRANSLATE_SIZE} caractères.
+                    La traduction est désactivée car le texte est plus grand que{" "}
+                    {MAX_TRANSLATE_SIZE} caractères.
                   </Fr>
                 </I18n>
               )}

@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigationType } from 'react-router-dom';
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useNavigationType } from "react-router-dom";
 
 const filterStorageKey = (pageId) => `record-table-filters-${pageId}`;
 const fromFormMarkerKey = (pageId) => `record-table-fromForm-${pageId}`;
@@ -8,8 +8,10 @@ const fromFormMarkerKey = (pageId) => `record-table-fromForm-${pageId}`;
 // browser/app Back the dashboard knows to preserve its filters.
 export function markFormNavigation(pageId) {
   try {
-    sessionStorage.setItem(fromFormMarkerKey(pageId), '1');
-  } catch { /* ignore storage errors */ }
+    sessionStorage.setItem(fromFormMarkerKey(pageId), "1");
+  } catch {
+    /* ignore storage errors */
+  }
 }
 
 // ============================================================================
@@ -29,12 +31,14 @@ export function useRecordTableFilters(pageId) {
   if (!didInit.current) {
     didInit.current = true;
     try {
-      const cameFromForm = sessionStorage.getItem(markerKey) === '1';
+      const cameFromForm = sessionStorage.getItem(markerKey) === "1";
       sessionStorage.removeItem(markerKey);
-      if (!cameFromForm || navType !== 'POP') {
+      if (!cameFromForm || navType !== "POP") {
         sessionStorage.removeItem(filterKey);
       }
-    } catch { /* ignore storage errors */ }
+    } catch {
+      /* ignore storage errors */
+    }
   }
 
   const [filterModel, setFilterModel] = useState(() => {
@@ -43,7 +47,9 @@ export function useRecordTableFilters(pageId) {
       if (saved) {
         return JSON.parse(saved).filterModel || { items: [] };
       }
-    } catch { /* ignore storage errors */ }
+    } catch {
+      /* ignore storage errors */
+    }
     return { items: [] };
   });
 
@@ -53,7 +59,9 @@ export function useRecordTableFilters(pageId) {
       if (saved) {
         return JSON.parse(saved).sortModel || [];
       }
-    } catch { /* ignore storage errors */ }
+    } catch {
+      /* ignore storage errors */
+    }
     return [];
   });
 
@@ -63,7 +71,9 @@ export function useRecordTableFilters(pageId) {
         filterKey,
         JSON.stringify({ filterModel, sortModel }),
       );
-    } catch { /* ignore storage errors */ }
+    } catch {
+      /* ignore storage errors */
+    }
   }, [filterModel, sortModel, filterKey]);
 
   return { filterModel, setFilterModel, sortModel, setSortModel };
@@ -81,7 +91,7 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
         // Merge saved settings with defaults so new columns respect their default visibility
         return { ...defaultVisibility, ...parsed };
       }
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     return defaultVisibility;
@@ -92,11 +102,11 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
       setColumnVisibilityModel(newModel);
       try {
         localStorage.setItem(storageKey, JSON.stringify(newModel));
-      } catch (e) {
+      } catch {
         // Ignore errors
       }
     },
-    [storageKey]
+    [storageKey],
   );
 
   return {

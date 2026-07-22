@@ -35,7 +35,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
       .length > 0;
 
   return (
-    <Grid >
+    <Grid>
       <QuestionText>
         <I18n>
           <En>Appear in citation?</En>
@@ -79,7 +79,7 @@ const RolePicker = ({ value, disabled, updateContact }) => {
         onChange={updateContact("role")}
         options={prominentRoles.map((r) => r.key)}
         optionLabels={prominentRoles.map(
-          (r) => r.title[language] + (r.required ? "*" : "")
+          (r) => r.title[language] + (r.required ? "*" : ""),
         )}
         disabled={disabled}
         optionTooltips={prominentRoles.map((r) => r.text[language])}

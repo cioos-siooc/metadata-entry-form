@@ -1,0 +1,82 @@
+# Self-hosted deployment of the CIOOS metadata entry form.
+# Copy deploy/.env.example to deploy/.env and fill it in, then:
+#   docker compose --env-file deploy/.env up -d
+# (--env-file makes ${PUBLIC_URL}/${TAG}/${WEB_PORT} interpolation read deploy/.env
+#  instead of the repo-root .env, which holds frontend Vite variables.)
+# For local development use the override:
+#   docker compose --env-file deploy/.env -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: deploy/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/cioos-siooc/metadata-entry-form-api:${TAG:-latest}
+    build: ./server
+    restart: unless-stopped
+    env_file: deploy/.env
+    environment:
+      CONVERTER_URL: http://converter:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  converter:
+    image: ghcr.io/cioos-siooc/metadata-entry-form-converter:${TAG:-latest}
+    build: ./converter
+    restart: unless-stopped
+    env_file: deploy/.env
+    volumes:
+      - waf_files:/data/waf
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  web:
+    image: ghcr.io/cioos-siooc/metadata-entry-form-web:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:80"
+    depends_on:
+      - api
+
+  # OGC Web Accessible Folder serving generated XML for CKAN harvest.
+  # Enable with: docker compose --profile waf up -d
+  waf:
+    image: nginx:alpine
+    profiles: ["waf"]
+    restart: unless-stopped
+    ports:
+      - "${WAF_PORT:-8092}:80"
+    volumes:
+      - waf_files:/usr/share/nginx/html/metadata:ro
+      - ./deploy/waf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  pgdata:
+  waf_files:

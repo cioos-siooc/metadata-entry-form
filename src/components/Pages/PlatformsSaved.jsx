@@ -20,14 +20,8 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@mui/icons-material";
-import {getDatabase, onValue, ref} from "firebase/database";
-import firebase from "../../firebase";
-import { auth } from "../../auth";
-import {
-  newPlatform,
-  clonePlatform,
-  deletePlatform,
-} from "../../utils/firebasePlatformFunctions";
+import { platforms as platformsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 import PlatformTitle from "../FormComponents/PlatformTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
@@ -45,39 +39,47 @@ class Platforms extends FormClassTemplate {
     };
   }
 
-  async componentDidMount() {
-    this.setState({ loading: true });
-
-    const { match } = this.props;
-    const { region } = match.params;
-
-    this.unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        const database = getDatabase(firebase);
-        const platformsRef = ref(database, `${region}/users/${user.uid}/platforms`);
-        onValue(platformsRef, (records) =>
-          this.setState({ platforms: records.toJSON(), loading: false })
-        );
-        this.listenerRefs.push(platformsRef);
-      }
-    });
+  componentDidMount() {
+    this.loadData();
   }
 
-  handleDeletePlatform(platformID) {
+  async loadData() {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      deletePlatform(region, auth.currentUser.uid, platformID);
+    if (!user) return;
+
+    this.safeSetState({ loading: true });
+    try {
+      const platforms = await platformsAPI.list(region, user.uid);
+      this.safeSetState({ platforms: platforms || {}, loading: false });
+    } catch (error) {
+      console.error("Error loading platforms:", error);
+      this.safeSetState({ loading: false });
     }
   }
 
-  handleClonePlatform(platformID) {
+  async handleDeletePlatform(platformID) {
     const { match } = this.props;
     const { region } = match.params;
+    const { user } = this.context;
 
-    if (auth.currentUser) {
-      return clonePlatform(region, auth.currentUser.uid, platformID);
+    if (user) {
+      await platformsAPI.remove(region, user.uid, platformID);
+      this.loadData();
+    }
+  }
+
+  async handleClonePlatform(platformID) {
+    const { match } = this.props;
+    const { region } = match.params;
+    const { user } = this.context;
+
+    if (user) {
+      await platformsAPI.clone(region, user.uid, platformID);
+      this.loadData();
+      return true;
     }
     return false;
   }
@@ -85,10 +87,11 @@ class Platforms extends FormClassTemplate {
   addPlatform() {
     const { history, match } = this.props;
     const { language, region } = match.params;
+    const { user } = this.context;
 
     // render different page with 'save' button?
-    if (auth.currentUser) {
-      newPlatform(region, auth.currentUser.uid).then((key) => {
+    if (user) {
+      platformsAPI.create(region, user.uid, {}).then((key) => {
         history.push(`/${language}/${region}/platforms/${key}`);
       });
     }
@@ -110,7 +113,7 @@ class Platforms extends FormClassTemplate {
     const { modalOpen, modalKey, loading, platforms } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +129,7 @@ class Platforms extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -141,7 +144,7 @@ class Platforms extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addPlatform()}>
             <I18n>
               <En>Add platform</En>
@@ -154,7 +157,7 @@ class Platforms extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {platforms && Object.keys(platforms).length ? (
                 <div>
                   <Typography>
@@ -172,7 +175,9 @@ class Platforms extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editPlatform(key)}>
+                                <IconButton
+                                  onClick={() => this.editPlatform(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
@@ -186,7 +191,9 @@ class Platforms extends FormClassTemplate {
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}
@@ -227,4 +234,6 @@ class Platforms extends FormClassTemplate {
     );
   }
 }
+Platforms.contextType = UserContext;
+
 export default withRouter(Platforms);

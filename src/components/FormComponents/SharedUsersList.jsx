@@ -17,25 +17,22 @@ import {
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
-import {
-  loadRegionUsers,
-  updateSharedRecord,
-} from "../../utils/firebaseRecordFunctions";
+import { loadRegionUsers, updateRecordShares } from "../../api/records";
 
 const SharedUsersList = ({ record, updateRecord, region }) => {
-  const [users, setUsers] = useState({});
+  // [{userID, email, displayName}]
+  const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [sharedWithUsers, setSharedWithUsers] = useState({});
   const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
-  const authorID = record.userID
 
   // fetching users based on region
   useEffect(() => {
     let isMounted = true;
 
     if (record.recordID) {
-      setShareRecordDisabled(false)
+      setShareRecordDisabled(false);
     }
 
     const fetchRegionUsers = async () => {
@@ -61,9 +58,10 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
   useEffect(() => {
     const sharedWithDetails = {};
     Object.keys(record.sharedWith || {}).forEach((userID) => {
-      const name = users[userID]?.userinfo?.displayName;
+      const user = users.find((u) => u.userID === userID);
+      const name = user?.displayName;
       if (name) {
-        const domain = users[userID]?.userinfo?.email?.split("@").pop();
+        const domain = user?.email?.split("@").pop();
         sharedWithDetails[userID] = {
           name: domain ? `${name} (${domain})` : name,
         };
@@ -73,51 +71,32 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     setSharedWithUsers(sharedWithDetails);
   }, [record.sharedWith, users]);
 
-  // Function to add an email to the sharedWith list
-  const addUserToSharedWith = (userID) => {
-    const updatedSharedWith = {
-      ...record.sharedWith,
-      [userID]: true,
-    };
-
-    setSharedWithUsers(updatedSharedWith);
-
+  const saveShares = (updatedSharedWith) => {
     updateRecord("sharedWith")(updatedSharedWith);
 
-    const shareRecordAsync = async () => {
-      try {
-        await updateSharedRecord(userID, record.recordID, authorID, region, true);
-      } catch (error) {
-        throw new Error(`Failed to update shared record: ${error}`);
-      }
-    };
-
-    shareRecordAsync();
+    const userIds = Object.keys(updatedSharedWith);
+    updateRecordShares(region, record.recordID, userIds).catch((error) => {
+      throw new Error(`Failed to update shared record: ${error}`);
+    });
   };
 
-  // Function to remove an email from the sharedWith list
+  // Function to add a user to the sharedWith list
+  const addUserToSharedWith = (userID) => {
+    saveShares({ ...record.sharedWith, [userID]: true });
+  };
+
+  // Function to remove a user from the sharedWith list
   const removeUserFromSharedWith = (userID) => {
     if (record.sharedWith && record.sharedWith[userID]) {
       const updatedSharedWith = { ...record.sharedWith };
       delete updatedSharedWith[userID];
-      updateRecord("sharedWith")(updatedSharedWith);
-
-      const unshareRecordAsync = async () => {
-        try {
-          await updateSharedRecord(userID, record.recordID, authorID, region, false);
-        } catch (error) {
-          throw new Error(`Failed to unshare the record: ${error}`);
-        }
-      };
-
-      unshareRecordAsync();
+      saveShares(updatedSharedWith);
     }
   };
 
-  const shareWithOptions = Object.entries(users)
-    .map(([userID, userInfo]) => {
-      const displayName = userInfo.userinfo?.displayName;
-      const domain = userInfo.userinfo?.email?.split("@").pop();
+  const shareWithOptions = users
+    .map(({ userID, displayName, email }) => {
+      const domain = email?.split("@").pop();
       const label = displayName
         ? domain
           ? `${displayName} (${domain})`
@@ -139,9 +118,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <Grid >
+    <Grid>
       <Paper style={paperClass}>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             <I18n>
               <En>
@@ -156,19 +135,19 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
             </I18n>
           </Typography>
           <SupplementalText>
-              <I18n>
-                <En>
-                  <p>Please save the form before sharing access.</p>
-                </En>
-                <Fr>
-                  <p>
+            <I18n>
+              <En>
+                <p>Please save the form before sharing access.</p>
+              </En>
+              <Fr>
+                <p>
                   Veuillez enregistrer le formulaire avant de partager l'accès.
-                  </p>
-                </Fr>
-              </I18n>
-            </SupplementalText>
+                </p>
+              </Fr>
+            </I18n>
+          </SupplementalText>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Autocomplete
@@ -186,14 +165,14 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 filterSelectedOptions
                 renderInput={(params) => (
                   <TextField
-                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
                     label={<I18n en="Share with..." fr="Partager avec..." />}
                     variant="outlined"
                     style={{ marginTop: "16px" }}
                     error={inputValue && !currentUser}
                     helperText={
-                      inputValue && !currentUser && (
+                      inputValue &&
+                      !currentUser && (
                         <I18n
                           en="User not found. Please select from the list."
                           fr="Utilisateur non trouvé. Veuillez sélectionner dans la liste."
@@ -226,7 +205,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
+            <Grid size={{ xs: 12, md: 6 }} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {Object.keys(sharedWithUsers).length > 0 && (
@@ -234,7 +213,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                       <En>Users this record is shared with:</En>
                       <Fr>
                         Utilisateurs avec lesquels cet enregistrement est
-                        partagé :
+                        partagé :
                       </Fr>
                     </I18n>
                   )}
@@ -256,7 +235,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                           </IconButton>
                         </ListItemSecondaryAction>
                       </ListItem>
-                    )
+                    ),
                   )}
                 </List>
               </Box>

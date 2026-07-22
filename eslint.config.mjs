@@ -9,7 +9,10 @@ import prettier from "eslint-config-prettier";
 export default [
   js.configs.recommended,
   {
+    // Browser React app (src/, scripts/, etc.). Firebase functions are Node
+    // CommonJS and are handled by their own block below.
     files: ["**/*.{js,jsx}"],
+    ignores: ["firebase-functions/**"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -71,11 +74,37 @@ export default [
     },
   },
   {
+    // Firebase Cloud Functions: Node CommonJS, no React.
+    files: ["firebase-functions/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  },
+  {
+    // Jest test files within firebase-functions.
+    files: [
+      "firebase-functions/**/*.test.js",
+      "firebase-functions/**/test/**/*.js",
+    ],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+  {
     ignores: [
       "build/**",
       "dist/**",
       "node_modules/**",
-      "firebase-functions/**",
+      "**/node_modules/**",
       "cioos-records-update/**",
       ".venv/**",
       "**/.venv/**",
