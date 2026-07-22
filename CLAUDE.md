@@ -10,4 +10,4 @@
 
 ## Local dev stack
 
-`docker compose --env-file deploy/.env -f docker-compose.yml -f docker-compose.dev.yml up -d` — postgres (5433), keycloak (8080, realm cioos, dev users dev-author/dev-reviewer/dev-admin password "dev"), mailpit (8025), api (3001). Frontend: `npm run dev` (proxies /api and /auth).
+`docker compose --env-file deploy/.env -f docker-compose.yml -f docker-compose.dev.yml up -d` — postgres (5433), mailpit (8025), api (3001). The api seeds local dev users author/reviewer/admin@example.org (password "password") via `scripts/seed-dev.js`. Auth is served by the api under `/api/v1/auth` (local email+password + OAuth to Google/Microsoft/ORCID); there is no Keycloak. Frontend: `npm run dev` (proxies /api).

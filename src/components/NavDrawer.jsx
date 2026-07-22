@@ -23,7 +23,6 @@ import {
   Warning,
   Settings,
   DynamicForm,
-  Link as LinkIcon,
   NewReleases,
   ExpandLess,
   ExpandMore,
@@ -50,11 +49,10 @@ import {
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
-import { signOut } from "../auth/keycloak";
+import { signOut } from "../auth/session";
 
 import { En, Fr, I18n } from "./I18n";
 import WhatsNewDialog from "./Pages/WhatsNew";
-import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -240,8 +238,6 @@ export default function MiniDrawer({ children }) {
     language === "fr" ? "Contacter la région" : "Contact Region";
   const [emailCopied, setEmailCopied] = React.useState(false);
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
-  const [connectedAccountsOpen, setConnectedAccountsOpen] =
-    React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
@@ -319,9 +315,11 @@ export default function MiniDrawer({ children }) {
     if (isMobile) setOpen(false);
   };
 
-  const handleLogout = () => {
-    // Keycloak logout redirects the browser; no navigate needed
-    signOut();
+  const handleLogout = async () => {
+    // Clears the in-memory access token + revokes the refresh session, then
+    // sends the user back to the region login page.
+    await signOut();
+    navigate(baseURL);
   };
 
   const translations = {
@@ -343,7 +341,6 @@ export default function MiniDrawer({ children }) {
       <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />
     ),
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
-    connectedAccounts: <I18n en="Connected accounts" fr="Comptes connectés" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: (
@@ -885,18 +882,6 @@ export default function MiniDrawer({ children }) {
                       }}
                     >
                       <ListItemButton
-                        key="ConnectedAccounts"
-                        onClick={() => setConnectedAccountsOpen(true)}
-                        sx={{ pl: 4 }}
-                      >
-                        <ListItemIcon>
-                          <LinkIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={translations.connectedAccounts}
-                        />
-                      </ListItemButton>
-                      <ListItemButton
                         key="Logout"
                         onClick={handleLogout}
                         sx={{ pl: 4, color: "error.main" }}
@@ -921,10 +906,6 @@ export default function MiniDrawer({ children }) {
       <WhatsNewDialog
         open={whatsNewOpen}
         onClose={() => setWhatsNewOpen(false)}
-      />
-      <ConnectedAccountsDialog
-        open={connectedAccountsOpen}
-        onClose={() => setConnectedAccountsOpen(false)}
       />
     </div>
   );

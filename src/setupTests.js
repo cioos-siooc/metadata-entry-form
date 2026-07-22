@@ -40,24 +40,22 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-// Global mocks so component tests never touch Keycloak or the network
-vi.mock("keycloak-js", () => ({
-  default: class KeycloakMock {
-    constructor() {
-      this.authenticated = true;
-      this.subject = "test-user";
-      this.token = "test-token";
-      this.tokenParsed = {
-        email: "test@example.org",
-        name: "Test User",
-        email_verified: true,
-      };
-      this.init = vi.fn().mockResolvedValue(true);
-      this.login = vi.fn();
-      this.logout = vi.fn();
-      this.updateToken = vi.fn().mockResolvedValue(true);
-    }
-  },
+// Global mocks so component tests never touch the auth API or the network
+vi.mock("./auth/session", () => ({
+  initAuth: vi.fn().mockResolvedValue(true),
+  getAccessToken: vi.fn().mockResolvedValue("test-token"),
+  refreshAccessToken: vi.fn().mockResolvedValue("test-token"),
+  currentUser: vi.fn(() => ({
+    uid: "test-user",
+    email: "test@example.org",
+    displayName: "Test User",
+  })),
+  signInWithGoogle: vi.fn(),
+  signInWithMicrosoft: vi.fn(),
+  signInWithOrcid: vi.fn(),
+  signInWithPassword: vi.fn().mockResolvedValue({}),
+  register: vi.fn().mockResolvedValue({ ok: true }),
+  signOut: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./api/client", async () => {

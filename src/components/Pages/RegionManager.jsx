@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -23,7 +24,6 @@ import {
   getSuperadmins,
   saveSuperadmins,
 } from "../../api/regions";
-import { signInWithKeycloak } from "../../auth/keycloak";
 import NotFound from "./NotFound";
 import { paperClass } from "../FormComponents/QuestionStyles";
 import { unique } from "../../utils/misc";
@@ -115,6 +115,8 @@ const bilingualPair = (form, handleChange, baseName, labelEn, labelFr, extra = {
 export default function RegionManager() {
   const { loggedIn, authIsLoading, isSuperadmin } = useContext(UserContext);
   const { regions } = useRegions();
+  const navigate = useNavigate();
+  const { language = "en" } = useParams();
 
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -146,7 +148,10 @@ export default function RegionManager() {
           </Typography>
         </Grid>
         <Grid>
-          <Button variant="contained" onClick={() => signInWithKeycloak()}>
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/${language}/region-select`)}
+          >
             <I18n en="Sign in" fr="Se connecter" />
           </Button>
         </Grid>

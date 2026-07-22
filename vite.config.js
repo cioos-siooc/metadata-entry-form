@@ -37,15 +37,11 @@ export default defineConfig(({ mode }) => {
           // leave it out of the precache
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
-          // NEVER serve the SPA shell for API, Keycloak, or the silent-SSO
-          // iframe — and never add runtime caching for /api or /auth: auth
-          // and data must always hit the network
+          // NEVER serve the SPA shell for the API — and never add runtime
+          // caching for /api: auth and data must always hit the network.
+          // (Auth lives under /api/v1/auth, already covered by /^\/api\//.)
           navigateFallback: "index.html",
-          navigateFallbackDenylist: [
-            /^\/api\//,
-            /^\/auth\//,
-            /silent-check-sso\.html/,
-          ],
+          navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/,
@@ -83,10 +79,10 @@ export default defineConfig(({ mode }) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-      // Self-hosted dev stack (docker-compose.dev.yml): same-origin API + auth
+      // Self-hosted dev stack (docker-compose.dev.yml): same-origin API.
+      // Auth now lives under /api/v1/auth, so only /api needs proxying.
       proxy: {
         "/api": env.VITE_API_PROXY_TARGET || "http://localhost:3001",
-        "/auth": env.VITE_AUTH_PROXY_TARGET || "http://localhost:8080",
       },
     },
     test: {

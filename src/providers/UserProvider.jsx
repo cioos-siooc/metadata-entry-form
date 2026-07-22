@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
-import { initAuth, currentUser } from "../auth/keycloak";
+import { initAuth, currentUser } from "../auth/session";
 import { get } from "../api/client";
 import * as actions from "../api/actions";
 

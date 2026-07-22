@@ -5,8 +5,6 @@
 // instead of /admin/{region}/permissions/reviewers; author info rides along
 // on the record as record.userinfo (set by the routes).
 
-const nodemailer = require("nodemailer");
-const config = require("../config");
 const { query } = require("../db");
 const {
   mailOptionsReviewer,
@@ -14,19 +12,7 @@ const {
   mailOptionsAuthorSubmissionConfirmation,
 } = require("./mailoutText");
 const createIssue = require("./issue");
-
-let transporter = null;
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: config.smtp.host,
-      port: config.smtp.port,
-      secure: config.smtp.secure,
-      auth: config.smtp.user ? { user: config.smtp.user, pass: config.smtp.pass } : undefined,
-    });
-  }
-  return transporter;
-}
+const { getTransporter } = require("../lib/mailer");
 
 // RTDB returned sparse arrays as objects keyed by index, so the original
 // coerced contacts (and a contact's role) with Object.values. Postgres

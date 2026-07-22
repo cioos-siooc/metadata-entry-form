@@ -38,7 +38,6 @@
     "file-saver": "^2.0.5",
     "javascript-time-ago": "^2.5.12",
     "just-debounce-it": "^3.2.0",
-    "keycloak-js": "^26.2.4",
     "leaflet": "^1.9.4",
     "nunjucks": "^3.2.3",
     "react": "^19.2.4",

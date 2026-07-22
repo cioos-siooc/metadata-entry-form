@@ -1,8 +1,10 @@
 const fastify = require("fastify");
+const cookie = require("@fastify/cookie");
 const config = require("./config");
 const { pool } = require("./db");
 const { authPlugin } = require("./plugins/auth");
 const { regionContextPlugin } = require("./plugins/regionContext");
+const { authRoutes } = require("./routes/auth");
 const { meRoutes } = require("./routes/me");
 const { recordRoutes } = require("./routes/records");
 const { entityRoutes } = require("./routes/entities");
@@ -15,7 +17,7 @@ const { serviceRoutes } = require("./routes/services");
 const { recordExportRoutes } = require("./routes/recordExport");
 
 // Builds the Fastify app. Options let tests inject overrides (e.g. a local
-// JWKS keypair instead of a live Keycloak).
+// JWKS keypair + issuer/audience for the token verifier).
 function buildApp(opts = {}) {
   const app = fastify({
     logger: opts.logger ?? { level: config.logLevel },
@@ -26,10 +28,12 @@ function buildApp(opts = {}) {
     return { status: "ok" };
   });
 
+  app.register(cookie);
   app.register(authPlugin, opts.auth || {});
   app.register(regionContextPlugin);
   app.register(
     async (api) => {
+      api.register(authRoutes);
       api.register(meRoutes);
       api.register(recordRoutes);
       api.register(entityRoutes);

@@ -16,6 +16,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@node-rs/argon2": "^2.0.2",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "axios": "^1.13.4",
@@ -27,6 +29,7 @@
     "node-pg-migrate": "^7.9.0",
     "nodemailer": "^7.0.13",
     "octokit": "^4.1.4",
+    "openid-client": "^6.8.4",
     "pg": "^8.13.1"
   },
   "devDependencies": {

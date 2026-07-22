@@ -12,6 +12,8 @@ import NavDrawer from "./NavDrawer";
 import BaseLayout from "./BaseLayout";
 import RegionSelect from "./Pages/RegionSelect";
 import RegionManager from "./Pages/RegionManager";
+import VerifyEmail from "./Pages/VerifyEmail";
+import ResetPassword from "./Pages/ResetPassword";
 import RegionsProvider from "../providers/RegionsProvider";
 import UserProvider from "../providers/UserProvider";
 import PWAUpdatePrompt from "./PWAUpdatePrompt";
@@ -39,6 +41,22 @@ const App = () => (
           <Route
             path="/"
             element={<Navigate to="/en/region-select" replace />}
+          />
+          <Route
+            path="/auth/verify-email"
+            element={
+              <ThemeProvider theme={defaultTheme}>
+                <VerifyEmail />
+              </ThemeProvider>
+            }
+          />
+          <Route
+            path="/auth/reset-password"
+            element={
+              <ThemeProvider theme={defaultTheme}>
+                <ResetPassword />
+              </ThemeProvider>
+            }
           />
           <Route
             path="/:language/region-select"

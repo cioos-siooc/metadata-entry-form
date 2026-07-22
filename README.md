@@ -27,7 +27,7 @@ For a more interactive and detailed view, see the [Lucidchart Diagram](https://l
 - **Backend** (`server/`): Node.js Fastify API — all data operations, DataCite DOI management, Cohere translations, email notifications, GitHub publishing, and XML-regeneration hooks.
 - **Converter** (`converter/`): Python FastAPI service wrapping [cioos-metadata-conversion](https://github.com/cioos-siooc/cioos-metadata-conversion) — record → XML/YAML/JSON/ERDDAP conversion and WAF file management.
 - **Database**: PostgreSQL. Records are stored as JSONB documents with extracted columns for querying; roles are per-region email lists.
-- **Authentication**: Keycloak (self-hosted), brokering Google, Microsoft and ORCID sign-in. The API validates OIDC bearer tokens. Served behind nginx same-origin with the SPA and API (no CORS).
+- **Authentication**: handled by the API itself under `/api/v1/auth` — local email+password plus OAuth/OIDC sign-in with Google, Microsoft and ORCID (via `openid-client`). The API issues short-lived RS256 access tokens (Bearer) and a rotating httpOnly refresh cookie. Served behind nginx same-origin with the SPA (no CORS).
 - **External Integrations**: GitHub (for publishing records), DataCite (for DOI minting), any SMTP server (notifications).
 
 ### Self-hosting quickstart
@@ -39,26 +39,26 @@ docker compose --env-file deploy/.env up -d
 docker compose --env-file deploy/.env --profile waf up -d
 ```
 
-Services: `web` (nginx, SPA + proxy), `api`, `keycloak`, `postgres`, `converter`, and optionally `waf`. Configure the Google/Microsoft/ORCID identity providers in the Keycloak admin console (the imported realm `cioos` ships them disabled with placeholder secrets), or use local Keycloak accounts (`VITE_AUTH_LOCAL=true`).
+Services: `web` (nginx, SPA + proxy), `api`, `postgres`, `converter`, and optionally `waf`. Enable Google/Microsoft/ORCID sign-in by setting the `OAUTH_*_CLIENT_ID`/`_SECRET` pairs in `deploy/.env` and registering each provider's callback (`<PUBLIC_URL>/api/v1/auth/oauth/<provider>/callback`); leaving a pair blank disables that provider. Local email+password accounts work with no OAuth setup (`VITE_AUTH_LOCAL=true`).
 
 ### Local development
 
 ```bash
 cp deploy/.env.example deploy/.env
 docker compose --env-file deploy/.env -f docker-compose.yml -f docker-compose.dev.yml up -d
-npm install && npm run dev   # Vite proxies /api and /auth to the containers
+npm install && npm run dev   # Vite proxies /api (incl. /api/v1/auth) to the containers
 ```
 
-The dev realm seeds three local users: `dev-author`, `dev-reviewer`, `dev-admin` (password `dev`). Outgoing email is caught by mailpit at <http://localhost:8025>. The API runs with `--watch` against `server/src`; server tests: `cd server && npx jest` (needs the dev postgres on port 5433). One-time data migration from the legacy Firebase deployment: see `migration/README.md`.
+The API seeds three local users: `author@example.org`, `reviewer@example.org`, `admin@example.org` (password `password`). Outgoing email is caught by mailpit at <http://localhost:8025>. The API runs with `--watch` against `server/src`; server tests: `cd server && npx jest` (needs the dev postgres on port 5433). One-time data migration from the legacy Firebase deployment: see `migration/README.md`.
 
 ### PR preview environments (Coolify)
 
 Per-PR preview environments are handled by [Coolify](https://coolify.io) using
 `docker-compose.coolify.yml`. With Preview Deployments enabled, every pull request gets an
 isolated copy of the full stack at a generated URL (torn down when the PR closes). Only the
-`web` service is exposed — it reverse-proxies `/api` and `/auth`, so the SPA, API, and Keycloak
-are all same-origin. Reviewers sign in with the seeded dev users (`dev-author`/`dev-reviewer`/
-`dev-admin`, password `dev`) — no external OAuth needed. Coolify's magic env vars
+`web` service is exposed — it reverse-proxies `/api` (including `/api/v1/auth`), so the SPA and API
+are same-origin. Reviewers sign in with the seeded local users (`author`/`reviewer`/
+`admin@example.org`, password `password`) — no external OAuth needed. Coolify's magic env vars
 (`SERVICE_FQDN_WEB`, `SERVICE_URL_WEB`, `SERVICE_PASSWORD_*`) generate the per-PR URL and secrets
 automatically.
 
@@ -206,7 +206,7 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 
 ### Application Deployment
 
-The whole stack (web, api, keycloak, postgres, converter) ships as Docker images to GHCR and runs via Docker Compose on a self-hosted host.
+The whole stack (web, api, postgres, converter) ships as Docker images to GHCR and runs via Docker Compose on a self-hosted host.
 
 - **Pull requests**: each PR gets an isolated preview environment via Coolify (`docker-compose.coolify.yml`), reachable at a generated URL and destroyed on close. See [PR preview environments (Coolify)](#pr-preview-environments-coolify) for setup.
 - **Development / Production**: `docker-publish.yaml` builds and pushes images on pushes to `development` (tag `dev`) and version tags (`v*`); `deploy.yaml` then deploys the shared stack over SSH to the gated `development`/`production` GitHub environments.

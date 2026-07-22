@@ -4,8 +4,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.unmock("../client");
 
-vi.mock("../../auth/keycloak", () => ({
+vi.mock("../../auth/session", () => ({
   getAccessToken: vi.fn().mockResolvedValue("test-token"),
+  refreshAccessToken: vi.fn().mockResolvedValue("test-token"),
 }));
 
 import { apiFetch, ApiError } from "../client";
@@ -66,6 +67,19 @@ describe("apiFetch", () => {
     mockFetch(jsonResponse(undefined, { status: 204 }));
 
     expect(await apiFetch("/records/1", { method: "DELETE" })).toBeNull();
+  });
+
+  it("refreshes once and retries on a 401", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ error: "expired" }, { ok: false, status: 401 }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await apiFetch("/me");
+
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("throws ApiError with the server's error message on failure", async () => {
