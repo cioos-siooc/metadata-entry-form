@@ -339,7 +339,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   }
 
   return (
-    <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+    <Box sx={{ marginBottom: 2 }}>
       <ToggleButtonGroup
         value={typeFilter}
         exclusive

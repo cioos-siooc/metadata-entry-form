@@ -431,11 +431,22 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       />
 
       {!disabled && (
-        <GeographicLocationSearch
-          updateMap={handleSearchSelect}
-          mapData={mapData}
-          disabled={disabled}
-        />
+        <>
+          <Typography
+            variant="h6"
+            style={{ margin: "20px", marginLeft: "20%" }}
+          >
+            <I18n>
+              <En>OR</En>
+              <Fr>Ou</Fr>
+            </I18n>
+          </Typography>
+          <GeographicLocationSearch
+            updateMap={handleSearchSelect}
+            mapData={mapData}
+            disabled={disabled}
+          />
+        </>
       )}
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
