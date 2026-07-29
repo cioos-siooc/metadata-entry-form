@@ -49,8 +49,24 @@ const {
   getDatacitePrefix,
 } = require("./datacite");
 
+const reviewerContext = {
+  auth: {
+    token: {
+      email: "reviewer@example.com",
+    },
+  },
+};
+
 // Helper to set up the firebase admin mock chain for credential reads
 function mockFirebaseDbReads(values) {
+  const resolvedValues = {
+    permissions: {
+      admins: "admin@example.com",
+      reviewers: "reviewer@example.com",
+    },
+    ...values,
+  };
+
   // values is a map of field names to values, e.g. { dataciteHash: 'abc', prefix: '10.1234', apiDomain: 'test' }
   const mockChild = admin._mockChild;
   const mockOnce = admin._mockOnce;
@@ -68,9 +84,9 @@ function mockFirebaseDbReads(values) {
     };
     // child returns another chainable or terminal with once()
     obj.child.mockImplementation((fieldName) => {
-      if (values.hasOwnProperty(fieldName)) {
+      if (resolvedValues.hasOwnProperty(fieldName)) {
         return {
-          once: jest.fn().mockResolvedValue({ val: () => values[fieldName] }),
+          once: jest.fn().mockResolvedValue({ val: () => resolvedValues[fieldName] }),
           child: obj.child,
         };
       }
@@ -83,12 +99,99 @@ function mockFirebaseDbReads(values) {
   admin.database().ref.mockReturnValue(chainable);
 }
 
+function mockPermissionsOkHashReadFails() {
+  admin.database().ref.mockReturnValue({
+    child: jest.fn().mockImplementation(() => ({
+      child: jest.fn().mockImplementation((section) => {
+        if (section === "permissions") {
+          return {
+            once: jest.fn().mockResolvedValue({
+              val: () => ({
+                admins: "admin@example.com",
+                reviewers: "reviewer@example.com",
+              }),
+            }),
+          };
+        }
+
+        if (section === "dataciteCredentials") {
+          return {
+            child: jest.fn().mockImplementation((fieldName) => {
+              if (fieldName === "dataciteHash") {
+                return {
+                  once: jest.fn().mockRejectedValue(new Error("DB error")),
+                };
+              }
+              if (fieldName === "apiDomain") {
+                return {
+                  once: jest.fn().mockResolvedValue({ val: () => "test" }),
+                };
+              }
+              return {
+                once: jest.fn().mockResolvedValue({ val: () => null }),
+              };
+            }),
+          };
+        }
+
+        return {
+          once: jest.fn().mockResolvedValue({ val: () => null }),
+          child: jest.fn(),
+        };
+      }),
+    })),
+  });
+}
+
 describe("datacite.js - Firebase Cloud Functions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe("createDraftDoi", () => {
+    it("should reject unauthenticated caller", async () => {
+      await expect(
+        createDraftDoi(
+          {
+            record: { data: { type: "dois", attributes: { prefix: "10.1234" } } },
+            region: "pacific",
+          },
+          {}
+        )
+      ).rejects.toMatchObject({
+        code: "unauthenticated",
+      });
+    });
+
+    it("should reject caller who is not reviewer/admin", async () => {
+      mockFirebaseDbReads({
+        dataciteHash: "dGVzdDpwYXNz",
+        apiDomain: "test",
+        permissions: {
+          admins: "admin@example.com",
+          reviewers: "reviewer@example.com",
+        },
+      });
+
+      await expect(
+        createDraftDoi(
+          {
+            record: { data: { type: "dois", attributes: { prefix: "10.1234" } } },
+            region: "pacific",
+          },
+          {
+            auth: {
+              token: {
+                email: "normaluser@example.com",
+              },
+            },
+          }
+        )
+      ).rejects.toMatchObject({
+        code: "permission-denied",
+      });
+    });
+
     it("should create a draft DOI successfully", async () => {
       mockFirebaseDbReads({
         dataciteHash: "dGVzdDpwYXNz",
@@ -111,7 +214,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       const result = await createDraftDoi({
         record: { data: { type: "dois", attributes: { prefix: "10.1234" } } },
         region: "pacific",
-      });
+      }, reviewerContext);
 
       expect(result).toEqual(mockResponse.data);
       expect(axios.post).toHaveBeenCalledWith(
@@ -127,21 +230,12 @@ describe("datacite.js - Firebase Cloud Functions", () => {
     });
 
     it("should return null if auth hash fetch fails", async () => {
-      // Make the credential read throw
-      admin.database().ref.mockReturnValue({
-        child: jest.fn().mockReturnValue({
-          child: jest.fn().mockReturnValue({
-            child: jest.fn().mockReturnValue({
-              once: jest.fn().mockRejectedValue(new Error("DB error")),
-            }),
-          }),
-        }),
-      });
+      mockPermissionsOkHashReadFails();
 
       const result = await createDraftDoi({
         record: {},
         region: "pacific",
-      });
+      }, reviewerContext);
 
       expect(result).toBeNull();
       expect(axios.post).not.toHaveBeenCalled();
@@ -164,7 +258,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: { data: { type: "dois", attributes: {} } },
           region: "pacific",
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "unauthenticated",
       });
@@ -191,7 +285,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: { data: { type: "dois", attributes: {} } },
           region: "pacific",
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
       });
@@ -214,7 +308,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         createDraftDoi({
           record: {},
           region: "pacific",
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
       });
@@ -234,7 +328,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       await createDraftDoi({
         record: { data: { type: "dois", attributes: {} } },
         region: "pacific",
-      });
+      }, reviewerContext);
 
       expect(axios.post).toHaveBeenCalledWith(
         "https://api.datacite.org/dois/",
@@ -260,7 +354,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         doi: "10.1234/test-doi",
         region: "pacific",
         data: { data: { attributes: { titles: [{ title: "Updated" }] } } },
-      });
+      }, reviewerContext);
 
       expect(result).toEqual({
         status: 200,
@@ -279,21 +373,13 @@ describe("datacite.js - Firebase Cloud Functions", () => {
     });
 
     it("should return null if auth hash fetch fails", async () => {
-      admin.database().ref.mockReturnValue({
-        child: jest.fn().mockReturnValue({
-          child: jest.fn().mockReturnValue({
-            child: jest.fn().mockReturnValue({
-              once: jest.fn().mockRejectedValue(new Error("DB error")),
-            }),
-          }),
-        }),
-      });
+      mockPermissionsOkHashReadFails();
 
       const result = await updateDraftDoi({
         doi: "10.1234/test-doi",
         region: "pacific",
         data: {},
-      });
+      }, reviewerContext);
 
       expect(result).toBeNull();
     });
@@ -316,7 +402,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           doi: "10.1234/nonexistent",
           region: "pacific",
           data: {},
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "not-found",
         message: expect.stringContaining("may have been deleted"),
@@ -341,7 +427,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
           doi: "10.1234/test",
           region: "pacific",
           data: {},
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("does not meet DataCite requirements"),
@@ -363,7 +449,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       const result = await deleteDraftDoi({
         doi: "10.1234/test-doi",
         region: "pacific",
-      });
+      }, reviewerContext);
 
       expect(result).toBe(204);
       expect(axios.delete).toHaveBeenCalledWith(
@@ -377,20 +463,12 @@ describe("datacite.js - Firebase Cloud Functions", () => {
     });
 
     it("should return null if auth hash fetch fails", async () => {
-      admin.database().ref.mockReturnValue({
-        child: jest.fn().mockReturnValue({
-          child: jest.fn().mockReturnValue({
-            child: jest.fn().mockReturnValue({
-              once: jest.fn().mockRejectedValue(new Error("DB error")),
-            }),
-          }),
-        }),
-      });
+      mockPermissionsOkHashReadFails();
 
       const result = await deleteDraftDoi({
         doi: "10.1234/test-doi",
         region: "pacific",
-      });
+      }, reviewerContext);
 
       expect(result).toBeNull();
     });
@@ -412,7 +490,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         deleteDraftDoi({
           doi: "10.1234/already-deleted",
           region: "pacific",
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "not-found",
         message: expect.stringContaining("may have already been deleted"),
@@ -436,7 +514,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
         deleteDraftDoi({
           doi: "10.1234/published",
           region: "pacific",
-        })
+        }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("Cannot delete"),
@@ -720,7 +798,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("creators is required"),
@@ -743,7 +821,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }, reviewerContext)
       ).rejects.toMatchObject({
         code: "invalid-argument",
         message: expect.stringContaining("Invalid JSON payload"),
@@ -766,7 +844,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       });
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }, reviewerContext)
       ).rejects.toMatchObject({
         code: "unknown",
         message: expect.stringContaining("Internal server error occurred"),
@@ -782,7 +860,7 @@ describe("datacite.js - Firebase Cloud Functions", () => {
       axios.post.mockRejectedValue(new Error("ECONNREFUSED"));
 
       await expect(
-        createDraftDoi({ record: {}, region: "pacific" })
+        createDraftDoi({ record: {}, region: "pacific" }, reviewerContext)
       ).rejects.toMatchObject({
         code: "unknown",
         message: "ECONNREFUSED",
