@@ -9,52 +9,26 @@ const {
   revokeAllForUser,
   createEmailToken,
   consumeEmailToken,
+  createNativeAuthCode,
 } = require("../lib/sessions");
 const { sendVerifyEmail, sendPasswordResetEmail } = require("../lib/mailer");
 const { startAuth, completeAuth } = require("../lib/oidc");
 const { resolveUserForIdentity } = require("../plugins/auth");
-const { getCookie, appendCookie } = require("../lib/cookies");
-
-const REFRESH_COOKIE = "refresh_token";
-const REFRESH_PATH = "/api/v1/auth";
-const MIN_PASSWORD = 8;
-
-function refreshCookieOpts() {
-  return {
-    httpOnly: true,
-    secure: config.cookie.secure,
-    sameSite: config.cookie.sameSite,
-    domain: config.cookie.domain,
-    path: REFRESH_PATH,
-  };
-}
-
-function setRefreshCookie(reply, raw) {
-  appendCookie(reply, REFRESH_COOKIE, raw, {
-    ...refreshCookieOpts(),
-    maxAge: config.auth.refreshTokenTtlDays * 24 * 60 * 60,
-  });
-}
-
-function clearRefreshCookie(reply) {
-  appendCookie(reply, REFRESH_COOKIE, "", { ...refreshCookieOpts(), maxAge: 0 });
-}
-
-function publicUser(user) {
-  return { userID: user.id, email: user.email, displayName: user.display_name };
-}
+const { getCookie } = require("../lib/cookies");
+const {
+  REFRESH_COOKIE,
+  MIN_PASSWORD,
+  setRefreshCookie,
+  clearRefreshCookie,
+  publicUser,
+  safeReturnTo,
+} = require("../lib/authShared");
 
 // Issues an access token + a fresh refresh-token session and sets the cookie.
 async function startSession(reply, user) {
   const { raw } = await issueRefreshToken(null, user.id);
   setRefreshCookie(reply, raw);
   return signAccessToken(user);
-}
-
-// Only ever redirect back to the SPA origin.
-function safeReturnTo(returnTo) {
-  if (typeof returnTo === "string" && returnTo.startsWith(config.spaBaseUrl)) return returnTo;
-  return config.spaBaseUrl;
 }
 
 async function authRoutes(app) {
@@ -85,17 +59,20 @@ async function authRoutes(app) {
       await sendVerifyEmail(normEmail, token).catch((err) =>
         request.log.error({ err: err.message }, "failed to send verification email"),
       );
-    } else if (!existing.rows[0].password_hash) {
-      // Social/migrated account adding a local password.
-      const userId = existing.rows[0].id;
-      await query("UPDATE users SET password_hash = $2 WHERE id = $1", [userId, passwordHash]);
-      await query(
-        "INSERT INTO user_identities (user_id, provider, provider_subject, email) VALUES ($1, 'local', $2, $3) ON CONFLICT (provider, provider_subject) DO NOTHING",
-        [userId, userId, normEmail],
-      );
-      const token = await createEmailToken(userId, "verify_email");
-      await sendVerifyEmail(normEmail, token).catch(() => {});
     }
+    // An account already exists. Do nothing.
+    //
+    // This branch used to set `password_hash` on any passwordless account,
+    // which was an unauthenticated takeover of every OAuth user: OAuth accounts
+    // are created with `email_verified = true` (plugins/auth.js), and the login
+    // gate below only checks that flag, so an attacker who knew a colleague's
+    // Google address could set a password and sign in immediately — without
+    // ever receiving the verification email.
+    //
+    // OAuth-only users who want a password now use the reset flow, which
+    // proves control of the mailbox first, or POST /auth/password once signed
+    // in. See the reset handler below.
+
     // Generic response regardless — no account enumeration.
     return reply.code(201).send({ ok: true });
   });
@@ -168,9 +145,16 @@ async function authRoutes(app) {
     if (email) {
       const normEmail = String(email).trim().toLowerCase();
       const row = await query("SELECT id, password_hash FROM users WHERE email = $1", [normEmail]);
-      if (row.rows.length && row.rows[0].password_hash) {
+      // Deliberately does NOT require an existing password_hash. An OAuth-only
+      // user has none, and this is their legitimate route to one — clicking an
+      // emailed link proves control of the address, which is the same trust
+      // model as verify_email. Requiring a hash here made this a silent no-op
+      // for exactly the users who needed it, which is what pushed them toward
+      // the register hole that used to exist above.
+      if (row.rows.length) {
+        const isFirstPassword = !row.rows[0].password_hash;
         const token = await createEmailToken(row.rows[0].id, "reset_password");
-        await sendPasswordResetEmail(normEmail, token).catch((err) =>
+        await sendPasswordResetEmail(normEmail, token, { isFirstPassword }).catch((err) =>
           request.log.error({ err: err.message }, "failed to send reset email"),
         );
       }
@@ -194,7 +178,52 @@ async function authRoutes(app) {
       userId,
       passwordHash,
     ]);
+    // An OAuth-only account setting its first password has no `local` identity
+    // row yet. Register used to create one; it no longer runs for existing
+    // accounts, so do it here.
+    await query(
+      "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
+        "SELECT $1, 'local', $1, email FROM users WHERE id = $1 " +
+        "ON CONFLICT (provider, provider_subject) DO NOTHING",
+      [userId],
+    );
     await revokeAllForUser(userId);
+    return { ok: true };
+  });
+
+  // Set or change a password while signed in. This is what the native client
+  // uses: deep-linking an emailed token back into an app webview is fiddly and
+  // a known App Store review snag.
+  app.post("/auth/password", { preHandler: [app.authenticate] }, async (request, reply) => {
+    const { currentPassword, newPassword } = request.body || {};
+    if (!newPassword || newPassword.length < MIN_PASSWORD) {
+      return reply
+        .code(400)
+        .send({ error: `A password of at least ${MIN_PASSWORD} characters is required` });
+    }
+
+    const row = await query("SELECT password_hash FROM users WHERE id = $1", [request.user.id]);
+    const existingHash = row.rows[0]?.password_hash;
+
+    // Only required when there is one to prove — an OAuth-only account is
+    // already authenticated by its bearer token.
+    if (existingHash) {
+      const ok =
+        Boolean(currentPassword) &&
+        (await argon2.verify(existingHash, currentPassword).catch(() => false));
+      if (!ok) return reply.code(403).send({ error: "Current password is incorrect" });
+    }
+
+    await query("UPDATE users SET password_hash = $2 WHERE id = $1", [
+      request.user.id,
+      await argon2.hash(newPassword),
+    ]);
+    await query(
+      "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
+        "SELECT $1, 'local', $1, email FROM users WHERE id = $1 " +
+        "ON CONFLICT (provider, provider_subject) DO NOTHING",
+      [request.user.id],
+    );
     return { ok: true };
   });
 
@@ -209,10 +238,33 @@ async function authRoutes(app) {
       return reply.code(err.statusCode || 500).send({ error: err.message });
     }
     const expires = new Date(Date.now() + 10 * 60 * 1000);
+
+    // A native client identifies itself here and supplies its own PKCE
+    // challenge. Both are persisted, because the callback must not take an
+    // attacker's word for either — see the comment on safeReturnTo.
+    const isNative = request.query.client === "native";
+    const appCodeChallenge = isNative ? request.query.codeChallenge : null;
+    if (isNative && !appCodeChallenge) {
+      return reply.code(400).send({ error: "codeChallenge is required for native sign-in" });
+    }
+
     await query(
-      `INSERT INTO oauth_flows (state, provider, code_verifier, nonce, return_to, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [flow.state, provider, flow.codeVerifier, flow.nonce, safeReturnTo(request.query.returnTo), expires],
+      `INSERT INTO oauth_flows
+         (state, provider, code_verifier, nonce, return_to, expires_at,
+          client_type, app_code_challenge, device_id, device_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        flow.state,
+        provider,
+        flow.codeVerifier,
+        flow.nonce,
+        safeReturnTo(request.query.returnTo, { allowNative: isNative }),
+        expires,
+        isNative ? "native" : "web",
+        appCodeChallenge,
+        request.query.deviceId || null,
+        request.query.deviceName || null,
+      ],
     );
     return reply.redirect(flow.url);
   });
@@ -220,8 +272,17 @@ async function authRoutes(app) {
   app.get("/auth/oauth/:provider/callback", async (request, reply) => {
     const { provider } = request.params;
     const { state } = request.query;
-    const fail = (msg) =>
-      reply.redirect(`${config.spaBaseUrl}/#/?auth_error=${encodeURIComponent(msg)}`);
+
+    // Errors have to land wherever the sign-in started. Until the flow row is
+    // read we don't know, so the first two failures necessarily go to the SPA;
+    // after that, a native flow is sent back to its own scheme. Without this a
+    // failed sign-in leaves the app on a spinner with no way out.
+    let failTarget = null;
+    const fail = (msg) => {
+      const base = failTarget ?? `${config.spaBaseUrl}/#/`;
+      const sep = base.includes("?") ? "&" : "?";
+      return reply.redirect(`${base}${sep}auth_error=${encodeURIComponent(msg)}`);
+    };
 
     if (!state) return fail("Missing state");
     const flowRow = await query(
@@ -230,6 +291,10 @@ async function authRoutes(app) {
     );
     if (!flowRow.rows.length) return fail("Login session expired, please try again");
     const flow = flowRow.rows[0];
+
+    const isNative = flow.client_type === "native";
+    if (isNative) failTarget = safeReturnTo(flow.return_to, { allowNative: true });
+
     if (new Date(flow.expires_at) < new Date()) return fail("Login session expired, please try again");
 
     let identity;
@@ -250,6 +315,21 @@ async function authRoutes(app) {
       user = await resolveUserForIdentity({ provider, ...identity });
     } catch (err) {
       return fail(err.message);
+    }
+
+    if (isNative) {
+      // Hand back a short-lived single-use code, never the refresh token
+      // itself: custom-scheme redirect URLs land in OS logs and any installed
+      // app can claim the scheme. The PKCE challenge the app registered at
+      // /start is what makes the code unredeemable by anyone else.
+      const code = await createNativeAuthCode(user.id, {
+        appCodeChallenge: flow.app_code_challenge,
+        deviceId: flow.device_id,
+        deviceName: flow.device_name,
+      });
+      const target = new URL(safeReturnTo(flow.return_to, { allowNative: true }));
+      target.searchParams.set("code", code);
+      return reply.redirect(target.href);
     }
 
     const { raw } = await issueRefreshToken(null, user.id);

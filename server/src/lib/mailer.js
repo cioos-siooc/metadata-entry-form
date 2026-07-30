@@ -27,13 +27,24 @@ async function sendVerifyEmail(to, token) {
   });
 }
 
-async function sendPasswordResetEmail(to, token) {
+// `isFirstPassword` is true for an account created through Google, Microsoft
+// or ORCID, which has no password yet. "Reset your password" would be
+// confusing for someone who has never had one, so the copy differs.
+async function sendPasswordResetEmail(to, token, { isFirstPassword = false } = {}) {
+  // Same SPA route either way — the token and the screen are identical, and
+  // adding a route would mean touching the web app. Only the copy differs.
   const link = `${config.spaBaseUrl}/#/auth/reset-password?token=${encodeURIComponent(token)}`;
+  const expiry = `This link expires in ${config.auth.emailTokenTtlHours} hours. If you did not request this, you can ignore this message.`;
+
   await getTransporter().sendMail({
     from: config.smtp.from,
     to,
-    subject: "Reset your CIOOS metadata password",
-    text: `A password reset was requested for your account. Set a new password:\n\n${link}\n\nThis link expires in ${config.auth.emailTokenTtlHours} hours. If you did not request this, you can ignore this message.`,
+    subject: isFirstPassword
+      ? "Set a password for your CIOOS metadata account"
+      : "Reset your CIOOS metadata password",
+    text: isFirstPassword
+      ? `Your account currently signs in with Google, Microsoft or ORCID. You can add a password so you can also sign in directly — useful on the mobile app:\n\n${link}\n\n${expiry}`
+      : `A password reset was requested for your account. Set a new password:\n\n${link}\n\n${expiry}`,
   });
 }
 
