@@ -128,7 +128,12 @@ export function fieldIsFilled(record: RecordLike, field: string): boolean {
   if (Array.isArray(value)) return value.length > 0;
 
   if (typeof value === "object") {
-    const entries = Object.values(value as Record<string, unknown>);
+    // `translations` is provenance about the text, not text. A field holding a
+    // stale translation mark and no words is empty, and counting it would let a
+    // cleared abstract keep reporting itself as filled.
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== "translations")
+      .map(([, inner]) => inner);
     // Covers both `{en, fr}` text and `{en: [], fr: []}` keywords, and the
     // nested `map` object, without special-casing any of them.
     return entries.some((inner) => {

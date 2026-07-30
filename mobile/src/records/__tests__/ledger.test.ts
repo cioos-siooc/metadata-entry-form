@@ -123,6 +123,16 @@ describe("sections reach complete when their requirements are met", () => {
 });
 
 describe("fieldIsFilled", () => {
+  test("ignores a translation mark left behind by cleared text", () => {
+    const stale = {
+      en: "",
+      fr: "",
+      translations: { fr: { verified: false, message: "text translated using Cohere" } },
+    };
+    expect(fieldIsFilled({ title: stale }, "title")).toBe(false);
+    expect(fieldIsFilled({ title: { ...stale, en: "Sea surface" } }, "title")).toBe(true);
+  });
+
   test("treats blank bilingual text as empty", () => {
     expect(fieldIsFilled({ title: { en: "", fr: "" } }, "title")).toBe(false);
     expect(fieldIsFilled({ title: { en: "x", fr: "" } }, "title")).toBe(true);

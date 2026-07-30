@@ -396,5 +396,13 @@
     "unnamed": "Unnamed device",
     "signOutConfirm": "Sign {{device}} out? It will need to sign in again.",
     "signedIn": "Signed in {{when}}"
+  },
+  "translate": {
+    "action": "Translate to {{language}}",
+    "tooLong": "Too long to translate (5,000 bytes)",
+    "offline": "Translation needs a connection",
+    "verified": "I have verified this translation",
+    "unverified": "Machine translation — not yet verified",
+    "failed": "Translation didn't work. Try again or write it yourself."
   }
 }

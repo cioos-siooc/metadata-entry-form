@@ -396,5 +396,13 @@
     "unnamed": "Appareil sans nom",
     "signOutConfirm": "Déconnecter {{device}} ? Une nouvelle connexion sera nécessaire.",
     "signedIn": "Connecté le {{when}}"
+  },
+  "translate": {
+    "action": "Traduire en {{language}}",
+    "tooLong": "Trop long pour la traduction (5 000 octets)",
+    "offline": "La traduction nécessite une connexion",
+    "verified": "J'ai vérifié cette traduction",
+    "unverified": "Traduction automatique — non vérifiée",
+    "failed": "La traduction a échoué. Réessayez ou rédigez-la vous-même."
   }
 }
