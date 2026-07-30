@@ -41,6 +41,7 @@ const stubTransport = (overrides: Partial<SyncTransport> = {}): SyncTransport =>
   setStatus: vi.fn(async () => ({ recordID: "server-1", updatedAt: "T3" }) as MetadataRecord),
   deleteRecord: vi.fn(async () => {}),
   getRecord: vi.fn(async () => ({ recordID: "server-1" }) as MetadataRecord),
+  regenerateXml: vi.fn(async () => ({})),
   ...overrides,
 });
 
@@ -55,6 +56,53 @@ const queue = (overrides: Partial<Parameters<typeof enqueue>[1]> = {}) =>
     userId: "user-1",
     ...overrides,
   });
+
+describe("keeping the published XML current", () => {
+  // The server fires its own hook only when the *status* changes, so a content
+  // edit to a live record would otherwise leave the harvested file stale.
+  test("regenerates the XML after editing a published record", async () => {
+    await upsertRecord(db, cached({ status: "published" }));
+    const transport = stubTransport({
+      saveRecord: vi.fn(
+        async () => ({ recordID: "server-1", updatedAt: "T2", status: "published" }) as MetadataRecord,
+      ),
+    });
+    await queue();
+
+    await flush(db, transport);
+
+    expect(transport.regenerateXml).toHaveBeenCalledWith("pacific", "server-1");
+  });
+
+  test("leaves a draft alone — there is no published file to rebuild", async () => {
+    await upsertRecord(db, cached());
+    const transport = stubTransport();
+    await queue();
+
+    await flush(db, transport);
+
+    expect(transport.regenerateXml).not.toHaveBeenCalled();
+  });
+
+  test("a failed regeneration does not fail the save", async () => {
+    await upsertRecord(db, cached({ status: "submitted" }));
+    const transport = stubTransport({
+      saveRecord: vi.fn(
+        async () => ({ recordID: "server-1", updatedAt: "T2", status: "submitted" }) as MetadataRecord,
+      ),
+      regenerateXml: vi.fn(async () => {
+        throw new Error("converter is down");
+      }),
+    });
+    await queue();
+
+    const result = await flush(db, transport);
+
+    expect(result.sent).toBe(1);
+    expect(result.poisoned).toBe(0);
+    expect((await getRecordByLocalId(db, "local-1"))?.syncState).toBe("synced");
+  });
+});
 
 describe("flushing an update", () => {
   test("sends, clears the op, and marks the record synced", async () => {

@@ -21,7 +21,6 @@ export type ExportFormat =
   | "iso19115-3_xml"
   | "erddap"
   | "yaml"
-  | "eml"
   | "json"
   | "datacite_json"
   | "datacite_xml";
@@ -30,7 +29,6 @@ const EXTENSIONS: Record<ExportFormat, string> = {
   "iso19115-3_xml": ".xml",
   erddap: "_erddap.xml",
   yaml: ".yaml",
-  eml: "_eml.xml",
   json: ".json",
   datacite_json: "_dataCite.json",
   datacite_xml: "_dataCite.xml",
@@ -40,18 +38,24 @@ const MIME: Record<ExportFormat, string> = {
   "iso19115-3_xml": "application/xml",
   erddap: "application/xml",
   yaml: "application/x-yaml",
-  eml: "application/xml",
   json: "application/json",
   datacite_json: "application/json",
   datacite_xml: "application/xml",
 };
 
-/** The formats offered, in the order the web app lists them. */
+/**
+ * The formats offered, in the order the web app lists them.
+ *
+ * EML is absent on purpose: the converter service does not produce it. The web
+ * app builds EML in the browser from a nunjucks template, and nunjucks compiles
+ * templates at runtime, which Hermes will not do. Porting it means precompiling
+ * the templates at build time — worth doing, not worth a download button that
+ * always fails.
+ */
 export const EXPORT_FORMATS: ExportFormat[] = [
   "iso19115-3_xml",
   "erddap",
   "yaml",
-  "eml",
   "json",
   "datacite_json",
   "datacite_xml",

@@ -54,7 +54,13 @@
     "unavailable": "La bibliothèque nécessite une connexion.",
     "saveTo": "Enregistrer dans la bibliothèque",
     "saved": "Enregistré dans la bibliothèque",
-    "saveOffline": "L'enregistrement nécessite une connexion"
+    "saveOffline": "L'enregistrement nécessite une connexion",
+    "title": "Votre bibliothèque",
+    "addOne": {
+      "contacts": "Ajouter un contact",
+      "platforms": "Ajouter une plateforme",
+      "instruments": "Ajouter un instrument"
+    }
   },
   "review": {
     "title": "Réviser et soumettre",
@@ -441,7 +447,6 @@
       "iso19115-3_xml": "XML ISO 19115-3",
       "erddap": "XML ERDDAP",
       "yaml": "YAML",
-      "eml": "EML",
       "json": "JSON de la fiche",
       "datacite_json": "JSON DataCite",
       "datacite_xml": "XML DataCite"

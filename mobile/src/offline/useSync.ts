@@ -8,6 +8,7 @@ import {
   saveRecord,
   setRecordStatus,
 } from "@/api/records";
+import { regenerateXml } from "@/api/publish";
 
 import type { Database } from "./db";
 import { queueStats, type QueueStats } from "./queue";
@@ -32,6 +33,7 @@ const transport: SyncTransport = {
     setRecordStatus(region, recordID, status as never),
   deleteRecord: (region, recordID) => deleteRecord(region, recordID),
   getRecord: (region, recordID) => getRecord(region, recordID),
+  regenerateXml: (region, recordID) => regenerateXml(region, recordID),
 };
 
 const EMPTY: QueueStats = { pending: 0, failed: 0, conflicts: 0, poison: 0 };

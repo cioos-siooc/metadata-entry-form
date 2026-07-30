@@ -54,7 +54,13 @@
     "unavailable": "The library needs a connection.",
     "saveTo": "Save to library",
     "saved": "Saved to library",
-    "saveOffline": "Save to library needs a connection"
+    "saveOffline": "Save to library needs a connection",
+    "title": "Your library",
+    "addOne": {
+      "contacts": "Add a contact",
+      "platforms": "Add a platform",
+      "instruments": "Add an instrument"
+    }
   },
   "review": {
     "title": "Review & submit",
@@ -441,7 +447,6 @@
       "iso19115-3_xml": "ISO 19115-3 XML",
       "erddap": "ERDDAP XML",
       "yaml": "YAML",
-      "eml": "EML",
       "json": "Record JSON",
       "datacite_json": "DataCite JSON",
       "datacite_xml": "DataCite XML"

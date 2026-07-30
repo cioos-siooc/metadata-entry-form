@@ -38,6 +38,16 @@ export interface SyncTransport {
   setStatus(region: string, recordID: string, status: string): Promise<MetadataRecord>;
   deleteRecord(region: string, recordID: string): Promise<void>;
   getRecord(region: string, recordID: string): Promise<MetadataRecord>;
+  /**
+   * Rebuilds the published XML for a record.
+   *
+   * Optional so the engine can be driven in tests without it. The server only
+   * fires its own hook on a *status* change, so a content edit to an already
+   * submitted or published record leaves the harvested XML stale — the web app
+   * papers over this by calling the endpoint itself after every such save, and
+   * so must this.
+   */
+  regenerateXml?(region: string, recordID: string): Promise<unknown>;
 }
 
 export interface FlushResult {
@@ -118,6 +128,20 @@ async function send(
     serverSnapshot: updated,
     syncState: "synced",
   });
+
+  // Best effort, and deliberately after the local write: the edit is already
+  // safely on the server, so a failure here must not poison the op or lose the
+  // user's work. A stale WAF file is recoverable; a re-queued save is not.
+  if (
+    mutation.kind === "record.update" &&
+    (updated.status === "submitted" || updated.status === "published")
+  ) {
+    try {
+      await transport.regenerateXml?.(mutation.region, record.recordID);
+    } catch {
+      // Nothing to tell the user — the save worked.
+    }
+  }
 }
 
 /**

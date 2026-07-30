@@ -290,7 +290,7 @@ export default function LibraryScreen() {
 
       <ActionBar>
         <View style={{ flex: 1 }}>
-          <Button label={`${t("library.add")} · ${t(`library.${kind}`)}`} onPress={add} />
+          <Button label={t(`library.addOne.${kind}`)} onPress={add} />
         </View>
       </ActionBar>
     </View>
