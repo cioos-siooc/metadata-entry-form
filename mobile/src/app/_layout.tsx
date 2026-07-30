@@ -1,3 +1,9 @@
+// MUST be first. `uuid`, used by @cioos/shared's getBlankRecord, calls
+// crypto.getRandomValues, which React Native does not provide. Without this
+// polyfill loaded before any module that mints an id, record creation throws
+// "crypto.getRandomValues() not supported" at runtime.
+import "react-native-get-random-values";
+
 import {
   IBMPlexMono_400Regular,
   IBMPlexMono_500Medium,
@@ -37,6 +43,11 @@ function useAuthGate() {
     const route = segments[0];
     const onRegionSelect = route === "region-select";
     const onSignIn = route === "sign-in";
+    // Shows no user data — only tokens, type and colour — so it stays reachable
+    // without a session. That matters because reviewing the design should not
+    // require a running backend.
+    const onDesignPreview = route === "design-preview";
+    if (onDesignPreview) return;
 
     if (!region) {
       if (!onRegionSelect) router.replace("/region-select");

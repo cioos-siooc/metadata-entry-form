@@ -1,12 +1,45 @@
+import { getBlankRecord } from "@cioos/shared/blankRecord.js";
 import { contrastRatio } from "@cioos/shared/theme/color.js";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { bundledRegionList } from "@/api/regions";
+import { LedgerSummary, SectionRow } from "@/components/CompletenessLedger";
 import { Screen } from "@/components/Screen";
 import type { Language } from "@/i18n";
+import { buildLedger } from "@/records/ledger";
 import { buildTheme, useTheme } from "@/theme/ThemeProvider";
 import { surfaces, type ThemeName } from "@/theme/tokens";
+
+/**
+ * A partly-filled record, so the ledger can be reviewed without a server. Set
+ * up to exercise every section state at once: complete, attention, filled and
+ * empty.
+ *
+ * Built lazily rather than at module scope: getBlankRecord mints a uuid, and
+ * module-scope work can run before the getRandomValues polyfill in _layout has
+ * loaded.
+ */
+const buildSampleRecord = () => ({
+  ...getBlankRecord(),
+  // complete
+  title: { en: "Hakai nearshore CTD casts", fr: "Profils CTD côtiers Hakai" },
+  resourceType: ["oceanographic"],
+  metadataScope: "Dataset",
+  // attention: abstract in one language only, no licence
+  abstract: { en: "Repeat CTD casts, 2024 season.", fr: "" },
+  keywords: { en: ["Hartley Bay"], fr: [] },
+  eov: ["oxygen"],
+  progress: "onGoing",
+  language: "en",
+  // filled, nothing required
+  dateStart: "2026-05-04T12:00:00.000Z",
+  dateEnd: "2026-09-18T12:00:00.000Z",
+  // attention, and untouched — quieter styling
+  // (map is empty, and picking a theme above makes it required)
+  noTaxa: true,
+});
 
 /**
  * Design system preview.
@@ -60,8 +93,26 @@ export default function DesignPreviewScreen() {
   const theme = useTheme();
   const regions = bundledRegionList(i18n.language as Language);
 
+  const sampleLedger = useMemo(
+    () => buildLedger(buildSampleRecord() as Record<string, unknown>),
+    [],
+  );
+
   return (
     <Screen title={t("designPreview.title")} subtitle={t("designPreview.subtitle")}>
+      {/* The signature element, on a record chosen to hit every state. */}
+      <Text style={[theme.type.label, { color: theme.colors.textMuted, marginBottom: 8 }]}>
+        {t("completeness.label")}
+      </Text>
+      <View style={{ marginBottom: theme.space.xxl }}>
+        <LedgerSummary ledger={sampleLedger} />
+        <View style={{ gap: theme.space.sm }}>
+          {sampleLedger.sections.map((s) => (
+            <SectionRow key={s.id} section={s} />
+          ))}
+        </View>
+      </View>
+
       {/* Type scale */}
       <Text style={[theme.type.label, { color: theme.colors.textMuted, marginBottom: 8 }]}>
         {t("designPreview.typeScale")}

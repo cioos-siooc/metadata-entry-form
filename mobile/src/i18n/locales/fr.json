@@ -7,11 +7,25 @@
   },
   "records": {
     "title": "Mes fiches",
+    "mine": "Les miennes",
+    "shared": "Partagées",
+    "published": "Publiées",
     "empty": {
       "title": "Aucune fiche",
       "body": "Les fiches que vous créez apparaîtront ici et resteront accessibles hors ligne.",
       "action": "Nouvelle fiche"
-    }
+    },
+    "emptyShared": "Rien n'a été partagé avec vous dans cette région.",
+    "emptyPublished": "Aucune fiche publiée dans cette région pour le moment.",
+    "loadFailedOffline": "Affichage des données enregistrées sur cet appareil. Reconnectez-vous pour voir les plus récentes.",
+    "loadFailed": "Impossible de charger les fiches.",
+    "untitled": "Fiche sans titre",
+    "status": {
+      "draft": "Brouillon",
+      "submitted": "Soumise",
+      "published": "Publiée"
+    },
+    "editedBy": "par {{name}}"
   },
   "library": {
     "title": "Bibliothèque",
@@ -89,5 +103,29 @@
     "semantic": "Couleurs sémantiques",
     "accents": "Accents régionaux",
     "contrast": "{{ratio}}:1"
+  },
+  "sections": {
+    "identification": "Identification",
+    "about": "À propos des données",
+    "when": "Quand",
+    "where": "Où",
+    "who": "Qui",
+    "platform": "Plateforme et instruments",
+    "species": "Espèces",
+    "resources": "Ressources et provenance"
+  },
+  "ledger": {
+    "state": {
+      "empty": "Non commencé",
+      "attention": "À compléter",
+      "complete": "Complété",
+      "filled": "Ajouté"
+    },
+    "required": "{{satisfied}} sur {{required}} requis",
+    "fields": "{{filled}} sur {{total}} champs",
+    "noneRequired": "Rien n'est requis ici",
+    "readyToSubmit": "Prêt à soumettre",
+    "notReady": "{{count}} encore requis",
+    "openSection": "Ouvrir {{section}}"
   }
 }

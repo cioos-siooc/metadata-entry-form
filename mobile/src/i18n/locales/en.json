@@ -7,11 +7,25 @@
   },
   "records": {
     "title": "My records",
+    "mine": "Mine",
+    "shared": "Shared",
+    "published": "Published",
     "empty": {
       "title": "No records yet",
       "body": "Records you create will appear here, and stay available offline.",
       "action": "New record"
-    }
+    },
+    "emptyShared": "Nothing has been shared with you in this region.",
+    "emptyPublished": "No published records in this region yet.",
+    "loadFailedOffline": "Showing what's saved on this device. Reconnect to see the latest.",
+    "loadFailed": "Couldn't load records.",
+    "untitled": "Untitled record",
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "published": "Published"
+    },
+    "editedBy": "by {{name}}"
   },
   "library": {
     "title": "Library",
@@ -89,5 +103,29 @@
     "semantic": "Semantic colours",
     "accents": "Region accents",
     "contrast": "{{ratio}}:1"
+  },
+  "sections": {
+    "identification": "Identification",
+    "about": "About the data",
+    "when": "When",
+    "where": "Where",
+    "who": "Who",
+    "platform": "Platform & instruments",
+    "species": "Species",
+    "resources": "Resources & provenance"
+  },
+  "ledger": {
+    "state": {
+      "empty": "Not started",
+      "attention": "Needs attention",
+      "complete": "Complete",
+      "filled": "Added"
+    },
+    "required": "{{satisfied}} of {{required}} required",
+    "fields": "{{filled}} of {{total}} fields",
+    "noneRequired": "Nothing required here",
+    "readyToSubmit": "Ready to submit",
+    "notReady": "{{count}} still needed",
+    "openSection": "Open {{section}}"
   }
 }
