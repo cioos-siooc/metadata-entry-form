@@ -1,8 +1,12 @@
 // Tests for the record-change hook pipeline (notify + issue + xmlGenerator)
 // and the recordExport routes. External effects are mocked: nodemailer
 // (sendMail captured), octokit (GitHub issue), axios (converter calls).
-// Reviewer lists come from real region_permissions rows (region 'stlaurent'
-// to avoid clashing with the records/admin suites).
+// Reviewer lists come from real region_permissions rows. The region is created
+// per-run rather than borrowing a real one: the assertions below check the
+// EXACT set of reviewers mailed, so any other reviewer configured in a shared
+// region breaks them — which is what happens the moment someone runs
+// scripts/seed-dev.js, since that grants reviewer@example.org a role in every
+// region.
 
 process.env.SMTP_FROM = "CIOOS Test Notifications <notify@test.example>";
 process.env.CONVERTER_URL = "http://converter.test";
@@ -28,7 +32,8 @@ const { buildTestApp, signToken, authHeader } = require("./helpers");
 const { query, pool } = require("../src/db");
 const { onRecordChange } = require("../src/services/recordHooks");
 
-const REGION = "stlaurent";
+// Unique per run, so nothing else can hold a role in it.
+const REGION = `hooks-test-${randomUUID().slice(0, 8)}`;
 const CONVERTER = "http://converter.test";
 
 const log = { info: jest.fn(), error: jest.fn() };
@@ -53,6 +58,10 @@ function makeRecord(overrides = {}) {
 }
 
 beforeAll(async () => {
+  await query(
+    "INSERT INTO regions (id, config) VALUES ($1, '{}'::jsonb) ON CONFLICT DO NOTHING",
+    [REGION],
+  );
   reviewer1 = `reviewer1-${randomUUID()}@hooks.test`;
   reviewer2 = `reviewer2-${randomUUID()}@hooks.test`;
   const insert =
@@ -67,6 +76,10 @@ afterAll(async () => {
     "DELETE FROM records WHERE user_id IN (SELECT id FROM users WHERE email LIKE '%@hooks.test')",
   );
   await query("DELETE FROM users WHERE email LIKE '%@hooks.test'");
+  // Records and permissions FK to regions, so the region goes last.
+  await query("DELETE FROM records WHERE region = $1", [REGION]);
+  await query("DELETE FROM region_permissions WHERE region = $1", [REGION]);
+  await query("DELETE FROM regions WHERE id = $1", [REGION]);
   await pool.end();
 });
 
