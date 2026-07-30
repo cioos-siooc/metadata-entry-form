@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "records": "Records",
+    "library": "Library",
+    "review": "Review",
+    "more": "More"
+  },
+  "records": {
+    "title": "My records",
+    "empty": {
+      "title": "No records yet",
+      "body": "Records you create will appear here, and stay available offline.",
+      "action": "New record"
+    }
+  },
+  "library": {
+    "title": "Library",
+    "subtitle": "Contacts, platforms and instruments you reuse across records.",
+    "contacts": "Contacts",
+    "platforms": "Platforms",
+    "instruments": "Instruments"
+  },
+  "review": {
+    "title": "Review",
+    "subtitle": "Records submitted for review in this region."
+  },
+  "more": {
+    "title": "More",
+    "region": "Region",
+    "language": "Language",
+    "appearance": "Appearance",
+    "signOut": "Sign out"
+  },
+  "appearance": {
+    "light": "Light",
+    "dark": "Dark",
+    "night": "Night",
+    "nightHint": "Red-shifted, to preserve night vision on a bridge."
+  },
+  "sync": {
+    "offline": "Offline — changes are saved on this device",
+    "savedLocally": "Saved on this device",
+    "savedToServer": "Saved to CIOOS",
+    "pending_one": "{{count}} change waiting to sync",
+    "pending_other": "{{count}} changes waiting to sync",
+    "syncing": "Syncing…",
+    "failed": "Some changes need attention"
+  },
+  "completeness": {
+    "label": "Complete",
+    "remaining_one": "{{count}} left",
+    "remaining_other": "{{count}} left",
+    "done": "Done",
+    "notStarted": "Not started"
+  }
+}

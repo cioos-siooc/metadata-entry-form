@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "records": "Fiches",
+    "library": "Bibliothèque",
+    "review": "Révision",
+    "more": "Plus"
+  },
+  "records": {
+    "title": "Mes fiches",
+    "empty": {
+      "title": "Aucune fiche",
+      "body": "Les fiches que vous créez apparaîtront ici et resteront accessibles hors ligne.",
+      "action": "Nouvelle fiche"
+    }
+  },
+  "library": {
+    "title": "Bibliothèque",
+    "subtitle": "Contacts, plateformes et instruments réutilisables d'une fiche à l'autre.",
+    "contacts": "Contacts",
+    "platforms": "Plateformes",
+    "instruments": "Instruments"
+  },
+  "review": {
+    "title": "Révision",
+    "subtitle": "Fiches soumises pour révision dans cette région."
+  },
+  "more": {
+    "title": "Plus",
+    "region": "Région",
+    "language": "Langue",
+    "appearance": "Apparence",
+    "signOut": "Se déconnecter"
+  },
+  "appearance": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "night": "Nuit",
+    "nightHint": "Teinté rouge, pour préserver la vision nocturne à la passerelle."
+  },
+  "sync": {
+    "offline": "Hors ligne — les modifications sont enregistrées sur cet appareil",
+    "savedLocally": "Enregistré sur cet appareil",
+    "savedToServer": "Enregistré dans le SIOOC",
+    "pending_one": "{{count}} modification en attente",
+    "pending_other": "{{count}} modifications en attente",
+    "syncing": "Synchronisation…",
+    "failed": "Certaines modifications nécessitent votre attention"
+  },
+  "completeness": {
+    "label": "Complété",
+    "remaining_one": "{{count}} restant",
+    "remaining_other": "{{count}} restants",
+    "done": "Terminé",
+    "notStarted": "Non commencé"
+  }
+}
