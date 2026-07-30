@@ -29,7 +29,8 @@
     "region": "Region",
     "language": "Language",
     "appearance": "Appearance",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "designPreview": "Design preview"
   },
   "appearance": {
     "light": "Light",
@@ -52,5 +53,41 @@
     "remaining_other": "{{count}} left",
     "done": "Done",
     "notStarted": "Not started"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signInTo": "Sign in to {{region}}",
+    "email": "Email",
+    "password": "Password",
+    "continueWith": "Or continue with",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "orcid": "ORCID",
+    "signingIn": "Signing in…",
+    "cancelled": "Sign-in was cancelled.",
+    "offlineCannotSignIn": "You need a connection to sign in for the first time.",
+    "invalidCredentials": "That email and password don't match.",
+    "unverified": "Check your email and confirm your address before signing in.",
+    "noPassword": "This account signs in with Google, Microsoft or ORCID. Use one of those, or set a password from the web app."
+  },
+  "regionSelect": {
+    "title": "Choose your region",
+    "subtitle": "You can change this later under More.",
+    "loadFailed": "Showing the regions bundled with the app — the live list couldn't be reached, so it may be out of date.",
+    "retry": "Try again"
+  },
+  "common": {
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading…"
+  },
+  "designPreview": {
+    "title": "Design preview",
+    "subtitle": "Every region's accent, tone-mapped and contrast-checked against each theme.",
+    "typeScale": "Type scale",
+    "semantic": "Semantic colours",
+    "accents": "Region accents",
+    "contrast": "{{ratio}}:1"
   }
 }

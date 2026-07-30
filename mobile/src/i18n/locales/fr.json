@@ -29,7 +29,8 @@
     "region": "Région",
     "language": "Langue",
     "appearance": "Apparence",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "designPreview": "Aperçu du design"
   },
   "appearance": {
     "light": "Clair",
@@ -52,5 +53,41 @@
     "remaining_other": "{{count}} restants",
     "done": "Terminé",
     "notStarted": "Non commencé"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signInTo": "Se connecter à {{region}}",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "continueWith": "Ou continuer avec",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "orcid": "ORCID",
+    "signingIn": "Connexion…",
+    "cancelled": "La connexion a été annulée.",
+    "offlineCannotSignIn": "Une connexion Internet est requise pour la première connexion.",
+    "invalidCredentials": "Ce courriel et ce mot de passe ne correspondent pas.",
+    "unverified": "Vérifiez votre courriel et confirmez votre adresse avant de vous connecter.",
+    "noPassword": "Ce compte se connecte avec Google, Microsoft ou ORCID. Utilisez l'un de ces services ou définissez un mot de passe depuis l'application Web."
+  },
+  "regionSelect": {
+    "title": "Choisissez votre région",
+    "subtitle": "Vous pourrez changer ce choix plus tard sous Plus.",
+    "loadFailed": "Affichage des régions incluses dans l'application — la liste en ligne est inaccessible et peut être obsolète.",
+    "retry": "Réessayer"
+  },
+  "common": {
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "loading": "Chargement…"
+  },
+  "designPreview": {
+    "title": "Aperçu du design",
+    "subtitle": "L'accent de chaque région, ajusté et vérifié pour le contraste dans chaque thème.",
+    "typeScale": "Échelle typographique",
+    "semantic": "Couleurs sémantiques",
+    "accents": "Accents régionaux",
+    "contrast": "{{ratio}}:1"
   }
 }

@@ -8,19 +8,53 @@ import {
   IBMPlexSans_600SemiBold,
 } from "@expo-google-fonts/ibm-plex-sans";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
+import { regionBrandHex } from "@/api/regions";
+import { SessionProvider, useSession } from "@/auth/SessionProvider";
 // Side-effect import: initialises i18next before any screen renders.
 import "@/i18n";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * Sends the user wherever they actually need to be: pick a region, sign in, or
+ * the app itself. Region comes first because every API path is region-scoped
+ * and the theme's accent is derived from it.
+ */
+function useAuthGate() {
+  const { status, region } = useSession();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!status) return; // still restoring
+
+    const route = segments[0];
+    const onRegionSelect = route === "region-select";
+    const onSignIn = route === "sign-in";
+
+    if (!region) {
+      if (!onRegionSelect) router.replace("/region-select");
+      return;
+    }
+    if (status.state === "signedOut") {
+      if (!onSignIn) router.replace("/sign-in");
+      return;
+    }
+    // Signed in (or running offline on a receipt) — leave the auth screens.
+    if (onSignIn || onRegionSelect) router.replace("/");
+  }, [status, region, segments, router]);
+}
+
 function RootNavigator() {
   const theme = useTheme();
+  useAuthGate();
+
   return (
     <>
       <StatusBar style={theme.name === "light" ? "dark" : "light"} />
@@ -31,6 +65,16 @@ function RootNavigator() {
         }}
       />
     </>
+  );
+}
+
+/** Bridges the session's region and theme choice into the theme provider. */
+function ThemedApp() {
+  const { region, themeOverride } = useSession();
+  return (
+    <ThemeProvider brandHex={regionBrandHex(region)} override={themeOverride ?? undefined}>
+      <RootNavigator />
+    </ThemeProvider>
   );
 }
 
@@ -52,8 +96,8 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <ThemeProvider>
-      <RootNavigator />
-    </ThemeProvider>
+    <SessionProvider>
+      <ThemedApp />
+    </SessionProvider>
   );
 }
