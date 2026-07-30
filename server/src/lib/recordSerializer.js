@@ -24,6 +24,10 @@ const COLUMN_FIELDS = [
   "userinfo",
   "userID",
   "updatedAt",
+  // Client-supplied idempotency key. MUST be listed here: fromApi merges every
+  // unlisted field into the data jsonb, so omitting it would bury the key
+  // inside the record document instead of putting it in its column.
+  "clientRecordId",
 ];
 
 function toApi(row, { sharedWith = null, userinfo = null } = {}) {
@@ -51,6 +55,7 @@ function toApi(row, { sharedWith = null, userinfo = null } = {}) {
   if (sharedWith) record.sharedWith = sharedWith;
   if (userinfo) record.userinfo = userinfo;
   if (row.user_id) record.userID = row.user_id;
+  if (row.client_record_id) record.clientRecordId = row.client_record_id;
   return record;
 }
 
@@ -68,6 +73,7 @@ function fromApi(record) {
     created: standardized.created || new Date().toISOString(),
     time_first_published: standardized.timeFirstPublished || null,
     last_edited_by: standardized.lastEditedBy ?? {},
+    client_record_id: standardized.clientRecordId || null,
   };
 
   const data = { ...standardized };

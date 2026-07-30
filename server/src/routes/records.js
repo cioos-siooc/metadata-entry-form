@@ -33,8 +33,8 @@ async function userinfoFor(userId) {
 }
 
 const RECORD_COLUMNS =
-  "(region, user_id, status, title_en, title_fr, identifier, dataset_identifier, filename, created, time_first_published, last_edited_by, data)";
-const RECORD_VALUES = "($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)";
+  "(region, user_id, status, title_en, title_fr, identifier, dataset_identifier, filename, created, time_first_published, last_edited_by, data, client_record_id)";
+const RECORD_VALUES = "($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)";
 
 function insertParams(region, userId, columns, data) {
   return [
@@ -50,6 +50,7 @@ function insertParams(region, userId, columns, data) {
     columns.time_first_published,
     JSON.stringify(columns.last_edited_by),
     JSON.stringify(data),
+    columns.client_record_id,
   ];
 }
 
@@ -122,10 +123,36 @@ async function recordRoutes(app) {
   app.post("/regions/:region/records", guarded, async (request, reply) => {
     const { columns, data } = fromApi(request.body || {});
 
+    // Idempotent when the client supplies a key, which an offline client must:
+    // a create retried after a lost response would otherwise duplicate the
+    // record. Deliberately DO NOTHING rather than DO UPDATE — a replayed
+    // create must never clobber edits the server has already accepted from
+    // another device.
     const result = await query(
-      `INSERT INTO records ${RECORD_COLUMNS} VALUES ${RECORD_VALUES} RETURNING *`,
+      `INSERT INTO records ${RECORD_COLUMNS} VALUES ${RECORD_VALUES}
+       ON CONFLICT (region, user_id, client_record_id) WHERE client_record_id IS NOT NULL
+       DO NOTHING
+       RETURNING *`,
       insertParams(request.region, request.user.id, columns, data),
     );
+
+    if (!result.rows.length) {
+      // The key already exists, so this is a replay. Return the record we
+      // already have, as 200 rather than 201 so the client can tell the
+      // difference, and skip the hooks below — re-firing them would re-send
+      // reviewer notification emails and regenerate the WAF XML.
+      const existing = await query(
+        `SELECT * FROM records WHERE region = $1 AND user_id = $2 AND client_record_id = $3`,
+        [request.region, request.user.id, columns.client_record_id],
+      );
+      if (!existing.rows.length) {
+        // Conflicted against a row we cannot then read: only possible if the
+        // owner changed between the two statements.
+        return reply.code(409).send({ error: "Record already exists" });
+      }
+      return reply.code(200).send(toApi(existing.rows[0]));
+    }
+
     const row = result.rows[0];
 
     if (row.status !== "draft") {
@@ -284,6 +311,9 @@ async function recordRoutes(app) {
     if (record.title.en) record.title.en = `${record.title.en} (Copy)`;
     if (record.title.fr) record.title.fr = `${record.title.fr} (Copte)`;
     record.identifier = crypto.randomUUID();
+    // A clone is a new request, not a replay of the original. Carrying the
+    // source's idempotency key over would collide with the unique index.
+    record.clientRecordId = "";
 
     const { columns, data } = fromApi(record);
     const result = await query(
