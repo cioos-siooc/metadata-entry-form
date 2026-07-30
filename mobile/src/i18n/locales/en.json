@@ -246,7 +246,17 @@
     "indEmail": "Personal email",
     "orcid": "ORCID",
     "roles": "Roles",
-    "inCitation": "Include in citation"
+    "inCitation": "Include in citation",
+    "rorSearch": "Find an organisation (ROR)",
+    "rorPlaceholder": "Fisheries and Oceans Canada",
+    "searching": "Searching…",
+    "orcidLookup": "Fill from an ORCID",
+    "orcidPrivate": "That ORCID profile keeps its name private. Type it in.",
+    "lookupOffline": "Lookups need a connection. Type the details instead.",
+    "lookupFailed": "That lookup didn't work. Type the details instead.",
+    "orgCity": "City",
+    "orgCountry": "Country",
+    "orgRor": "ROR URL"
   },
   "platformSection": {
     "help": "The platform the instruments were deployed from.",
@@ -485,5 +495,33 @@
     "regionHelp": "Type a region name directly, including one the picker doesn't list yet.",
     "regionApply": "Switch region",
     "regionSaved": "Region set to {{region}}."
+  },
+  "related": {
+    "title": "Related works",
+    "help": "Papers, datasets or versions this record relates to. Each one needs a title in both languages, an identifier and a relation.",
+    "add": "Add a related work",
+    "workTitle": "Title",
+    "code": "Identifier or URL",
+    "authority": "Identifier type",
+    "relation": "How it relates"
+  },
+  "lineage": {
+    "title": "Lineage",
+    "help": "How the data came to be. Each step can list its sources, the processing applied, and supporting documents.",
+    "add": "Add a lineage step",
+    "untitledStep": "Untitled step",
+    "statement": "What happened",
+    "scope": "What this step covers",
+    "sources": "Sources",
+    "sourcesHelp": "The input data this step started from.",
+    "addSource": "Add a source",
+    "steps": "Processing steps",
+    "stepsHelp": "What was done to the data. A title and a description are required once a step exists.",
+    "addStep": "Add a processing step",
+    "documents": "Supporting documents",
+    "documentsHelp": "Reports or protocols that describe this step.",
+    "addDocument": "Add a document",
+    "entryTitle": "Title",
+    "entryDescription": "Description"
   }
 }

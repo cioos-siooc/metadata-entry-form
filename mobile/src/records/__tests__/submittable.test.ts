@@ -91,4 +91,67 @@ describe("the submit gate", () => {
 
     expect(counted).toBe(required);
   });
+
+  test("a half-filled related work closes the gate", () => {
+    // The trap these editors have to make visible: related works are optional
+    // as a whole, but one incomplete entry blocks submission from a screen the
+    // user has already left.
+    const missingFrench = {
+      ...filledFromTheApp(),
+      associated_resources: [
+        {
+          title: { en: "A companion paper", fr: "" },
+          authority: "DOI",
+          code: "https://doi.org/10.0000/x",
+          association_type: "Cites",
+        },
+      ],
+    };
+    expect(buildLedger(missingFrench).submittable).toBe(false);
+
+    const complete = {
+      ...filledFromTheApp(),
+      associated_resources: [
+        {
+          title: { en: "A companion paper", fr: "Un article complémentaire" },
+          authority: "DOI",
+          code: "https://doi.org/10.0000/x",
+          association_type: "Cites",
+        },
+      ],
+    };
+    expect(buildLedger(complete).submittable).toBe(true);
+  });
+
+  test("a processing step with no description closes the gate", () => {
+    const step = (processingStep: unknown[]) => ({
+      ...filledFromTheApp(),
+      history: [{ statement: { en: "Collected", fr: "Collecté" }, processingStep }],
+    });
+
+    expect(buildLedger(step([{ title: { en: "Despiked", fr: "Dépointé" } }])).submittable).toBe(
+      false,
+    );
+    expect(
+      buildLedger(
+        step([
+          {
+            title: { en: "Despiked", fr: "Dépointé" },
+            description: { en: "Removed spikes", fr: "Pointes retirées" },
+          },
+        ]),
+      ).submittable,
+    ).toBe(true);
+  });
+
+  test("an empty lineage step is harmless", () => {
+    // Adding a step and leaving its lists empty must not block anything.
+    const withEmptyStep = {
+      ...filledFromTheApp(),
+      history: [
+        { statement: { en: "", fr: "" }, source: [], processingStep: [], additionalDocumentation: [] },
+      ],
+    };
+    expect(buildLedger(withEmptyStep).submittable).toBe(true);
+  });
 });

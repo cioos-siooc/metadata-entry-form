@@ -9,6 +9,8 @@ import { localized } from "@cioos/shared/localized.js";
 import type { Language } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 
+import { LineageField, type LineageStep } from "./Lineage";
+import { RelatedWorksField, type RelatedWork } from "./RelatedWorks";
 import type { SectionProps } from "./types";
 
 interface Resource {
@@ -19,7 +21,13 @@ interface Resource {
 }
 
 /**
- * Resources — where the data can actually be downloaded.
+ * Resources, related works and lineage.
+ *
+ * Three lists answering three different questions — where the data is, what it
+ * relates to, and how it came to be — grouped here because the record model and
+ * the error report group them, so the ledger and this screen agree.
+ *
+ * Where the data can actually be downloaded.
  *
  * At least one entry with a name and a valid URL is required. The web app also
  * live-checks each URL against /api/url-check; that is deliberately omitted here
@@ -34,6 +42,7 @@ export function ResourcesSection({ document, update, ledger }: SectionProps) {
   const distribution = (document.distribution as Resource[]) ?? [];
 
   return (
+    <>
     <Field
       label={t("resourcesSection.distribution")}
       help={t("resourcesSection.help")}
@@ -88,5 +97,17 @@ export function ResourcesSection({ document, update, ledger }: SectionProps) {
         )}
       />
     </Field>
+
+    <RelatedWorksField
+      works={(document.associated_resources as RelatedWork[]) ?? []}
+      onChange={(next) => update("associated_resources", next)}
+    />
+
+    <LineageField
+      history={(document.history as LineageStep[]) ?? []}
+      metadataScope={(document.metadataScope as string) ?? ""}
+      onChange={(next) => update("history", next)}
+    />
+    </>
   );
 }

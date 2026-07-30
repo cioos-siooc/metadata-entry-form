@@ -1,7 +1,7 @@
 import { getBlankRecord } from "@cioos/shared/blankRecord.js";
 import { describe, expect, test } from "vitest";
 
-import { buildLedger, fieldIsFilled, SECTION_ORDER } from "../ledger";
+import { buildLedger, fieldIsFilled, SECTION_ORDER, sectionProgress } from "../ledger";
 
 const section = (record: Record<string, unknown>, id: string) =>
   buildLedger(record).sections.find((s) => s.id === id)!;
@@ -214,5 +214,41 @@ describe("a fully valid record", () => {
   test("no section is left in attention", () => {
     const stuck = buildLedger(complete).sections.filter((s) => s.state === "attention");
     expect(stuck.map((s) => s.id)).toEqual([]);
+  });
+});
+
+describe("sectionProgress", () => {
+  const section = (over: Partial<Parameters<typeof sectionProgress>[0]>) =>
+    sectionProgress({
+      id: "about",
+      required: 4,
+      satisfied: 1,
+      filled: 0,
+      total: 8,
+      state: "attention",
+      touched: false,
+      errors: [],
+      ...over,
+    });
+
+  test("tracks requirements, so the bar agrees with the count beside it", () => {
+    // The bug this fixes: "1 of 4 required" printed above an empty bar, because
+    // the bar was counting filled fields instead.
+    expect(section({})).toBe(0.25);
+    expect(section({ satisfied: 4, filled: 6, state: "complete" })).toBe(1);
+  });
+
+  test("falls back to fields where nothing is required", () => {
+    expect(section({ required: 0, satisfied: 0, filled: 2, state: "filled" })).toBe(0.25);
+  });
+
+  test("shows an untouched section as empty even when its validators pass", () => {
+    // Six validators pass vacuously on a blank record; a full bar there would
+    // be a lie.
+    expect(section({ required: 2, satisfied: 2, filled: 0, state: "empty" })).toBe(0);
+  });
+
+  test("never divides by zero", () => {
+    expect(section({ required: 0, total: 0, state: "empty" })).toBe(0);
   });
 });

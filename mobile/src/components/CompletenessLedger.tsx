@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { Ledger, LedgerSection, SectionState } from "@/records/ledger";
+import { sectionProgress, type Ledger, type LedgerSection, type SectionState } from "@/records/ledger";
 import { useTheme, type Theme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -49,14 +49,10 @@ function stateIcon(state: SectionState): keyof typeof Ionicons.glyphMap {
   }
 }
 
-/**
- * A section's fill as a bar. Deliberately shows the *field* fill rather than the
- * validator fill: it answers "how much of this have I written", which is what a
- * bar reads as. The required count is stated separately, in words.
- */
+/** A section's progress as a bar, showing whatever its count shows. */
 function FillBar({ section }: { section: LedgerSection }) {
   const theme = useTheme();
-  const ratio = section.total === 0 ? 0 : section.filled / section.total;
+  const ratio = sectionProgress(section);
   return (
     <View
       style={[

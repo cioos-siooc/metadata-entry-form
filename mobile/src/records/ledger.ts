@@ -236,5 +236,22 @@ export function buildLedger(record: RecordLike): Ledger {
   };
 }
 
+/**
+ * The fraction a section's bar should show.
+ *
+ * It must match the number printed beside it, or the two contradict each other:
+ * a section reading "1 of 7 required" above an empty bar looks broken, and the
+ * bar is the thing people watch while they work. So the bar tracks requirements
+ * wherever the section has any — the same signal as the count — and falls back
+ * to how much has been filled in only where nothing is required, or where the
+ * requirements pass vacuously on an untouched section.
+ */
+export function sectionProgress(section: LedgerSection): number {
+  if (section.state !== "empty" && section.required > 0) {
+    return section.satisfied / section.required;
+  }
+  return section.total === 0 ? 0 : section.filled / section.total;
+}
+
 /** Sections in display order. */
 export const SECTION_ORDER: SectionId[] = SECTIONS.map((s) => s.id);

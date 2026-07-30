@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 
 import { LibraryPicker } from "@/components/LibraryPicker";
+import { OrcidLookup, RorLookup } from "@/components/fields/ContactLookups";
 import { LibraryAddButton, SaveToLibrary } from "@/components/SaveToLibrary";
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
@@ -33,14 +34,14 @@ interface Contact {
 /**
  * Who — the contacts repeater.
  *
- * ROR and ORCID lookups are deliberately absent for now: they are third-party
- * network calls, and `contactIsFilled` needs only a role plus an organisation or
- * a name, so contacts work fully offline without them. They are accelerators to
- * add back, not prerequisites.
+ * ROR and ORCID are accelerators, not prerequisites: `contactIsFilled` needs
+ * only a role plus an organisation or a name, so a contact typed by hand with
+ * no signal is exactly as valid as one looked up. Both collapse to nothing
+ * offline and everything below them stays typeable.
  *
- * The saved library is the accelerator that matters instead — the same handful
- * of people appear on every record a station produces, and re-typing an address
- * on a wet phone is where the errors come from.
+ * The saved library is the other accelerator — the same handful of people
+ * appear on every record a station produces, and re-typing an address on a wet
+ * phone is where the errors come from.
  */
 export function WhoSection({ document, update, ledger }: SectionProps) {
   const theme = useTheme();
@@ -90,11 +91,17 @@ export function WhoSection({ document, update, ledger }: SectionProps) {
         )}
         renderEditor={(contact, set) => (
           <View style={{ gap: theme.space.md }}>
+            <RorLookup onPick={(fields) => set({ ...contact, ...fields })} />
+            <OrcidLookup onFound={(fields) => set({ ...contact, ...fields })} />
+
             {(
               [
                 ["orgName", "who.orgName"],
                 ["orgEmail", "who.orgEmail"],
                 ["orgURL", "who.orgUrl"],
+                ["orgRor", "who.orgRor"],
+                ["orgCity", "who.orgCity"],
+                ["orgCountry", "who.orgCountry"],
                 ["givenNames", "who.givenNames"],
                 ["lastName", "who.lastName"],
                 ["indPosition", "who.position"],

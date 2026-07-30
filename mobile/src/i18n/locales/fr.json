@@ -246,7 +246,17 @@
     "indEmail": "Courriel personnel",
     "orcid": "ORCID",
     "roles": "Rôles",
-    "inCitation": "Inclure dans la citation"
+    "inCitation": "Inclure dans la citation",
+    "rorSearch": "Trouver un organisme (ROR)",
+    "rorPlaceholder": "Pêches et Océans Canada",
+    "searching": "Recherche en cours…",
+    "orcidLookup": "Remplir à partir d'un ORCID",
+    "orcidPrivate": "Ce profil ORCID garde son nom privé. Saisissez-le à la main.",
+    "lookupOffline": "Les recherches nécessitent une connexion. Saisissez les détails à la main.",
+    "lookupFailed": "La recherche a échoué. Saisissez les détails à la main.",
+    "orgCity": "Ville",
+    "orgCountry": "Pays",
+    "orgRor": "URL ROR"
   },
   "platformSection": {
     "help": "La plateforme depuis laquelle les instruments ont été déployés.",
@@ -485,5 +495,33 @@
     "regionHelp": "Saisissez directement un nom de région, même s'il n'apparaît pas encore dans la liste.",
     "regionApply": "Changer de région",
     "regionSaved": "Région définie sur {{region}}."
+  },
+  "related": {
+    "title": "Ressources connexes",
+    "help": "Articles, jeux de données ou versions liés à cette fiche. Chacun exige un titre dans les deux langues, un identifiant et un type de relation.",
+    "add": "Ajouter une ressource connexe",
+    "workTitle": "Titre",
+    "code": "Identifiant ou URL",
+    "authority": "Type d'identifiant",
+    "relation": "Type de relation"
+  },
+  "lineage": {
+    "title": "Provenance",
+    "help": "Comment les données ont été produites. Chaque étape peut lister ses sources, les traitements appliqués et les documents à l'appui.",
+    "add": "Ajouter une étape",
+    "untitledStep": "Étape sans titre",
+    "statement": "Ce qui s'est passé",
+    "scope": "Portée de cette étape",
+    "sources": "Sources",
+    "sourcesHelp": "Les données d'entrée de cette étape.",
+    "addSource": "Ajouter une source",
+    "steps": "Étapes de traitement",
+    "stepsHelp": "Ce qui a été fait aux données. Un titre et une description sont exigés dès qu'une étape existe.",
+    "addStep": "Ajouter une étape de traitement",
+    "documents": "Documents à l'appui",
+    "documentsHelp": "Rapports ou protocoles décrivant cette étape.",
+    "addDocument": "Ajouter un document",
+    "entryTitle": "Titre",
+    "entryDescription": "Description"
   }
 }
