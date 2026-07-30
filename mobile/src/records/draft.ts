@@ -1,3 +1,5 @@
+import * as Crypto from "expo-crypto";
+
 import type { MetadataRecord } from "@/api/records";
 import type { CachedRecord, Database } from "@/offline/db";
 import { getRecordByLocalId, upsertRecord } from "@/offline/db";
@@ -5,6 +7,9 @@ import { enqueue } from "@/offline/queue";
 
 /**
  * Draft persistence.
+ *
+ * Ids come from expo-crypto: React Native has no `crypto.randomUUID`, and the
+ * react-native-get-random-values polyfill only provides `getRandomValues`.
  *
  * Two distinct concepts that must not be conflated:
  *
@@ -63,7 +68,7 @@ export async function saveDraft(
   localId: string,
   document: MetadataRecord,
   userId: string,
-  opId: string = globalThis.crypto.randomUUID(),
+  opId: string = Crypto.randomUUID(),
 ): Promise<SaveResult> {
   const record = await getRecordByLocalId(db, localId);
   if (!record) return { queued: false, localId };
@@ -102,7 +107,7 @@ export async function createLocalRecord(
   region: string,
   userId: string,
   blank: MetadataRecord,
-  localId: string = globalThis.crypto.randomUUID(),
+  localId: string = Crypto.randomUUID(),
 ): Promise<CachedRecord> {
   const now = new Date().toISOString();
   const record: CachedRecord = {

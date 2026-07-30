@@ -7,8 +7,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { NetworkError } from "@/api/errors";
-import { getRecord, type MetadataRecord } from "@/api/records";
+import { getRecord as fetchRecord, type MetadataRecord } from "@/api/records";
 import { useSession } from "@/auth/SessionProvider";
+import { useDatabase } from "@/offline/DatabaseProvider";
+import { getRecord as readCachedRecord, upsertRecord } from "@/offline/db";
 import { LedgerSummary, SectionRow } from "@/components/CompletenessLedger";
 import type { Language } from "@/i18n";
 import { buildLedger } from "@/records/ledger";
@@ -30,24 +32,45 @@ export default function RecordHubScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { region } = useSession();
+  const db = useDatabase();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [record, setRecord] = useState<MetadataRecord | null>(null);
   const [problem, setProblem] = useState<"offline" | "missing" | "error" | null>(null);
 
   const load = useCallback(async () => {
-    if (!region || !id) return;
+    if (!region || !id || !db) return;
     setProblem(null);
+
+    // Cache first, always. A record authored offline exists only here, and one
+    // already cached should paint immediately rather than after a round trip.
+    const cached = await readCachedRecord(db, id);
+    if (cached) setRecord(cached.document);
+
+    // A local-only record has nothing to fetch, and asking would 404.
+    if (cached && !cached.recordID) return;
+
     try {
-      setRecord(await getRecord(region, id));
+      const fresh = await fetchRecord(region, cached?.recordID ?? id);
+      setRecord(fresh);
+      if (cached && cached.syncState === "synced") {
+        await upsertRecord(db, {
+          ...cached,
+          document: fresh,
+          serverUpdatedAt: fresh.updatedAt ?? null,
+          serverSnapshot: fresh,
+        });
+      }
     } catch (err) {
-      // The web app's loadData catch sets `record: null` for *any* failure, so
-      // offline every record reads as deleted. Distinguish them.
+      // Only a problem if we have nothing to show. The web app's loadData catch
+      // sets `record: null` for any failure, so offline every record reads as
+      // deleted; with a cache, offline is simply not an error.
+      if (cached) return;
       if (err instanceof NetworkError) setProblem("offline");
       else if ((err as { status?: number }).status === 404) setProblem("missing");
       else setProblem("error");
     }
-  }, [region, id]);
+  }, [region, id, db]);
 
   useEffect(() => {
     load();
@@ -130,6 +153,33 @@ export default function RecordHubScreen() {
           />
         ))}
       </View>
+
+      {/* Review is a destination rather than a ledger row: it has no fields of
+          its own, and it is where submitting happens. */}
+      <Pressable
+        onPress={() => router.push(`/record/${id}/review`)}
+        accessibilityRole="button"
+        accessibilityLabel={t("review.title")}
+        style={({ pressed }) => [
+          styles.review,
+          {
+            borderColor: theme.colors.accent,
+            borderRadius: theme.radius.md,
+            marginTop: theme.space.lg,
+            gap: theme.space.sm,
+            opacity: pressed ? 0.85 : 1,
+          },
+        ]}
+      >
+        <Ionicons
+          name={ledger.submittable ? "checkmark-circle-outline" : "list-outline"}
+          size={20}
+          color={theme.colors.accent}
+        />
+        <Text style={[theme.type.heading, { color: theme.colors.accent }]}>
+          {t("review.title")}
+        </Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -142,5 +192,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: MIN_TOUCH_TARGET,
     marginLeft: -6,
+  },
+  review: {
+    minHeight: MIN_TOUCH_TARGET,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

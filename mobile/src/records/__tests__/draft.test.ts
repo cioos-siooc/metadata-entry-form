@@ -1,4 +1,10 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+// expo-crypto pulls in react-native, whose Flow syntax vitest cannot parse.
+// Every test below passes ids explicitly, so this only needs to exist.
+vi.mock("expo-crypto", () => ({
+  randomUUID: () => "00000000-0000-4000-8000-000000000000",
+}));
 
 import type { MetadataRecord } from "@/api/records";
 import { getRecordByLocalId, listRecords, replaceScope, upsertRecord, type CachedRecord, type Database } from "@/offline/db";

@@ -25,7 +25,10 @@
       "submitted": "Soumise",
       "published": "Publiée"
     },
-    "editedBy": "par {{name}}"
+    "editedBy": "par {{name}}",
+    "newRecord": "Nouvelle fiche",
+    "createFailed": "Impossible de créer une fiche.",
+    "staleList": "Affichage des données de cet appareil. Tirez pour rafraîchir une fois reconnecté."
   },
   "library": {
     "title": "Bibliothèque",
@@ -35,8 +38,13 @@
     "instruments": "Instruments"
   },
   "review": {
-    "title": "Révision",
-    "subtitle": "Fiches soumises pour révision dans cette région."
+    "title": "Réviser et soumettre",
+    "ready": "Tous les champs requis sont remplis.",
+    "notReady": "Complétez les éléments manquants avant de soumettre.",
+    "submit": "Soumettre pour révision",
+    "submitted": "Soumis pour révision",
+    "ownerOnly": "Seul le propriétaire de la fiche peut la soumettre.",
+    "mustSaveFirst": "Enregistrez la fiche avant de la soumettre."
   },
   "more": {
     "title": "Plus",
@@ -148,5 +156,83 @@
     "queued": "En attente de synchronisation",
     "saving": "Enregistrement…",
     "back": "Terminé"
+  },
+  "repeater": {
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "remove": "Supprimer",
+    "addContact": "Ajouter un contact",
+    "addPlatform": "Ajouter une plateforme",
+    "addInstrument": "Ajouter un instrument",
+    "addResource": "Ajouter une ressource"
+  },
+  "about": {
+    "abstract": "Résumé",
+    "abstractHelp": "Ce que contient le jeu de données. Les deux langues sont requises.",
+    "keywords": "Mots-clés",
+    "keywordsHelp": "Incluez la communauté ou le lieu géographique le plus proche.",
+    "eov": "Variables océaniques essentielles",
+    "eovHelp": "Ce qui a été mesuré. Au moins une est requise.",
+    "eovDeprecated": "Cette variable est obsolète et empêchera la soumission.",
+    "progress": "État",
+    "license": "Licence",
+    "licenseHelp": "Comment les autres peuvent utiliser les données.",
+    "limitations": "Limites",
+    "addKeyword": "Ajouter"
+  },
+  "where": {
+    "bbox": "Cadre englobant",
+    "bboxHelp": "Limites nord, sud, est et ouest en degrés décimaux.",
+    "north": "Nord",
+    "south": "Sud",
+    "east": "Est",
+    "west": "Ouest",
+    "polygon": "Polygone",
+    "polygonHelp": "Paires lat,lon séparées par des espaces. La première et la dernière doivent correspondre.",
+    "vertical": "Étendue verticale",
+    "verticalHelp": "Plage de profondeur ou de hauteur couverte.",
+    "min": "Minimum",
+    "max": "Maximum",
+    "direction": "Direction",
+    "epsg": "Code EPSG",
+    "noVertical": "Aucune étendue verticale",
+    "useMyLocation": "Utiliser ma position",
+    "locationFailed": "Impossible d'obtenir votre position."
+  },
+  "who": {
+    "help": "Qui contacter au sujet de ce jeu de données. Un dépositaire et un propriétaire sont requis.",
+    "orgName": "Organisation",
+    "orgEmail": "Courriel de l'organisation",
+    "orgUrl": "Site Web de l'organisation",
+    "givenNames": "Prénoms",
+    "lastName": "Nom",
+    "position": "Poste",
+    "indEmail": "Courriel personnel",
+    "orcid": "ORCID",
+    "roles": "Rôles",
+    "inCitation": "Inclure dans la citation"
+  },
+  "platformSection": {
+    "help": "La plateforme depuis laquelle les instruments ont été déployés.",
+    "noPlatform": "Aucune plateforme",
+    "type": "Type",
+    "id": "Identifiant",
+    "description": "Description",
+    "instruments": "Instruments",
+    "manufacturer": "Fabricant",
+    "version": "Version"
+  },
+  "species": {
+    "help": "Espèces observées dans ce jeu de données.",
+    "noTaxa": "Aucune couverture taxonomique",
+    "scientificName": "Nom scientifique",
+    "search": "Rechercher une espèce"
+  },
+  "resourcesSection": {
+    "help": "Où les données peuvent être téléchargées.",
+    "url": "URL",
+    "name": "Nom",
+    "description": "Description",
+    "distribution": "Ressources"
   }
 }

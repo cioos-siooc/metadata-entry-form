@@ -2,7 +2,8 @@ import { localized } from "@cioos/shared/localized.js";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { RecordListItem, RecordStatus } from "@/api/records";
+import type { MetadataRecord, RecordStatus } from "@/api/records";
+import type { SyncState } from "@/offline/schema";
 import type { Language } from "@/i18n";
 import { buildLedger } from "@/records/ledger";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -27,10 +28,13 @@ const STATUS_KEY: Record<RecordStatus, string> = {
 export function RecordCard({
   record,
   onPress,
+  syncState = "synced",
   showAuthor = false,
 }: {
-  record: RecordListItem;
+  record: MetadataRecord & { owner_name?: string; owner_email?: string };
   onPress: () => void;
+  /** Drives the local-vs-server distinction the copy is careful about. */
+  syncState?: SyncState;
   showAuthor?: boolean;
 }) {
   const theme = useTheme();
@@ -85,6 +89,24 @@ export function RecordCard({
           <Text style={[theme.type.caption, { color: theme.colors.textMuted }]}>
             {t(`records.status.${STATUS_KEY[record.status] ?? "draft"}`)}
           </Text>
+          {/* Local-only work is called out here, not just in the sync banner:
+              at a glance a user must be able to see which records have left
+              the device. */}
+          {syncState === "draft" ? (
+            <Text style={[theme.type.caption, { color: theme.semantic.incomplete }]}>
+              · {t("sync.savedLocally")}
+            </Text>
+          ) : null}
+          {syncState === "pending" ? (
+            <Text style={[theme.type.caption, { color: theme.semantic.queued }]}>
+              · {t("sync.syncing")}
+            </Text>
+          ) : null}
+          {syncState === "conflict" ? (
+            <Text style={[theme.type.caption, { color: theme.semantic.error }]}>
+              · {t("sync.failed")}
+            </Text>
+          ) : null}
         </View>
 
         {/* Mono, so percentages line up down the list. */}

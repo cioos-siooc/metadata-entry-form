@@ -25,7 +25,10 @@
       "submitted": "Submitted",
       "published": "Published"
     },
-    "editedBy": "by {{name}}"
+    "editedBy": "by {{name}}",
+    "newRecord": "New record",
+    "createFailed": "Couldn't create a record.",
+    "staleList": "Showing what's on this device. Pull to refresh when you're back online."
   },
   "library": {
     "title": "Library",
@@ -35,8 +38,13 @@
     "instruments": "Instruments"
   },
   "review": {
-    "title": "Review",
-    "subtitle": "Records submitted for review in this region."
+    "title": "Review & submit",
+    "ready": "Everything required is filled in.",
+    "notReady": "Fill in what's outstanding before submitting.",
+    "submit": "Submit for review",
+    "submitted": "Submitted for review",
+    "ownerOnly": "Only the record's owner can submit it.",
+    "mustSaveFirst": "Save the record before submitting."
   },
   "more": {
     "title": "More",
@@ -148,5 +156,83 @@
     "queued": "Waiting to sync",
     "saving": "Saving…",
     "back": "Done"
+  },
+  "repeater": {
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "addContact": "Add contact",
+    "addPlatform": "Add platform",
+    "addInstrument": "Add instrument",
+    "addResource": "Add resource"
+  },
+  "about": {
+    "abstract": "Abstract",
+    "abstractHelp": "What the dataset contains. Both languages are required.",
+    "keywords": "Keywords",
+    "keywordsHelp": "Include the nearest community or geographic place name.",
+    "eov": "Essential ocean variables",
+    "eovHelp": "What was measured. At least one is required.",
+    "eovDeprecated": "This variable is deprecated and will block submission.",
+    "progress": "Status",
+    "license": "Licence",
+    "licenseHelp": "How others may use the data.",
+    "limitations": "Limitations",
+    "addKeyword": "Add"
+  },
+  "where": {
+    "bbox": "Bounding box",
+    "bboxHelp": "North, south, east and west limits in decimal degrees.",
+    "north": "North",
+    "south": "South",
+    "east": "East",
+    "west": "West",
+    "polygon": "Polygon",
+    "polygonHelp": "Space-separated lat,lon pairs. The first and last must match.",
+    "vertical": "Vertical extent",
+    "verticalHelp": "Depth or height range covered.",
+    "min": "Minimum",
+    "max": "Maximum",
+    "direction": "Direction",
+    "epsg": "EPSG code",
+    "noVertical": "No vertical extent",
+    "useMyLocation": "Use my location",
+    "locationFailed": "Couldn't get your location."
+  },
+  "who": {
+    "help": "Who to contact about this dataset. One custodian and one owner are required.",
+    "orgName": "Organisation",
+    "orgEmail": "Organisation email",
+    "orgUrl": "Organisation website",
+    "givenNames": "Given names",
+    "lastName": "Last name",
+    "position": "Position",
+    "indEmail": "Personal email",
+    "orcid": "ORCID",
+    "roles": "Roles",
+    "inCitation": "Include in citation"
+  },
+  "platformSection": {
+    "help": "The platform the instruments were deployed from.",
+    "noPlatform": "No platform",
+    "type": "Type",
+    "id": "Identifier",
+    "description": "Description",
+    "instruments": "Instruments",
+    "manufacturer": "Manufacturer",
+    "version": "Version"
+  },
+  "species": {
+    "help": "Species observed in this dataset.",
+    "noTaxa": "No taxonomic coverage",
+    "scientificName": "Scientific name",
+    "search": "Search species"
+  },
+  "resourcesSection": {
+    "help": "Where the data can be downloaded.",
+    "url": "URL",
+    "name": "Name",
+    "description": "Description",
+    "distribution": "Resources"
   }
 }

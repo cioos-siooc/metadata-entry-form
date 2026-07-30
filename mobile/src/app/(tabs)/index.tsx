@@ -1,70 +1,50 @@
+import { getBlankRecord } from "@cioos/shared/blankRecord.js";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { NetworkError } from "@/api/errors";
-import {
-  myRecords,
-  publishedRecords,
-  sharedWithMe,
-  type RecordListItem,
-} from "@/api/records";
+import type { MetadataRecord } from "@/api/records";
 import { useSession } from "@/auth/SessionProvider";
+import { ActionBar } from "@/components/ActionBar";
+import { Button } from "@/components/Button";
 import { RecordCard } from "@/components/RecordCard";
+import { SyncStatus } from "@/components/SyncStatus";
+import { useDatabase } from "@/offline/DatabaseProvider";
+import type { RecordScope } from "@/offline/schema";
+import { useSync } from "@/offline/useSync";
+import { createLocalRecord } from "@/records/draft";
+import { useRecords } from "@/records/useRecords";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
-/**
- * The field user's home.
- *
- * One list with three scopes, rather than the web app's three separate screens.
- * A segmented filter is cheap on a phone; separate nav destinations are not.
- * And it is a real FlatList — not a card smuggled in as a DataGrid row slot
- * with every header and cell hidden by CSS, which is how the web app does it.
- */
-
-type Scope = "mine" | "shared" | "published";
-const SCOPES: Scope[] = ["mine", "shared", "published"];
+const SCOPES: RecordScope[] = ["mine", "shared", "published"];
 
 export default function RecordsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const db = useDatabase();
   const { region, user, isOffline } = useSession();
 
-  const [scope, setScope] = useState<Scope>("mine");
-  const [records, setRecords] = useState<RecordListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [problem, setProblem] = useState<"offline" | "error" | null>(null);
+  const [scope, setScope] = useState<RecordScope>("mine");
+  const { records, state, refresh } = useRecords(db, region, user?.userID, scope);
+  const { stats, syncing } = useSync(db, !isOffline);
 
-  const load = useCallback(async () => {
-    if (!region || !user) return;
-    setProblem(null);
-    try {
-      const rows =
-        scope === "mine"
-          ? await myRecords(region, user.userID)
-          : scope === "shared"
-            ? await sharedWithMe(region)
-            : await publishedRecords(region);
-      setRecords(rows);
-    } catch (err) {
-      // Offline deserves a different message from a real failure: there is
-      // nothing for the user to fix, and once Phase 4 lands there will be
-      // cached rows to show here instead of an empty list.
-      setProblem(err instanceof NetworkError ? "offline" : "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [region, user, scope]);
-
-  useEffect(() => {
-    setLoading(true);
-    load();
-  }, [load]);
+  const create = useCallback(async () => {
+    if (!db || !region || !user) return;
+    // Immediately editable, with no server round trip — the point of the whole
+    // offline layer. It becomes a server record when the queue flushes.
+    const record = await createLocalRecord(
+      db,
+      region,
+      user.userID,
+      getBlankRecord() as MetadataRecord,
+    );
+    router.push(`/record/${record.localId}`);
+  }, [db, region, user, router]);
 
   const emptyMessage =
     scope === "shared"
@@ -82,11 +62,7 @@ export default function RecordsScreen() {
           {t("records.title")}
         </Text>
 
-        {isOffline ? (
-          <Text style={[theme.type.caption, { color: theme.semantic.incomplete, marginTop: 4 }]}>
-            {t("sync.offline")}
-          </Text>
-        ) : null}
+        <SyncStatus stats={stats} syncing={syncing} offline={isOffline || state === "stale"} />
 
         <View style={[styles.scopes, { gap: theme.space.sm, marginTop: theme.space.md }]}>
           {SCOPES.map((option) => {
@@ -124,7 +100,7 @@ export default function RecordsScreen() {
 
       <FlatList
         data={records}
-        keyExtractor={(item) => item.recordID}
+        keyExtractor={(item) => item.localId}
         contentContainerStyle={{
           padding: theme.space.lg,
           gap: theme.space.md,
@@ -132,30 +108,35 @@ export default function RecordsScreen() {
         }}
         refreshControl={
           <RefreshControl
-            refreshing={loading}
-            onRefresh={load}
+            refreshing={state === "loading"}
+            onRefresh={refresh}
             tintColor={theme.colors.accent}
           />
         }
         renderItem={({ item }) => (
           <RecordCard
-            record={item}
+            record={item.document}
+            syncState={item.syncState}
             showAuthor={scope !== "mine"}
-            onPress={() => router.push(`/record/${item.recordID}`)}
+            onPress={() => router.push(`/record/${item.localId}`)}
           />
         )}
         ListEmptyComponent={
-          loading ? null : (
+          state === "loading" ? null : (
             <Text style={[theme.type.body, { color: theme.colors.textMuted }]}>
-              {problem === "offline"
-                ? t("records.loadFailedOffline")
-                : problem === "error"
-                  ? t("records.loadFailed")
-                  : emptyMessage}
+              {state === "error" ? t("records.loadFailed") : emptyMessage}
             </Text>
           )
         }
       />
+
+      {scope === "mine" ? (
+        <ActionBar>
+          <View style={{ flex: 1 }}>
+            <Button label={t("records.newRecord")} onPress={create} />
+          </View>
+        </ActionBar>
+      ) : null}
     </View>
   );
 }
