@@ -17,6 +17,12 @@ import type { SectionProps } from "./types";
  * record's DOI, which lives here because it identifies the dataset rather than
  * describing it.
  */
+/** The ISO code for a scope name, e.g. "Dataset" → "dataset". */
+function scopeIsoFor(scope: string): string {
+  const entry = (metadataScopeCodes as Record<string, { isoValue?: string }>)[scope];
+  return entry?.isoValue ?? "";
+}
+
 export function IdentificationSection({ document, update }: SectionProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language as Language;
@@ -70,7 +76,14 @@ export function IdentificationSection({ document, update }: SectionProps) {
         <ChoiceInput
           choices={scopeChoices}
           selected={document.metadataScope ? [document.metadataScope as string] : []}
-          onChange={(next) => update("metadataScope", next[0] ?? "")}
+          onChange={(next) => {
+            const scope = next[0] ?? "";
+            update("metadataScope", scope);
+            // The ISO value travels with it: the converter reads
+            // metadataScopeIso, and the platform section keys off it, so a
+            // scope without one produces a record that converts wrongly.
+            update("metadataScopeIso", scopeIsoFor(scope));
+          }}
         />
       </Field>
 

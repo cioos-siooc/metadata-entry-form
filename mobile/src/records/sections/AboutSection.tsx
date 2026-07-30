@@ -4,10 +4,12 @@ import keywords from "@cioos/shared/keywords.js";
 import licenses from "@cioos/shared/licenses.js";
 import { localized } from "@cioos/shared/localized.js";
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getRegionProjects } from "@/api/records";
+import { useSession } from "@/auth/SessionProvider";
 import { BilingualTextInput } from "@/components/fields/BilingualTextInput";
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
@@ -30,6 +32,24 @@ export function AboutSection({ document, update }: SectionProps) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const language = i18n.language as Language;
+  const { region } = useSession();
+
+  // The region's project list, when it has one. Failure is silent: projects are
+  // optional, and a section that refuses to render because a side list did not
+  // load would be worse than one without it.
+  const [projects, setProjects] = useState<string[]>([]);
+  useEffect(() => {
+    if (!region) return;
+    let cancelled = false;
+    getRegionProjects(region)
+      .then((list) => {
+        if (!cancelled) setProjects(list ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [region]);
   const [eovFilter, setEovFilter] = useState("");
   const [keywordDraft, setKeywordDraft] = useState("");
 
@@ -183,6 +203,17 @@ export function AboutSection({ document, update }: SectionProps) {
         </View>
       </Field>
 
+      <Field label={t("about.datasetLanguage")} help={t("about.datasetLanguageHelp")} required>
+        <ChoiceInput
+          choices={[
+            { value: "en", label: "English" },
+            { value: "fr", label: "Français" },
+          ]}
+          selected={document.language ? [document.language as string] : []}
+          onChange={(next) => update("language", next[0] ?? "")}
+        />
+      </Field>
+
       <Field label={t("about.progress")} required>
         <ChoiceInput
           choices={progressChoices}
@@ -198,6 +229,17 @@ export function AboutSection({ document, update }: SectionProps) {
           onChange={(next) => update("license", next[0] ?? "")}
         />
       </Field>
+
+      {projects.length > 0 ? (
+        <Field label={t("about.projects")} help={t("about.projectsHelp")}>
+          <ChoiceInput
+            multiple
+            choices={projects.map((name) => ({ value: name, label: name }))}
+            selected={(document.projects as string[]) ?? []}
+            onChange={(next) => update("projects", next)}
+          />
+        </Field>
+      ) : null}
 
       <Field label={t("about.limitations")}>
         <BilingualTextInput

@@ -210,7 +210,11 @@
     "license": "Licence",
     "licenseHelp": "How others may use the data.",
     "limitations": "Limitations",
-    "addKeyword": "Add"
+    "addKeyword": "Add",
+    "datasetLanguage": "Primary language of the dataset",
+    "datasetLanguageHelp": "The language the data itself is in — not the language of this app.",
+    "projects": "Projects",
+    "projectsHelp": "Projects this record belongs to."
   },
   "where": {
     "bbox": "Bounding box",

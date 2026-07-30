@@ -210,7 +210,11 @@
     "license": "Licence",
     "licenseHelp": "Comment les autres peuvent utiliser les données.",
     "limitations": "Limites",
-    "addKeyword": "Ajouter"
+    "addKeyword": "Ajouter",
+    "datasetLanguage": "Langue principale du jeu de données",
+    "datasetLanguageHelp": "La langue des données elles-mêmes, et non celle de l'application.",
+    "projects": "Projets",
+    "projectsHelp": "Projets auxquels cette fiche appartient."
   },
   "where": {
     "bbox": "Cadre englobant",
