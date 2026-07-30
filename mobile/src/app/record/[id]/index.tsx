@@ -36,6 +36,7 @@ export default function RecordHubScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [record, setRecord] = useState<MetadataRecord | null>(null);
+  const [conflicted, setConflicted] = useState(false);
   const [problem, setProblem] = useState<"offline" | "missing" | "error" | null>(null);
 
   const load = useCallback(async () => {
@@ -45,7 +46,10 @@ export default function RecordHubScreen() {
     // Cache first, always. A record authored offline exists only here, and one
     // already cached should paint immediately rather than after a round trip.
     const cached = await readCachedRecord(db, id);
-    if (cached) setRecord(cached.document);
+    if (cached) {
+      setRecord(cached.document);
+      setConflicted(cached.syncState === "conflict");
+    }
 
     // A local-only record has nothing to fetch, and asking would 404.
     if (cached && !cached.recordID) return;
@@ -142,6 +146,33 @@ export default function RecordHubScreen() {
         {record.recordID}
       </Text>
 
+      {/* A conflict blocks this record's queue, so it needs a visible route
+          out — not just a colour on a card. */}
+      {conflicted ? (
+        <Pressable
+          onPress={() => router.push(`/record/${id}/conflict`)}
+          accessibilityRole="button"
+          accessibilityLabel={t("conflict.banner")}
+          style={({ pressed }) => [
+            styles.conflict,
+            {
+              borderColor: theme.semantic.error,
+              borderRadius: theme.radius.md,
+              padding: theme.space.md,
+              gap: theme.space.sm,
+              marginBottom: theme.space.lg,
+              opacity: pressed ? 0.85 : 1,
+            },
+          ]}
+        >
+          <Ionicons name="git-compare-outline" size={20} color={theme.semantic.error} />
+          <Text style={[theme.type.body, { color: theme.semantic.error, flex: 1 }]}>
+            {t("conflict.banner")}
+          </Text>
+          <Ionicons name="chevron-forward" size={18} color={theme.semantic.error} />
+        </Pressable>
+      ) : null}
+
       <LedgerSummary ledger={ledger} />
 
       <View style={{ gap: theme.space.sm }}>
@@ -192,6 +223,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: MIN_TOUCH_TARGET,
     marginLeft: -6,
+  },
+  conflict: {
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    minHeight: MIN_TOUCH_TARGET,
   },
   review: {
     minHeight: MIN_TOUCH_TARGET,

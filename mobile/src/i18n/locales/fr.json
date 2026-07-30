@@ -31,11 +31,17 @@
     "staleList": "Affichage des données de cet appareil. Tirez pour rafraîchir une fois reconnecté."
   },
   "library": {
-    "title": "Bibliothèque",
-    "subtitle": "Contacts, plateformes et instruments réutilisables d'une fiche à l'autre.",
     "contacts": "Contacts",
     "platforms": "Plateformes",
-    "instruments": "Instruments"
+    "instruments": "Instruments",
+    "contactsHelp": "Personnes et organisations réutilisées d'une fiche à l'autre.",
+    "platformsHelp": "Navires, mouillages et autres plateformes réutilisables.",
+    "instrumentsHelp": "Instruments réutilisés d'une fiche à l'autre.",
+    "empty": "Rien d'enregistré pour le moment.",
+    "add": "Ajouter",
+    "save": "Enregistrer",
+    "deleted": "Supprimé",
+    "loadFailed": "Impossible de charger votre bibliothèque."
   },
   "review": {
     "title": "Réviser et soumettre",
@@ -234,5 +240,39 @@
     "name": "Nom",
     "description": "Description",
     "distribution": "Ressources"
+  },
+  "conflict": {
+    "title": "Conflit de modifications",
+    "banner": "Quelqu'un d'autre a modifié cette fiche",
+    "explain": "Vous avez modifié cette fiche pendant qu'elle changeait aussi dans le SIOOC. Rien n'est perdu — choisissez ce qu'il faut conserver.",
+    "autoMergeable": "Les modifications ne se chevauchent pas : les deux peuvent être conservées.",
+    "contested": "{{count}} champ modifié des deux côtés",
+    "contested_one": "{{count}} champ modifié des deux côtés",
+    "contested_other": "{{count}} champs modifiés des deux côtés",
+    "yours": "Les vôtres",
+    "theirs": "Dans le SIOOC",
+    "base": "Avant",
+    "keepMine": "Conserver les miennes",
+    "keepTheirs": "Conserver les leurs",
+    "merge": "Conserver les deux",
+    "resolved": "Résolu",
+    "empty": "(vide)",
+    "localOnly": "Modifié par vous seulement",
+    "remoteOnly": "Modifié dans le SIOOC seulement",
+    "other": "Autres champs"
+  },
+  "reviewQueue": {
+    "title": "Révision",
+    "subtitle": "Fiches soumises dans cette région.",
+    "empty": "Aucune fiche en attente de révision.",
+    "all": "Toutes",
+    "submitted": "Soumises",
+    "published": "Publiées",
+    "drafts": "Brouillons",
+    "publish": "Publier",
+    "unpublish": "Remettre en soumission",
+    "returnToDraft": "Remettre en brouillon",
+    "actionFailed": "L'opération a échoué. Réessayez.",
+    "confirm": "Confirmer ?"
   }
 }

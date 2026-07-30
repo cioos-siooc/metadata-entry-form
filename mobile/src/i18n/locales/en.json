@@ -31,11 +31,17 @@
     "staleList": "Showing what's on this device. Pull to refresh when you're back online."
   },
   "library": {
-    "title": "Library",
-    "subtitle": "Contacts, platforms and instruments you reuse across records.",
     "contacts": "Contacts",
     "platforms": "Platforms",
-    "instruments": "Instruments"
+    "instruments": "Instruments",
+    "contactsHelp": "People and organisations you reuse across records.",
+    "platformsHelp": "Vessels, moorings and other platforms you reuse.",
+    "instrumentsHelp": "Instruments you reuse across records.",
+    "empty": "Nothing saved yet.",
+    "add": "Add",
+    "save": "Save",
+    "deleted": "Removed",
+    "loadFailed": "Couldn't load your library."
   },
   "review": {
     "title": "Review & submit",
@@ -234,5 +240,39 @@
     "name": "Name",
     "description": "Description",
     "distribution": "Resources"
+  },
+  "conflict": {
+    "title": "Changes clash",
+    "banner": "Someone else changed this record",
+    "explain": "You edited this while it also changed on CIOOS. Nothing has been lost — choose what to keep.",
+    "autoMergeable": "The changes don't overlap, so both can be kept.",
+    "contested": "{{count}} field changed on both sides",
+    "contested_one": "{{count}} field changed on both sides",
+    "contested_other": "{{count}} fields changed on both sides",
+    "yours": "Yours",
+    "theirs": "On CIOOS",
+    "base": "Before",
+    "keepMine": "Keep mine",
+    "keepTheirs": "Keep theirs",
+    "merge": "Keep both",
+    "resolved": "Resolved",
+    "empty": "(empty)",
+    "localOnly": "Only you changed these",
+    "remoteOnly": "Only CIOOS changed these",
+    "other": "Other fields"
+  },
+  "reviewQueue": {
+    "title": "Review",
+    "subtitle": "Records submitted in this region.",
+    "empty": "Nothing is waiting for review.",
+    "all": "All",
+    "submitted": "Submitted",
+    "published": "Published",
+    "drafts": "Drafts",
+    "publish": "Publish",
+    "unpublish": "Return to submitted",
+    "returnToDraft": "Return to draft",
+    "actionFailed": "That didn't work. Try again.",
+    "confirm": "Are you sure?"
   }
 }
