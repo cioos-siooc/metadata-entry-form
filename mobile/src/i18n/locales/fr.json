@@ -71,7 +71,10 @@
     "language": "Langue",
     "appearance": "Apparence",
     "signOut": "Se déconnecter",
-    "designPreview": "Aperçu du design"
+    "designPreview": "Aperçu du design",
+    "account": "Compte et données",
+    "development": "Développement",
+    "devTools": "Serveurs et régions"
   },
   "appearance": {
     "light": "Clair",
@@ -356,7 +359,8 @@
     "new": "Nouveau mot de passe",
     "submit": "Enregistrer",
     "saved": "Mot de passe enregistré.",
-    "wrongCurrent": "Ce mot de passe actuel est incorrect."
+    "wrongCurrent": "Ce mot de passe actuel est incorrect.",
+    "link": "Définir ou modifier votre mot de passe"
   },
   "actions": {
     "title": "Actions",
@@ -389,7 +393,8 @@
     "kindStatus": "Changement d'état",
     "kindDelete": "Suppression",
     "syncNow": "Synchroniser maintenant",
-    "conflictOne": "Nécessite votre décision"
+    "conflictOne": "Nécessite votre décision",
+    "link": "File d'attente de synchronisation"
   },
   "sessions": {
     "title": "Appareils connectés",
@@ -428,5 +433,48 @@
       "registered": "Enregistré",
       "findable": "Repérable"
     }
+  },
+  "export": {
+    "title": "Télécharger",
+    "offline": "Les téléchargements nécessitent une connexion : le fichier est produit par le serveur.",
+    "format": {
+      "iso19115-3_xml": "XML ISO 19115-3",
+      "erddap": "XML ERDDAP",
+      "yaml": "YAML",
+      "eml": "EML",
+      "json": "JSON de la fiche",
+      "datacite_json": "JSON DataCite",
+      "datacite_xml": "XML DataCite"
+    }
+  },
+  "github": {
+    "title": "Publier sur GitHub",
+    "notConfigured": "GitHub n'est pas configuré pour cette région. Un administrateur peut le configurer sur le web.",
+    "environments": "Environnements",
+    "commitMessage": "Message de commit",
+    "publish": "Publier",
+    "step": {
+      "config": "Lecture des paramètres GitHub de la région…",
+      "converting": "Conversion de la fiche…",
+      "publishing": "Écriture sur GitHub…"
+    }
+  },
+  "dev": {
+    "title": "Paramètres de développement",
+    "subtitle": "Réglages propres à l'appareil, pour le développement et l'AQ. Absents de la version publiée.",
+    "server": "Serveur API",
+    "serverDefault": "Utilise l'adresse intégrée à cette version.",
+    "serverOverridden": "Remplacé. L'adresse de cette version est {{url}}.",
+    "serverHelp": "Hôte et chemin, p. ex. 192.168.1.20:3001/api. http:// est ajouté si vous l'omettez.",
+    "serverApply": "Utiliser ce serveur",
+    "serverReset": "Revenir à l'adresse par défaut",
+    "serverSaved": "Utilise maintenant {{url}}. Reconnectez-vous.",
+    "testConnection": "Tester la connexion",
+    "reachable": "Le serveur a répondu.",
+    "unreachable": "Aucune réponse de cette adresse.",
+    "region": "Région",
+    "regionHelp": "Saisissez directement un nom de région, même s'il n'apparaît pas encore dans la liste.",
+    "regionApply": "Changer de région",
+    "regionSaved": "Région définie sur {{region}}."
   }
 }

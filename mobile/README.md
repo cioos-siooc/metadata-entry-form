@@ -29,6 +29,19 @@ src/
   theme/          design tokens and the theme provider
 ```
 
+## Pointing the app at a server
+
+`EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` sets the address at build time. On
+a device that is often the wrong answer — a laptop's LAN address changes — so
+**More → Development → Servers and regions** overrides it at runtime, and also
+lets you type a region name the picker does not list yet (a freshly created
+tenant, say `test`). Changing the server signs you out: tokens are issued per
+server.
+
+That screen appears in a development build automatically. A QA build is a
+release build, so set `EXPO_PUBLIC_ENABLE_DEV_MENU=1` to keep it; production
+builds leave it unset and the screen is absent.
+
 ## Things worth knowing before changing anything
 
 **The accent colour is computed, not configured.** Each region ships its own

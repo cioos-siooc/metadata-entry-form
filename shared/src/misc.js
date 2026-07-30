@@ -64,10 +64,14 @@ export const trimStringsInObject = (obj) =>
   JSON.parse(JSON.stringify(obj, replacer));
 
 export function getRecordFilename(record) {
-  return `${record.title[record.language].slice(
-    0,
-    30,
-  )}_${record.identifier.slice(0, 5)}`
+  // `language` is the dataset's own language and is not always set — falling
+  // back keeps a publish from throwing on a record that is otherwise complete,
+  // which is worse than a filename in the other language.
+  const title = record?.title ?? {};
+  const text = title[record?.language] || title.en || title.fr || "untitled";
+  const identifier = record?.identifier ?? "";
+
+  return `${text.slice(0, 30)}_${identifier.slice(0, 5)}`
     .trim()
     .toLowerCase()
     .replace(/[^a-zA-Z0-9]/g, "_");

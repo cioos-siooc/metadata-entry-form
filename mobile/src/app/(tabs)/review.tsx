@@ -14,6 +14,8 @@ import {
 } from "@/api/records";
 import { useSession } from "@/auth/SessionProvider";
 import { Button } from "@/components/Button";
+import { ExportSheet } from "@/components/ExportSheet";
+import { GithubPublishSheet } from "@/components/GithubPublishSheet";
 import { RecordCard } from "@/components/RecordCard";
 import { TextInput } from "@/components/fields/TextInput";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -35,7 +37,7 @@ export default function ReviewScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { region, roles } = useSession();
+  const { region, roles, isOffline } = useSession();
 
   const [filter, setFilter] = useState<Filter>("submitted");
   const [records, setRecords] = useState<RecordListItem[]>([]);
@@ -46,6 +48,8 @@ export default function ReviewScreen() {
   const [transferring, setTransferring] = useState<string | null>(null);
   const [transferEmail, setTransferEmail] = useState("");
   const [transferProblem, setTransferProblem] = useState<string | null>(null);
+  const [exporting, setExporting] = useState<RecordListItem | null>(null);
+  const [publishing, setPublishing] = useState<RecordListItem | null>(null);
 
   const load = useCallback(async () => {
     if (!region) return;
@@ -200,6 +204,42 @@ export default function ReviewScreen() {
                   </Pressable>
                 ))}
 
+                <Pressable
+                  onPress={() => setExporting(item)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("export.title")}
+                  style={[
+                    styles.action,
+                    { borderColor: theme.colors.border, borderRadius: theme.radius.md },
+                  ]}
+                >
+                  <Text style={[theme.type.body, { color: theme.colors.text }]}>
+                    {t("export.title")}
+                  </Text>
+                </Pressable>
+
+                {/* Matches the web app: only a record that has left draft. */}
+                {item.status === "submitted" || item.status === "published" ? (
+                  <Pressable
+                    onPress={() => setPublishing(item)}
+                    disabled={isOffline}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("github.title")}
+                    style={[
+                      styles.action,
+                      {
+                        borderColor: theme.colors.border,
+                        borderRadius: theme.radius.md,
+                        opacity: isOffline ? 0.5 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[theme.type.body, { color: theme.colors.text }]}>
+                      {t("github.title")}
+                    </Text>
+                  </Pressable>
+                ) : null}
+
                 {/* Reviewer-only in the web app, and kept that way. */}
                 {transferring === item.recordID ? (
                   <View style={{ gap: theme.space.sm }}>
@@ -290,6 +330,26 @@ export default function ReviewScreen() {
             {t("review.ownerOnly")}
           </Text>
         </View>
+      ) : null}
+
+      {exporting && region ? (
+        <ExportSheet
+          visible
+          region={region}
+          record={exporting}
+          offline={isOffline}
+          onClose={() => setExporting(null)}
+        />
+      ) : null}
+
+      {publishing && region ? (
+        <GithubPublishSheet
+          visible
+          region={region}
+          record={publishing}
+          onClose={() => setPublishing(null)}
+          onPublished={load}
+        />
       ) : null}
     </View>
   );

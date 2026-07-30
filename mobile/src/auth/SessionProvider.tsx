@@ -11,6 +11,7 @@ import React, {
 import { get } from "@/api/client";
 import { ApiError, NetworkError } from "@/api/errors";
 import i18n, { deviceLanguage, type Language } from "@/i18n";
+import { loadApiBaseOverride } from "@/state/devSettings";
 import {
   loadPreferences,
   saveLanguage,
@@ -83,6 +84,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Before anything issues a request: a dev override has to be in place
+      // or the first calls go to the build-time address.
+      await loadApiBaseOverride();
       const prefs = await loadPreferences();
       if (cancelled) return;
 

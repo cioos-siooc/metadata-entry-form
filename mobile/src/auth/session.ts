@@ -1,4 +1,4 @@
-import { API_BASE_URL, postJson, rawRequest } from "@/api/transport";
+import { postJson, rawRequest } from "@/api/transport";
 import { ApiError, NetworkError } from "@/api/errors";
 
 import {
@@ -219,7 +219,6 @@ export function getCurrentUser(): SessionUser | null {
   return currentUser;
 }
 
-export { API_BASE_URL };
 
 // --- Account lifecycle -----------------------------------------------------
 //

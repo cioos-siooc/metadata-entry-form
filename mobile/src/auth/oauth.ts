@@ -2,7 +2,7 @@ import * as Crypto from "expo-crypto";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 
-import { API_BASE_URL } from "@/api/transport";
+import { apiRoot } from "@/api/transport";
 
 import { exchangeOAuthCode } from "./session";
 
@@ -61,7 +61,7 @@ export async function signInWithProvider(
   const { verifier, challenge } = await createPkcePair();
   const returnTo = Linking.createURL("auth-callback");
 
-  const start = new URL(`${API_BASE_URL}/v1/auth/oauth/${provider}/start`);
+  const start = new URL(`${apiRoot()}/v1/auth/oauth/${provider}/start`);
   start.searchParams.set("client", "native");
   start.searchParams.set("codeChallenge", challenge);
   start.searchParams.set("returnTo", returnTo);

@@ -71,7 +71,10 @@
     "language": "Language",
     "appearance": "Appearance",
     "signOut": "Sign out",
-    "designPreview": "Design preview"
+    "designPreview": "Design preview",
+    "account": "Account and data",
+    "development": "Development",
+    "devTools": "Servers and regions"
   },
   "appearance": {
     "light": "Light",
@@ -356,7 +359,8 @@
     "new": "New password",
     "submit": "Save",
     "saved": "Password saved.",
-    "wrongCurrent": "That current password is not right."
+    "wrongCurrent": "That current password is not right.",
+    "link": "Set or change your password"
   },
   "actions": {
     "title": "Actions",
@@ -389,7 +393,8 @@
     "kindStatus": "Status change",
     "kindDelete": "Deletion",
     "syncNow": "Sync now",
-    "conflictOne": "Needs your decision"
+    "conflictOne": "Needs your decision",
+    "link": "Sync queue"
   },
   "sessions": {
     "title": "Signed-in devices",
@@ -428,5 +433,48 @@
       "registered": "Registered",
       "findable": "Findable"
     }
+  },
+  "export": {
+    "title": "Download",
+    "offline": "Downloads need a connection — the file is built by the server.",
+    "format": {
+      "iso19115-3_xml": "ISO 19115-3 XML",
+      "erddap": "ERDDAP XML",
+      "yaml": "YAML",
+      "eml": "EML",
+      "json": "Record JSON",
+      "datacite_json": "DataCite JSON",
+      "datacite_xml": "DataCite XML"
+    }
+  },
+  "github": {
+    "title": "Publish to GitHub",
+    "notConfigured": "GitHub isn't set up for this region. An admin can configure it on the web.",
+    "environments": "Environments",
+    "commitMessage": "Commit message",
+    "publish": "Publish",
+    "step": {
+      "config": "Reading the region's GitHub settings…",
+      "converting": "Converting the record…",
+      "publishing": "Writing to GitHub…"
+    }
+  },
+  "dev": {
+    "title": "Developer settings",
+    "subtitle": "Per-device overrides for development and QA. Not shipped to users.",
+    "server": "API server",
+    "serverDefault": "Using the address this build was made with.",
+    "serverOverridden": "Overridden. This build's address is {{url}}.",
+    "serverHelp": "Host and path, e.g. 192.168.1.20:3001/api. http:// is assumed if you leave it out.",
+    "serverApply": "Use this server",
+    "serverReset": "Back to the build default",
+    "serverSaved": "Now using {{url}}. Sign in again.",
+    "testConnection": "Test connection",
+    "reachable": "The server answered.",
+    "unreachable": "No answer from that address.",
+    "region": "Region",
+    "regionHelp": "Type a region name directly, including one the picker doesn't list yet.",
+    "regionApply": "Switch region",
+    "regionSaved": "Region set to {{region}}."
   }
 }

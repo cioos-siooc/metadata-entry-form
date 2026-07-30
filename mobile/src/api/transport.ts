@@ -1,3 +1,5 @@
+import { apiBaseUrl } from "@/state/apiBase";
+
 import { ApiError, NetworkError, TimeoutError } from "./errors";
 
 /**
@@ -8,8 +10,12 @@ import { ApiError, NetworkError, TimeoutError } from "./errors";
  * session.ts for the bearer token.
  */
 
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
+/**
+ * The API root, read per request rather than captured once: a dev override can
+ * repoint the app at another server without a reload, and a value frozen at
+ * module load would leave half the app talking to the old one.
+ */
+export const apiRoot = apiBaseUrl;
 
 /**
  * Deliberately shorter than nginx's 60s default. On a marginal link the useful
@@ -27,7 +33,7 @@ export interface RequestOptions {
 }
 
 function buildUrl(path: string, params?: RequestOptions["params"]): string {
-  const url = new URL(`${API_BASE_URL}/v1${path}`);
+  const url = new URL(`${apiBaseUrl()}/v1${path}`);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) url.searchParams.set(key, String(value));

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, type Href } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -11,6 +11,37 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET, type ThemeName } from "@/theme/tokens";
 
 const THEME_CHOICES: (ThemeName | null)[] = [null, "light", "dark", "night"];
+
+/** One tappable row in a settings group. */
+function LinkRow({
+  href,
+  icon,
+  label,
+}: {
+  href: Href;
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+}) {
+  const theme = useTheme();
+  return (
+    <Link href={href} asChild>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={label}
+        style={{
+          minHeight: MIN_TOUCH_TARGET,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: theme.space.sm,
+        }}
+      >
+        <Ionicons name={icon} size={20} color={theme.colors.accent} />
+        <Text style={[theme.type.body, { color: theme.colors.accent, flex: 1 }]}>{label}</Text>
+        <Ionicons name="chevron-forward" size={16} color={theme.colors.textMuted} />
+      </Pressable>
+    </Link>
+  );
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const theme = useTheme();
@@ -71,6 +102,8 @@ function Choices<T>({
     </View>
   );
 }
+
+const showDevTools = __DEV__ || process.env.EXPO_PUBLIC_ENABLE_DEV_MENU === "1";
 
 export default function MoreScreen() {
   const { t } = useTranslation();
@@ -135,81 +168,32 @@ export default function MoreScreen() {
         </Text>
       </Section>
 
-      <Section title={t("setPassword.title")}>
-        <Link href="/auth/set-password" asChild>
-          <Pressable
-            accessibilityRole="link"
-            style={{
-              minHeight: MIN_TOUCH_TARGET,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.space.sm,
-            }}
-          >
-            <Ionicons name="key-outline" size={20} color={theme.colors.accent} />
-            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
-              {t("setPassword.title")}
-            </Text>
-          </Pressable>
-        </Link>
+      {/* One group, because a section heading that repeats its only row's
+          label reads as a duplicate rather than a heading. */}
+      <Section title={t("more.account")}>
+        <LinkRow href="/auth/set-password" icon="key-outline" label={t("setPassword.link")} />
+        <LinkRow
+          href="/sessions"
+          icon="phone-portrait-outline"
+          label={t("sessions.title")}
+        />
+        <LinkRow href="/queue" icon="cloud-upload-outline" label={t("queue.link")} />
       </Section>
 
-      <Section title={t("sessions.title")}>
-        <Link href="/sessions" asChild>
-          <Pressable
-            accessibilityRole="link"
-            style={{
-              minHeight: MIN_TOUCH_TARGET,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.space.sm,
-            }}
-          >
-            <Ionicons name="phone-portrait-outline" size={20} color={theme.colors.accent} />
-            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
-              {t("sessions.title")}
-            </Text>
-          </Pressable>
-        </Link>
-      </Section>
-
-      <Section title={t("queue.title")}>
-        <Link href="/queue" asChild>
-          <Pressable
-            accessibilityRole="link"
-            style={{
-              minHeight: MIN_TOUCH_TARGET,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.space.sm,
-            }}
-          >
-            <Ionicons name="cloud-upload-outline" size={20} color={theme.colors.accent} />
-            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
-              {t("queue.title")}
-            </Text>
-          </Pressable>
-        </Link>
-      </Section>
-
-      <Section title={t("more.designPreview")}>
-        <Link href="/design-preview" asChild>
-          <Pressable
-            accessibilityRole="link"
-            style={{
-              minHeight: MIN_TOUCH_TARGET,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.space.sm,
-            }}
-          >
-            <Ionicons name="color-palette-outline" size={20} color={theme.colors.accent} />
-            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
-              {t("more.designPreview")}
-            </Text>
-          </Pressable>
-        </Link>
-      </Section>
+      {/* Hidden from a production build, where these knobs are meaningless and
+          dangerous. A QA build is a release build, though — and pointing one at
+          staging without a rebuild is the whole reason this screen exists — so
+          EXPO_PUBLIC_ENABLE_DEV_MENU=1 turns it back on for those. */}
+      {showDevTools ? (
+        <Section title={t("more.development")}>
+          <LinkRow href="/dev" icon="construct-outline" label={t("more.devTools")} />
+          <LinkRow
+            href="/design-preview"
+            icon="color-palette-outline"
+            label={t("more.designPreview")}
+          />
+        </Section>
+      ) : null}
 
       <Button label={t("more.signOut")} variant="quiet" onPress={signOut} />
     </Screen>
