@@ -152,7 +152,7 @@ export function SpeciesSection({ document, update }: SectionProps) {
             </View>
           </Field>
 
-          <Field label={t("species.scientificName")}>
+          <Field label={t("species.taxaList")}>
             <Repeater<Taxon>
               items={taxa}
               onChange={(next) => update("taxa", next)}

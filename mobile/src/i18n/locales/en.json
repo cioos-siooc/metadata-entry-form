@@ -159,7 +159,10 @@
   "identification": {
     "titleHelp": "A short, descriptive name for the dataset. Both languages are required.",
     "themeHelp": "What kind of data this is. Choosing a theme makes the spatial section required.",
-    "scopeHelp": "What the record describes."
+    "scopeHelp": "What the record describes.",
+    "titleLabel": "Dataset title",
+    "themeLabel": "Theme",
+    "scopeLabel": "What this record describes"
   },
   "when": {
     "collectionHelp": "When the data was collected.",
@@ -240,7 +243,8 @@
     "description": "Description",
     "instruments": "Instruments",
     "manufacturer": "Manufacturer",
-    "version": "Version"
+    "version": "Version",
+    "platforms": "Platforms"
   },
   "species": {
     "help": "Species observed in this dataset.",
@@ -252,7 +256,8 @@
     "offlineResults": "Showing taxa this device has seen before.",
     "offlineNone": "GBIF is unreachable and nothing matching is saved on this device. Type the name instead.",
     "addTaxon": "Add {{name}}",
-    "addByHand": "Add a taxon by hand"
+    "addByHand": "Add a taxon by hand",
+    "taxaList": "Taxa in this record"
   },
   "resourcesSection": {
     "help": "Where the data can be downloaded.",
@@ -404,5 +409,24 @@
     "verified": "I have verified this translation",
     "unverified": "Machine translation — not yet verified",
     "failed": "Translation didn't work. Try again or write it yourself."
+  },
+  "doi": {
+    "title": "DOI",
+    "help": "A permanent identifier for this dataset, registered with DataCite.",
+    "generate": "Generate a draft DOI",
+    "update": "Push metadata to DataCite",
+    "delete": "Delete this draft DOI",
+    "deleteConfirm": "Delete the draft DOI? The identifier will no longer resolve.",
+    "created": "Draft DOI registered.",
+    "updated": "Metadata sent to DataCite.",
+    "deleted": "Draft DOI deleted.",
+    "failed": "DataCite didn't accept that. Try again.",
+    "offline": "DOIs need a connection — they are never queued, because a retry would mint a second one.",
+    "saveFirst": "Save the record to CIOOS before registering a DOI.",
+    "state": {
+      "draft": "Draft",
+      "registered": "Registered",
+      "findable": "Findable"
+    }
   }
 }

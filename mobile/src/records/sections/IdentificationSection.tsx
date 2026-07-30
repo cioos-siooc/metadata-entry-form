@@ -4,6 +4,7 @@ import themesList from "@cioos/shared/themes.js";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+import { DoiPanel } from "@/components/DoiPanel";
 import { BilingualTextInput } from "@/components/fields/BilingualTextInput";
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
@@ -11,7 +12,11 @@ import type { Language } from "@/i18n";
 
 import type { SectionProps } from "./types";
 
-/** Title, theme and scope — the three things that must exist first. */
+/**
+ * Title, theme and scope — the three things that must exist first, plus the
+ * record's DOI, which lives here because it identifies the dataset rather than
+ * describing it.
+ */
 export function IdentificationSection({ document, update }: SectionProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language as Language;
@@ -45,14 +50,14 @@ export function IdentificationSection({ document, update }: SectionProps) {
 
   return (
     <>
-      <Field label={t("records.title")} help={t("identification.titleHelp")} required>
+      <Field label={t("identification.titleLabel")} help={t("identification.titleHelp")} required>
         <BilingualTextInput
           value={document.title as { en: string; fr: string }}
           onChange={(next) => update("title", next)}
         />
       </Field>
 
-      <Field label={t("about.eov")} help={t("identification.themeHelp")} required>
+      <Field label={t("identification.themeLabel")} help={t("identification.themeHelp")} required>
         <ChoiceInput
           multiple
           choices={themeChoices}
@@ -61,13 +66,15 @@ export function IdentificationSection({ document, update }: SectionProps) {
         />
       </Field>
 
-      <Field label={t("sections.about")} help={t("identification.scopeHelp")} required>
+      <Field label={t("identification.scopeLabel")} help={t("identification.scopeHelp")} required>
         <ChoiceInput
           choices={scopeChoices}
           selected={document.metadataScope ? [document.metadataScope as string] : []}
           onChange={(next) => update("metadataScope", next[0] ?? "")}
         />
       </Field>
+
+      <DoiPanel document={document} update={update} />
     </>
   );
 }

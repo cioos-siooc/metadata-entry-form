@@ -159,7 +159,10 @@
   "identification": {
     "titleHelp": "Un nom court et descriptif pour le jeu de données. Les deux langues sont requises.",
     "themeHelp": "Le type de données. Choisir une discipline rend la section « Où » obligatoire.",
-    "scopeHelp": "Ce que décrit la fiche."
+    "scopeHelp": "Ce que décrit la fiche.",
+    "titleLabel": "Titre du jeu de données",
+    "themeLabel": "Thème",
+    "scopeLabel": "Ce que décrit cette fiche"
   },
   "when": {
     "collectionHelp": "Quand les données ont été recueillies.",
@@ -240,7 +243,8 @@
     "description": "Description",
     "instruments": "Instruments",
     "manufacturer": "Fabricant",
-    "version": "Version"
+    "version": "Version",
+    "platforms": "Plateformes"
   },
   "species": {
     "help": "Espèces observées dans ce jeu de données.",
@@ -252,7 +256,8 @@
     "offlineResults": "Affichage des taxons déjà vus sur cet appareil.",
     "offlineNone": "GBIF est injoignable et aucun taxon correspondant n'est enregistré sur cet appareil. Saisissez le nom à la main.",
     "addTaxon": "Ajouter {{name}}",
-    "addByHand": "Ajouter un taxon à la main"
+    "addByHand": "Ajouter un taxon à la main",
+    "taxaList": "Taxons de cette fiche"
   },
   "resourcesSection": {
     "help": "Où les données peuvent être téléchargées.",
@@ -404,5 +409,24 @@
     "verified": "J'ai vérifié cette traduction",
     "unverified": "Traduction automatique — non vérifiée",
     "failed": "La traduction a échoué. Réessayez ou rédigez-la vous-même."
+  },
+  "doi": {
+    "title": "DOI",
+    "help": "Un identifiant permanent pour ce jeu de données, enregistré auprès de DataCite.",
+    "generate": "Générer un DOI provisoire",
+    "update": "Envoyer les métadonnées à DataCite",
+    "delete": "Supprimer ce DOI provisoire",
+    "deleteConfirm": "Supprimer le DOI provisoire ? L'identifiant ne sera plus résolu.",
+    "created": "DOI provisoire enregistré.",
+    "updated": "Métadonnées envoyées à DataCite.",
+    "deleted": "DOI provisoire supprimé.",
+    "failed": "DataCite a refusé l'opération. Réessayez.",
+    "offline": "Les DOI nécessitent une connexion : ils ne sont jamais mis en file d'attente, car une reprise en créerait un second.",
+    "saveFirst": "Enregistrez la fiche dans CIOOS avant d'enregistrer un DOI.",
+    "state": {
+      "draft": "Provisoire",
+      "registered": "Enregistré",
+      "findable": "Repérable"
+    }
   }
 }

@@ -74,7 +74,7 @@ export function PlatformSection({ document, update }: SectionProps) {
 
       {!noPlatform ? (
         <>
-          <Field label={t("sections.platform")}>
+          <Field label={t("platformSection.platforms")}>
             <Repeater<Platform>
               items={platforms}
               onChange={(next) => update("platforms", next)}
