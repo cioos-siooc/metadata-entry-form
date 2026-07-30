@@ -274,5 +274,21 @@
     "returnToDraft": "Remettre en brouillon",
     "actionFailed": "L'opération a échoué. Réessayez.",
     "confirm": "Confirmer ?"
+  },
+  "map": {
+    "title": "Sur une carte",
+    "boxMode": "Dessiner un cadre",
+    "polygonMode": "Dessiner une forme",
+    "done": "Terminé",
+    "clear": "Effacer",
+    "recentre": "Recentrer",
+    "boxHint": "Touchez deux coins opposés.",
+    "polygonHint": "Touchez pour ajouter des points, puis Terminé.",
+    "points": "{{count}} point",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "needsThree": "Une forme nécessite au moins trois points.",
+    "undo": "Annuler le dernier point",
+    "noShape": "Aucune zone définie."
   }
 }

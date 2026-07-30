@@ -274,5 +274,21 @@
     "returnToDraft": "Return to draft",
     "actionFailed": "That didn't work. Try again.",
     "confirm": "Are you sure?"
+  },
+  "map": {
+    "title": "On a map",
+    "boxMode": "Draw a box",
+    "polygonMode": "Draw a shape",
+    "done": "Done",
+    "clear": "Clear",
+    "recentre": "Recentre",
+    "boxHint": "Tap two opposite corners.",
+    "polygonHint": "Tap to add points, then Done.",
+    "points": "{{count}} point",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "needsThree": "A shape needs at least three points.",
+    "undo": "Undo last point",
+    "noShape": "No area set yet."
   }
 }

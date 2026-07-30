@@ -8,6 +8,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
+import { MapSelect } from "@/components/fields/MapSelect";
+import type { MapValue } from "@/components/fields/mapValue";
 import { TextInput } from "@/components/fields/TextInput";
 import type { Language } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -15,22 +17,13 @@ import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
 import type { SectionProps } from "./types";
 
-interface MapValue {
-  north?: string;
-  south?: string;
-  east?: string;
-  west?: string;
-  polygon?: string;
-  description?: { en: string; fr: string };
-}
-
 /**
- * Where — coordinates and vertical extent.
+ * Where — a map, coordinates and vertical extent.
  *
- * The map itself is a later phase; this is the numeric path, which is what a
- * technician reading a GPS actually needs, plus a one-tap capture of the current
- * position. "Use my location" is carried over from the web app, which already
- * does exactly this: a ±0.1° box around the device.
+ * Three ways in, all writing the same `map` object, because they suit different
+ * moments: sketching an area on the map, typing coordinates read off a GPS, or
+ * one-tap capture of the current position. "Use my location" produces a ±0.1°
+ * box, matching the web app — a single point is not a valid extent.
  */
 export function WhereSection({ document, update }: SectionProps) {
   const theme = useTheme();
@@ -85,7 +78,8 @@ export function WhereSection({ document, update }: SectionProps) {
       </Text>
       <TextInput
         mono
-        value={map[key] ?? ""}
+        // Numbers when the map wrote them, strings when typed.
+        value={map[key] === undefined || map[key] === null ? "" : String(map[key])}
         onChangeText={(next) => setMap({ [key]: next, polygon: "" })}
         keyboardType="numbers-and-punctuation"
         accessibilityLabel={t(`where.${key}`)}
@@ -97,7 +91,14 @@ export function WhereSection({ document, update }: SectionProps) {
 
   return (
     <>
-      <Field label={t("where.bbox")} help={t("where.bboxHelp")} required error={locationError}>
+      {/* The map first, then the numbers. Both write the same `map` object, and
+          either is a complete answer — a technician reading a GPS may never open
+          the map, and someone sketching an area may never type a coordinate. */}
+      <Field label={t("map.title")} required error={locationError}>
+        <MapSelect value={map} onChange={(next) => update("map", next)} />
+      </Field>
+
+      <Field label={t("where.bbox")} help={t("where.bboxHelp")}>
         <View style={{ gap: theme.space.sm }}>
           <View style={styles.row}>{[coordinate("north"), coordinate("south")]}</View>
           <View style={styles.row}>{[coordinate("east"), coordinate("west")]}</View>
