@@ -20,6 +20,8 @@ export {
 
 export { createWarnings } from "./validateWarnings.js";
 
+export { localized, hasLanguage } from "./localized.js";
+
 export {
   getBlankRecord,
   getBlankContact,
