@@ -246,7 +246,13 @@
     "help": "Espèces observées dans ce jeu de données.",
     "noTaxa": "Aucune couverture taxonomique",
     "scientificName": "Nom scientifique",
-    "search": "Rechercher une espèce"
+    "search": "Rechercher dans GBIF",
+    "searchHelp": "Trouvez un taxon par son nom. Les entrées saisies à la main sont tout aussi valides.",
+    "searching": "Recherche en cours…",
+    "offlineResults": "Affichage des taxons déjà vus sur cet appareil.",
+    "offlineNone": "GBIF est injoignable et aucun taxon correspondant n'est enregistré sur cet appareil. Saisissez le nom à la main.",
+    "addTaxon": "Ajouter {{name}}",
+    "addByHand": "Ajouter un taxon à la main"
   },
   "resourcesSection": {
     "help": "Où les données peuvent être téléchargées.",

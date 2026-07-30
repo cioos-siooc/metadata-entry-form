@@ -246,7 +246,13 @@
     "help": "Species observed in this dataset.",
     "noTaxa": "No taxonomic coverage",
     "scientificName": "Scientific name",
-    "search": "Search species"
+    "search": "Search GBIF",
+    "searchHelp": "Find a taxon by name. Typed entries are equally valid.",
+    "searching": "Searching…",
+    "offlineResults": "Showing taxa this device has seen before.",
+    "offlineNone": "GBIF is unreachable and nothing matching is saved on this device. Type the name instead.",
+    "addTaxon": "Add {{name}}",
+    "addByHand": "Add a taxon by hand"
   },
   "resourcesSection": {
     "help": "Where the data can be downloaded.",
