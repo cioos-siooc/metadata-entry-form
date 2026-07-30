@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from "expo-device";
-import { useRouter } from "expo-router";
+
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -13,6 +13,8 @@ import { formatRecordDate } from "@/components/fields/dateValue";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 /**
  * Signed-in devices, and how to sign one out remotely.
  *
@@ -24,7 +26,7 @@ import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 export default function SessionsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const router = useRouter();
+  const goBack = useGoBack("/(tabs)/more");
   const insets = useSafeAreaInsets();
 
   const [sessions, setSessions] = useState<DeviceSession[] | null>(null);
@@ -77,7 +79,7 @@ export default function SessionsScreen() {
         }}
       >
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
           style={styles.back}

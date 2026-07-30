@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -19,6 +19,8 @@ import { setApiBaseOverride } from "@/state/devSettings";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 /**
  * Developer settings.
  *
@@ -34,7 +36,7 @@ import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 export default function DevScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
+  const goBack = useGoBack("/(tabs)/more");
   const insets = useSafeAreaInsets();
   const { region, setRegion, signOut } = useSession();
 
@@ -87,7 +89,7 @@ export default function DevScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => goBack()}
         accessibilityRole="button"
         accessibilityLabel={t("common.back")}
         style={styles.back}

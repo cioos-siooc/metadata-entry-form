@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text } from "react-native";
@@ -9,6 +9,7 @@ import { AuthScreen } from "@/components/AuthScreen";
 import { Button } from "@/components/Button";
 import { LabelledInput } from "@/components/LabelledInput";
 import { useTheme } from "@/theme/ThemeProvider";
+import { useGoBack } from "@/navigation/useGoBack";
 
 const MIN_PASSWORD = 8;
 
@@ -22,7 +23,7 @@ const MIN_PASSWORD = 8;
 export default function SetPasswordScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
+  const goBack = useGoBack("/(tabs)/more");
 
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -54,14 +55,14 @@ export default function SetPasswordScreen() {
     <AuthScreen
       title={t("setPassword.title")}
       subtitle={t("setPassword.addHelp")}
-      onBack={() => router.back()}
+      onBack={() => goBack()}
     >
       {done ? (
         <>
           <Text style={[theme.type.body, { color: theme.semantic.complete }]}>
             {t("setPassword.saved")}
           </Text>
-          <Button label={t("editor.back")} onPress={() => router.back()} />
+          <Button label={t("editor.back")} onPress={() => goBack()} />
         </>
       ) : (
         <>

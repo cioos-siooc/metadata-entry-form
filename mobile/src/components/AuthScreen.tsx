@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useGoBack } from "@/navigation/useGoBack";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -22,7 +22,9 @@ export function AuthScreen({
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
+  // These screens are opened from verification and reset emails, so there is
+  // routinely nothing behind them.
+  const goBack = useGoBack("/sign-in");
   const insets = useSafeAreaInsets();
 
   return (
@@ -36,7 +38,7 @@ export function AuthScreen({
       keyboardShouldPersistTaps="handled"
     >
       <Pressable
-        onPress={onBack ?? (() => router.back())}
+        onPress={onBack ?? goBack}
         accessibilityRole="button"
         accessibilityLabel={t("forgot.back")}
         style={styles.back}

@@ -25,6 +25,8 @@ import { buildLedger } from "@/records/ledger";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 /**
  * The record hub — the centre of the hub-and-spoke design.
  *
@@ -38,6 +40,7 @@ export default function RecordHubScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const goBack = useGoBack("/(tabs)");
   const insets = useSafeAreaInsets();
   const { region } = useSession();
   const db = useDatabase();
@@ -178,7 +181,7 @@ export default function RecordHubScreen() {
       }}
     >
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => goBack()}
         accessibilityRole="button"
         accessibilityLabel={t("common.close")}
         style={styles.back}

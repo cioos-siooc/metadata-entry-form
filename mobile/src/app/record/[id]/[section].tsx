@@ -16,6 +16,8 @@ import { useRecordDraft } from "@/records/useRecordDraft";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 /**
  * A section editor — one spoke of the hub.
  *
@@ -31,6 +33,8 @@ export default function SectionEditorScreen() {
   const db = useDatabase();
   const { user, region } = useSession();
   const { id, section } = useLocalSearchParams<{ id: string; section: SectionId | "review" }>();
+  // The hub, not the history: this screen is reachable straight from a link.
+  const goBack = useGoBack(`/record/${id}`);
 
   const { record, document, status, update, save } = useRecordDraft(db, id, user?.userID);
   const [submitting, setSubmitting] = useState(false);
@@ -73,7 +77,7 @@ export default function SectionEditorScreen() {
     setSubmitting(true);
     try {
       await setRecordStatus(region, record.recordID, "submitted");
-      router.back();
+      goBack();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : t("records.loadFailed"));
     } finally {
@@ -92,7 +96,7 @@ export default function SectionEditorScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           accessibilityRole="button"
           accessibilityLabel={t("editor.back")}
           style={styles.back}

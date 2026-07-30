@@ -15,6 +15,8 @@ import { useSync } from "@/offline/useSync";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 const KIND_KEY: Record<string, string> = {
   "record.create": "queue.kindCreate",
   "record.update": "queue.kindUpdate",
@@ -34,6 +36,7 @@ export default function QueueScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const goBack = useGoBack("/(tabs)/more");
   const insets = useSafeAreaInsets();
   const db = useDatabase();
   const { isOffline } = useSession();
@@ -116,7 +119,7 @@ export default function QueueScreen() {
         }}
       >
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
           style={styles.back}

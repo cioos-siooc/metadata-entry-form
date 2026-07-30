@@ -1,7 +1,7 @@
 import { localized } from "@cioos/shared/localized.js";
 import { Ionicons } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -19,6 +19,8 @@ import { getRecordByLocalId, type CachedRecord } from "@/offline/db";
 import { resolveConflict, type Resolution } from "@/offline/resolve";
 import { useTheme } from "@/theme/ThemeProvider";
 
+import { useGoBack } from "@/navigation/useGoBack";
+
 /**
  * Conflict resolution.
  *
@@ -30,11 +32,11 @@ import { useTheme } from "@/theme/ThemeProvider";
 export default function ConflictScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const db = useDatabase();
   const { region, user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const goBack = useGoBack(`/record/${id}`);
   const language = i18n.language as Language;
 
   const [record, setRecord] = useState<CachedRecord | null>(null);
@@ -81,14 +83,14 @@ export default function ConflictScreen() {
           user.userID,
           Crypto.randomUUID(),
         );
-        router.back();
+        goBack();
       } catch {
         setError(t("reviewQueue.actionFailed"));
       } finally {
         setBusy(false);
       }
     },
-    [db, id, analysis, theirs, user, router, t],
+    [db, id, analysis, theirs, user, goBack, t],
   );
 
   const show = (value: unknown): string => {
