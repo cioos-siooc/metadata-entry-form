@@ -89,10 +89,16 @@ export function SectionRow({
   const title = t(`sections.${section.id}`);
   const color = stateColor(section.state, theme, section.touched);
 
+  // A vacuous pass — every validator in the section satisfied while the section
+  // holds nothing — must not be described as "2 of 2 required". Six validators
+  // do exactly this on an empty record, and saying "required" there is how a
+  // ledger ends up lying about work that has not been done.
   const detail =
-    section.required > 0
-      ? t("ledger.required", { satisfied: section.satisfied, required: section.required })
-      : t("ledger.fields", { filled: section.filled, total: section.total });
+    section.state === "empty" && section.required > 0
+      ? t("ledger.state.empty")
+      : section.required > 0
+        ? t("ledger.required", { satisfied: section.satisfied, required: section.required })
+        : t("ledger.fields", { filled: section.filled, total: section.total });
 
   return (
     <Pressable
@@ -122,9 +128,11 @@ export function SectionRow({
           </Text>
           {/* Tabular figures so these align down the column. */}
           <Text style={[theme.type.dataSmall, { color: theme.colors.textMuted }]}>
-            {section.required > 0
-              ? `${section.satisfied}/${section.required}`
-              : `${section.filled}/${section.total}`}
+            {section.state === "empty"
+              ? `${section.filled}/${section.total}`
+              : section.required > 0
+                ? `${section.satisfied}/${section.required}`
+                : `${section.filled}/${section.total}`}
           </Text>
         </View>
 

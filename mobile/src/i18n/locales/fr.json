@@ -108,7 +108,8 @@
     "retry": "Réessayer",
     "cancel": "Annuler",
     "close": "Fermer",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "back": "Retour"
   },
   "designPreview": {
     "title": "Aperçu du design",
@@ -290,5 +291,91 @@
     "needsThree": "Une forme nécessite au moins trois points.",
     "undo": "Annuler le dernier point",
     "noShape": "Aucune zone définie."
+  },
+  "register": {
+    "title": "Créer un compte",
+    "name": "Votre nom",
+    "submit": "Créer le compte",
+    "haveAccount": "J'ai déjà un compte",
+    "check": "Vérifiez vos courriels",
+    "sent": "Si cette adresse peut être utilisée, nous avons envoyé un lien de confirmation.",
+    "passwordRule": "Au moins 8 caractères.",
+    "weak": "Ce mot de passe est trop court."
+  },
+  "forgot": {
+    "title": "Aide pour le mot de passe",
+    "explain": "Nous vous enverrons un lien pour définir un nouveau mot de passe.",
+    "submit": "Envoyer le lien",
+    "sent": "Si cette adresse est enregistrée, le lien est en route.",
+    "back": "Retour à la connexion",
+    "link": "Mot de passe oublié ?",
+    "oauthNote": "Cela fonctionne aussi si vous vous connectez habituellement avec Google, Microsoft ou ORCID et souhaitez ajouter un mot de passe."
+  },
+  "reset": {
+    "title": "Définir un mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "submit": "Enregistrer",
+    "done": "Mot de passe enregistré. Vous pouvez vous connecter.",
+    "invalid": "Ce lien a expiré. Demandez-en un nouveau."
+  },
+  "verify": {
+    "title": "Confirmation de votre courriel",
+    "working": "Un instant…",
+    "done": "Votre courriel est confirmé. Vous pouvez vous connecter.",
+    "invalid": "Ce lien a expiré. Essayez de vous connecter pour en obtenir un nouveau."
+  },
+  "setPassword": {
+    "title": "Mot de passe",
+    "addHelp": "Ajoutez un mot de passe pour vous connecter sans fournisseur.",
+    "changeHelp": "Modifier votre mot de passe.",
+    "current": "Mot de passe actuel",
+    "new": "Nouveau mot de passe",
+    "submit": "Enregistrer",
+    "saved": "Mot de passe enregistré.",
+    "wrongCurrent": "Ce mot de passe actuel est incorrect."
+  },
+  "actions": {
+    "title": "Actions",
+    "delete": "Supprimer la fiche",
+    "deleteConfirm": "Supprimer cette fiche ? Cette action est irréversible.",
+    "clone": "Dupliquer la fiche",
+    "cloned": "Dupliquée",
+    "share": "Partager pour modification",
+    "shareHelp": "Les personnes choisies peuvent modifier cette fiche, mais pas la soumettre.",
+    "transfer": "Transférer la propriété",
+    "transferHelp": "Entrez le courriel du nouveau propriétaire.",
+    "transferred": "Propriété transférée",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "failed": "L'opération a échoué.",
+    "offlineOnly": "Enregistrez la fiche avant de faire cela.",
+    "searchPeople": "Rechercher par nom ou courriel"
+  },
+  "queue": {
+    "title": "En attente de synchronisation",
+    "empty": "Tout est synchronisé.",
+    "retry": "Réessayer",
+    "discard": "Abandonner la modification",
+    "discardConfirm": "Abandonner cette modification ? Elle sera perdue.",
+    "attempts": "{{count}} tentative",
+    "attempts_one": "{{count}} tentative",
+    "attempts_other": "{{count}} tentatives",
+    "kindCreate": "Nouvelle fiche",
+    "kindUpdate": "Modification",
+    "kindStatus": "Changement d'état",
+    "kindDelete": "Suppression",
+    "syncNow": "Synchroniser maintenant",
+    "conflictOne": "Nécessite votre décision"
+  },
+  "sessions": {
+    "title": "Appareils connectés",
+    "thisDevice": "Cet appareil",
+    "signOutOne": "Déconnecter",
+    "empty": "Aucun autre appareil.",
+    "lastUsed": "Dernière utilisation {{when}}",
+    "browser": "Navigateur web",
+    "unnamed": "Appareil sans nom",
+    "signOutConfirm": "Déconnecter {{device}} ? Une nouvelle connexion sera nécessaire.",
+    "signedIn": "Connecté le {{when}}"
   }
 }

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 
 import type { QueueStats } from "@/offline/queue";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -26,6 +27,7 @@ export function SyncStatus({
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
 
   const needsAttention = stats.conflicts + stats.poison;
 
@@ -55,11 +57,23 @@ export function SyncStatus({
   // "all good" badge to every screen.
   if (!message) return null;
 
+  // Tappable whenever there is queued work, so "needs attention" leads
+  // somewhere the user can act rather than being a dead end.
+  const actionable = stats.pending > 0 || needsAttention > 0;
+
   return (
-    <View style={styles.row} accessibilityLiveRegion="polite">
+    <Pressable
+      onPress={actionable ? () => router.push("/queue") : undefined}
+      disabled={!actionable}
+      accessibilityRole={actionable ? "button" : undefined}
+      accessibilityLabel={actionable ? t("queue.title") : undefined}
+      style={styles.row}
+      accessibilityLiveRegion="polite"
+    >
       <Ionicons name={icon} size={16} color={colour} />
       <Text style={[theme.type.caption, { color: colour, flex: 1 }]}>{message}</Text>
-    </View>
+      {actionable ? <Ionicons name="chevron-forward" size={14} color={colour} /> : null}
+    </Pressable>
   );
 }
 

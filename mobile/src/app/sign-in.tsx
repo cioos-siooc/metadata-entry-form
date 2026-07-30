@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TextInput, View } from "react-native";
@@ -22,6 +23,7 @@ const PROVIDERS: { id: OAuthProvider; labelKey: string; icon: keyof typeof Ionic
 export default function SignInScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
   const { signIn, signInWith } = useSession();
 
   const [email, setEmail] = useState("");
@@ -121,6 +123,20 @@ export default function SignInScreen() {
           onPress={submitPassword}
           busy={busy === "password"}
           disabled={!email.trim() || !password || busy !== null}
+        />
+
+        <Button
+          label={t("forgot.link")}
+          variant="quiet"
+          onPress={() => router.push("/auth/forgot-password")}
+          disabled={busy !== null}
+        />
+
+        <Button
+          label={t("register.title")}
+          variant="secondary"
+          onPress={() => router.push("/auth/register")}
+          disabled={busy !== null}
         />
 
         <Text

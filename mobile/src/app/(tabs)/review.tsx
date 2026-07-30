@@ -4,15 +4,18 @@ import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { NetworkError } from "@/api/errors";
+import { ApiError, NetworkError } from "@/api/errors";
 import {
   allRegionRecords,
   setRecordStatus,
+  transferRecord,
   type RecordListItem,
   type RecordStatus,
 } from "@/api/records";
 import { useSession } from "@/auth/SessionProvider";
+import { Button } from "@/components/Button";
 import { RecordCard } from "@/components/RecordCard";
+import { TextInput } from "@/components/fields/TextInput";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -40,6 +43,9 @@ export default function ReviewScreen() {
   const [problem, setProblem] = useState<"offline" | "error" | null>(null);
   const [acting, setActing] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [transferring, setTransferring] = useState<string | null>(null);
+  const [transferEmail, setTransferEmail] = useState("");
+  const [transferProblem, setTransferProblem] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!region) return;
@@ -66,6 +72,24 @@ export default function ReviewScreen() {
       await load();
     } catch {
       setProblem("error");
+    } finally {
+      setActing(null);
+    }
+  };
+
+  const doTransfer = async (recordID: string) => {
+    if (!region || !transferEmail.trim()) return;
+    setTransferProblem(null);
+    setActing(recordID);
+    try {
+      await transferRecord(region, recordID, transferEmail.trim());
+      setTransferring(null);
+      setTransferEmail("");
+      await load();
+    } catch (err) {
+      // "No user with that email in this region" is the common case and the
+      // server already says it well; a generic failure hides the fix.
+      setTransferProblem(err instanceof ApiError ? err.message : t("actions.failed"));
     } finally {
       setActing(null);
     }
@@ -175,6 +199,59 @@ export default function ReviewScreen() {
                     </Text>
                   </Pressable>
                 ))}
+
+                {/* Reviewer-only in the web app, and kept that way. */}
+                {transferring === item.recordID ? (
+                  <View style={{ gap: theme.space.sm }}>
+                    <Text style={[theme.type.caption, { color: theme.colors.textMuted }]}>
+                      {t("actions.transferHelp")}
+                    </Text>
+                    <TextInput
+                      value={transferEmail}
+                      onChangeText={setTransferEmail}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      accessibilityLabel={t("auth.email")}
+                    />
+                    {transferProblem ? (
+                      <Text
+                        style={[theme.type.bodySmall, { color: theme.semantic.error }]}
+                        accessibilityLiveRegion="polite"
+                      >
+                        {transferProblem}
+                      </Text>
+                    ) : null}
+                    <Button
+                      label={t("actions.confirm")}
+                      onPress={() => doTransfer(item.recordID)}
+                      busy={acting === item.recordID}
+                      disabled={!transferEmail.trim()}
+                    />
+                    <Button
+                      label={t("actions.cancel")}
+                      variant="quiet"
+                      onPress={() => {
+                        setTransferring(null);
+                        setTransferEmail("");
+                        setTransferProblem(null);
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <Pressable
+                    onPress={() => setTransferring(item.recordID)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("actions.transfer")}
+                    style={[
+                      styles.action,
+                      { borderColor: theme.colors.border, borderRadius: theme.radius.md },
+                    ]}
+                  >
+                    <Text style={[theme.type.body, { color: theme.colors.text }]}>
+                      {t("actions.transfer")}
+                    </Text>
+                  </Pressable>
+                )}
 
                 <Pressable
                   onPress={() => router.push(`/record/${item.recordID}`)}

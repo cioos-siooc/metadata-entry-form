@@ -1,4 +1,4 @@
-import { API_BASE_URL, postJson } from "@/api/transport";
+import { API_BASE_URL, postJson, rawRequest } from "@/api/transport";
 import { ApiError, NetworkError } from "@/api/errors";
 
 import {
@@ -220,3 +220,52 @@ export function getCurrentUser(): SessionUser | null {
 }
 
 export { API_BASE_URL };
+
+// --- Account lifecycle -----------------------------------------------------
+//
+// These use the browser auth routes rather than the native namespace: they mint
+// no session, so there is nothing to transport differently. Registration and
+// reset deliberately return the same acknowledgement whether or not the address
+// exists — the server does this to avoid account enumeration, and the UI copy
+// has to match or it leaks the very thing the server is protecting.
+
+/** Creates a local account. The server emails a confirmation link. */
+export async function register(
+  email: string,
+  password: string,
+  name?: string,
+): Promise<void> {
+  await postJson("/auth/register", { email, password, name });
+}
+
+/**
+ * Asks for a password link.
+ *
+ * Also the route by which an OAuth-only user gets their first password — the
+ * server no longer requires an existing one, and sends "set a password" copy
+ * instead of "reset".
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  await postJson("/auth/password/reset/request", { email });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await postJson("/auth/password/reset", { token, newPassword });
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await postJson("/auth/verify-email", { token });
+}
+
+/** Sets or changes a password while signed in. Requires a bearer token. */
+export async function setPassword(
+  newPassword: string,
+  currentPassword?: string,
+): Promise<void> {
+  const token = await getAccessToken();
+  await rawRequest("/auth/password", {
+    method: "POST",
+    body: { newPassword, currentPassword },
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+}

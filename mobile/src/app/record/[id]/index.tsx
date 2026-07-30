@@ -7,10 +7,18 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { NetworkError } from "@/api/errors";
-import { getRecord as fetchRecord, type MetadataRecord } from "@/api/records";
+import {
+  cloneRecord,
+  deleteRecord,
+  getRecord as fetchRecord,
+  type MetadataRecord,
+} from "@/api/records";
 import { useSession } from "@/auth/SessionProvider";
 import { useDatabase } from "@/offline/DatabaseProvider";
 import { getRecord as readCachedRecord, upsertRecord } from "@/offline/db";
+import { ConfirmSheet } from "@/components/ConfirmSheet";
+import { ShareSheet } from "@/components/ShareSheet";
+import { Button } from "@/components/Button";
 import { LedgerSummary, SectionRow } from "@/components/CompletenessLedger";
 import type { Language } from "@/i18n";
 import { buildLedger } from "@/records/ledger";
@@ -37,6 +45,11 @@ export default function RecordHubScreen() {
 
   const [record, setRecord] = useState<MetadataRecord | null>(null);
   const [conflicted, setConflicted] = useState(false);
+  const [serverId, setServerId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<null | "delete">(null);
+  const [sharing, setSharing] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [problem, setProblem] = useState<"offline" | "missing" | "error" | null>(null);
 
   const load = useCallback(async () => {
@@ -49,6 +62,7 @@ export default function RecordHubScreen() {
     if (cached) {
       setRecord(cached.document);
       setConflicted(cached.syncState === "conflict");
+      setServerId(cached.recordID);
     }
 
     // A local-only record has nothing to fetch, and asking would 404.
@@ -79,6 +93,42 @@ export default function RecordHubScreen() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const onClone = useCallback(async () => {
+    if (!region || !serverId) return;
+    setActionError(null);
+    setActionBusy(true);
+    try {
+      const copy = await cloneRecord(region, serverId);
+      router.replace(`/record/${copy.recordID}`);
+    } catch {
+      setActionError(t("actions.failed"));
+    } finally {
+      setActionBusy(false);
+    }
+  }, [region, serverId, router, t]);
+
+  const onDelete = useCallback(async () => {
+    if (!region || !serverId || !db) return;
+    setActionError(null);
+    setActionBusy(true);
+    try {
+      await deleteRecord(region, serverId);
+      // Drop the local copy too, or the list keeps showing a record the server
+      // no longer has — there are no tombstones to tell us otherwise.
+      await db.runAsync("DELETE FROM records WHERE local_id = ? OR record_id = ?", [
+        id,
+        serverId,
+      ]);
+      setConfirming(null);
+      router.replace("/");
+    } catch {
+      setActionError(t("actions.failed"));
+      setConfirming(null);
+    } finally {
+      setActionBusy(false);
+    }
+  }, [region, serverId, db, id, router, t]);
 
   if (problem) {
     return (
@@ -118,6 +168,7 @@ export default function RecordHubScreen() {
   const ledger = buildLedger(record as Record<string, unknown>);
 
   return (
+    <>
     <ScrollView
       style={[styles.fill, { backgroundColor: theme.colors.surface }]}
       contentContainerStyle={{
@@ -211,7 +262,76 @@ export default function RecordHubScreen() {
           {t("review.title")}
         </Text>
       </Pressable>
+
+      <Text
+        style={[
+          theme.type.label,
+          { color: theme.colors.textMuted, marginTop: theme.space.xxl, marginBottom: theme.space.sm },
+        ]}
+      >
+        {t("actions.title")}
+      </Text>
+
+      <View style={{ gap: theme.space.sm }}>
+        <Button
+          label={t("actions.share")}
+          variant="secondary"
+          onPress={() => setSharing(true)}
+          disabled={!serverId || actionBusy}
+        />
+        <Button
+          label={t("actions.clone")}
+          variant="secondary"
+          onPress={onClone}
+          // Both act on the server copy, so a record that has never synced has
+          // nothing to clone or delete remotely.
+          disabled={!serverId || actionBusy}
+        />
+        <Button
+          label={t("actions.delete")}
+          variant="quiet"
+          onPress={() => setConfirming("delete")}
+          disabled={!serverId || actionBusy}
+        />
+        {!serverId ? (
+          <Text style={[theme.type.caption, { color: theme.colors.textMuted }]}>
+            {t("actions.offlineOnly")}
+          </Text>
+        ) : null}
+        {actionError ? (
+          <Text
+            style={[theme.type.bodySmall, { color: theme.semantic.error }]}
+            accessibilityLiveRegion="polite"
+          >
+            {actionError}
+          </Text>
+        ) : null}
+      </View>
     </ScrollView>
+
+    {serverId && region ? (
+      <ShareSheet
+        visible={sharing}
+        region={region}
+        recordID={serverId}
+        current={(record?.sharedWith as Record<string, boolean>) ?? {}}
+        excludeUserID={typeof record?.userID === "string" ? record.userID : undefined}
+        onClose={() => setSharing(false)}
+        onSaved={(next) => setRecord((current) => (current ? { ...current, sharedWith: next } : current))}
+      />
+    ) : null}
+
+    <ConfirmSheet
+      visible={confirming === "delete"}
+      title={t("actions.delete")}
+      message={t("actions.deleteConfirm")}
+      confirmLabel={t("actions.delete")}
+      destructive
+      busy={actionBusy}
+      onCancel={() => setConfirming(null)}
+      onConfirm={onDelete}
+    />
+    </>
   );
 }
 

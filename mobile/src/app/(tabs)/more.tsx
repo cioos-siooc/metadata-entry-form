@@ -135,6 +135,63 @@ export default function MoreScreen() {
         </Text>
       </Section>
 
+      <Section title={t("setPassword.title")}>
+        <Link href="/auth/set-password" asChild>
+          <Pressable
+            accessibilityRole="link"
+            style={{
+              minHeight: MIN_TOUCH_TARGET,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.space.sm,
+            }}
+          >
+            <Ionicons name="key-outline" size={20} color={theme.colors.accent} />
+            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
+              {t("setPassword.title")}
+            </Text>
+          </Pressable>
+        </Link>
+      </Section>
+
+      <Section title={t("sessions.title")}>
+        <Link href="/sessions" asChild>
+          <Pressable
+            accessibilityRole="link"
+            style={{
+              minHeight: MIN_TOUCH_TARGET,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.space.sm,
+            }}
+          >
+            <Ionicons name="phone-portrait-outline" size={20} color={theme.colors.accent} />
+            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
+              {t("sessions.title")}
+            </Text>
+          </Pressable>
+        </Link>
+      </Section>
+
+      <Section title={t("queue.title")}>
+        <Link href="/queue" asChild>
+          <Pressable
+            accessibilityRole="link"
+            style={{
+              minHeight: MIN_TOUCH_TARGET,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.space.sm,
+            }}
+          >
+            <Ionicons name="cloud-upload-outline" size={20} color={theme.colors.accent} />
+            <Text style={[theme.type.body, { color: theme.colors.accent }]}>
+              {t("queue.title")}
+            </Text>
+          </Pressable>
+        </Link>
+      </Section>
+
       <Section title={t("more.designPreview")}>
         <Link href="/design-preview" asChild>
           <Pressable

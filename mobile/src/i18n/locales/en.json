@@ -108,7 +108,8 @@
     "retry": "Try again",
     "cancel": "Cancel",
     "close": "Close",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "back": "Back"
   },
   "designPreview": {
     "title": "Design preview",
@@ -290,5 +291,91 @@
     "needsThree": "A shape needs at least three points.",
     "undo": "Undo last point",
     "noShape": "No area set yet."
+  },
+  "register": {
+    "title": "Create an account",
+    "name": "Your name",
+    "submit": "Create account",
+    "haveAccount": "I already have an account",
+    "check": "Check your email",
+    "sent": "If that address can be used, we've sent a link to confirm it.",
+    "passwordRule": "At least 8 characters.",
+    "weak": "That password is too short."
+  },
+  "forgot": {
+    "title": "Password help",
+    "explain": "We'll email you a link to set a new password.",
+    "submit": "Send the link",
+    "sent": "If that address is registered, the link is on its way.",
+    "back": "Back to sign in",
+    "link": "Forgot your password?",
+    "oauthNote": "This also works if you normally sign in with Google, Microsoft or ORCID and want to add a password."
+  },
+  "reset": {
+    "title": "Set a password",
+    "newPassword": "New password",
+    "submit": "Save password",
+    "done": "Password saved. You can sign in now.",
+    "invalid": "That link has expired. Ask for a new one."
+  },
+  "verify": {
+    "title": "Confirming your email",
+    "working": "One moment…",
+    "done": "Your email is confirmed. You can sign in now.",
+    "invalid": "That link has expired. Try signing in to get a new one."
+  },
+  "setPassword": {
+    "title": "Password",
+    "addHelp": "Add a password so you can sign in without a provider.",
+    "changeHelp": "Change your password.",
+    "current": "Current password",
+    "new": "New password",
+    "submit": "Save",
+    "saved": "Password saved.",
+    "wrongCurrent": "That current password is not right."
+  },
+  "actions": {
+    "title": "Actions",
+    "delete": "Delete record",
+    "deleteConfirm": "Delete this record? This cannot be undone.",
+    "clone": "Duplicate record",
+    "cloned": "Duplicated",
+    "share": "Share for editing",
+    "shareHelp": "People you choose can edit this record, but cannot submit it.",
+    "transfer": "Transfer ownership",
+    "transferHelp": "Enter the new owner's email address.",
+    "transferred": "Ownership transferred",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "failed": "That didn't work.",
+    "offlineOnly": "Save the record before doing this.",
+    "searchPeople": "Search by name or email"
+  },
+  "queue": {
+    "title": "Waiting to sync",
+    "empty": "Everything is synced.",
+    "retry": "Try again",
+    "discard": "Discard change",
+    "discardConfirm": "Discard this change? The edit will be lost.",
+    "attempts": "{{count}} attempt",
+    "attempts_one": "{{count}} attempt",
+    "attempts_other": "{{count}} attempts",
+    "kindCreate": "New record",
+    "kindUpdate": "Edit",
+    "kindStatus": "Status change",
+    "kindDelete": "Deletion",
+    "syncNow": "Sync now",
+    "conflictOne": "Needs your decision"
+  },
+  "sessions": {
+    "title": "Signed-in devices",
+    "thisDevice": "This device",
+    "signOutOne": "Sign out",
+    "empty": "No other devices.",
+    "lastUsed": "Last used {{when}}",
+    "browser": "Web browser",
+    "unnamed": "Unnamed device",
+    "signOutConfirm": "Sign {{device}} out? It will need to sign in again.",
+    "signedIn": "Signed in {{when}}"
   }
 }

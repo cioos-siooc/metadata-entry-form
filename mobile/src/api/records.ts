@@ -89,3 +89,45 @@ export function deleteRecord(region: string, recordID: string) {
 export function cloneRecord(region: string, recordID: string) {
   return post<MetadataRecord>(`/regions/${region}/records/${recordID}/clone`, {});
 }
+
+/**
+ * Hands a record to another member of the region.
+ *
+ * 404 means the address belongs to nobody in this region — a routine typo, not
+ * a system failure, so the caller should show the server's message rather than
+ * a generic error.
+ */
+export function transferRecord(region: string, recordID: string, email: string) {
+  return post<{ transferred: boolean }>(`/regions/${region}/records/${recordID}/transfer`, {
+    email,
+  });
+}
+
+/**
+ * Full replacement of the share set — the endpoint is replace-semantics, so a
+ * replay is safe.
+ *
+ * Note the server does NOT bump records.updated_at here, so a share change is
+ * invisible to any timestamp-based sync. Harmless today because we refetch
+ * lists wholesale; it becomes a real bug the moment ?updatedSince lands.
+ */
+export function updateRecordShares(region: string, recordID: string, userIds: string[]) {
+  return put<{ sharedWith: Record<string, boolean> }>(
+    `/regions/${region}/records/${recordID}/shares`,
+    { userIds },
+  );
+}
+
+export interface RegionUser {
+  userID: string;
+  email: string;
+  displayName?: string;
+}
+
+export function loadRegionUsers(region: string) {
+  return get<RegionUser[]>(`/regions/${region}/users`);
+}
+
+export function getRegionProjects(region: string) {
+  return get<string[]>(`/regions/${region}/projects`);
+}

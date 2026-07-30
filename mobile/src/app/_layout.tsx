@@ -50,6 +50,11 @@ function useAuthGate() {
     const onDesignPreview = route === "design-preview";
     if (onDesignPreview) return;
 
+    // Account screens must be reachable without a session — registering,
+    // recovering a password and confirming an email all happen before there is
+    // one, and the reset/verify links arrive as deep links from an email.
+    if (route === "auth") return;
+
     if (!region) {
       if (!onRegionSelect) router.replace("/region-select");
       return;
