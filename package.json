@@ -92,7 +92,7 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite build",
     "preview": "vite preview",
     "test": "TZ=UTC vitest",
-    "test:all": "TZ=UTC vitest run && npm run test --workspace @cioos/shared && npm run test --workspace @cioos/mobile",
+    "test:all": "TZ=UTC vitest run && npm run test --workspace @cioos/shared && npm run test --workspace @cioos/mobile && npm run typecheck --workspace @cioos/mobile",
     "test:watch": "TZ=UTC vitest --watch",
     "test:coverage": "TZ=UTC vitest run --coverage",
     "lint": "eslint .",
