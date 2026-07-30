@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 
+import { LibraryPicker } from "@/components/LibraryPicker";
+import { LibraryAddButton, SaveToLibrary } from "@/components/SaveToLibrary";
 import { BilingualTextInput } from "@/components/fields/BilingualTextInput";
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
@@ -42,6 +44,7 @@ export function PlatformSection({ document, update }: SectionProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language as Language;
   const [typeFilter, setTypeFilter] = useState("");
+  const [picking, setPicking] = useState<null | "platforms" | "instruments">(null);
 
   const noPlatform = Boolean(document.noPlatform);
   const platforms = (document.platforms as Platform[]) ?? [];
@@ -78,6 +81,15 @@ export function PlatformSection({ document, update }: SectionProps) {
               makeEmpty={() => getBlankPlatform() as Platform}
               addLabel={t("repeater.addPlatform")}
               renderTitle={(platform) => platform.id || platform.type || ""}
+              secondaryAdd={
+                <LibraryAddButton
+                  label={t("library.addFrom.platforms")}
+                  onPress={() => setPicking("platforms")}
+                />
+              }
+              renderItemActions={(platform) => (
+                <SaveToLibrary kind="platforms" data={platform as Record<string, unknown>} />
+              )}
               renderEditor={(platform, set) => (
                 <View style={{ gap: theme.space.md }}>
                   <View style={{ gap: 4 }}>
@@ -131,6 +143,15 @@ export function PlatformSection({ document, update }: SectionProps) {
               makeEmpty={() => getBlankInstrument() as Instrument}
               addLabel={t("repeater.addInstrument")}
               renderTitle={(instrument) => instrument.id || instrument.manufacturer || ""}
+              secondaryAdd={
+                <LibraryAddButton
+                  label={t("library.addFrom.instruments")}
+                  onPress={() => setPicking("instruments")}
+                />
+              }
+              renderItemActions={(instrument) => (
+                <SaveToLibrary kind="instruments" data={instrument as Record<string, unknown>} />
+              )}
               renderEditor={(instrument, set) => (
                 <View style={{ gap: theme.space.md }}>
                   {(
@@ -169,6 +190,24 @@ export function PlatformSection({ document, update }: SectionProps) {
           </Field>
         </>
       ) : null}
+
+      <LibraryPicker
+        visible={picking === "platforms"}
+        kind="platforms"
+        titleFor={(data) => ((data.id as string) || (data.type as string)) ?? ""}
+        subtitleFor={(data) => (data.type as string) ?? ""}
+        onPick={(data) => update("platforms", [...platforms, data as Platform])}
+        onClose={() => setPicking(null)}
+      />
+
+      <LibraryPicker
+        visible={picking === "instruments"}
+        kind="instruments"
+        titleFor={(data) => ((data.id as string) || (data.manufacturer as string)) ?? ""}
+        subtitleFor={(data) => (data.manufacturer as string) ?? ""}
+        onPick={(data) => update("instruments", [...instruments, data as Instrument])}
+        onClose={() => setPicking(null)}
+      />
     </>
   );
 }

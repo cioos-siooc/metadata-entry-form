@@ -41,7 +41,20 @@
     "add": "Ajouter",
     "save": "Enregistrer",
     "deleted": "Supprimé",
-    "loadFailed": "Impossible de charger votre bibliothèque."
+    "loadFailed": "Impossible de charger votre bibliothèque.",
+    "addFrom": {
+      "contacts": "Depuis les contacts enregistrés",
+      "platforms": "Depuis les plateformes enregistrées",
+      "instruments": "Depuis les instruments enregistrés"
+    },
+    "search": "Rechercher dans les entrées enregistrées",
+    "cached": "Copie enregistrée — peut être périmée",
+    "emptyForRecord": "Rien d'enregistré. Enregistrez une entrée depuis une fiche pour la réutiliser.",
+    "noMatches": "Aucun résultat",
+    "unavailable": "La bibliothèque nécessite une connexion.",
+    "saveTo": "Enregistrer dans la bibliothèque",
+    "saved": "Enregistré dans la bibliothèque",
+    "saveOffline": "L'enregistrement nécessite une connexion"
   },
   "review": {
     "title": "Réviser et soumettre",

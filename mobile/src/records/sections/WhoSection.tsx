@@ -1,10 +1,12 @@
 import { getBlankContact } from "@cioos/shared/blankRecord.js";
 import { roleCodes } from "@cioos/shared/isoCodeLists.js";
 import { localized } from "@cioos/shared/localized.js";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 
+import { LibraryPicker } from "@/components/LibraryPicker";
+import { LibraryAddButton, SaveToLibrary } from "@/components/SaveToLibrary";
 import { ChoiceInput, type Choice } from "@/components/fields/ChoiceInput";
 import { Field } from "@/components/fields/Field";
 import { Repeater } from "@/components/fields/Repeater";
@@ -35,6 +37,10 @@ interface Contact {
  * network calls, and `contactIsFilled` needs only a role plus an organisation or
  * a name, so contacts work fully offline without them. They are accelerators to
  * add back, not prerequisites.
+ *
+ * The saved library is the accelerator that matters instead — the same handful
+ * of people appear on every record a station produces, and re-typing an address
+ * on a wet phone is where the errors come from.
  */
 export function WhoSection({ document, update, ledger }: SectionProps) {
   const theme = useTheme();
@@ -42,6 +48,7 @@ export function WhoSection({ document, update, ledger }: SectionProps) {
   const language = i18n.language as Language;
 
   const contacts = (document.contacts as Contact[]) ?? [];
+  const [picking, setPicking] = useState(false);
 
   const roleChoices = useMemo<Choice[]>(
     () =>
@@ -58,6 +65,10 @@ export function WhoSection({ document, update, ledger }: SectionProps) {
   const title = (contact: Contact) =>
     [contact.givenNames, contact.lastName].filter(Boolean).join(" ") || contact.orgName || "";
 
+  const contactLabel = (data: Record<string, unknown>) =>
+    [data.givenNames, data.lastName].filter(Boolean).join(" ") ||
+    ((data.orgName as string) ?? "");
+
   return (
     <Field
       label={t("sections.who")}
@@ -71,6 +82,12 @@ export function WhoSection({ document, update, ledger }: SectionProps) {
         makeEmpty={() => getBlankContact() as Contact}
         addLabel={t("repeater.addContact")}
         renderTitle={title}
+        secondaryAdd={
+          <LibraryAddButton label={t("library.addFrom.contacts")} onPress={() => setPicking(true)} />
+        }
+        renderItemActions={(contact) => (
+          <SaveToLibrary kind="contacts" data={contact as Record<string, unknown>} />
+        )}
         renderEditor={(contact, set) => (
           <View style={{ gap: theme.space.md }}>
             {(
@@ -120,6 +137,15 @@ export function WhoSection({ document, update, ledger }: SectionProps) {
             />
           </View>
         )}
+      />
+
+      <LibraryPicker
+        visible={picking}
+        kind="contacts"
+        titleFor={contactLabel}
+        subtitleFor={(data) => ((data.indEmail as string) || (data.orgEmail as string)) ?? ""}
+        onPick={(data) => update("contacts", [...contacts, data as Contact])}
+        onClose={() => setPicking(false)}
       />
     </Field>
   );

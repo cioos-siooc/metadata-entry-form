@@ -24,6 +24,8 @@ export function Repeater<T>({
   renderEditor,
   makeEmpty,
   addLabel,
+  renderItemActions,
+  secondaryAdd,
 }: {
   items: T[];
   onChange: (next: T[]) => void;
@@ -31,6 +33,10 @@ export function Repeater<T>({
   renderEditor: (item: T, update: (next: T) => void) => React.ReactNode;
   makeEmpty: () => T;
   addLabel: string;
+  /** Extra controls for the expanded item — "save to library", and the like. */
+  renderItemActions?: (item: T, index: number) => React.ReactNode;
+  /** An alternative way to add an item, shown beside the blank-item button. */
+  secondaryAdd?: React.ReactNode;
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -112,6 +118,7 @@ export function Repeater<T>({
                   >
                     <Ionicons name="arrow-down" size={20} color={theme.colors.accent} />
                   </Pressable>
+                  {renderItemActions ? renderItemActions(item, index) : null}
                   <View style={{ flex: 1 }} />
                   <Pressable
                     onPress={() => remove(index)}
@@ -128,7 +135,8 @@ export function Repeater<T>({
         );
       })}
 
-      <Pressable
+      <View style={{ flexDirection: "row", gap: theme.space.sm }}>
+        <Pressable
         onPress={() => {
           onChange([...items, makeEmpty()]);
           setOpen(items.length);
@@ -147,7 +155,9 @@ export function Repeater<T>({
       >
         <Ionicons name="add" size={20} color={theme.colors.accent} />
         <Text style={[theme.type.body, { color: theme.colors.accent }]}>{addLabel}</Text>
-      </Pressable>
+        </Pressable>
+        {secondaryAdd}
+      </View>
     </View>
   );
 }
@@ -163,6 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   add: {
+    flex: 1,
     minHeight: MIN_TOUCH_TARGET,
     borderWidth: 1,
     borderStyle: "dashed",

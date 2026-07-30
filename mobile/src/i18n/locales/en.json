@@ -41,7 +41,20 @@
     "add": "Add",
     "save": "Save",
     "deleted": "Removed",
-    "loadFailed": "Couldn't load your library."
+    "loadFailed": "Couldn't load your library.",
+    "addFrom": {
+      "contacts": "From saved contacts",
+      "platforms": "From saved platforms",
+      "instruments": "From saved instruments"
+    },
+    "search": "Search saved entries",
+    "cached": "Saved copy — may be out of date",
+    "emptyForRecord": "Nothing saved yet. Save an entry from a record to reuse it.",
+    "noMatches": "No matches",
+    "unavailable": "The library needs a connection.",
+    "saveTo": "Save to library",
+    "saved": "Saved to library",
+    "saveOffline": "Save to library needs a connection"
   },
   "review": {
     "title": "Review & submit",
