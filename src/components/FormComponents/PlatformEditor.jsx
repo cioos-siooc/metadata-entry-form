@@ -12,7 +12,7 @@ import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import SelectInput from "./SelectInput";
-import platformTypes from "../../platforms.json";
+import platformTypes from "@cioos/shared/platforms.json";
 
 const PlatformEditor = ({
   value,

@@ -9,7 +9,7 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import RequiredMark from "./RequiredMark";
 import { En, Fr, I18n } from "../I18n";
 import SelectInput from "./SelectInput";
-import platformTypes from "../../platforms.json";
+import platformTypes from "@cioos/shared/platforms.json";
 import LeftList from "./LeftList";
 import PlatformTitle from "./PlatformTitle";
 import { getBlankPlatform } from "../../utils/blankRecord";
