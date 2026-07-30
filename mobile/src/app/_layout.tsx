@@ -21,6 +21,7 @@ import { useEffect } from "react";
 
 import { regionBrandHex } from "@/api/regions";
 import { SessionProvider, useSession } from "@/auth/SessionProvider";
+import { DatabaseProvider } from "@/offline/DatabaseProvider";
 // Side-effect import: initialises i18next before any screen renders.
 import "@/i18n";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
@@ -107,8 +108,10 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <SessionProvider>
-      <ThemedApp />
-    </SessionProvider>
+    <DatabaseProvider>
+      <SessionProvider>
+        <ThemedApp />
+      </SessionProvider>
+    </DatabaseProvider>
   );
 }

@@ -1,4 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// expo-sqlite's key-value store rather than @react-native-async-storage:
+// identical API, no extra native module, and async-storage v3 dropped the
+// legacy fallback so it throws "Native module is null" in Expo Go.
+import AsyncStorage from "expo-sqlite/kv-store";
 
 import { isSupported, type Language } from "@/i18n";
 import type { ThemeName } from "@/theme/tokens";
@@ -11,8 +14,8 @@ import type { ThemeName } from "@/theme/tokens";
  * at the region picker. On a phone that is unacceptable: the app is launched
  * cold, repeatedly, often without connectivity.
  *
- * AsyncStorage rather than SecureStore: none of this is secret, and the
- * keychain is reserved for the refresh token.
+ * A plain key-value store rather than SecureStore: none of this is secret, and
+ * the keychain is reserved for the refresh token.
  */
 
 const KEYS = {
@@ -32,7 +35,6 @@ export interface Preferences {
 
 export async function loadPreferences(): Promise<Preferences> {
   try {
-    // async-storage v3 has no multiGet; three reads in parallel is equivalent.
     const [region, language, theme] = await Promise.all([
       AsyncStorage.getItem(KEYS.region),
       AsyncStorage.getItem(KEYS.language),

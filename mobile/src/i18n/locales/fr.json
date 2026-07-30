@@ -127,5 +127,26 @@
     "readyToSubmit": "Prêt à soumettre",
     "notReady": "{{count}} encore requis",
     "openSection": "Ouvrir {{section}}"
+  },
+  "identification": {
+    "titleHelp": "Un nom court et descriptif pour le jeu de données. Les deux langues sont requises.",
+    "themeHelp": "Le type de données. Choisir une discipline rend la section « Où » obligatoire.",
+    "scopeHelp": "Ce que décrit la fiche."
+  },
+  "when": {
+    "collectionHelp": "Quand les données ont été recueillies.",
+    "start": "Début de la collecte",
+    "end": "Fin de la collecte",
+    "published": "Publication",
+    "revised": "Révision",
+    "edition": "Édition",
+    "editionHelp": "Une version pour ce jeu de données, par exemple 1.1."
+  },
+  "editor": {
+    "save": "Enregistrer",
+    "saved": "Enregistré sur cet appareil",
+    "queued": "En attente de synchronisation",
+    "saving": "Enregistrement…",
+    "back": "Terminé"
   }
 }

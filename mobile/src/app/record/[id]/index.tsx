@@ -126,9 +126,7 @@ export default function RecordHubScreen() {
           <SectionRow
             key={section.id}
             section={section}
-            // Section editors arrive in Phase 3; the ledger is navigable now so
-            // the structure can be reviewed on a device first.
-            onPress={undefined}
+            onPress={() => router.push(`/record/${id}/${section.id}`)}
           />
         ))}
       </View>

@@ -127,5 +127,26 @@
     "readyToSubmit": "Ready to submit",
     "notReady": "{{count}} still needed",
     "openSection": "Open {{section}}"
+  },
+  "identification": {
+    "titleHelp": "A short, descriptive name for the dataset. Both languages are required.",
+    "themeHelp": "What kind of data this is. Choosing a theme makes the spatial section required.",
+    "scopeHelp": "What the record describes."
+  },
+  "when": {
+    "collectionHelp": "When the data was collected.",
+    "start": "First collected",
+    "end": "Last collected",
+    "published": "Published",
+    "revised": "Revised",
+    "edition": "Edition",
+    "editionHelp": "A version for this dataset, for example 1.1."
+  },
+  "editor": {
+    "save": "Save",
+    "saved": "Saved on this device",
+    "queued": "Waiting to sync",
+    "saving": "Saving…",
+    "back": "Done"
   }
 }
