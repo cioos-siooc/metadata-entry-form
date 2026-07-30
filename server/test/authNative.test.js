@@ -1,3 +1,8 @@
+// Must precede the helpers require, which loads config. An unset value is the
+// correct production default — a deployment that has not registered an app
+// scheme must not accept redirects to one — so the test opts in explicitly.
+process.env.NATIVE_REDIRECT_SCHEMES = "ca.cioos.metadata";
+
 const { createHash, randomBytes, randomUUID } = require("crypto");
 
 const mockMailer = {
@@ -208,43 +213,45 @@ describe("native sessions", () => {
   });
 
   describe("native OAuth code exchange", () => {
+    // Returns the state it used. Looking the flow up afterwards by
+    // `ORDER BY expires_at` is unreliable: every flow inside the same 10-minute
+    // window shares that timestamp, so it picks an arbitrary row — including
+    // one belonging to another test.
     const startNative = async (returnTo, challenge) => {
+      const state = `state-${randomUUID()}`;
       mockOidc.startAuth.mockResolvedValue({
-        state: `state-${randomUUID()}`,
+        state,
         codeVerifier: "our-verifier-toward-the-idp",
         nonce: "nonce",
         url: "https://provider.example/authorize",
       });
-      const res = await app.inject({
+      await app.inject({
         method: "GET",
         url:
           `/api/v1/auth/oauth/google/start?client=native&codeChallenge=${challenge}` +
           `&returnTo=${encodeURIComponent(returnTo)}&deviceName=iPhone`,
       });
-      return res;
+      return state;
     };
 
-    const completeCallback = async (email) => {
-      const flow = await query(
-        "SELECT state FROM oauth_flows ORDER BY expires_at DESC LIMIT 1",
-      );
+    const completeCallback = async (state, email) => {
       mockOidc.completeAuth.mockResolvedValue({
-        subject: `sub-${randomUUID()}`,
+        providerSubject: `google-${randomUUID()}`,
         email,
         emailVerified: true,
         name: "OAuth Native User",
       });
       return app.inject({
         method: "GET",
-        url: `/api/v1/auth/oauth/google/callback?state=${flow.rows[0].state}&code=idp-code`,
+        url: `/api/v1/auth/oauth/google/callback?state=${state}&code=idp-code`,
       });
     };
 
     test("redirects to the app scheme with a code, never a refresh token", async () => {
       const { challenge } = pkce();
-      await startNative("ca.cioos.metadata://auth", challenge);
+      const state = await startNative("ca.cioos.metadata://auth", challenge);
 
-      const cb = await completeCallback(`oauth-native-${randomUUID()}@test.example`);
+      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
       expect(cb.statusCode).toBe(302);
 
       const location = cb.headers.location;
@@ -259,8 +266,8 @@ describe("native sessions", () => {
 
     test("the code exchanges for tokens with the right verifier", async () => {
       const { verifier, challenge } = pkce();
-      await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(`oauth-native-${randomUUID()}@test.example`);
+      const state = await startNative("ca.cioos.metadata://auth", challenge);
+      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const res = await app.inject({
@@ -276,8 +283,8 @@ describe("native sessions", () => {
       // The reason PKCE is here at all: custom-scheme URLs leak into OS logs,
       // and any installed app can register the same scheme.
       const { challenge } = pkce();
-      await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(`oauth-native-${randomUUID()}@test.example`);
+      const state = await startNative("ca.cioos.metadata://auth", challenge);
+      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const res = await app.inject({
@@ -290,8 +297,8 @@ describe("native sessions", () => {
 
     test("a code is single use", async () => {
       const { verifier, challenge } = pkce();
-      await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(`oauth-native-${randomUUID()}@test.example`);
+      const state = await startNative("ca.cioos.metadata://auth", challenge);
+      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const exchange = () =>

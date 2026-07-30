@@ -183,7 +183,10 @@ async function authRoutes(app) {
     // accounts, so do it here.
     await query(
       "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
-        "SELECT $1, 'local', $1, email FROM users WHERE id = $1 " +
+        // Casts are required: $1 is a uuid for user_id but text for
+        // provider_subject, and Postgres refuses to deduce both from one
+        // parameter ("inconsistent types deduced for parameter $1").
+        "SELECT $1::uuid, 'local', $1::text, email FROM users WHERE id = $1::uuid " +
         "ON CONFLICT (provider, provider_subject) DO NOTHING",
       [userId],
     );
@@ -220,7 +223,10 @@ async function authRoutes(app) {
     ]);
     await query(
       "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
-        "SELECT $1, 'local', $1, email FROM users WHERE id = $1 " +
+        // Casts are required: $1 is a uuid for user_id but text for
+        // provider_subject, and Postgres refuses to deduce both from one
+        // parameter ("inconsistent types deduced for parameter $1").
+        "SELECT $1::uuid, 'local', $1::text, email FROM users WHERE id = $1::uuid " +
         "ON CONFLICT (provider, provider_subject) DO NOTHING",
       [request.user.id],
     );

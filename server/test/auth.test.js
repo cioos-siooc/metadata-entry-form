@@ -161,7 +161,13 @@ describe("local auth", () => {
       payload: { email },
     });
     expect(req.statusCode).toBe(200);
-    expect(mockMailer.sendPasswordResetEmail).toHaveBeenCalledWith(email, expect.any(String));
+    // Third argument added when reset became available to OAuth-only users:
+    // it selects "set a password" copy over "reset your password".
+    expect(mockMailer.sendPasswordResetEmail).toHaveBeenCalledWith(
+      email,
+      expect.any(String),
+      expect.objectContaining({ isFirstPassword: false }),
+    );
     const resetToken = mockMailer.sendPasswordResetEmail.mock.calls[0][1];
 
     const newPassword = "brandnewsecret!";

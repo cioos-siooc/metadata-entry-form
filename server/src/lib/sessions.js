@@ -61,6 +61,17 @@ async function issueRefreshToken(
 function isWithinNativeGrace(token) {
   if (token.client_type !== "native") return false;
   if (!token.revoked_at) return false;
+
+  // Only a token that was *superseded by rotation* may be graced. Normal
+  // rotation sets both replaced_by and revoked_at; a deliberate kill — logout,
+  // or the family revocation below — sets revoked_at alone.
+  //
+  // Without this check the grace window resurrects the dead: a family
+  // revocation stamps revoked_at = now() on every live token, which is by
+  // definition inside the window, so the very next request would hand back a
+  // working token and undo the revocation.
+  if (!token.replaced_by) return false;
+
   const graceMs = config.auth.nativeRefreshGraceSeconds * 1000;
   return Date.now() - new Date(token.revoked_at).getTime() <= graceMs;
 }

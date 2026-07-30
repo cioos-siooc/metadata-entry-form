@@ -59,11 +59,18 @@ export function regionBrandHex(id: string | null): string {
  * not.
  */
 export async function fetchRegions(language: Language): Promise<Region[]> {
-  const rows = await rawRequest<{ id: string; config?: BundledRegion }[]>("/regions");
-  mergeRegions(
-    Object.fromEntries(rows.map((row) => [row.id, row.config ?? {}])),
-  );
-  return rows
-    .map((row) => toRegion(row.id, (bundledRegions as Record<string, BundledRegion>)[row.id] ?? row.config ?? {}, language))
+  // The endpoint returns `{ regions: { [id]: config } }` — an object keyed by
+  // id, not an array. The SPA does `mergeRegions(data?.regions)`; match it.
+  const payload = await rawRequest<{ regions?: Record<string, BundledRegion> }>("/regions");
+  const fetched = payload?.regions ?? {};
+
+  // Merges into the bundled table in place, so later lookups — including
+  // regionBrandHex — see runtime-created regions.
+  mergeRegions(fetched);
+
+  return Object.keys(fetched)
+    .map((id) =>
+      toRegion(id, (bundledRegions as Record<string, BundledRegion>)[id] ?? fetched[id], language),
+    )
     .filter((r) => r.showInSelector);
 }
