@@ -52,6 +52,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
+import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
@@ -136,7 +137,7 @@ class MetadataForm extends FormClassTemplate {
   }
 
   componentDidMount() {
-    const { match } = this.props;
+    const { match, locationState } = this.props;
     this.setState({ loading: true });
     const database = getDatabase(firebase);
 
@@ -212,7 +213,22 @@ class MetadataForm extends FormClassTemplate {
 
         // if recordID is set then the user is editing an existing record
         if (isNewRecord) {
-          this.setState({ loading: false, loggedInUserCanEditRecord: true });
+          // Started from an existing DOI/OBIS/PDC record. It stays in memory
+          // like any other new record, so the user reviews it before saving.
+          const prefill = locationState?.prefillRecord;
+
+          this.setState({
+            loading: false,
+            loggedInUserCanEditRecord: true,
+            ...(prefill && {
+              record: standardizeRecord(
+                normalizePrefilledRecord(prefill),
+                null,
+                null,
+                ""
+              ),
+            }),
+          });
         } else {
           const recRef = child(userDataRef, `records/${recordID}`);
           onValue(recRef, (recordFireBase) => {
@@ -700,7 +716,14 @@ const MetadataFormWrapper = (props) => {
     url: location.pathname,
   };
 
-  return <StyledMetadataForm {...props} match={match} history={{ push: navigate }} />;
+  return (
+    <StyledMetadataForm
+      {...props}
+      match={match}
+      history={{ push: navigate }}
+      locationState={location.state}
+    />
+  );
 };
 
 export default MetadataFormWrapper;
