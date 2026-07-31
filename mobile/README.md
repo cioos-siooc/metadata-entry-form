@@ -42,6 +42,17 @@ That screen appears in a development build automatically. A QA build is a
 release build, so set `EXPO_PUBLIC_ENABLE_DEV_MENU=1` to keep it; production
 builds leave it unset and the screen is absent.
 
+## Landscape and tablets
+
+The app rotates freely by default and **More → Rotation** locks it to portrait.
+Rotation is allowed because an iPad is a plausible review device; the lock
+exists because a phone at a rail should not turn because the boat did.
+
+Content sits in a capped, centred column (`@/theme/layout`) rather than
+stretching. On a phone the cap is never reached; on a tablet it is the
+difference between a form and a spreadsheet. Anything new that scrolls should
+use `contentColumn` too.
+
 ## Things worth knowing before changing anything
 
 **The accent colour is computed, not configured.** Each region ships its own
