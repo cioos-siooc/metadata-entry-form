@@ -4,6 +4,7 @@
 import AsyncStorage from "expo-sqlite/kv-store";
 
 import { isSupported, type Language } from "@/i18n";
+import { isRotationPreference, type RotationPreference } from "@/state/orientation";
 import type { ThemeName } from "@/theme/tokens";
 
 /**
@@ -22,6 +23,7 @@ const KEYS = {
   region: "cioos.pref.region",
   language: "cioos.pref.language",
   theme: "cioos.pref.theme",
+  rotation: "cioos.pref.rotation",
 } as const;
 
 const THEME_NAMES: ThemeName[] = ["light", "dark", "night"];
@@ -31,23 +33,27 @@ export interface Preferences {
   language: Language | null;
   /** null means "follow the OS". Night is always an explicit choice. */
   theme: ThemeName | null;
+  /** Whether the app may turn. Defaults to allowing it, for tablets. */
+  rotation: RotationPreference;
 }
 
 export async function loadPreferences(): Promise<Preferences> {
   try {
-    const [region, language, theme] = await Promise.all([
+    const [region, language, theme, rotation] = await Promise.all([
       AsyncStorage.getItem(KEYS.region),
       AsyncStorage.getItem(KEYS.language),
       AsyncStorage.getItem(KEYS.theme),
+      AsyncStorage.getItem(KEYS.rotation),
     ]);
     return {
       region: region || null,
       language: isSupported(language ?? undefined) ? (language as Language) : null,
       theme: THEME_NAMES.includes(theme as ThemeName) ? (theme as ThemeName) : null,
+      rotation: isRotationPreference(rotation) ? rotation : "auto",
     };
   } catch {
     // A read failure must not block launch — fall back to defaults.
-    return { region: null, language: null, theme: null };
+    return { region: null, language: null, theme: null, rotation: "auto" };
   }
 }
 
@@ -63,4 +69,8 @@ export async function saveLanguage(language: Language): Promise<void> {
 export async function saveTheme(theme: ThemeName | null): Promise<void> {
   if (theme) await AsyncStorage.setItem(KEYS.theme, theme);
   else await AsyncStorage.removeItem(KEYS.theme);
+}
+
+export async function saveRotation(rotation: RotationPreference): Promise<void> {
+  await AsyncStorage.setItem(KEYS.rotation, rotation);
 }

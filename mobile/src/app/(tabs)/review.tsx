@@ -18,6 +18,7 @@ import { ExportSheet } from "@/components/ExportSheet";
 import { GithubPublishSheet } from "@/components/GithubPublishSheet";
 import { RecordCard } from "@/components/RecordCard";
 import { TextInput } from "@/components/fields/TextInput";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -168,7 +169,7 @@ export default function ReviewScreen() {
       <FlatList
         data={visible}
         keyExtractor={(item) => item.recordID}
-        contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.md }}
+        contentContainerStyle={[contentColumn, { padding: theme.space.lg, gap: theme.space.md }]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={load} tintColor={theme.colors.accent} />
         }

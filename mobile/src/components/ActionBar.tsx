@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 
 /**
@@ -26,16 +27,25 @@ export function ActionBar({ children }: { children: ReactNode }) {
           borderTopColor: theme.colors.border,
           paddingBottom: insets.bottom + theme.space.md,
           paddingTop: theme.space.md,
-          paddingHorizontal: theme.space.lg,
-          gap: theme.space.md,
         },
       ]}
     >
-      {children}
+      {/* The bar spans the screen so its surface reads as a bar, but the
+          controls stay in the same column as the content above them. */}
+      <View
+        style={[
+          styles.row,
+          contentColumn,
+          { paddingHorizontal: theme.space.lg, gap: theme.space.md },
+        ]}
+      >
+        {children}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  bar: { borderTopWidth: 1, flexDirection: "row", alignItems: "center" },
+  bar: { borderTopWidth: 1 },
+  row: { flexDirection: "row", alignItems: "center" },
 });

@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { ChoiceInput } from "@/components/fields/ChoiceInput";
 import { TextInput } from "@/components/fields/TextInput";
 import { publishRecordToGithub } from "@/records/githubPublish";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 
 /**
@@ -107,6 +108,7 @@ export function GithubPublishSheet({
           onPress={() => {}}
           style={[
             styles.sheet,
+            contentColumn,
             {
               backgroundColor: theme.colors.surfaceRaised,
               borderTopLeftRadius: theme.radius.lg,

@@ -3,7 +3,7 @@
     "name": "CIOOS Metadata",
     "slug": "cioos-metadata",
     "version": "0.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "ca.cioos.metadata",
     "userInterfaceStyle": "automatic",
@@ -34,7 +34,13 @@
           "imageWidth": 76
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

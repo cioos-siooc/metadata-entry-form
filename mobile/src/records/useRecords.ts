@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
 import { NetworkError } from "@/api/errors";
 import {
@@ -93,9 +94,14 @@ export function useRecords(
     }
   }, [db, region, userId, scope, readCache]);
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  // Re-read on focus rather than only on mount: the list screen stays mounted
+  // while a record is edited on top of it, so a title changed in the editor
+  // would otherwise still read "Untitled record" on the way back.
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh]),
+  );
 
   return { records, state, refresh, readCache };
 }

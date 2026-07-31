@@ -80,7 +80,8 @@
     "designPreview": "Design preview",
     "account": "Account and data",
     "development": "Development",
-    "devTools": "Servers and regions"
+    "devTools": "Servers and regions",
+    "rotation": "Rotation"
   },
   "appearance": {
     "light": "Light",
@@ -523,5 +524,10 @@
     "addDocument": "Add a document",
     "entryTitle": "Title",
     "entryDescription": "Description"
+  },
+  "rotation": {
+    "auto": "Follow the device",
+    "portrait": "Portrait only",
+    "hint": "Landscape helps on a tablet. Lock it if the boat keeps turning the screen."
   }
 }

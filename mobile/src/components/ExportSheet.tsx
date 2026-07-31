@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { MetadataRecord } from "@/api/records";
 import { Button } from "@/components/Button";
 import { exportRecord, EXPORT_FORMATS, type ExportFormat } from "@/records/exports";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -57,6 +58,7 @@ export function ExportSheet({
           onPress={() => {}}
           style={[
             styles.sheet,
+            contentColumn,
             {
               backgroundColor: theme.colors.surfaceRaised,
               borderTopLeftRadius: theme.radius.lg,

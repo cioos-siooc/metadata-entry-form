@@ -8,6 +8,7 @@ import type { EntityKind } from "@/api/entities";
 import { Button } from "@/components/Button";
 import { TextInput } from "@/components/fields/TextInput";
 import { useLibrary } from "@/records/useLibrary";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -53,6 +54,7 @@ export function LibraryPicker({
           onPress={() => {}}
           style={[
             styles.sheet,
+            contentColumn,
             {
               backgroundColor: theme.colors.surfaceRaised,
               borderTopLeftRadius: theme.radius.lg,

@@ -13,6 +13,7 @@ import { useDatabase } from "@/offline/DatabaseProvider";
 import { buildLedger, type SectionId } from "@/records/ledger";
 import { SECTION_EDITORS } from "@/records/sections";
 import { useRecordDraft } from "@/records/useRecordDraft";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -36,7 +37,7 @@ export default function SectionEditorScreen() {
   // The hub, not the history: this screen is reachable straight from a link.
   const goBack = useGoBack(`/record/${id}`);
 
-  const { record, document, status, update, save } = useRecordDraft(db, id, user?.userID);
+  const { record, document, status, update, save, flush } = useRecordDraft(db, id, user?.userID);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -88,15 +89,20 @@ export default function SectionEditorScreen() {
   return (
     <View style={[styles.fill, { backgroundColor: theme.colors.surface }]}>
       <ScrollView
-        contentContainerStyle={{
+        contentContainerStyle={[contentColumn, {
           paddingTop: insets.top + theme.space.sm,
           paddingHorizontal: theme.space.lg,
           paddingBottom: theme.space.xxl,
-        }}
+        }]}
         keyboardShouldPersistTaps="handled"
       >
         <Pressable
-          onPress={() => goBack()}
+          onPress={async () => {
+            // Flush before leaving: the hub reads the draft from the database
+            // on focus, and a pending debounce would leave it a beat behind.
+            await flush();
+            goBack();
+          }}
           accessibilityRole="button"
           accessibilityLabel={t("editor.back")}
           style={styles.back}

@@ -80,7 +80,8 @@
     "designPreview": "Aperçu du design",
     "account": "Compte et données",
     "development": "Développement",
-    "devTools": "Serveurs et régions"
+    "devTools": "Serveurs et régions",
+    "rotation": "Rotation"
   },
   "appearance": {
     "light": "Clair",
@@ -523,5 +524,10 @@
     "addDocument": "Ajouter un document",
     "entryTitle": "Titre",
     "entryDescription": "Description"
+  },
+  "rotation": {
+    "auto": "Suivre l'appareil",
+    "portrait": "Portrait seulement",
+    "hint": "Le mode paysage est utile sur tablette. Verrouillez-le si le roulis fait pivoter l'écran."
   }
 }

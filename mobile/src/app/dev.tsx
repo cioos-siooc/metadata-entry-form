@@ -16,6 +16,7 @@ import {
   normalizeBaseUrl,
 } from "@/state/apiBase";
 import { setApiBaseOverride } from "@/state/devSettings";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -80,12 +81,12 @@ export default function DevScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.colors.surface }}
-      contentContainerStyle={{
+      contentContainerStyle={[contentColumn, {
         paddingTop: insets.top + theme.space.sm,
         paddingHorizontal: theme.space.lg,
         paddingBottom: insets.bottom + theme.space.xxl,
         gap: theme.space.lg,
-      }}
+      }]}
       keyboardShouldPersistTaps="handled"
     >
       <Pressable

@@ -1,7 +1,7 @@
 import { localized } from "@cioos/shared/localized.js";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,7 +21,9 @@ import { ShareSheet } from "@/components/ShareSheet";
 import { Button } from "@/components/Button";
 import { LedgerSummary, SectionRow } from "@/components/CompletenessLedger";
 import type { Language } from "@/i18n";
+import { serverCopyWins } from "@/records/draft";
 import { buildLedger } from "@/records/ledger";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -73,7 +75,12 @@ export default function RecordHubScreen() {
 
     try {
       const fresh = await fetchRecord(region, cached?.recordID ?? id);
-      setRecord(fresh);
+
+      // Only the *synced* case may take the server's copy. A record with local
+      // edits is ahead of the server by definition, and showing the server
+      // version there made the hub contradict the editor: 3 of 3 required on
+      // the section screen, 0 of 3 on the hub, title back to "Untitled".
+      if (serverCopyWins(cached)) setRecord(fresh);
       if (cached && cached.syncState === "synced") {
         await upsertRecord(db, {
           ...cached,
@@ -93,9 +100,14 @@ export default function RecordHubScreen() {
     }
   }, [region, id, db]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // On focus, not just on mount: expo-router keeps this screen mounted while a
+  // section editor sits on top of it, so returning from one has to re-read the
+  // draft or the ledger shows whatever was true before the edits.
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load]),
+  );
 
   const onClone = useCallback(async () => {
     if (!region || !serverId) return;
@@ -174,11 +186,11 @@ export default function RecordHubScreen() {
     <>
     <ScrollView
       style={[styles.fill, { backgroundColor: theme.colors.surface }]}
-      contentContainerStyle={{
+      contentContainerStyle={[contentColumn, {
         paddingTop: insets.top + theme.space.sm,
         paddingHorizontal: theme.space.lg,
         paddingBottom: theme.space.xxxl,
-      }}
+      }]}
     >
       <Pressable
         onPress={() => goBack()}

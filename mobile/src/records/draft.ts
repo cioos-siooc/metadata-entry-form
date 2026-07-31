@@ -2,6 +2,7 @@ import * as Crypto from "expo-crypto";
 
 import type { MetadataRecord } from "@/api/records";
 import type { CachedRecord, Database } from "@/offline/db";
+import type { SyncState } from "@/offline/schema";
 import { getRecordByLocalId, upsertRecord } from "@/offline/db";
 import { enqueue } from "@/offline/queue";
 
@@ -140,4 +141,20 @@ export function setField(
   value: unknown,
 ): MetadataRecord {
   return { ...document, [field]: value };
+}
+
+/**
+ * May a freshly fetched server copy replace what is on screen?
+ *
+ * Only when the local row has nothing of its own. A record whose edits have not
+ * reached the server is *ahead* of it, and displaying the server's version there
+ * is a lie that looks like data loss: the hub read "Untitled record, 0 of 3
+ * required" while the editor one screen away read "3 of 3".
+ *
+ * Kept as a named rule rather than an inline condition because all four sync
+ * states have to be considered, and three of them mean "keep mine".
+ */
+export function serverCopyWins(cached: { syncState: SyncState } | null): boolean {
+  if (!cached) return true;
+  return cached.syncState === "synced";
 }

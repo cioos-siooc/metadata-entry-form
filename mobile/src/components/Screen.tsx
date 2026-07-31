@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 
 /**
@@ -53,7 +54,12 @@ export function Screen({
   if (!scroll) {
     return (
       <View
-        style={[styles.fill, { backgroundColor: theme.colors.surface }, padding]}
+        style={[
+          styles.fill,
+          { backgroundColor: theme.colors.surface },
+          padding,
+          contentColumn,
+        ]}
       >
         {header}
         {children}
@@ -64,7 +70,7 @@ export function Screen({
   return (
     <ScrollView
       style={[styles.fill, { backgroundColor: theme.colors.surface }]}
-      contentContainerStyle={padding}
+      contentContainerStyle={[padding, contentColumn]}
       keyboardShouldPersistTaps="handled"
     >
       {header}

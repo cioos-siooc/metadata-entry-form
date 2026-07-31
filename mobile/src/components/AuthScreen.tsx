@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useGoBack } from "@/navigation/useGoBack";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -30,11 +31,11 @@ export function AuthScreen({
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.colors.surface }}
-      contentContainerStyle={{
+      contentContainerStyle={[contentColumn, {
         paddingTop: insets.top + theme.space.sm,
         paddingHorizontal: theme.space.lg,
         paddingBottom: insets.bottom + theme.space.xxl,
-      }}
+      }]}
       keyboardShouldPersistTaps="handled"
     >
       <Pressable

@@ -10,6 +10,7 @@ import { listSessions, revokeSession, type DeviceSession } from "@/api/sessions"
 import { Button } from "@/components/Button";
 import { ConfirmSheet } from "@/components/ConfirmSheet";
 import { formatRecordDate } from "@/components/fields/dateValue";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -72,11 +73,11 @@ export default function SessionsScreen() {
     <>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.surface }}
-        contentContainerStyle={{
+        contentContainerStyle={[contentColumn, {
           paddingTop: insets.top + theme.space.sm,
           paddingHorizontal: theme.space.lg,
           paddingBottom: insets.bottom + theme.space.xxl,
-        }}
+        }]}
       >
         <Pressable
           onPress={() => goBack()}

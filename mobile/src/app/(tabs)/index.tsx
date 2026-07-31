@@ -16,6 +16,7 @@ import type { RecordScope } from "@/offline/schema";
 import { useSync } from "@/offline/useSync";
 import { createLocalRecord } from "@/records/draft";
 import { useRecords } from "@/records/useRecords";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -101,11 +102,11 @@ export default function RecordsScreen() {
       <FlatList
         data={records}
         keyExtractor={(item) => item.localId}
-        contentContainerStyle={{
+        contentContainerStyle={[contentColumn, {
           padding: theme.space.lg,
           gap: theme.space.md,
           paddingBottom: theme.space.xxxl,
-        }}
+        }]}
         refreshControl={
           <RefreshControl
             refreshing={state === "loading"}

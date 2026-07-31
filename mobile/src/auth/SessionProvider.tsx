@@ -12,10 +12,12 @@ import { get } from "@/api/client";
 import { ApiError, NetworkError } from "@/api/errors";
 import i18n, { deviceLanguage, type Language } from "@/i18n";
 import { loadApiBaseOverride } from "@/state/devSettings";
+import { applyRotation, type RotationPreference } from "@/state/orientation";
 import {
   loadPreferences,
   saveLanguage,
   saveRegion,
+  saveRotation,
   saveTheme,
 } from "@/state/preferences";
 import type { ThemeName } from "@/theme/tokens";
@@ -60,6 +62,8 @@ interface SessionContextValue {
   /** null follows the OS; "night" is always explicit. */
   themeOverride: ThemeName | null;
   setThemeOverride: (theme: ThemeName | null) => Promise<void>;
+  rotation: RotationPreference;
+  setRotation: (rotation: RotationPreference) => Promise<void>;
 
   signIn: (email: string, password: string) => Promise<void>;
   signInWith: (provider: OAuthProvider) => Promise<OAuthResult>;
@@ -78,6 +82,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [region, setRegionState] = useState<string | null>(null);
   const [language, setLanguageState] = useState<Language>(deviceLanguage());
   const [themeOverride, setThemeOverrideState] = useState<ThemeName | null>(null);
+  const [rotation, setRotationState] = useState<RotationPreference>("auto");
   const [roles, setRoles] = useState<RegionRoles>(NO_ROLES);
 
   // Restore preferences and session once, at launch.
@@ -92,6 +97,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
       setRegionState(prefs.region);
       setThemeOverrideState(prefs.theme);
+      setRotationState(prefs.rotation);
+      // Applied before the first screen paints, so the app does not start in
+      // one orientation and snap into another.
+      void applyRotation(prefs.rotation);
       const lang = prefs.language ?? deviceLanguage();
       setLanguageState(lang);
       await i18n.changeLanguage(lang);
@@ -163,6 +172,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     await saveLanguage(next);
   }, []);
 
+  const setRotation = useCallback(async (next: RotationPreference) => {
+    setRotationState(next);
+    await applyRotation(next);
+    await saveRotation(next);
+  }, []);
+
   const setThemeOverride = useCallback(async (next: ThemeName | null) => {
     setThemeOverrideState(next);
     await saveTheme(next);
@@ -200,6 +215,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setLanguage,
       themeOverride,
       setThemeOverride,
+      rotation,
+      setRotation,
       signIn,
       signInWith,
       signOut,
@@ -213,6 +230,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setLanguage,
       themeOverride,
       setThemeOverride,
+      rotation,
+      setRotation,
       signIn,
       signInWith,
       signOut,

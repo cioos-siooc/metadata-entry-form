@@ -95,10 +95,25 @@ export function useRecordDraft(db: Database | null, localId: string | undefined,
     setStatus("queued");
   }, [db, localId, document, userId]);
 
+  /**
+   * Writes any debounced edit through, now.
+   *
+   * Leaving the screen must not race the debounce: the hub re-reads the draft
+   * from the database the moment it regains focus, and a pending edit still
+   * sitting in the timer would make it show the record as it was before.
+   */
+  const flush = useCallback(async () => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    await commit();
+  }, [commit]);
+
   const dirty = useMemo(
     () => record !== null && document !== null && record.document !== document,
     [record, document],
   );
 
-  return { record, document, status, dirty, update, save };
+  return { record, document, status, dirty, update, save, flush };
 }

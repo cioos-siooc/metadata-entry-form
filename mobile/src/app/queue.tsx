@@ -12,6 +12,7 @@ import { useDatabase } from "@/offline/DatabaseProvider";
 import { getRecordByLocalId, type Mutation } from "@/offline/db";
 import { listMutations } from "@/offline/queue";
 import { useSync } from "@/offline/useSync";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -112,11 +113,11 @@ export default function QueueScreen() {
     <>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.surface }}
-        contentContainerStyle={{
+        contentContainerStyle={[contentColumn, {
           paddingTop: insets.top + theme.space.sm,
           paddingHorizontal: theme.space.lg,
           paddingBottom: insets.bottom + theme.space.xxl,
-        }}
+        }]}
       >
         <Pressable
           onPress={() => goBack()}

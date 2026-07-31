@@ -19,6 +19,7 @@ import { ActionBar } from "@/components/ActionBar";
 import { Button } from "@/components/Button";
 import { BilingualTextInput } from "@/components/fields/BilingualTextInput";
 import { TextInput } from "@/components/fields/TextInput";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET } from "@/theme/tokens";
 
@@ -182,7 +183,7 @@ export default function LibraryScreen() {
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.sm }}
+        contentContainerStyle={[contentColumn, { padding: theme.space.lg, gap: theme.space.sm }]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={load} tintColor={theme.colors.accent} />
         }

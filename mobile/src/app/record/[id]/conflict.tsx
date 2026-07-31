@@ -17,6 +17,7 @@ import { useDatabase } from "@/offline/DatabaseProvider";
 import { analyseConflict, contestedByTab, type ConflictAnalysis, type FieldConflict } from "@/offline/conflict";
 import { getRecordByLocalId, type CachedRecord } from "@/offline/db";
 import { resolveConflict, type Resolution } from "@/offline/resolve";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 
 import { useGoBack } from "@/navigation/useGoBack";
@@ -160,11 +161,11 @@ export default function ConflictScreen() {
   return (
     <View style={[styles.fill, { backgroundColor: theme.colors.surface }]}>
       <ScrollView
-        contentContainerStyle={{
+        contentContainerStyle={[contentColumn, {
           paddingTop: insets.top + theme.space.lg,
           paddingHorizontal: theme.space.lg,
           paddingBottom: theme.space.xxl,
-        }}
+        }]}
       >
         <View style={styles.bannerRow}>
           <Ionicons name="git-compare-outline" size={22} color={theme.semantic.incomplete} />

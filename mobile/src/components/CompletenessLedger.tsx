@@ -25,7 +25,10 @@ function stateColor(state: SectionState, theme: Theme, touched: boolean): string
     case "complete":
       return theme.semantic.complete;
     case "filled":
-      return theme.colors.accent;
+      // Not the accent: three regions brand in red, and a red bar beside green
+      // ones reads as a failure. "Has content, nothing outstanding" is the same
+      // news as complete, so it gets the same colour — the icon keeps them apart.
+      return theme.semantic.complete;
     case "attention":
       // Untouched-but-required is quieter than started-and-abandoned. A brand
       // new record has several outstanding sections and should not read as a

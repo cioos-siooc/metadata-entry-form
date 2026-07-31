@@ -7,6 +7,7 @@ import { useSession } from "@/auth/SessionProvider";
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { SUPPORTED_LANGUAGES, type Language } from "@/i18n";
+import { ROTATION_PREFERENCES, type RotationPreference } from "@/state/orientation";
 import { useTheme } from "@/theme/ThemeProvider";
 import { MIN_TOUCH_TARGET, type ThemeName } from "@/theme/tokens";
 
@@ -117,6 +118,8 @@ export default function MoreScreen() {
     setLanguage,
     themeOverride,
     setThemeOverride,
+    rotation,
+    setRotation,
     signOut,
   } = useSession();
 
@@ -178,6 +181,18 @@ export default function MoreScreen() {
           label={t("sessions.title")}
         />
         <LinkRow href="/queue" icon="cloud-upload-outline" label={t("queue.link")} />
+      </Section>
+
+      <Section title={t("more.rotation")}>
+        <Choices<RotationPreference>
+          options={ROTATION_PREFERENCES}
+          selected={rotation}
+          labelFor={(value) => t(`rotation.${value}`)}
+          onSelect={setRotation}
+        />
+        <Text style={[theme.type.caption, { color: theme.colors.textMuted }]}>
+          {t("rotation.hint")}
+        </Text>
       </Section>
 
       {/* Hidden from a production build, where these knobs are meaningless and

@@ -3,6 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
+import { contentColumn } from "@/theme/layout";
 import { useTheme } from "@/theme/ThemeProvider";
 
 /**
@@ -44,6 +45,7 @@ export function ConfirmSheet({
           onPress={() => {}}
           style={[
             styles.sheet,
+            contentColumn,
             {
               backgroundColor: theme.colors.surfaceRaised,
               borderTopLeftRadius: theme.radius.lg,

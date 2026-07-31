@@ -11,7 +11,7 @@ import { getRecordByLocalId, listRecords, replaceScope, upsertRecord, type Cache
 import { freshDb } from "@/offline/__tests__/testDb";
 import { listMutations } from "@/offline/queue";
 
-import { autosaveDraft, createLocalRecord, saveDraft, setField } from "../draft";
+import { autosaveDraft, createLocalRecord, saveDraft, serverCopyWins, setField } from "../draft";
 
 let db: Database & { close: () => void };
 
@@ -139,5 +139,26 @@ describe("setField", () => {
     const updated = setField(document, "map", { north: "9" });
     expect(updated.map).toEqual({ north: "9" });
     expect(document.map).toEqual({ north: "1", south: "2" });
+  });
+});
+
+describe("serverCopyWins", () => {
+  const cached = (syncState: CachedRecord["syncState"]) => ({ syncState });
+
+  test("a synced record takes the server's copy", () => {
+    expect(serverCopyWins(cached("synced"))).toBe(true);
+  });
+
+  test("nothing cached means there is nothing to protect", () => {
+    expect(serverCopyWins(null)).toBe(true);
+  });
+
+  test("local edits win, in every state that has them", () => {
+    // The bug this rule fixes: the hub fetched the server copy and displayed it
+    // over an unsynced draft, so it read "0 of 3 required" while the editor one
+    // screen away read "3 of 3".
+    expect(serverCopyWins(cached("draft"))).toBe(false);
+    expect(serverCopyWins(cached("pending"))).toBe(false);
+    expect(serverCopyWins(cached("conflict"))).toBe(false);
   });
 });
