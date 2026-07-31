@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 const { translate } = require("./translate");
 const { checkURLActive } = require("./serverUtils");
-const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, getCredentialsStored, getDatacitePrefix, testDataciteCredentials } = require("./datacite");
+const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, getCredentialsStored, getDatacitePrefix, testDataciteCredentials, publishDoi, registerDoi, hideDoi } = require("./datacite");
 const { notifyReviewer, notifyUser } = require("./notify");
 const {
   updatesRecordCreate,
@@ -30,4 +30,7 @@ exports.checkURLActive = checkURLActive;
 exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
 exports.testDataciteCredentials = testDataciteCredentials;
+exports.publishDoi = publishDoi;
+exports.registerDoi = registerDoi;
+exports.hideDoi = hideDoi;
 exports.githubPublishRecord = githubPublishRecord;
