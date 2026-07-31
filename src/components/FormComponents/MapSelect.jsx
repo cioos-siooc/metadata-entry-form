@@ -83,6 +83,15 @@ const PolygonLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
   return null;
 };
 
+// Geometry entered by hand replaces whatever was picked in the location search,
+// so the saved location name is dropped rather than left describing a different
+// area. Nudging existing vertices (handleLayerEdit) keeps the name.
+function withoutSelectedLocation(data) {
+  // eslint-disable-next-line no-unused-vars
+  const { selectedLocation, ...rest } = data;
+  return rest;
+}
+
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
   const mapDataRef = useRef(mapData);
@@ -97,7 +106,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current.remove();
         drawnLayerRef.current = null;
       }
-      const newData = { ...mapData, [key]: e.target.value };
+      const newData = { ...withoutSelectedLocation(mapData), [key]: e.target.value };
       updateMap(newData);
     };
   }
@@ -122,7 +131,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
 
-      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' };
+      const newData = { ...withoutSelectedLocation(mapData), polygon: e.target.value, north: '', south: '', east: '', west: '' };
       try {
         const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
@@ -165,7 +174,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       }
       drawnLayerRef.current = layer;
 
-      const currentMapData = mapDataRef.current;
+      const currentMapData = withoutSelectedLocation(mapDataRef.current);
 
       switch (shape) {
         case "Polygon": {
@@ -217,7 +226,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   const onRemove = useCallback(() => {
     drawnLayerRef.current = null;
-    const currentMapData = mapDataRef.current;
+    const currentMapData = withoutSelectedLocation(mapDataRef.current);
     updateMap({
       ...currentMapData,
       north: "",

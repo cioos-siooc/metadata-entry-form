@@ -208,10 +208,59 @@ const PREDEFINED_NAME_SET = new Set(
   ])
 );
 
+// The record stores only what is needed to redisplay a selection
+// (record.map.selectedLocation) — geometry already lives in record.map.
+function toSavedLocation({ en, fr, type, source, concise }) {
+  return {
+    en,
+    fr,
+    source,
+    ...(type ? { type } : {}),
+    ...(concise ? { concise } : {}),
+  };
+}
+
+function savedLocationKey(saved) {
+  return saved ? `${saved.source || ""}|${saved.en}` : "";
+}
+
+// Which filter pill to show for a restored selection, so the list the user
+// left off with is the list they come back to.
+function filterForSavedLocation(saved) {
+  if (!saved || saved.source !== "predefined") return "other";
+  if (saved.type === "province" || saved.type === "territory")
+    return "provinceTerritory";
+  return saved.type || "all";
+}
+
+// The geographic extent description is prefilled with the location name, but
+// only when it is empty or still holds the previously selected name — text the
+// user typed themselves is never overwritten.
+function descriptionForSelection(description, option, previousSaved) {
+  const current = description || {};
+  const isEmpty = !current.en?.trim() && !current.fr?.trim();
+  const holdsPreviousName =
+    previousSaved &&
+    current.en === previousSaved.en &&
+    current.fr === previousSaved.fr;
+  if (!isEmpty && !holdsPreviousName) return description;
+  return {
+    en: option.en,
+    fr: option.fr,
+    // Curated names are officially bilingual and GeoNames toponyms are the same
+    // in both languages — nothing here came out of the translation service.
+    translations: { en: { verified: true }, fr: { verified: true } },
+  };
+}
+
 const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   const { language } = useParams();
-  const [typeFilter, setTypeFilter] = useState("all");
+  const savedLocation = mapData?.selectedLocation;
+  const [typeFilter, setTypeFilter] = useState(() =>
+    savedLocation ? filterForSavedLocation(savedLocation) : "all"
+  );
   const [inputValue, setInputValue] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
   const [geonameOptions, setGeonameOptions] = useState([]);
   const [geonameLoading, setGeonameLoading] = useState(false);
   const [simplificationWarning, setSimplificationWarning] = useState(false);
@@ -219,6 +268,9 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   // Label of the just-selected option — kept in the input after selection, so we
   // skip re-querying NRCan for it (the user hasn't typed a new search).
   const selectedLabelRef = useRef("");
+  // Saved selection already reflected in local state, so restoring it does not
+  // fight the user's own selections (or reset their filter mid-session).
+  const restoredKeyRef = useRef("");
 
   useEffect(() => {
     if (!debouncedInput || debouncedInput.length < 2) {
@@ -264,6 +316,46 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     };
   }, [debouncedInput, language]);
 
+  // Redisplay the location saved on the record (tab switch, reload, or a record
+  // opened for review). Keyed on language too, so the localized name follows a
+  // language switch.
+  const savedKey = savedLocation
+    ? `${savedLocationKey(savedLocation)}|${language}`
+    : "";
+  useEffect(() => {
+    if (!savedKey) {
+      // The geometry was replaced by hand (drawn, removed, or typed in), so the
+      // saved name no longer describes the record — drop it from the field too.
+      if (restoredKeyRef.current) {
+        restoredKeyRef.current = "";
+        setSelectedOption(null);
+        selectedLabelRef.current = "";
+        setInputValue("");
+      }
+      return;
+    }
+    if (restoredKeyRef.current === savedKey) return;
+    restoredKeyRef.current = savedKey;
+    const label = savedLocation[language] || savedLocation.en;
+    setSelectedOption({
+      source: savedLocation.source || "geoname",
+      label,
+      en: savedLocation.en,
+      fr: savedLocation.fr,
+      type: savedLocation.type,
+      concise: savedLocation.concise || "",
+      // No geometry — the record already holds it, and reselecting this option
+      // must not overwrite edits made on the map.
+      bbox: null,
+      polygon: "",
+      wasSimplified: false,
+    });
+    selectedLabelRef.current = label;
+    setInputValue(label);
+    setTypeFilter(filterForSavedLocation(savedLocation));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedKey]);
+
   const predefinedOptions = useMemo(
     () =>
       geographicLocations
@@ -281,10 +373,20 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     [language]
   );
 
-  const allOptions = useMemo(
-    () => [...predefinedOptions, ...geonameOptions],
-    [predefinedOptions, geonameOptions]
-  );
+  const allOptions = useMemo(() => {
+    const opts = [...predefinedOptions, ...geonameOptions];
+    // A restored geoname is not in the freshly fetched list; include it so
+    // Autocomplete can match the controlled value to an option.
+    if (
+      selectedOption &&
+      !opts.some(
+        (o) =>
+          o.source === selectedOption.source && o.label === selectedOption.label
+      )
+    )
+      opts.push(selectedOption);
+    return opts;
+  }, [predefinedOptions, geonameOptions, selectedOption]);
 
   function filterOptions(opts, state) {
     const input = state.inputValue.toLowerCase().trim();
@@ -317,22 +419,53 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   }
 
   function handleSelect(option) {
-    if (!option) return;
+    // Cleared with the X — drop the name but leave the geometry the user may
+    // have gone on to edit.
+    if (!option) {
+      // eslint-disable-next-line no-unused-vars
+      const { selectedLocation, ...rest } = mapData || {};
+      updateMap(rest);
+      restoredKeyRef.current = "";
+      setSelectedOption(null);
+      selectedLabelRef.current = "";
+      setInputValue("");
+      return;
+    }
     const { bbox, polygon, wasSimplified } = option;
-    updateMap({
+    const saved = toSavedLocation(option);
+    // Reselecting the location already on the record changes nothing — and
+    // pushing an update would tear down the editable layer on the map.
+    if (!bbox && !polygon && savedLocationKey(saved) === savedLocationKey(savedLocation)) {
+      setSelectedOption(option);
+      selectedLabelRef.current = option.label;
+      setInputValue(option.label);
+      return;
+    }
+    const newMapData = {
       ...mapData,
-      ...(bbox
-        ? {
-            north: bbox.north,
-            south: bbox.south,
-            east: bbox.east,
-            west: bbox.west,
-          }
-        : {}),
-      polygon: polygon || "",
-    });
+      selectedLocation: saved,
+      description: descriptionForSelection(
+        mapData?.description,
+        option,
+        savedLocation
+      ),
+    };
+    // A restored option carries no geometry — reselecting it must not clear the
+    // bounding box or polygon already on the record.
+    if (bbox || polygon) {
+      if (bbox) {
+        newMapData.north = bbox.north;
+        newMapData.south = bbox.south;
+        newMapData.east = bbox.east;
+        newMapData.west = bbox.west;
+      }
+      newMapData.polygon = polygon || "";
+    }
+    updateMap(newMapData);
     if (wasSimplified) setSimplificationWarning(true);
     // Keep the selected name visible in the field and suppress a re-search for it.
+    restoredKeyRef.current = `${savedLocationKey(saved)}|${language}`;
+    setSelectedOption(option);
     selectedLabelRef.current = option.label;
     setInputValue(option.label);
     setGeonameOptions([]);
@@ -372,7 +505,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
 
       <Autocomplete
         options={allOptions}
-        value={null}
+        value={selectedOption}
         getOptionLabel={(option) => option.label || ""}
         groupBy={(o) => GROUP_LABELS[o.source][language] || GROUP_LABELS[o.source].en}
         filterOptions={filterOptions}
