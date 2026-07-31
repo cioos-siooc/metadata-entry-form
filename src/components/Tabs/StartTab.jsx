@@ -322,7 +322,9 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
           />
 
           <Accordion
-            onChange={() => setTopicAccordionExpanded(!topicAccordionExpanded)}
+            onChange={(event, isExpanded) =>
+              setTopicAccordionExpanded(isExpanded)
+            }
             expanded={topicAccordionExpanded || hasNonProminentSelected}
           >
             <AccordionSummary

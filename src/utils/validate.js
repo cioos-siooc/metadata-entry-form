@@ -2,7 +2,10 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
-import { resourceTypeIncludes } from "./normalizeResourceType";
+import {
+  hasResourceType,
+  resourceTypeIncludes,
+} from "./normalizeResourceType";
 import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
@@ -64,7 +67,7 @@ const validators = {
     },
   },
   resourceType: {
-    validation: (val) => val,
+    validation: (val) => hasResourceType(val),
     tab: "start",
     error: {
       en: "Please select a theme for this record",
@@ -177,7 +180,7 @@ const validators = {
           validateLongitude(east) &&
           validateLongitude(west)) ||
         (polygon && polygonIsValid(polygon)) ||
-        !record.resourceType  ||
+        !hasResourceType(record.resourceType) ||
         (resourceTypeIncludes(record.resourceType, "biota") && description)
       );
     },

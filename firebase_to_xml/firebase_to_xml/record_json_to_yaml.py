@@ -82,32 +82,6 @@ def fix_lat_long_polygon(polygon):
     return " ".join(fixed)
 
 
-# Maps legacy (pre-ISO) resourceType values to valid ISO 19115
-# MD_TopicCategoryCode values. Mirrors legacyThemeMapping in the frontend
-# (src/utils/themes.js).
-LEGACY_TOPIC_CATEGORY = {
-    "oceanographic": "oceans",
-    "biological": "biota",
-}
-
-
-def normalize_topic_categories(record):
-    """Map the firebase resourceType field to ISO 19115 topic categories.
-
-    Reads the `resourceType` array, falling back to the deprecated `category`
-    string field when it is absent, and normalizes legacy values to their ISO
-    equivalents. Returns an empty list when nothing is set, in which case
-    metadata-xml applies its default ("oceans").
-    """
-    values = record.get("resourceType")
-    if not values:
-        category = record.get("category")
-        values = [category] if category else []
-    if isinstance(values, str):
-        values = [values]
-    return [LEGACY_TOPIC_CATEGORY.get(value, value) for value in values if value]
-
-
 def format_taxa(taxa):
     taxaKeywords = []
     if isinstance(taxa, str):
@@ -214,7 +188,6 @@ def record_json_to_yaml(record):
                     "fr": format_taxa(record.get("taxa", [])),
                 },
             },
-            "topic_category": normalize_topic_categories(record),
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
             "status": record.get("status"),
