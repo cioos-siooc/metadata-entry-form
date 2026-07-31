@@ -7,11 +7,21 @@ import re
 import json
 import logging
 
-from firebase_functions import https_fn
+import requests
+from firebase_functions import https_fn, options
 from firebase_functions.params import BoolParam
 from firebase_admin import initialize_app
 
 from cioos_metadata_conversion.record import Record
+from cioos_metadata_conversion.load_from.datacite import (
+    DOIRetrievalError,
+    retrieve_doi_as_firebase_record,
+)
+from cioos_metadata_conversion.load_from.obis import retrieve_obis_metadata
+from cioos_metadata_conversion.load_from.pdc import (
+    PDCRetrievalError,
+    retrieve_pdc_as_firebase_record,
+)
 
 # Determine if this is the dev project
 is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
@@ -141,6 +151,119 @@ def convert_metadata(req: https_fn.Request):  # type: ignore
 
     return https_fn.Response(
         json.dumps({"data": converted}),
+        status=200,
+        headers=headers,
+        content_type="application/json",
+    )
+
+
+# Only these three sources may be loaded. Dispatching on an explicit source_type
+# rather than Record(source).load() is deliberate: load() falls through to
+# load_from_file/load_from_url for anything it doesn't recognise, which would let
+# a caller-supplied string turn into a local file read or an arbitrary outbound
+# request from inside the function.
+SOURCE_LOADERS = {
+    "doi": retrieve_doi_as_firebase_record,
+    "obis": retrieve_obis_metadata,
+    "pdc": retrieve_pdc_as_firebase_record,
+}
+
+# Errors meaning "we looked, it isn't there / it isn't valid" as opposed to
+# "something broke on our side". Kept apart so a typo'd identifier reads as a 404
+# with a usable message instead of an opaque 500.
+NOT_FOUND_ERRORS = (
+    DOIRetrievalError,
+    PDCRetrievalError,
+    requests.HTTPError,
+    ValueError,  # obis raises this for an unknown dataset id
+)
+
+
+# OBIS makes up to three follow-up API calls (taxonomy facets, plus occurrence
+# samples for eMoF EOVs and platform inference) and PDC probes doi.org to resolve
+# a CCIN's DOI, so the 60s default timeout is not comfortably enough.
+@https_fn.on_request(timeout_sec=180, memory=options.MemoryOption.MB_512)
+def create_record_from_source(req: https_fn.Request):  # type: ignore
+    """HTTP function building a new Firebase record from an external source.
+
+    POST JSON body:
+      { "data": { "source_type": "doi"|"obis"|"pdc", "identifier": "..." } }
+    Returns { "data": {<firebase record>} }.
+    """
+    origin = req.headers.get("origin")
+    allowed = _origin_allowed(origin)
+    headers = _cors_headers(origin, allowed)
+
+    if req.method == "OPTIONS":
+        status = 204 if allowed else 403
+        return https_fn.Response("", status=status, headers=headers)
+
+    if not allowed:
+        return https_fn.Response(
+            json.dumps({"error": "Origin not allowed"}),
+            status=403,
+            headers=headers,
+            content_type="application/json",
+        )
+
+    if req.method != "POST":
+        return https_fn.Response(
+            json.dumps({"error": "Method not allowed"}),
+            status=405,
+            headers=headers,
+            content_type="application/json",
+        )
+
+    try:
+        payload = req.get_json(silent=True) or {}
+    except Exception:  # pragma: no cover
+        payload = {}
+
+    data = payload.get("data", {})
+    source_type = data.get("source_type")
+    identifier = (data.get("identifier") or "").strip()
+
+    if source_type not in SOURCE_LOADERS:
+        return https_fn.Response(
+            json.dumps(
+                {
+                    "error": f"source_type must be one of {sorted(SOURCE_LOADERS)}",
+                }
+            ),
+            status=400,
+            headers=headers,
+            content_type="application/json",
+        )
+
+    if not identifier:
+        return https_fn.Response(
+            json.dumps({"error": "identifier is required"}),
+            status=400,
+            headers=headers,
+            content_type="application/json",
+        )
+
+    try:
+        record = SOURCE_LOADERS[source_type](identifier)
+    except NOT_FOUND_ERRORS as e:
+        logging.warning("No %s record for '%s': %s", source_type, identifier, e)
+        return https_fn.Response(
+            json.dumps({"error": f"Could not retrieve {source_type} record '{identifier}': {e}"}),
+            status=404,
+            headers=headers,
+            content_type="application/json",
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        logging.exception("Record retrieval failed")
+        return https_fn.Response(
+            json.dumps({"error": f"Record retrieval failed: {e}"}),
+            status=500,
+            headers=headers,
+            content_type="application/json",
+        )
+
+    return https_fn.Response(
+        json.dumps({"data": record}),
         status=200,
         headers=headers,
         content_type="application/json",
