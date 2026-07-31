@@ -1,15 +1,13 @@
-import { vi, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
   validateEmail,
   validateURL,
   validateDOI,
   validateField,
-} from "../validate";
+} from "../validate.js";
 
-// Mock the API actions module so validators never touch the network
-vi.mock("../../api/actions", () => ({
-  checkURLActive: vi.fn().mockResolvedValue({ data: true }),
-}));
+// No network mock needed: the URL-reachability warning moved to
+// validateWarnings.js, so the validation core has no transport dependency.
 
 describe("Utility: validate.js", () => {
   describe("Basic Validators", () => {

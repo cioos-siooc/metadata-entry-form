@@ -1,0 +1,533 @@
+{
+  "tabs": {
+    "records": "Records",
+    "library": "Library",
+    "review": "Review",
+    "more": "More"
+  },
+  "records": {
+    "title": "My records",
+    "mine": "Mine",
+    "shared": "Shared",
+    "published": "Published",
+    "empty": {
+      "title": "No records yet",
+      "body": "Records you create will appear here, and stay available offline.",
+      "action": "New record"
+    },
+    "emptyShared": "Nothing has been shared with you in this region.",
+    "emptyPublished": "No published records in this region yet.",
+    "loadFailedOffline": "Showing what's saved on this device. Reconnect to see the latest.",
+    "loadFailed": "Couldn't load records.",
+    "untitled": "Untitled record",
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "published": "Published"
+    },
+    "editedBy": "by {{name}}",
+    "newRecord": "New record",
+    "createFailed": "Couldn't create a record.",
+    "staleList": "Showing what's on this device. Pull to refresh when you're back online."
+  },
+  "library": {
+    "contacts": "Contacts",
+    "platforms": "Platforms",
+    "instruments": "Instruments",
+    "contactsHelp": "People and organisations you reuse across records.",
+    "platformsHelp": "Vessels, moorings and other platforms you reuse.",
+    "instrumentsHelp": "Instruments you reuse across records.",
+    "empty": "Nothing saved yet.",
+    "add": "Add",
+    "save": "Save",
+    "deleted": "Removed",
+    "loadFailed": "Couldn't load your library.",
+    "addFrom": {
+      "contacts": "From saved contacts",
+      "platforms": "From saved platforms",
+      "instruments": "From saved instruments"
+    },
+    "search": "Search saved entries",
+    "cached": "Saved copy — may be out of date",
+    "emptyForRecord": "Nothing saved yet. Save an entry from a record to reuse it.",
+    "noMatches": "No matches",
+    "unavailable": "The library needs a connection.",
+    "saveTo": "Save to library",
+    "saved": "Saved to library",
+    "saveOffline": "Save to library needs a connection",
+    "title": "Your library",
+    "addOne": {
+      "contacts": "Add a contact",
+      "platforms": "Add a platform",
+      "instruments": "Add an instrument"
+    }
+  },
+  "review": {
+    "title": "Review & submit",
+    "ready": "Everything required is filled in.",
+    "notReady": "Fill in what's outstanding before submitting.",
+    "submit": "Submit for review",
+    "submitted": "Submitted for review",
+    "ownerOnly": "Only the record's owner can submit it.",
+    "mustSaveFirst": "Save the record before submitting."
+  },
+  "more": {
+    "title": "More",
+    "region": "Region",
+    "language": "Language",
+    "appearance": "Appearance",
+    "signOut": "Sign out",
+    "designPreview": "Design preview",
+    "account": "Account and data",
+    "development": "Development",
+    "devTools": "Servers and regions",
+    "rotation": "Rotation"
+  },
+  "appearance": {
+    "light": "Light",
+    "dark": "Dark",
+    "night": "Night",
+    "nightHint": "Red-shifted, to preserve night vision on a bridge."
+  },
+  "sync": {
+    "offline": "Offline — changes are saved on this device",
+    "savedLocally": "Saved on this device",
+    "savedToServer": "Saved to CIOOS",
+    "pending_one": "{{count}} change waiting to sync",
+    "pending_other": "{{count}} changes waiting to sync",
+    "syncing": "Syncing…",
+    "failed": "Some changes need attention"
+  },
+  "completeness": {
+    "label": "Complete",
+    "remaining_one": "{{count}} left",
+    "remaining_other": "{{count}} left",
+    "done": "Done",
+    "notStarted": "Not started"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signInTo": "Sign in to {{region}}",
+    "email": "Email",
+    "password": "Password",
+    "continueWith": "Or continue with",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "orcid": "ORCID",
+    "signingIn": "Signing in…",
+    "cancelled": "Sign-in was cancelled.",
+    "offlineCannotSignIn": "You need a connection to sign in for the first time.",
+    "invalidCredentials": "That email and password don't match.",
+    "unverified": "Check your email and confirm your address before signing in.",
+    "noPassword": "This account signs in with Google, Microsoft or ORCID. Use one of those, or set a password from the web app."
+  },
+  "regionSelect": {
+    "title": "Choose your region",
+    "subtitle": "You can change this later under More.",
+    "loadFailed": "Showing the regions bundled with the app — the live list couldn't be reached, so it may be out of date.",
+    "retry": "Try again"
+  },
+  "common": {
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading…",
+    "back": "Back"
+  },
+  "designPreview": {
+    "title": "Design preview",
+    "subtitle": "Every region's accent, tone-mapped and contrast-checked against each theme.",
+    "typeScale": "Type scale",
+    "semantic": "Semantic colours",
+    "accents": "Region accents",
+    "contrast": "{{ratio}}:1"
+  },
+  "sections": {
+    "identification": "Identification",
+    "about": "About the data",
+    "when": "When",
+    "where": "Where",
+    "who": "Who",
+    "platform": "Platform & instruments",
+    "species": "Species",
+    "resources": "Resources & provenance"
+  },
+  "ledger": {
+    "state": {
+      "empty": "Not started",
+      "attention": "Needs attention",
+      "complete": "Complete",
+      "filled": "Added"
+    },
+    "required": "{{satisfied}} of {{required}} required",
+    "fields": "{{filled}} of {{total}} fields",
+    "noneRequired": "Nothing required here",
+    "readyToSubmit": "Ready to submit",
+    "notReady": "{{count}} still needed",
+    "openSection": "Open {{section}}"
+  },
+  "identification": {
+    "titleHelp": "A short, descriptive name for the dataset. Both languages are required.",
+    "themeHelp": "What kind of data this is. Choosing a theme makes the spatial section required.",
+    "scopeHelp": "What the record describes.",
+    "titleLabel": "Dataset title",
+    "themeLabel": "Theme",
+    "scopeLabel": "What this record describes"
+  },
+  "when": {
+    "collectionHelp": "When the data was collected.",
+    "start": "First collected",
+    "end": "Last collected",
+    "published": "Published",
+    "revised": "Revised",
+    "edition": "Edition",
+    "editionHelp": "A version for this dataset, for example 1.1."
+  },
+  "editor": {
+    "save": "Save",
+    "saved": "Saved on this device",
+    "queued": "Waiting to sync",
+    "saving": "Saving…",
+    "back": "Done"
+  },
+  "repeater": {
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "addContact": "Add contact",
+    "addPlatform": "Add platform",
+    "addInstrument": "Add instrument",
+    "addResource": "Add resource"
+  },
+  "about": {
+    "abstract": "Abstract",
+    "abstractHelp": "What the dataset contains. Both languages are required.",
+    "keywords": "Keywords",
+    "keywordsHelp": "Include the nearest community or geographic place name.",
+    "eov": "Essential ocean variables",
+    "eovHelp": "What was measured. At least one is required.",
+    "eovDeprecated": "This variable is deprecated and will block submission.",
+    "progress": "Status",
+    "license": "Licence",
+    "licenseHelp": "How others may use the data.",
+    "limitations": "Limitations",
+    "addKeyword": "Add",
+    "datasetLanguage": "Primary language of the dataset",
+    "datasetLanguageHelp": "The language the data itself is in — not the language of this app.",
+    "projects": "Projects",
+    "projectsHelp": "Projects this record belongs to."
+  },
+  "where": {
+    "bbox": "Bounding box",
+    "bboxHelp": "North, south, east and west limits in decimal degrees.",
+    "north": "North",
+    "south": "South",
+    "east": "East",
+    "west": "West",
+    "polygon": "Polygon",
+    "polygonHelp": "Space-separated lat,lon pairs. The first and last must match.",
+    "vertical": "Vertical extent",
+    "verticalHelp": "Depth or height range covered.",
+    "min": "Minimum",
+    "max": "Maximum",
+    "direction": "Direction",
+    "epsg": "EPSG code",
+    "noVertical": "No vertical extent",
+    "useMyLocation": "Use my location",
+    "locationFailed": "Couldn't get your location."
+  },
+  "who": {
+    "help": "Who to contact about this dataset. One custodian and one owner are required.",
+    "orgName": "Organisation",
+    "orgEmail": "Organisation email",
+    "orgUrl": "Organisation website",
+    "givenNames": "Given names",
+    "lastName": "Last name",
+    "position": "Position",
+    "indEmail": "Personal email",
+    "orcid": "ORCID",
+    "roles": "Roles",
+    "inCitation": "Include in citation",
+    "rorSearch": "Find an organisation (ROR)",
+    "rorPlaceholder": "Fisheries and Oceans Canada",
+    "searching": "Searching…",
+    "orcidLookup": "Fill from an ORCID",
+    "orcidPrivate": "That ORCID profile keeps its name private. Type it in.",
+    "lookupOffline": "Lookups need a connection. Type the details instead.",
+    "lookupFailed": "That lookup didn't work. Type the details instead.",
+    "orgCity": "City",
+    "orgCountry": "Country",
+    "orgRor": "ROR URL"
+  },
+  "platformSection": {
+    "help": "The platform the instruments were deployed from.",
+    "noPlatform": "No platform",
+    "type": "Type",
+    "id": "Identifier",
+    "description": "Description",
+    "instruments": "Instruments",
+    "manufacturer": "Manufacturer",
+    "version": "Version",
+    "platforms": "Platforms"
+  },
+  "species": {
+    "help": "Species observed in this dataset.",
+    "noTaxa": "No taxonomic coverage",
+    "scientificName": "Scientific name",
+    "search": "Search GBIF",
+    "searchHelp": "Find a taxon by name. Typed entries are equally valid.",
+    "searching": "Searching…",
+    "offlineResults": "Showing taxa this device has seen before.",
+    "offlineNone": "GBIF is unreachable and nothing matching is saved on this device. Type the name instead.",
+    "addTaxon": "Add {{name}}",
+    "addByHand": "Add a taxon by hand",
+    "taxaList": "Taxa in this record"
+  },
+  "resourcesSection": {
+    "help": "Where the data can be downloaded.",
+    "url": "URL",
+    "name": "Name",
+    "description": "Description",
+    "distribution": "Resources"
+  },
+  "conflict": {
+    "title": "Changes clash",
+    "banner": "Someone else changed this record",
+    "explain": "You edited this while it also changed on CIOOS. Nothing has been lost — choose what to keep.",
+    "autoMergeable": "The changes don't overlap, so both can be kept.",
+    "contested": "{{count}} field changed on both sides",
+    "contested_one": "{{count}} field changed on both sides",
+    "contested_other": "{{count}} fields changed on both sides",
+    "yours": "Yours",
+    "theirs": "On CIOOS",
+    "base": "Before",
+    "keepMine": "Keep mine",
+    "keepTheirs": "Keep theirs",
+    "merge": "Keep both",
+    "resolved": "Resolved",
+    "empty": "(empty)",
+    "localOnly": "Only you changed these",
+    "remoteOnly": "Only CIOOS changed these",
+    "other": "Other fields"
+  },
+  "reviewQueue": {
+    "title": "Review",
+    "subtitle": "Records submitted in this region.",
+    "empty": "Nothing is waiting for review.",
+    "all": "All",
+    "submitted": "Submitted",
+    "published": "Published",
+    "drafts": "Drafts",
+    "publish": "Publish",
+    "unpublish": "Return to submitted",
+    "returnToDraft": "Return to draft",
+    "actionFailed": "That didn't work. Try again.",
+    "confirm": "Are you sure?"
+  },
+  "map": {
+    "title": "On a map",
+    "boxMode": "Draw a box",
+    "polygonMode": "Draw a shape",
+    "done": "Done",
+    "clear": "Clear",
+    "recentre": "Recentre",
+    "boxHint": "Tap two opposite corners.",
+    "polygonHint": "Tap to add points, then Done.",
+    "points": "{{count}} point",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "needsThree": "A shape needs at least three points.",
+    "undo": "Undo last point",
+    "noShape": "No area set yet."
+  },
+  "register": {
+    "title": "Create an account",
+    "name": "Your name",
+    "submit": "Create account",
+    "haveAccount": "I already have an account",
+    "check": "Check your email",
+    "sent": "If that address can be used, we've sent a link to confirm it.",
+    "passwordRule": "At least 8 characters.",
+    "weak": "That password is too short."
+  },
+  "forgot": {
+    "title": "Password help",
+    "explain": "We'll email you a link to set a new password.",
+    "submit": "Send the link",
+    "sent": "If that address is registered, the link is on its way.",
+    "back": "Back to sign in",
+    "link": "Forgot your password?",
+    "oauthNote": "This also works if you normally sign in with Google, Microsoft or ORCID and want to add a password."
+  },
+  "reset": {
+    "title": "Set a password",
+    "newPassword": "New password",
+    "submit": "Save password",
+    "done": "Password saved. You can sign in now.",
+    "invalid": "That link has expired. Ask for a new one."
+  },
+  "verify": {
+    "title": "Confirming your email",
+    "working": "One moment…",
+    "done": "Your email is confirmed. You can sign in now.",
+    "invalid": "That link has expired. Try signing in to get a new one."
+  },
+  "setPassword": {
+    "title": "Password",
+    "addHelp": "Add a password so you can sign in without a provider.",
+    "changeHelp": "Change your password.",
+    "current": "Current password",
+    "new": "New password",
+    "submit": "Save",
+    "saved": "Password saved.",
+    "wrongCurrent": "That current password is not right.",
+    "link": "Set or change your password"
+  },
+  "actions": {
+    "title": "Actions",
+    "delete": "Delete record",
+    "deleteConfirm": "Delete this record? This cannot be undone.",
+    "clone": "Duplicate record",
+    "cloned": "Duplicated",
+    "share": "Share for editing",
+    "shareHelp": "People you choose can edit this record, but cannot submit it.",
+    "transfer": "Transfer ownership",
+    "transferHelp": "Enter the new owner's email address.",
+    "transferred": "Ownership transferred",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "failed": "That didn't work.",
+    "offlineOnly": "Save the record before doing this.",
+    "searchPeople": "Search by name or email"
+  },
+  "queue": {
+    "title": "Waiting to sync",
+    "empty": "Everything is synced.",
+    "retry": "Try again",
+    "discard": "Discard change",
+    "discardConfirm": "Discard this change? The edit will be lost.",
+    "attempts": "{{count}} attempt",
+    "attempts_one": "{{count}} attempt",
+    "attempts_other": "{{count}} attempts",
+    "kindCreate": "New record",
+    "kindUpdate": "Edit",
+    "kindStatus": "Status change",
+    "kindDelete": "Deletion",
+    "syncNow": "Sync now",
+    "conflictOne": "Needs your decision",
+    "link": "Sync queue"
+  },
+  "sessions": {
+    "title": "Signed-in devices",
+    "thisDevice": "This device",
+    "signOutOne": "Sign out",
+    "empty": "No other devices.",
+    "lastUsed": "Last used {{when}}",
+    "browser": "Web browser",
+    "unnamed": "Unnamed device",
+    "signOutConfirm": "Sign {{device}} out? It will need to sign in again.",
+    "signedIn": "Signed in {{when}}"
+  },
+  "translate": {
+    "action": "Translate to {{language}}",
+    "tooLong": "Too long to translate (5,000 bytes)",
+    "offline": "Translation needs a connection",
+    "verified": "I have verified this translation",
+    "unverified": "Machine translation — not yet verified",
+    "failed": "Translation didn't work. Try again or write it yourself."
+  },
+  "doi": {
+    "title": "DOI",
+    "help": "A permanent identifier for this dataset, registered with DataCite.",
+    "generate": "Generate a draft DOI",
+    "update": "Push metadata to DataCite",
+    "delete": "Delete this draft DOI",
+    "deleteConfirm": "Delete the draft DOI? The identifier will no longer resolve.",
+    "created": "Draft DOI registered.",
+    "updated": "Metadata sent to DataCite.",
+    "deleted": "Draft DOI deleted.",
+    "failed": "DataCite didn't accept that. Try again.",
+    "offline": "DOIs need a connection — they are never queued, because a retry would mint a second one.",
+    "saveFirst": "Save the record to CIOOS before registering a DOI.",
+    "state": {
+      "draft": "Draft",
+      "registered": "Registered",
+      "findable": "Findable"
+    }
+  },
+  "export": {
+    "title": "Download",
+    "offline": "Downloads need a connection — the file is built by the server.",
+    "format": {
+      "iso19115-3_xml": "ISO 19115-3 XML",
+      "erddap": "ERDDAP XML",
+      "yaml": "YAML",
+      "json": "Record JSON",
+      "datacite_json": "DataCite JSON",
+      "datacite_xml": "DataCite XML"
+    }
+  },
+  "github": {
+    "title": "Publish to GitHub",
+    "notConfigured": "GitHub isn't set up for this region. An admin can configure it on the web.",
+    "environments": "Environments",
+    "commitMessage": "Commit message",
+    "publish": "Publish",
+    "step": {
+      "config": "Reading the region's GitHub settings…",
+      "converting": "Converting the record…",
+      "publishing": "Writing to GitHub…"
+    }
+  },
+  "dev": {
+    "title": "Developer settings",
+    "subtitle": "Per-device overrides for development and QA. Not shipped to users.",
+    "server": "API server",
+    "serverDefault": "Using the address this build was made with.",
+    "serverOverridden": "Overridden. This build's address is {{url}}.",
+    "serverHelp": "Host and path, e.g. 192.168.1.20:3001/api. http:// is assumed if you leave it out.",
+    "serverApply": "Use this server",
+    "serverReset": "Back to the build default",
+    "serverSaved": "Now using {{url}}. Sign in again.",
+    "testConnection": "Test connection",
+    "reachable": "The server answered.",
+    "unreachable": "No answer from that address.",
+    "region": "Region",
+    "regionHelp": "Type a region name directly, including one the picker doesn't list yet.",
+    "regionApply": "Switch region",
+    "regionSaved": "Region set to {{region}}."
+  },
+  "related": {
+    "title": "Related works",
+    "help": "Papers, datasets or versions this record relates to. Each one needs a title in both languages, an identifier and a relation.",
+    "add": "Add a related work",
+    "workTitle": "Title",
+    "code": "Identifier or URL",
+    "authority": "Identifier type",
+    "relation": "How it relates"
+  },
+  "lineage": {
+    "title": "Lineage",
+    "help": "How the data came to be. Each step can list its sources, the processing applied, and supporting documents.",
+    "add": "Add a lineage step",
+    "untitledStep": "Untitled step",
+    "statement": "What happened",
+    "scope": "What this step covers",
+    "sources": "Sources",
+    "sourcesHelp": "The input data this step started from.",
+    "addSource": "Add a source",
+    "steps": "Processing steps",
+    "stepsHelp": "What was done to the data. A title and a description are required once a step exists.",
+    "addStep": "Add a processing step",
+    "documents": "Supporting documents",
+    "documentsHelp": "Reports or protocols that describe this step.",
+    "addDocument": "Add a document",
+    "entryTitle": "Title",
+    "entryDescription": "Description"
+  },
+  "rotation": {
+    "auto": "Follow the device",
+    "portrait": "Portrait only",
+    "hint": "Landscape helps on a tablet. Lock it if the boat keeps turning the screen."
+  }
+}

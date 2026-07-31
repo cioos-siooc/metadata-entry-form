@@ -4,6 +4,7 @@ const { pool } = require("./db");
 const { authPlugin } = require("./plugins/auth");
 const { regionContextPlugin } = require("./plugins/regionContext");
 const { authRoutes } = require("./routes/auth");
+const { authNativeRoutes } = require("./routes/authNative");
 const { meRoutes } = require("./routes/me");
 const { recordRoutes } = require("./routes/records");
 const { entityRoutes } = require("./routes/entities");
@@ -32,6 +33,7 @@ function buildApp(opts = {}) {
   app.register(
     async (api) => {
       api.register(authRoutes);
+      api.register(authNativeRoutes);
       api.register(meRoutes);
       api.register(recordRoutes);
       api.register(entityRoutes);

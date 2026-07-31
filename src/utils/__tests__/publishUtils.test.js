@@ -1,13 +1,15 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { convertMetadata } from "../../api/actions";
 import { preparePublishPayload, convertRecord } from "../publishUtils";
-import { getRecordFilename } from "../misc";
+import { getRecordFilename } from "@cioos/shared/misc.js";
 
 // Mock dependencies
 vi.mock("../../api/actions", () => ({
   convertMetadata: vi.fn(),
 }));
-vi.mock("../misc");
+// Mocked at the shared module, which is where the payload builder reads it
+// from — mocking the SPA's re-export shim would not intercept that call.
+vi.mock("@cioos/shared/misc.js", () => ({ getRecordFilename: vi.fn() }));
 
 describe("publishUtils", () => {
   const mockRecord = {

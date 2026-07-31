@@ -124,9 +124,40 @@ const config = {
     accessTokenTtl: process.env.ACCESS_TOKEN_TTL || "15m",
     // Refresh token lifetime in days.
     refreshTokenTtlDays: parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "30", 10),
+    // Native clients get longer: a field crew can be offline for most of a
+    // season, and 30 days is not enough to guarantee they can still sign in.
+    nativeRefreshTokenTtlDays: parseInt(
+      process.env.NATIVE_REFRESH_TOKEN_TTL_DAYS || "90",
+      10,
+    ),
+    // Grace period for refresh-token reuse from a NATIVE client only.
+    //
+    // Rotation normally treats a replayed token as a compromised session and
+    // revokes the whole family. That is right in a browser and dangerous on a
+    // boat: if the refresh response is lost to a dropped LTE handoff, the app
+    // still holds a token it has already spent, retries, and the user is
+    // logged out in the field with no network to log back in. Inside this
+    // window a native replay is treated as a lost response, not an attack.
+    nativeRefreshGraceSeconds: parseInt(
+      process.env.NATIVE_REFRESH_GRACE_SECONDS || "60",
+      10,
+    ),
+    // Single-use code handed to a native app after OAuth, exchanged for tokens.
+    nativeAuthCodeTtlSeconds: parseInt(
+      process.env.NATIVE_AUTH_CODE_TTL_SECONDS || "60",
+      10,
+    ),
     // Verify/reset email links valid for this many hours.
     emailTokenTtlHours: parseInt(process.env.EMAIL_TOKEN_TTL_HOURS || "24", 10),
   },
+
+  // URL schemes a native build may be redirected back to after OAuth, e.g.
+  // "ca.cioos.metadata". Empty by default: a deployment that has not
+  // registered an app scheme must not accept redirects to one.
+  nativeRedirectSchemes: (process.env.NATIVE_REDIRECT_SCHEMES || "")
+    .split(",")
+    .map((s) => s.trim().replace(/:$/, ""))
+    .filter(Boolean),
 
   // Cookie attributes for the refresh cookie (path-scoped to /api/v1/auth) and
   // the transient OAuth flow cookie. sameSite=lax is correct for a same-origin
