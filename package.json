@@ -53,6 +53,7 @@
     "react-time-ago": "^7.4.1",
     "regenerator-runtime": "^0.14.1",
     "remark-gfm": "^4.0.1",
+    "simplify-js": "^1.2.4",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "tss-react": "^4.9.20",
