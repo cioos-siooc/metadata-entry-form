@@ -14,6 +14,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
+import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
@@ -467,10 +468,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
       <QuestionText>
         <I18n>
-          <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
-          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
+          <En>Describe the Geographic Extent of the dataset. Required for Biota (biological) datasets</En>
+          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données Biote (biologiques)</Fr>
         </I18n>
-        {record.resourceType && record.resourceType.includes("biological") && (
+        {resourceTypeIncludes(record.resourceType, "biota") && (
           <RequiredMark passes={Boolean(mapData.description)} />
         )}
         <SupplementalText>
@@ -479,15 +480,16 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
               <p>
                 Optionally you can include a text description of the geographic
                 area covered by this dataset or study. This field is required
-                when filling out biological datasets but is optional for all
-                other dataset types.
+                when the Biota (biological) topic category is selected but is
+                optional for all other topic categories.
               </p>
             </En>
             <Fr>
               <p>
                 Vous pouvez éventuellement inclure une description textuelle
-                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est
-                facultatif pour tous autre type de jeux de données.
+                de la zone géographique. Ce champ est obligatoire lorsque la
+                catégorie thématique Biote (biologique) est sélectionnée, mais
+                est facultatif pour toutes les autres catégories thématiques.
               </p>
             </Fr>
           </I18n>
