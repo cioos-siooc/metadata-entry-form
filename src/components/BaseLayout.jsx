@@ -22,6 +22,14 @@ import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions, { getRegionLogo } from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
+import FormTypeList from "./Pages/Forms/FormTypeList";
+import FormFill from "./Pages/Forms/FormFill";
+import MyFormSubmissions from "./Pages/Forms/MyFormSubmissions";
+import FormSubmissionsReview from "./Pages/Forms/FormSubmissionsReview";
+import FormSubmissionDetail from "./Pages/Forms/FormSubmissionDetail";
+import RegionFormTypes from "./Pages/Forms/RegionFormTypes";
+import FormCatalog from "./Pages/Forms/FormCatalog";
+import FormTypeEditor from "./Pages/Forms/FormTypeEditor";
 
 const RegionLogo = ({ children }) => {
   const { language, region } = useParams();
@@ -73,6 +81,58 @@ const Pages = () => {
                 <Route path="platforms/:platformID" element={<EditPlatform />} />
                 <Route path="platforms" element={<Platforms />} />
                 <Route path="shared" element={<Shared />} />
+
+                {/* Schema-driven forms. Members fill in whichever form types
+                    their region has enabled; definitions are managed globally. */}
+                <Route path="forms" element={<FormTypeList />} />
+                <Route path="forms/mine" element={<MyFormSubmissions />} />
+                <Route
+                  path="forms/review"
+                  element={
+                    userIsAdmin || userIsReviewer ? (
+                      <FormSubmissionsReview />
+                    ) : (
+                      <NotFound />
+                    )
+                  }
+                />
+                {/* Read-only view of one submission, for reviewers. Declared
+                    before the :formTypeSlug route so "review" is not mistaken
+                    for a form slug. */}
+                <Route
+                  path="forms/review/:submissionID"
+                  element={
+                    userIsAdmin || userIsReviewer ? (
+                      <FormSubmissionDetail />
+                    ) : (
+                      <NotFound />
+                    )
+                  }
+                />
+                <Route
+                  path="forms/:formTypeSlug/:submissionID"
+                  element={<FormFill />}
+                />
+
+                {/* Per-region activation is a write, so admins only — unlike
+                    the /admin landing page, which reviewers may also read. */}
+                <Route
+                  path="admin/forms"
+                  element={userIsAdmin ? <RegionFormTypes /> : <NotFound />}
+                />
+
+                {/* The catalog is shared across regions, so any region
+                    administrator may manage it. Cross-region impact is limited
+                    by the guardrails in the publish flow, not by a role. */}
+                <Route
+                  path="admin/form-catalog"
+                  element={userIsAdmin ? <FormCatalog /> : <NotFound />}
+                />
+                <Route
+                  path="admin/form-catalog/:formTypeId"
+                  element={userIsAdmin ? <FormTypeEditor /> : <NotFound />}
+                />
+
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
                 <Route path="submissions" element={<Submissions />} />
                 <Route path="published" element={<Published />} />

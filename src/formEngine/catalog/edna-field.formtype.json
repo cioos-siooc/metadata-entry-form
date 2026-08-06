@@ -1,0 +1,499 @@
+{
+  "slug": "edna-field",
+  "kind": "generic",
+  "title": {
+    "en": "eDNA Field Metadata",
+    "fr": "Métadonnées de terrain ADNe"
+  },
+  "description": {
+    "en": "Field datasheet for an environmental DNA survey: where, when, and how each sample was collected. One submission per sample, so the export comes out one row per sample.",
+    "fr": "Fiche de terrain pour un relevé d'ADN environnemental : où, quand et comment chaque échantillon a été prélevé. Une soumission par échantillon, afin que l'export produise une ligne par échantillon."
+  },
+  "jsonSchema": {
+    "type": "object",
+    "required": [
+      "siteName",
+      "latitude",
+      "longitude",
+      "sampleId",
+      "sampleType",
+      "collectionDateTime"
+    ],
+    "properties": {
+      "surveyName": {
+        "type": "string",
+        "title": "Survey or study name"
+      },
+      "siteName": {
+        "type": "string",
+        "title": "Site name or ID"
+      },
+      "latitude": {
+        "type": "number",
+        "title": "Site latitude",
+        "minimum": -90,
+        "maximum": 90
+      },
+      "longitude": {
+        "type": "number",
+        "title": "Site longitude",
+        "minimum": -180,
+        "maximum": 180
+      },
+      "collectionDateTime": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Sample collection time"
+      },
+      "fieldTeam": {
+        "type": "array",
+        "title": "Members of the field team",
+        "items": {
+          "type": "string"
+        }
+      },
+      "weather": {
+        "type": "string",
+        "title": "Weather",
+        "enum": [
+          "clear",
+          "partly cloudy",
+          "overcast",
+          "rain",
+          "snow",
+          "fog"
+        ]
+      },
+      "windSpeedKnots": {
+        "type": "number",
+        "title": "Wind speed (knots)",
+        "minimum": 0
+      },
+      "seaState": {
+        "type": "string",
+        "title": "Sea state (Beaufort)",
+        "enum": [
+          "0 - calm (glassy)",
+          "1 - light air",
+          "2 - light breeze",
+          "3 - gentle breeze",
+          "4 - moderate breeze",
+          "5 - fresh breeze",
+          "6 - strong breeze",
+          "7 or above"
+        ]
+      },
+      "tideState": {
+        "type": "string",
+        "title": "Tide",
+        "enum": [
+          "high",
+          "ebb",
+          "low",
+          "flood"
+        ]
+      },
+      "tideHeightMetres": {
+        "type": "number",
+        "title": "Tide height (m)"
+      },
+      "sampleId": {
+        "type": "string",
+        "title": "Unique sample ID"
+      },
+      "sampleType": {
+        "type": "string",
+        "title": "Sample type",
+        "enum": [
+          "sample",
+          "field blank",
+          "field control"
+        ],
+        "default": "sample"
+      },
+      "sampleDepthMetres": {
+        "type": "number",
+        "title": "Sample depth (m)",
+        "minimum": 0
+      },
+      "replicateNumber": {
+        "type": "integer",
+        "title": "Replicate number",
+        "minimum": 1
+      },
+      "filtrationStart": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Filtration start time"
+      },
+      "filtrationEnd": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Filtration end time"
+      },
+      "volumeFilteredMillilitres": {
+        "type": "number",
+        "title": "Volume filtered (mL)",
+        "minimum": 0
+      },
+      "filterType": {
+        "type": "string",
+        "title": "Filter type"
+      },
+      "filterPoreSizeMicrons": {
+        "type": "number",
+        "title": "Filter pore size (µm)",
+        "minimum": 0
+      },
+      "preservationMethod": {
+        "type": "string",
+        "title": "Preservation method"
+      },
+      "fieldNotes": {
+        "type": "object",
+        "title": "Field notes",
+        "properties": {
+          "en": {
+            "type": "string"
+          },
+          "fr": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:steps": [
+      {
+        "id": "site",
+        "title": {
+          "en": "Site",
+          "fr": "Site"
+        },
+        "fields": [
+          "surveyName",
+          "siteName",
+          "latitude",
+          "longitude",
+          "collectionDateTime",
+          "fieldTeam"
+        ]
+      },
+      {
+        "id": "conditions",
+        "title": {
+          "en": "Conditions",
+          "fr": "Conditions"
+        },
+        "fields": [
+          "weather",
+          "windSpeedKnots",
+          "seaState",
+          "tideState",
+          "tideHeightMetres"
+        ]
+      },
+      {
+        "id": "sample",
+        "title": {
+          "en": "Sample",
+          "fr": "Échantillon"
+        },
+        "fields": [
+          "sampleId",
+          "sampleType",
+          "sampleDepthMetres",
+          "replicateNumber"
+        ]
+      },
+      {
+        "id": "filtration",
+        "title": {
+          "en": "Filtration",
+          "fr": "Filtration"
+        },
+        "fields": [
+          "filtrationStart",
+          "filtrationEnd",
+          "volumeFilteredMillilitres",
+          "filterType",
+          "filterPoreSizeMicrons",
+          "preservationMethod"
+        ],
+        "visibleIf": {
+          "field": "sampleType",
+          "notIn": [
+            "field control"
+          ]
+        }
+      },
+      {
+        "id": "notes",
+        "title": {
+          "en": "Notes",
+          "fr": "Notes"
+        },
+        "fields": [
+          "fieldNotes"
+        ]
+      }
+    ],
+    "ui:summaryFields": [
+      "sampleId",
+      "siteName",
+      "sampleType",
+      "collectionDateTime"
+    ],
+    "surveyName": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Survey or study name",
+            "fr": "Nom du relevé ou de l'étude"
+          },
+          "help": {
+            "en": "Groups samples belonging to the same survey. Use the same value on every sample so they export together.",
+            "fr": "Regroupe les échantillons d'un même relevé. Utilisez la même valeur pour tous les échantillons afin qu'ils s'exportent ensemble."
+          }
+        }
+      }
+    },
+    "siteName": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Site name or ID",
+            "fr": "Nom ou identifiant du site"
+          }
+        }
+      }
+    },
+    "latitude": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Site latitude",
+            "fr": "Latitude du site"
+          },
+          "help": {
+            "en": "Decimal degrees, north positive. On a mobile device this can be filled from the device GPS.",
+            "fr": "Degrés décimaux, nord positif. Sur un appareil mobile, ce champ peut être rempli à partir du GPS."
+          }
+        }
+      }
+    },
+    "longitude": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Site longitude",
+            "fr": "Longitude du site"
+          },
+          "help": {
+            "en": "Decimal degrees, east positive — so longitudes on the Pacific coast of Canada are negative.",
+            "fr": "Degrés décimaux, est positif — les longitudes de la côte pacifique du Canada sont donc négatives."
+          }
+        }
+      }
+    },
+    "collectionDateTime": {
+      "ui:widget": "isoDateTime",
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sample collection time",
+            "fr": "Heure de prélèvement"
+          }
+        }
+      }
+    },
+    "fieldTeam": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Members of the field team",
+            "fr": "Membres de l'équipe de terrain"
+          },
+          "help": {
+            "en": "Add one entry per person.",
+            "fr": "Ajoutez une entrée par personne."
+          }
+        }
+      }
+    },
+    "weather": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Weather",
+            "fr": "Météo"
+          }
+        }
+      }
+    },
+    "windSpeedKnots": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Wind speed (knots)",
+            "fr": "Vitesse du vent (nœuds)"
+          }
+        }
+      }
+    },
+    "seaState": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sea state (Beaufort)",
+            "fr": "État de la mer (Beaufort)"
+          }
+        }
+      }
+    },
+    "tideState": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Tide",
+            "fr": "Marée"
+          }
+        }
+      }
+    },
+    "tideHeightMetres": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Tide height (m)",
+            "fr": "Hauteur de la marée (m)"
+          }
+        }
+      }
+    },
+    "sampleId": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Unique sample ID",
+            "fr": "Identifiant unique de l'échantillon"
+          },
+          "help": {
+            "en": "Must be unique across the whole study. This is the key that links this field sheet to its lab record.",
+            "fr": "Doit être unique pour toute l'étude. C'est la clé qui relie cette fiche de terrain à son enregistrement de laboratoire."
+          }
+        }
+      }
+    },
+    "sampleType": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sample type",
+            "fr": "Type d'échantillon"
+          },
+          "help": {
+            "en": "Blanks and controls are recorded as their own submissions so they appear in the study metadata alongside real samples.",
+            "fr": "Les blancs et les témoins sont enregistrés comme des soumissions distinctes afin d'apparaître dans les métadonnées de l'étude aux côtés des échantillons réels."
+          }
+        }
+      }
+    },
+    "sampleDepthMetres": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sample depth (m)",
+            "fr": "Profondeur de prélèvement (m)"
+          }
+        }
+      }
+    },
+    "replicateNumber": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Replicate number",
+            "fr": "Numéro de réplicat"
+          }
+        }
+      }
+    },
+    "filtrationStart": {
+      "ui:widget": "isoDateTime",
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Filtration start time",
+            "fr": "Début de la filtration"
+          }
+        }
+      }
+    },
+    "filtrationEnd": {
+      "ui:widget": "isoDateTime",
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Filtration end time",
+            "fr": "Fin de la filtration"
+          }
+        }
+      }
+    },
+    "volumeFilteredMillilitres": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Volume filtered (mL)",
+            "fr": "Volume filtré (mL)"
+          }
+        }
+      }
+    },
+    "filterType": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Filter type",
+            "fr": "Type de filtre"
+          }
+        }
+      }
+    },
+    "filterPoreSizeMicrons": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Filter pore size (µm)",
+            "fr": "Porosité du filtre (µm)"
+          }
+        }
+      }
+    },
+    "preservationMethod": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Preservation method",
+            "fr": "Méthode de conservation"
+          }
+        }
+      }
+    },
+    "fieldNotes": {
+      "ui:field": "bilingualText",
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Field notes",
+            "fr": "Notes de terrain"
+          }
+        },
+        "multiline": true,
+        "rows": 4
+      }
+    }
+  }
+}

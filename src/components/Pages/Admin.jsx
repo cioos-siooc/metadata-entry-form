@@ -985,6 +985,77 @@ class Admin extends FormClassTemplate {
                 )}
               </Grid>
             </Paper>
+            {/* Schema-driven forms. Definitions live in the global catalog
+                and shared across regions; each region chooses which to offer. */}
+            <Paper style={paperClass}>
+              <Grid container spacing={2}>
+                <Grid size={12}>
+                  <Typography variant="h5">
+                    <I18n>
+                      <En>Forms</En>
+                      <Fr>Formulaires</Fr>
+                    </I18n>
+                  </Typography>
+                  <Typography variant="body2" style={{ marginTop: "10px" }}>
+                    <I18n>
+                      <En>
+                        Choose which of the centrally-managed form types this
+                        region offers, and export the submissions they collect.
+                      </En>
+                      <Fr>
+                        Choisissez les types de formulaires gérés de façon
+                        centralisée que cette région propose, et exportez les
+                        soumissions recueillies.
+                      </Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid>
+                  <Button
+                    disabled={!this.context.isAdmin}
+                    onClick={() =>
+                      this.props.navigate(
+                        `/${this.props.language}/${this.props.region}/admin/forms`
+                      )
+                    }
+                  >
+                    <I18n>
+                      <En>Forms for this region</En>
+                      <Fr>Formulaires pour cette région</Fr>
+                    </I18n>
+                  </Button>
+                </Grid>
+                <Grid>
+                  <Button
+                    onClick={() =>
+                      this.props.navigate(
+                        `/${this.props.language}/${this.props.region}/forms/review`
+                      )
+                    }
+                  >
+                    <I18n>
+                      <En>Submissions &amp; export</En>
+                      <Fr>Soumissions et export</Fr>
+                    </I18n>
+                  </Button>
+                </Grid>
+                <Grid>
+                  <Button
+                    disabled={!this.context.isAdmin}
+                    onClick={() =>
+                      this.props.navigate(
+                        `/${this.props.language}/${this.props.region}/admin/form-catalog`
+                      )
+                    }
+                  >
+                    <I18n>
+                      <En>Global form catalog</En>
+                      <Fr>Catalogue global de formulaires</Fr>
+                    </I18n>
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
             <Paper style={paperClass}>
               <Grid container spacing={2}>
                 <Grid size={12}>
