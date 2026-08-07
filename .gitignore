@@ -47,3 +47,10 @@ firebase-functions/python-functions/requirements.txt
 xml
 cioos-metadata-form-dev-258dc-default-rtdb-export*.json
 translation-comparison/results-*
+
+# Schema assets staged into the SPA at prebuild — the sources live in
+# schema/v1 and schema/docs/build, so these copies must not be committed.
+/public/schema
+
+# Python venv for the schema docs/conformance tooling
+schema/.venv

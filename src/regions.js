@@ -150,4 +150,13 @@ export function getRegionLogo(regionId, language = 'en') {
   return `${import.meta.env.BASE_URL}${file}`;
 }
 
+/**
+ * Top-level database keys that are NOT regions.
+ *
+ * The Realtime Database is keyed by region at the root, so any literal node
+ * added there shadows the "$region" wildcard rule and must never be usable as
+ * a region slug.
+ */
+export const RESERVED_REGION_IDS = ["admin", "formTypes"];
+
 export default regions;
