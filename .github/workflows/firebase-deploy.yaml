@@ -62,6 +62,13 @@ jobs:
         run: |
           uv venv venv --clear
           uv export --format requirements-txt --no-dev --no-hashes --output-file requirements.txt
+          # Cloud Build installs requirements.txt with pip, which treats two direct git
+          # URLs for the same package as a conflict even when they resolve to the same
+          # commit. uv exports metadata-xml pinned to a commit, while
+          # cioos-metadata-conversion declares it unpinned, so pip fails with
+          # ResolutionImpossible. Drop the commit so both references match exactly.
+          sed -i -E 's|^(metadata-xml @ git\+https://github\.com/cioos-siooc/metadata-xml\.git)@[0-9a-f]+$|\1|' requirements.txt
+          grep -q '^metadata-xml @ git+https://github\.com/cioos-siooc/metadata-xml\.git$' requirements.txt
           source venv/bin/activate
           uv pip install -r requirements.txt
       - name: Authenticate Firebase and Deploy
