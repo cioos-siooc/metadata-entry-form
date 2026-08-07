@@ -22,6 +22,9 @@ class UserProviderClass extends FormClassTemplate {
       isReviewer: false,
       loggedIn: false,
       hasSharedRecords: false,
+      dataciteApiDomain: "production",
+      doiSuffixModes: ["default"],
+      doiStatusManagement: "datacite",
     };
   }
 
@@ -51,9 +54,24 @@ class UserProviderClass extends FormClassTemplate {
           });
 
         const database = getDatabase(firebase);
-        update( ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
+        update(ref(database, `${region}/users/${uid}/userinfo`), { displayName, email });
 
         const permissionsRef = ref(database, `admin/${region}/permissions`)
+        const dataciteCredentialsRef = ref(database, `admin/${region}/dataciteCredentials`);
+
+        onValue(dataciteCredentialsRef, (snapshot) => {
+          const data = snapshot.val();
+          this.setState({
+            dataciteApiDomain: data?.apiDomain || "production",
+            doiSuffixModes:
+              Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0
+                ? data.doiSuffixModes
+                : ["default"],
+            doiStatusManagement: data?.doiStatusManagement || "datacite",
+          });
+        });
+
+        this.listenerRefs.push(dataciteCredentialsRef);
 
         onValue(permissionsRef, (permissionsFB) => {
           const permissions = permissionsFB.toJSON();
@@ -78,9 +96,9 @@ class UserProviderClass extends FormClassTemplate {
         const sharesRef = ref(database, `${region}/shares/${uid}`);
 
         onValue(sharesRef, (snapshot) => {
-            const hasSharedRecords = snapshot.exists();
-            this.setState({ hasSharedRecords, authIsLoading: false });
-          });
+          const hasSharedRecords = snapshot.exists();
+          this.setState({ hasSharedRecords, authIsLoading: false });
+        });
 
         this.listenerRefs.push(sharesRef);
 
@@ -108,6 +126,9 @@ class UserProviderClass extends FormClassTemplate {
     const getCredentialsStored = httpsCallable(functions, "getCredentialsStored");
     const getDatacitePrefix = httpsCallable(functions, "getDatacitePrefix");
     const testDataciteCredentials = httpsCallable(functions, "testDataciteCredentials");
+    const publishDoi = httpsCallable(functions, "publishDoi");
+    const registerDoi = httpsCallable(functions, "registerDoi");
+    const hideDoi = httpsCallable(functions, "hideDoi");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
 
     return (
@@ -125,6 +146,9 @@ class UserProviderClass extends FormClassTemplate {
           getCredentialsStored,
           getDatacitePrefix,
           testDataciteCredentials,
+          publishDoi,
+          registerDoi,
+          hideDoi,
           publishRecordToGitHub,
         }}
       >

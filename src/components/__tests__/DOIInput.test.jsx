@@ -30,8 +30,8 @@ const { default: DOIInput } = await import(
 // --- Helpers ---
 
 const baseRecord = {
-  identifier: "rec-1",
-  recordID: "rec-1",
+  identifier: "rec-1234567890abcdef",
+  recordID: "rec-1234567890abcdef",
   datasetIdentifier: "",
   doiCreationStatus: "",
   status: "",
@@ -45,6 +45,10 @@ function renderDOIInput(recordOverrides = {}, props = {}) {
     deleteDraftDoi: mockDeleteDraftDoi,
     getDoiStatus: mockGetDoiStatus,
     datacitePrefix: "10.5678",
+    dataciteApiDomain: "production",
+    isReviewer: true,
+    isAdmin: false,
+    ...(props.contextValue || {}),
   };
 
   return render(
@@ -70,7 +74,7 @@ describe("DOIInput", () => {
   });
 
   describe("handleGenerateDOI – minimal payload", () => {
-    it("should call createDraftDoi with a minimal payload containing only the prefix", async () => {
+    it("should call createDraftDoi with only the prefix when suffix mode is 'default' (DataCite auto-generates the suffix)", async () => {
       const user = userEvent.setup();
 
       mockCreateDraftDoi.mockResolvedValue({
@@ -84,7 +88,7 @@ describe("DOIInput", () => {
         },
       });
 
-      renderDOIInput({ recordID: "rec-1", doiCreationStatus: "", status: "" });
+      renderDOIInput({ doiCreationStatus: "", status: "" });
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       await user.click(generateBtn);
@@ -104,6 +108,67 @@ describe("DOIInput", () => {
           },
         },
         region: "pacific",
+      });
+    });
+
+    it("should use the record identifier as the suffix when suffix mode is 'identifier'", async () => {
+      const user = userEvent.setup();
+
+      mockCreateDraftDoi.mockResolvedValue({
+        data: {
+          data: {
+            attributes: { doi: "10.5678/rec-1234567890abcdef", state: "draft" },
+          },
+        },
+      });
+
+      renderDOIInput(
+        { doiCreationStatus: "", status: "" },
+        { contextValue: { doiSuffixModes: ["identifier"] } }
+      );
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      await user.click(generateBtn);
+
+      await waitFor(() => {
+        expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
+      });
+
+      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+        doi: "10.5678/rec-1234567890abcdef",
+        prefix: "10.5678",
+      });
+    });
+
+    it("should use a user-entered suffix when suffix mode is 'manual'", async () => {
+      const user = userEvent.setup();
+
+      mockCreateDraftDoi.mockResolvedValue({
+        data: {
+          data: {
+            attributes: { doi: "10.5678/my-custom-suffix", state: "draft" },
+          },
+        },
+      });
+
+      renderDOIInput(
+        { doiCreationStatus: "", status: "" },
+        { contextValue: { doiSuffixModes: ["manual"] } }
+      );
+
+      const suffixField = screen.getByRole("textbox", { name: /doi suffix/i });
+      await user.type(suffixField, "my-custom-suffix");
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      await user.click(generateBtn);
+
+      await waitFor(() => {
+        expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
+      });
+
+      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+        doi: "10.5678/my-custom-suffix",
+        prefix: "10.5678",
       });
     });
 
@@ -266,6 +331,16 @@ describe("DOIInput", () => {
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       expect(generateBtn).toBeDisabled();
     });
+
+    it("should be disabled for non-reviewer/non-admin users", () => {
+      renderDOIInput(
+        { recordID: "rec-1", doiCreationStatus: "" },
+        { contextValue: { isReviewer: false, isAdmin: false } }
+      );
+
+      const generateBtn = screen.getByRole("button", { name: /generate doi/i });
+      expect(generateBtn).toBeDisabled();
+    });
   });
 
   describe("Update DOI button disabled during concurrent operations", () => {
@@ -330,14 +405,78 @@ describe("DOIInput", () => {
       const deleteBtn = screen.getByRole("button", { name: /delete doi/i });
       expect(deleteBtn).not.toBeDisabled();
 
+      // Clicking Delete now opens a confirmation prompt describing the consequences.
       await user.click(deleteBtn);
+      const confirmBtn = await screen.findByRole("button", { name: /^confirm$/i });
+      await user.click(confirmBtn);
 
+      // Once confirmed, the in-flight delete disables the Delete button.
       await waitFor(() => {
         expect(deleteBtn).toBeDisabled();
       });
 
       // Resolve to clean up
       resolveDelete({ data: 204 });
+    });
+  });
+
+  describe("DataCite record button", () => {
+    it("should show a DataCite record link when a valid DOI is present", () => {
+      renderDOIInput({
+        doiCreationStatus: "findable",
+        datasetIdentifier: "https://doi.org/10.5678/existing-record",
+      });
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.datacite.org/dois/10.5678%2Fexisting-record"
+      );
+      expect(recordLink).toHaveAttribute("target", "_blank");
+    });
+
+    it("should use the test DataCite domain when configured", () => {
+      renderDOIInput(
+        {
+          doiCreationStatus: "registered",
+          datasetIdentifier: "https://doi.org/10.5678/test-record",
+        },
+        {
+          contextValue: {
+            dataciteApiDomain: "test",
+          },
+        }
+      );
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.test.datacite.org/dois/10.5678%2Ftest-record"
+      );
+    });
+
+    it("should show a DataCite record link for draft DOIs", () => {
+      renderDOIInput({
+        doiCreationStatus: "draft",
+        datasetIdentifier: "https://doi.org/10.5678/draft-record",
+      });
+
+      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      expect(recordLink).toHaveAttribute(
+        "href",
+        "https://doi.datacite.org/dois/10.5678%2Fdraft-record"
+      );
+    });
+
+    it("should not show a DataCite record link when the DOI is invalid", () => {
+      renderDOIInput({
+        doiCreationStatus: "unknown",
+        datasetIdentifier: "not-a-doi",
+      });
+
+      expect(
+        screen.queryByRole("link", { name: /view datacite record/i })
+      ).not.toBeInTheDocument();
     });
   });
 });
