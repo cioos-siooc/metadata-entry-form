@@ -72,8 +72,60 @@ class Admin extends FormClassTemplate {
       githubFileTemplate: "{filename}",
       githubEnvironments: "prod",
       showGithubToken: false,
+      apiTokens: [],
+      apiTokenLabel: "",
+      newlyMintedToken: null,
+      apiTokenLoading: false,
     };
   }
+
+  loadApiTokens = async () => {
+    const { listApiTokens } = this.context;
+    const { region } = this.props.match.params;
+    if (!listApiTokens) return;
+    try {
+      const result = await listApiTokens({ region });
+      this.setState({ apiTokens: result.data || [] });
+    } catch (err) {
+      console.error("Failed to load API tokens", err);
+    }
+  };
+
+  handleMintApiToken = async () => {
+    const { mintApiToken } = this.context;
+    const { region } = this.props.match.params;
+    const { apiTokenLabel } = this.state;
+    this.setState({ apiTokenLoading: true });
+    try {
+      const result = await mintApiToken({ region, label: apiTokenLabel });
+      this.setState({
+        newlyMintedToken: result.data.token,
+        apiTokenLabel: "",
+      });
+      await this.loadApiTokens();
+    } catch (err) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: `Failed to mint API token: ${err.message}`,
+      });
+    } finally {
+      this.setState({ apiTokenLoading: false });
+    }
+  };
+
+  handleRevokeApiToken = async (tokenId) => {
+    const { revokeApiToken } = this.context;
+    const { region } = this.props.match.params;
+    try {
+      await revokeApiToken({ region, tokenId });
+      await this.loadApiTokens();
+    } catch (err) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: `Failed to revoke API token: ${err.message}`,
+      });
+    }
+  };
 
   async componentDidMount() {
     const { match } = this.props;
@@ -161,6 +213,8 @@ class Admin extends FormClassTemplate {
         this.listenerRefs.push(permissionsRef);
         this.listenerRefs.push(projectsRef);
         this.listenerRefs.push(githubRef);
+
+        this.loadApiTokens();
       }
     });
   }
@@ -1106,6 +1160,135 @@ class Admin extends FormClassTemplate {
                     helperText="One environment per line (e.g. prod)"
                   />
                 </Grid>
+              </Grid>
+            </Paper>
+            <Paper style={paperClass}>
+              <Grid container direction="column" spacing={2}>
+                <Grid>
+                  <Typography variant="h6">
+                    <I18n>
+                      <En>API Tokens</En>
+                      <Fr>Jetons d'API</Fr>
+                    </I18n>
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    <I18n>
+                      <En>
+                        Mint a bearer token to access this region's records as JSON via the
+                        REST API. The token is shown only once — copy it now.
+                        Endpoints:{" "}
+                        <code>GET /api/records/{this.props.match.params.region}</code>
+                        {" "}(optional <code>?status=draft|submitted|published</code>),{" "}
+                        <code>GET /api/records/{this.props.match.params.region}/{"{userId}"}/{"{recordId}"}</code>.
+                      </En>
+                      <Fr>
+                        Créez un jeton bearer pour accéder aux enregistrements de cette
+                        région en JSON via l'API REST. Le jeton n'est affiché qu'une seule
+                        fois — copiez-le maintenant.
+                      </Fr>
+                    </I18n>
+                  </Typography>
+                </Grid>
+                <Grid container spacing={1} alignItems="center">
+                  <Grid size={8}>
+                    <TextField
+                      name="apiTokenLabel"
+                      label="Label (optional)"
+                      value={this.state.apiTokenLabel}
+                      onChange={this.handleChange}
+                      fullWidth
+                      placeholder="e.g. catalogue-sync"
+                    />
+                  </Grid>
+                  <Grid size={4}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={this.state.apiTokenLoading}
+                      onClick={this.handleMintApiToken}
+                    >
+                      <I18n>
+                        <En>Mint Token</En>
+                        <Fr>Créer un jeton</Fr>
+                      </I18n>
+                    </Button>
+                  </Grid>
+                </Grid>
+                {this.state.newlyMintedToken && (
+                  <Grid>
+                    <Alert
+                      severity="success"
+                      onClose={() => this.setState({ newlyMintedToken: null })}
+                    >
+                      <Typography variant="body2" gutterBottom>
+                        <I18n>
+                          <En>
+                            Copy this token now — it will not be shown again.
+                          </En>
+                          <Fr>
+                            Copiez ce jeton maintenant — il ne sera plus affiché.
+                          </Fr>
+                        </I18n>
+                      </Typography>
+                      <TextField
+                        value={this.state.newlyMintedToken}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </Alert>
+                  </Grid>
+                )}
+                {this.state.apiTokens.length === 0 ? (
+                  <Grid>
+                    <Typography variant="body2" color="textSecondary">
+                      <I18n>
+                        <En>No active tokens.</En>
+                        <Fr>Aucun jeton actif.</Fr>
+                      </I18n>
+                    </Typography>
+                  </Grid>
+                ) : (
+                  this.state.apiTokens.map((t) => (
+                    <Grid container key={t.id} spacing={1} alignItems="center">
+                      <Grid size={4}>
+                        <Typography variant="body2">
+                          {t.label || <em>(unlabeled)</em>}
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          {t.id}
+                        </Typography>
+                      </Grid>
+                      <Grid size={3}>
+                        <Typography variant="caption">
+                          {t.createdBy}
+                        </Typography>
+                      </Grid>
+                      <Grid size={3}>
+                        <Typography variant="caption">
+                          {t.createdAt
+                            ? new Date(t.createdAt).toLocaleString()
+                            : "—"}
+                        </Typography>
+                        <br />
+                        <Typography variant="caption" color="textSecondary">
+                          last used:{" "}
+                          {t.lastUsedAt
+                            ? new Date(t.lastUsedAt).toLocaleString()
+                            : "never"}
+                        </Typography>
+                      </Grid>
+                      <Grid size={2}>
+                        <IconButton
+                          onClick={() => this.handleRevokeApiToken(t.id)}
+                          title="Revoke"
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  ))
+                )}
               </Grid>
             </Paper>
             <Grid >

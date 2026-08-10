@@ -130,6 +130,9 @@ class UserProviderClass extends FormClassTemplate {
     const registerDoi = httpsCallable(functions, "registerDoi");
     const hideDoi = httpsCallable(functions, "hideDoi");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
+    const mintApiToken = httpsCallable(functions, "mintApiToken");
+    const listApiTokens = httpsCallable(functions, "listApiTokens");
+    const revokeApiToken = httpsCallable(functions, "revokeApiToken");
 
     return (
       <UserContext.Provider
@@ -150,6 +153,9 @@ class UserProviderClass extends FormClassTemplate {
           registerDoi,
           hideDoi,
           publishRecordToGitHub,
+          mintApiToken,
+          listApiTokens,
+          revokeApiToken,
         }}
       >
         {children}

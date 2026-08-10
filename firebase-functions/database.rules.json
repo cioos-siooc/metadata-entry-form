@@ -68,6 +68,12 @@
         "githubCredentials": {
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
           ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
+        },
+        "apiTokens": {
+          // Admin-only writes. Raw tokens are never stored — only SHA-256 hashes —
+          // so the parent's reviewer-level read access does not expose usable secrets.
+          // Clients only see raw tokens at mint time via the mintApiToken callable.
+          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
         }
       }
     }
