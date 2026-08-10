@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { defineString } = require('firebase-functions/params');
 const nodemailer = require("nodemailer");
@@ -15,8 +15,9 @@ const createIssue = require("./issue");
 const gmailUser = defineString('GMAIL_USER');
 const gmailPass = defineString('GMAIL_PASS');
 
-const gmailUserCred = process.env.GMAIL_USER || gmailUser.value()
-const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value()
+function getTransporter() {
+  const gmailUserCred = process.env.GMAIL_USER || gmailUser.value()
+  const gmailPassCred = process.env.GMAIL_PASS || gmailPass.value()
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

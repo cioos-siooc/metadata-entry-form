@@ -1,6 +1,7 @@
 const admin = require("firebase-admin");
 
-const functions = require("firebase-functions");
+const baseUrl = "https://api.datacite.org/dois/";
+const functions = require("firebase-functions/v1");
 const axios = require("axios");
 
 const API_DOMAINS = {

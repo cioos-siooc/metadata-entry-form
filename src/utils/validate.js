@@ -20,7 +20,7 @@ function isValidHttpUrl(string) {
 
   try {
     url = new URL(string);
-  } catch (_) {
+  } catch {
     return false;
   }
 
@@ -223,7 +223,7 @@ const validators = {
         (contact) =>
           validateEmail(contact.indEmail) &&
           validateEmail(contact.orgEmail) &&
-          validateURL(contact.orgURL)
+          contact.orgURL && validateURL(contact.orgURL)
       ) &&
       val
         .filter(contactIsFilled)
@@ -386,6 +386,17 @@ export const warnings = {
         "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
       fr:
         "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
+    },
+  },
+  organizations: {
+    tab: "contacts",
+    validation: (val, record) => {
+      const { contacts = [] } = record;
+      return contacts.every((contact) => contact.orgSlug || !contact.orgName);
+    },
+    error: {
+      en: "Some contacts have organizations not linked to the registry. We recommend linking them for better data consistency.",
+      fr: "Certains contacts ont des organisations qui ne sont pas liées au registre. Nous vous recommandons de les lier pour une meilleure cohérence des données.",
     },
   },
 };

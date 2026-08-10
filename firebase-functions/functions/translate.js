@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const { defineString } = require('firebase-functions/params');
 const { CohereClientV2 } = require("cohere-ai");
 const fs = require("fs");

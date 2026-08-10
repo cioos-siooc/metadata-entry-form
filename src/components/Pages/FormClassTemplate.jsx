@@ -25,7 +25,18 @@ class FormClassTemplate extends Component {
   unsubscribeAndCloseListeners() {
     if (this.unsubscribe) this.unsubscribe();
     if (this.listenerRefs.length) {
-      this.listenerRefs.forEach((ref) => off(ref));
+      this.listenerRefs.forEach((item) => {
+        if (typeof item === "function") {
+          item();
+        } else if (item) {
+          try {
+            off(item);
+          } catch (e) {
+            console.warn("Failed to call off() on listenerRef:", item, e);
+          }
+        }
+      });
+      this.listenerRefs = [];
     }
   }
 }
