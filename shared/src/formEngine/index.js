@@ -42,6 +42,8 @@ export {
 
 export { pickSchemaProperties, resolveSteps, stepLabel } from "./steps";
 
+export { renderSchema, isConstraintOnly } from "./renderSchema";
+
 export {
   UI_WIDGETS,
   UI_WIDGETS_BY_NAME,

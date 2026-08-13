@@ -1,10 +1,18 @@
 import React from "react";
 import { Grid, TextField } from "@mui/material";
 
+import FieldQuestion, { fieldLabels, isAnswered } from "./FieldQuestion";
+
 /**
  * An `{en, fr}` object rendered as two inputs.
  *
  * Requested from a uiSchema with `"ui:field": "bilingualText"`.
+ *
+ * It renders its own FieldQuestion. It has to: a `ui:field` on an object makes
+ * QuestionFieldTemplate treat the property as a container and step back, so a
+ * bilingual field that did not draw its own heading had none at all — the eDNA
+ * form's "Field notes" showed up as two unexplained boxes labelled "English" and
+ * "Français", with the question and its guidance nowhere on screen.
  *
  * This owns the whole object rather than letting rjsf render `en` and `fr` as
  * separate string properties, for one important reason: bilingual values on this
@@ -37,6 +45,7 @@ export default function BilingualTextField(props) {
     uiSchema = {},
     fieldPathId = {},
     rawErrors = [],
+    required,
     registry,
   } = props;
 
@@ -61,12 +70,17 @@ export default function BilingualTextField(props) {
     onChange({ ...formData, [lang]: event.target.value }, fieldPathId.path);
   };
 
-  return (
+  const { title, help } = fieldLabels(uiSchema, language);
+
+  const inputs = (
     <Grid container direction="column" spacing={2}>
       {order.map((lang) => (
         <Grid key={lang}>
           <TextField
             id={`${fieldPathId.$id || "bilingual"}_${lang}`}
+            // The per-language label IS this input's label — "English" and
+            // "Français" are the only thing distinguishing the two boxes, so
+            // unlike a plain input these are never suppressed.
             label={labels[lang]}
             value={formData?.[lang] ?? ""}
             onChange={update(lang)}
@@ -80,5 +94,20 @@ export default function BilingualTextField(props) {
         </Grid>
       ))}
     </Grid>
+  );
+
+  // Where a caller has drawn one shared heading over several fields, don't add
+  // a second.
+  if (options.inGroup) return inputs;
+
+  return (
+    <FieldQuestion
+      title={title}
+      help={help}
+      required={required}
+      passes={!rawErrors.length && isAnswered(formData)}
+    >
+      {inputs}
+    </FieldQuestion>
   );
 }

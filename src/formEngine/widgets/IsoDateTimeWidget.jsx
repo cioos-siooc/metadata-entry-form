@@ -1,6 +1,9 @@
 import React from "react";
 import { TextField } from "@mui/material";
 
+import { inputHidesOwnLabel, inputMaxWidth } from "../inputLayout";
+import { fieldLabels } from "../fields/FieldQuestion";
+
 /**
  * A date/time input that preserves FULL ISO-8601 precision.
  *
@@ -32,12 +35,23 @@ export default function IsoDateTimeWidget(props) {
     readonly,
     schema = {},
     options = {},
+    uiSchema = {},
     label,
     rawErrors = [],
     required,
+    registry,
   } = props;
 
   const dateOnly = (options.format || schema.format) === "date";
+
+  // A date input cannot use more than its own width, and the question heading
+  // above already names it — so no second visible label, and no 900px box for
+  // eight characters. The name moves to `aria-label` so hiding the label does not
+  // leave the input unnamed. See inputLayout.js.
+  const hideLabel = inputHidesOwnLabel(uiSchema);
+  const maxWidth = inputMaxWidth(schema, options);
+  const language = registry?.formContext?.language === "fr" ? "fr" : "en";
+  const { title } = fieldLabels(uiSchema, language, label);
 
   /** Stored value → what the <input> expects, without altering what is stored. */
   const toInputValue = (stored) => {
@@ -70,7 +84,7 @@ export default function IsoDateTimeWidget(props) {
     <TextField
       id={id}
       type={dateOnly ? "date" : "datetime-local"}
-      label={label}
+      label={hideLabel ? undefined : label}
       value={toInputValue(value)}
       onChange={handleChange}
       onBlur={onBlur ? (event) => onBlur(id, event.target.value) : undefined}
@@ -79,7 +93,11 @@ export default function IsoDateTimeWidget(props) {
       required={required}
       error={rawErrors.length > 0}
       fullWidth
-      slotProps={{ inputLabel: { shrink: true } }}
+      sx={maxWidth ? { maxWidth } : undefined}
+      slotProps={{
+        inputLabel: { shrink: true },
+        htmlInput: hideLabel && title ? { "aria-label": title } : undefined,
+      }}
     />
   );
 }

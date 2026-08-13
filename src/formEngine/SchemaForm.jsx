@@ -5,14 +5,22 @@ import validator from "@rjsf/validator-ajv8";
 import BilingualTextField from "./fields/BilingualTextField";
 import IsoDateTimeWidget from "./widgets/IsoDateTimeWidget";
 import CheckBoxListWidget from "./widgets/CheckBoxListWidget";
+import SelectWidget from "./widgets/SelectWidget";
+import TextareaWidget from "./widgets/TextareaWidget";
 import QuestionFieldTemplate from "./templates/QuestionFieldTemplate";
+import InputTemplate from "./templates/InputTemplate";
+import ListFieldTemplate from "./templates/ListFieldTemplate";
+import ListItemTemplate from "./templates/ListItemTemplate";
 
 /**
- * The one and only module that imports @rjsf/*.
+ * The rjsf boundary.
  *
- * Keeping that boundary means the rest of the app never depends on rjsf's API,
- * so upgrading it — or replacing it — touches one file. An eslint
- * no-restricted-imports rule would be a reasonable way to enforce this.
+ * @rjsf/* imports are confined to this file and the presentation wrappers it
+ * registers — templates/InputTemplate.jsx, widgets/SelectWidget.jsx, and
+ * widgets/TextareaWidget.jsx — each of which exists only to hand rjsf's own MUI
+ * component the right presentation props. Nothing else in the app depends on
+ * rjsf's API, so upgrading it, or replacing it, touches that short list. An
+ * eslint no-restricted-imports rule would be a reasonable way to enforce it.
  *
  * Two settings here are load-bearing and must not be "optimized":
  *
@@ -28,18 +36,43 @@ import QuestionFieldTemplate from "./templates/QuestionFieldTemplate";
  *     would paint a partly-filled form red. Validation runs on submit.
  */
 
-const FIELDS = { bilingualText: BilingualTextField };
+/**
+ * Custom FIELDS own a whole subtree; custom WIDGETS render one scalar.
+ *
+ * Every name a uiSchema may request is declared in shared/formEngine/
+ * uiVocabulary.js — that file is what the builder's picker and the uiSchema
+ * validator read, so a field implemented but not declared is invisible to
+ * authors, and one declared but not implemented silently falls back to rjsf's
+ * default.
+ */
+export const FIELDS = { bilingualText: BilingualTextField };
 
-const WIDGETS = {
+export const WIDGETS = {
   // Named so a uiSchema can request them explicitly.
   isoDateTime: IsoDateTimeWidget,
   checkboxList: CheckBoxListWidget,
-  // Override rjsf's defaults: its DateTimeWidget truncates to minutes, which
-  // would rewrite the full-precision ISO timestamps records already store.
+  // Overrides of names rjsf already defines, which is why they are capitalised.
+  //
+  // DateTimeWidget: rjsf's truncates to minutes, which would rewrite the
+  // full-precision ISO timestamps records already store.
+  //
+  // SelectWidget / TextareaWidget: presentation only — rjsf's own components,
+  // handed a width and told not to repeat the question as a second label. See
+  // inputLayout.js.
   DateTimeWidget: IsoDateTimeWidget,
+  SelectWidget,
+  TextareaWidget,
 };
 
-const TEMPLATES = { FieldTemplate: QuestionFieldTemplate };
+const TEMPLATES = {
+  FieldTemplate: QuestionFieldTemplate,
+  // Presentation only, all three. Every scalar input in the form goes through
+  // BaseInputTemplate, so it is the one place a width rule reaches text and
+  // number fields alike.
+  BaseInputTemplate: InputTemplate,
+  ArrayFieldTemplate: ListFieldTemplate,
+  ArrayFieldItemTemplate: ListItemTemplate,
+};
 
 export default function SchemaForm({
   jsonSchema,

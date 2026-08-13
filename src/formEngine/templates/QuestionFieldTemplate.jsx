@@ -1,14 +1,6 @@
 import React from "react";
-import { Paper } from "@mui/material";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
-import {
-  QuestionText,
-  SupplementalText,
-  paperClass,
-} from "../../components/FormComponents/QuestionStyles";
-import RequiredMark from "../../components/FormComponents/RequiredMark";
+import FieldQuestion, { fieldLabels, isAnswered } from "../fields/FieldQuestion";
 import { evaluate } from "@shared/formEngine";
 
 /**
@@ -36,12 +28,6 @@ import { evaluate } from "@shared/formEngine";
  *       validity is the schema's job.
  */
 
-function localized(value, language) {
-  if (value === undefined || value === null) return null;
-  if (typeof value === "string") return value;
-  return value[language] || value.en || value.fr || null;
-}
-
 export default function QuestionFieldTemplate(props) {
   const {
     id,
@@ -55,6 +41,7 @@ export default function QuestionFieldTemplate(props) {
     description,
     hidden,
     displayLabel,
+    formData,
     schema = {},
     uiSchema = {},
     registry,
@@ -73,14 +60,23 @@ export default function QuestionFieldTemplate(props) {
     return null;
   }
 
-  const i18n = options.i18n || {};
-  const title = localized(i18n.title, language) || label;
-  const helpText = localized(i18n.help, language);
+  const { title, help: helpText } = fieldLabels(uiSchema, language, label);
+
+  // A schema offering a real CHOICE of shapes is rendered by rjsf as two nested
+  // fields — the branch point, then the chosen branch — and both reach this
+  // template with the same uiSchema, so both would draw the same question. The
+  // branch point steps back and lets the branch draw it, since the branch is the
+  // level that holds an input; any selector rjsf renders for picking a branch
+  // still comes through in `children`.
+  //
+  // Alternatives that merely express VALIDITY never get this far: renderSchema
+  // removes them before rjsf sees them. See shared/formEngine/renderSchema.js.
+  const isBranchPoint = Array.isArray(schema.anyOf) || Array.isArray(schema.oneOf);
 
   // The root object and nested objects/arrays supply their own layout; wrapping
   // them in a Paper too would nest boxes several deep.
   const isContainer = schema.type === "object" || schema.type === "array";
-  if (isContainer || !displayLabel) {
+  if (isContainer || isBranchPoint || !displayLabel) {
     return (
       <div className={classNames} style={style} id={id}>
         {children}
@@ -90,25 +86,18 @@ export default function QuestionFieldTemplate(props) {
   }
 
   return (
-    <Paper className={classNames} style={{ ...paperClass, ...style }}>
-      {title && (
-        <QuestionText>
-          {title}
-          {required && <RequiredMark passes={!props.rawErrors?.length} />}
-          {(helpText || description) && (
-            <SupplementalText>
-              {helpText ? (
-                <Markdown remarkPlugins={[remarkGfm]}>{helpText}</Markdown>
-              ) : (
-                description
-              )}
-            </SupplementalText>
-          )}
-        </QuestionText>
-      )}
+    <FieldQuestion
+      className={classNames}
+      style={style}
+      title={title}
+      help={helpText}
+      description={description}
+      required={required}
+      passes={!props.rawErrors?.length && isAnswered(formData)}
+    >
       {children}
       {errors}
       {help}
-    </Paper>
+    </FieldQuestion>
   );
 }

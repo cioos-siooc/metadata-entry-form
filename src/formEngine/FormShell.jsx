@@ -5,6 +5,7 @@ import SchemaForm from "./SchemaForm";
 import { I18n } from "../components/I18n";
 import {
   pickSchemaProperties,
+  renderSchema,
   resolveSteps,
   stepLabel,
   evaluate,
@@ -73,9 +74,13 @@ export default function FormShell({
   const step = visibleSteps[currentIndex];
   const single = visibleSteps.length === 1 && step.implicit;
 
-  const stepSchema = single
-    ? jsonSchema
-    : pickSchemaProperties(jsonSchema, step.fields);
+  // renderSchema drops alternatives that only express validity, so a property
+  // declaring both a `type` and an `anyOf` — "empty, or a doi.org URL" — is not
+  // rendered as two separate inputs for one value. Validation on submit uses the
+  // unfiltered schema, so nothing about what is VALID changes here.
+  const stepSchema = renderSchema(
+    single ? jsonSchema : pickSchemaProperties(jsonSchema, step.fields)
+  );
 
   const formContext = { ...context, language, formData };
 
