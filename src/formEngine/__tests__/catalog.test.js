@@ -11,6 +11,7 @@ import {
   buildExportTable,
   toCsv,
   evaluate,
+  validateUiSchema,
 } from "@shared/formEngine";
 
 /**
@@ -43,6 +44,19 @@ describe.each(CATALOG)("%s form type definition", (_name, formType) => {
     expect(formType.title.fr).toBeTruthy();
     expect(formType.description.en).toBeTruthy();
     expect(formType.description.fr).toBeTruthy();
+  });
+
+  it("has a uiSchema the engine fully understands", () => {
+    // The shipped catalog doubles as the validator's regression fixture: if a
+    // rule here starts firing, either the catalog drifted or the rule is wrong.
+    const problems = validateUiSchema(
+      formType.jsonSchema,
+      formType.uiSchema
+    ).filter((problem) => problem.severity !== "info");
+
+    expect(
+      problems.map((problem) => `${problem.path}: ${problem.message.en}`)
+    ).toEqual([]);
   });
 
   it("gives every field a bilingual label or a title", () => {

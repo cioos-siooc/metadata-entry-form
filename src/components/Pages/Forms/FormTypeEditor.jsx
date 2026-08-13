@@ -16,6 +16,8 @@ import {
   Tab,
   Tabs,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import { ArrowBack, Download, Publish, Save } from "@mui/icons-material";
@@ -25,7 +27,8 @@ import { En, Fr, I18n } from "../../I18n";
 import FormShell from "../../../formEngine/FormShell";
 import useFormStore from "../../../formEngine/useFormStore";
 import { downloadJson } from "../../../formEngine/downloadFile";
-import { schemaDiff, BREAKING } from "@shared/formEngine";
+import { schemaDiff, BREAKING, ERROR, validateUiSchema } from "@shared/formEngine";
+import UiSchemaBuilder, { UiSchemaProblems } from "./UiSchemaBuilder";
 
 const BLANK = {
   slug: "",
@@ -69,6 +72,7 @@ export default function FormTypeEditor() {
   const [breakingDialog, setBreakingDialog] = useState(null);
   const [usage, setUsage] = useState(null);
   const [previewData, setPreviewData] = useState({});
+  const [uiView, setUiView] = useState("builder");
 
   const idRef = useRef(isNew ? null : formTypeId);
 
@@ -127,6 +131,22 @@ export default function FormTypeEditor() {
       return err.message;
     }
   }, [parsed.jsonSchema]);
+
+  /**
+   * What the renderer would silently ignore in the UI Schema.
+   *
+   * Advisory only — it never gates `canSave`. Form types that shipped before
+   * this check existed must keep saving, and every problem it reports is one the
+   * renderer already tolerates at runtime.
+   */
+  const uiProblems = useMemo(() => {
+    if (!parsed.uiSchema) return [];
+    return validateUiSchema(parsed.jsonSchema, parsed.uiSchema);
+  }, [parsed.jsonSchema, parsed.uiSchema]);
+
+  const uiErrorCount = uiProblems.filter(
+    (problem) => problem.severity === ERROR
+  ).length;
 
   const pendingDiff = useMemo(() => {
     if (!parsed.jsonSchema || !versions.length) return null;
@@ -333,7 +353,16 @@ export default function FormTypeEditor() {
       <Tabs value={tab} onChange={(event, next) => setTab(next)} sx={{ mb: 2 }}>
         <Tab label={<I18n en="Details" fr="Détails" />} />
         <Tab label={<I18n en="JSON Schema" fr="Schéma JSON" />} />
-        <Tab label={<I18n en="UI Schema" fr="Schéma d'interface" />} />
+        <Tab
+          label={
+            <Grid container spacing={1} alignItems="center" wrap="nowrap">
+              <I18n en="UI Schema" fr="Schéma d'interface" />
+              {uiErrorCount > 0 && (
+                <Chip size="small" color="error" label={uiErrorCount} />
+              )}
+            </Grid>
+          }
+        />
         <Tab label={<I18n en="Preview" fr="Aperçu" />} />
         <Tab label={<I18n en="Versions" fr="Versions" />} />
       </Tabs>
@@ -402,26 +431,68 @@ export default function FormTypeEditor() {
           <Typography variant="body2" sx={{ mb: 1 }}>
             <I18n>
               <En>
-                Controls presentation. Use <code>ui:steps</code> to split the form
-                into tabs, and <code>ui:help</code> with{" "}
-                <code>{'{"en": "...", "fr": "..."}'}</code> for bilingual guidance.
+                Controls presentation only — which tab a field appears in, its
+                bilingual label and help, how it is typed in, and when it is
+                shown. What is <em>valid</em> stays the JSON Schema&apos;s job.
               </En>
               <Fr>
-                Contrôle la présentation. Utilisez <code>ui:steps</code> pour
-                répartir le formulaire en onglets et <code>ui:help</code> avec{" "}
-                <code>{'{"en": "...", "fr": "..."}'}</code> pour les consignes
-                bilingues.
+                Contrôle uniquement la présentation — l&apos;onglet où apparaît un
+                champ, son étiquette et son aide bilingues, son mode de saisie et
+                sa visibilité. La <em>validité</em> reste du ressort du schéma
+                JSON.
               </Fr>
             </I18n>
           </Typography>
-          <TextField
-            fullWidth
-            multiline
-            minRows={22}
-            value={uiText}
-            onChange={(event) => setUiText(event.target.value)}
-            slotProps={{ input: { style: { fontFamily: "monospace", fontSize: 13 } } }}
-          />
+
+          <UiSchemaProblems problems={uiProblems} language={language} />
+
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={uiView}
+            onChange={(event, next) => next && setUiView(next)}
+            sx={{ mb: 2 }}
+          >
+            <ToggleButton value="builder">
+              <I18n en="Builder" fr="Générateur" />
+            </ToggleButton>
+            <ToggleButton value="json">
+              <I18n en="JSON" fr="JSON" />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          {uiView === "json" || parsed.error ? (
+            <>
+              {parsed.error && uiView === "builder" && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  <I18n
+                    en="The builder needs both schemas to parse. Fix the JSON below to go back to it."
+                    fr="Le générateur a besoin que les deux schémas soient valides. Corrigez le JSON ci-dessous pour y revenir."
+                  />
+                </Alert>
+              )}
+              <TextField
+                fullWidth
+                multiline
+                minRows={22}
+                value={uiText}
+                onChange={(event) => setUiText(event.target.value)}
+                slotProps={{
+                  input: { style: { fontFamily: "monospace", fontSize: 13 } },
+                }}
+              />
+            </>
+          ) : (
+            <UiSchemaBuilder
+              jsonSchema={parsed.jsonSchema}
+              value={parsed.uiSchema}
+              language={language}
+              // The text stays the single source of truth, so the JSON view,
+              // Save, Publish, Export, and the breaking-change diff all keep
+              // reading exactly one place.
+              onChange={(next) => setUiText(JSON.stringify(next, null, 2))}
+            />
+          )}
         </>
       )}
 
