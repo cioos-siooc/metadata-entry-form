@@ -21,3 +21,16 @@ export function localized(value, language, fallback = "") {
 
 /** The two language codes, in the order their inputs are laid out. */
 export const LANGUAGES = ["en", "fr"];
+
+/**
+ * "1 field" / "2 fields", in either language.
+ *
+ * Both languages happen to pluralise on n !== 1 here, so one rule covers them.
+ * Worth a helper rather than an inline template because these counts appear as
+ * BOTH visible chip text and an `aria-label`, and the two drifting apart is how a
+ * badge ends up announcing something different from what it reads.
+ */
+export function plural(language, count, one, many, oneFr, manyFr) {
+  if (language === "fr") return `${count} ${count === 1 ? oneFr : manyFr}`;
+  return `${count} ${count === 1 ? one : many}`;
+}

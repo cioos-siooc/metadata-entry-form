@@ -1,18 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
   Box,
   Button,
-  Chip,
-  Divider,
-  FormControl,
   IconButton,
-  MenuItem,
-  Paper,
-  Select,
+  InputAdornment,
   Stack,
   TextField,
   Tooltip,
@@ -20,181 +11,88 @@ import {
 } from "@mui/material";
 import {
   Add,
-  ArrowDownward,
-  ArrowUpward,
-  Delete,
-  DragIndicator,
-  ExpandMore,
+  Clear,
+  Search,
+  Tune,
+  UnfoldLess,
+  UnfoldMore,
+  ViewAgenda,
 } from "@mui/icons-material";
 
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+
+import { addStep } from "@shared/formEngine";
+import StepCard from "./StepCard";
+import UnassignedTray from "./UnassignedTray";
+import FieldRowGhost from "./FieldRowGhost";
+import StepsDndProvider from "./dnd/StepsDndProvider";
+import { stepDragId } from "./dnd/ids";
 import {
-  addStep,
-  assignFieldToStep,
-  moveFieldWithinStep,
-  moveStep,
-  removeStep,
-  setStepVisibleIf,
-  updateStep,
-} from "@shared/formEngine";
-import SortableList, {
-  SortableItem,
-  DragHandle,
-} from "../../../FormComponents/SortableList";
-import VisibleIfEditor from "./VisibleIfEditor";
-import { LANGUAGES, localized, pick } from "./language";
+  EmptyState,
+  MetaTag,
+  SectionHeader,
+  quietButtonProps,
+} from "./primitives";
+import { renderedOpenKeys, stepKey } from "./selection";
+import { pick, plural } from "./language";
 
 /**
- * Groups the schema's properties into `ui:steps` — the tabs a respondent sees.
+ * The canvas: how the schema's properties are grouped into `ui:steps`.
  *
  * Every field name here comes from `jsonSchema.properties`, never from free
  * text. That is what makes the silent drop in `resolveSteps` unreachable from
  * the builder: a step cannot name a field that does not exist.
  *
- * Steps reorder by drag (reusing the app's existing SortableList); fields move
- * with explicit controls rather than a nested drag context. Two reasons: nested
- * DndContexts are fragile, and a form author reassigning a field to another tab
- * is picking from a list, not dragging across a scroll boundary.
+ * Steps AND fields both drag, through the single DndContext in
+ * ./dnd/StepsDndProvider.jsx — see that file for why one context is forced rather
+ * than merely preferred. This replaces an earlier note here claiming fields could
+ * not be dragged because "nested DndContexts are fragile": that is still true, and
+ * is not what this does.
+ *
+ * Drag is never the only path. Every field keeps its arrow buttons for moving
+ * within a step and its "Move to" menu for moving between steps, which is the
+ * guaranteed keyboard route and the only one jsdom can exercise.
+ *
+ * Which cards are open is a Set of `stepKey`s rather than an index, and the
+ * rendered set is DERIVED (see `renderedOpenKeys`). Keying by id means a reorder
+ * or a delete needs no remapping — the key travels with the step — and deriving
+ * means the card holding the selection cannot be closed out from under it.
  */
-
-/** Nudges a field one place up or down within its step. */
-function shiftField(uiSchema, stepIndex, name, delta) {
-  const fields = uiSchema?.["ui:steps"]?.[stepIndex]?.fields || [];
-  const from = fields.indexOf(name);
-  return moveFieldWithinStep(uiSchema, stepIndex, from, from + delta);
-}
-
-function FieldRow({
-  name,
-  property,
-  uiSchema,
-  language,
-  selected,
-  onSelect,
-  stepIndex,
-  steps,
-  onChange,
-  canMoveUp,
-  canMoveDown,
-}) {
-  const label = localized(
-    uiSchema?.[name]?.["ui:options"]?.i18n?.title,
-    language,
-    ""
-  );
-
-  return (
-    <Paper
-      variant="outlined"
-      sx={{
-        px: 1,
-        py: 0.5,
-        mb: 0.5,
-        borderColor: selected ? "primary.main" : undefined,
-        borderWidth: selected ? 2 : 1,
-      }}
-    >
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Box
-          component="button"
-          type="button"
-          onClick={() => onSelect(name)}
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            textAlign: "left",
-            background: "none",
-            border: 0,
-            cursor: "pointer",
-            p: 0,
-            font: "inherit",
-            color: "inherit",
-          }}
-        >
-          <Typography variant="body2" noWrap sx={{ fontFamily: "monospace" }}>
-            {name}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap component="div">
-            {label || (
-              <Box component="span" sx={{ fontStyle: "italic" }}>
-                {pick(language, "no label", "sans étiquette")}
-              </Box>
-            )}
-          </Typography>
-        </Box>
-
-        <Chip size="small" variant="outlined" label={property?.type || "any"} />
-
-        {stepIndex !== null && (
-          <>
-            <IconButton
-              size="small"
-              disabled={!canMoveUp}
-              aria-label={pick(language, `Move ${name} up`, `Déplacer ${name} vers le haut`)}
-              onClick={() => onChange(shiftField(uiSchema, stepIndex, name, -1))}
-            >
-              <ArrowUpward fontSize="inherit" />
-            </IconButton>
-            <IconButton
-              size="small"
-              disabled={!canMoveDown}
-              aria-label={pick(language, `Move ${name} down`, `Déplacer ${name} vers le bas`)}
-              onClick={() => onChange(shiftField(uiSchema, stepIndex, name, 1))}
-            >
-              <ArrowDownward fontSize="inherit" />
-            </IconButton>
-          </>
-        )}
-
-        {steps.length > 0 && (
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <Select
-              value={stepIndex === null ? "" : String(stepIndex)}
-              displayEmpty
-              onChange={(event) =>
-                onChange(
-                  assignFieldToStep(
-                    uiSchema,
-                    name,
-                    event.target.value === "" ? null : Number(event.target.value)
-                  )
-                )
-              }
-              inputProps={{
-                "aria-label": pick(language, `Step for ${name}`, `Étape pour ${name}`),
-              }}
-            >
-              <MenuItem value="">
-                <em>{pick(language, "Unassigned", "Non assigné")}</em>
-              </MenuItem>
-              {steps.map((step, index) => (
-                <MenuItem key={step.id || index} value={String(index)}>
-                  {localized(step.title, language, step.id || `step-${index + 1}`)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      </Stack>
-    </Paper>
-  );
-}
-
 export default function StepsPanel({
   jsonSchema,
   uiSchema,
   onChange,
   language,
-  selectedField,
+  selection,
   onSelectField,
+  onSelectStep,
+  open,
+  onToggleStep,
+  onExpandAll,
+  onCollapseAll,
+  filter,
+  onOpenInspector,
 }) {
-  const [expanded, setExpanded] = useState(0);
-
+  const { visibleFields } = filter;
   const properties = jsonSchema?.properties || {};
   const allFields = Object.keys(properties);
   const steps = Array.isArray(uiSchema?.["ui:steps"]) ? uiSchema["ui:steps"] : [];
+  const required = jsonSchema?.required || [];
 
   const claimed = new Set(steps.flatMap((step) => step.fields || []));
   const unassigned = allFields.filter((name) => !claimed.has(name));
+  const shownUnassigned = visibleFields
+    ? unassigned.filter((name) => visibleFields.has(name))
+    : unassigned;
+
+  const openKeys = renderedOpenKeys({
+    steps,
+    open,
+    selection,
+    matchedFields: visibleFields,
+  });
+
+  const selectedField = selection?.kind === "field" ? selection.name : null;
 
   const handleAddStep = () =>
     onChange(
@@ -207,211 +105,254 @@ export default function StepsPanel({
       })
     );
 
-  const fieldRowProps = (name, stepIndex) => ({
-    name,
-    property: properties[name],
-    uiSchema,
-    language,
-    steps,
-    onChange,
-    stepIndex,
-    selected: selectedField === name,
-    onSelect: onSelectField,
-  });
-
   return (
     <Box>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <Typography variant="subtitle1">
-          {pick(language, "Steps", "Étapes")}
-        </Typography>
-        <Tooltip
-          title={pick(
-            language,
-            "Each step is a tab. Respondents move between them freely.",
-            "Chaque étape est un onglet. Les répondants passent librement de l'une à l'autre."
+      <SectionHeader
+        title={pick(language, "Steps", "Étapes")}
+        hint={pick(
+          language,
+          "Each step is a tab. Respondents move between them freely.",
+          "Chaque étape est un onglet. Les répondants passent librement de l'une à l'autre."
+        )}
+        action={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <MetaTag
+              tone="strong"
+              label={String(steps.length)}
+              title={plural(language, steps.length, "step", "steps", "étape", "étapes")}
+            />
+            <Button {...quietButtonProps} startIcon={<Add />} onClick={handleAddStep}>
+              {pick(language, "Add step", "Ajouter une étape")}
+            </Button>
+          </Stack>
+        }
+      />
+
+      {allFields.length > 0 && (
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+          <TextField
+            size="small"
+            value={filter.query}
+            onChange={(event) => filter.setQuery(event.target.value)}
+            placeholder={pick(language, "Filter fields…", "Filtrer les champs…")}
+            inputProps={{
+              "aria-label": pick(language, "Filter fields", "Filtrer les champs"),
+            }}
+            sx={{ flex: 1, maxWidth: 260 }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" sx={{ color: "text.disabled" }} />
+                  </InputAdornment>
+                ),
+                endAdornment: filter.active ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={filter.clear}
+                      aria-label={pick(
+                        language,
+                        "Clear search",
+                        "Effacer la recherche"
+                      )}
+                    >
+                      <Clear fontSize="inherit" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              },
+            }}
+          />
+
+          {filter.active && (
+            <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
+              {pick(
+                language,
+                `${filter.matchCount} of ${filter.totalCount} fields`,
+                `${filter.matchCount} sur ${filter.totalCount} champs`
+              )}
+            </Typography>
           )}
-        >
-          <Chip size="small" label={steps.length} />
-        </Tooltip>
-        <Button size="small" startIcon={<Add />} onClick={handleAddStep} sx={{ ml: "auto" }}>
-          {pick(language, "Add step", "Ajouter une étape")}
-        </Button>
-      </Stack>
+
+          {/*
+            An explicit spacer rather than `ml: "auto"` on the group: Stack
+            implements its own `spacing` as a margin-left on every child but the
+            first, and that generated rule wins over an `sx` margin.
+          */}
+          <Box sx={{ flex: 1 }} />
+
+          {/*
+            Below `md` the inspector is a Drawer, and Escape closes it. Without a
+            way back the panel would be unreachable until something else was
+            selected. Harmless above `md`, where the panel is always docked.
+          */}
+          <Tooltip
+            title={pick(language, "Edit the selection", "Modifier la sélection")}
+          >
+            <IconButton
+              size="small"
+              onClick={onOpenInspector}
+              aria-label={pick(
+                language,
+                "Edit the selection",
+                "Modifier la sélection"
+              )}
+              sx={{ display: { md: "none" } }}
+            >
+              <Tune fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          {steps.length > 1 && (
+            <Stack direction="row">
+              <Tooltip title={pick(language, "Expand all", "Tout développer")}>
+                <IconButton
+                  size="small"
+                  onClick={onExpandAll}
+                  aria-label={pick(language, "Expand all", "Tout développer")}
+                >
+                  <UnfoldMore fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={pick(language, "Collapse all", "Tout réduire")}>
+                <IconButton
+                  size="small"
+                  onClick={onCollapseAll}
+                  aria-label={pick(language, "Collapse all", "Tout réduire")}
+                >
+                  <UnfoldLess fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          )}
+        </Stack>
+      )}
+
+      {filter.active && filter.matchCount === 0 && (
+        <EmptyState
+          icon={<Search fontSize="inherit" />}
+          title={pick(language, "No field matches", "Aucun champ correspondant")}
+          body={pick(
+            language,
+            `Nothing in this form is called "${filter.query}". The filter searches property names and both halves of each bilingual label.`,
+            `Rien dans ce formulaire ne s'appelle « ${filter.query} ». Le filtre cherche dans les noms de propriétés et les deux moitiés de chaque étiquette bilingue.`
+          )}
+          action={
+            // Named for its outcome, not for the mechanism: the input's own X is
+            // already called "Clear search", and two controls sharing an
+            // accessible name is ambiguous for a screen reader.
+            <Button {...quietButtonProps} startIcon={<Clear />} onClick={filter.clear}>
+              {pick(language, "Show all fields", "Afficher tous les champs")}
+            </Button>
+          }
+          sx={{ mb: 2 }}
+        />
+      )}
 
       {allFields.length === 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          {pick(
+        <EmptyState
+          icon={<ViewAgenda fontSize="inherit" />}
+          title={pick(language, "No fields to lay out yet", "Aucun champ à disposer")}
+          body={pick(
             language,
-            "The JSON Schema has no properties yet. Add fields there first.",
-            "Le schéma JSON n'a pas encore de propriétés. Ajoutez d'abord des champs."
+            "This form's properties are defined in the JSON Schema tab. Add some there and they will appear here.",
+            "Les propriétés de ce formulaire sont définies dans l'onglet Schéma JSON. Ajoutez-en et elles apparaîtront ici."
           )}
-        </Alert>
+        />
       )}
 
       {steps.length === 0 && allFields.length > 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          {pick(
+        <EmptyState
+          icon={<ViewAgenda fontSize="inherit" />}
+          title={pick(
             language,
-            "No steps declared — the form renders as a single page. Adding a step puts every current field in it.",
-            "Aucune étape déclarée — le formulaire s'affiche sur une seule page. Ajouter une étape y place tous les champs actuels."
+            "This form renders as a single page",
+            "Ce formulaire s'affiche sur une seule page"
           )}
-        </Alert>
+          body={pick(
+            language,
+            "Steps split it into tabs. Adding the first one puts every field below into it, and you can move them around from there.",
+            "Les étapes le divisent en onglets. La première créée y place tous les champs ci-dessous, que vous pourrez ensuite déplacer."
+          )}
+          // Deliberately no button: "Add step" sits in the toolbar directly
+          // above, and a second button with that accessible name would be
+          // ambiguous for a screen reader and for a test.
+          sx={{ mb: 2 }}
+        />
       )}
 
-      <SortableList
-        items={steps}
-        getItemId={(step, index) => `step-${index}`}
-        onDrop={({ removedIndex, addedIndex }) => {
-          onChange(moveStep(uiSchema, removedIndex, addedIndex));
-          setExpanded(addedIndex);
-        }}
+      <StepsDndProvider
+        uiSchema={uiSchema}
+        onChange={onChange}
+        steps={steps}
+        unassigned={unassigned}
+        language={language}
+        renderOverlay={(activeDrag, width) => (
+          <FieldRowGhost
+            activeDrag={activeDrag}
+            width={width}
+            steps={steps}
+            properties={properties}
+            uiSchema={uiSchema}
+            required={required}
+            language={language}
+          />
+        )}
       >
-        {steps.map((step, index) => (
-          <SortableItem key={`step-${index}`} id={`step-${index}`}>
-            <Accordion
-              expanded={expanded === index}
-              onChange={(_event, isExpanded) => setExpanded(isExpanded ? index : -1)}
-              disableGutters
-              sx={{ mb: 0.5 }}
-            >
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
-                  <DragHandle>
-                    <DragIndicator
-                      fontSize="small"
-                      color="action"
-                      aria-label={pick(language, "Reorder step", "Réordonner l'étape")}
-                    />
-                  </DragHandle>
-                  <Typography sx={{ flex: 1 }}>
-                    {localized(step.title, language, step.id || `step-${index + 1}`)}
-                  </Typography>
-                  {step.visibleIf && (
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={pick(language, "conditional", "conditionnel")}
-                    />
-                  )}
-                  <Chip
-                    size="small"
-                    label={`${(step.fields || []).length} ${pick(
-                      language,
-                      "fields",
-                      "champs"
-                    )}`}
-                  />
-                </Stack>
-              </AccordionSummary>
-
-              <AccordionDetails>
-                <Stack spacing={2}>
-                  <Stack direction="row" spacing={1} alignItems="flex-start">
-                    {LANGUAGES.map((lang) => (
-                      <TextField
-                        key={lang}
-                        size="small"
-                        fullWidth
-                        label={`${pick(language, "Tab name", "Nom de l'onglet")} (${lang})`}
-                        value={step.title?.[lang] || ""}
-                        onChange={(event) =>
-                          onChange(
-                            updateStep(uiSchema, index, {
-                              title: { ...(step.title || {}), [lang]: event.target.value },
-                            })
-                          )
-                        }
-                      />
-                    ))}
-                    <IconButton
-                      aria-label={pick(language, "Delete step", "Supprimer l'étape")}
-                      onClick={() => onChange(removeStep(uiSchema, index))}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Stack>
-
-                  <TextField
-                    size="small"
-                    fullWidth
-                    label={pick(language, "Step id", "Identifiant d'étape")}
-                    value={step.id || ""}
-                    onChange={(event) =>
-                      onChange(updateStep(uiSchema, index, { id: event.target.value }))
-                    }
-                    helperText={pick(
-                      language,
-                      "Stable handle used to group validation errors by tab.",
-                      "Identifiant stable utilisé pour regrouper les erreurs par onglet."
-                    )}
-                  />
-
-                  <VisibleIfEditor
-                    jsonSchema={jsonSchema}
-                    value={step.visibleIf}
-                    language={language}
-                    label={pick(language, "Show this tab when", "Afficher cet onglet lorsque")}
-                    onChange={(rule) => onChange(setStepVisibleIf(uiSchema, index, rule))}
-                  />
-
-                  <Divider />
-
-                  <Box>
-                    <Typography variant="subtitle2" gutterBottom>
-                      {pick(language, "Fields in this tab", "Champs de cet onglet")}
-                    </Typography>
-                    {(step.fields || []).length === 0 ? (
-                      <Typography variant="caption" color="text.secondary">
-                        {pick(
-                          language,
-                          "Empty. A tab with no fields is not rendered.",
-                          "Vide. Un onglet sans champ n'est pas affiché."
-                        )}
-                      </Typography>
-                    ) : (
-                      (step.fields || []).map((name, fieldIndex, list) => (
-                        <FieldRow
-                          key={name}
-                          {...fieldRowProps(name, index)}
-                          canMoveUp={fieldIndex > 0}
-                          canMoveDown={fieldIndex < list.length - 1}
-                        />
-                      ))
-                    )}
-                  </Box>
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-          </SortableItem>
-        ))}
-      </SortableList>
-
-      {unassigned.length > 0 && (
-        <Box sx={{ mt: 2 }}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="subtitle2">
-              {steps.length
-                ? pick(language, "Not in any tab", "Dans aucun onglet")
-                : pick(language, "Fields", "Champs")}
-            </Typography>
-            {steps.length > 0 && (
-              <Tooltip
-                title={pick(
-                  language,
-                  'These render in a trailing "Other" tab rather than disappearing.',
-                  "Ceux-ci s'affichent dans un onglet « Autre » plutôt que de disparaître."
-                )}
-              >
-                <Chip size="small" color="warning" label={unassigned.length} />
-              </Tooltip>
-            )}
-          </Stack>
-          {unassigned.map((name) => (
-            <FieldRow key={name} {...fieldRowProps(name, null)} />
+        <SortableContext
+          items={steps.map((_step, index) => stepDragId(index))}
+          strategy={verticalListSortingStrategy}
+        >
+          {steps.map((step, index) => (
+            <StepCard
+              key={stepKey(step, index)}
+              step={step}
+              index={index}
+              open={openKeys.has(stepKey(step, index))}
+              onToggle={onToggleStep}
+              selected={selection?.kind === "step" && selection.index === index}
+              onSelectStep={onSelectStep}
+              jsonSchema={jsonSchema}
+              uiSchema={uiSchema}
+              onChange={onChange}
+              language={language}
+              steps={steps}
+              selectedField={selectedField}
+              onSelectField={onSelectField}
+              required={required}
+              properties={properties}
+              visibleFields={visibleFields}
+            />
           ))}
-        </Box>
-      )}
+        </SortableContext>
+
+        {/*
+          Rendered whenever there are steps, even when empty: dropping a field
+          here is how it gets taken out of every tab, and there has to be
+          somewhere to drop it. Hidden only when a filter has emptied it, where a
+          bare header would promise rows that are not there.
+        */}
+        {(unassigned.length > 0 || steps.length > 0) &&
+          (!filter.active || shownUnassigned.length > 0) && (
+            <UnassignedTray
+              names={unassigned}
+              shown={shownUnassigned}
+              hasSteps={steps.length > 0}
+              properties={properties}
+              required={required}
+              uiSchema={uiSchema}
+              onChange={onChange}
+              language={language}
+              steps={steps}
+              selectedField={selectedField}
+              onSelectField={onSelectField}
+              filtering={filter.active}
+              draggable={steps.length > 0}
+            />
+          )}
+      </StepsDndProvider>
+
     </Box>
   );
 }

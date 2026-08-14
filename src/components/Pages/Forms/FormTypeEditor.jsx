@@ -12,15 +12,27 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
+  Stack,
   Tab,
   Tabs,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { ArrowBack, Download, Publish, Save } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Download,
+  MoreVert,
+  Publish,
+  Save,
+} from "@mui/icons-material";
 import validator from "@rjsf/validator-ajv8";
 
 import { En, Fr, I18n } from "../../I18n";
@@ -73,6 +85,10 @@ export default function FormTypeEditor() {
   const [usage, setUsage] = useState(null);
   const [previewData, setPreviewData] = useState({});
   const [uiView, setUiView] = useState("builder");
+  const [moreAnchor, setMoreAnchor] = useState(null);
+  // What was last loaded or saved, to compare the working copy against. A new
+  // form type starts from BLANK, so typing into one is dirty straight away.
+  const [saved, setSaved] = useState(isNew ? BLANK : null);
 
   const idRef = useRef(isNew ? null : formTypeId);
 
@@ -94,6 +110,7 @@ export default function FormTypeEditor() {
           return;
         }
         setFormType(entry);
+        setSaved(entry);
         setSchemaText(JSON.stringify(entry.jsonSchema || {}, null, 2));
         setUiText(JSON.stringify(entry.uiSchema || {}, null, 2));
         setVersions(versionList);
@@ -148,6 +165,49 @@ export default function FormTypeEditor() {
     (problem) => problem.severity === ERROR
   ).length;
 
+  /**
+   * Whether the working copy differs from what was last loaded or saved.
+   *
+   * Compared as canonical JSON rather than by reference: the schemas here are
+   * re-parsed from text on every keystroke, so every object is new even when
+   * nothing changed. Both schemas are compared through `parsed` rather than
+   * against the raw text, so reformatting the JSON — reindenting it, reordering
+   * nothing — does not read as an edit.
+   *
+   * The indicator is advisory. There is deliberately no route blocking: this app
+   * mounts a `<Routes>` tree under `HashRouter`, not a data router, so
+   * `useBlocker` is unavailable. `beforeunload` covers closing the tab, which is
+   * the case that loses the most work.
+   */
+  const dirty = useMemo(() => {
+    if (!saved || !formType || parsed.error) return false;
+    const shape = (entry, jsonSchema, uiSchema) =>
+      JSON.stringify([
+        entry.slug || "",
+        entry.kind || "",
+        entry.title || {},
+        entry.description || {},
+        jsonSchema || {},
+        uiSchema || {},
+      ]);
+    return (
+      shape(formType, parsed.jsonSchema, parsed.uiSchema) !==
+      shape(saved, saved.jsonSchema, saved.uiSchema)
+    );
+  }, [saved, formType, parsed]);
+
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const warn = (event) => {
+      event.preventDefault();
+      // Browsers ignore the message and show their own, but returnValue must be
+      // set for the prompt to appear at all.
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
   const pendingDiff = useMemo(() => {
     if (!parsed.jsonSchema || !versions.length) return null;
     return schemaDiff(versions[0].jsonSchema, parsed.jsonSchema);
@@ -167,21 +227,22 @@ export default function FormTypeEditor() {
     setBusy(true);
     setError(null);
     try {
-      const saved = await store.saveCatalogFormType({
+      const persisted = await store.saveCatalogFormType({
         ...formType,
         id: idRef.current || undefined,
         jsonSchema: parsed.jsonSchema,
         uiSchema: parsed.uiSchema,
       });
-      idRef.current = saved.id;
-      setFormType(saved);
+      idRef.current = persisted.id;
+      setFormType(persisted);
+      setSaved(persisted);
       setStatus({
         severity: "success",
         message: language === "fr" ? "Enregistré." : "Saved.",
       });
       if (isNew) {
         navigate(
-          `/${language}/${region}/admin/form-catalog/${saved.id}`,
+          `/${language}/${region}/admin/form-catalog/${persisted.id}`,
           { replace: true }
         );
       }
@@ -197,24 +258,25 @@ export default function FormTypeEditor() {
     setError(null);
     try {
       // Save first so the published version matches what is on screen.
-      const saved = await store.saveCatalogFormType({
+      const persisted = await store.saveCatalogFormType({
         ...formType,
         id: idRef.current || undefined,
         jsonSchema: parsed.jsonSchema,
         uiSchema: parsed.uiSchema,
       });
-      idRef.current = saved.id;
+      idRef.current = persisted.id;
 
-      const published = await store.publishCatalogFormType(saved.id, {
+      const published = await store.publishCatalogFormType(persisted.id, {
         confirmBreaking,
       });
       const [entry, versionList, usageReport] = await Promise.all([
-        store.getCatalogFormType(saved.id),
-        store.listVersions(saved.id),
-        store.getUsage(saved.id),
+        store.getCatalogFormType(persisted.id),
+        store.listVersions(persisted.id),
+        store.getUsage(persisted.id),
       ]);
 
       setFormType(entry);
+      setSaved(entry);
       setVersions(versionList);
       setUsage(usageReport);
       setBreakingDialog(null);
@@ -251,17 +313,130 @@ export default function FormTypeEditor() {
         <I18n en="Form catalog" fr="Catalogue de formulaires" />
       </Button>
 
-      <Grid container alignItems="center" spacing={2} sx={{ mb: 1 }}>
-        <Typography variant="h5">
-          {formType.title?.[language] ||
-            formType.title?.en ||
-            (language === "fr" ? "Nouveau formulaire" : "New form type")}
-        </Typography>
-        <Chip size="small" label={formType.status} />
-        {formType.version > 0 && (
-          <Chip size="small" label={`v${formType.version}`} color="success" />
-        )}
-      </Grid>
+      {/*
+        Pinned, because the UI Schema tab is very tall and Save and Publish used
+        to scroll away above it — on a 22-field form an author could not see
+        whether their work was saved without scrolling back to the top.
+
+        The offset clears NavDrawer's AppBar, which is `position: fixed` at a
+        min-height of 64px (70 from `sm` up). `zIndex` stays below
+        `theme.zIndex.appBar` so the bar tucks under it rather than over it.
+      */}
+      <Box
+        sx={{
+          position: "sticky",
+          top: { xs: 64, sm: 70 },
+          zIndex: (theme) => theme.zIndex.appBar - 1,
+          bgcolor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+          pt: 1,
+          pb: 1.5,
+          mb: 2,
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          flexWrap="wrap"
+          useFlexGap
+        >
+          <Typography variant="h5" sx={{ mr: 0.5 }}>
+            {formType.title?.[language] ||
+              formType.title?.en ||
+              (language === "fr" ? "Nouveau formulaire" : "New form type")}
+          </Typography>
+          <Chip size="small" label={formType.status} />
+          {formType.version > 0 && (
+            <Chip size="small" label={`v${formType.version}`} color="success" />
+          )}
+          {dirty && (
+            <Tooltip
+              title={
+                language === "fr"
+                  ? "Modifications non enregistrées"
+                  : "Unsaved changes"
+              }
+            >
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: "warning.main",
+                    flexShrink: 0,
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  <I18n en="Unsaved" fr="Non enregistré" />
+                </Typography>
+              </Stack>
+            </Tooltip>
+          )}
+
+          <Box sx={{ flexGrow: 1 }} />
+
+          <Button
+            startIcon={<Save />}
+            disabled={!canSave || busy}
+            onClick={handleSave}
+          >
+            <I18n en="Save draft" fr="Enregistrer le brouillon" />
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Publish />}
+            disabled={!canSave || busy}
+            onClick={() => handlePublish(false)}
+          >
+            <I18n en="Publish" fr="Publier" />
+          </Button>
+          <Tooltip title={<I18n en="More actions" fr="Plus d'actions" />}>
+            <IconButton
+              aria-label={
+                language === "fr" ? "Plus d'actions" : "More actions"
+              }
+              aria-haspopup="menu"
+              onClick={(event) => setMoreAnchor(event.currentTarget)}
+            >
+              <MoreVert />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={moreAnchor}
+            open={Boolean(moreAnchor)}
+            onClose={() => setMoreAnchor(null)}
+          >
+            <MenuItem
+              onClick={() => {
+                setMoreAnchor(null);
+                downloadJson(
+                  JSON.stringify(
+                    {
+                      slug: formType.slug,
+                      kind: formType.kind,
+                      title: formType.title,
+                      description: formType.description,
+                      jsonSchema: parsed.jsonSchema ?? formType.jsonSchema,
+                      uiSchema: parsed.uiSchema ?? formType.uiSchema,
+                    },
+                    null,
+                    2
+                  ),
+                  `${formType.slug || "form-type"}.formtype.json`
+                );
+              }}
+            >
+              <ListItemIcon>
+                <Download fontSize="small" />
+              </ListItemIcon>
+              <I18n en="Export definition" fr="Exporter la définition" />
+            </MenuItem>
+          </Menu>
+        </Stack>
+      </Box>
 
       {status && (
         <Alert severity={status.severity} sx={{ mb: 2 }} onClose={() => setStatus(null)}>
@@ -307,48 +482,6 @@ export default function FormTypeEditor() {
           />
         </Alert>
       )}
-
-      <Grid container spacing={1} sx={{ mb: 2 }}>
-        <Grid>
-          <Button startIcon={<Save />} disabled={!canSave || busy} onClick={handleSave}>
-            <I18n en="Save draft" fr="Enregistrer le brouillon" />
-          </Button>
-        </Grid>
-        <Grid>
-          <Button
-            variant="contained"
-            startIcon={<Publish />}
-            disabled={!canSave || busy}
-            onClick={() => handlePublish(false)}
-          >
-            <I18n en="Publish" fr="Publier" />
-          </Button>
-        </Grid>
-        <Grid>
-          <Button
-            startIcon={<Download />}
-            onClick={() =>
-              downloadJson(
-                JSON.stringify(
-                  {
-                    slug: formType.slug,
-                    kind: formType.kind,
-                    title: formType.title,
-                    description: formType.description,
-                    jsonSchema: parsed.jsonSchema ?? formType.jsonSchema,
-                    uiSchema: parsed.uiSchema ?? formType.uiSchema,
-                  },
-                  null,
-                  2
-                ),
-                `${formType.slug || "form-type"}.formtype.json`
-              )
-            }
-          >
-            <I18n en="Export definition" fr="Exporter la définition" />
-          </Button>
-        </Grid>
-      </Grid>
 
       <Tabs value={tab} onChange={(event, next) => setTab(next)} sx={{ mb: 2 }}>
         <Tab label={<I18n en="Details" fr="Détails" />} />

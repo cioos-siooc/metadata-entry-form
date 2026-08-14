@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 
 import { isScalarProperty, setSummaryFields } from "@shared/formEngine";
+import { FieldName, SectionHeader } from "./primitives";
 import { localized, pick } from "./language";
 
 /**
@@ -40,9 +41,7 @@ export default function SummaryFieldsPicker({
 
   return (
     <Box>
-      <Typography variant="subtitle1" gutterBottom>
-        {pick(language, "Summary columns", "Colonnes du résumé")}
-      </Typography>
+      <SectionHeader title={pick(language, "Summary columns", "Colonnes du résumé")} />
       <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 1 }}>
         {pick(
           language,
@@ -64,9 +63,7 @@ export default function SummaryFieldsPicker({
           return (
             <Box component="li" key={key} {...rest}>
               <Box>
-                <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
-                  {name}
-                </Typography>
+                <FieldName sx={{ display: "block" }}>{name}</FieldName>
                 <Typography variant="caption" color="text.secondary">
                   {localized(
                     uiSchema?.[name]?.["ui:options"]?.i18n?.title,

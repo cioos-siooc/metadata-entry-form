@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Alert,
   Box,
-  Checkbox,
-  Chip,
-  Divider,
+  Button,
   FormControl,
-  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -14,20 +11,20 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 import {
-  UI_OPTIONS,
   getFieldWidget,
   setFieldI18n,
-  setFieldOption,
   setFieldVisibleIf,
   setFieldWidget,
   widgetsForProperty,
 } from "@shared/formEngine";
 import VisibleIfEditor from "./VisibleIfEditor";
-import { LANGUAGES, pick } from "./language";
+import HelpTextEditor from "./HelpTextEditor";
+import WidgetOptionsGroup from "./WidgetOptionsGroup";
+import { SectionHeader, quietButtonProps } from "./primitives";
+import { stepIndexOfField } from "./selection";
+import { LANGUAGES, localized, pick } from "./language";
 
 /**
  * Everything a form type can say about one property.
@@ -36,80 +33,19 @@ import { LANGUAGES, pick } from "./language";
  * a checkbox list for a string or a date widget for a number — the class of
  * mistake that used to render as a silent fallback to the default widget.
  *
- * Help text is markdown, matching QuestionFieldTemplate, and is previewed with
- * the same renderer so what an author sees here is what a respondent gets.
+ * Sections are ordered by how often they are edited: a label is what almost every
+ * visit is for, and where a field SITS is read-only here because moving it is a
+ * canvas gesture — the rows there show type and label, which is what you need in
+ * order to decide where it belongs.
  */
-
-function OptionControl({ name, value, onChange, language }) {
-  const definition = UI_OPTIONS[name];
-  if (!definition) return null;
-  const label = definition.label[language] || definition.label.en;
-
-  if (definition.type === "boolean") {
-    return (
-      <FormControlLabel
-        control={
-          <Checkbox
-            size="small"
-            checked={Boolean(value)}
-            onChange={(event) =>
-              onChange(event.target.checked ? true : undefined)
-            }
-          />
-        }
-        label={label}
-      />
-    );
-  }
-
-  if (definition.type === "integer") {
-    return (
-      <TextField
-        size="small"
-        type="number"
-        label={label}
-        value={value ?? ""}
-        onChange={(event) => {
-          const parsed = parseInt(event.target.value, 10);
-          onChange(Number.isNaN(parsed) ? undefined : parsed);
-        }}
-        sx={{ width: 120 }}
-      />
-    );
-  }
-
-  if (definition.type === "string") {
-    return (
-      <TextField
-        size="small"
-        label={label}
-        value={value ?? ""}
-        onChange={(event) => onChange(event.target.value)}
-        sx={{ minWidth: 180 }}
-      />
-    );
-  }
-
-  // Object-valued options (optionTooltips) have no dedicated control; showing
-  // the count keeps the author aware it is set rather than hiding it.
-  return (
-    <Chip
-      size="small"
-      variant="outlined"
-      label={`${label}: ${Object.keys(value || {}).length}`}
-    />
-  );
-}
-
 export default function FieldPanel({
   jsonSchema,
   uiSchema,
   onChange,
   language,
   field,
+  onSelectStep,
 }) {
-  const [showHelpPreview, setShowHelpPreview] = useState(false);
-
   if (!field) {
     return (
       <Alert severity="info">
@@ -138,44 +74,31 @@ export default function FieldPanel({
   const entry = uiSchema?.[field] || {};
   const options = entry["ui:options"] || {};
   const i18n = options.i18n || {};
-  const required = (jsonSchema?.required || []).includes(field);
 
   const available = widgetsForProperty(property);
   const currentWidget = getFieldWidget(uiSchema, field);
   const selectedWidget = available.find((w) => w.name === currentWidget);
 
+  const steps = Array.isArray(uiSchema?.["ui:steps"]) ? uiSchema["ui:steps"] : [];
+  const stepIndex = stepIndexOfField(steps, field);
+
   return (
     <Stack spacing={2}>
-      <Box>
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-          <Typography variant="subtitle1" sx={{ fontFamily: "monospace" }}>
-            {field}
-          </Typography>
-          <Chip size="small" label={property.type || "any"} />
-          {required && (
-            <Chip
-              size="small"
-              color="primary"
-              variant="outlined"
-              label={pick(language, "required", "obligatoire")}
-            />
-          )}
-        </Stack>
-        <Typography variant="caption" color="text.secondary">
-          {pick(
-            language,
-            "Field names and types come from the JSON Schema tab.",
-            "Les noms et types de champs proviennent de l'onglet Schéma JSON."
-          )}
-        </Typography>
-      </Box>
+      {/*
+        The field's name, type and required marker are drawn by the Inspector,
+        which owns the panel's identity line. Repeating them here would put the
+        same property name on screen twice.
+      */}
+      <Typography variant="caption" color="text.secondary">
+        {pick(
+          language,
+          "Field names and types come from the JSON Schema tab.",
+          "Les noms et types de champs proviennent de l'onglet Schéma JSON."
+        )}
+      </Typography>
 
-      <Divider />
-
-      <Box>
-        <Typography variant="subtitle2" gutterBottom>
-          {pick(language, "Label", "Étiquette")}
-        </Typography>
+      <Box role="group" aria-label={pick(language, "Label", "Étiquette")}>
+        <SectionHeader title={pick(language, "Label", "Étiquette")} />
         <Stack spacing={1}>
           {LANGUAGES.map((lang) => (
             <TextField
@@ -192,64 +115,15 @@ export default function FieldPanel({
         </Stack>
       </Box>
 
-      <Box>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-          <Typography variant="subtitle2">
-            {pick(language, "Help text", "Texte d'aide")}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {pick(language, "markdown", "markdown")}
-          </Typography>
-          <FormControlLabel
-            sx={{ ml: "auto" }}
-            control={
-              <Checkbox
-                size="small"
-                checked={showHelpPreview}
-                onChange={(event) => setShowHelpPreview(event.target.checked)}
-              />
-            }
-            label={
-              <Typography variant="caption">
-                {pick(language, "Preview", "Aperçu")}
-              </Typography>
-            }
-          />
-        </Stack>
-        <Stack spacing={1}>
-          {LANGUAGES.map((lang) => (
-            <Box key={`help-${lang}`}>
-              <TextField
-                size="small"
-                fullWidth
-                multiline
-                minRows={2}
-                label={`${pick(language, "Help", "Aide")} (${lang})`}
-                value={i18n.help?.[lang] || ""}
-                onChange={(event) =>
-                  onChange(setFieldI18n(uiSchema, field, "help", lang, event.target.value))
-                }
-              />
-              {showHelpPreview && i18n.help?.[lang] && (
-                <Box
-                  sx={{
-                    px: 1.5,
-                    py: 0.5,
-                    mt: 0.5,
-                    borderLeft: 2,
-                    borderColor: "divider",
-                    fontSize: 14,
-                  }}
-                >
-                  <Markdown remarkPlugins={[remarkGfm]}>{i18n.help[lang]}</Markdown>
-                </Box>
-              )}
-            </Box>
-          ))}
-        </Stack>
-      </Box>
+      <HelpTextEditor
+        uiSchema={uiSchema}
+        onChange={onChange}
+        language={language}
+        field={field}
+      />
 
       <Box>
+        <SectionHeader title={pick(language, "Input", "Saisie")} />
         <FormControl size="small" fullWidth>
           <InputLabel id={`widget-${field}`}>
             {pick(language, "Input type", "Type de saisie")}
@@ -290,36 +164,25 @@ export default function FieldPanel({
         )}
 
         {selectedWidget?.description && (
-          <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            component="div"
+            sx={{ mt: 0.5 }}
+          >
             {selectedWidget.description[language] || selectedWidget.description.en}
           </Typography>
         )}
 
-        {selectedWidget?.options?.length > 0 && (
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            flexWrap="wrap"
-            useFlexGap
-            sx={{ mt: 1.5 }}
-          >
-            {selectedWidget.options.map((name) => (
-              <OptionControl
-                key={name}
-                name={name}
-                value={options[name]}
-                language={language}
-                onChange={(value) =>
-                  onChange(setFieldOption(uiSchema, field, name, value))
-                }
-              />
-            ))}
-          </Stack>
-        )}
+        <WidgetOptionsGroup
+          options={selectedWidget?.options}
+          uiSchema={uiSchema}
+          onChange={onChange}
+          language={language}
+          field={field}
+          values={options}
+        />
       </Box>
-
-      <Divider />
 
       <VisibleIfEditor
         jsonSchema={jsonSchema}
@@ -328,6 +191,50 @@ export default function FieldPanel({
         excludeField={field}
         onChange={(rule) => onChange(setFieldVisibleIf(uiSchema, field, rule))}
       />
+
+      {steps.length > 0 && (
+        <Box>
+          <SectionHeader title={pick(language, "Placement", "Emplacement")} />
+          {stepIndex === null ? (
+            <Typography variant="caption" color="text.secondary" component="div">
+              {pick(
+                language,
+                'In no tab, so it renders in the trailing "Other" tab.',
+                "Dans aucun onglet ; il s'affiche donc dans l'onglet « Autre »."
+              )}
+            </Typography>
+          ) : (
+            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Typography variant="caption" color="text.secondary">
+                {pick(language, "In tab", "Dans l'onglet")}
+              </Typography>
+              <Button
+                {...quietButtonProps}
+                onClick={() => onSelectStep(stepIndex)}
+                sx={{ ...quietButtonProps.sx, textTransform: "none" }}
+              >
+                {localized(
+                  steps[stepIndex].title,
+                  language,
+                  steps[stepIndex].id || `step-${stepIndex + 1}`
+                )}
+              </Button>
+            </Stack>
+          )}
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            component="div"
+            sx={{ mt: 0.5 }}
+          >
+            {pick(
+              language,
+              "Move it with the row's controls on the left.",
+              "Déplacez-le avec les contrôles de la ligne à gauche."
+            )}
+          </Typography>
+        </Box>
+      )}
     </Stack>
   );
 }

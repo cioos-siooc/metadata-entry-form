@@ -5,7 +5,6 @@ import {
   Chip,
   FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -15,6 +14,13 @@ import {
 import { Add, Close } from "@mui/icons-material";
 
 import { PREDICATE_OPERATORS } from "@shared/formEngine";
+import {
+  CodeBlock,
+  SectionHeader,
+  connectorSx,
+  quietButtonProps,
+  ruleCardSx,
+} from "./primitives";
 import { pick } from "./language";
 
 /**
@@ -233,9 +239,7 @@ export default function VisibleIfEditor({
   if (!parsed) {
     return (
       <Box role="group" aria-label={heading}>
-        <Typography variant="subtitle2" gutterBottom>
-          {heading}
-        </Typography>
+        <SectionHeader title={heading} />
         <Typography variant="caption" color="text.secondary" component="div">
           {pick(
             language,
@@ -243,20 +247,7 @@ export default function VisibleIfEditor({
             "Cette règle dépasse ce que le générateur peut modifier. Elle est laissée telle quelle — passez à la vue JSON pour la changer."
           )}
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            fontFamily: "monospace",
-            fontSize: 12,
-            bgcolor: "action.hover",
-            p: 1,
-            mt: 1,
-            borderRadius: 1,
-            overflowX: "auto",
-          }}
-        >
-          {JSON.stringify(value, null, 2)}
-        </Box>
+        <CodeBlock>{JSON.stringify(value, null, 2)}</CodeBlock>
       </Box>
     );
   }
@@ -292,21 +283,7 @@ export default function VisibleIfEditor({
 
   return (
     <Box role="group" aria-label={heading}>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="subtitle2">{heading}</Typography>
-        {conditions.length > 1 && (
-          <FormControl size="small">
-            <Select
-              value={mode}
-              onChange={(event) => emit(event.target.value, conditions)}
-              inputProps={{ "aria-label": pick(language, "Combine", "Combiner") }}
-            >
-              <MenuItem value="allOf">{pick(language, "all match", "toutes")}</MenuItem>
-              <MenuItem value="anyOf">{pick(language, "any match", "au moins une")}</MenuItem>
-            </Select>
-          </FormControl>
-        )}
-      </Stack>
+      <SectionHeader title={heading} />
 
       {conditions.length === 0 && (
         <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 1 }}>
@@ -314,94 +291,125 @@ export default function VisibleIfEditor({
         </Typography>
       )}
 
-      <Stack spacing={1}>
+      <Box>
         {conditions.map((condition, index) => {
           const property = properties[condition.field];
           return (
-            <Stack
+            <React.Fragment
               // Conditions have no stable identity of their own; position is the
               // only handle, and the list is short and rebuilt on every edit.
               key={index}
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              flexWrap="wrap"
-              useFlexGap
             >
-              <FormControl size="small" sx={{ minWidth: 160 }}>
-                <InputLabel id={`${baseId}-field-${index}`}>
-                  {pick(language, "Field", "Champ")}
-                </InputLabel>
-                <Select
-                  labelId={`${baseId}-field-${index}`}
-                  label={pick(language, "Field", "Champ")}
-                  value={fieldNames.includes(condition.field) ? condition.field : ""}
-                  onChange={(event) => {
-                    const field = event.target.value;
-                    updateCondition(index, {
-                      field,
-                      value: defaultValue(condition.operator, properties[field]),
-                    });
-                  }}
+              {/*
+                The combinator reads as a connector BETWEEN two rules rather than
+                as a control in the section header. Where it sits is the whole
+                explanation of what it does, so it is drawn between the cards it
+                joins and repeated for each join.
+              */}
+              {index > 0 && (
+                <Box sx={connectorSx}>
+                  <FormControl size="small">
+                    <Select
+                      value={mode}
+                      variant="standard"
+                      disableUnderline
+                      onChange={(event) => emit(event.target.value, conditions)}
+                      inputProps={{
+                        "aria-label": pick(language, "Combine", "Combiner"),
+                      }}
+                    >
+                      <MenuItem value="allOf">
+                        {pick(language, "and", "et")}
+                      </MenuItem>
+                      <MenuItem value="anyOf">
+                        {pick(language, "or", "ou")}
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
+              <Box sx={ruleCardSx}>
+                {/*
+                  No visible InputLabels on these two. The rule is meant to read
+                  as a sentence — "siteName / is / water" — and three floating
+                  labels over three adjacent Selects in a ~400px panel is what
+                  made this wrap into an unreadable pile. The accessible names
+                  move to `aria-label`, so nothing is lost to a screen reader.
+                */}
+                <FormControl size="small" sx={{ minWidth: 140, flex: "1 1 140px" }}>
+                  <Select
+                    id={`${baseId}-field-${index}`}
+                    value={fieldNames.includes(condition.field) ? condition.field : ""}
+                    onChange={(event) => {
+                      const field = event.target.value;
+                      updateCondition(index, {
+                        field,
+                        value: defaultValue(condition.operator, properties[field]),
+                      });
+                    }}
+                    inputProps={{
+                      "aria-label": pick(language, "Field", "Champ"),
+                    }}
+                  >
+                    {fieldNames.map((name) => (
+                      <MenuItem key={name} value={name}>
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <Select
+                    id={`${baseId}-operator-${index}`}
+                    value={condition.operator}
+                    onChange={(event) => {
+                      const operator = event.target.value;
+                      updateCondition(index, {
+                        operator,
+                        value: defaultValue(operator, property),
+                      });
+                    }}
+                    inputProps={{
+                      "aria-label": pick(language, "Comparison", "Comparaison"),
+                    }}
+                  >
+                    {PREDICATE_OPERATORS.map((operator) => (
+                      <MenuItem key={operator.name} value={operator.name}>
+                        {operator.label[language] || operator.label.en}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <ValueInput
+                  operator={condition.operator}
+                  property={property}
+                  value={condition.value}
+                  language={language}
+                  onChange={(next) => updateCondition(index, { value: next })}
+                />
+
+                <IconButton
+                  size="small"
+                  sx={{ ml: "auto" }}
+                  aria-label={pick(language, "Remove condition", "Retirer la condition")}
+                  onClick={() => removeCondition(index)}
                 >
-                  {fieldNames.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel id={`${baseId}-operator-${index}`}>
-                  {pick(language, "Comparison", "Comparaison")}
-                </InputLabel>
-                <Select
-                  labelId={`${baseId}-operator-${index}`}
-                  label={pick(language, "Comparison", "Comparaison")}
-                  value={condition.operator}
-                  onChange={(event) => {
-                    const operator = event.target.value;
-                    updateCondition(index, {
-                      operator,
-                      value: defaultValue(operator, property),
-                    });
-                  }}
-                >
-                  {PREDICATE_OPERATORS.map((operator) => (
-                    <MenuItem key={operator.name} value={operator.name}>
-                      {operator.label[language] || operator.label.en}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <ValueInput
-                operator={condition.operator}
-                property={property}
-                value={condition.value}
-                language={language}
-                onChange={(next) => updateCondition(index, { value: next })}
-              />
-
-              <IconButton
-                size="small"
-                aria-label={pick(language, "Remove condition", "Retirer la condition")}
-                onClick={() => removeCondition(index)}
-              >
-                <Close fontSize="small" />
-              </IconButton>
-            </Stack>
+                  <Close fontSize="small" />
+                </IconButton>
+              </Box>
+            </React.Fragment>
           );
         })}
-      </Stack>
+      </Box>
 
       <Button
-        size="small"
+        {...quietButtonProps}
         startIcon={<Add />}
         disabled={fieldNames.length === 0}
         onClick={addCondition}
-        sx={{ mt: 1 }}
+        sx={{ ...quietButtonProps.sx, mt: 1 }}
       >
         {conditions.length
           ? pick(language, "Add condition", "Ajouter une condition")

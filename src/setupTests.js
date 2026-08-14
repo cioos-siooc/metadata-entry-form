@@ -25,19 +25,36 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() { }
 };
 
-// Mock window.matchMedia for responsive hooks
+/**
+ * Mock window.matchMedia for responsive hooks.
+ *
+ * `min-width` queries are answered against `window.innerWidth` rather than
+ * always returning false. jsdom's default innerWidth is 1024, so
+ * `breakpoints.up("md")` (900) is true and `up("lg")` (1200) is false — which
+ * means a component that renders a docked panel on desktop and a drawer on
+ * mobile gets its DESKTOP branch by default, instead of silently rendering the
+ * mobile one and hiding the panel from every query.
+ *
+ * Everything else still answers false, so the two existing consumers
+ * (NavDrawer.jsx and RecordTable.jsx, both `breakpoints.down(...)`, i.e.
+ * `max-width`) behave exactly as before. A test wanting the mobile branch opts
+ * in by setting `window.innerWidth` and re-rendering.
+ */
 Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+  value: vi.fn().mockImplementation((query) => {
+    const min = /min-width:\s*([\d.]+)px/.exec(query);
+    return {
+      matches: min ? window.innerWidth >= parseFloat(min[1]) : false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+  }),
 });
 
 // Global Mock for Firebase to prevent errors in component tests
