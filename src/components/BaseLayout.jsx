@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CircularProgress, Grid } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
@@ -10,7 +10,6 @@ import Instruments from "./Pages/InstrumentsSaved";
 import Shared from "./Pages/Shared"
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
-import MetadataForm from "./Pages/MetadataForm";
 import ErrorBoundary from "./Pages/ErrorBoundary";
 import EditContact from "./FormComponents/EditSavedContact";
 import EditInstrument from "./FormComponents/EditSavedInstrument";
@@ -24,6 +23,7 @@ import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
 import FormTypeList from "./Pages/Forms/FormTypeList";
 import FormFill from "./Pages/Forms/FormFill";
+import { METADATA_RECORD_SLUG } from "../formEngine/metadataRecordForm";
 import MyFormSubmissions from "./Pages/Forms/MyFormSubmissions";
 import FormSubmissionsReview from "./Pages/Forms/FormSubmissionsReview";
 import FormSubmissionDetail from "./Pages/Forms/FormSubmissionDetail";
@@ -36,10 +36,28 @@ const RegionLogo = ({ children }) => {
   const logoSrc = getRegionLogo(region, language);
   const titleText = regions[region]?.title?.[language] || region;
   return (
-    <Grid container direction="column" spacing={2}>
-      <Grid>
+    // A flex column with `gap`, not <Grid container spacing>. MUI implements
+    // Grid gutters as negative margins on the container plus padding on the
+    // children, so a Grid container is always WIDER than its parent and cannot
+    // be constrained by it. This wrapper sits around every page, so that made
+    // the whole app scroll sideways whenever a page held something naturally
+    // wide — the record form's eleven-tab strip, a wide table, a map.
+    //
+    // minWidth: 0 on the children matters for the same reason it does inside
+    // the form: a flex child defaults to `min-width: auto` and refuses to
+    // shrink below its content's intrinsic width.
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        minWidth: 0,
+        maxWidth: "100%",
+      }}
+    >
+      <Box sx={{ minWidth: 0 }}>
         {logoSrc ? (
-          <img src={logoSrc} alt={region} />
+          <img src={logoSrc} alt={region} style={{ maxWidth: "100%" }} />
         ) : (
           <div style={{
             fontSize: '1.8rem',
@@ -47,11 +65,11 @@ const RegionLogo = ({ children }) => {
             padding: '10px 0',
           }}>{titleText}</div>
         )}
-      </Grid>
-      <Grid>
+      </Box>
+      <Box sx={{ minWidth: 0 }}>
         {children}
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 
@@ -72,7 +90,10 @@ const Pages = () => {
             <ErrorBoundary>
               <Routes>
                 <Route index element={<Submissions />} />
-                <Route path="new" element={<MetadataForm />} />
+                <Route
+                  path="new"
+                  element={<FormFill formTypeSlug={METADATA_RECORD_SLUG} />}
+                />
                 <Route path="contacts/:contactID" element={<EditContact />} />
                 <Route path="contacts/new" element={<EditContact />} />
                 <Route path="contacts" element={<Contacts />} />
@@ -133,7 +154,15 @@ const Pages = () => {
                   element={userIsAdmin ? <FormTypeEditor /> : <NotFound />}
                 />
 
-                <Route path=":userID/:recordID" element={<MetadataForm />} />
+                {/* The record's historic URL, kept rather than redirected:
+                    every existing bookmark and emailed link still works, and it
+                    is what lets a reviewer — or somebody a record was shared
+                    with — open a record they do not own. Declared last so it
+                    cannot swallow "forms", "admin" and the rest. */}
+                <Route
+                  path=":userID/:recordID"
+                  element={<FormFill formTypeSlug={METADATA_RECORD_SLUG} />}
+                />
                 <Route path="submissions" element={<Submissions />} />
                 <Route path="published" element={<Published />} />
                 <Route

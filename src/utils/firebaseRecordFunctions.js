@@ -5,6 +5,7 @@ import firebase from "../firebase";
 
 import { getBlankRecord, getBlankContact } from "./blankRecord";
 import { firebaseToJSObject, getRecordFilename, deepCopy } from "./misc";
+import { metadataScopeCodes } from "../isoCodeLists";
 
 export async function cloneRecord(
   recordID,
@@ -43,8 +44,24 @@ export function standardizeContact(contact) {
   };
 }
 
+/**
+ * Realtime Database stores booleans written by old form versions as the STRINGS
+ * "true"/"false". `Boolean("false")` is true, so a raw legacy value flips every
+ * check that reads it — including the form engine's `visibleIf` predicate, which
+ * would hide the taxa, platform and vertical-extent sections of a record that
+ * has them.
+ *
+ * The hand-written tabs each guarded this inline (`record.noX && record.noX !==
+ * "false"`). Coercing once on load means nothing downstream has to remember.
+ */
+function coerceBoolean(value) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return value;
+}
+
 // fills in missing fields on older records
-export function standardizeRecord(record, user, userID, recordID) {
+export function standardizeRecord(record, user, userID, recordID, language) {
   const updatedRecord = {
     ...getBlankRecord(),
     ...record,
@@ -54,7 +71,52 @@ export function standardizeRecord(record, user, userID, recordID) {
     updatedRecord.userinfo = { ...user?.userinfo, userID };
   }
 
-  updatedRecord.contacts = updatedRecord.contacts.map(standardizeContact);
+  // RTDB stores an array as an object keyed "0","1",… and firebaseToJSObject
+  // only converts it back when the first key is "0". A record whose contacts
+  // arrived in any other shape used to crash here on .map; coerce instead.
+  updatedRecord.contacts = (
+    Array.isArray(updatedRecord.contacts)
+      ? updatedRecord.contacts
+      : Object.values(updatedRecord.contacts || {})
+  ).map(standardizeContact);
+
+  ["noPlatform", "noTaxa", "noVerticalExtent"].forEach((key) => {
+    updatedRecord[key] = coerceBoolean(updatedRecord[key]);
+  });
+
+  // Records written before platforms became a list carry a single platform in
+  // three top-level keys. Fold it into platforms[] and clear the originals.
+  // This ran in a PlatformTab useEffect, so it only fired if you opened that
+  // one tab; on load it always does.
+  if (updatedRecord.platformID) {
+    updatedRecord.platforms = [
+      {
+        id: updatedRecord.platformID,
+        description: updatedRecord.platformDescription,
+        type: updatedRecord.platform,
+      },
+      ...(updatedRecord.platforms || []),
+    ];
+    updatedRecord.platformID = null;
+    updatedRecord.platformDescription = null;
+    updatedRecord.platform = null;
+  }
+
+  if (!updatedRecord.language && language) updatedRecord.language = language;
+
+  // metadataScopeIso is derived from metadataScope and is never asked as a
+  // question, so it has to be kept correct here rather than by the form.
+  if (!updatedRecord.metadataScope) {
+    updatedRecord.metadataScope = "Dataset";
+  }
+  if (
+    !updatedRecord.metadataScopeIso &&
+    metadataScopeCodes[updatedRecord.metadataScope]
+  ) {
+    updatedRecord.metadataScopeIso =
+      metadataScopeCodes[updatedRecord.metadataScope].isoValue;
+  }
+
   return updatedRecord;
 }
 

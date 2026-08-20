@@ -362,10 +362,15 @@ describe("viewing a completed submission", () => {
     // The notes live on their own step, so navigate there first.
     await userEvent.click(screen.getByRole("tab", { name: "Notes" }));
 
-    expect(await screen.findByLabelText("English")).toHaveValue(
-      "Calm, overcast"
+    // BilingualTextInput names its two inputs after the language codes.
+    expect(await screen.findByDisplayValue("Calm, overcast")).toHaveAttribute(
+      "name",
+      "en"
     );
-    expect(screen.getByLabelText("Français")).toHaveValue("Calme, couvert");
+    expect(screen.getByDisplayValue("Calme, couvert")).toHaveAttribute(
+      "name",
+      "fr"
+    );
   });
 
   it("exports one submission on its own", () => {

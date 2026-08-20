@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Button,
   Chip,
   CircularProgress,
-  Grid,
-  Paper,
+  Box,
+  LinearProgress,
   Typography,
 } from "@mui/material";
 import { ArrowBack, Save, Send, Undo } from "@mui/icons-material";
@@ -15,8 +15,16 @@ import validator from "@rjsf/validator-ajv8";
 import { I18n } from "../../I18n";
 import FormShell from "../../../formEngine/FormShell";
 import useFormStore from "../../../formEngine/useFormStore";
+import useMetadataRecordForm from "../../../formEngine/useMetadataRecordForm";
+import { runHook } from "../../../formEngine/hooks";
 import { formTypeLabel, resolveSteps } from "@shared/formEngine";
-import { paperClass } from "../../FormComponents/QuestionStyles";
+import {
+  METADATA_RECORD_KIND,
+  METADATA_RECORD_SLUG,
+} from "../../../formEngine/metadataRecordForm";
+import { getBlankRecord } from "../../../utils/blankRecord";
+import SubmitPanel from "../../FormComponents/SubmitPanel";
+import { UserContext } from "../../../providers/UserProvider";
 
 /**
  * Fills in or edits one submission.
@@ -30,10 +38,20 @@ import { paperClass } from "../../FormComponents/QuestionStyles";
  *   Drafts save without validation; Submit validates first. Half-finished
  *   drafts are the normal state of a form being filled in over days.
  */
-export default function FormFill() {
-  const { language, region, formTypeSlug, submissionID } = useParams();
+export default function FormFill({ formTypeSlug: fixedSlug }) {
+  const params = useParams();
+  const { language, region, submissionID: submissionParam } = params;
+  // The record keeps its historic URL, /{language}/{region}/{userID}/{recordID},
+  // so old bookmarks and emailed links keep working — and so a reviewer or a
+  // shared-with user can open a record they do not own. On that route the form
+  // type is fixed by the route rather than named in it.
+  const formTypeSlug =
+    fixedSlug || params.formTypeSlug || METADATA_RECORD_SLUG;
+  const submissionID = submissionParam ?? params.recordID;
+  const ownerID = params.userID;
   const navigate = useNavigate();
   const store = useFormStore();
+  const cloudFunctions = useContext(UserContext);
 
   const [formType, setFormType] = useState(null);
   const [submission, setSubmission] = useState(null);
@@ -54,7 +72,9 @@ export default function FormFill() {
       try {
         const existing =
           submissionIdRef.current && submissionIdRef.current !== "new"
-            ? await store.getSubmission(submissionIdRef.current)
+            ? await store.getSubmission(submissionIdRef.current, {
+                ...(ownerID ? { ownerId: ownerID } : {}),
+              })
             : null;
 
         // An existing submission renders against the version it was started
@@ -74,7 +94,14 @@ export default function FormFill() {
 
         setFormType(type);
         setSubmission(existing);
-        setFormData(existing?.data || {});
+        // A new record starts from the blank record, exactly as the
+        // hand-written form did: validate.js walks arrays like contacts and
+        // distribution without guarding, so an empty {} throws before the first
+        // tab can render.
+        setFormData(
+          existing?.data ||
+            (type.kind === METADATA_RECORD_KIND ? getBlankRecord() : {})
+        );
       } catch (err) {
         if (!cancelled) setLoadError(err.message);
       }
@@ -84,23 +111,48 @@ export default function FormFill() {
     return () => {
       cancelled = true;
     };
-  }, [store, formTypeSlug, language]);
+  }, [store, formTypeSlug, language, ownerID]);
 
   const handleChange = useCallback((next) => {
     setFormData(next);
     setDirty(true);
   }, []);
 
+  const readOnly = submission?.status === "submitted";
+
+  // Null for every form except the metadata record. Everything record-shaped —
+  // the generated schema, the tab validation, the saved libraries, the DOI
+  // plumbing — arrives through here so this page stays generic.
+  const record = useMetadataRecordForm({
+    kind: formType?.kind,
+    formData,
+    onChange: handleChange,
+    canEdit: !readOnly,
+  });
+
   async function persist(nextStatus) {
     setBusy(true);
     setStatus(null);
     try {
+      // A status change may need to happen elsewhere first — the record keeps
+      // its DataCite draft in step. This runs BEFORE the write so a rejected
+      // DOI update is visible before the record claims to be submitted.
+      if (nextStatus && nextStatus !== submission?.status) {
+        await runHook(formType.kind, "beforeStatusChange", {
+          region,
+          language,
+          datacitePrefix: cloudFunctions?.datacitePrefix,
+          submission: { id: submissionIdRef.current, data: formData },
+        });
+      }
+
       let saved;
       if (submissionIdRef.current) {
         saved = await store.saveSubmission(
           submissionIdRef.current,
           formData,
-          nextStatus
+          nextStatus,
+          ownerID ? { ownerId: ownerID } : {}
         );
       } else {
         saved = await store.createSubmission(formType.id, formData);
@@ -110,10 +162,23 @@ export default function FormFill() {
         }
         // Replace the URL so a refresh reopens the saved draft rather than a
         // second blank one.
-        navigate(`/${language}/${region}/forms/${formTypeSlug}/${saved.id}`, {
-          replace: true,
-        });
+        // A record goes to its historic owner-scoped URL; anything else keeps
+        // the generic /forms/{slug}/{id} shape.
+        navigate(
+          formType.kind === METADATA_RECORD_KIND
+            ? `/${language}/${region}/${saved.userID}/${saved.id}`
+            : `/${language}/${region}/forms/${formTypeSlug}/${saved.id}`,
+          { replace: true }
+        );
       }
+
+      // Never allowed to fail the save: the row is already written.
+      await runHook(formType.kind, "afterSave", {
+        region,
+        userID: saved.userID,
+        submission: saved,
+        cloudFunctions,
+      });
 
       setSubmission(saved);
       setDirty(false);
@@ -136,6 +201,14 @@ export default function FormFill() {
   }
 
   function handleSubmit() {
+    // The record keeps its own validator: src/utils/validate.js drives the
+    // progress bar, the record list and the submit panel, so running rjsf's
+    // validation as well would show two disagreeing sets of errors.
+    if (record) {
+      persist("submitted");
+      return;
+    }
+
     // Validate against the UNFILTERED schema: cross-field rules span steps, so
     // the per-step subschema cannot see them.
     const { errors } = validator.validateFormData(formData, formType.jsonSchema);
@@ -157,21 +230,66 @@ export default function FormFill() {
   if (loadError) return <Alert severity="error">{loadError}</Alert>;
   if (!formType) return <CircularProgress />;
 
-  const readOnly = submission?.status === "submitted";
-
   return (
-    <Grid container direction="column" spacing={2}>
-      <Grid>
+    // A plain flex column with `gap`, NOT <Grid container spacing>. MUI
+    // implements Grid gutters as NEGATIVE MARGINS on the container plus padding
+    // on the children, which makes the container wider than its parent by the
+    // spacing amount — so a Grid container can never be constrained to its
+    // parent's width. `gap` adds space between children without resizing
+    // anything.
+    //
+    // minWidth: 0 is also load-bearing: a flex child defaults to
+    // `min-width: auto` and refuses to shrink below its content's intrinsic
+    // width, and a scrollable <Tabs> reports the full width of all eleven step
+    // names. Without it the column cannot shrink to the viewport.
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        minWidth: 0,
+        width: "100%",
+        maxWidth: "min(1100px, 100%)",
+        pr: 2,
+      }}
+    >
+      <Box>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate(`/${language}/${region}/forms`)}
+          onClick={() =>
+            navigate(
+              record
+                ? `/${language}/${region}/submissions`
+                : `/${language}/${region}/forms`
+            )
+          }
         >
-          <I18n en="All forms" fr="Tous les formulaires" />
+          {record ? (
+            <I18n en="My Records" fr="Mes enregistrements" />
+          ) : (
+            <I18n en="All forms" fr="Tous les formulaires" />
+          )}
         </Button>
-      </Grid>
+      </Box>
 
-      <Grid container alignItems="center" spacing={2}>
-        <Typography variant="h5">{formTypeLabel(formType, language)}</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          flexWrap: "wrap",
+          minWidth: 0,
+        }}
+      >
+        <Typography variant="h5">
+          {record ? (
+            formData?.title?.[language] ||
+            formData?.title?.en ||
+            formData?.title?.fr || <I18n en="New Record" fr="Nouvel enregistrement" />
+          ) : (
+            formTypeLabel(formType, language)
+          )}
+        </Typography>
         <Chip
           size="small"
           color={readOnly ? "success" : "default"}
@@ -183,93 +301,116 @@ export default function FormFill() {
             )
           }
         />
-        <Typography variant="caption" color="text.secondary">
-          <I18n en="Version" fr="Version" />{" "}
-          {submission?.formTypeVersion ?? formType.resolvedVersion}
-        </Typography>
-      </Grid>
+        {/* The record's schema is generated per render, so it has no pinned
+            version to show — printing "Version" with nothing after it is worse
+            than printing nothing. */}
+        {!record && (
+          <Typography variant="caption" color="text.secondary">
+            <I18n en="Version" fr="Version" />{" "}
+            {submission?.formTypeVersion ?? formType.resolvedVersion}
+          </Typography>
+        )}
+      </Box>
 
       {status && (
-        <Grid>
-          <Alert severity={status.severity} onClose={() => setStatus(null)}>
-            {status.message}
-          </Alert>
-        </Grid>
+        <Alert severity={status.severity} onClose={() => setStatus(null)}>
+          {status.message}
+        </Alert>
       )}
 
       {readOnly && (
-        <Grid>
-          <Alert severity="info">
-            <I18n
-              en="This form has been submitted and is read-only. Return it to draft to make changes."
-              fr="Ce formulaire a été soumis et est en lecture seule. Remettez-le en brouillon pour le modifier."
-            />
-          </Alert>
-        </Grid>
+        <Alert severity="info">
+          <I18n
+            en="This form has been submitted and is read-only. Return it to draft to make changes."
+            fr="Ce formulaire a été soumis et est en lecture seule. Remettez-le en brouillon pour le modifier."
+          />
+        </Alert>
       )}
 
-      <Grid>
-        <Paper style={paperClass}>
-          <FormShell
-            jsonSchema={formType.jsonSchema}
-            uiSchema={formType.uiSchema}
+      {record && <CompletenessBar value={record.percentComplete} />}
+
+      <Box sx={{ minWidth: 0 }}>
+        {/* No wrapping Paper: QuestionFieldTemplate gives every question its
+            own, and paperClass is 90% wide with a 20px margin — nesting them
+            puts each question at 81% behind doubled margins. The hand-written
+            form wrapped its tabs in a bare Grid for exactly this reason. */}
+        <FormShell
+            jsonSchema={record?.jsonSchema ?? formType.jsonSchema}
+            uiSchema={record?.uiSchema ?? formType.uiSchema}
             formData={formData}
             onChange={handleChange}
             onSubmit={handleSubmit}
             disabled={readOnly || busy}
             language={language}
-            errorsByStep={errorsByStep}
-            context={{ canEdit: !readOnly }}
+            errorsByStep={record?.errorsByStep ?? errorsByStep}
+            context={{ canEdit: !readOnly, ...(record?.context || {}) }}
+            extraSteps={
+              record
+                ? [
+                    {
+                      id: "submit",
+                      title: { en: "Submit", fr: "Soumettre" },
+                      // Not a set of questions, so it cannot be schema
+                      // properties — resolveSteps drops a step with no fields.
+                      render: () => (
+                        <SubmitPanel
+                          record={formData}
+                          submitRecord={() => persist("submitted")}
+                          userID={formData?.userID || cloudFunctions?.user?.uid}
+                        />
+                      ),
+                    },
+                  ]
+                : []
+            }
             actions={
-              <Grid container spacing={1} sx={{ mt: 2, mx: 1 }}>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
                 {!readOnly && (
                   <>
-                    <Grid>
-                      <Button
-                        startIcon={
-                          busy ? <CircularProgress size={18} /> : <Save />
-                        }
-                        disabled={busy || !dirty}
-                        onClick={() => persist("draft")}
-                      >
-                        <I18n
-                          en="Save draft"
-                          fr="Enregistrer le brouillon"
-                        />
-                      </Button>
-                    </Grid>
-                    <Grid>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        startIcon={<Send />}
-                        disabled={busy}
-                      >
-                        <I18n en="Submit" fr="Soumettre" />
-                      </Button>
-                    </Grid>
+                    <Button
+                      startIcon={busy ? <CircularProgress size={18} /> : <Save />}
+                      disabled={busy || !dirty}
+                      onClick={() => persist("draft")}
+                    >
+                      <I18n en="Save draft" fr="Enregistrer le brouillon" />
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      startIcon={<Send />}
+                      disabled={busy}
+                    >
+                      <I18n en="Submit" fr="Soumettre" />
+                    </Button>
                   </>
                 )}
                 {readOnly && (
-                  <Grid>
-                    <Button
-                      startIcon={<Undo />}
-                      disabled={busy}
-                      onClick={() => persist("draft")}
-                    >
-                      <I18n
-                        en="Return to draft"
-                        fr="Remettre en brouillon"
-                      />
-                    </Button>
-                  </Grid>
+                  <Button
+                    startIcon={<Undo />}
+                    disabled={busy}
+                    onClick={() => persist("draft")}
+                  >
+                    <I18n en="Return to draft" fr="Remettre en brouillon" />
+                  </Button>
                 )}
-              </Grid>
+              </Box>
             }
-          />
-        </Paper>
-      </Grid>
-    </Grid>
+        />
+      </Box>
+    </Box>
+  );
+}
+
+/** How complete the record is, by the same measure the record list shows. */
+function CompletenessBar({ value }) {
+  const percent = Math.round((value || 0) * 100);
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        <LinearProgress variant="determinate" value={percent} />
+      </Box>
+      <Typography variant="body2" color="text.secondary">{`${percent}%`}</Typography>
+    </Box>
   );
 }
 

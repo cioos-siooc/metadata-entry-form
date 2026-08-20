@@ -2,7 +2,7 @@ import { useContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
 import { UserContext } from "../providers/UserProvider";
-import firebaseFormStore from "./store/firebaseFormStore";
+import routedFormStore from "./store/routedFormStore";
 
 /**
  * Resolves the active FormStore adapter and binds the ambient region, user, and
@@ -27,7 +27,10 @@ export default function useFormStore() {
   );
 
   return useMemo(() => {
-    const store = firebaseFormStore;
+    // Routes each call to the adapter that owns that kind of row: metadata
+    // records live in their own RTDB tree, generic submissions under
+    // formSubmissions. See store/routedFormStore.js.
+    const store = routedFormStore;
 
     return {
       region,
@@ -70,6 +73,10 @@ export default function useFormStore() {
         store.listSubmissions({ region, ...options }),
       listMySubmissions: (options = {}) =>
         store.listSubmissions({ region, ownerId: userID, ...options }),
+      // ownerId defaults to the signed-in user but may be overridden: a
+      // reviewer, or somebody a record was shared with, opens it from the
+      // owner's tree. The database rules are what actually enforce access —
+      // this only decides which path to read.
       getSubmission: (id, options = {}) =>
         store.getSubmission({ region, id, ownerId: userID, ...options }),
       createSubmission: (formTypeId, data) =>
@@ -80,7 +87,7 @@ export default function useFormStore() {
           data,
           user: identity,
         }),
-      saveSubmission: (id, data, status) =>
+      saveSubmission: (id, data, status, options = {}) =>
         store.saveSubmission({
           region,
           id,
@@ -88,8 +95,12 @@ export default function useFormStore() {
           data,
           status,
           user: identity,
+          // Writing a record a reviewer does not own has to target the owner's
+          // subtree, not the reviewer's.
+          ...options,
         }),
-      deleteSubmission: (id) => store.deleteSubmission({ region, id, userID }),
+      deleteSubmission: (id, options = {}) =>
+        store.deleteSubmission({ region, id, userID, ...options }),
       upgradeSubmission: (id, toVersion, options = {}) =>
         store.upgradeSubmission({ region, id, userID, toVersion, ...options }),
     };
