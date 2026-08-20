@@ -18,7 +18,7 @@ import {
 
 import { useParams } from "react-router-dom";
 
-import { paperClass } from "../FormComponents/QuestionStyles";
+import { paperClass } from "./QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
 import {
@@ -29,9 +29,9 @@ import {
 } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
-import GetRegionInfo from "../FormComponents/Regions";
+import GetRegionInfo from "./Regions";
 
-const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
+const SubmitPanel = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
@@ -383,4 +383,4 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
     </Paper>
   );
 };
-export default SubmitTab;
+export default SubmitPanel;

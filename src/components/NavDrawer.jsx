@@ -162,6 +162,13 @@ const useStyles = makeStyles()((theme) => ({
   },
   content: {
     flexGrow: 1,
+    // A flex item defaults to `min-width: auto`, which refuses to shrink below
+    // the intrinsic width of its content. Any page holding something naturally
+    // wide — a scrollable tab strip, a wide table, a map — then stretches this
+    // region past the viewport and the whole PAGE scrolls sideways instead of
+    // that one element scrolling inside itself.
+    minWidth: 0,
+    maxWidth: "100%",
     padding: theme.spacing(1),
     paddingTop: theme.spacing(3),
     transition: theme.transitions.create("margin", {

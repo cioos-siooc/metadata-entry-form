@@ -3,9 +3,17 @@ import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
 
 import BilingualTextField from "./fields/BilingualTextField";
+import KeywordsField from "./fields/KeywordsField";
+import EovField from "./fields/EovField";
+import TopicCategoryField from "./fields/TopicCategoryField";
+import MapExtentField from "./fields/MapExtentField";
+import DoiField from "./fields/DoiField";
+import TaxaField from "./fields/TaxaField";
+import SharedUsersField from "./fields/SharedUsersField";
 import IsoDateTimeWidget from "./widgets/IsoDateTimeWidget";
 import CheckBoxListWidget from "./widgets/CheckBoxListWidget";
 import QuestionFieldTemplate from "./templates/QuestionFieldTemplate";
+import AddButton from "./templates/AddButton";
 
 /**
  * The one and only module that imports @rjsf/*.
@@ -28,7 +36,16 @@ import QuestionFieldTemplate from "./templates/QuestionFieldTemplate";
  *     would paint a partly-filled form red. Validation runs on submit.
  */
 
-const FIELDS = { bilingualText: BilingualTextField };
+const FIELDS = {
+  bilingualText: BilingualTextField,
+  keywords: KeywordsField,
+  eov: EovField,
+  topicCategory: TopicCategoryField,
+  mapExtent: MapExtentField,
+  doi: DoiField,
+  taxa: TaxaField,
+  sharedUsers: SharedUsersField,
+};
 
 const WIDGETS = {
   // Named so a uiSchema can request them explicitly.
@@ -39,7 +56,10 @@ const WIDGETS = {
   DateTimeWidget: IsoDateTimeWidget,
 };
 
-const TEMPLATES = { FieldTemplate: QuestionFieldTemplate };
+const TEMPLATES = {
+  FieldTemplate: QuestionFieldTemplate,
+  ButtonTemplates: { AddButton },
+};
 
 export default function SchemaForm({
   jsonSchema,

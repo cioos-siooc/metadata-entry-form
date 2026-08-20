@@ -21,6 +21,18 @@ describe("pickSchemaProperties", () => {
     expect(Object.keys(picked.properties)).toEqual(["siteName", "depth"]);
   });
 
+  it("closes the picked schema so rjsf cannot stub the other steps' keys", () => {
+    // The record schema is deliberately open (additionalProperties: true) so
+    // legacy keys survive. Carried into a per-step subschema, that makes rjsf
+    // render every key belonging to ANOTHER step as an editable "additional
+    // property" with a key-rename box. Closing the picked copy is a rendering
+    // guard only — omitExtraData stays false, so no data is stripped.
+    const open = { ...schema, additionalProperties: true };
+    expect(pickSchemaProperties(open, ["siteName"]).additionalProperties).toBe(
+      false
+    );
+  });
+
   it("drops required entries for properties it removed", () => {
     const picked = pickSchemaProperties(schema, ["siteName"]);
     expect(picked.required).toEqual(["siteName"]);

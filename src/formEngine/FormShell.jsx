@@ -40,12 +40,20 @@ export default function FormShell({
   context = {},
   errorsByStep = {},
   actions,
+  extraSteps = [],
 }) {
   const [activeStep, setActiveStep] = useState(0);
 
   const steps = useMemo(
-    () => resolveSteps(jsonSchema, uiSchema, { language }),
-    [jsonSchema, uiSchema, language]
+    () => [
+      ...resolveSteps(jsonSchema, uiSchema, { language }),
+      // Steps that render their own content instead of a subschema. resolveSteps
+      // drops any step with no fields, so a panel like the record's Submit tab —
+      // which is a summary and a button, not questions — cannot be expressed as
+      // schema properties and is appended here instead.
+      ...extraSteps,
+    ],
+    [jsonSchema, uiSchema, language, extraSteps]
   );
 
   const visibleSteps = useMemo(
@@ -75,7 +83,7 @@ export default function FormShell({
 
   const stepSchema = single
     ? jsonSchema
-    : pickSchemaProperties(jsonSchema, step.fields);
+    : pickSchemaProperties(jsonSchema, step.fields || []);
 
   const formContext = { ...context, language, formData };
 
@@ -86,14 +94,35 @@ export default function FormShell({
   };
 
   return (
-    <Box>
+    // minWidth: 0 is load-bearing. A flex/grid child defaults to
+    // `min-width: auto`, meaning it refuses to shrink below its content's
+    // intrinsic width — and a scrollable <Tabs> still reports the full width of
+    // every tab laid end to end. Without this the whole form column becomes as
+    // wide as all eleven step names, and the PAGE scrolls sideways instead of
+    // the tab strip.
+    <Box sx={{ minWidth: 0, maxWidth: "100%" }}>
       {!single && (
         <Tabs
           value={currentIndex}
           onChange={(_event, index) => setActiveStep(index)}
           variant="scrollable"
-          scrollButtons="auto"
-          sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
+          // Always show the arrows, never "auto". With eleven steps the strip
+          // always overflows, and "auto" hides the arrows on a wide screen —
+          // so the tabs beyond the fold look like they do not exist.
+          scrollButtons
+          allowScrollButtonsMobile
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 2,
+            maxWidth: "100%",
+            // Keep the arrows visible rather than collapsing them to zero width
+            // when a direction is exhausted, so the strip does not jump.
+            "& .MuiTabs-scrollButtons.Mui-disabled": { opacity: 0.3 },
+            // Sentence case fits noticeably more of a long step name than MUI's
+            // default uppercase, which matters at eleven steps.
+            "& .MuiTab-root": { textTransform: "none", fontSize: "0.95rem" },
+          }}
         >
           {visibleSteps.map((s) => {
             const errorCount = errorsByStep[s.id]?.length || 0;
@@ -119,22 +148,26 @@ export default function FormShell({
         </Typography>
       )}
 
-      <SchemaForm
-        // Remounting per step keeps rjsf's internal state from leaking between
-        // subschemas, which would otherwise surface as stale validation errors.
-        key={step.id}
-        jsonSchema={stepSchema}
-        uiSchema={uiSchema}
-        formData={formData}
-        onChange={handleChange}
-        onSubmit={onSubmit}
-        disabled={disabled}
-        readonly={readonly}
-        formContext={formContext}
-        idPrefix={`step_${step.id}`}
-      >
-        {actions}
-      </SchemaForm>
+      {step.render ? (
+        step.render({ formData, disabled, readonly, language, context })
+      ) : (
+        <SchemaForm
+          // Remounting per step keeps rjsf's internal state from leaking between
+          // subschemas, which would otherwise surface as stale validation errors.
+          key={step.id}
+          jsonSchema={stepSchema}
+          uiSchema={uiSchema}
+          formData={formData}
+          onChange={handleChange}
+          onSubmit={onSubmit}
+          disabled={disabled}
+          readonly={readonly}
+          formContext={formContext}
+          idPrefix={`step_${step.id}`}
+        >
+          {actions}
+        </SchemaForm>
+      )}
     </Box>
   );
 }

@@ -3,100 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * Drives the real firebaseFormStore against an in-memory Realtime Database.
  *
- * The Firebase CLI's RTDB emulator needs a JVM, so instead of skipping this
- * layer entirely the `firebase/database` module is replaced with a tiny tree
- * that behaves the way RTDB does for the operations the store uses. What is
- * under test is the store's own logic — path construction, version
- * immutability, index maintenance, pinning — which is where the risk lives.
+ * The fake lives in ./helpers/fakeRtdb so recordFormStore's suite can share it —
+ * two hand-rolled RTDB fakes would drift, and the array-as-object emulation is
+ * the part that catches real bugs.
  */
 
-/** The fake database tree, reset before each test. */
-let tree;
-
-function readPath(path) {
-  return String(path)
-    .split("/")
-    .filter(Boolean)
-    .reduce((node, key) => (node == null ? undefined : node[key]), tree);
-}
-
-function writePath(path, value) {
-  const parts = String(path).split("/").filter(Boolean);
-  const last = parts.pop();
-  const parent = parts.reduce((node, key) => {
-    if (node[key] === undefined || node[key] === null) node[key] = {};
-    return node[key];
-  }, tree);
-  if (value === null) delete parent[last];
-  else parent[last] = value;
-}
-
-let pushCounter = 0;
-
-/**
- * Realtime Database has no array type and never stores null:
- *
- *   - an array is stored as an object keyed "0", "1", … and comes back that way
- *   - writing null deletes the key rather than storing it
- *
- * Emulating both is what lets this suite catch round-trip mangling of nested
- * structures. A fake that stores arrays as arrays hides the problem entirely,
- * which is exactly what happened here: a JSON Schema is full of nested arrays
- * (`required`, `enum`, `ui:steps`), and they came back as objects in production
- * while every test passed.
- */
-function toRtdbShape(value) {
-  if (Array.isArray(value)) {
-    return value.reduce((acc, item, index) => {
-      const converted = toRtdbShape(item);
-      if (converted !== null && converted !== undefined) {
-        acc[String(index)] = converted;
-      }
-      return acc;
-    }, {});
-  }
-  if (value === null || typeof value !== "object") return value;
-  return Object.entries(value).reduce((acc, [key, item]) => {
-    if (item === null || item === undefined) return acc;
-    acc[key] = toRtdbShape(item);
-    return acc;
-  }, {});
-}
-
-vi.mock("firebase/database", () => ({
-  getDatabase: () => ({}),
-  ref: (_db, path) => ({ path: path || "" }),
-  get: async (reference) => {
-    const value = readPath(reference.path);
-    return {
-      exists: () => value !== undefined && value !== null,
-      val: () => (value === undefined ? null : value),
-    };
-  },
-  set: async (reference, value) =>
-    writePath(reference.path, value === null ? null : toRtdbShape(value)),
-  update: async (reference, patch) => {
-    const existing = readPath(reference.path) || {};
-    const merged = { ...existing, ...patch };
-    // A null in an update() deletes that key, matching RTDB.
-    Object.entries(patch).forEach(([key, value]) => {
-      if (value === null || value === undefined) delete merged[key];
-    });
-    writePath(reference.path, toRtdbShape(merged));
-  },
-  push: async (reference, value) => {
-    pushCounter += 1;
-    const key = `key${String(pushCounter).padStart(3, "0")}`;
-    writePath(`${reference.path}/${key}`, toRtdbShape(value));
-    return { key };
-  },
-  remove: async (reference) => writePath(reference.path, null),
-  child: (reference, path) => ({ path: `${reference.path}/${path}` }),
-  onValue: () => () => {},
-}));
+vi.mock("firebase/database", async () =>
+  (await import("./helpers/fakeRtdb")).fakeDatabaseModule);
 
 vi.mock("../../firebase", () => ({ default: {} }));
 
+const { resetDatabase, databaseTree, toRtdbShape } = await import(
+  "./helpers/fakeRtdb"
+);
 const store = await import("../store/firebaseFormStore");
 const { default: ednaField } = await import("../catalog/edna-field.formtype.json");
 const { default: ednaLab } = await import("../catalog/edna-lab.formtype.json");
@@ -106,18 +25,15 @@ const REGION = "pacific";
 const USER = "user-1";
 const IDENTITY = { displayName: "A. Analyst", email: "analyst@cioos.ca" };
 
-beforeEach(() => {
-  tree = {};
-  pushCounter = 0;
-});
+beforeEach(resetDatabase);
 
 describe("global catalog", () => {
   it("writes form types outside any region", async () => {
     await store.saveCatalogFormType(ednaField);
     // The catalog must NOT live under a region key, or every region would need
     // its own copy and they would drift.
-    expect(Object.keys(tree)).toEqual(["formTypes"]);
-    expect(tree[REGION]).toBeUndefined();
+    expect(Object.keys(databaseTree())).toEqual(["formTypes"]);
+    expect(databaseTree()[REGION]).toBeUndefined();
   });
 
   it("refuses a duplicate slug", async () => {
@@ -251,7 +167,7 @@ describe("per-region activation", () => {
   it("stores activation under the region's admin node", async () => {
     const saved = await store.saveCatalogFormType(ednaField);
     await store.setRegionActivation(REGION, saved.id, { enabled: true });
-    expect(tree.admin[REGION].formTypes[saved.id].enabled).toBe(true);
+    expect(databaseTree().admin[REGION].formTypes[saved.id].enabled).toBe(true);
   });
 
   it("serves a pinned version rather than the latest", async () => {
@@ -332,7 +248,7 @@ describe("submissions", () => {
       formTypeId: formType.id,
       userID: USER,
     });
-    expect(tree[REGION].users[USER].formSubmissions[created.id]).toBeDefined();
+    expect(databaseTree()[REGION].users[USER].formSubmissions[created.id]).toBeDefined();
   });
 
   it("indexes a submission so it can be found across users", async () => {
@@ -343,7 +259,7 @@ describe("submissions", () => {
       userID: USER,
     });
     expect(
-      tree[REGION].formSubmissionIndex[formType.id][created.id].userID
+      databaseTree()[REGION].formSubmissionIndex[formType.id][created.id].userID
     ).toBe(USER);
   });
 
@@ -398,7 +314,7 @@ describe("submissions", () => {
     });
 
     expect(
-      tree[REGION].formSubmissionIndex[formType.id][created.id].status
+      databaseTree()[REGION].formSubmissionIndex[formType.id][created.id].status
     ).toBe("submitted");
   });
 
@@ -458,7 +374,7 @@ describe("submissions", () => {
     await store.deleteSubmission({ region: REGION, id: created.id, userID: USER });
 
     expect(
-      tree[REGION].formSubmissionIndex[formType.id]?.[created.id]
+      databaseTree()[REGION].formSubmissionIndex[formType.id]?.[created.id]
     ).toBeUndefined();
     expect(await store.listSubmissions({ region: REGION })).toEqual([]);
   });
@@ -675,8 +591,8 @@ describe("schema round-tripping through RTDB", () => {
     // restore arrays rather than requiring a manual reset.
     const saved = await store.saveCatalogFormType(ednaField);
     // Overwrite storage with the legacy nested form.
-    tree.formTypes[saved.id].jsonSchema = toRtdbShape(ednaField.jsonSchema);
-    tree.formTypes[saved.id].uiSchema = toRtdbShape(ednaField.uiSchema);
+    databaseTree().formTypes[saved.id].jsonSchema = toRtdbShape(ednaField.jsonSchema);
+    databaseTree().formTypes[saved.id].uiSchema = toRtdbShape(ednaField.uiSchema);
 
     const reread = await store.getCatalogFormType(saved.id);
     expect(reread.jsonSchema).toEqual(ednaField.jsonSchema);
@@ -786,7 +702,7 @@ describe("submission data round-tripping", () => {
 
 describe("catalog permissions", () => {
   it("lets an administrator of any region manage the catalog", async () => {
-    tree.admin = {
+    databaseTree().admin = {
       pacific: { permissions: { admins: "pacific-admin@cioos.ca" } },
       atlantic: { permissions: { admins: "atlantic-admin@cioos.ca" } },
     };
@@ -798,23 +714,23 @@ describe("catalog permissions", () => {
   });
 
   it("refuses someone who administers no region", async () => {
-    tree.admin = { pacific: { permissions: { admins: "admin@cioos.ca" } } };
+    databaseTree().admin = { pacific: { permissions: { admins: "admin@cioos.ca" } } };
     expect(await store.canManageCatalog("member@cioos.ca")).toBe(false);
   });
 
   it("refuses a missing email", async () => {
-    tree.admin = { pacific: { permissions: { admins: "admin@cioos.ca" } } };
+    databaseTree().admin = { pacific: { permissions: { admins: "admin@cioos.ca" } } };
     expect(await store.canManageCatalog(undefined)).toBe(false);
     expect(await store.canManageCatalog("")).toBe(false);
   });
 
   it("refuses everyone when no region has admins", async () => {
-    tree.admin = {};
+    databaseTree().admin = {};
     expect(await store.canManageCatalog("admin@cioos.ca")).toBe(false);
   });
 
   it("ignores a reviewer who is not an admin", async () => {
-    tree.admin = {
+    databaseTree().admin = {
       pacific: {
         permissions: {
           admins: "admin@cioos.ca",

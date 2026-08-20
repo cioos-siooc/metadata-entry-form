@@ -4,7 +4,7 @@ import {
   SortableItem,
   arrayMove,
   useStableItemIds,
-} from "../FormComponents/SortableList";
+} from "../../components/FormComponents/SortableList";
 import {
   Paper,
   List,
@@ -32,16 +32,15 @@ import { capitalize } from "@mui/material/utils";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";
-import { En, Fr, I18n } from "../I18n";
+import { En, Fr, I18n } from "../../components/I18n";
 import {
   paperClass,
   QuestionText,
   SupplementalText,
-} from "../FormComponents/QuestionStyles";
-import RequiredMark from "../FormComponents/RequiredMark";
-import { validateField } from "../../utils/validate";
+} from "../../components/FormComponents/QuestionStyles";
+import RequiredMark from "../../components/FormComponents/RequiredMark";
 
-const TaxaTab = ({ record, updateRecord, disabled }) => {
+const TaxaBody = ({ record, updateRecord, disabled, isFieldValid }) => {
   const getItemId = useStableItemIds("taxa");
   const { taxa = [] } = record;
   const updateTaxa = updateRecord("taxa");
@@ -162,7 +161,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>
-          <RequiredMark passes={validateField(record, "taxa")} />
+          <RequiredMark passes={isFieldValid?.("taxa")} />
           <SupplementalText>
             <I18n>
               <En>
@@ -379,4 +378,4 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
     </Grid>
   );
 };
-export default TaxaTab;
+export default TaxaBody;

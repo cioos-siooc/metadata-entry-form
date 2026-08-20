@@ -41,6 +41,20 @@ export function pickSchemaProperties(schema, fields) {
     ...schema,
     properties,
     required: (schema.required || []).filter((name) => keep.has(name)),
+    // A RENDERING guard, not a validation change, and not data loss.
+    //
+    // The record schema sets additionalProperties: true on purpose (legacy
+    // records carry forgotten keys — see src/schema/index.js). Spreading the
+    // schema above carries that through to the subschema, and rjsf then treats
+    // every key of formData that this step does NOT declare as an "additional
+    // property": it stubs each one into schema.properties and renders it with a
+    // key-rename textbox and a delete button (@rjsf/utils retrieveSchema.js,
+    // stubExistingAdditionalProperties). On a metadata record that is ~40
+    // spurious editable rows on every tab.
+    //
+    // Closing the PICKED schema stops that. Nothing is dropped from the data:
+    // SchemaForm hard-locks omitExtraData={false}, so rjsf never strips keys.
+    additionalProperties: false,
   };
 
   // A root-level conditional would reference fields this step doesn't render,

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import FormShell from "../FormShell";
 
@@ -43,17 +43,26 @@ const steps = {
 function Harness({ initial = {}, uiSchema = {}, onData, ...rest }) {
   const [data, setData] = useState(initial);
   return (
-    <MemoryRouter>
-      <FormShell
-        jsonSchema={schema}
-        uiSchema={uiSchema}
-        formData={data}
-        onChange={(next) => {
-          setData(next);
-          onData?.(next);
-        }}
-        {...rest}
-      />
+    // BilingualTextInput reads the active language off the route, so the
+    // harness supplies one rather than mocking useParams.
+    <MemoryRouter initialEntries={["/en/test"]}>
+      <Routes>
+        <Route
+          path="/:language/:region"
+          element={
+            <FormShell
+              jsonSchema={schema}
+              uiSchema={uiSchema}
+              formData={data}
+              onChange={(next) => {
+                setData(next);
+                onData?.(next);
+              }}
+              {...rest}
+            />
+          }
+        />
+      </Routes>
     </MemoryRouter>
   );
 }
@@ -186,14 +195,18 @@ describe("FormShell data integrity", () => {
       />
     );
 
-    await userEvent.type(screen.getByLabelText("English"), "!");
+    // BilingualTextInput names its two inputs "en" and "fr" and marks them with
+    // an EN/FR adornment rather than a visible label.
+    await userEvent.type(document.querySelector('input[name="en"]'), "!");
 
     const latest = onData.mock.calls.at(-1)[0];
     expect(latest.notes.en).toBe("Hello!");
     expect(latest.notes.fr).toBe("Bonjour");
-    expect(latest.notes.translations).toEqual({
-      fr: { verified: false, message: "machine" },
-    });
+    // The sibling survives the edit — that is what rjsf would otherwise drop.
+    // Its message is rewritten by BilingualTextInput itself, deliberately:
+    // editing one language invalidates a previously verified translation of it.
+    expect(latest.notes.translations.fr.verified).toBe(false);
+    expect(latest.notes.translations.fr.message).toBeTruthy();
   });
 
   it("does not truncate a full-precision ISO timestamp it never touched", async () => {
@@ -212,5 +225,39 @@ describe("FormShell data integrity", () => {
     await userEvent.type(screen.getByLabelText(/Site name/i), "!");
 
     expect(onData.mock.calls.at(-1)[0].labDate).toBe(stamp);
+  });
+});
+
+describe("FormShell extra steps", () => {
+  const submitStep = {
+    id: "submit",
+    title: { en: "Submit", fr: "Soumettre" },
+    render: () => <p>submit panel</p>,
+  };
+
+  it("appends a step that renders its own content", () => {
+    // resolveSteps drops any step with no fields, so a summary panel cannot be
+    // expressed as schema properties.
+    render(<Harness uiSchema={steps} extraSteps={[submitStep]} />);
+    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual([
+      "Field",
+      "Lab",
+      "Submit",
+    ]);
+  });
+
+  it("renders the panel instead of a form when it is selected", async () => {
+    render(<Harness uiSchema={steps} extraSteps={[submitStep]} />);
+    expect(screen.queryByText("submit panel")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("tab", { name: "Submit" }));
+
+    expect(await screen.findByText("submit panel")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Site name/i)).not.toBeInTheDocument();
+  });
+
+  it("changes nothing when no extra steps are given", () => {
+    render(<Harness uiSchema={steps} />);
+    expect(screen.getAllByRole("tab")).toHaveLength(2);
   });
 });

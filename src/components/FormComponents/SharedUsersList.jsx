@@ -43,7 +43,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
         const regionUsers = await loadRegionUsers(region);
 
         if (isMounted) {
-          setUsers(regionUsers);
+          // loadRegionUsers returns null for a region with no users yet, and
+          // Object.entries(null) throws during render.
+          setUsers(regionUsers || {});
         }
       } catch (error) {
         throw new Error(`Error loading region users: ${error}`);
