@@ -249,17 +249,17 @@ export const metadataScopeCodes = {
   //   },
   //   isoValue: "document",
   // },
-  // Collection: {
-  //   title: {
-  //     en: "Collection",
-  //     fr: "Collection",
-  //   },
-  //   text: {
-  //     en: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types.A collection is described as a group; its parts may also be separately described.",
-  //     fr: "Agrégation de ressources, qui peut englober des collections d'un seul type de ressource ainsi que celles de types mixtes. Une collection est décrite comme un groupe ; ses parties peuvent également être décrites séparément.",
-  //   },
-  //   isoValue: "collection",
-  // },
+  Collection: {
+    title: {
+      en: "Collection",
+      fr: "Collection",
+    },
+    text: {
+      en: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types.A collection is described as a group; its parts may also be separately described.",
+      fr: "Agrégation de ressources, qui peut englober des collections d'un seul type de ressource ainsi que celles de types mixtes. Une collection est décrite comme un groupe ; ses parties peuvent également être décrites séparément.",
+    },
+    isoValue: "collection",
+  },
   // ComputationalNotebook: {
   //   title: {
   //     en: "Computational Notebook",

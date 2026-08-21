@@ -8,6 +8,71 @@ const API_DOMAINS = {
   test: "https://api.test.datacite.org/dois/",
 };
 
+function parseEmailList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry || "").trim().toLowerCase())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  if (typeof value === "object") {
+    return Object.values(value)
+      .map((entry) => String(entry || "").trim().toLowerCase())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+async function assertReviewerOrAdmin(context, region, actionName) {
+  const callerEmail = context?.auth?.token?.email;
+
+  if (!context?.auth || !callerEmail) {
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      `Authentication is required to ${actionName}.`
+    );
+  }
+
+  const normalizedEmail = callerEmail.trim().toLowerCase();
+
+  try {
+    const permissionsSnapshot = await admin
+      .database()
+      .ref("admin")
+      .child(region)
+      .child("permissions")
+      .once("value");
+
+    const permissions = permissionsSnapshot.val() || {};
+    const admins = parseEmailList(permissions.admins);
+    const reviewers = parseEmailList(permissions.reviewers);
+    const allowed = admins.includes(normalizedEmail) || reviewers.includes(normalizedEmail);
+
+    if (!allowed) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        `Only reviewers and admins can ${actionName}.`
+      );
+    }
+  } catch (error) {
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+
+    functions.logger.error(`[authz] Failed to verify permissions for region ${region}:`, error);
+    throw new functions.https.HttpsError(
+      "internal",
+      "Unable to verify DOI permissions."
+    );
+  }
+}
+
 // Shared error handler for DataCite API errors.
 // statusMessages is an optional object to override default messages for specific status codes.
 function handleDataCiteError(err, defaultMessage, statusMessages = {}) {
@@ -74,9 +139,11 @@ async function getBaseUrl(region) {
 
 // Use the existing firebase record (data) to create a draft doi on datacite. Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.createDraftDoi = functions.https.onCall(async (data) => {
+exports.createDraftDoi = functions.https.onCall(async (data, context) => {
 
   const { record, region } = data;
+
+  await assertReviewerOrAdmin(context, region, "create draft DOIs");
 
   functions.logger.info("[createDraftDoi] Called", { region, recordKeys: record ? Object.keys(record) : null, type: record?.data?.type, prefix: record?.data?.attributes?.prefix });
 
@@ -112,8 +179,9 @@ exports.createDraftDoi = functions.https.onCall(async (data) => {
 
 // Use the existing firebase record (dataObj) to update and existing draft doi on datacite. Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
+exports.updateDraftDoi = functions.https.onCall(async (dataObj, context) => {
   const { doi, region, data } = dataObj;
+  await assertReviewerOrAdmin(context, region, "update DOIs");
   let authHash
   try {
     authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
@@ -147,9 +215,10 @@ exports.updateDraftDoi = functions.https.onCall(async (dataObj) => {
 
 // Delete an existing draft doi on datacite tha matches doi saved in the firebase record (data). Datacite credentails 
 // are pulled from the admin section of the firebase db
-exports.deleteDraftDoi = functions.https.onCall(async (data) => {
+exports.deleteDraftDoi = functions.https.onCall(async (data, context) => {
 
   const { doi, region } = data;
+  await assertReviewerOrAdmin(context, region, "delete draft DOIs");
   let authHash
 
   try {
@@ -241,6 +310,90 @@ exports.getDoiStatus = functions.https.onCall(async (data) => {
 
 });
 
+// Test stored DataCite credentials by attempting to create and immediately delete a draft DOI.
+// This validates that the credentials and prefix are correct and have write access.
+// Accepts either a plain region string (legacy) or an object { region, dataciteHash, prefix, apiDomain }.
+// When credentials are passed directly (client-side workaround for emulator), they are used as-is;
+// otherwise they are read from the admin DB (production path).
+// Returns { success: true } if the credentials are valid, or throws an HttpsError on failure.
+exports.testDataciteCredentials = functions.https.onCall(async (data) => {
+  const region = typeof data === 'string' ? data : data.region;
+  let authHash = typeof data === 'object' ? (data.dataciteHash || null) : null;
+  let prefix = typeof data === 'object' ? (data.prefix || null) : null;
+
+  if (!authHash || !prefix) {
+    try {
+      const credentialsRef = admin.database().ref('admin').child(region).child("dataciteCredentials");
+      if (!authHash) {
+        authHash = (await credentialsRef.child("dataciteHash").once("value")).val();
+      }
+      if (!prefix) {
+        prefix = (await credentialsRef.child("prefix").once("value")).val();
+      }
+    } catch (error) {
+      functions.logger.error(`[testDataciteCredentials] Error fetching credentials for region ${region}:`, error);
+      throw new functions.https.HttpsError('internal', 'Failed to read stored credentials from database.');
+    }
+  }
+
+  if (!authHash || !prefix) {
+    throw new functions.https.HttpsError('failed-precondition', 'No DataCite credentials are stored. Please save credentials first.');
+  }
+
+  const apiDomain = (typeof data === 'object' && data.apiDomain) ? data.apiDomain : null;
+  const baseUrl = apiDomain ? (API_DOMAINS[apiDomain] || API_DOMAINS.production) : await getBaseUrl(region);
+  let testDoi;
+
+  // Step 1: Create a minimal draft DOI to verify credentials and prefix
+  try {
+    const createPayload = {
+      data: {
+        type: "dois",
+        attributes: {
+          prefix,
+        },
+      },
+    };
+
+    const createResponse = await axios.post(baseUrl, createPayload, {
+      headers: {
+        'Authorization': `Basic ${authHash}`,
+        'Content-Type': 'application/vnd.api+json',
+      },
+    });
+
+    testDoi = createResponse.data?.data?.id;
+    functions.logger.info(`[testDataciteCredentials] Draft DOI created: ${testDoi}`);
+  } catch (err) {
+    functions.logger.error("[testDataciteCredentials] Create failed:", { status: err.response?.status, data: err.response?.data });
+    if (err.response && err.response.status === 401) {
+      throw new functions.https.HttpsError('unauthenticated', 'Unauthorized: The stored credentials are invalid. Please update them.');
+    }
+    if (err.response && err.response.status === 403) {
+      throw new functions.https.HttpsError('permission-denied', 'Forbidden: The account does not have permission to create DOIs. Please check your credentials and prefix.');
+    }
+    const errMessage = err.response
+      ? `DataCite API returned ${err.response.status}: ${err.response.statusText}`
+      : err.message || 'Unknown error connecting to DataCite API.';
+    throw new functions.https.HttpsError('unknown', errMessage);
+  }
+
+  // Step 2: Clean up by deleting the test draft DOI
+  if (testDoi) {
+    try {
+      await axios.delete(`${baseUrl}${testDoi}`, {
+        headers: { 'Authorization': `Basic ${authHash}` },
+      });
+      functions.logger.info(`[testDataciteCredentials] Test DOI ${testDoi} deleted.`);
+    } catch (deleteErr) {
+      functions.logger.warn(`[testDataciteCredentials] Failed to delete test DOI ${testDoi}:`, deleteErr.message);
+      // Don't fail the test — credentials are valid, cleanup is best-effort
+    }
+  }
+
+  return { success: true, message: 'Credentials verified successfully. A test DOI was created and removed.' };
+});
+
 // helper function to get the datacite credentials from the database so they are not sent to the client
 exports.getCredentialsStored = functions.https.onCall(async (data) => {
   try {
@@ -267,4 +420,59 @@ exports.getDatacitePrefix = functions.https.onCall(async (region) => {
   } catch (error) {
     throw new Error(`Error fetching Datacite Prefix for region ${region}: ${error}`);
   }
+});
+
+// Shared helper: send a state-transition event to DataCite for an existing DOI.
+// event can be "publish" (→ findable), "register" (→ registered), or "hide" (findable → registered).
+async function transitionDoiState(doi, region, event) {
+  let authHash;
+  try {
+    authHash = (await admin.database().ref('admin').child(region).child("dataciteCredentials").child("dataciteHash").once("value")).val();
+  } catch (error) {
+    functions.logger.error(`[transitionDoiState] Error fetching auth hash for region ${region}:`, error);
+    throw new functions.https.HttpsError('internal', 'Failed to read DataCite credentials.');
+  }
+
+  const baseUrl = await getBaseUrl(region);
+  const url = `${baseUrl}${doi}/`;
+  const payload = { data: { attributes: { event } } };
+
+  try {
+    const response = await axios.put(url, payload, {
+      headers: {
+        'Authorization': `Basic ${authHash}`,
+        'Content-Type': 'application/vnd.api+json',
+      },
+    });
+    const newState = response.data?.data?.attributes?.state;
+    functions.logger.info(`[transitionDoiState] DOI ${doi} transitioned via event "${event}" → state: ${newState}`);
+    return newState;
+  } catch (err) {
+    functions.logger.error(`[transitionDoiState] Error for DOI ${doi}, event "${event}":`, { status: err.response?.status, data: err.response?.data });
+    handleDataCiteError(err, `Failed to transition DOI state with event "${event}".`, {
+      404: 'Not found: The DOI could not be found.',
+      422: 'Validation error: The DOI cannot be transitioned to the requested state. Ensure required metadata fields are present.',
+    });
+  }
+}
+
+// Transition a DOI to "findable" (publicly discoverable).
+// Valid from: draft, registered.
+exports.publishDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
+  return { state: await transitionDoiState(doi, region, "publish") };
+});
+
+// Transition a DOI to "registered" (metadata registered, not publicly discoverable).
+// Valid from: draft.
+exports.registerDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
+  return { state: await transitionDoiState(doi, region, "register") };
+});
+
+// Demote a DOI from "findable" back to "registered" (hide from public discovery).
+// Valid from: findable.
+exports.hideDoi = functions.https.onCall(async ({ doi, region }, context) => {
+  await assertReviewerOrAdmin(context, region, "change DOI status");
+  return { state: await transitionDoiState(doi, region, "hide") };
 });

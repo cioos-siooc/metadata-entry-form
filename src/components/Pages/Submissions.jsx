@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Typography, Box, Stack, Card } from "@mui/material";
+import {
+  Typography,
+  Button,
+  ButtonGroup,
+  Box,
+  Card,
+  Chip,
+  Divider,
+  Menu,
+  MenuItem,
+  Stack,
+} from "@mui/material";
+import { Add, ArrowDropDown } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import firebase from "../../firebase";
@@ -13,7 +25,9 @@ import {
   returnRecordToDraft,
 } from "../../utils/firebaseRecordFunctions";
 import SimpleModal from "../FormComponents/SimpleModal";
+import NewRecordFromSourceDialog from "../FormComponents/NewRecordFromSourceDialog";
 import RecordList, { submissionsConfig } from "../RecordList";
+import { markFormNavigation } from "../RecordList/hooks";
 import DashboardHero from "../Dashboard/DashboardHero";
 import StatCards from "../Dashboard/StatCards";
 import GettingStarted from "../Dashboard/GettingStarted";
@@ -31,6 +45,18 @@ const Submissions = () => {
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState("");
+
+  // "New Record" split button menu, and the import-from-source dialog it opens
+  const [newRecordMenuAnchor, setNewRecordMenuAnchor] = useState(null);
+  const [sourceDialogType, setSourceDialogType] = useState(null);
+
+  const goToNewRecord = useCallback(
+    (state) => {
+      markFormNavigation(submissionsConfig.pageId);
+      navigate(`/${language}/${region}/new`, state ? { state } : undefined);
+    },
+    [navigate, language, region]
+  );
 
   // Load records on mount
   useEffect(() => {
@@ -78,6 +104,7 @@ const Submissions = () => {
     (recordID) => {
       const { currentUser } = auth;
       if (currentUser) {
+        markFormNavigation(submissionsConfig.pageId);
         navigate(`/${language}/${region}/${currentUser.uid}/${recordID}`);
       }
     },
@@ -159,9 +186,82 @@ const Submissions = () => {
         aria-describedby="simple-modal-description"
       />
 
-      <DashboardHero />
+      <DashboardHero
+        action={
+          <>
+            <ButtonGroup variant="contained" color="primary">
+              <Button
+                size="large"
+                startIcon={<Add />}
+                onClick={() => goToNewRecord()}
+              >
+                <I18n en="New record" fr="Nouvel enregistrement" />
+              </Button>
+              <Button
+                size="large"
+                onClick={(e) => setNewRecordMenuAnchor(e.currentTarget)}
+                aria-label={
+                  language === "fr"
+                    ? "Créer à partir d'une source existante"
+                    : "Create from an existing source"
+                }
+              >
+                <ArrowDropDown />
+              </Button>
+            </ButtonGroup>
+
+            <Menu
+              anchorEl={newRecordMenuAnchor}
+              open={Boolean(newRecordMenuAnchor)}
+              onClose={() => setNewRecordMenuAnchor(null)}
+            >
+              <MenuItem
+                onClick={() => {
+                  setNewRecordMenuAnchor(null);
+                  goToNewRecord();
+                }}
+              >
+                <I18n en="Blank record" fr="Enregistrement vide" />
+              </MenuItem>
+              <Divider />
+              {[
+                ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
+                ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
+                ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
+              ].map(([type, en, fr]) => (
+                <MenuItem
+                  key={type}
+                  onClick={() => {
+                    setNewRecordMenuAnchor(null);
+                    setSourceDialogType(type);
+                  }}
+                  sx={{ gap: 1, justifyContent: "space-between" }}
+                >
+                  <I18n en={en} fr={fr} />
+                  <Chip
+                    size="small"
+                    color="warning"
+                    variant="outlined"
+                    label={<I18n en="Experimental" fr="Expérimental" />}
+                  />
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        }
+      />
 
       <StatCards records={records} loading={loading} />
+
+      <NewRecordFromSourceDialog
+        open={Boolean(sourceDialogType)}
+        sourceType={sourceDialogType}
+        onClose={() => setSourceDialogType(null)}
+        onRecordLoaded={(prefillRecord) => {
+          setSourceDialogType(null);
+          goToNewRecord({ prefillRecord });
+        }}
+      />
 
       {isEmpty ? (
         <GettingStarted />

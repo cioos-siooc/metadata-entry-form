@@ -50,44 +50,101 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           </I18n>
 
           <SupplementalText>
-            <div>
-              <I18n>
-                <En>
-                  You can draw a bounding box or polygon for the dataset using
-                  the Polygon or Box buttons at the left side of them form.
-                  Alternatively you can enter them using the fields below.
-                  Either a bounding box or a Polygon is required.
-                </En>
-                <Fr>
-                  Vous pouvez tracer un cadre ou un polygone pour situer
-                  géographiquement votre jeu de données. Vous pouvez aussi
-                  localiser l’aire géographique couverte par votre jeu de
-                  données en inscrivant les coordonnées géographiques (degrés
-                  décimaux) dans les champs apparaissant sous la carte. Cette
-                  section doit obligatoirement être complétée.
-                </Fr>
-              </I18n>
-            </div>
-            <br />
-            <div>
-              <I18n>
-                <En>
-                  Define the geographical area using the tool that meets the
-                  geographic distribution of your data. Broadly distributed data
-                  in the open ocean might be well served by a bounding box.
-                  Tightly clustered coastal data may benefit from a polygon that
-                  does not include terrain or unsampled area.
-                </En>
-                <Fr>
-                  Définissez la zone géographique à l'aide de l'outil qui
-                  correspond à la distribution géographique de vos données. Par exemple, 
-                  l’étendue de données relativement dispersées, localisées en haute mer 
-                  est souvent bien représentées par une zone rectangulaire, tandis qu’une représentation 
-                  polygonale excluant les terrains ou zones non échantillonnés se prête mieux à 
-                  l’étendue de données côtières, avec une résolution spatiale plus fine.
-                </Fr>
-              </I18n>
-            </div>
+            <I18n>
+              <En>
+                <div>
+                  You can define the spatial extent of the dataset using one of
+                  the following options:
+                </div>
+                <ul>
+                  <li>
+                    Draw a bounding box or polygon using the tools on the left
+                    side of the map;
+                  </li>
+                  <li>
+                    Enter the coordinates (decimal degrees) manually using the
+                    fields below;
+                  </li>
+                  <li>
+                    Type the name of a location, and its boundaries will
+                    automatically be drawn on the map (those can be edited).
+                  </li>
+                </ul>
+                <div>
+                  Choose the method that best represents the geographic
+                  distribution of your data:
+                </div>
+                <ul>
+                  <li>
+                    For broadly distributed data in the open ocean, a bounding
+                    box may be most appropriate;
+                  </li>
+                  <li>
+                    For tightly clustered coastal data, a polygon may better
+                    represent the sampled area by excluding land or unsampled
+                    regions;
+                  </li>
+                  <li>
+                    Whether data were collected at a single location or across
+                    multiple locations, define one area that encompasses all
+                    locations.
+                  </li>
+                </ul>
+                <div>
+                  If the data is sensitive (endangered species or protected
+                  ecosystems), use a more general area rather than the exact
+                  location of the observations.
+                </div>
+              </En>
+              <Fr>
+                <div>
+                  Vous pouvez définir l&apos;étendue spatiale du jeu de données
+                  de l&apos;une des façons suivantes :
+                </div>
+                <ul>
+                  <li>
+                    Tracer un cadre ou un polygone à l&apos;aide des outils
+                    situés à gauche de la carte ;
+                  </li>
+                  <li>
+                    Entrer les coordonnées (degrés décimaux) manuellement dans
+                    les champs ci-dessous ;
+                  </li>
+                  <li>
+                    Saisir le nom d&apos;un lieu : ces limites seront
+                    automatiquement créées sur la carte (ces limites peuvent
+                    être modifiées directement sur la carte).
+                  </li>
+                </ul>
+                <div>
+                  Choisissez l&apos;outil qui représente le mieux la
+                  distribution géographique de vos données :
+                </div>
+                <ul>
+                  <li>
+                    Pour des données largement réparties en milieu océanique,
+                    une boîte englobante peut être plus appropriée ;
+                  </li>
+                  <li>
+                    Pour des données côtières regroupées dans une zone
+                    restreinte, un polygone peut mieux représenter la zone
+                    échantillonnée en excluant les terres ou les zones non
+                    échantillonnées ;
+                  </li>
+                  <li>
+                    Que les données aient été collectées à un endroit ou à
+                    plusieurs, définissez une zone unique englobant tous les
+                    sites.
+                  </li>
+                </ul>
+                <div>
+                  Si les données sont sensibles (espèces protégées ou des
+                  habitats vulnérables), privilégiez une emprise spatiale
+                  généralisée plutôt que la localisation exacte des
+                  observations.
+                </div>
+              </Fr>
+            </I18n>
           </SupplementalText>
         </QuestionText>
         <MapSelect

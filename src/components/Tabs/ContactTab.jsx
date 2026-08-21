@@ -14,6 +14,7 @@ import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
 
+import Alert from "@mui/material/Alert";
 import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
@@ -125,6 +126,18 @@ const ContactTab = ({
               </I18n>
             </SupplementalText>
           </QuestionText>
+          {!contacts.some((c) => c.role?.includes("publisher")) && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <I18n>
+                <En>
+                  No contact has the <strong>publisher</strong> role. The region default (<strong>{regions[region]?.title?.[language]}</strong>) will be used as publisher for DOI records.
+                </En>
+                <Fr>
+                  Aucun contact n'a le rôle d'<strong>éditeur</strong>. La valeur par défaut de la région (<strong>{regions[region]?.title?.[language]}</strong>) sera utilisée comme éditeur pour les enregistrements DOI.
+                </Fr>
+              </I18n>
+            </Alert>
+          )}
         </Grid>
       </FormSection>
       {showApaBox && (

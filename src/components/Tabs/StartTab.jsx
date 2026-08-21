@@ -1,8 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import FormSection from "../FormShell/FormSection";
 
-import { Save } from "@mui/icons-material";
-import { Typography, Grid, FormControl } from "@mui/material";
+import { Save, ExpandMore } from "@mui/icons-material";
+import {
+  Typography,
+  Grid,
+  FormControl,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Tooltip,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -18,8 +26,8 @@ import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
-import themesList from "../../utils/themes";
-
+import { topicCategories } from "../../utils/themes";
+import { normalizeResourceType, isOnlyOther } from "../../utils/normalizeResourceType";
 
 import SelectInput from "../FormComponents/SelectInput";
 
@@ -30,25 +38,28 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   const [showShareRecord, setShowShareRecord] = useState(false)
   const mounted = useRef(false);
 
-  function themes() {
+  const [topicAccordionExpanded, setTopicAccordionExpanded] = useState(false);
 
-    const foundWord = themesList.find((e) => e[language])
-    if (foundWord){
-      return foundWord[language]
-    } 
-    return {}
-  }
+  const allTopics = Object.entries(topicCategories).map(([key, cat]) => ({
+    key,
+    ...cat,
+  }));
+  const prominentTopics = allTopics.filter((t) => t.prominent);
+  const nonProminentTopics = allTopics.filter((t) => !t.prominent);
+  const nonProminentKeys = nonProminentTopics.map((t) => t.key);
 
+  const normalizedResourceType = normalizeResourceType(record.resourceType || []);
+  const hasNonProminentSelected =
+    normalizedResourceType.filter((val) => nonProminentKeys.includes(val)).length > 0;
 
   const updateResourceType = (value) => {
-    if(Array.isArray(value) && value.length === 1 && value.includes('other')){
-      if (Array.isArray(record.eov)){
-          if(!record.eov.includes('other')){
-            updateRecord("eov")([...record.eov, "other"])
-          }
-        else{
-            updateRecord("eov")(["other"])
+    if (isOnlyOther(value)) {
+      if (Array.isArray(record.eov)) {
+        if (!record.eov.includes("other")) {
+          updateRecord("eov")([...record.eov, "other"]);
         }
+      } else {
+        updateRecord("eov")(["other"]);
       }
     }
     updateRecord("resourceType")(value);
@@ -72,6 +83,14 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
 
     if (!record.metadataScope) {
       handleUpdateRecord("metadataScope")({ target: { value: 'Dataset' } });
+      handleUpdateRecord("metadataScopeIso")({
+        target: { value: metadataScopeCodes.Dataset.isoValue },
+      });
+    } else if (!record.metadataScopeIso && metadataScopeCodes[record.metadataScope]) {
+      // Backfill ISO value for records saved before this fix
+      handleUpdateRecord("metadataScopeIso")({
+        target: { value: metadataScopeCodes[record.metadataScope].isoValue },
+      });
     }
 
     return () => {
@@ -271,24 +290,77 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
-              <En>What is the theme of this record?</En>
-              <Fr>À quelle discipline scientifique ce jeu de données est-il associé ?</Fr>
+              <En>What is the topic category of this record?</En>
+              <Fr>Quelle est la catégorie thématique de cet enregistrement ?</Fr>
             </I18n>
-            {/* TO DO: ADD VALIDATION TO ENSURE A RESOURCE TYPE IS SELECTED */}
-            <RequiredMark passes={record.resourceType} />
+            <RequiredMark passes={record.resourceType?.length} />
+            <SupplementalText>
+              <I18n>
+                <En>
+                  Select one or more ISO topic categories that describe this
+                  dataset. Expand the list below for additional categories.
+                </En>
+                <Fr>
+                  Sélectionnez une ou plusieurs catégories thématiques ISO qui
+                  décrivent ce jeu de données. Développez la liste ci-dessous
+                  pour des catégories supplémentaires.
+                </Fr>
+              </I18n>
+            </SupplementalText>
           </QuestionText>
+
           <CheckBoxList
             aria-labelledby="resource-type"
             name="resource-type"
-            value={record.resourceType || []}
+            value={normalizedResourceType}
             labelSize={6}
-            defaultValue="oceanographic"
             onChange={(v) => updateResourceType(v)}
-            options={["oceanographic", "biological", "other"]}
-            optionLabels={themes()}
-              
+            options={prominentTopics.map((t) => t.key)}
+            optionLabels={prominentTopics.map((t) => t.title[language])}
+            optionTooltips={prominentTopics.map((t) => t.definition[language])}
             disabled={disabled}
           />
+
+          <Accordion
+            onChange={(event, isExpanded) =>
+              setTopicAccordionExpanded(isExpanded)
+            }
+            expanded={topicAccordionExpanded || hasNonProminentSelected}
+          >
+            <AccordionSummary
+              expandIcon={
+                <Tooltip
+                  title={
+                    language === "fr"
+                      ? "Afficher/masquer les catégories"
+                      : "Show/Hide more options"
+                  }
+                >
+                  <ExpandMore />
+                </Tooltip>
+              }
+            >
+              <I18n>
+                <En>Show/Hide more topic categories</En>
+                <Fr>Afficher/masquer les catégories thématiques</Fr>
+              </I18n>
+            </AccordionSummary>
+            <AccordionDetails>
+              <CheckBoxList
+                aria-labelledby="resource-type-expanded"
+                name="resource-type"
+                value={normalizedResourceType}
+                labelSize={6}
+                onChange={(v) => updateResourceType(v)}
+                options={nonProminentTopics.map((t) => t.key)}
+                optionLabels={nonProminentTopics.map((t) => t.title[language])}
+                optionTooltips={nonProminentTopics.map(
+                  (t) => t.definition[language]
+                )}
+                disabled={disabled}
+              />
+            </AccordionDetails>
+          </Accordion>
         </FormControl>
       </FormSection>
 

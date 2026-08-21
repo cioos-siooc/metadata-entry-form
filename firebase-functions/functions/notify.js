@@ -2,7 +2,11 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const { defineString } = require('firebase-functions/params');
 const nodemailer = require("nodemailer");
-const { mailOptionsReviewer, mailOptionsAuthor } = require("./mailoutText");
+const {
+  mailOptionsReviewer,
+  mailOptionsAuthor,
+  mailOptionsAuthorSubmissionConfirmation,
+} = require("./mailoutText");
 const createIssue = require("./issue");
 
 /**
@@ -18,6 +22,17 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: { user: gmailUserCred, pass: gmailPassCred },
 });
+// RTDB returns sparse arrays as objects keyed by index (e.g. {"0": ..., "2": ...}),
+// so callers cannot assume record.contacts (or a contact's role) is an Array.
+// Coerce both with Object.values, then find the custodian's org.
+exports.findCustodianOrgName = (record) => {
+  const contacts = Object.values((record && record.contacts) || {});
+  const custodian = contacts.find((c) =>
+    Object.values((c && c.role) || {}).includes("custodian")
+  );
+  return custodian && custodian.orgName;
+};
+
 /*
 Email the reviewers for the region when a form is submitted for review
 */
@@ -47,7 +62,9 @@ exports.notifyReviewer = functions.database
 
       const record = recordFB.toJSON();
       const { language } = record;
-      const title = record.title[language];
+      const titleEn = record.title && record.title.en;
+      const titleFr = record.title && record.title.fr;
+      const title = titleEn || titleFr;
 
       if (!title) {
         console.log(`No title found for record ${recordID}`);
@@ -62,9 +79,23 @@ exports.notifyReviewer = functions.database
           `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`
         );
       }
-      // getting dest email by query string
 
-      // returning result
+      console.log("Emailing submission confirmation to author", authorEmail);
+      transporter.sendMail(
+        mailOptionsAuthorSubmissionConfirmation(
+          authorEmail,
+          titleEn,
+          titleFr,
+          region
+        ),
+        (e, info) => {
+          console.log(info);
+          if (e) {
+            console.log(e);
+          }
+        }
+      );
+
       if (reviewers.includes(authorEmail)) {
         console.log("Author is a reviewer, don't notifiy other reviewers");
         return;
@@ -73,9 +104,24 @@ exports.notifyReviewer = functions.database
         console.log(`No reviewers found to notify for region ${region}`);
         return;
       }
+
+      const authorName = authorUserInfo.displayName || "";
+      const orgName = exports.findCustodianOrgName(record);
+
       console.log("Emailing ", reviewers);
       transporter.sendMail(
-        mailOptionsReviewer(reviewers, title, region),
+        mailOptionsReviewer(
+          reviewers,
+          titleEn,
+          titleFr,
+          region,
+          authorName,
+          authorEmail,
+          orgName,
+          userID,
+          recordID,
+          language
+        ),
         (e, info) => {
           console.log(info);
           if (e) {
@@ -126,18 +172,16 @@ exports.notifyUser = functions.database
 
       const record = recordFB.toJSON();
       const { language } = record;
-      const title = record.title[language];
+      const titleEn = record.title && record.title.en;
+      const titleFr = record.title && record.title.fr;
 
-      if (!title) {
+      if (!titleEn && !titleFr) {
         console.log(`No title found for record ${recordID}`);
         return;
       }
-      // getting dest email by query string
-
-      // returning result
 
       transporter.sendMail(
-        mailOptionsAuthor(authorEmail, title, region),
+        mailOptionsAuthor(authorEmail, titleEn, titleFr, region),
         (e, info) => {
           console.log(info);
           if (e) {

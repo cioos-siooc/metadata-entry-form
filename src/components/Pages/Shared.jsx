@@ -11,6 +11,7 @@ import {
 import { firebaseToJSObject } from "../../utils/misc";
 import { Fr, En, I18n } from "../I18n";
 import RecordList, { sharedConfig } from "../RecordList";
+import { markFormNavigation } from "../RecordList/hooks";
 
 const Shared = () => {
   const { language, region } = useParams();
@@ -93,6 +94,7 @@ const Shared = () => {
   // Action handlers
   const handleEditRecord = useCallback(
     (recordID, userID) => {
+      markFormNavigation(sharedConfig.pageId);
       navigate(`/${language}/${region}/${userID}/${recordID}`);
     },
     [navigate, language, region],

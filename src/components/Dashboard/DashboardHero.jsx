@@ -1,22 +1,19 @@
 import React, { useContext } from "react";
 import {
   Box,
-  Button,
   Stack,
   Typography,
   Chip,
 } from "@mui/material";
-import { Add } from "@mui/icons-material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
 import { I18n } from "../I18n";
 
 // Greeting strip at the top of the Submissions dashboard.
-export default function DashboardHero() {
+export default function DashboardHero({ action }) {
   const { language, region } = useParams();
-  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const regionInfo = regions[region];
@@ -107,14 +104,7 @@ export default function DashboardHero() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5} sx={{ zIndex: 1 }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<Add />}
-            onClick={() => navigate(`/${language}/${region}/new`)}
-          >
-            <I18n en="New record" fr="Nouvel enregistrement" />
-          </Button>
+          {action}
         </Stack>
       </Stack>
     </Box>

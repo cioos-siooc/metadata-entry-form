@@ -14,6 +14,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
+import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
@@ -83,6 +84,15 @@ const PolygonLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
   return null;
 };
 
+// Geometry entered by hand replaces whatever was picked in the location search,
+// so the saved location name is dropped rather than left describing a different
+// area. Nudging existing vertices (handleLayerEdit) keeps the name.
+function withoutSelectedLocation(data) {
+  // eslint-disable-next-line no-unused-vars
+  const { selectedLocation, ...rest } = data;
+  return rest;
+}
+
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
   const mapDataRef = useRef(mapData);
@@ -97,7 +107,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current.remove();
         drawnLayerRef.current = null;
       }
-      const newData = { ...mapData, [key]: e.target.value };
+      const newData = { ...withoutSelectedLocation(mapData), [key]: e.target.value };
       updateMap(newData);
     };
   }
@@ -122,7 +132,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
 
-      const newData = { ...mapData, polygon: e.target.value, north: '', south: '', east: '', west: '' };
+      const newData = { ...withoutSelectedLocation(mapData), polygon: e.target.value, north: '', south: '', east: '', west: '' };
       try {
         const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
@@ -165,7 +175,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       }
       drawnLayerRef.current = layer;
 
-      const currentMapData = mapDataRef.current;
+      const currentMapData = withoutSelectedLocation(mapDataRef.current);
 
       switch (shape) {
         case "Polygon": {
@@ -217,7 +227,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   const onRemove = useCallback(() => {
     drawnLayerRef.current = null;
-    const currentMapData = mapDataRef.current;
+    const currentMapData = withoutSelectedLocation(mapDataRef.current);
     updateMap({
       ...currentMapData,
       north: "",
@@ -437,6 +447,25 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
       />
 
+      {!disabled && (
+        <>
+          <Typography
+            variant="h6"
+            style={{ margin: "20px", marginLeft: "20%" }}
+          >
+            <I18n>
+              <En>OR</En>
+              <Fr>Ou</Fr>
+            </I18n>
+          </Typography>
+          <GeographicLocationSearch
+            updateMap={handleSearchSelect}
+            mapData={mapData}
+            disabled={disabled}
+          />
+        </>
+      )}
+
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
         <I18n>
           <En>And optionally</En>
@@ -446,10 +475,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
       <QuestionText>
         <I18n>
-          <En>Describe the Geographic Extent of the dataset. Required for Biological datasets</En>
-          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données biologiques</Fr>
+          <En>Describe the Geographic Extent of the dataset. Required for Biota (biological) datasets</En>
+          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données Biote (biologiques)</Fr>
         </I18n>
-        {record.resourceType && record.resourceType.includes("biological") && (
+        {resourceTypeIncludes(record.resourceType, "biota") && (
           <RequiredMark passes={Boolean(mapData.description)} />
         )}
         <SupplementalText>
@@ -458,15 +487,16 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
               <p>
                 Optionally you can include a text description of the geographic
                 area covered by this dataset or study. This field is required
-                when filling out biological datasets but is optional for all
-                other dataset types.
+                when the Biota (biological) topic category is selected but is
+                optional for all other topic categories.
               </p>
             </En>
             <Fr>
               <p>
                 Vous pouvez éventuellement inclure une description textuelle
-                de la zone géographique. Ce champ est obligatoire pour des jeux de données biologiques, mais est
-                facultatif pour tous autre type de jeux de données.
+                de la zone géographique. Ce champ est obligatoire lorsque la
+                catégorie thématique Biote (biologique) est sélectionnée, mais
+                est facultatif pour toutes les autres catégories thématiques.
               </p>
             </Fr>
           </I18n>

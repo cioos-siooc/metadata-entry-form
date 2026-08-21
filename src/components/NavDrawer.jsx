@@ -22,6 +22,7 @@ import {
   HelpOutlineOutlined as Help,
   WarningAmberOutlined as Warning,
   SettingsOutlined as Settings,
+  LinkOutlined as LinkIcon,
   NewReleasesOutlined as NewReleases,
   ExpandLess,
   ExpandMore,
@@ -45,7 +46,6 @@ import {
   Select,
   Tooltip,
   MenuItem,
-  Menu,
   Collapse,
   Divider,
 } from "@mui/material";
@@ -57,6 +57,7 @@ import { auth } from "../auth";
 
 import { En, Fr, I18n } from "./I18n";
 import WhatsNewDialog from "./Pages/WhatsNew";
+import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -267,6 +268,7 @@ export default function MiniDrawer({ children }) {
 
   const {
     user,
+    loggedIn,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
     hasSharedRecords,
@@ -299,6 +301,7 @@ export default function MiniDrawer({ children }) {
   const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
   const [emailCopied, setEmailCopied] = React.useState(false);
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
+  const [connectedAccountsOpen, setConnectedAccountsOpen] = React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
@@ -308,6 +311,7 @@ export default function MiniDrawer({ children }) {
   }, [emailCopied, language]);
 
   const [helpSubmenuOpen, setHelpSubmenuOpen] = React.useState(false);
+  const [accountSubmenuOpen, setAccountSubmenuOpen] = React.useState(false);
 
   const handleCopyEmail = (e) => {
     e.preventDefault();
@@ -364,9 +368,6 @@ export default function MiniDrawer({ children }) {
   };
 
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const isMenuOpen = Boolean(anchorEl);
-
   const handleDrawerClose = () => {
     setOpen(false);
   };
@@ -376,16 +377,7 @@ export default function MiniDrawer({ children }) {
     if (isMobile) setOpen(false);
   };
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleLogout = () => {
-    handleMenuClose();
     auth.signOut().then(() => navigate(baseURL));
   };
 
@@ -402,6 +394,7 @@ export default function MiniDrawer({ children }) {
     signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
     signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
+    connectedAccounts: <I18n en="Connected accounts" fr="Comptes connectés" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: <I18n en="Development database" fr="Base de données de développement" />,
@@ -472,6 +465,7 @@ export default function MiniDrawer({ children }) {
     };
   }, [language, topBarBackgroundColor]);
 
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -540,7 +534,7 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          className={classes.drawer}
+          className={clsx(classes.drawer, !loggedIn && classes.hide)}
           classes={{
             paper: clsx(classes.drawerPaper, classes.drawerOpen),
           }}
@@ -902,8 +896,14 @@ export default function MiniDrawer({ children }) {
                     <ListItemButton
                       key="userInfo"
                       className={classes.navItem}
-                      onClick={handleMenuOpen}
                       sx={{ minHeight: 52 }}
+                      onClick={() => {
+                        if (open) {
+                          setAccountSubmenuOpen((v) => !v);
+                        } else {
+                          setAccountSubmenuOpen(true);
+                        }
+                      }}
                     >
                       <ListItemIcon>
                         <Avatar
@@ -929,23 +929,41 @@ export default function MiniDrawer({ children }) {
                           whiteSpace: "nowrap",
                         }}
                       />
+                      {open && (accountSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
                   </Tooltip>
-                  <Menu
-                    anchorEl={anchorEl}
-                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                    keepMounted
-                    transformOrigin={{ vertical: "bottom", horizontal: "left" }}
-                    open={isMenuOpen}
-                    onClose={handleMenuClose}
-                  >
-                    <MenuItem onClick={handleLogout}>
-                      <ListItemIcon style={{ minWidth: "40px" }}>
-                        <ExitToApp fontSize="small" />
-                      </ListItemIcon>
-                      <Typography variant="inherit">{translations.logout}</Typography>
-                    </MenuItem>
-                  </Menu>
+                  <Collapse in={accountSubmenuOpen && open} timeout="auto">
+                    <List
+                      component="div"
+                      disablePadding
+                      sx={{
+                        borderLeft: `2px solid ${theme.palette.action.disabled}`,
+                        ml: "20px",
+                        pl: 2,
+                      }}
+                    >
+                      <ListItemButton
+                        key="ConnectedAccounts"
+                        onClick={() => setConnectedAccountsOpen(true)}
+                        sx={{ pl: 4 }}
+                      >
+                        <ListItemIcon>
+                          <LinkIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.connectedAccounts} />
+                      </ListItemButton>
+                      <ListItemButton
+                        key="Logout"
+                        onClick={handleLogout}
+                        sx={{ pl: 4, color: "error.main" }}
+                      >
+                        <ListItemIcon>
+                          <ExitToApp color="error" />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.logout} />
+                      </ListItemButton>
+                    </List>
+                  </Collapse>
                 </>
               )}
             </List>
@@ -959,6 +977,10 @@ export default function MiniDrawer({ children }) {
       <WhatsNewDialog
         open={whatsNewOpen}
         onClose={() => setWhatsNewOpen(false)}
+      />
+      <ConnectedAccountsDialog
+        open={connectedAccountsOpen}
+        onClose={() => setConnectedAccountsOpen(false)}
       />
     </div>
   );

@@ -78,7 +78,7 @@ export default function useFormSections({
       },
     ];
 
-    if (!["model"].includes(record.metadataScope)) {
+    if (!["model"].includes(record.metadataScopeIso)) {
       baseSections.push({
         id: "platform",
         label: label("platform", language, "Platform"),

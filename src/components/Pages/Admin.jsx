@@ -9,6 +9,7 @@ import {
   IconButton,
   Checkbox,
   Paper,
+  Tooltip,
   FormControlLabel,
   Dialog,
   DialogActions,
@@ -21,7 +22,7 @@ import {
   FormLabel,
   Alert,
 } from "@mui/material";
-import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Save, Delete, PlayArrow, Visibility, VisibilityOff } from "@mui/icons-material";
 import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
 import { Buffer } from 'buffer';
 
@@ -50,7 +51,10 @@ class Admin extends FormClassTemplate {
       datacitePrefixValid: true,
       dataciteAccountId: "",
       datacitePass: "",
+      dataciteHash: "",
       dataciteApiDomain: "production",
+      doiSuffixModes: ["default"],
+      doiStatusManagement: "datacite",
       loading: false,
       showPassword: false,
       isDoiCreationEnabled: false,
@@ -59,6 +63,8 @@ class Admin extends FormClassTemplate {
       showCredentialsMissingDialog: false,
       showErrorDialog: false,
       errorMessage: "",
+      testingCredentials: false,
+      testResult: null,
       githubOwner: "cioos-siooc",
       githubRepo: "cioos-siooc-forms",
       githubToken: "",
@@ -72,7 +78,6 @@ class Admin extends FormClassTemplate {
   async componentDidMount() {
     const { match } = this.props;
     const { region } = match.params;
-    const { getCredentialsStored, getDatacitePrefix } = this.context;
     const database = getDatabase(firebase);
 
     this.setState({ loading: true });
@@ -84,24 +89,33 @@ class Admin extends FormClassTemplate {
         const regionAdminRef = child(adminRef, region);
         const permissionsRef = child(regionAdminRef, "permissions");
 
-        // Projects are loaded via the realtime listener below; no prefetch needed
-        const datacitePrefix = await getDatacitePrefix(region).then(
-          (response) => {
-            return response.data;
-          }
-        );
-        const credentialsStored = await getCredentialsStored(region).then(
-          (response) => {
-            return response.data;
-          }
-        );
-
+        // Load datacite credentials directly from the realtime database (same DB the client writes to).
+        // This avoids the Firebase Functions emulator potentially reading from a different project's DB.
         const dataciteRef = child(regionAdminRef, "dataciteCredentials");
         onValue(dataciteRef, (snapshot) => {
           const data = snapshot.val();
+          const credentialsStored = !!(data?.dataciteHash && data?.prefix);
+          const updates = {
+            credentialsStored,
+            isDoiCreationEnabled: credentialsStored || this.state.isDoiCreationEnabled,
+            datacitePrefix: data?.prefix || this.state.datacitePrefix || "",
+          };
           if (data?.apiDomain) {
-            this.setState({ dataciteApiDomain: data.apiDomain });
+            updates.dataciteApiDomain = data.apiDomain;
           }
+          if (Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0) {
+            updates.doiSuffixModes = data.doiSuffixModes;
+          }
+          if (data?.doiStatusManagement) {
+            updates.doiStatusManagement = data.doiStatusManagement;
+          }
+          if (data?.accountId) {
+            updates.dataciteAccountId = data.accountId;
+          }
+          if (data?.dataciteHash) {
+            updates.dataciteHash = data.dataciteHash;
+          }
+          this.setState(updates);
         });
         this.listenerRefs.push(dataciteRef);
 
@@ -137,13 +151,11 @@ class Admin extends FormClassTemplate {
 
           // Do not set `projects` here to avoid overwriting the more recent
           // value from the `projectsRef` listener above.
+          // credentialsStored / datacitePrefix are set by the dataciteRef listener.
           this.setState({
             admins,
             reviewers,
             loading: false,
-            datacitePrefix,
-            credentialsStored,
-            isDoiCreationEnabled: credentialsStored,
           });
         });
         this.listenerRefs.push(permissionsRef);
@@ -200,13 +212,143 @@ class Admin extends FormClassTemplate {
         datacitePrefix: "",
         dataciteAccountId: "",
         datacitePass: "",
+        dataciteHash: "",
         dataciteApiDomain: "production",
+        doiSuffixModes: ["default"],
+        doiStatusManagement: "datacite",
         credentialsStored: false,
         isDoiCreationEnabled: false,
         showDeletionDialog: false,
       });
     } catch (error) {
       throw new Error(`Failed to delete DataCite credentials: ${error}`);
+    }
+  };
+
+  handleClearDataciteFields = async () => {
+    const { region } = this.props.match.params;
+
+    try {
+      const database = getDatabase(firebase);
+      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      this.setState({
+        datacitePrefix: "",
+        dataciteAccountId: "",
+        datacitePass: "",
+        dataciteHash: "",
+        dataciteApiDomain: "production",
+        doiSuffixModes: ["default"],
+        doiStatusManagement: "datacite",
+        credentialsStored: false,
+      });
+    } catch (error) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: `Failed to clear DataCite credentials: ${error.message}`,
+      });
+    }
+  };
+
+  handleSaveDatacite = () => {
+    const { match } = this.props;
+    const { region } = match.params;
+    const {
+      datacitePrefix,
+      dataciteAccountId,
+      datacitePass,
+      dataciteApiDomain,
+      doiSuffixModes,
+      doiStatusManagement,
+      credentialsStored,
+    } = this.state;
+
+    if (!auth.currentUser) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: "You must be logged in to save DataCite settings",
+      });
+      return;
+    }
+
+    // For new credentials, all fields are required
+    if (!credentialsStored && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
+      this.setState({ showCredentialsMissingDialog: true });
+      return;
+    }
+
+    // Note: for updates, apiDomain / doiSuffixModes / doiStatusManagement always carry values so
+    // there is always something to save. No blocking validation needed here.
+
+    const database = getDatabase(firebase);
+    const updates = {};
+
+    if (datacitePrefix) {
+      updates["dataciteCredentials/prefix"] = datacitePrefix;
+    }
+
+    if (dataciteAccountId && datacitePass) {
+      const bufferObj = Buffer.from(
+        `${dataciteAccountId}:${datacitePass}`,
+        "utf8"
+      );
+      updates["dataciteCredentials/dataciteHash"] = bufferObj.toString("base64");
+      updates["dataciteCredentials/accountId"] = dataciteAccountId;
+    } else if (dataciteAccountId && !datacitePass) {
+      updates["dataciteCredentials/accountId"] = dataciteAccountId;
+    }
+
+    if (dataciteApiDomain) {
+      updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
+    }
+
+    if (Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0) {
+      updates["dataciteCredentials/doiSuffixModes"] = doiSuffixModes;
+    }
+
+    updates["dataciteCredentials/doiStatusManagement"] = doiStatusManagement || "datacite";
+
+    const regionAdminRef = ref(database, `admin/${region}`);
+    update(regionAdminRef, updates)
+      .then(() => {
+        this.setState({
+          datacitePass: "",
+          credentialsStored: true,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          showErrorDialog: true,
+          errorMessage: `Failed to save DataCite settings: ${error.message}`,
+        });
+      });
+  };
+
+  handleTestCredentials = async () => {
+    const { region } = this.props.match.params;
+    const { testDataciteCredentials } = this.context;
+    const { dataciteHash, datacitePrefix, dataciteApiDomain } = this.state;
+
+    this.setState({ testingCredentials: true, testResult: null });
+
+    try {
+      const result = await testDataciteCredentials({
+        region,
+        dataciteHash: dataciteHash || undefined,
+        prefix: datacitePrefix || undefined,
+        apiDomain: dataciteApiDomain || undefined,
+      });
+      this.setState({
+        testingCredentials: false,
+        testResult: { success: true, message: result.data.message },
+      });
+    } catch (error) {
+      this.setState({
+        testingCredentials: false,
+        testResult: {
+          success: false,
+          message: error.message || "Failed to connect to DataCite API.",
+        },
+      });
     }
   };
 
@@ -217,11 +359,6 @@ class Admin extends FormClassTemplate {
       reviewers,
       admins,
       projects,
-      datacitePrefix,
-      dataciteAccountId,
-      datacitePass,
-      dataciteApiDomain,
-      isDoiCreationEnabled,
       githubOwner,
       githubRepo,
       githubToken,
@@ -240,29 +377,7 @@ class Admin extends FormClassTemplate {
       updates["permissions/reviewers"] = cleanArr(reviewers).join();
       updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
 
-      // 2. DOI Credentials if enabled
-      if (isDoiCreationEnabled) {
-        if (!datacitePrefix || !dataciteAccountId || !datacitePass) {
-          this.setState({ showCredentialsMissingDialog: true });
-        } else {
-          const bufferObj = Buffer.from(
-            `${dataciteAccountId}:${datacitePass}`,
-            "utf8"
-          );
-          const base64String = bufferObj.toString("base64");
-
-          updates["dataciteCredentials/prefix"] = datacitePrefix;
-          updates["dataciteCredentials/dataciteHash"] = base64String;
-          updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
-
-          this.setState({
-            datacitePass: "",
-            credentialsStored: true,
-          });
-        }
-      }
-
-      // 3. GitHub Credentials
+      // 2. GitHub Credentials
       const githubCredentials = {
         owner: githubOwner,
         repo: githubRepo,
@@ -344,10 +459,10 @@ class Admin extends FormClassTemplate {
           <DialogContentText id="credentials-missing-dialog-description">
             <I18n>
               <En>
-                Other settings were saved; DataCite credentials were not. Please add credentials to enable DOI creation.
+                Nothing was saved. To enable DOI creation, please fill in the DataCite Prefix, Account ID, and Password.
               </En>
               <Fr>
-                Les autres paramètres ont été enregistrés; les informations DataCite ne l'ont pas été. Ajoutez les informations pour activer la création de DOI.
+                Rien n'a été enregistré. Pour activer la création de DOI, veuillez renseigner le préfixe DataCite, l'identifiant de compte et le mot de passe.
               </Fr>
             </I18n>
           </DialogContentText>
@@ -408,6 +523,17 @@ class Admin extends FormClassTemplate {
   validateDatacitePrefix = (prefix) => {
     const isValid = /^10\.\d+/.test(prefix);
     this.setState({ datacitePrefixValid: isValid });
+  };
+
+  handleToggleSuffixMode = (mode) => {
+    this.setState((prevState) => {
+      const current = Array.isArray(prevState.doiSuffixModes) ? prevState.doiSuffixModes : [];
+      const next = current.includes(mode)
+        ? current.filter((m) => m !== mode)
+        : [...current, mode];
+      // Always keep at least one option selected; default to "default"
+      return { doiSuffixModes: next.length > 0 ? next : ["default"] };
+    });
   };
 
   render() {
@@ -601,6 +727,115 @@ class Admin extends FormClassTemplate {
                       </FormControl>
                     </Grid>
                     <Grid size={12}>
+                      <FormControl>
+                        <FormLabel>
+                          <I18n>
+                            <En>DOI Status Management</En>
+                            <Fr>Gestion du statut DOI</Fr>
+                          </I18n>
+                        </FormLabel>
+                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                          <I18n>
+                            <En>
+                              When set to &quot;Managed from this form&quot;, reviewers will be prompted to set the DOI status (findable or registered) when publishing or unpublishing records. The DOI status can also be changed directly from the record form.
+                            </En>
+                            <Fr>
+                              Lorsque défini sur « Géré depuis ce formulaire », les réviseurs seront invités à définir le statut du DOI (trouvable ou enregistré) lors de la publication ou du retrait d&apos;un enregistrement. Le statut peut également être modifié directement depuis le formulaire.
+                            </Fr>
+                          </I18n>
+                        </Typography>
+                        <RadioGroup
+                          row
+                          name="doiStatusManagement"
+                          value={this.state.doiStatusManagement}
+                          onChange={this.handleChange}
+                        >
+                          <FormControlLabel
+                            value="datacite"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Managed via DataCite portal</En>
+                                <Fr>Géré via le portail DataCite</Fr>
+                              </I18n>
+                            }
+                          />
+                          <FormControlLabel
+                            value="form"
+                            control={<Radio />}
+                            label={
+                              <I18n>
+                                <En>Managed from this form</En>
+                                <Fr>Géré depuis ce formulaire</Fr>
+                              </I18n>
+                            }
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+                    <Grid size={12}>
+                      <FormControl component="fieldset">
+                        <FormLabel component="legend">
+                          <I18n>
+                            <En>DOI Suffix Generation</En>
+                            <Fr>Génération du suffixe DOI</Fr>
+                          </I18n>
+                        </FormLabel>
+                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                          <I18n>
+                            <En>
+                              Select one or more methods users may pick from when generating a DOI suffix.
+                            </En>
+                            <Fr>
+                              Sélectionnez une ou plusieurs méthodes que les utilisateurs pourront choisir pour générer un suffixe DOI.
+                            </Fr>
+                          </I18n>
+                        </Typography>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={(this.state.doiSuffixModes || []).includes("default")}
+                              onChange={() => this.handleToggleSuffixMode("default")}
+                            />
+                          }
+                          label={
+                            <I18n>
+                              <En>Default (auto-generated by DataCite)</En>
+                              <Fr>Par défaut (généré automatiquement par DataCite)</Fr>
+                            </I18n>
+                          }
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={(this.state.doiSuffixModes || []).includes("identifier")}
+                              onChange={() => this.handleToggleSuffixMode("identifier")}
+                            />
+                          }
+                          label={
+                            <I18n>
+                              <En>Form identifier (record identifier)</En>
+                              <Fr>Identifiant du formulaire (identifiant de l'enregistrement)</Fr>
+                            </I18n>
+                          }
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={(this.state.doiSuffixModes || []).includes("manual")}
+                              onChange={() => this.handleToggleSuffixMode("manual")}
+                            />
+                          }
+                          label={
+                            <I18n>
+                              <En>Manual (user-defined value)</En>
+                              <Fr>Manuel (valeur définie par l'utilisateur)</Fr>
+                            </I18n>
+                          }
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid size={12}>
                       <TextField
                         name="datacitePrefix"
                         label={
@@ -629,15 +864,7 @@ class Admin extends FormClassTemplate {
                             <Fr>Identifiant du compte</Fr>
                           </I18n>
                         }
-                        placeholder={credentialsStored ? "••••••••" : ""}
-                        helperText={
-                          credentialsStored && !this.state.dataciteAccountId ? (
-                            <I18n>
-                              <En>Account ID is saved. Enter a new value to update it.</En>
-                              <Fr>L'identifiant est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
-                            </I18n>
-                          ) : undefined
-                        }
+                        value={this.state.dataciteAccountId || ""}
                         onChange={this.handleChange}
                         fullWidth
                       />
@@ -652,11 +879,12 @@ class Admin extends FormClassTemplate {
                           </I18n>
                         }
                         placeholder={credentialsStored ? "••••••••" : ""}
+                        InputLabelProps={{ shrink: credentialsStored || !!this.state.datacitePass }}
                         helperText={
                           credentialsStored && !this.state.datacitePass ? (
                             <I18n>
-                              <En>Password is saved. Enter a new value to update it.</En>
-                              <Fr>Le mot de passe est enregistré. Entrez une nouvelle valeur pour le mettre à jour.</Fr>
+                              <En>A password is saved. Enter Account ID + Password to replace it.</En>
+                              <Fr>Un mot de passe est enregistré. Entrez l'identifiant et le mot de passe pour le remplacer.</Fr>
                             </I18n>
                           ) : undefined
                         }
@@ -681,6 +909,77 @@ class Admin extends FormClassTemplate {
                         }}
                         fullWidth
                       />
+                    </Grid>
+                    {this.state.testResult && (
+                      <Grid size={12}>
+                        <Alert
+                          severity={this.state.testResult.success ? "success" : "error"}
+                          onClose={() => this.setState({ testResult: null })}
+                        >
+                          {this.state.testResult.message}
+                          {!this.state.testResult.success && this.state.testResult.message?.includes("No DataCite credentials") && (
+                            <Typography variant="body2" sx={{ mt: 0.5 }}>
+                              <I18n>
+                                <En>To fix this: enter your Account ID and Password above and click &quot;Update DataCite Settings&quot;, then test again.</En>
+                                <Fr>Pour corriger cela : entrez votre identifiant de compte et votre mot de passe ci-dessus, cliquez sur « Mettre à jour les paramètres DataCite », puis testez à nouveau.</Fr>
+                              </I18n>
+                            </Typography>
+                          )}
+                        </Alert>
+                      </Grid>
+                    )}
+                    <Grid size={12} container spacing={1} justifyContent="flex-end">
+                      <Grid>
+                        <Tooltip
+                          title={
+                            this.state.datacitePass
+                              ? <I18n en="Save credentials first before testing" fr="Enregistrez les identifiants avant de tester" />
+                              : ""
+                          }
+                        >
+                          <span>
+                            <Button
+                              startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
+                              variant="outlined"
+                              color="secondary"
+                              onClick={this.handleTestCredentials}
+                              disabled={!credentialsStored || this.state.testingCredentials || !!this.state.datacitePass}
+                            >
+                              <I18n>
+                                <En>Test Credentials</En>
+                                <Fr>Tester les identifiants</Fr>
+                              </I18n>
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          startIcon={<Delete />}
+                          variant="outlined"
+                          color="error"
+                          onClick={this.handleClearDataciteFields}
+                          disabled={!credentialsStored}
+                        >
+                          <I18n>
+                            <En>Clear DataCite Credentials</En>
+                            <Fr>Effacer les identifiants DataCite</Fr>
+                          </I18n>
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          startIcon={<Save />}
+                          variant="contained"
+                          color="primary"
+                          onClick={this.handleSaveDatacite}
+                        >
+                          <I18n>
+                            <En>{credentialsStored ? "Update" : "Save"} DataCite Settings</En>
+                            <Fr>{credentialsStored ? "Mettre à jour" : "Enregistrer"} les paramètres DataCite</Fr>
+                          </I18n>
+                        </Button>
+                      </Grid>
                     </Grid>
                   </>
                 )}
