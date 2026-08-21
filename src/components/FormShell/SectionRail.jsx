@@ -16,7 +16,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "@mui/icons-material";
-import { alpha } from "@mui/material/styles";
 
 function StateIndicator({ state, errorCount }) {
   if (state === "error") {
@@ -67,7 +66,7 @@ export default function SectionRail({
         alignSelf: "flex-start",
         width: collapsed ? collapsedWidth : width,
         flexShrink: 0,
-        borderRight: `1px solid ${theme.palette.divider}`,
+        borderRight: `1px solid ${theme.vars.palette.divider}`,
         bgcolor: "background.paper",
         transition: theme.transitions.create("width", {
           duration: theme.transitions.duration.short,
@@ -130,9 +129,9 @@ export default function SectionRail({
                   }),
                 },
                 "&.Mui-selected": {
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  bgcolor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.08)`,
                   "&:hover": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.12),
+                    bgcolor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.12)`,
                   },
                 },
               })}

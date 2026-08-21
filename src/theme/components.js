@@ -1,11 +1,11 @@
-import { alpha } from "@mui/material/styles";
-import { radii, neutrals, motion } from "./tokens";
+import { radii, motion } from "./tokens";
 
-// Build MUI component overrides that reference the already-constructed theme
-// (so we can use palette / alpha() / spacing inside styleOverrides).
+// Build MUI component overrides that reference the already-constructed theme.
+// Colours go through theme.vars (CSS variables) so every override follows the
+// active colour scheme instead of baking in light-mode values.
 export default function buildComponents(theme) {
-  const focusRing = `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`;
-  const focusRingError = `0 0 0 3px ${alpha(theme.palette.error.main, 0.18)}`;
+  const focusRing = `0 0 0 3px rgba(${theme.vars.palette.primary.mainChannel} / 0.18)`;
+  const focusRingError = `0 0 0 3px rgba(${theme.vars.palette.error.mainChannel} / 0.18)`;
 
   return {
     MuiCssBaseline: {
@@ -15,11 +15,11 @@ export default function buildComponents(theme) {
           MozOsxFontSmoothing: "grayscale",
         },
         body: {
-          backgroundColor: theme.palette.background.default,
-          color: theme.palette.text.primary,
+          backgroundColor: theme.vars.palette.background.default,
+          color: theme.vars.palette.text.primary,
         },
         "::selection": {
-          backgroundColor: alpha(theme.palette.primary.main, 0.18),
+          backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.18)`,
         },
         "*:focus-visible": {
           outline: "none",
@@ -69,15 +69,15 @@ export default function buildComponents(theme) {
           },
         },
         outlined: {
-          borderColor: theme.palette.divider,
+          borderColor: theme.vars.palette.divider,
           "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.04),
-            borderColor: theme.palette.primary.main,
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.04)`,
+            borderColor: theme.vars.palette.primary.main,
           },
         },
         text: {
           "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
           },
         },
       },
@@ -99,19 +99,19 @@ export default function buildComponents(theme) {
       styleOverrides: {
         root: {
           borderRadius: radii.md,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.vars.palette.background.paper,
           transition: `box-shadow ${motion.duration.fast}ms ${motion.easing.standard}, border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.divider,
+            borderColor: theme.vars.palette.divider,
             transition: `border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: neutrals[400],
+            borderColor: theme.vars.palette.text.disabled,
           },
           "&.Mui-focused": {
             boxShadow: focusRing,
             "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: theme.palette.primary.main,
+              borderColor: theme.vars.palette.primary.main,
               borderWidth: 1,
             },
           },
@@ -167,7 +167,7 @@ export default function buildComponents(theme) {
           backgroundImage: "none",
         },
         outlined: {
-          borderColor: theme.palette.divider,
+          borderColor: theme.vars.palette.divider,
         },
       },
     },
@@ -179,8 +179,8 @@ export default function buildComponents(theme) {
       styleOverrides: {
         root: {
           borderRadius: radii.lg,
-          border: `1px solid ${theme.palette.divider}`,
-          backgroundColor: theme.palette.background.paper,
+          border: `1px solid ${theme.vars.palette.divider}`,
+          backgroundColor: theme.vars.palette.background.paper,
           transition: `box-shadow ${motion.duration.base}ms ${motion.easing.standard}, border-color ${motion.duration.base}ms ${motion.easing.standard}, transform ${motion.duration.base}ms ${motion.easing.standard}`,
         },
       },
@@ -223,13 +223,13 @@ export default function buildComponents(theme) {
           textTransform: "none",
           fontWeight: 500,
           minHeight: 44,
-          color: theme.palette.text.secondary,
+          color: theme.vars.palette.text.secondary,
           "&.Mui-selected": {
             fontWeight: 600,
-            color: theme.palette.primary.main,
+            color: theme.vars.palette.primary.main,
           },
           "&:focus-visible": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
           },
         },
       },
@@ -249,7 +249,7 @@ export default function buildComponents(theme) {
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          borderRight: `1px solid ${theme.palette.divider}`,
+          borderRight: `1px solid ${theme.vars.palette.divider}`,
           backgroundImage: "none",
         },
       },
@@ -281,15 +281,15 @@ export default function buildComponents(theme) {
           height: 26,
         },
         filled: {
-          backgroundColor: alpha(theme.palette.primary.main, 0.1),
-          color: theme.palette.primary.dark,
+          backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
+          color: theme.vars.palette.primary.dark,
           "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.16),
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.16)`,
           },
         },
         colorDefault: {
-          backgroundColor: neutrals[100],
-          color: neutrals[700],
+          backgroundColor: theme.vars.palette.action.disabledBackground,
+          color: theme.vars.palette.text.secondary,
         },
       },
     },
@@ -329,7 +329,7 @@ export default function buildComponents(theme) {
         root: {
           height: 8,
           borderRadius: radii.pill,
-          backgroundColor: neutrals[200],
+          backgroundColor: theme.vars.palette.divider,
         },
         bar: {
           borderRadius: radii.pill,
@@ -353,14 +353,14 @@ export default function buildComponents(theme) {
         tooltip: {
           fontSize: "0.8125rem",
           fontWeight: 500,
-          backgroundColor: neutrals[900],
-          color: "#ffffff",
+          backgroundColor: theme.vars.palette.text.primary,
+          color: theme.vars.palette.background.paper,
           borderRadius: radii.sm,
           padding: "6px 10px",
           boxShadow: theme.shadows[2],
         },
         arrow: {
-          color: neutrals[900],
+          color: theme.vars.palette.text.primary,
         },
       },
     },
@@ -370,10 +370,10 @@ export default function buildComponents(theme) {
         root: {
           "&.Mui-disabled": {
             "& .MuiCheckbox-root": {
-              color: neutrals[400],
+              color: theme.vars.palette.text.disabled,
             },
             "& .MuiTypography-root": {
-              color: neutrals[400],
+              color: theme.vars.palette.text.disabled,
             },
           },
         },
@@ -384,8 +384,8 @@ export default function buildComponents(theme) {
       styleOverrides: {
         input: {
           "&.Mui-disabled": {
-            color: neutrals[400],
-            WebkitTextFillColor: neutrals[400],
+            color: theme.vars.palette.text.disabled,
+            WebkitTextFillColor: theme.vars.palette.text.disabled,
           },
         },
       },
@@ -395,7 +395,7 @@ export default function buildComponents(theme) {
       styleOverrides: {
         root: {
           borderRadius: radii.md,
-          border: `1px solid ${theme.palette.divider}`,
+          border: `1px solid ${theme.vars.palette.divider}`,
           boxShadow: "none",
           "&:before": {
             display: "none",
@@ -441,12 +441,12 @@ export default function buildComponents(theme) {
           borderRadius: radii.md,
           transition: `background-color ${motion.duration.fast}ms ${motion.easing.standard}`,
           "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
           },
           "&.Mui-selected": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
             "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.14),
+              backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.14)`,
             },
           },
         },
@@ -456,7 +456,7 @@ export default function buildComponents(theme) {
     MuiDivider: {
       styleOverrides: {
         root: {
-          borderColor: theme.palette.divider,
+          borderColor: theme.vars.palette.divider,
         },
       },
     },

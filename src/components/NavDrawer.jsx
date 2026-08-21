@@ -60,6 +60,7 @@ import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 import { UserContext } from "../providers/UserProvider";
 
 import styles from "./NavDrawer.styles";
+import ColorSchemeToggle from "./ColorSchemeToggle";
 import { FALLBACK_PRIMARY } from "../theme/tokens";
 
 export default function MiniDrawer({ children }) {
@@ -93,6 +94,25 @@ export default function MiniDrawer({ children }) {
     .join("/");
 
   const baseURL = `/${language}/${region}`;
+
+  // Sections that own a sidebar entry of their own. "My Records" covers
+  // everything else under the region -- the dashboard, /submissions, /new and
+  // the /:userID/:recordID record editor -- so it highlights by exclusion
+  // rather than by pattern-matching the record URL, which also matched
+  // sibling routes like /contacts/new.
+  const section = pathname.startsWith(baseURL)
+    ? pathname.slice(baseURL.length).split("/").filter(Boolean)[0]
+    : undefined;
+  const inOwnSection = [
+    "contacts",
+    "instruments",
+    "platforms",
+    "shared",
+    "published",
+    "reviewer",
+    "admin",
+    "sentry-test",
+  ].includes(section);
 
   // if region not set, keep drawer closed; default to open on wide screens
   const [open, setOpen] = React.useState(!isMobile);
@@ -204,7 +224,7 @@ export default function MiniDrawer({ children }) {
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
     helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
-  const topBarBackgroundColor = region
+  const regionAccentColor = region
     ? regions[region].colors.primary
     : FALLBACK_PRIMARY;
 
@@ -253,8 +273,8 @@ export default function MiniDrawer({ children }) {
           }, 0);
         },
         themeLight: {
-          accentBackground: topBarBackgroundColor,
-          accentForeground: theme.palette.primary.contrastText,
+          accentBackground: regionAccentColor,
+          accentForeground: theme.vars.palette.primary.contrastText,
         },
       };
       feedbackWidgetRef.current = feedback.attachTo(el, config);
@@ -265,7 +285,7 @@ export default function MiniDrawer({ children }) {
         feedbackWidgetRef.current.remove();
       }
     };
-  }, [language, topBarBackgroundColor]);
+  }, [language, regionAccentColor]);
 
 
   return (
@@ -276,12 +296,15 @@ export default function MiniDrawer({ children }) {
         sx={styles.appBar}
       >
         <Toolbar
-          sx={styles.appBarToolbar}
-          style={{
-            backgroundColor: topBarBackgroundColor,
-            alignItems: "center",
-            paddingBottom: 0,
-          }}
+          sx={[
+            styles.appBarToolbar,
+            {
+              backgroundColor: "primary.main",
+              color: "primary.contrastText",
+              alignItems: "center",
+              pb: 0,
+            },
+          ]}
         >
           {region && isMobile && (
             <IconButton
@@ -316,6 +339,7 @@ export default function MiniDrawer({ children }) {
               width={350}
               sx={styles.logoImage}
             />
+            <ColorSchemeToggle />
             <Select
               sx={styles.languageSelector}
               value={language}
@@ -373,7 +397,7 @@ export default function MiniDrawer({ children }) {
                   <ListItemButton
                     key="My Records"
                     sx={styles.navItem}
-                    selected={pathname.includes("/submissions") || /\/[^/]+\/[^/]+$/.test(pathname)}
+                    selected={!inOwnSection}
                     onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
                     <ListItemIcon>
@@ -563,7 +587,7 @@ export default function MiniDrawer({ children }) {
                     ml: open ? 2 : 0,
                     pl: open ? 1 : 0,
                     borderLeft: open
-                      ? `1px solid ${theme.palette.divider}`
+                      ? `1px solid ${theme.vars.palette.divider}`
                       : "none",
                   }}
                 >
@@ -734,7 +758,7 @@ export default function MiniDrawer({ children }) {
                       component="div"
                       disablePadding
                       sx={{
-                        borderLeft: `2px solid ${theme.palette.action.disabled}`,
+                        borderLeft: `2px solid ${theme.vars.palette.action.disabled}`,
                         ml: "20px",
                         pl: 2,
                       }}

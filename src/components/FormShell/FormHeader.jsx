@@ -24,7 +24,6 @@ import {
   ErrorOutline,
   RadioButtonUnchecked,
 } from "@mui/icons-material";
-import { alpha } from "@mui/material/styles";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
 import { I18n, En, Fr } from "../I18n";
@@ -68,7 +67,7 @@ export default function FormHeader({
       elevation={0}
       sx={(theme) => ({
         top: 0,
-        borderBottom: `1px solid ${theme.palette.divider}`,
+        borderBottom: `1px solid ${theme.vars.palette.divider}`,
         bgcolor: "background.paper",
         zIndex: theme.zIndex.appBar - 1,
       })}
@@ -217,7 +216,7 @@ export default function FormHeader({
                         bgcolor: color,
                         opacity: isActive ? 1 : 0.7,
                         outline: isActive
-                          ? `2px solid ${alpha(theme.palette.primary.main, 0.4)}`
+                          ? `2px solid rgba(${theme.vars.palette.primary.mainChannel} / 0.4)`
                           : "none",
                         outlineOffset: isActive ? 2 : 0,
                         cursor: "pointer",

@@ -45,7 +45,7 @@ export default function FormSection({
         borderRadius: 2,
         borderColor: hasError ? "error.main" : "divider",
         boxShadow: hasError
-          ? `0 0 0 1px ${theme.palette.error.main}`
+          ? `0 0 0 1px ${theme.vars.palette.error.main}`
           : "none",
         transition: theme.transitions.create(
           ["border-color", "box-shadow", "transform"],

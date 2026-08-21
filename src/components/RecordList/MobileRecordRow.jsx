@@ -3,6 +3,7 @@ import { Chip, Box } from "@mui/material";
 import { getStatusColor, getStatusLabel, formatDate } from "./config";
 import RecordActions from "./RecordActions";
 import CopyableCell from "./CopyableCell";
+import { pickContrastText } from "../../theme/createAppTheme";
 
 const MobileRecordRow = ({
   row,
@@ -120,7 +121,7 @@ const MobileRecordRow = ({
           size="small"
           sx={{
             bgcolor: statusColor,
-            color: "primary.contrastText",
+            color: pickContrastText(statusColor),
             fontWeight: 500,
           }}
         />

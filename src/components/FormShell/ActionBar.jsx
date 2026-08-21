@@ -33,7 +33,7 @@ export default function ActionBar({
           left: 0,
           right: 0,
           zIndex: theme.zIndex.appBar - 2,
-          borderTop: `1px solid ${theme.palette.divider}`,
+          borderTop: `1px solid ${theme.vars.palette.divider}`,
           bgcolor: "background.paper",
           px: { xs: 2, md: 3 },
           py: 1.5,
@@ -51,7 +51,7 @@ export default function ActionBar({
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  bgcolor: theme.palette.warning.main,
+                  bgcolor: theme.vars.palette.warning.main,
                   animation: "pulse-dot 1.5s ease-in-out infinite",
                   flexShrink: 0,
                 })}

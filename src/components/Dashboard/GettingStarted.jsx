@@ -37,7 +37,7 @@ function Step({ Icon, title, description, cta, onClick }) {
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: theme.palette.primarySurface,
+          bgcolor: theme.vars.palette.primarySurface,
           color: "primary.main",
         })}
       >

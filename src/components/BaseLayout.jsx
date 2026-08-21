@@ -121,8 +121,8 @@ const BaseLayout = () => {
 
       <UserProvider>
         <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
+          <ThemeProvider theme={theme} defaultMode="system">
+            <CssBaseline enableColorScheme />
             <NavDrawer>
               <Pages />
             </NavDrawer>

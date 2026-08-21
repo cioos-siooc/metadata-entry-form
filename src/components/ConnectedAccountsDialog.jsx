@@ -110,7 +110,7 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
             position: "absolute",
             right: 8,
             top: 8,
-            color: (theme) => theme.palette.grey[500],
+            color: (theme) => theme.vars.palette.grey[500],
           }}
         >
           <Close />
@@ -142,12 +142,12 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
                   gap: 2,
                   p: 1.5,
                   borderRadius: 2,
-                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  border: (theme) => `1px solid ${theme.vars.palette.divider}`,
                   backgroundColor: (theme) =>
-                    linked ? theme.palette.action.hover : "transparent",
+                    linked ? theme.vars.palette.action.hover : "transparent",
                   transition: "all 0.2s ease",
                   "&:hover": {
-                    borderColor: (theme) => theme.palette.primary.main,
+                    borderColor: (theme) => theme.vars.palette.primary.main,
                   },
                 }}
               >
@@ -159,8 +159,8 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
                     width: 40,
                     height: 40,
                     borderRadius: 1.5,
-                    backgroundColor: (theme) => theme.palette.background.paper,
-                    border: (theme) => `1px solid ${theme.palette.divider}`,
+                    backgroundColor: (theme) => theme.vars.palette.background.paper,
+                    border: (theme) => `1px solid ${theme.vars.palette.divider}`,
                     flexShrink: 0,
                   }}
                 >

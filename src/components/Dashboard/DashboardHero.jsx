@@ -6,7 +6,6 @@ import {
   Chip,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { alpha } from "@mui/material/styles";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
 import { I18n } from "../I18n";
@@ -33,13 +32,10 @@ export default function DashboardHero({ action }) {
         position: "relative",
         overflow: "hidden",
         borderRadius: 3,
-        border: `1px solid ${theme.palette.divider}`,
+        border: `1px solid ${theme.vars.palette.divider}`,
         bgcolor: "background.paper",
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.main,
-          0.08
-        )} 0%, ${alpha(theme.palette.primary.main, 0.02)} 60%, ${
-          theme.palette.background.paper
+        background: `linear-gradient(135deg, rgba(${theme.vars.palette.primary.mainChannel} / 0.08) 0%, rgba(${theme.vars.palette.primary.mainChannel} / 0.02) 60%, ${
+          theme.vars.palette.background.paper
         } 100%)`,
         p: { xs: 3, md: 4 },
         mb: 3,
@@ -54,10 +50,7 @@ export default function DashboardHero({ action }) {
           width: 260,
           height: 260,
           borderRadius: "50%",
-          background: `radial-gradient(circle at center, ${alpha(
-            theme.palette.primary.main,
-            0.18
-          )} 0%, transparent 65%)`,
+          background: `radial-gradient(circle at center, rgba(${theme.vars.palette.primary.mainChannel} / 0.18) 0%, transparent 65%)`,
           pointerEvents: "none",
         })}
       />

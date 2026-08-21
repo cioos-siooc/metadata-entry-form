@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Stack, Typography } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { I18n } from "../I18n";
 
 function WaveDecoration() {
@@ -45,14 +44,11 @@ export default function LandingHero() {
         mb: 4,
         px: { xs: 3, md: 6 },
         py: { xs: 5, md: 7 },
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.main,
-          0.14
-        )} 0%, ${alpha(theme.palette.primary.main, 0.04)} 50%, ${
-          theme.palette.background.paper
+        background: `linear-gradient(135deg, rgba(${theme.vars.palette.primary.mainChannel} / 0.14) 0%, rgba(${theme.vars.palette.primary.mainChannel} / 0.04) 50%, ${
+          theme.vars.palette.background.paper
         } 100%)`,
-        border: `1px solid ${theme.palette.divider}`,
-        color: theme.palette.primary.dark,
+        border: `1px solid ${theme.vars.palette.divider}`,
+        color: theme.vars.palette.primary.dark,
       })}
     >
       <WaveDecoration />

@@ -7,7 +7,8 @@ import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
 import CopyableCell from "./CopyableCell";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
-import { FALLBACK_PRIMARY } from "../../theme/tokens";
+import { FALLBACK_PRIMARY, semantic, neutrals } from "../../theme/tokens";
+import { pickContrastText } from "../../theme/createAppTheme";
 
 // DataCite DOI lifecycle states mapped to MUI chip colors (matches the chip
 // used in the DOI form section so the status reads the same everywhere).
@@ -212,16 +213,17 @@ export const sharedConfig = {
 // Column Helpers
 // ============================================================================
 
-// Returns a value sx accepts: a palette path for the semantic states, and the
-// region's own hex for published records.
+// Always a concrete colour: the chip sits on an arbitrary region colour for
+// published records, so the label colour has to be derived from it rather than
+// assumed. Semantic + neutral values are scheme-independent by design.
 export const getStatusColor = (status, region) => {
   switch (status) {
     case "published":
       return regions[region]?.colors?.primary || FALLBACK_PRIMARY;
     case "submitted":
-      return "warning.main";
+      return semantic.warning.main;
     default:
-      return "text.secondary";
+      return neutrals[500];
   }
 };
 
@@ -297,7 +299,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
           size="small"
           sx={{
             bgcolor: bgColor,
-            color: "primary.contrastText",
+            color: pickContrastText(bgColor),
             fontWeight: 500,
           }}
         />

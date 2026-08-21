@@ -26,8 +26,8 @@ const App = () => (
           path="/:language/region-select"
           element={
             <StyledEngineProvider injectFirst>
-              <ThemeProvider theme={defaultTheme}>
-                <CssBaseline />
+              <ThemeProvider theme={defaultTheme} defaultMode="system">
+                <CssBaseline enableColorScheme />
                 <NavDrawer>
                   <RegionSelect />
                 </NavDrawer>

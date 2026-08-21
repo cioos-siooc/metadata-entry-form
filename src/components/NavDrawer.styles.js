@@ -1,4 +1,3 @@
-import { alpha } from "@mui/material/styles";
 
 export const drawerWidth = 260;
 
@@ -134,23 +133,23 @@ const styles = {
       }),
     },
     "&.Mui-selected": {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+      backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
       "&::before": {
-        backgroundColor: theme.palette.primary.main,
+        backgroundColor: theme.vars.palette.primary.main,
       },
       "& .MuiListItemText-primary": {
-        color: theme.palette.primary.main,
+        color: theme.vars.palette.primary.main,
         fontWeight: 600,
       },
       "& .MuiListItemIcon-root": {
-        color: theme.palette.primary.main,
+        color: theme.vars.palette.primary.main,
       },
       "&:hover": {
-        backgroundColor: alpha(theme.palette.primary.main, 0.14),
+        backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.14)`,
       },
     },
     "& .MuiListItemIcon-root": {
-      color: theme.palette.text.secondary,
+      color: theme.vars.palette.text.secondary,
       minWidth: 36,
     },
     "& .MuiListItemText-primary": {
