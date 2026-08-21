@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 import { useParams, useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import regions, { getRegionLogo } from "../../regions";
+import { FALLBACK_PRIMARY } from "../../theme/tokens";
 
 export default function RegionCard({ region, regionSummary, showMap = true }) {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
 
   const regionInfo = regions[region];
   const logoSrc = getRegionLogo(region, language);
-  const primaryColor = regionInfo?.colors?.primary || "#52a79b";
+  const primaryColor = regionInfo?.colors?.primary || FALLBACK_PRIMARY;
 
   // RA cards (showMap) are taller to accommodate a map preview; affiliated
   // cards are compact.

@@ -241,7 +241,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               <Box
                 border={1}
                 borderRadius="4px"
-                borderColor="#ababab"
+                borderColor="divider"
                 margin="10px"
               >
                 <List>
@@ -308,7 +308,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               <Box
                 border={1}
                 borderRadius="4px"
-                borderColor="#ababab"
+                borderColor="divider"
                 margin="10px"
                 minHeight="48px"
               >

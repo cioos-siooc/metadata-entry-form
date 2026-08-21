@@ -142,3 +142,7 @@ export const typographyTokens = {
     "5xl": 48,
   },
 };
+
+// Used when a region defines no primary colour of its own.
+export const FALLBACK_PRIMARY = "#52a79b"; // CIOOS national teal
+export const FALLBACK_SECONDARY = "#1976d2";

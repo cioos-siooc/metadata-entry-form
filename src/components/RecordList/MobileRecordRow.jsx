@@ -52,9 +52,10 @@ const MobileRecordRow = ({
         gap: "4px",
         padding: "10px 14px",
         margin: "4px 0",
-        border: "1px solid #e0e0e0",
+        border: 1,
+        borderColor: "divider",
         borderRadius: "14px",
-        backgroundColor: selected ? "#e3f2fd" : "#fafafa",
+        backgroundColor: selected ? "action.selected" : "background.paper",
         overflow: "hidden",
         cursor: "pointer",
       }}
@@ -85,7 +86,7 @@ const MobileRecordRow = ({
         <Box
           sx={{
             fontSize: "0.75rem",
-            color: "#999",
+            color: "text.disabled",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -100,7 +101,7 @@ const MobileRecordRow = ({
       )}
 
       {/* Author */}
-      <Box sx={{ fontSize: "0.85rem", color: "#666" }}>
+      <Box sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
         <CopyableCell text={row.author} onCopy={onCopy} language={language} />
       </Box>
 
@@ -117,20 +118,20 @@ const MobileRecordRow = ({
         <Chip
           label={statusLabel}
           size="small"
-          style={{
-            backgroundColor: statusColor,
-            color: "#ffffff",
+          sx={{
+            bgcolor: statusColor,
+            color: "primary.contrastText",
             fontWeight: 500,
           }}
         />
 
         {showProgress && (
-          <Box sx={{ fontSize: "0.85rem", color: "#666" }}>
+          <Box sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
             {row.progress}%
           </Box>
         )}
 
-        <Box sx={{ fontSize: "0.85rem", color: "#999" }}>
+        <Box sx={{ fontSize: "0.85rem", color: "text.disabled" }}>
           <CopyableCell
             text={dateDisplay}
             onCopy={onCopy}

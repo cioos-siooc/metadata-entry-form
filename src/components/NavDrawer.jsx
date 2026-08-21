@@ -60,6 +60,7 @@ import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 import { UserContext } from "../providers/UserProvider";
 
 import styles from "./NavDrawer.styles";
+import { FALLBACK_PRIMARY } from "../theme/tokens";
 
 export default function MiniDrawer({ children }) {
   const navigate = useNavigate();
@@ -205,8 +206,7 @@ export default function MiniDrawer({ children }) {
   };
   const topBarBackgroundColor = region
     ? regions[region].colors.primary
-    : // CIOOS national "dominant colour" from branding doc
-    "#52a79b";
+    : FALLBACK_PRIMARY;
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
@@ -254,7 +254,7 @@ export default function MiniDrawer({ children }) {
         },
         themeLight: {
           accentBackground: topBarBackgroundColor,
-          accentForeground: "#ffffff",
+          accentForeground: theme.palette.primary.contrastText,
         },
       };
       feedbackWidgetRef.current = feedback.attachTo(el, config);

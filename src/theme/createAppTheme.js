@@ -6,12 +6,12 @@ import {
   neutrals,
   motion,
   semantic,
+  FALLBACK_PRIMARY,
+  FALLBACK_SECONDARY,
 } from "./tokens";
 import typography from "./typography";
 import buildComponents from "./components";
 
-const FALLBACK_PRIMARY = "#52a79b"; // CIOOS national teal
-const FALLBACK_SECONDARY = "#1976d2";
 
 function pickContrastText(hex) {
   try {
