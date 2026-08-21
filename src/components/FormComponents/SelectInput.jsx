@@ -7,16 +7,8 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import { makeStyles } from "../../tss-cache";
 
 import { I18n } from "../I18n";
-
-const useStyles = makeStyles()(() => ({
-  formControl: {
-    minWidth: 200,
-  },
-  selectEmpty: {},
-}));
 
 const SelectInput = ({
   value = "",
@@ -29,16 +21,13 @@ const SelectInput = ({
   label,
   fullWidth = true,
 }) => {
-  const { classes } = useStyles();
-
   return (
     <FormControl
       fullWidth={fullWidth}
-      className={classes.formControl}
+      sx={{ minWidth: 200 }}
       disabled={disabled}
     >
       <Select
-        className={classes.selectEmpty}
         name={name}
         fullWidth={fullWidth}
         value={value}

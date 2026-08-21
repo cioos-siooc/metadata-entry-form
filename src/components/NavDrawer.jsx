@@ -2,8 +2,6 @@ import React, { useContext, useRef, useEffect } from "react";
 
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
-import clsx from "clsx";
-import { makeStyles } from "../tss-cache";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
@@ -48,8 +46,8 @@ import {
   MenuItem,
   Collapse,
   Divider,
+  Box,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
 import { firebaseConfig } from "../firebase";
@@ -61,207 +59,11 @@ import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 
 import { UserContext } from "../providers/UserProvider";
 
-const drawerWidth = 260;
-
-const useStyles = makeStyles()((theme) => ({
-  root: {
-    display: "flex",
-    flexGrow: 1,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    [theme.breakpoints.down("lg")]: {
-      zIndex: theme.zIndex.appBar,
-    },
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  menuButton: {},
-  languageSelector: {
-    color: "white",
-    "& .MuiSelect-icon": {
-      color: "white",
-    },
-  },
-  headerControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: theme.spacing(1.5),
-    marginLeft: "auto",
-  },
-  logoImage: {
-    display: "block",
-    height: 36,
-    width: "auto",
-    marginBottom: 0,
-    [theme.breakpoints.down("lg")]: {
-      display: "none",
-    },
-  },
-  hide: {
-    display: "none",
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    "& .MuiTypography-root": {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-    "& .MuiListItemIcon-root": {
-      display: "flex",
-      alignItems: "center",
-    },
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: theme.spacing(8),
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9),
-    },
-    "& .MuiListItemButton-root": {
-      justifyContent: "center",
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    "& .MuiListItemIcon-root": {
-      minWidth: 0,
-      justifyContent: "center",
-    },
-    "& .MuiListItemText-root": {
-      display: "none",
-    },
-  },
-  toolbar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-  },
-  appBarToolbar: {
-    minHeight: 64,
-    [theme.breakpoints.up("sm")]: {
-      minHeight: 68,
-    },
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(1),
-    paddingTop: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  contentWithDrawer: {
-    marginLeft: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(9),
-    },
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: drawerWidth,
-  },
-  drawerPaper: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  drawerItems: {
-    flexGrow: 1,
-  },
-  sidebarList: {
-    paddingTop: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-  },
-  sectionLabel: {
-    fontSize: "0.7rem",
-    fontWeight: 700,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: theme.palette.text.secondary,
-    backgroundColor: "transparent",
-    lineHeight: 1.4,
-    paddingLeft: theme.spacing(1.5),
-    paddingTop: theme.spacing(1.5),
-    paddingBottom: theme.spacing(0.5),
-  },
-  navItem: {
-    borderRadius: theme.shape.borderRadius,
-    marginBottom: 2,
-    paddingLeft: theme.spacing(1.5),
-    paddingRight: theme.spacing(1.5),
-    minHeight: 40,
-    position: "relative",
-    "&::before": {
-      content: '""',
-      position: "absolute",
-      left: -2,
-      top: "22%",
-      bottom: "22%",
-      width: 3,
-      borderRadius: 2,
-      backgroundColor: "transparent",
-      transition: theme.transitions.create("background-color", {
-        duration: theme.transitions.duration.shortest,
-      }),
-    },
-    "&.Mui-selected": {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-      "&::before": {
-        backgroundColor: theme.palette.primary.main,
-      },
-      "& .MuiListItemText-primary": {
-        color: theme.palette.primary.main,
-        fontWeight: 600,
-      },
-      "& .MuiListItemIcon-root": {
-        color: theme.palette.primary.main,
-      },
-      "&:hover": {
-        backgroundColor: alpha(theme.palette.primary.main, 0.14),
-      },
-    },
-    "& .MuiListItemIcon-root": {
-      color: theme.palette.text.secondary,
-      minWidth: 36,
-    },
-    "& .MuiListItemText-primary": {
-      fontSize: "0.875rem",
-      fontWeight: 500,
-    },
-  },
-  bottomList: {
-    marginTop: "auto",
-    borderTop: `1px solid ${theme.palette.divider}`,
-    paddingTop: theme.spacing(0.5),
-  },
-}));
+import styles from "./NavDrawer.styles";
 
 export default function MiniDrawer({ children }) {
   const navigate = useNavigate();
 
-  const { classes } = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -335,7 +137,7 @@ export default function MiniDrawer({ children }) {
         document.execCommand('copy');
         document.body.removeChild(ta);
         done();
-      } catch (err) {
+      } catch {
         // no-op: copying failed
       }
     };
@@ -467,14 +269,14 @@ export default function MiniDrawer({ children }) {
 
 
   return (
-    <div className={classes.root}>
+    <Box sx={styles.root}>
       <CssBaseline />
       <AppBar
         position="fixed"
-        className={classes.appBar}
+        sx={styles.appBar}
       >
         <Toolbar
-          className={classes.appBarToolbar}
+          sx={styles.appBarToolbar}
           style={{
             backgroundColor: topBarBackgroundColor,
             alignItems: "center",
@@ -486,7 +288,6 @@ export default function MiniDrawer({ children }) {
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
-              className={classes.menuButton}
             >
               <MenuIcon />
             </IconButton>
@@ -507,15 +308,16 @@ export default function MiniDrawer({ children }) {
               <Fr>Outil de saisie de métadonnées</Fr>
             </I18n>
           </Typography>
-          <div className={classes.headerControls}>
-            <img
+          <Box sx={styles.headerControls}>
+            <Box
+              component="img"
               src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
               alt="CIOOS/SIOOC"
               width={350}
-              className={classes.logoImage}
+              sx={styles.logoImage}
             />
             <Select
-              className={classes.languageSelector}
+              sx={styles.languageSelector}
               value={language}
               onChange={(e) =>
                 navigate(`/${e.target.value}/${pathWithoutLang}`)
@@ -526,7 +328,7 @@ export default function MiniDrawer({ children }) {
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="fr">FR</MenuItem>
             </Select>
-          </div>
+          </Box>
         </Toolbar>
       </AppBar>
       {region && (
@@ -534,17 +336,14 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          className={clsx(classes.drawer, !loggedIn && classes.hide)}
-          classes={{
-            paper: clsx(classes.drawerPaper, classes.drawerOpen),
-          }}
-          {...(isMobile && {
-            PaperProps: {
-              sx: { width: "100%" },
+          sx={[styles.drawer, !loggedIn && styles.hide]}
+          slotProps={{
+            paper: {
+              sx: [styles.drawerPaper, isMobile && { width: "100%" }],
             },
-          })}
+          }}
         >
-          <div className={classes.toolbar}>
+          <Box sx={styles.toolbar}>
             <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
               <I18n>
                 <En>Metadata Entry Tool</En>
@@ -554,14 +353,14 @@ export default function MiniDrawer({ children }) {
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
             </IconButton>
-          </div>
-          <List className={classes.sidebarList}>
+          </Box>
+          <List sx={styles.sidebarList}>
             {user && region && (
               <>
                 {open && (
                   <ListSubheader
                     disableSticky
-                    className={classes.sectionLabel}
+                    sx={styles.sectionLabel}
                     component="div"
                   >
                     <I18n en="Workspace" fr="Espace de travail" />
@@ -573,7 +372,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="My Records"
-                    className={classes.navItem}
+                    sx={styles.navItem}
                     selected={pathname.includes("/submissions") || /\/[^/]+\/[^/]+$/.test(pathname)}
                     onClick={() => navigateAndClose(`${baseURL}/submissions`)}
                   >
@@ -589,7 +388,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Region's Published Records"
-                    className={classes.navItem}
+                    sx={styles.navItem}
                     selected={pathname.includes("/published")}
                     onClick={() => navigateAndClose(`${baseURL}/published`)}
                   >
@@ -606,7 +405,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="SharedWithMe"
-                      className={classes.navItem}
+                      sx={styles.navItem}
                       selected={pathname.includes("/shared")}
                       onClick={() => navigateAndClose(`${baseURL}/shared`)}
                     >
@@ -621,7 +420,7 @@ export default function MiniDrawer({ children }) {
                 {open && (
                   <ListSubheader
                     disableSticky
-                    className={classes.sectionLabel}
+                    sx={styles.sectionLabel}
                     component="div"
                   >
                     <I18n en="Library" fr="Bibliothèque" />
@@ -633,7 +432,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Contacts"
-                    className={classes.navItem}
+                    sx={styles.navItem}
                     selected={pathname.includes("/contacts")}
                     onClick={() => navigateAndClose(`${baseURL}/contacts`)}
                   >
@@ -650,7 +449,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="instruments"
-                    className={classes.navItem}
+                    sx={styles.navItem}
                     selected={pathname.includes("/instruments")}
                     onClick={() => navigateAndClose(`${baseURL}/instruments`)}
                   >
@@ -667,7 +466,7 @@ export default function MiniDrawer({ children }) {
                 >
                   <ListItemButton
                     key="Platforms"
-                    className={classes.navItem}
+                    sx={styles.navItem}
                     selected={pathname.includes("/platforms")}
                     onClick={() => navigateAndClose(`${baseURL}/platforms`)}
                   >
@@ -683,7 +482,7 @@ export default function MiniDrawer({ children }) {
                     {open && (
                       <ListSubheader
                         disableSticky
-                        className={classes.sectionLabel}
+                        sx={styles.sectionLabel}
                         component="div"
                       >
                         <I18n en="Review" fr="Révision" />
@@ -695,7 +494,7 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Review"
-                        className={classes.navItem}
+                        sx={styles.navItem}
                         selected={pathname.includes("/reviewer")}
                         onClick={() => navigateAndClose(`${baseURL}/reviewer`)}
                       >
@@ -712,7 +511,7 @@ export default function MiniDrawer({ children }) {
           </List>
 
 
-          <div className={classes.bottomList}>
+          <Box sx={styles.bottomList}>
             <List sx={{ px: 1, py: 0.5 }}>
               {usingDevDatabase && (
                 <Tooltip placement="right-start" title={databaseUrl}>
@@ -722,11 +521,13 @@ export default function MiniDrawer({ children }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     key="DevDBWarning"
-                    className={classes.navItem}
-                    sx={{
-                      color: "error.main",
-                      "& .MuiListItemIcon-root": { color: "error.main" },
-                    }}
+                    sx={[
+                      styles.navItem,
+                      {
+                        color: "error.main",
+                        "& .MuiListItemIcon-root": { color: "error.main" },
+                      },
+                    ]}
                   >
                     <ListItemIcon>
                       <Warning fontSize="small" />
@@ -744,7 +545,7 @@ export default function MiniDrawer({ children }) {
               >
                 <ListItemButton
                   key="Help Support"
-                  className={classes.navItem}
+                  sx={styles.navItem}
                   onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
                 >
                   <ListItemIcon>
@@ -779,9 +580,8 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="Contact Region"
-                      className={classes.navItem}
+                      sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
                       onClick={handleContactClick}
-                      sx={{ pl: open ? 2 : 1.5 }}
                     >
                       <ListItemIcon>
                         <Help fontSize="small" />
@@ -825,8 +625,7 @@ export default function MiniDrawer({ children }) {
                       key="Feedback"
                       id="sentry-feedback-button"
                       ref={feedbackButtonRef}
-                      className={classes.navItem}
-                      sx={{ pl: open ? 2 : 1.5 }}
+                      sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
                     >
                       <ListItemIcon>
                         <FeedbackRounded fontSize="small" />
@@ -844,9 +643,8 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="WhatsNew"
-                        className={classes.navItem}
+                        sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
                         onClick={() => setWhatsNewOpen(true)}
-                        sx={{ pl: open ? 2 : 1.5 }}
                       >
                         <ListItemIcon>
                           <NewReleases fontSize="small" />
@@ -877,7 +675,7 @@ export default function MiniDrawer({ children }) {
                     >
                       <ListItemButton
                         key="Admin"
-                        className={classes.navItem}
+                        sx={styles.navItem}
                         selected={pathname.includes("/admin")}
                         onClick={() => navigateAndClose(`${baseURL}/admin`)}
                       >
@@ -895,8 +693,7 @@ export default function MiniDrawer({ children }) {
                   >
                     <ListItemButton
                       key="userInfo"
-                      className={classes.navItem}
-                      sx={{ minHeight: 52 }}
+                      sx={[styles.navItem, { minHeight: 52 }]}
                       onClick={() => {
                         if (open) {
                           setAccountSubmenuOpen((v) => !v);
@@ -967,13 +764,13 @@ export default function MiniDrawer({ children }) {
                 </>
               )}
             </List>
-          </div>
+          </Box>
         </Drawer>
       )}
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
+      <Box component="main" sx={styles.content}>
+        <Box sx={styles.toolbar} />
         {children}
-      </main>
+      </Box>
       <WhatsNewDialog
         open={whatsNewOpen}
         onClose={() => setWhatsNewOpen(false)}
@@ -982,6 +779,6 @@ export default function MiniDrawer({ children }) {
         open={connectedAccountsOpen}
         onClose={() => setConnectedAccountsOpen(false)}
       />
-    </div>
+    </Box>
   );
 }
