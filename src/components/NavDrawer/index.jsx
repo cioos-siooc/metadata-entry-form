@@ -1,8 +1,8 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext } from "react";
 
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
-import { useTheme } from "@mui/material/styles";
+import { useTheme, useColorScheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   ExitToApp,
@@ -10,21 +10,17 @@ import {
   ListAltOutlined as ListAlt,
   ChevronLeft,
   ChevronRight,
-  FeedbackOutlined as FeedbackRounded,
   RateReviewOutlined as RateReview,
   Menu as MenuIcon,
   AssignmentTurnedInOutlined as AssignmentTurnedIn,
   StraightenOutlined as StraightenSharp,
   DirectionsBoatOutlined as DirectionsBoatSharp,
   FolderSharedOutlined as FolderShared,
-  HelpOutlineOutlined as Help,
   WarningAmberOutlined as Warning,
   SettingsOutlined as Settings,
   LinkOutlined as LinkIcon,
-  NewReleasesOutlined as NewReleases,
   ExpandLess,
   ExpandMore,
-  HelpOutline,
 } from "@mui/icons-material";
 
 import {
@@ -48,20 +44,21 @@ import {
   Divider,
   Box,
 } from "@mui/material";
-import * as Sentry from "@sentry/react";
-import regions from "../regions";
-import { firebaseConfig } from "../firebase";
-import { auth } from "../auth";
+import regions from "../../regions";
+import { firebaseConfig } from "../../firebase";
+import { auth } from "../../auth";
 
-import { En, Fr, I18n } from "./I18n";
-import WhatsNewDialog from "./Pages/WhatsNew";
-import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
+import { En, Fr, I18n } from "../I18n";
+import WhatsNewDialog from "../Pages/WhatsNew";
+import ConnectedAccountsDialog from "../ConnectedAccountsDialog";
 
-import { UserContext } from "../providers/UserProvider";
+import { UserContext } from "../../providers/UserProvider";
 
-import styles from "./NavDrawer.styles";
-import ColorSchemeToggle from "./ColorSchemeToggle";
-import { FALLBACK_PRIMARY } from "../theme/tokens";
+import styles from "./styles";
+import useSentryFeedback from "./useSentryFeedback";
+import HelpSubmenu from "./HelpSubmenu";
+import ColorSchemeToggle from "../ColorSchemeToggle";
+import { FALLBACK_PRIMARY } from "../../theme/tokens";
 
 export default function MiniDrawer({ children }) {
   const navigate = useNavigate();
@@ -119,77 +116,10 @@ export default function MiniDrawer({ children }) {
 
   // Region info and email (lowercased) for contact button display
   const regionInfo = regions[region];
-  const regionEmail = (regionInfo?.email || "");
-  const regionEmailLower = regionEmail.toLowerCase();
-  const contactLabel = language === 'fr' ? 'Contacter la région' : 'Contact Region';
-  const [emailCopied, setEmailCopied] = React.useState(false);
+  const regionEmailLower = (regionInfo?.email || "").toLowerCase();
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
   const [connectedAccountsOpen, setConnectedAccountsOpen] = React.useState(false);
-
-  const copyTooltipText = React.useMemo(() => {
-    if (emailCopied) {
-      return language === 'fr' ? 'Copié !' : 'Copied!';
-    }
-    return language === 'fr' ? 'Cliquer pour copier' : 'Click to copy';
-  }, [emailCopied, language]);
-
-  const [helpSubmenuOpen, setHelpSubmenuOpen] = React.useState(false);
   const [accountSubmenuOpen, setAccountSubmenuOpen] = React.useState(false);
-
-  const handleCopyEmail = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!regionEmailLower) return;
-
-    const done = () => {
-      setEmailCopied(true);
-      setTimeout(() => setEmailCopied(false), 1500);
-    };
-
-    const fallbackCopy = () => {
-      try {
-        const ta = document.createElement('textarea');
-        ta.value = regionEmailLower;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'absolute';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        done();
-      } catch {
-        // no-op: copying failed
-      }
-    };
-
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(regionEmailLower).then(done).catch(fallbackCopy);
-    } else {
-      fallbackCopy();
-    }
-  };
-
-  const handleCopyEmailKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      handleCopyEmail(e);
-    }
-  };
-
-  const handleContactClick = (e) => {
-    // If clicking within the email copy element, do not trigger mailto
-    if (e && e.target && e.target.closest('[data-copy-email]')) {
-      e.preventDefault();
-      return;
-    }
-    const subject = encodeURIComponent(
-      language === 'fr'
-        ? `Formulaire ${regionInfo.title.fr} – Question`
-        : `${regionInfo.title.en} Form – Question`
-    );
-    window.location.href = `mailto:${regionEmailLower}?subject=${subject}`;
-  };
-
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -234,58 +164,15 @@ export default function MiniDrawer({ children }) {
     import.meta.env.DEV;
   // Derive database URL from firebase config (injected at build) if not production
   const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
-  const feedbackButtonRef = useRef(null);
-  const feedbackWidgetRef = useRef(null);
-
-  useEffect(() => {
-    const feedback = Sentry.getFeedback();
-    const el = feedbackButtonRef.current;
-
-    // Remove previous widget if it exists
-    if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
-      feedbackWidgetRef.current.remove();
-      feedbackWidgetRef.current = null;
-    }
-
-    if (feedback && el) {
-      const config = {
-        colorScheme: "light",
-        triggerLabel: language === "fr" ? "Commentaires" : "Feedback",
-        submitButtonLabel: language === "fr" ? "Envoyer" : "Send Feedback",
-        formTitle: language === "fr" ? "Envoyer des commentaires" : "Send Feedback",
-        cancelButtonLabel: language === "fr" ? "Annuler" : "Cancel",
-        nameLabel: language === "fr" ? "Nom" : "Name",
-        namePlaceholder: language === "fr" ? "Votre nom" : "Your name",
-        emailLabel: language === "fr" ? "Courriel" : "Email",
-        emailPlaceholder: language === "fr" ? "votre.courriel@exemple.com" : "your.email@example.com",
-        messageLabel: language === "fr" ? "Description" : "Description",
-        messagePlaceholder: language === "fr" ? "Quoi s'est-il passé ? Qu'attendiez-vous ?" : "What happened? What did you expect?",
-        successMessageText: language === "fr" ? "Merci pour vos commentaires !" : "Thank you for your feedback!",
-        enableScreenshot: true,
-        autoInject: false,
-        onFormOpen: () => {
-          // Add click handler to backdrop to close on single click
-          setTimeout(() => {
-            const backdrop = document.querySelector('[data-sentry-feedback-backdrop]');
-            if (backdrop) {
-              backdrop.style.pointerEvents = 'auto';
-            }
-          }, 0);
-        },
-        themeLight: {
-          accentBackground: regionAccentColor,
-          accentForeground: theme.vars.palette.primary.contrastText,
-        },
-      };
-      feedbackWidgetRef.current = feedback.attachTo(el, config);
-    }
-
-    return () => {
-      if (feedbackWidgetRef.current && typeof feedbackWidgetRef.current.remove === 'function') {
-        feedbackWidgetRef.current.remove();
-      }
-    };
-  }, [language, regionAccentColor]);
+  // Sentry's widget takes literal colours, so it needs the resolved scheme
+  // rather than the theme's CSS variables.
+  const { mode, systemMode } = useColorScheme();
+  const feedbackButtonRef = useSentryFeedback({
+    language,
+    accentBackground: regionAccentColor,
+    accentForeground: theme.palette.primary.contrastText,
+    colorScheme: (mode === "system" ? systemMode : mode) || "light",
+  });
 
 
   return (
@@ -563,125 +450,16 @@ export default function MiniDrawer({ children }) {
                   </ListItemButton>
                 </Tooltip>
               )}
-              <Tooltip
-                placement="right-start"
-                title={open ? "" : translations.helpSupport}
-              >
-                <ListItemButton
-                  key="Help Support"
-                  sx={styles.navItem}
-                  onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
-                >
-                  <ListItemIcon>
-                    <HelpOutline fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary={translations.helpSupport} />
-                  {open && (helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </Tooltip>
-              <Collapse in={helpSubmenuOpen} timeout="auto">
-                <List
-                  component="div"
-                  disablePadding
-                  sx={{
-                    ml: open ? 2 : 0,
-                    pl: open ? 1 : 0,
-                    borderLeft: open
-                      ? `1px solid ${theme.vars.palette.divider}`
-                      : "none",
-                  }}
-                >
-                  <Tooltip
-                    placement="right-start"
-                    title={
-                      open ? "" : (
-                        <span>
-                          {contactLabel}
-                          {regionEmailLower ? ` — ${regionEmailLower}` : ""}
-                        </span>
-                      )
-                    }
-                  >
-                    <ListItemButton
-                      key="Contact Region"
-                      sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
-                      onClick={handleContactClick}
-                    >
-                      <ListItemIcon>
-                        <Help fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={contactLabel}
-                        primaryTypographyProps={{ fontSize: "0.8125rem" }}
-                        secondary={
-                          regionEmailLower ? (
-                            <Tooltip title={copyTooltipText} placement="right-start">
-                              <span
-                                data-copy-email="true"
-                                onClick={handleCopyEmail}
-                                onKeyDown={handleCopyEmailKeyDown}
-                                role="button"
-                                tabIndex={0}
-                                aria-label={
-                                  language === "fr"
-                                    ? "Copier l'adresse courriel"
-                                    : "Copy email address"
-                                }
-                                style={{
-                                  textDecoration: "underline",
-                                  cursor: "pointer",
-                                  fontSize: "0.75rem",
-                                }}
-                              >
-                                {regionEmailLower}
-                              </span>
-                            </Tooltip>
-                          ) : null
-                        }
-                      />
-                    </ListItemButton>
-                  </Tooltip>
-                  <Tooltip
-                    placement="right-start"
-                    title={open ? "" : <I18n en="Feedback" fr="Commentaires" />}
-                  >
-                    <ListItemButton
-                      key="Feedback"
-                      id="sentry-feedback-button"
-                      ref={feedbackButtonRef}
-                      sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
-                    >
-                      <ListItemIcon>
-                        <FeedbackRounded fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={<I18n en="Feedback" fr="Commentaires" />}
-                        primaryTypographyProps={{ fontSize: "0.8125rem" }}
-                      />
-                    </ListItemButton>
-                  </Tooltip>
-                  {user && (
-                    <Tooltip
-                      placement="right-start"
-                      title={open ? "" : translations.whatsNew}
-                    >
-                      <ListItemButton
-                        key="WhatsNew"
-                        sx={[styles.navItem, { pl: open ? 2 : 1.5 }]}
-                        onClick={() => setWhatsNewOpen(true)}
-                      >
-                        <ListItemIcon>
-                          <NewReleases fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={translations.whatsNew}
-                          primaryTypographyProps={{ fontSize: "0.8125rem" }}
-                        />
-                      </ListItemButton>
-                    </Tooltip>
-                  )}
-                </List>
-              </Collapse>
+              <HelpSubmenu
+                open={open}
+                user={user}
+                language={language}
+                regionEmail={regionEmailLower}
+                regionTitle={regionInfo?.title?.[language]}
+                translations={translations}
+                feedbackButtonRef={feedbackButtonRef}
+                onOpenWhatsNew={() => setWhatsNewOpen(true)}
+              />
               {!user && (
                 <ListItem key="userInfo">
                   <ListItemIcon>
