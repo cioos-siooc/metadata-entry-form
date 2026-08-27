@@ -40,19 +40,32 @@ const styles = {
 
   // The AppBar is primary.main and varies per region; the region logos are dark
   // artwork containing that same colour, so they need a literal white plate in
-  // both colour schemes. Cleared for the white-artwork national banner.
+  // both colour schemes -- #fff, not background.paper, so it holds in dark mode.
+  // Fixed box because the logos run from 1.9:1 (SLGO) to 5.2:1 (Atlantic FR):
+  // capping height alone gives each region a different header footprint.
+  // ponytail: one box for every logo, so the near-square ones sit in some
+  // whitespace. Per-region sizing only if a logo actually looks lost.
   logoPlate: {
     display: { xs: "none", md: "flex" },
     alignItems: "center",
+    justifyContent: "center",
+    width: 160,
+    height: 44,
+    px: 1,
     backgroundColor: "#fff",
     borderRadius: 1,
-    px: 1,
-    py: 0.5,
   },
 
   logoImage: {
-    display: "block",
-    height: 36,
+    maxWidth: "100%",
+    maxHeight: 32,
+    objectFit: "contain",
+  },
+
+  // The national banner is white artwork, so it sits on the bar with no plate.
+  nationalLogo: {
+    display: { xs: "none", md: "block" },
+    height: 32,
     width: "auto",
   },
 

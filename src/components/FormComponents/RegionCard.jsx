@@ -121,10 +121,13 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
               component="img"
               src={logoSrc}
               alt={region}
+              // Fixed box rather than a max-height: the logos' aspect ratios
+              // range too widely for a height cap to give every card the same
+              // footprint.
               sx={{
+                width: "100%",
                 maxWidth: 260,
-                maxHeight: 72,
-                height: "auto",
+                height: 72,
                 objectFit: "contain",
               }}
               onError={(e) => {

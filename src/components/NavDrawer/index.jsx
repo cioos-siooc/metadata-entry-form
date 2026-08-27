@@ -163,9 +163,6 @@ export default function MiniDrawer({ children }) {
   // logos are dark artwork and get a white plate, the national banner is white
   // artwork and would vanish on one.
   const regionLogo = getRegionLogo(region, language);
-  const headerLogo =
-    regionLogo ||
-    `${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`;
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
@@ -228,22 +225,26 @@ export default function MiniDrawer({ children }) {
             </I18n>
           </Typography>
           <Box sx={styles.headerControls}>
-            <Box
-              sx={[
-                styles.logoPlate,
-                !regionLogo && { backgroundColor: "transparent", p: 0 },
-              ]}
-            >
+            {regionLogo ? (
+              <Box sx={styles.logoPlate}>
+                <Box
+                  component="img"
+                  src={regionLogo}
+                  alt={regionInfo?.title?.[language] || region}
+                  sx={styles.logoImage}
+                  onError={(e) => {
+                    e.target.parentElement.style.display = "none";
+                  }}
+                />
+              </Box>
+            ) : (
               <Box
                 component="img"
-                src={headerLogo}
-                alt={regionInfo?.title?.[language] || "CIOOS/SIOOC"}
-                sx={styles.logoImage}
-                onError={(e) => {
-                  e.target.parentElement.style.display = "none";
-                }}
+                src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
+                alt="CIOOS/SIOOC"
+                sx={styles.nationalLogo}
               />
-            </Box>
+            )}
             <ColorSchemeToggle />
             <Select
               sx={styles.languageSelector}
