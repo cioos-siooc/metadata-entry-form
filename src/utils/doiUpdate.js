@@ -1,19 +1,18 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
-import recordToDataCite from "./recordToDataCite";
+import { recordToDataCiteFromPython } from "./recordToDataCiteFromPython";
 
 async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
   const functions = getFunctions();
   const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
 
-  const mappedDataCiteObject = recordToDataCite(record, language, region, datacitePrefix);
-  delete mappedDataCiteObject.data.type;
-  delete mappedDataCiteObject.data.attributes.prefix;
+  // Use Python-based conversion with forUpdate flag to automatically omit type and prefix
+  const mappedDataCiteObject = await recordToDataCiteFromPython(record, language, region, datacitePrefix, { forUpdate: true });
 
-  // Extract DOI from the full URL
-  const doi = record.datasetIdentifier.replace('https://doi.org/', '');
+  // Extract DOI from the full URL (supports http/https and dx.doi.org)
+  const doi = record.datasetIdentifier.replace(/^https?:\/\/(?:dx\.)?doi\.org\//, '');
 
   const dataObject = {
-    doi, 
+    doi,
     region,
     data: mappedDataCiteObject,
   }

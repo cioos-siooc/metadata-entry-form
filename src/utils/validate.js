@@ -2,6 +2,11 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
+import {
+  hasResourceType,
+  resourceTypeIncludes,
+} from "./normalizeResourceType";
+import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -62,7 +67,7 @@ const validators = {
     },
   },
   resourceType: {
-    validation: (val) => val,
+    validation: (val) => hasResourceType(val),
     tab: "start",
     error: {
       en: "Please select a theme for this record",
@@ -91,6 +96,20 @@ const validators = {
     error: {
       en: "At least one EOV is required",
       fr: "Au moins une variable océanique essentielle est requise",
+    },
+  },
+  eovDeprecated: {
+    validation: (_, record) => {
+      const deprecatedValues = new Set(
+        eovs.filter((e) => e.deprecated).map((e) => e.value)
+      );
+      const eov = Array.isArray(record.eov) ? record.eov : [];
+      return !eov.some((v) => deprecatedValues.has(v));
+    },
+    tab: "dataID",
+    error: {
+      en: "One or more selected EOVs are deprecated and prevent submission. Please unselect them and choose the replacement EOVs.",
+      fr: "Une ou plusieurs EOVs sélectionnées sont dépréciées et empêchent la soumission. Veuillez les désélectionner et choisir les EOVs de remplacement.",
     },
   },
   datasetIdentifier: {
@@ -161,8 +180,8 @@ const validators = {
           validateLongitude(east) &&
           validateLongitude(west)) ||
         (polygon && polygonIsValid(polygon)) ||
-        !record.resourceType  ||
-        (Array.isArray(record.resourceType) && record.resourceType.includes("biological") && description)
+        !hasResourceType(record.resourceType) ||
+        (resourceTypeIncludes(record.resourceType, "biota") && description)
       );
     },
   },
@@ -292,7 +311,7 @@ const validators = {
   },
   platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScope === 'model'),
+    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScopeIso === 'model'),
     error: {
       en: "Missing platform type or ID",
       fr: "Type ou ID de plateforme manquant.",
@@ -300,10 +319,18 @@ const validators = {
   },
   instruments: {
     tab: "platformInstruments",
-    validation: (val) => val.every((instrument) => instrument.id),
+    validation: (val, record) => {
+      const platforms = record.platforms || [];
+      return val.every(
+        (instrument) =>
+          instrument.id && (platforms.length < 2 || instrument.platform)
+      );
+    },
     error: {
-      en: "Instrument ID is required",
-      fr: "L'identifiant de l'instrument est requis.",
+      en:
+        "Instrument ID is required. When multiple platforms are defined, each instrument must be associated to a platform.",
+      fr:
+        "L'identifiant de l'instrument est requis. Lorsque plusieurs plates-formes sont définies, chaque instrument doit être associé à une plate-forme.",
     },
   },
   taxa: {
