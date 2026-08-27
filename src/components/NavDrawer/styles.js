@@ -38,11 +38,22 @@ const styles = {
     marginLeft: "auto",
   },
 
+  // The AppBar is primary.main and varies per region; the region logos are dark
+  // artwork containing that same colour, so they need a literal white plate in
+  // both colour schemes. Cleared for the white-artwork national banner.
+  logoPlate: {
+    display: { xs: "none", md: "flex" },
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 1,
+    px: 1,
+    py: 0.5,
+  },
+
   logoImage: {
-    display: { xs: "none", lg: "block" },
+    display: "block",
     height: 36,
     width: "auto",
-    marginBottom: 0,
   },
 
   hide: {

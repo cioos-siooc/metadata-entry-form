@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CircularProgress, Grid, CssBaseline } from "@mui/material";
+import { CircularProgress, CssBaseline } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import { getAppTheme } from "../theme/createAppTheme";
 import Submissions from "./Pages/Submissions";
@@ -20,33 +20,9 @@ import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
-import regions, { getRegionLogo } from "../regions";
+import regions from "../regions";
 import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
-
-const RegionLogo = ({ children }) => {
-  const { language, region } = useParams();
-  const logoSrc = getRegionLogo(region, language);
-  const titleText = regions[region]?.title?.[language] || region;
-  return (
-    <Grid container direction="column" spacing={2}>
-      <Grid>
-        {logoSrc ? (
-          <img src={logoSrc} alt={region} />
-        ) : (
-          <div style={{
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            padding: '10px 0',
-          }}>{titleText}</div>
-        )}
-      </Grid>
-      <Grid>
-        {children}
-      </Grid>
-    </Grid>
-  );
-};
 
 const Pages = () => {
   const {
@@ -60,7 +36,7 @@ const Pages = () => {
       {authIsLoading ? (
         <CircularProgress />
       ) : (
-        <RegionLogo>
+        <>
           {loggedIn ? (
             <ErrorBoundary>
               <Routes>
@@ -92,7 +68,7 @@ const Pages = () => {
           ) : (
             <Login />
           )}
-        </RegionLogo>
+        </>
       )}
     </>
   );

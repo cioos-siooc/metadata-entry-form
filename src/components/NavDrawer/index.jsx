@@ -44,7 +44,7 @@ import {
   Divider,
   Box,
 } from "@mui/material";
-import regions from "../../regions";
+import regions, { getRegionLogo } from "../../regions";
 import { firebaseConfig } from "../../firebase";
 import { auth } from "../../auth";
 
@@ -158,6 +158,15 @@ export default function MiniDrawer({ children }) {
     ? regions[region].colors.primary
     : FALLBACK_PRIMARY;
 
+  // getRegionLogo returns null off a region route, so the region selector falls
+  // through to the national banner. The two need different treatment: region
+  // logos are dark artwork and get a white plate, the national banner is white
+  // artwork and would vanish on one.
+  const regionLogo = getRegionLogo(region, language);
+  const headerLogo =
+    regionLogo ||
+    `${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`;
+
   // add some text to indicate connected to dev d
   const usingDevDatabase =
     import.meta.env.VITE_DEV_DEPLOYMENT ||
@@ -220,12 +229,21 @@ export default function MiniDrawer({ children }) {
           </Typography>
           <Box sx={styles.headerControls}>
             <Box
-              component="img"
-              src={`${import.meta.env.BASE_URL}cioos_website_top_banner_${language}.png`}
-              alt="CIOOS/SIOOC"
-              width={350}
-              sx={styles.logoImage}
-            />
+              sx={[
+                styles.logoPlate,
+                !regionLogo && { backgroundColor: "transparent", p: 0 },
+              ]}
+            >
+              <Box
+                component="img"
+                src={headerLogo}
+                alt={regionInfo?.title?.[language] || "CIOOS/SIOOC"}
+                sx={styles.logoImage}
+                onError={(e) => {
+                  e.target.parentElement.style.display = "none";
+                }}
+              />
+            </Box>
             <ColorSchemeToggle />
             <Select
               sx={styles.languageSelector}
