@@ -44,7 +44,12 @@ def _resolve_key(key: str):
     single-line secret).
     """
     key_path = Path(key)
-    if key_path.exists():
+    try:
+        is_file = key_path.exists()
+    except OSError:
+        # key is inline content (e.g. base64), too long to be a valid path
+        is_file = False
+    if is_file:
         if not key_path.read_text():
             raise ValueError(f"Key file {key_path} is empty")
         return str(key_path), None
