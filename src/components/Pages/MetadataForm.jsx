@@ -241,8 +241,10 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
-            const loggedInUserIsSharedWith =
-              record.sharedWith && record.sharedWith[loggedInUserID] === true;
+            // Older records store `true`, newer ones store the recipient's email.
+            const loggedInUserIsSharedWith = Boolean(
+              record.sharedWith && record.sharedWith[loggedInUserID]
+            );
 
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;

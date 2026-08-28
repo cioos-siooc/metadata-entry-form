@@ -130,6 +130,9 @@ class UserProviderClass extends FormClassTemplate {
     const registerDoi = httpsCallable(functions, "registerDoi");
     const hideDoi = httpsCallable(functions, "hideDoi");
     const publishRecordToGitHub = httpsCallable(functions, "githubPublishRecord");
+    const shareRecord = httpsCallable(functions, "shareRecord");
+    const unshareRecord = httpsCallable(functions, "unshareRecord");
+    const transferRecord = httpsCallable(functions, "transferRecord");
 
     return (
       <UserContext.Provider
@@ -150,6 +153,9 @@ class UserProviderClass extends FormClassTemplate {
           registerDoi,
           hideDoi,
           publishRecordToGitHub,
+          shareRecord,
+          unshareRecord,
+          transferRecord,
         }}
       >
         {children}

@@ -14,8 +14,8 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-// SharedUsersList fetches region users from Firebase, which is unavailable in
-// jsdom. Stub it out so the test focuses on the resource-scope defaulting logic.
+// SharedUsersList needs the sharing cloud functions from UserContext. Stub it
+// out so the test focuses on the resource-scope defaulting logic.
 vi.mock("../../FormComponents/SharedUsersList", () => ({
   default: () => null,
 }));
