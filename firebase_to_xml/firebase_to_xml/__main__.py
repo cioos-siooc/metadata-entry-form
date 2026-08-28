@@ -4,6 +4,8 @@
 Command line interface to part of firebase_to_xml
 """
 
+import base64
+import binascii
 import json
 import traceback
 from pathlib import Path
@@ -34,15 +36,27 @@ def get_filename(record):
 
 
 @logger.catch(reraise=True)
-def _test_key(key_file: Path):
-    """Attempt to read firebase key file and raise exception if it fails"""
-    if not Path(key_file).exists():
-        raise FileNotFoundError(f"Key file {key_file} not found")
+def _resolve_key(key: str):
+    """Resolve --key into a (key_file, key_json) pair for get_records_from_firebase.
 
-    key_content = key_file.read_text()
-    if not key_content:
-        raise ValueError(f"Key file {key_file} is empty")
-    return json.loads(key_content)
+    `key` may be a path to a service account JSON key file, the raw JSON
+    string, or a base64 encoding of it (so it can be injected as a
+    single-line secret).
+    """
+    key_path = Path(key)
+    if key_path.exists():
+        if not key_path.read_text():
+            raise ValueError(f"Key file {key_path} is empty")
+        return str(key_path), None
+
+    raw = key.strip()
+    if not raw.startswith("{"):
+        try:
+            raw = base64.b64decode("".join(raw.split()), validate=True).decode("utf-8")
+        except (binascii.Error, UnicodeDecodeError) as error:
+            raise FileNotFoundError(f"Key file {key} not found") from error
+
+    return None, json.loads(raw)
 
 
 @logger.catch(reraise=True)
@@ -132,13 +146,14 @@ def main(
         split_by_owner (bool): Create a subdirectory for each owner
     """
 
-    # verify if key is a json string or a file
-    _test_key(Path(key))
+    # key may be a path to a key file, or the json string/base64 itself
+    key_file, key_json = _resolve_key(key)
 
     # get list of records from Firebase
     record_list = get_records_from_firebase(
         region=region,
-        firebase_auth_key_file=key,
+        firebase_auth_key_file=key_file,
+        firebase_auth_key_json=key_json,
         record_url=record_url,
         record_status=status.split(","),
         database_url=database_url,
