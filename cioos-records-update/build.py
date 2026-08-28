@@ -56,12 +56,6 @@ FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv(
     default=True,
 )
 @click.option(
-    "--organizations",
-    help="Use organizations.json to standardize owner names",
-    envvar="ORGANIZATIONS",
-    default="organizations.json",
-)
-@click.option(
     "--split-by-owner",
     type=str,
     default="",
@@ -76,7 +70,6 @@ def main(
     also_save_yaml=False,
     encoding="utf-8",
     delete=True,
-    organizations="organizations.json",
     split_by_owner="",
 ):
     if delete:
@@ -94,7 +87,6 @@ def main(
         database_url,
         also_save_yaml=also_save_yaml,
         encoding=encoding,
-        organizations=organizations,
         split_by_owner=split_by_owner,
     )
     logger.info("Records retrieved from Firebase and saved to XML")
