@@ -11,7 +11,7 @@ Requires `key.json` which contains a service account key json
 specifically one from [here](https://console.cloud.google.com/iam-admin/serviceaccounts/details/108735728189650899572/keys?authuser=0&hl=en&project=cioos-metadata-form) you can also generate one [here](https://console.firebase.google.com/u/0/project/cioos-metadata-form/settings/serviceaccounts/adminsdk).
 You can also define the path to this key file by using the environment variable `FIREBASE_KEY_PATH`.
 
-Alternatively the same service account key json string can be specified in the FIREBASE_SERVICE_ACCOUNT_KEY environment variable. The app will look for the environment variable first and fall back to the key.json file if ot found.
+Alternatively the same service account key can be specified in the `FIREBASE_SERVICE_ACCOUNT_KEY` environment variable, either as the raw json string or base64 encoded (`base64 -w0 key.json`) so it can be injected as a single-line secret. The app will look for the environment variable first and fall back to the key.json file if not found.
 
 ## metadata-entry-forms-waf
 
