@@ -45,7 +45,6 @@ import click
     default="WARNING",
     help="Logging level",
 )
-@click.option("--organizations", help="Use organizations.json to standardize owner names", envvar="ORGANIZATIONS")
 @click.option(
     "--split-by-owner",
     type=str,
@@ -67,7 +66,6 @@ def main(
     also_save_yaml=False,
     encoding="utf-8",
     log_level="WARNING",
-    organizations:Path =None,
     split_by_owner:str ="",
 ):
     logger.remove()
@@ -86,7 +84,6 @@ def main(
             database_url=database_url,
             key=key,
             split_by_owner= region in split_by_owner.split(",") if split_by_owner else False,
-            organizations=organizations,
         )
         logger.info("Retrieve {} unpublished records", region)
         retrieve_records(
@@ -99,7 +96,6 @@ def main(
             database_url=database_url,
             key=key,
             split_by_owner= region in split_by_owner.split(",") if split_by_owner else False,
-            organizations=organizations,
         )
 
 

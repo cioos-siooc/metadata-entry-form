@@ -8,7 +8,7 @@ import yaml
 from firebase_to_xml.__main__ import get_filename
 from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
-from firebase_to_xml.organizations import get_record_owner
+from firebase_to_xml.record_owner import get_record_owner
 from flask import Flask, jsonify, make_response, request
 from metadata_xml.template_functions import metadata_to_xml
 
@@ -28,10 +28,6 @@ sentry_sdk.init(
 
 # Some RAs will split their records automatically by owner
 REGIONS_SPLIT_BY_OWNER = os.getenv("REGIONS_SPLIT_BY_OWNER", "")
-ORGANIZATIONS_REFERENCE_FILE = Path(
-    os.getenv("ORGANIZATIONS", Path(__file__).parent / ".." / "organizations.json")
-)
-organizations = json.loads(ORGANIZATIONS_REFERENCE_FILE.read_text(encoding="utf-8"))
 
 # on the server its run inside docker, the values of xml, key.json work for the server
 FIREBASE_KEY_PATH = Path(os.getenv("FIREBASE_KEY_PATH", "key.json"))
@@ -82,7 +78,7 @@ def get_complete_path(status, region, basename, file_suffix, record):
 
     owner_subdir = ""
     if REGIONS_SPLIT_BY_OWNER and region in REGIONS_SPLIT_BY_OWNER.split(","):
-        # if the region is split by owner, we need to add the userID as a subdirectory
+        # if the region is split by owner, we need to add the owner organization as a subdirectory
         # this is used for pacific and atlantic regions
         owner_subdir = get_record_owner(record)
 

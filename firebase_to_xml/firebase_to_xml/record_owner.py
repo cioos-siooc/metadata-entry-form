@@ -29,19 +29,17 @@ def standardize_string(input_string: str) -> str:
     return standardized.strip("-").lower()
 
 
-def get_record_owner(record, organizations: dict) -> str:
-    for contact in record.get("contacts", []):
-        if "owner" in contact["role"]:
-            orginal_owner = contact.get("orgName")
-            owner = standardize_string(orginal_owner)
+def get_record_owner(record) -> str:
+    """Slug of the orgName of the first contact flagged as owner of the record.
 
-            if owner in organizations:
-                return owner
-            for organization in organizations:
-                if owner in organization["aliases"] or orginal_owner in organization["aliases"]:
-                    return organization['name']
-            logger.warning(
-                f"Owner {orginal_owner} not found in organizations.json, using {owner}"
-            )
-            return owner
-    logger.warning(f"No owner found in record {record['title']['en']}")
+    Returns an empty string when no owner contact carries an organization name,
+    in which case the record is not filed under an owner subdirectory.
+    """
+    for contact in record.get("contacts", []):
+        if "owner" in contact.get("role", []) and contact.get("orgName"):
+            return standardize_string(contact["orgName"])
+
+    logger.warning(
+        "No owner organization found in record {}", record.get("identifier")
+    )
+    return ""

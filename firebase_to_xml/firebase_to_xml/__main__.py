@@ -18,7 +18,7 @@ from tqdm import tqdm
 import click
 from loguru import logger
 
-from firebase_to_xml.organizations import get_record_owner
+from firebase_to_xml.record_owner import get_record_owner
 
 load_dotenv()
 
@@ -103,13 +103,6 @@ def _test_key(key_file: Path):
     help="Create a subdirectory for each owner",
     envvar="SPLIT_BY_OWNER"
 )
-@click.option(
-    "--organizations",
-    type=click.Path(exists=True),
-    help="JSON listing all the organizations mapping for record owners",
-    default=None,
-    envvar="ORGANIZATIONS",
-)
 def main_cli(**kwargs):
     main(**kwargs)
 
@@ -124,7 +117,6 @@ def main(
     key,
     record_url=None,
     split_by_owner: bool = False,
-    organizations: Path = None,
 ):
     """Main function to convert records from Firebase to XML.
 
@@ -138,7 +130,6 @@ def main(
         key (str): Path to firebase OAuth2 key file
         record_url (str): URL to a single record to process
         split_by_owner (bool): Create a subdirectory for each owner
-        organizations (path): JSON listing all the organizations mapping for record owners
     """
 
     # verify if key is a json string or a file
@@ -154,12 +145,6 @@ def main(
     )
     if not record_list:
         raise ValueError("No records found")
-    
-    if organizations:
-        logger.info(f"Loading organizations from {organizations}")
-        organizations = json.loads(Path(organizations).read_text(encoding="UTF-8"))
-        if not organizations:
-            raise ValueError(f"No organizations found in {organizations}")
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
@@ -182,9 +167,8 @@ def main(
 
             output_directory = Path(xml_directory) / organization
 
-            if split_by_owner and organizations:
-                owner = get_record_owner(record, organizations)
-                output_directory = output_directory / owner
+            if split_by_owner:
+                output_directory = output_directory / get_record_owner(record)
 
             output_directory.mkdir(parents=True, exist_ok=True)
 

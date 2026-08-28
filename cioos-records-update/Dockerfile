@@ -7,9 +7,6 @@ COPY firebase_to_xml ../firebase_to_xml
 RUN uv pip install . --system
 
 COPY cioos-records-update/ .
-COPY organizations.json organizations.json
-
-ENV ORGANIZATIONS=organizations.json
 
 # Sync the project
 RUN --mount=type=cache,target=/root/.cache/uv \
