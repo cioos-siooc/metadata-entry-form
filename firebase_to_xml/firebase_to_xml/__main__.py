@@ -164,7 +164,8 @@ def main(
         database_url=database_url,
     )
     if not record_list:
-        raise ValueError("No records found")
+        logger.warning("No {} {} records found", region, status)
+        return
 
     # translate each record to YAML and then to XML
     for record in tqdm(record_list, desc=f"Processing {region} {status} records"):
