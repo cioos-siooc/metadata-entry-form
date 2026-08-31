@@ -133,8 +133,115 @@ ${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
   };
 }
 
+// Shared by both share emails: who sent it, what record, and where to open it.
+function shareBody(titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language) {
+  const regionEn = (regionNames[region] || {}).en || region;
+  const regionFr = (regionNames[region] || {}).fr || region;
+  const lang = language || "en";
+  const recordUrl = `https://cioos-siooc.github.io/metadata-entry-form/#/${lang}/${region}/${userID}/${recordID}`;
+  const sharedBy = ownerName ? `${ownerName} &lt;${ownerEmail}&gt;` : ownerEmail;
+
+  return {
+    recordUrl,
+    tableEn: `<table cellpadding="4">
+  ${row("Title (EN)", titleEn)}
+  ${row("Title (FR)", titleFr)}
+  ${row("Shared by", sharedBy)}
+  ${row("Region", regionEn)}
+</table>`,
+    tableFr: `<table cellpadding="4">
+  ${row("Titre (EN)", titleEn)}
+  ${row("Titre (FR)", titleFr)}
+  ${row("Partagé par", sharedBy)}
+  ${row("Région", regionFr)}
+</table>`,
+  };
+}
+
+// Sent when a record is shared with someone who already has an account.
+function mailOptionsRecordShared(
+  recipientEmail,
+  titleEn,
+  titleFr,
+  region,
+  ownerName,
+  ownerEmail,
+  userID,
+  recordID,
+  language
+) {
+  const { recordUrl, tableEn, tableFr } = shareBody(
+    titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language
+  );
+
+  return {
+    from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: recipientEmail,
+    subject: "A CIOOS metadata record has been shared with you",
+    html: `
+<p><b>A metadata record has been shared with you</b></p>
+<p>You now have editing access to this record.</p>
+${tableEn}
+<p><a href="${recordUrl}">Open record</a></p>
+
+<hr>
+
+<p><b>Un enregistrement de métadonnées a été partagé avec vous</b></p>
+<p>Vous avez maintenant accès en modification à cet enregistrement.</p>
+${tableFr}
+<p><a href="${recordUrl}">Ouvrir l'enregistrement</a></p>`,
+  };
+}
+
+// Sent when a record is shared with an email address that has no account yet.
+// Access is granted automatically once they sign up with this same address.
+function mailOptionsShareInvitation(
+  recipientEmail,
+  titleEn,
+  titleFr,
+  region,
+  ownerName,
+  ownerEmail,
+  userID,
+  recordID,
+  language
+) {
+  const { recordUrl, tableEn, tableFr } = shareBody(
+    titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language
+  );
+  const lang = language || "en";
+  const signUpUrl = `https://cioos-siooc.github.io/metadata-entry-form/#/${lang}/${region}`;
+
+  return {
+    from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: recipientEmail,
+    subject: "You have been invited to edit a CIOOS metadata record",
+    html: `
+<p><b>You have been invited to edit a metadata record</b></p>
+${tableEn}
+<p>You do not have a CIOOS Metadata Entry Form account yet. Sign in with
+<b>${recipientEmail}</b> to create one — the record will be waiting for you under
+"Shared with me".</p>
+<p><a href="${signUpUrl}">Create an account</a> &nbsp;|&nbsp;
+  <a href="${recordUrl}">Open record</a></p>
+
+<hr>
+
+<p><b>Vous avez été invité à modifier un enregistrement de métadonnées</b></p>
+${tableFr}
+<p>Vous n'avez pas encore de compte pour le formulaire de saisie de métadonnées du SIOOC.
+Connectez-vous avec <b>${recipientEmail}</b> pour en créer un — l'enregistrement vous
+attendra sous « Partagé avec moi ».</p>
+<p><a href="${signUpUrl}">Créer un compte</a> &nbsp;|&nbsp;
+  <a href="${recordUrl}">Ouvrir l'enregistrement</a></p>`,
+  };
+}
+
 module.exports = {
+  regionNames,
   mailOptionsReviewer,
   mailOptionsAuthor,
   mailOptionsAuthorSubmissionConfirmation,
+  mailOptionsRecordShared,
+  mailOptionsShareInvitation,
 };

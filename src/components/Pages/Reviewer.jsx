@@ -18,7 +18,6 @@ import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 import {
   loadRegionRecords,
-  transferRecord,
   deleteRecord,
   submitRecord,
   cloneRecord,
@@ -30,7 +29,7 @@ import { markFormNavigation } from "../RecordList/hooks";
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord } = useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -215,10 +214,16 @@ const Reviewer = () => {
 
   const confirmTransfer = useCallback(async () => {
     if (modalKey && modalUserID) {
-      return transferRecord(transferEmail, modalKey, modalUserID, region);
+      const { data } = await transferRecord({
+        region,
+        recordID: modalKey,
+        sourceUserID: modalUserID,
+        email: transferEmail,
+      });
+      return data.success;
     }
     return false;
-  }, [transferEmail, modalKey, modalUserID, region]);
+  }, [transferRecord, transferEmail, modalKey, modalUserID, region]);
 
   const handleSubmitRecord = useCallback(
     (recordID, userID, newStatus) => {
