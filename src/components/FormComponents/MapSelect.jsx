@@ -2,7 +2,7 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { TextField, Grid, Typography } from "@mui/material";
+import { TextField, Grid, Typography, Tabs, Tab } from "@mui/material";
 import L from "leaflet";
 import {
   MapContainer,
@@ -290,6 +290,31 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
 
+  // Which input method the current data implies, so the matching tab opens
+  // automatically (loading a record, drawing on the map, picking a search
+  // result). null when the data doesn't point to any one method (nothing
+  // entered yet), in which case a manually-selected tab is left alone.
+  const derivedTab = polyIsDrawn
+    ? "polygon"
+    : !disabled && mapData.selectedLocation
+      ? "search"
+      : bboxIsDrawn
+        ? "bbox"
+        : null;
+
+  const [tab, setTab] = React.useState(derivedTab || "bbox");
+  const prevDerivedTabRef = useRef(derivedTab);
+  useEffect(() => {
+    if (derivedTab && derivedTab !== prevDerivedTabRef.current) {
+      setTab(derivedTab);
+    }
+    prevDerivedTabRef.current = derivedTab;
+  }, [derivedTab]);
+
+  // Read-only mode has nothing to switch to — other tabs would just be empty —
+  // so it always shows whichever method actually produced the saved data.
+  const activeTab = disabled ? derivedTab || "bbox" : tab;
+
   return (
     <div>
       {!disabled && (
@@ -348,122 +373,156 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </FeatureGroup>
       </MapContainer>
       <br />
-      <QuestionText>
-        <I18n>
-          <En>Bounding Box Coordinates</En>
-          <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
-        </I18n>
-        {((bboxIsDrawn && !polyIsDrawn) || fieldsAreEmpty) && (
-          <RequiredMark passes={validateField(record, "map")} />
-        )}
 
-        <SupplementalText>
+      {fieldsAreEmpty && (
+        <QuestionText>
           <I18n>
-            <En>
-              If you are providing a bounding box, please provide the
-              coordinates in decimal degrees (eg 58.66) and not in decimal
-              minutes seconds.
-            </En>
-            <Fr>
-              Si vous fournissez des coordonnées de délimitation, veuillez les
-              fournir en <b>degrés décimaux</b>.
-            </Fr>
+            <En>Geographic extent</En>
+            <Fr>Étendue géographique</Fr>
           </I18n>
-        </SupplementalText>
-      </QuestionText>
-      <Grid container direction="row" spacing={3}>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="North" fr="Nord" />}
-            value={mapData.north ?? ""}
-            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            onChange={handleBBoxChange("north")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="South" fr="Sud" />}
-            value={mapData.south ?? ""}
-            onChange={handleBBoxChange("south")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="East" fr="Est" />}
-            value={mapData.east ?? ""}
-            onChange={handleBBoxChange("east")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            value={mapData.west ?? ""}
-            label={<I18n en="West" fr="Ouest" />}
-            onChange={handleBBoxChange("west")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-      </Grid>
-
-      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        <I18n>
-          <En>OR</En>
-          <Fr>Ou</Fr>
-        </I18n>
-      </Typography>
-
-      <QuestionText>
-        <I18n>
-          <En>Polygon coordinates</En>
-          <Fr>Coordonnées du/des polygone(s)</Fr>
-        </I18n>
-        {(polyIsDrawn || fieldsAreEmpty) && (
           <RequiredMark passes={validateField(record, "map")} />
-        )}
-        <SupplementalText>
-          <I18n>
-            <En>
-              If you are providing polygon coordinates, they must start and end
-              with the same point. Eg,
-            </En>
-            <Fr>
-              La suite de coordonnées doit commencer et se terminer par le même point. Par exemple,
-            </Fr>
-          </I18n>{" "}
-          48,-128 56,-133 56,-147 48,-128
-        </SupplementalText>
-      </QuestionText>
-      <TextField
-        value={mapData.polygon || ""}
-        onChange={handleChangePoly()}
-        type="text"
-        fullWidth
-        disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
-      />
-
-      {!disabled && (
-        <>
-          <Typography
-            variant="h6"
-            style={{ margin: "20px", marginLeft: "20%" }}
-          >
+          <SupplementalText>
             <I18n>
-              <En>OR</En>
-              <Fr>Ou</Fr>
+              <En>
+                Provide the extent as a bounding box, a polygon, or by
+                searching for a named location.
+              </En>
+              <Fr>
+                Fournissez l&apos;étendue sous forme de cadre englobant, de
+                polygone, ou en recherchant un lieu par son nom.
+              </Fr>
             </I18n>
-          </Typography>
-          <GeographicLocationSearch
-            updateMap={handleSearchSelect}
-            mapData={mapData}
-            disabled={disabled}
+          </SupplementalText>
+        </QuestionText>
+      )}
+
+      <Tabs
+        value={activeTab}
+        onChange={(_, newTab) => setTab(newTab)}
+        sx={{ marginBottom: 2 }}
+      >
+        <Tab
+          value="bbox"
+          label={<I18n en="Bounding box" fr="Cadre englobant" />}
+          disabled={disabled}
+        />
+        <Tab
+          value="polygon"
+          label={<I18n en="Polygon" fr="Polygone" />}
+          disabled={disabled}
+        />
+        {!disabled && (
+          <Tab
+            value="search"
+            label={<I18n en="Search by name" fr="Recherche par nom" />}
+          />
+        )}
+      </Tabs>
+
+      {activeTab === "bbox" && (
+        <>
+          <QuestionText>
+            <I18n>
+              <En>Bounding Box Coordinates</En>
+              <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
+            </I18n>
+            {bboxIsDrawn && !polyIsDrawn && (
+              <RequiredMark passes={validateField(record, "map")} />
+            )}
+            <SupplementalText>
+              <I18n>
+                <En>
+                  Please provide the coordinates in decimal degrees (eg
+                  58.66) and not in decimal minutes seconds.
+                </En>
+                <Fr>
+                  Veuillez les fournir en <b>degrés décimaux</b>.
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+          <Grid container direction="row" spacing={3}>
+            <Grid size={2}>
+              <TextField
+                label={<I18n en="North" fr="Nord" />}
+                value={mapData.north ?? ""}
+                inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                onChange={handleBBoxChange("north")}
+                type="number"
+                disabled={disabled || polyIsDrawn}
+              />
+            </Grid>
+            <Grid size={2}>
+              <TextField
+                label={<I18n en="South" fr="Sud" />}
+                value={mapData.south ?? ""}
+                onChange={handleBBoxChange("south")}
+                type="number"
+                disabled={disabled || polyIsDrawn}
+              />
+            </Grid>
+            <Grid size={2}>
+              <TextField
+                label={<I18n en="East" fr="Est" />}
+                value={mapData.east ?? ""}
+                onChange={handleBBoxChange("east")}
+                type="number"
+                disabled={disabled || polyIsDrawn}
+              />
+            </Grid>
+            <Grid size={2}>
+              <TextField
+                value={mapData.west ?? ""}
+                label={<I18n en="West" fr="Ouest" />}
+                onChange={handleBBoxChange("west")}
+                type="number"
+                disabled={disabled || polyIsDrawn}
+              />
+            </Grid>
+          </Grid>
+        </>
+      )}
+
+      {activeTab === "polygon" && (
+        <>
+          <QuestionText>
+            <I18n>
+              <En>Polygon coordinates</En>
+              <Fr>Coordonnées du/des polygone(s)</Fr>
+            </I18n>
+            {polyIsDrawn && (
+              <RequiredMark passes={validateField(record, "map")} />
+            )}
+            <SupplementalText>
+              <I18n>
+                <En>
+                  The coordinates must start and end with the same point.
+                  Eg,
+                </En>
+                <Fr>
+                  La suite de coordonnées doit commencer et se terminer par
+                  le même point. Par exemple,
+                </Fr>
+              </I18n>{" "}
+              48,-128 56,-133 56,-147 48,-128
+            </SupplementalText>
+          </QuestionText>
+          <TextField
+            value={mapData.polygon || ""}
+            onChange={handleChangePoly()}
+            type="text"
+            fullWidth
+            disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
           />
         </>
+      )}
+
+      {activeTab === "search" && !disabled && (
+        <GeographicLocationSearch
+          updateMap={handleSearchSelect}
+          mapData={mapData}
+          disabled={disabled}
+        />
       )}
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
