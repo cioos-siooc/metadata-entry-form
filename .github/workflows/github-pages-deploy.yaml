@@ -51,6 +51,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_AUTH_MICROSOFT: true
           VITE_AUTH_ORCID: true
+          # Served from the custom domain https://form.cioos.ca (see public/CNAME)
+          VITE_BASE_PATH: "/"
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
