@@ -86,6 +86,11 @@ function buildPalette(mode, primaryHex, secondaryHex) {
       paper: paperBg,
       subtle: dark ? neutrals[800] : neutrals[100],
       brandSubtle: alpha(primary, dark ? 0.12 : 0.06),
+      // Dropdowns and menus. A step LIGHTER than `subtle`, so a floating panel
+      // reads as above the card it overlaps — `paper` is darker than `subtle`
+      // on dark, which made popovers look punched into the surface. The shadow
+      // ramp is dark ink, so on dark this lift is what does the separating.
+      floating: dark ? neutrals[700] : paperBg,
     },
     text: {
       primary: dark ? neutrals[50] : neutrals[900],

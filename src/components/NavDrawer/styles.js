@@ -1,5 +1,8 @@
 
 export const drawerWidth = 260;
+// Collapsed rail: wide enough for the nav icons, which keep their tooltips.
+// Matches SectionRail's collapsed width so the two rails agree.
+export const collapsedDrawerWidth = 72;
 
 // sx objects for NavDrawer. Kept out of the component so the JSX stays readable;
 // each is a plain object or a theme callback, the same shapes sx already accepts.
@@ -92,11 +95,21 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     width: drawerWidth,
+    // Labels are still in the DOM when collapsed (only the subheaders unmount),
+    // so the narrow paper has to clip them rather than scroll.
+    overflowX: "hidden",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+
+  // Applied on top of `drawer` / `drawerPaper` (both set width) to collapse the
+  // permanent drawer to an icon rail. Desktop only — the mobile drawer is
+  // `temporary` and goes full width.
+  drawerCollapsed: {
+    width: collapsedDrawerWidth,
+  },
 
   toolbar: (theme) => ({
     display: "flex",
@@ -105,6 +118,11 @@ const styles = {
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
   }),
+
+  toolbarCollapsed: {
+    justifyContent: "center",
+    padding: 0,
+  },
 
   content: (theme) => ({
     flexGrow: 1,

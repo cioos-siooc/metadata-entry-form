@@ -6,6 +6,14 @@ import { radii, motion } from "./tokens";
 export default function buildComponents(theme) {
   const focusRing = `0 0 0 3px rgba(${theme.vars.palette.primary.mainChannel} / 0.18)`;
   const focusRingError = `0 0 0 3px rgba(${theme.vars.palette.error.mainChannel} / 0.18)`;
+  // MuiPaper defaults to elevation 0 app-wide (see below), which also flattens
+  // every floating surface — dropdowns then have no edge separating them from
+  // the inputs they overlap. Menus, Selects and Autocompletes get one back.
+  const floatingSurface = {
+    border: `1px solid ${theme.vars.palette.divider}`,
+    boxShadow: theme.shadows[5],
+    backgroundColor: theme.vars.palette.background.floating,
+  };
 
   return {
     MuiCssBaseline: {
@@ -155,6 +163,17 @@ export default function buildComponents(theme) {
           marginTop: 4,
           fontSize: "0.75rem",
         },
+      },
+    },
+
+    MuiPopover: {
+      styleOverrides: {
+        paper: floatingSurface,
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        paper: floatingSurface,
       },
     },
 

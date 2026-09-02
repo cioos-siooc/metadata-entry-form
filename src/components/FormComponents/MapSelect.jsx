@@ -2,7 +2,7 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { TextField, Grid, Typography } from "@mui/material";
+import { Box, Card, Stack, TextField, Typography } from "@mui/material";
 import L from "leaflet";
 import {
   MapContainer,
@@ -14,13 +14,33 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
-import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
-import { QuestionText, SupplementalText } from "./QuestionStyles";
+import { HeadingText, SupplementalText } from "./QuestionStyles";
 import { validateField } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
-import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
+import { radii } from "../../theme/tokens";
+
+// Laid out as a compass cross so each edge sits where it points. `gridColumn`
+// is over the 4-column grid below: N and S span the middle half, W and E take
+// a half each, so all four fields end up the same width.
+// Values centre in the box, and so does the label while the field is still
+// empty. Once it has a value the label shrinks into the border notch, which the
+// fieldset draws on the left — so the shrunk state keeps MUI's own placement.
+const CENTERED_FIELD_SX = {
+  "& .MuiInputBase-input": { textAlign: "center" },
+  "& .MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
+    left: "50%",
+    transform: "translate(-50%, 9px)",
+  },
+};
+
+const BBOX_FIELDS = [
+  { key: "north", label: <I18n en="North" fr="Nord" />, gridColumn: "2 / 4" },
+  { key: "west", label: <I18n en="West" fr="Ouest" />, gridColumn: "1 / 3" },
+  { key: "east", label: <I18n en="East" fr="Est" />, gridColumn: "3 / 5" },
+  { key: "south", label: <I18n en="South" fr="Sud" />, gridColumn: "2 / 4" },
+];
 
 const bboxCoordTest = /-?\d+\.?\d+/;
 
@@ -108,14 +128,6 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
       const newData = { ...withoutSelectedLocation(mapData), [key]: e.target.value };
-      updateMap(newData);
-    };
-  }
-
-  // update a mapData property using an event
-  function handleDescriptionChange(key) {
-    return (e) => {
-      const newData = { ...mapData, [key]: e.target.value };
       updateMap(newData);
     };
   }
@@ -288,228 +300,181 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
   const polyIsDrawn = Boolean(mapData.polygon);
 
-  const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
-
   return (
-    <div>
-      {!disabled && (
-        <GeographicLocationSearch
-          updateMap={handleSearchSelect}
-          mapData={mapData}
-          disabled={disabled}
-        />
-      )}
-      <MapContainer
-        style={{ width: "100%", height: "55vh" }}
-        center={[50, -100]}
-        zoom={3}
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={2}
+      alignItems="stretch"
+    >
+      {/* Leaflet needs a definite pixel height, so the wrapper carries it */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          minWidth: 0,
+          // md+: the flex row stretches this to the sidebar's height, so the two
+          // columns always end level. xs: stacked, so it needs its own height.
+          height: { xs: 340, md: "auto" },
+          minHeight: { md: 480 },
+          // Same corner as the sidebar Card, which takes radii.lg from the
+          // MuiCard override. overflow clips Leaflet's tiles to it.
+          borderRadius: `${radii.lg}px`,
+          overflow: "hidden",
+        }}
       >
-        <TileLayer
-          attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {disabled === false && (
-          <GeomanControl onCreated={onCreated} onRemove={onRemove} />
-        )}
-
-        {/* Editable bbox rectangle — handles appear immediately for resizing */}
-        {!disabled && !polyIsDrawn && (
-          <BboxLayer
-            mapData={mapData}
-            drawnLayerRef={drawnLayerRef}
-            handleLayerEditRef={handleLayerEditRef}
+        <MapContainer
+          style={{ width: "100%", height: "100%" }}
+          center={[50, -100]}
+          zoom={3}
+        >
+          <TileLayer
+            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        )}
-
-        {/* Editable polygon — handles appear immediately for vertex editing */}
-        {!disabled && polyIsDrawn && (
-          <PolygonLayer
-            mapData={mapData}
-            drawnLayerRef={drawnLayerRef}
-            handleLayerEditRef={handleLayerEditRef}
-          />
-        )}
-
-        <FeatureGroup>
-          {/* Static polygon display in read-only / disabled mode */}
-          {disabled && polyIsDrawn && (
-            <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
+          {disabled === false && (
+            <GeomanControl onCreated={onCreated} onRemove={onRemove} />
           )}
 
-          {/* Static bbox display in read-only / disabled mode */}
-          {disabled && hasBoundingBox() && !polyIsDrawn && (
-            <LeafletRectangle
-              bounds={[
-                [mapData.north, mapData.east],
-                [mapData.south, mapData.west],
-              ]}
+          {/* Editable bbox rectangle — handles appear immediately for resizing */}
+          {!disabled && !polyIsDrawn && (
+            <BboxLayer
+              mapData={mapData}
+              drawnLayerRef={drawnLayerRef}
+              handleLayerEditRef={handleLayerEditRef}
             />
           )}
-        </FeatureGroup>
-      </MapContainer>
-      <br />
-      <QuestionText>
-        <I18n>
-          <En>Bounding Box Coordinates</En>
-          <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
-        </I18n>
-        {((bboxIsDrawn && !polyIsDrawn) || fieldsAreEmpty) && (
-          <RequiredMark passes={validateField(record, "map")} />
+
+          {/* Editable polygon — handles appear immediately for vertex editing */}
+          {!disabled && polyIsDrawn && (
+            <PolygonLayer
+              mapData={mapData}
+              drawnLayerRef={drawnLayerRef}
+              handleLayerEditRef={handleLayerEditRef}
+            />
+          )}
+
+          <FeatureGroup>
+            {/* Static polygon display in read-only / disabled mode */}
+            {disabled && polyIsDrawn && (
+              <LeafletPolygon positions={parsePolyString(mapData.polygon)} />
+            )}
+
+            {/* Static bbox display in read-only / disabled mode */}
+            {disabled && hasBoundingBox() && !polyIsDrawn && (
+              <LeafletRectangle
+                bounds={[
+                  [mapData.north, mapData.east],
+                  [mapData.south, mapData.west],
+                ]}
+              />
+            )}
+          </FeatureGroup>
+        </MapContainer>
+      </Box>
+
+      <Card
+        variant="outlined"
+        sx={{
+          width: { xs: "100%", md: 320 },
+          flexShrink: 0,
+          p: 2,
+          bgcolor: "background.subtle",
+        }}
+      >
+        <SupplementalText sx={{ mt: 0 }}>
+          <I18n>
+            <En>Search for a place, or draw on the map.</En>
+            <Fr>Recherchez un lieu ou tracez sur la carte.</Fr>
+          </I18n>
+        </SupplementalText>
+
+        {!disabled && (
+          <Box sx={{ mt: 1.5 }}>
+            <GeographicLocationSearch
+              updateMap={handleSearchSelect}
+              mapData={mapData}
+              disabled={disabled}
+            />
+          </Box>
         )}
 
+        <Stack direction="row" alignItems="baseline" sx={{ mt: 1 }}>
+          <HeadingText sx={{ fontSize: "0.9375rem", mb: 0 }}>
+            <I18n>
+              <En>Enter your bounding box or polygon</En>
+              <Fr>Saisissez votre cadre englobant ou votre polygone</Fr>
+            </I18n>
+          </HeadingText>
+          <RequiredMark passes={validateField(record, "map")} />
+        </Stack>
+
+        <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 600 }}>
+          <I18n en="Bounding box" fr="Cadre englobant" />
+        </Typography>
         <SupplementalText>
           <I18n>
             <En>
-              If you are providing a bounding box, please provide the
-              coordinates in decimal degrees (eg 58.66) and not in decimal
-              minutes seconds.
+              Decimal degrees (eg 58.66), not degrees, minutes and seconds.
             </En>
             <Fr>
-              Si vous fournissez des coordonnées de délimitation, veuillez les
-              fournir en <b>degrés décimaux</b>.
+              Degrés décimaux (p. ex. 58,66), et non degrés, minutes et
+              secondes.
             </Fr>
           </I18n>
         </SupplementalText>
-      </QuestionText>
-      <Grid container direction="row" spacing={3}>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="North" fr="Nord" />}
-            value={mapData.north ?? ""}
-            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            onChange={handleBBoxChange("north")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="South" fr="Sud" />}
-            value={mapData.south ?? ""}
-            onChange={handleBBoxChange("south")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            label={<I18n en="East" fr="Est" />}
-            value={mapData.east ?? ""}
-            onChange={handleBBoxChange("east")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-        <Grid size={2}>
-          <TextField
-            value={mapData.west ?? ""}
-            label={<I18n en="West" fr="Ouest" />}
-            onChange={handleBBoxChange("west")}
-            type="number"
-            disabled={disabled || Boolean(mapData.polygon)}
-          />
-        </Grid>
-      </Grid>
+        <Box
+          sx={{
+            mt: 1,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            columnGap: 1.5,
+            rowGap: 1,
+          }}
+        >
+          {BBOX_FIELDS.map(({ key, label, gridColumn }) => (
+            <TextField
+              key={key}
+              sx={{ gridColumn, ...CENTERED_FIELD_SX }}
+              label={label}
+              value={mapData[key] ?? ""}
+              onChange={handleBBoxChange(key)}
+              type="number"
+              size="small"
+              fullWidth
+              inputProps={{ inputMode: "numeric" }}
+              disabled={disabled || Boolean(mapData.polygon)}
+            />
+          ))}
+        </Box>
 
-      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        <I18n>
-          <En>OR</En>
-          <Fr>Ou</Fr>
-        </I18n>
-      </Typography>
-
-      <QuestionText>
-        <I18n>
-          <En>Polygon coordinates</En>
-          <Fr>Coordonnées du/des polygone(s)</Fr>
-        </I18n>
-        {(polyIsDrawn || fieldsAreEmpty) && (
-          <RequiredMark passes={validateField(record, "map")} />
-        )}
+        <Typography variant="subtitle2" sx={{ mt: 3, fontWeight: 600 }}>
+          <I18n en="Polygon coordinates" fr="Coordonnées du polygone" />
+        </Typography>
         <SupplementalText>
           <I18n>
             <En>
-              If you are providing polygon coordinates, they must start and end
-              with the same point. Eg,
+              Coordinates must start and end with the same point. Eg,
             </En>
             <Fr>
-              La suite de coordonnées doit commencer et se terminer par le même point. Par exemple,
+              La suite de coordonnées doit commencer et se terminer par le même
+              point. Par exemple,
             </Fr>
           </I18n>{" "}
           48,-128 56,-133 56,-147 48,-128
         </SupplementalText>
-      </QuestionText>
-      <TextField
-        value={mapData.polygon || ""}
-        onChange={handleChangePoly()}
-        type="text"
-        fullWidth
-        disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
-      />
-
-      {!disabled && (
-        <>
-          <Typography
-            variant="h6"
-            style={{ margin: "20px", marginLeft: "20%" }}
-          >
-            <I18n>
-              <En>OR</En>
-              <Fr>Ou</Fr>
-            </I18n>
-          </Typography>
-          <GeographicLocationSearch
-            updateMap={handleSearchSelect}
-            mapData={mapData}
-            disabled={disabled}
-          />
-        </>
-      )}
-
-      <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
-        <I18n>
-          <En>And optionally</En>
-          <Fr>Et en option</Fr>
-        </I18n>
-      </Typography>
-
-      <QuestionText>
-        <I18n>
-          <En>Describe the Geographic Extent of the dataset. Required for Biota (biological) datasets</En>
-          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données Biote (biologiques)</Fr>
-        </I18n>
-        {resourceTypeIncludes(record.resourceType, "biota") && (
-          <RequiredMark passes={Boolean(mapData.description)} />
-        )}
-        <SupplementalText>
-          <I18n>
-            <En>
-              <p>
-                Optionally you can include a text description of the geographic
-                area covered by this dataset or study. This field is required
-                when the Biota (biological) topic category is selected but is
-                optional for all other topic categories.
-              </p>
-            </En>
-            <Fr>
-              <p>
-                Vous pouvez éventuellement inclure une description textuelle
-                de la zone géographique. Ce champ est obligatoire lorsque la
-                catégorie thématique Biote (biologique) est sélectionnée, mais
-                est facultatif pour toutes les autres catégories thématiques.
-              </p>
-            </Fr>
-          </I18n>
-        </SupplementalText>
-      </QuestionText>
-
-      <BilingualTextInput
-        value={mapData.description}
-        onChange={handleDescriptionChange("description")}
-        name="description"
-        disabled={disabled}
-      />
-    </div>
+        <TextField
+          value={mapData.polygon || ""}
+          onChange={handleChangePoly()}
+          type="text"
+          size="small"
+          multiline
+          minRows={2}
+          maxRows={4}
+          fullWidth
+          sx={{ mt: 1 }}
+          disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
+        />
+      </Card>
+    </Stack>
   );
 };
 

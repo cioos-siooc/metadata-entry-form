@@ -39,7 +39,9 @@ describe("<GeographicLocationSearch />", () => {
         disabled={false}
       />
     );
-    const input = screen.getByRole("combobox");
+    const input = screen.getByRole("combobox", {
+      name: /location by name/i,
+    });
     await userEvent.type(input, "British Colum");
     await userEvent.click(await screen.findByText("British Columbia"));
     return input;
@@ -96,10 +98,12 @@ describe("<GeographicLocationSearch />", () => {
       />
     );
 
-    expect(screen.getByRole("combobox")).toHaveValue("British Columbia");
     expect(
-      screen.getByRole("button", { name: "Provinces and Territories" })
-    ).toHaveAttribute("aria-pressed", "true");
+      screen.getByRole("combobox", { name: /location by name/i })
+    ).toHaveValue("British Columbia");
+    expect(
+      screen.getByRole("combobox", { name: /Filter by type/i })
+    ).toHaveTextContent("Provinces and Territories");
   });
 
   it("clears the saved location without touching the geometry", async () => {

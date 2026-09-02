@@ -199,14 +199,28 @@ export default function MiniDrawer({ children }) {
             },
           ]}
         >
-          {region && isMobile && (
-            <IconButton
-              aria-label="open drawer"
-              onClick={() => setOpen(!open)}
-              edge="start"
+          {/* On desktop this is the only reachable toggle: the drawer's own
+              header row sits under the AppBar, which is zIndex.drawer + 1 at
+              lg and up. */}
+          {region && (isMobile || loggedIn) && (
+            <Tooltip
+              title={
+                open ? (
+                  <I18n en="Collapse menu" fr="Réduire le menu" />
+                ) : (
+                  <I18n en="Expand menu" fr="Développer le menu" />
+                )
+              }
             >
-              <MenuIcon />
-            </IconButton>
+              <IconButton
+                aria-label={open ? "Collapse menu" : "Expand menu"}
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{ color: "primary.contrastText" }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Tooltip>
           )}
           <Typography
             variant="h5"
@@ -266,23 +280,51 @@ export default function MiniDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={handleDrawerClose}
-          sx={[styles.drawer, !loggedIn && styles.hide]}
+          sx={[
+            styles.drawer,
+            !isMobile && !open && styles.drawerCollapsed,
+            !loggedIn && styles.hide,
+          ]}
           slotProps={{
             paper: {
-              sx: [styles.drawerPaper, isMobile && { width: "100%" }],
+              sx: [
+                styles.drawerPaper,
+                !isMobile && !open && styles.drawerCollapsed,
+                isMobile && { width: "100%" },
+              ],
             },
           }}
         >
-          <Box sx={styles.toolbar}>
-            <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
-              <I18n>
-                <En>Metadata Entry Tool</En>
-                <Fr>Outil de saisie de métadonnées</Fr>
-              </I18n>
-            </Typography>
-            <IconButton onClick={() => handleDrawerClose()}>
-              {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
-            </IconButton>
+          <Box sx={[styles.toolbar, !open && styles.toolbarCollapsed]}>
+            {open && (
+              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+                <I18n>
+                  <En>Metadata Entry Tool</En>
+                  <Fr>Outil de saisie de métadonnées</Fr>
+                </I18n>
+              </Typography>
+            )}
+            <Tooltip
+              placement="right"
+              title={
+                open ? (
+                  <I18n en="Collapse menu" fr="Réduire le menu" />
+                ) : (
+                  <I18n en="Expand menu" fr="Développer le menu" />
+                )
+              }
+            >
+              <IconButton
+                aria-label={open ? "Collapse menu" : "Expand menu"}
+                onClick={() => (open ? handleDrawerClose() : setOpen(true))}
+              >
+                {(theme.direction === "rtl") === open ? (
+                  <ChevronRight />
+                ) : (
+                  <ChevronLeft />
+                )}
+              </IconButton>
+            </Tooltip>
           </Box>
           <List sx={styles.sidebarList}>
             {user && region && (

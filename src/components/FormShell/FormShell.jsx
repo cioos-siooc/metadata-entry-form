@@ -57,8 +57,13 @@ export default function FormShell({
             px: { xs: 2, md: 4 },
             py: { xs: 2, md: 3 },
             pb: 12,
-            maxWidth: 1080,
-            mx: "auto",
+            // Headroom so the form actually widens when the NavDrawer is
+            // collapsed; at 1080 the reclaimed space just became right margin.
+            maxWidth: 1280,
+            // Sits against the rail rather than centring in the leftover space,
+            // which opened a wide gap between the two on large screens.
+            ml: 0,
+            mr: "auto",
             width: "100%",
           }}
         >
