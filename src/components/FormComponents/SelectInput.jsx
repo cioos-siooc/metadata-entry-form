@@ -3,7 +3,6 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Typography,
   Tooltip,
 } from "@mui/material";
@@ -36,11 +35,12 @@ const SelectInput = ({
         onChange={onChange}
       >
         <MenuItem value="">
-          <InputLabel id="demo-simple-select-label">
-            <Typography>
-              {label || <I18n en="Choose" fr="Choisir" />}
-            </Typography>
-          </InputLabel>
+          {/* Placeholder row. Plain text, not an InputLabel — the theme now
+              styles outlined InputLabels as captions stacked above a field,
+              which is not what this is. */}
+          <Typography color="text.secondary">
+            {label || <I18n en="Choose" fr="Choisir" />}
+          </Typography>
         </MenuItem>
         {options.map((v, i) => (
           <MenuItem key={v} value={v}>

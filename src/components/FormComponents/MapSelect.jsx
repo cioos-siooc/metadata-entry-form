@@ -1,4 +1,4 @@
-/* eslint-disable no-case-declarations */
+ 
 import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -29,10 +29,9 @@ import { radii } from "../../theme/tokens";
 // fieldset draws on the left — so the shrunk state keeps MUI's own placement.
 const CENTERED_FIELD_SX = {
   "& .MuiInputBase-input": { textAlign: "center" },
-  "& .MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
-    left: "50%",
-    transform: "translate(-50%, 9px)",
-  },
+  // Labels now stack above the field theme-wide, so centring is just text
+  // alignment over the full field width.
+  "& .MuiInputLabel-root": { width: "100%", textAlign: "center" },
 };
 
 const BBOX_FIELDS = [
@@ -112,6 +111,31 @@ function withoutSelectedLocation(data) {
   const { selectedLocation, ...rest } = data;
   return rest;
 }
+
+// Each input group sits in its own outlined box, so the sidebar reads as three
+// labelled sections rather than one run of fields. Titles are text.primary and
+// the copy under them is SupplementalText, consistently across all three.
+const SidebarSection = ({ title, action, children }) => (
+  <Box
+    sx={(theme) => ({
+      mt: 1.5,
+      p: 1.5,
+      border: "1px solid",
+      // Not `divider` — the sidebar Card is background.subtle, which divider
+      // matches exactly on dark.
+      borderColor: theme.vars.palette.subtleBorder,
+      borderRadius: `${radii.md}px`,
+    })}
+  >
+    <Stack direction="row" alignItems="baseline" spacing={0.5}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+        {title}
+      </Typography>
+      {action}
+    </Stack>
+    {children}
+  </Box>
+);
 
 const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const drawnLayerRef = useRef(null);
@@ -382,22 +406,35 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       >
         <SupplementalText sx={{ mt: 0 }}>
           <I18n>
-            <En>Search for a place, or draw on the map.</En>
-            <Fr>Recherchez un lieu ou tracez sur la carte.</Fr>
+            <En>
+              To designate a spatial area, search for a location, draw on the
+              map, add a bounding box or enter polygon coordinates.
+            </En>
+            <Fr>
+              Pour définir une étendue spatiale, recherchez un lieu, tracez sur
+              la carte, ajoutez un cadre englobant ou saisissez les coordonnées
+              d&apos;un polygone.
+            </Fr>
           </I18n>
         </SupplementalText>
 
         {!disabled && (
-          <Box sx={{ mt: 1.5 }}>
-            <GeographicLocationSearch
-              updateMap={handleSearchSelect}
-              mapData={mapData}
-              disabled={disabled}
-            />
-          </Box>
+          <SidebarSection
+            title={
+              <I18n en="Search for a location" fr="Rechercher un lieu" />
+            }
+          >
+            <Box sx={{ mt: 1 }}>
+              <GeographicLocationSearch
+                updateMap={handleSearchSelect}
+                mapData={mapData}
+                disabled={disabled}
+              />
+            </Box>
+          </SidebarSection>
         )}
 
-        <Stack direction="row" alignItems="baseline" sx={{ mt: 1 }}>
+        <Stack direction="row" alignItems="baseline" sx={{ mt: 2.5 }}>
           <HeadingText sx={{ fontSize: "0.9375rem", mb: 0 }}>
             <I18n>
               <En>Enter your bounding box or polygon</En>
@@ -407,9 +444,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <RequiredMark passes={validateField(record, "map")} />
         </Stack>
 
-        <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 600 }}>
-          <I18n en="Bounding box" fr="Cadre englobant" />
-        </Typography>
+        <SidebarSection title={<I18n en="Bounding box" fr="Cadre englobant" />}>
         <SupplementalText>
           <I18n>
             <En>
@@ -445,10 +480,13 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             />
           ))}
         </Box>
+        </SidebarSection>
 
-        <Typography variant="subtitle2" sx={{ mt: 3, fontWeight: 600 }}>
-          <I18n en="Polygon coordinates" fr="Coordonnées du polygone" />
-        </Typography>
+        <SidebarSection
+          title={
+            <I18n en="Polygon coordinates" fr="Coordonnées du polygone" />
+          }
+        >
         <SupplementalText>
           <I18n>
             <En>
@@ -473,6 +511,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           sx={{ mt: 1 }}
           disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
         />
+        </SidebarSection>
       </Card>
     </Stack>
   );

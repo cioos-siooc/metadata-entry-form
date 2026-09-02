@@ -104,6 +104,9 @@ export default function buildComponents(theme) {
     },
 
     MuiOutlinedInput: {
+      defaultProps: {
+        notched: false,
+      },
       styleOverrides: {
         root: {
           borderRadius: radii.md,
@@ -112,6 +115,11 @@ export default function buildComponents(theme) {
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: theme.vars.palette.divider,
             transition: `border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
+            // Labels sit above the field (see MuiInputLabel), so the outline is
+            // a plain rounded rect — no legend gap, and no -5px offset to make
+            // room for one.
+            top: 0,
+            "& legend": { display: "none" },
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: theme.vars.palette.text.disabled,
@@ -140,6 +148,31 @@ export default function buildComponents(theme) {
       styleOverrides: {
         root: {
           fontWeight: 500,
+        },
+        // A notched label reads as a layout glitch, so outlined fields get a
+        // plain caption stacked above instead. FormControl is a column flex
+        // container, so `position: static` is all it takes to stack it; the
+        // shrink transform has to be cancelled in both states, and the size
+        // that `scale(0.75)` used to provide is set explicitly.
+        outlined: {
+          position: "static",
+          transform: "none",
+          transformOrigin: "top left",
+          maxWidth: "100%",
+          fontSize: "0.8125rem",
+          fontWeight: 500,
+          lineHeight: 1.4,
+          marginBottom: 4,
+          color: theme.vars.palette.text.secondary,
+          "&.MuiInputLabel-shrink": {
+            transform: "none",
+          },
+          "&.Mui-focused": {
+            color: theme.vars.palette.text.secondary,
+          },
+          "&.Mui-error": {
+            color: theme.vars.palette.error.main,
+          },
         },
       },
     },

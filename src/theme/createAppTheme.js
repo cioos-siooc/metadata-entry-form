@@ -105,6 +105,10 @@ function buildPalette(mode, primaryHex, secondaryHex) {
       disabled: dark ? neutrals[700] : neutrals[300],
       disabledBackground: dark ? neutrals[800] : neutrals[100],
     },
+    // Border for elements sitting ON `background.subtle`. On dark, `divider` is
+    // neutrals[800] — the exact value of `subtle` — so a divider-coloured
+    // border vanishes against it. Light already has a gap between the two.
+    subtleBorder: dark ? neutrals[700] : neutrals[200],
     // Brand surface & border tokens used by FormSection / chips / rails.
     primarySurface: alpha(primary, dark ? 0.16 : 0.08),
     primarySurfaceHover: alpha(primary, dark ? 0.24 : 0.14),
