@@ -112,10 +112,20 @@ function withoutSelectedLocation(data) {
   return rest;
 }
 
-// Each input group sits in its own outlined box, so the sidebar reads as three
-// labelled sections rather than one run of fields. Titles are text.primary and
-// the copy under them is SupplementalText, consistently across all three.
-const SidebarSection = ({ title, action, children }) => (
+// Headings sit above their box, never inside it — one heading may cover more
+// than one box (bounding box + polygon share theirs), so putting it inside
+// would misattribute it to the first box alone.
+const GroupHeading = ({ children, action, sx }) => (
+  <Stack direction="row" alignItems="baseline" sx={{ mt: 2.5, ...sx }}>
+    <HeadingText sx={{ fontSize: "0.9375rem", mb: 0 }}>{children}</HeadingText>
+    {action}
+  </Stack>
+);
+
+// Each input group sits in its own outlined box, so the sidebar reads as
+// sections rather than one run of fields. `title` names an individual box and
+// is only used where a heading covers several.
+const SidebarSection = ({ title, children }) => (
   <Box
     sx={(theme) => ({
       mt: 1.5,
@@ -127,12 +137,11 @@ const SidebarSection = ({ title, action, children }) => (
       borderRadius: `${radii.md}px`,
     })}
   >
-    <Stack direction="row" alignItems="baseline" spacing={0.5}>
+    {title && (
       <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
         {title}
       </Typography>
-      {action}
-    </Stack>
+    )}
     {children}
   </Box>
 );
@@ -419,30 +428,28 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </SupplementalText>
 
         {!disabled && (
-          <SidebarSection
-            title={
+          <>
+            <GroupHeading sx={{ mt: 2 }}>
               <I18n en="Search for a location" fr="Rechercher un lieu" />
-            }
-          >
-            <Box sx={{ mt: 1 }}>
+            </GroupHeading>
+            <SidebarSection>
               <GeographicLocationSearch
                 updateMap={handleSearchSelect}
                 mapData={mapData}
                 disabled={disabled}
               />
-            </Box>
-          </SidebarSection>
+            </SidebarSection>
+          </>
         )}
 
-        <Stack direction="row" alignItems="baseline" sx={{ mt: 2.5 }}>
-          <HeadingText sx={{ fontSize: "0.9375rem", mb: 0 }}>
-            <I18n>
-              <En>Enter your bounding box or polygon</En>
-              <Fr>Saisissez votre cadre englobant ou votre polygone</Fr>
-            </I18n>
-          </HeadingText>
-          <RequiredMark passes={validateField(record, "map")} />
-        </Stack>
+        <GroupHeading
+          action={<RequiredMark passes={validateField(record, "map")} />}
+        >
+          <I18n>
+            <En>Enter your bounding box or polygon</En>
+            <Fr>Saisissez votre cadre englobant ou votre polygone</Fr>
+          </I18n>
+        </GroupHeading>
 
         <SidebarSection title={<I18n en="Bounding box" fr="Cadre englobant" />}>
         <SupplementalText>

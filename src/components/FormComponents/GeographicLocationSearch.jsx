@@ -471,8 +471,9 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     setGeonameOptions([]);
   }
 
+  // No outer margin here: the only caller wraps this in a padded section.
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box>
       <TextField
         select
         size="small"
