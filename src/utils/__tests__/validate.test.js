@@ -3,7 +3,8 @@ import {
   validateEmail,
   validateURL,
   validateDOI,
-  validateField
+  validateField,
+  getErrorsByTab
 } from '../validate';
 
 // Mock Firebase dependencies to avoid "ReadableStream" errors and side effects
@@ -54,6 +55,31 @@ describe('Utility: validate.js', () => {
 
       expect(validateField(valid, 'keywords')).toBeTruthy();
       expect(validateField(invalid, 'keywords')).toBeFalsy();
+    });
+
+    test('Bounding box errors are specific', () => {
+      const flipped = {
+        map: { north: "1", south: "10", east: "1", west: "10" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      const [error] = getErrorsByTab(flipped).spatial;
+      expect(error.en).toMatch(/North latitude must be greater/);
+      expect(error.en).toMatch(/East longitude must be greater/);
+
+      const outOfRange = {
+        map: { north: "100", south: "1", east: "10", west: "1" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      expect(getErrorsByTab(outOfRange).spatial[0].en).toMatch(/out of range: North/);
+
+      const partial = {
+        map: { north: "10", south: "", east: "10", west: "1" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      expect(getErrorsByTab(partial).spatial[0].en).toMatch(/Missing bounding box coordinate\(s\): South/);
+
+      const empty = { map: { north: "", south: "", east: "", west: "" }, resourceType: ["dataset"], noPlatform: true, instruments: [] };
+      expect(getErrorsByTab(empty).spatial[0].en).toBe("Spatial information is missing");
     });
 
     test('Spatial Map validation', () => {
