@@ -1,261 +1,181 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  Box,
   Card,
   CardContent,
   Typography,
   Button,
   Stack,
   Snackbar,
-  Box,
+  Alert,
 } from "@mui/material";
-import Alert from "@mui/material/Alert";
-import { makeStyles } from "../../tss-cache";
 import { En, Fr, I18n } from "../I18n";
-import { signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../../auth";
+import {
+  signInWithGoogle,
+  signInWithMicrosoft,
+  signInWithOrcid,
+} from "../../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
 import regions from "../../regions";
-
-const useStyles = makeStyles()((theme) => ({
-  root: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "60vh",
-    padding: theme.spacing(2),
-    boxSizing: "border-box",
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(1.5),
-    },
-  },
-  card: {
-    width: "100%",
-    maxWidth: 450,
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-    borderRadius: 16,
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "100%",
-      borderRadius: 12,
-    },
-  },
-  cardContent: {
-    padding: theme.spacing(2.5),
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(1.5),
-      "&:last-child": {
-        paddingBottom: theme.spacing(1.5),
-      },
-    },
-  },
-  regionLogo: {
-    maxHeight: 120,
-    width: "auto",
-    display: "block",
-    [theme.breakpoints.down("sm")]: {
-      maxHeight: 90,
-    },
-  },
-  title: {
-    fontWeight: 700,
-    marginBottom: theme.spacing(0.5),
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "1.5rem",
-      marginBottom: theme.spacing(0.25),
-    },
-  },
-  subtitle: {
-    color: theme.palette.text.secondary,
-    marginBottom: theme.spacing(2),
-    fontSize: "0.9rem",
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "0.8rem",
-      marginBottom: theme.spacing(1.5),
-    },
-  },
-  buttonStack: {
-    gap: theme.spacing(0.6),
-    [theme.breakpoints.down("sm")]: {
-      gap: theme.spacing(0.4),
-    },
-  },
-  button: {
-    padding: theme.spacing(1, 1.5),
-    textTransform: "none",
-    fontSize: "0.9rem",
-    fontWeight: 600,
-    borderRadius: 10,
-    transition: "all 0.3s ease",
-    border: `2px solid ${theme.palette.divider}`,
-    minHeight: 44,
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0.75, 1.25),
-      fontSize: "0.85rem",
-      minHeight: 40,
-    },
-    "&:hover": {
-      transform: "translateY(-2px)",
-      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
-      borderColor: theme.palette.primary.main,
-    },
-    "&:active": {
-      transform: "translateY(0)",
-    },
-  },
-  footer: {
-    marginTop: theme.spacing(2),
-    paddingTop: theme.spacing(3),
-    borderTop: `1px solid ${theme.palette.divider}`,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.down("sm")]: {
-      marginTop: theme.spacing(1.5),
-      paddingTop: theme.spacing(1),
-    },
-  },
-  footerLogo: {
-    maxHeight: 40,
-    width: "auto",
-    opacity: 0.7,
-    [theme.breakpoints.down("sm")]: {
-      maxHeight: 32,
-    },
-  },
-  footerText: {
-    fontSize: "0.75rem",
-    color: theme.palette.text.secondary,
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "0.7rem",
-    },
-  },
-  supportText: {
-    fontSize: "0.85rem",
-    color: theme.palette.text.secondary,
-    lineHeight: 1.5,
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "0.75rem",
-    },
-  },
-  supportEmail: {
-    color: theme.palette.primary.main,
-    textDecoration: "none",
-    fontWeight: 500,
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-}));
 
 const enableMicrosoft = import.meta.env.VITE_AUTH_MICROSOFT !== "false";
 const enableOrcid = import.meta.env.VITE_AUTH_ORCID !== "false";
 
 const Login = () => {
-  const { classes } = useStyles();
   const { region } = useParams();
-  const [error, setError] = useState(null);
   const regionEmail = regions[region]?.email;
+  const [error, setError] = useState(null);
+  const [loadingProvider, setLoadingProvider] = useState(null);
 
-  const handleLogin = async (loginMethod) => {
+  const handleLogin = async (loginMethod, key) => {
     try {
+      setLoadingProvider(key);
       await loginMethod();
     } catch (err) {
       console.error("Login Error:", err);
       if (err.code !== "auth/cancelled-popup-request") {
         setError(err.message);
       }
+    } finally {
+      setLoadingProvider(null);
     }
   };
 
+  const providers = [
+    { key: "google", icon: <GoogleIcon />, label: <I18n en="Continue with Google" fr="Continuer avec Google" />, fn: signInWithGoogle },
+    enableMicrosoft && { key: "microsoft", icon: <MicrosoftIcon />, label: <I18n en="Continue with Microsoft" fr="Continuer avec Microsoft" />, fn: signInWithMicrosoft },
+    enableOrcid && { key: "orcid", icon: <OrcidIcon />, label: <I18n en="Continue with ORCID" fr="Continuer avec ORCID" />, fn: signInWithOrcid },
+  ].filter(Boolean);
+
   return (
-    <Box className={classes.root}>
-      <Card className={classes.card}>
-        <CardContent className={classes.cardContent}>
-          <Typography variant="h4" component="h1" className={classes.title} align="center">
-            <I18n>
-              <En>Welcome</En>
-              <Fr>Bienvenue</Fr>
-            </I18n>
-          </Typography>
-
-          <Typography
-            variant="body2"
-            className={classes.subtitle}
-            align="center"
-          >
-            <I18n>
-              <En>
-                Please sign in to access your metadata records.
-              </En>
-              <Fr>
-                Veuillez vous connecter pour accéder à vos enregistrements de
-                métadonnées.
-              </Fr>
-            </I18n>
-          </Typography>
-
-          <Stack className={classes.buttonStack}>
-            <Button
-              variant="outlined"
-              fullWidth
-              className={classes.button}
-              startIcon={<GoogleIcon />}
-              onClick={() => handleLogin(signInWithGoogle)}
-            >
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        py: { xs: 4, md: 8 },
+        px: 2,
+      }}
+    >
+      <Card
+        variant="outlined"
+        sx={(theme) => ({
+          maxWidth: 460,
+          width: "100%",
+          boxShadow: theme.shadows[2],
+          borderRadius: 3,
+        })}
+      >
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <Stack spacing={1} sx={{ mb: 3, textAlign: "center" }}>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
               <I18n>
-                <En>Google</En>
-                <Fr>Google</Fr>
+                <En>Welcome back</En>
+                <Fr>Bienvenue</Fr>
               </I18n>
-            </Button>
-            {enableMicrosoft && (
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              <I18n>
+                <En>Sign in to manage your metadata records.</En>
+                <Fr>
+                  Connectez-vous pour accéder à vos enregistrements de
+                  métadonnées.
+                </Fr>
+              </I18n>
+            </Typography>
+          </Stack>
+
+          <Stack spacing={1.5}>
+            {providers.map(({ key, icon, label, fn }) => (
               <Button
+                key={key}
                 variant="outlined"
+                size="large"
                 fullWidth
-                className={classes.button}
-                startIcon={<MicrosoftIcon />}
-                onClick={() => handleLogin(signInWithMicrosoft)}
+                startIcon={icon}
+                disabled={loadingProvider && loadingProvider !== key}
+                onClick={() => handleLogin(fn, key)}
+                sx={{
+                  justifyContent: "center",
+                  py: 1.25,
+                  borderColor: "divider",
+                  color: "text.primary",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                    bgcolor: "primarySurface",
+                  },
+                }}
               >
-                <I18n>
-                  <En>Microsoft</En>
-                  <Fr>Microsoft</Fr>
-                </I18n>
+                {loadingProvider === key ? (
+                  <I18n en="Signing in…" fr="Connexion…" />
+                ) : (
+                  label
+                )}
               </Button>
-            )}
-            {enableOrcid && (
-              <Button
-                variant="outlined"
-                fullWidth
-                className={classes.button}
-                startIcon={<OrcidIcon />}
-                onClick={() => handleLogin(signInWithOrcid)}
-              >
-                <I18n>
-                  <En>ORCID</En>
-                  <Fr>ORCID</Fr>
-                </I18n>
-              </Button>
-            )}
+            ))}
           </Stack>
 
           {regionEmail && (
-            <Box sx={{ marginTop: 2, textAlign: "center" }}>
-              <Typography className={classes.supportText}>
-                <I18n>
-                  <En>For any issues, contact </En>
-                  <Fr>En cas de problème, contactez </Fr>
-                </I18n>
-                <a href={`mailto:${regionEmail}`} className={classes.supportEmail}>
-                  {regionEmail}
-                </a>
-              </Typography>
-            </Box>
+            <Typography
+              variant="body2"
+              sx={{
+                textAlign: "center",
+                color: "text.secondary",
+                mt: 2.5,
+                lineHeight: 1.5,
+              }}
+            >
+              <I18n>
+                <En>For any issues, contact </En>
+                <Fr>En cas de problème, contactez </Fr>
+              </I18n>
+              <Box
+                component="a"
+                href={`mailto:${regionEmail}`}
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                {regionEmail}
+              </Box>
+            </Typography>
           )}
 
-          <Box className={classes.footer}>
-            <img
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              textAlign: "center",
+              color: "text.secondary",
+              mt: 3,
+              lineHeight: 1.5,
+            }}
+          >
+            <I18n
+              en="By signing in you agree to the terms of your CIOOS regional association."
+              fr="En vous connectant, vous acceptez les conditions de votre association régionale du SIOOC."
+            />
+          </Typography>
+
+          <Box
+            sx={{
+              mt: 3,
+              pt: 3,
+              borderTop: 1,
+              borderColor: "divider",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              component="img"
               src={new URL("../../static/cioos-national_EN_FR_min.svg", import.meta.url).href}
               alt="CIOOS"
-              className={classes.footerLogo}
+              sx={{ maxHeight: 40, width: "auto", opacity: 0.7 }}
             />
           </Box>
         </CardContent>
@@ -265,8 +185,13 @@ const Login = () => {
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={() => setError(null)} severity="error">
+        <Alert
+          onClose={() => setError(null)}
+          severity="error"
+          variant="filled"
+        >
           {error}
         </Alert>
       </Snackbar>

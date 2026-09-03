@@ -3,16 +3,9 @@ import React from "react";
 import {
   Box,
   CircularProgress,
-  Grid,
-  Tab,
-  Tabs,
-  Fab,
-  Tooltip,
-  Typography,
-  LinearProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { withStyles } from "../../tss-cache";
-import { Save } from "@mui/icons-material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getDatabase,
@@ -24,9 +17,7 @@ import {
 } from "firebase/database";
 
 import FormClassTemplate from "./FormClassTemplate";
-import { I18n, En, Fr } from "../I18n";
-import StatusChip from "../FormComponents/StatusChip";
-import LastEdited from "../FormComponents/LastEdited";
+import { I18n } from "../I18n";
 import NotFound from "./NotFound";
 
 import SimpleModal from "../FormComponents/SimpleModal";
@@ -39,6 +30,9 @@ import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
 import TaxaTab from "../Tabs/TaxaTab";
 
+import FormShell from "../FormShell/FormShell";
+import FormShellSections from "../FormShell/useFormSections";
+
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import firebase from "../../firebase";
 import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
@@ -49,63 +43,28 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
-import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
 
-const LinearProgressWithLabel = ({ value }) => (
-  <Tooltip
-    title={
-      <I18n
-        en="Percentage of required fields filled in"
-        fr="Pourcentage de champs obligatoires remplis"
-      />
-    }
-  >
-    <Box display="flex" width="90%" style={{ margin: "auto" }}>
-      <Box width="100%" mr={1}>
-        <LinearProgress
-          variant="determinate"
-          value={value}
-          style={{ marginLeft: "-30px" }}
-        />
-      </Box>
-      <Box minWidth={35}>
-        <Typography variant="body2" color="textSecondary">{`${Math.round(
-          value
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  </Tooltip>
-);
-
-function TabPanel({ children, value, index, ...other }) {
+function SectionSwitcher({ sections, activeSection, render }) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
+    <Box>
+      {sections.map((section) =>
+        section.id === activeSection ? (
+          <Box
+            key={section.id}
+            role="tabpanel"
+            id={`section-panel-${section.id}`}
+          >
+            {render(section.id)}
+          </Box>
+        ) : null
+      )}
+    </Box>
   );
 }
-
-const useStyles = (theme) => ({
-  tabRoot: {
-    minWidth: "115px",
-  },
-  fab: {
-    position: "fixed",
-    bottom: theme.spacing(2),
-    right: theme.spacing(2),
-    zIndex: 5,
-  },
-});
 
 class MetadataForm extends FormClassTemplate {
   constructor(props) {
@@ -469,7 +428,7 @@ class MetadataForm extends FormClassTemplate {
       regenerateXMLforRecord({ path, status, filename, region });
     }
 
-    this.setState({ saveDisabled: true });
+    this.setState({ saveDisabled: true, savedSnackbarOpen: true });
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
@@ -500,7 +459,6 @@ class MetadataForm extends FormClassTemplate {
     if (!record) {
       return <NotFound />;
     }
-    const { classes } = this.props;
 
     const disabled = !loggedInUserCanEditRecord;
 
@@ -512,197 +470,185 @@ class MetadataForm extends FormClassTemplate {
       updateRecord: this.updateRecord,
       userID: loggedInUserID,
     };
-    const percentValidInt = Math.round(percentValid(record) * 100);
 
-    return loading ? (
-      <CircularProgress />
-    ) : (
-      <Grid
-        container
-        direction="column"
-        justifyContent="space-between"
-        alignItems="stretch"
-        spacing={3}
-      >
-        <SimpleModal
-          open={saveIncompleteRecordModalOpen}
-          modalQuestion={
-            <I18n
-              en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
-              fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+    if (loading) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    const percentValidFraction = percentValid(record);
+    const activeSection = tabIndex || "start";
+    const saveButtonDisabled =
+      saveDisabled || !(record.title?.en || record.title?.fr) || disabled;
+
+    const renderSection = (sectionId) => {
+      switch (sectionId) {
+        case "start":
+          return <StartTab {...tabProps} />;
+        case "identification":
+          return <IdentificationTab {...tabProps} projects={projects} />;
+        case "taxa":
+          return <TaxaTab {...tabProps} />;
+        case "spatial":
+          return <SpatialTab {...tabProps} />;
+        case "contact":
+          return (
+            <ContactTab
+              userContacts={userContacts}
+              saveToContacts={(c) => this.saveUpdateContact(c)}
+              {...tabProps}
             />
-          }
-          onClose={() => {
-            this.toggleModal("saveIncompleteRecordModalOpen", false);
-          }}
-          onAccept={() => {
-            this.handleSaveClick(true);
-            this.toggleModal("saveIncompleteRecordModalOpen", false);
-          }}
-        />
+          );
+        case "distribution":
+          return <ResourcesTab {...tabProps} />;
+        case "platform":
+          return (
+            <PlatformTab
+              userInstruments={userInstruments}
+              saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+              userPlatforms={userPlatforms}
+              saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
+              {...tabProps}
+            />
+          );
+        case "submit":
+          return (
+            <SubmitTab
+              {...tabProps}
+              doiUpdated={this.state.doiUpdated}
+              doiError={this.state.doiError}
+              submitRecord={() => this.handleSubmitRecord()}
+            />
+          );
+        default:
+          return null;
+      }
+    };
 
-        <Fab
-          color="primary"
-          aria-label="add"
-          className={classes.fab}
-          disabled={
-            saveDisabled || !(record.title.en || record.title.fr) || disabled
-          }
-          onClick={() => this.handleSaveClick()}
-        >
-          <Tooltip
-            placement="right-start"
-            title={
-              saveDisabled
-                ? "Dataset needs a title before it can be saved"
-                : "Save record."
+    return (
+      <FormShellWrapper
+        record={record}
+        language={language}
+        loggedInUserCanEditRecord={loggedInUserCanEditRecord}
+        activeSection={activeSection}
+        onSectionChange={(id) => this.setState({ tabIndex: id })}
+        dirty={!saveDisabled}
+        saving={false}
+        saveDisabled={saveButtonDisabled}
+        onSave={() => this.handleSaveClick()}
+        isReviewer={isReviewer}
+        overflowActions={[]}
+        renderSection={renderSection}
+        modal={
+          <SimpleModal
+            open={saveIncompleteRecordModalOpen}
+            modalQuestion={
+              <I18n
+                en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
+                fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+              />
             }
-          >
-            <span>
-              <Save />
-            </span>
-          </Tooltip>
-        </Fab>
-        <Grid container spacing={2} direction="row" alignItems="center">
-          <Grid size="grow">
-            <Tabs
-              scrollButtons="auto"
-              variant="fullWidth"
-              value={tabIndex}
-              onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
-              aria-label="simple tabs example"
-            >
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.start[language]}
-                value="start"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.dataID[language]}
-                value="identification"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.taxa[language]}
-                value="taxa"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.spatial[language]}
-                value="spatial"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label="Contact"
-                value="contact"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.resources[language]}
-                value="distribution"
-              />
-              {!["model"].includes(record.metadataScopeIso) && (
-                <Tab
-                  fullWidth
-                  classes={{ root: classes.tabRoot }}
-                  label={tabs.platform[language]}
-                  value="platform"
-                />
-              )}
-              {loggedInUserCanEditRecord && (
-                <Tab
-                  fullWidth
-                  classes={{ root: classes.tabRoot }}
-                  label={<I18n en="Submit" fr="Soumettre" />}
-                  value="submit"
-                  disabled={
-                    record.status === "submitted" ||
-                    record.status === "published"
-                  }
-                />
-              )}
-            </Tabs>
-            <div style={{ marginTop: "10px", textAlign: "center" }}>
-              <Typography variant="h5">
-                {(language && record.title?.[language]) || (
-                  <I18n en="New Record" fr="Nouvel enregistrement" />
-                )}{" "}
-                <StatusChip status={record.status} />
-              </Typography>
-              <Typography component="div">
-                <i>
-                  <LastEdited dateStr={record.created} />
-                  {record.lastEditedBy?.displayName && (
-                    <>
-                      <I18n>
-                        <En>by </En>
-                        <Fr>Par </Fr>
-                      </I18n>
-                      {record.lastEditedBy.displayName}{" "}
-                      {isReviewer && record.lastEditedBy.email}
-                    </>
-                  )}
-                </i>
-                <LinearProgressWithLabel value={percentValidInt} />
-              </Typography>
-            </div>
-          </Grid>
-        </Grid>
-        <TabPanel value={tabIndex} index="start">
-          <StartTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="identification">
-          <IdentificationTab {...tabProps} projects={projects} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="taxa">
-          <TaxaTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="spatial">
-          <SpatialTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="platform">
-          <PlatformTab
-            userInstruments={userInstruments}
-            saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
-            userPlatforms={userPlatforms}
-            saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
-            {...tabProps}
+            onClose={() => {
+              this.toggleModal("saveIncompleteRecordModalOpen", false);
+            }}
+            onAccept={() => {
+              this.handleSaveClick(true);
+              this.toggleModal("saveIncompleteRecordModalOpen", false);
+            }}
           />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="distribution">
-          <ResourcesTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="submit">
-          <SubmitTab
-            {...tabProps}
-            doiUpdated={this.state.doiUpdated}
-            doiError={this.state.doiError}
-            submitRecord={() => this.handleSubmitRecord()}
-          />
-        </TabPanel>
-
-        <TabPanel value={tabIndex} index="contact">
-          {/* userContacts are the ones the user has saved, not necessarily part of the record */}
-          <ContactTab
-            userContacts={userContacts}
-            saveToContacts={(c) => this.saveUpdateContact(c)}
-            {...tabProps}
-          />
-        </TabPanel>
-      </Grid>
+        }
+        savedSnackbarOpen={this.state.savedSnackbarOpen}
+        onCloseSavedSnackbar={() =>
+          this.setState({ savedSnackbarOpen: false })
+        }
+        percentValidFraction={percentValidFraction}
+      />
     );
   }
 }
 MetadataForm.contextType = UserContext;
 
-const StyledMetadataForm = withStyles(MetadataForm, useStyles);
+// Bridge between the class component and the FormShell hook-based UI.
+function FormShellWrapper({
+  record,
+  language,
+  loggedInUserCanEditRecord,
+  activeSection,
+  onSectionChange,
+  dirty,
+  saving,
+  saveDisabled,
+  onSave,
+  isReviewer,
+  overflowActions,
+  renderSection,
+  modal,
+  savedSnackbarOpen,
+  onCloseSavedSnackbar,
+  percentValidFraction,
+}) {
+  const sections = FormShellSections({
+    record,
+    language,
+    loggedInUserCanEditRecord,
+  });
+
+  const title = (language && record.title?.[language]) || "";
+
+  return (
+    <>
+      {modal}
+      <FormShell
+        sections={sections}
+        activeSection={activeSection}
+        onSectionChange={onSectionChange}
+        headerProps={{
+          title,
+          status: record.status,
+          lastEditedDate: record.created,
+          lastEditedBy: record.lastEditedBy,
+          isReviewer,
+          dirty,
+          saving,
+          saveDisabled,
+          onSave,
+          overflowActions,
+          percentValid: percentValidFraction,
+          language,
+        }}
+        actionBarProps={{
+          dirty,
+          saving,
+          saveDisabled,
+          onSave,
+        }}
+      >
+        <SectionSwitcher
+          sections={sections}
+          activeSection={activeSection}
+          render={renderSection}
+        />
+      </FormShell>
+      <Snackbar
+        open={Boolean(savedSnackbarOpen)}
+        autoHideDuration={2500}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        onClose={onCloseSavedSnackbar}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={onCloseSavedSnackbar}
+        >
+          <I18n en="Saved" fr="Enregistré" />
+        </Alert>
+      </Snackbar>
+    </>
+  );
+}
 
 // Wrapper component to provide router params and navigate to the class component
 const MetadataFormWrapper = (props) => {
@@ -717,7 +663,7 @@ const MetadataFormWrapper = (props) => {
   };
 
   return (
-    <StyledMetadataForm
+    <MetadataForm
       {...props}
       match={match}
       history={{ push: navigate }}

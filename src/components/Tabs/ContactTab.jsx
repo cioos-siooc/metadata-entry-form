@@ -1,17 +1,14 @@
 import React, { useState } from "react";
+import FormSection from "../FormShell/FormSection";
 
 import { useParams } from "react-router-dom";
 
-import { Paper, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 
 import EditContact from "../FormComponents/ContactEditor";
 
-import {
-  QuestionText,
-  SupplementalText,
-  paperClass,
-} from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -89,7 +86,7 @@ const ContactTab = ({
   const contact = contacts[activeContact];
   return (
     <Grid container spacing={3}>
-      <Paper style={paperClass}>
+      <FormSection>
         <Grid >
           <QuestionText>
             <I18n>
@@ -142,9 +139,9 @@ const ContactTab = ({
             </Alert>
           )}
         </Grid>
-      </Paper>
+      </FormSection>
       {showApaBox && (
-        <Paper style={paperClass}>
+        <FormSection>
           <QuestionText>
             <div>
               <I18n>
@@ -165,7 +162,7 @@ const ContactTab = ({
           <SupplementalText>
             <ApaPreview language={language} record={record} />
           </SupplementalText>
-        </Paper>
+        </FormSection>
       )}
 
       <Grid container direction="row" spacing={2} style={{ marginLeft: "5px" }}>
@@ -192,7 +189,7 @@ const ContactTab = ({
         {contact && (
           <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             <Grid container direction="column">
-              <Paper style={paperClass}>
+              <FormSection>
                 <Grid container direction="column" spacing={3}>
                   <Grid >
                     <EditContact
@@ -208,7 +205,7 @@ const ContactTab = ({
                     />
                   </Grid>
                 </Grid>
-              </Paper>
+              </FormSection>
             </Grid>
           </Grid>
         )}

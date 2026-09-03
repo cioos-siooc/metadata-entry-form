@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
@@ -7,6 +7,8 @@ import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
 import CopyableCell from "./CopyableCell";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
+import { FALLBACK_PRIMARY, semantic, neutrals } from "../../theme/tokens";
+import { pickContrastText } from "../../theme/createAppTheme";
 
 // DataCite DOI lifecycle states mapped to MUI chip colors (matches the chip
 // used in the DOI form section so the status reads the same everywhere).
@@ -211,15 +213,17 @@ export const sharedConfig = {
 // Column Helpers
 // ============================================================================
 
+// Always a concrete colour: the chip sits on an arbitrary region colour for
+// published records, so the label colour has to be derived from it rather than
+// assumed. Semantic + neutral values are scheme-independent by design.
 export const getStatusColor = (status, region) => {
-  const regionColor = regions[region]?.colors?.primary || "#006e90";
   switch (status) {
     case "published":
-      return regionColor;
+      return regions[region]?.colors?.primary || FALLBACK_PRIMARY;
     case "submitted":
-      return "#f57c00";
+      return semantic.warning.main;
     default:
-      return "#757575";
+      return neutrals[500];
   }
 };
 
@@ -293,9 +297,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
         <Chip
           label={label}
           size="small"
-          style={{
-            backgroundColor: bgColor,
-            color: "#ffffff",
+          sx={{
+            bgcolor: bgColor,
+            color: pickContrastText(bgColor),
             fontWeight: 500,
           }}
         />
@@ -479,9 +483,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
     type: "boolean",
     renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: "#4caf50" }} fontSize="small" />
+        <Check sx={{ color: "success.main" }} fontSize="small" />
       ) : (
-        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+        <Close sx={{ color: "text.disabled" }} fontSize="small" />
       ),
   },
 
@@ -501,7 +505,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
     ],
     renderCell: (params) => {
       const label = DOI_STATE_LABELS[params.value];
-      if (!label) return <span style={{ color: "#bdbdbd" }}>—</span>;
+      if (!label) return <Box component="span" sx={{ color: "text.disabled" }}>—</Box>;
       return (
         <Chip
           label={label[language]}
@@ -542,9 +546,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
     type: "boolean",
     renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: "#4caf50" }} fontSize="small" />
+        <Check sx={{ color: "success.main" }} fontSize="small" />
       ) : (
-        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+        <Close sx={{ color: "text.disabled" }} fontSize="small" />
       ),
   },
 

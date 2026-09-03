@@ -204,8 +204,8 @@ describe("<WhatsNewDialog />", () => {
     expect(screen.getByText(/Feature 1/)).toBeInTheDocument();
     expect(screen.getByText(/Feature 2/)).toBeInTheDocument();
 
-    // Verify that the markdown container exists and has content
-    const markdownDivs = document.querySelectorAll(".markdownBody, .css-i4xmxb-markdownBody");
-    expect(markdownDivs.length).toBeGreaterThan(0);
+    // Markdown is rendered as real elements, not raw text
+    expect(screen.getByText(/Feature 1/).closest("li")).toBeInTheDocument();
+    expect(document.querySelectorAll("ul li").length).toBeGreaterThan(0);
   });
 });

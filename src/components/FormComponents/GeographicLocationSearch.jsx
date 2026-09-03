@@ -3,14 +3,14 @@ import { useParams } from "react-router-dom";
 import {
   Autocomplete,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
+  MenuItem,
   Box,
   CircularProgress,
   Chip,
   Snackbar,
   Alert,
 } from "@mui/material";
+import Search from "@mui/icons-material/Search";
 import Apartment from "@mui/icons-material/Apartment";
 import Home from "@mui/icons-material/Home";
 import LocationCity from "@mui/icons-material/LocationCity";
@@ -471,37 +471,27 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     setGeonameOptions([]);
   }
 
+  // No outer margin here: the only caller wraps this in a padded section.
   return (
-    <Box sx={{ marginBottom: 2 }}>
-      <ToggleButtonGroup
-        value={typeFilter}
-        exclusive
-        onChange={(_, newFilter) => {
-          if (newFilter !== null) setTypeFilter(newFilter);
-        }}
+    <Box>
+      <TextField
+        select
         size="small"
+        fullWidth
+        label={<I18n en="Filter by type" fr="Filtrer par type" />}
+        value={typeFilter}
+        onChange={(e) => setTypeFilter(e.target.value)}
         disabled={disabled}
-        sx={{
-          marginBottom: 1,
-          flexWrap: "wrap",
-          gap: 1,
-          // Render each button as a self-contained pill so wrapping to a second
-          // row looks intentional (the default grouped style collapses adjacent
-          // borders, which breaks across a line wrap).
-          "& .MuiToggleButtonGroup-grouped": {
-            border: "1px solid",
-            borderColor: "divider",
-            borderRadius: 1,
-            "&:not(:first-of-type)": { marginLeft: 0 },
-          },
-        }}
+        // Enough clearance for the next field's outlined label, which sits
+        // above its border and collided with this one at mb: 1.
+        sx={{ mb: 2.5 }}
       >
         {TYPE_FILTERS.map((f) => (
-          <ToggleButton key={f.value} value={f.value}>
+          <MenuItem key={f.value} value={f.value}>
             {f[language] || f.en}
-          </ToggleButton>
+          </MenuItem>
         ))}
-      </ToggleButtonGroup>
+      </TextField>
 
       <Autocomplete
         options={allOptions}
@@ -561,12 +551,18 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
             {...params}
             label={
               <I18n>
-                <En>Add location by name</En>
-                <Fr>Ajouter un lieu par nom</Fr>
+                <En>Add or search location by name</En>
+                <Fr>Ajouter ou rechercher un lieu par nom</Fr>
               </I18n>
             }
             InputProps={{
               ...params.InputProps,
+              startAdornment: (
+                <>
+                  <Search fontSize="small" sx={{ color: "text.secondary", ml: 0.5 }} />
+                  {params.InputProps.startAdornment}
+                </>
+              ),
               endAdornment: (
                 <>
                   {geonameLoading && <CircularProgress size={20} />}
