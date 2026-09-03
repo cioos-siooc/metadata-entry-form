@@ -193,13 +193,14 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           <SupplementalText>
             <I18n>
               <En>
-                Define the area your data covers by drawing on the map,
-                entering coordinates, or searching for a place name.
+                Define the area your data covers by searching for a place
+                name, drawing on the map, or entering bounding box or polygon
+                coordinates.
               </En>
               <Fr>
-                Définissez la zone couverte par vos données en dessinant sur la
-                carte, en saisissant des coordonnées ou en recherchant un lieu
-                par son nom.
+                Définissez la zone couverte par vos données en recherchant un
+                lieu par son nom, en traçant sur la carte ou en saisissant les
+                coordonnées d&apos;un cadre englobant ou d&apos;un polygone.
               </Fr>
             </I18n>
           </SupplementalText>

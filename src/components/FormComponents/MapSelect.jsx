@@ -413,23 +413,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           bgcolor: "background.subtle",
         }}
       >
-        <SupplementalText sx={{ mt: 0 }}>
-          <I18n>
-            <En>
-              To designate a spatial area, search for a location, draw on the
-              map, add a bounding box or enter polygon coordinates.
-            </En>
-            <Fr>
-              Pour définir une étendue spatiale, recherchez un lieu, tracez sur
-              la carte, ajoutez un cadre englobant ou saisissez les coordonnées
-              d&apos;un polygone.
-            </Fr>
-          </I18n>
-        </SupplementalText>
-
         {!disabled && (
           <>
-            <GroupHeading sx={{ mt: 2 }}>
+            <GroupHeading sx={{ mt: 0 }}>
               <I18n en="Search for a location" fr="Rechercher un lieu" />
             </GroupHeading>
             <SidebarSection>
