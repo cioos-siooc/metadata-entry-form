@@ -49,6 +49,68 @@ const polygonIsValid = (polygon) => {
   );
 };
 
+const bboxLabels = {
+  north: { en: "North", fr: "Nord" },
+  south: { en: "South", fr: "Sud" },
+  east: { en: "East", fr: "Est" },
+  west: { en: "West", fr: "Ouest" },
+};
+
+// Specific complaints about a bounding box, so the user gets more than "Spatial information is missing".
+// Returns [] when nothing is filled in (that's the generic "missing" case) or when the box is fine.
+export const bboxProblems = (map = {}) => {
+  const coords = {
+    north: parseFloat(map.north),
+    south: parseFloat(map.south),
+    east: parseFloat(map.east),
+    west: parseFloat(map.west),
+  };
+  const names = (keys, language) =>
+    keys.map((k) => bboxLabels[k][language]).join(", ");
+  const problems = [];
+
+  const missing = Object.keys(coords).filter((k) => Number.isNaN(coords[k]));
+  if (missing.length && missing.length < 4)
+    problems.push({
+      en: `Missing bounding box coordinate(s): ${names(missing, "en")}`,
+      fr: `Coordonnée(s) de délimitation manquante(s) : ${names(missing, "fr")}`,
+    });
+
+  const outOfRange = Object.keys(coords).filter(
+    (k) =>
+      !Number.isNaN(coords[k]) &&
+      !(k === "north" || k === "south"
+        ? validateLatitude(coords[k])
+        : validateLongitude(coords[k]))
+  );
+  if (outOfRange.length)
+    problems.push({
+      en: `Coordinate(s) out of range: ${names(
+        outOfRange,
+        "en"
+      )}. Latitudes must be between -90 and 90, longitudes between -360 and 360`,
+      fr: `Coordonnée(s) hors limites : ${names(
+        outOfRange,
+        "fr"
+      )}. Les latitudes doivent être comprises entre -90 et 90, les longitudes entre -360 et 360`,
+    });
+
+  // NaN comparisons are false, so these only fire once both values are numbers
+  if (coords.north < coords.south)
+    problems.push({
+      en: "North latitude must be greater than or equal to South latitude",
+      fr: "La latitude Nord doit être supérieure ou égale à la latitude Sud",
+    });
+
+  if (coords.east < coords.west)
+    problems.push({
+      en: "East longitude must be greater than or equal to West longitude",
+      fr: "La longitude Est doit être supérieure ou égale à la longitude Ouest",
+    });
+
+  return problems;
+};
+
 const contactIsFilled = (contact) =>
   Boolean(
     contact.role &&
@@ -155,9 +217,24 @@ const validators = {
   },
   // if biological data then geographic description is required
   map: {
-    error: {
-      en: "Spatial information is missing",
-      fr: "L'état du jeu de données n'est pas spécifié",
+    error: (val) => {
+      const problems = val ? bboxProblems(val) : [];
+      if (problems.length)
+        return {
+          en: problems.map((p) => p.en).join("; "),
+          fr: problems.map((p) => p.fr).join("; "),
+        };
+      if (val && val.polygon)
+        return {
+          en:
+            "Polygon coordinates are invalid: use space separated lat,lon pairs that start and end with the same point",
+          fr:
+            "Les coordonnées du polygone sont invalides : utilisez des paires lat,lon séparées par des espaces qui commencent et se terminent par le même point",
+        };
+      return {
+        en: "Spatial information is missing",
+        fr: "Les informations spatiales sont manquantes",
+      };
     },
     tab: "spatial",
     validation: (val, record) => {
@@ -357,7 +434,10 @@ export const getErrorsByTab = (record) => {
   const invalidFields = fields.filter((field) => !validateField(record, field));
   const fieldErrorInfo = invalidFields.map((field) => {
     const { error, tab } = validators[field];
-    return { error, tab };
+    return {
+      error: typeof error === "function" ? error(record[field], record) : error,
+      tab,
+    };
   });
 
   return fieldErrorInfo.reduce((acc, { error, tab }) => {
