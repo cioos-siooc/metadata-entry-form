@@ -160,9 +160,9 @@ const Login = () => {
     try {
       await loginMethod();
     } catch (err) {
-      console.error("Login Error:", err);
+      console.error("Login Error:", err.code, err.customData, err);
       if (err.code !== "auth/cancelled-popup-request") {
-        setError(err.message);
+        setError(`${err.message} (${err.code})`);
       }
     }
   };
