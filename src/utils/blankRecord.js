@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { deepCopy } from "./misc";
+import { SCHEMA_VERSION } from "../schema/version";
 
 const blankRecord = {
   title: { en: "", fr: "" },
@@ -44,6 +45,10 @@ function getBlankRecord() {
   const record = deepCopy(blankRecord);
   record.identifier = uuidv4();
   record.created = new Date().toISOString();
+  // Stamped so conformance runs can tell a record written before the schema
+  // existed from one that is actually broken. Optional in the schema — records
+  // predating this are reported as "pre-schema", not as failures.
+  record.schemaVersion = SCHEMA_VERSION;
   return record;
 }
 

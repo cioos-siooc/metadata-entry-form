@@ -77,7 +77,11 @@ const OWNED_BY_THIS_FORM = {
 // Fields the form reads that getBlankRecord() doesn't declare. Filtering strictly
 // to the blank record's keys would silently drop these: noTaxa is read by TaxaTab
 // and metadataScope by ApaPreview.
-const EXTRA_ALLOWED_KEYS = [
+// Deliberately narrower than the schema's KNOWN_EXTRA_KEYS: a remote source
+// must never be able to set userID, region, sharedWith, or schemaVersion.
+// src/schema/__tests__/agreement.test.js asserts this stays a subset of the
+// schema's properties without widening it.
+export const EXTRA_ALLOWED_KEYS = [
   "noTaxa",
   "noVerticalExtent",
   "metadataScope",

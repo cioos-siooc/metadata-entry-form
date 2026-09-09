@@ -1,0 +1,574 @@
+{
+  "#": {
+    "en": {
+      "title": "CIOOS Metadata Record",
+      "description": "Structural description of a CIOOS metadata record: types, shapes, and controlled vocabularies. Describes the normalized JavaScript object, not raw Realtime Database JSON — see schema/README.md §1."
+    },
+    "fr": {
+      "title": "Enregistrement de métadonnées du SIOOC",
+      "description": "Description structurelle d'un enregistrement de métadonnées du SIOOC : types, formes et vocabulaires contrôlés. Décrit l'objet JavaScript normalisé, et non le JSON brut de la base de données en temps réel."
+    }
+  },
+  "#/definitions/numericString": {
+    "en": {
+      "description": "A number stored as a string, or \"\" when unset. Bbox and vertical extent values are strings in the database."
+    },
+    "fr": {
+      "description": "Un nombre stocké sous forme de chaîne, ou « » si non défini. Les valeurs de cadre de délimitation et d'étendue verticale sont des chaînes dans la base de données."
+    }
+  },
+  "#/definitions/numericStringRequired": {
+    "en": {
+      "description": "A number stored as a string."
+    },
+    "fr": {
+      "description": "Un nombre stocké sous forme de chaîne."
+    }
+  },
+  "#/definitions/isoDateTime": {
+    "en": {
+      "description": "Full ISO-8601 datetime with milliseconds, e.g. 2023-10-01T19:00:00.000Z."
+    },
+    "fr": {
+      "description": "Date-heure ISO-8601 complète avec millisecondes, p. ex. 2023-10-01T19:00:00.000Z."
+    }
+  },
+  "#/definitions/bilingualText": {
+    "en": {
+      "description": "Free text in English and French, with translation provenance."
+    },
+    "fr": {
+      "description": "Texte libre en anglais et en français, avec la provenance de la traduction."
+    }
+  },
+  "#/definitions/mapExtent/properties/polygon": {
+    "en": {
+      "description": "Space-separated \"lat,lon\" pairs; at least two points, and the first pair must equal the last."
+    },
+    "fr": {
+      "description": "Paires « lat,lon » séparées par des espaces ; au moins deux points, et la première paire doit être identique à la dernière."
+    }
+  },
+  "#/definitions/contact/properties/role": {
+    "en": {
+      "description": "ISO 19115 CI_RoleCode values."
+    },
+    "fr": {
+      "description": "Valeurs ISO 19115 CI_RoleCode."
+    }
+  },
+  "#/definitions/platform/properties/type": {
+    "en": {
+      "description": "SeaVoX Platform Category (NERC L06). Stored as the English label."
+    },
+    "fr": {
+      "description": "Catégorie de plateforme SeaVoX (NERC L06). Stockée sous forme d'étiquette anglaise."
+    }
+  },
+  "#/definitions/lineageStep/properties/scope": {
+    "en": {
+      "description": "A metadataScopeCodes KEY (e.g. DataCollectionSampling), not an ISO value."
+    },
+    "fr": {
+      "description": "Une CLÉ de metadataScopeCodes (p. ex. DataCollectionSampling), et non une valeur ISO."
+    }
+  },
+  "#/definitions/lineageStep/properties/scopeIso": {
+    "en": {
+      "description": "The ISO value corresponding to `scope`."
+    },
+    "fr": {
+      "description": "La valeur ISO correspondant à « scope »."
+    }
+  },
+  "#/properties/title": {
+    "en": {
+      "title": "Title",
+      "description": "Dataset title, in both languages."
+    },
+    "fr": {
+      "title": "Titre",
+      "description": "Titre du jeu de données, dans les deux langues."
+    }
+  },
+  "#/properties/resourceType": {
+    "en": {
+      "title": "Topic category",
+      "description": "ISO 19115 MD_TopicCategoryCode values. Legacy records may store the pre-ISO names 'oceanographic' and 'biological', or a bare string instead of an array."
+    },
+    "fr": {
+      "title": "Catégorie thématique",
+      "description": "Valeurs ISO 19115 MD_TopicCategoryCode. Les enregistrements existants peuvent contenir les anciens noms « oceanographic » et « biological »."
+    }
+  },
+  "#/properties/metadataScope": {
+    "en": {
+      "title": "Resource type",
+      "description": "The kind of resource being described, e.g. Dataset or Book."
+    },
+    "fr": {
+      "title": "Type de ressource",
+      "description": "Le type de ressource décrite, par exemple Jeu de données ou Livre."
+    }
+  },
+  "#/properties/metadataScopeIso": {
+    "en": {
+      "title": "Resource type (ISO)",
+      "description": "The ISO scope code corresponding to metadataScope."
+    },
+    "fr": {
+      "title": "Type de ressource (ISO)",
+      "description": "Le code ISO correspondant à metadataScope."
+    }
+  },
+  "#/properties/datasetIdentifier": {
+    "en": {
+      "title": "DOI",
+      "description": "Digital Object Identifier as a full https://doi.org/ URL. Bare DOIs are rejected — see schema README §11."
+    },
+    "fr": {
+      "title": "DOI",
+      "description": "Identifiant d'objet numérique sous forme d'URL https://doi.org/ complète."
+    }
+  },
+  "#/properties/doiCreationStatus": {
+    "en": {
+      "title": "DOI state",
+      "description": "DataCite lifecycle state. Empty when no DOI has been minted."
+    },
+    "fr": {
+      "title": "État du DOI",
+      "description": "État du cycle de vie DataCite. Vide si aucun DOI n'a été créé."
+    }
+  },
+  "#/properties/sharedWith": {
+    "en": {
+      "title": "Shared with",
+      "description": "Map of user IDs this record has been shared with."
+    },
+    "fr": {
+      "title": "Partagé avec",
+      "description": "Liste des identifiants d'utilisateurs avec qui l'enregistrement est partagé."
+    }
+  },
+  "#/properties/abstract": {
+    "en": {
+      "title": "Abstract",
+      "description": "Dataset abstract, in both languages."
+    },
+    "fr": {
+      "title": "Résumé",
+      "description": "Résumé du jeu de données, dans les deux langues."
+    }
+  },
+  "#/properties/keywords": {
+    "en": {
+      "title": "Keywords",
+      "description": "Free-text keywords, per language."
+    },
+    "fr": {
+      "title": "Mots-clés",
+      "description": "Mots-clés libres, par langue."
+    }
+  },
+  "#/properties/eov": {
+    "en": {
+      "title": "Essential Ocean Variables",
+      "description": "GOOS Essential Ocean Variables present in the dataset. Deprecated values remain valid structurally but block submission."
+    },
+    "fr": {
+      "title": "Variables océaniques essentielles",
+      "description": "Variables océaniques essentielles du GOOS présentes dans le jeu de données."
+    }
+  },
+  "#/properties/progress": {
+    "en": {
+      "title": "Dataset status",
+      "description": "ISO 19115 MD_ProgressCode."
+    },
+    "fr": {
+      "title": "Statut du jeu de données",
+      "description": "Code ISO 19115 MD_ProgressCode."
+    }
+  },
+  "#/properties/language": {
+    "en": {
+      "title": "Primary language",
+      "description": "The dataset's primary language."
+    },
+    "fr": {
+      "title": "Langue principale",
+      "description": "La langue principale du jeu de données."
+    }
+  },
+  "#/properties/license": {
+    "en": {
+      "title": "Licence",
+      "description": "Licence under which the dataset is released."
+    },
+    "fr": {
+      "title": "Licence",
+      "description": "Licence sous laquelle le jeu de données est publié."
+    }
+  },
+  "#/properties/projects": {
+    "en": {
+      "title": "Projects",
+      "description": "Project names, from the region's admin-managed list."
+    },
+    "fr": {
+      "title": "Projets",
+      "description": "Noms de projets, issus de la liste gérée par la région."
+    }
+  },
+  "#/properties/dateStart": {
+    "en": {
+      "title": "Start date",
+      "description": "Start of the dataset's temporal extent."
+    },
+    "fr": {
+      "title": "Date de début",
+      "description": "Début de l'étendue temporelle du jeu de données."
+    }
+  },
+  "#/properties/dateEnd": {
+    "en": {
+      "title": "End date",
+      "description": "End of the dataset's temporal extent."
+    },
+    "fr": {
+      "title": "Date de fin",
+      "description": "Fin de l'étendue temporelle du jeu de données."
+    }
+  },
+  "#/properties/datePublished": {
+    "en": {
+      "title": "Date published",
+      "description": "Publication date."
+    },
+    "fr": {
+      "title": "Date de publication",
+      "description": "Date de publication."
+    }
+  },
+  "#/properties/dateRevised": {
+    "en": {
+      "title": "Date revised",
+      "description": "Most recent revision date."
+    },
+    "fr": {
+      "title": "Date de révision",
+      "description": "Date de la révision la plus récente."
+    }
+  },
+  "#/properties/edition": {
+    "en": {
+      "title": "Edition",
+      "description": "Dataset edition or version label."
+    },
+    "fr": {
+      "title": "Édition",
+      "description": "Édition ou version du jeu de données."
+    }
+  },
+  "#/properties/limitations": {
+    "en": {
+      "title": "Limitations",
+      "description": "Limitations on use, beyond the licence."
+    },
+    "fr": {
+      "title": "Limitations",
+      "description": "Limitations d'utilisation, au-delà de la licence."
+    }
+  },
+  "#/properties/map": {
+    "en": {
+      "title": "Geographic extent",
+      "description": "A bounding box, a polygon, or a text description. Which of those is sufficient depends on the topic category — see the conditional requirements page."
+    },
+    "fr": {
+      "title": "Étendue géographique",
+      "description": "Un cadre de délimitation, un polygone, ou une description textuelle."
+    }
+  },
+  "#/properties/verticalExtentMin": {
+    "en": {
+      "title": "Vertical extent minimum",
+      "description": "Shallowest depth or lowest height."
+    },
+    "fr": {
+      "title": "Étendue verticale minimale",
+      "description": "Profondeur la plus faible ou hauteur la plus basse."
+    }
+  },
+  "#/properties/verticalExtentMax": {
+    "en": {
+      "title": "Vertical extent maximum",
+      "description": "Deepest depth or greatest height."
+    },
+    "fr": {
+      "title": "Étendue verticale maximale",
+      "description": "Profondeur la plus grande ou hauteur la plus élevée."
+    }
+  },
+  "#/properties/verticalExtentDirection": {
+    "en": {
+      "title": "Vertical extent direction",
+      "description": "Whether the values are positive downward (depth) or upward (height)."
+    },
+    "fr": {
+      "title": "Direction de l'étendue verticale",
+      "description": "Indique si les valeurs sont positives vers le bas (profondeur) ou vers le haut (hauteur)."
+    }
+  },
+  "#/properties/verticalExtentEPSG": {
+    "en": {
+      "title": "Vertical CRS",
+      "description": "EPSG code for the vertical coordinate reference system."
+    },
+    "fr": {
+      "title": "SRC vertical",
+      "description": "Code EPSG du système de référence de coordonnées vertical."
+    }
+  },
+  "#/properties/noVerticalExtent": {
+    "en": {
+      "title": "No vertical extent",
+      "description": "Set when the dataset has no meaningful vertical extent; waives the three fields above."
+    },
+    "fr": {
+      "title": "Aucune étendue verticale",
+      "description": "Coché lorsque le jeu de données n'a pas d'étendue verticale pertinente."
+    }
+  },
+  "#/properties/contacts": {
+    "en": {
+      "title": "Contacts",
+      "description": "People and organizations associated with the dataset. Every contact needs a role and a name; at least one must be a Metadata Custodian, at least one a Data Owner, and at least one must appear in the citation."
+    },
+    "fr": {
+      "title": "Contacts",
+      "description": "Personnes et organismes associés au jeu de données. Chaque contact doit avoir un rôle et un nom."
+    }
+  },
+  "#/properties/distribution": {
+    "en": {
+      "title": "Resources",
+      "description": "Links to the data itself and to supporting material. At least one resource with a name and a valid URL is required to submit."
+    },
+    "fr": {
+      "title": "Ressources",
+      "description": "Liens vers les données et vers la documentation associée."
+    }
+  },
+  "#/properties/associated_resources": {
+    "en": {
+      "title": "Related works",
+      "description": "Other works related to this dataset. Each needs a bilingual title, an identifier, an identifier type, and a relation type."
+    },
+    "fr": {
+      "title": "Ressources connexes",
+      "description": "Autres travaux liés à ce jeu de données."
+    }
+  },
+  "#/properties/history": {
+    "en": {
+      "title": "Lineage",
+      "description": "How the data came to be. Each processing step and source needs a title and description; a step scoped to data collection also needs a bilingual statement."
+    },
+    "fr": {
+      "title": "Généalogie des données",
+      "description": "Comment les données ont été produites."
+    }
+  },
+  "#/properties/platforms": {
+    "en": {
+      "title": "Platforms",
+      "description": "Platforms the data was collected from. Each needs a type and an ID, unless the dataset has no platform or is a model."
+    },
+    "fr": {
+      "title": "Plateformes",
+      "description": "Plateformes à partir desquelles les données ont été recueillies."
+    }
+  },
+  "#/properties/instruments": {
+    "en": {
+      "title": "Instruments",
+      "description": "Instruments used to collect the data. Each needs an ID; when two or more platforms are defined, each instrument must also name its platform."
+    },
+    "fr": {
+      "title": "Instruments",
+      "description": "Instruments utilisés pour recueillir les données."
+    }
+  },
+  "#/properties/noPlatform": {
+    "en": {
+      "title": "No platform",
+      "description": "Set when the dataset was not collected from a platform."
+    },
+    "fr": {
+      "title": "Aucune plateforme",
+      "description": "Coché lorsque les données ne proviennent pas d'une plateforme."
+    }
+  },
+  "#/properties/taxa": {
+    "en": {
+      "title": "Taxonomic coverage",
+      "description": "Taxa present in the dataset, resolved against WoRMS. Required unless noTaxa is set."
+    },
+    "fr": {
+      "title": "Couverture taxonomique",
+      "description": "Taxons présents dans le jeu de données, résolus via WoRMS."
+    }
+  },
+  "#/properties/noTaxa": {
+    "en": {
+      "title": "No taxonomic coverage",
+      "description": "Set when the dataset has no taxonomic coverage; waives the field above."
+    },
+    "fr": {
+      "title": "Aucune couverture taxonomique",
+      "description": "Coché lorsque le jeu de données n'a pas de couverture taxonomique."
+    }
+  },
+  "#/properties/identifier": {
+    "en": {
+      "title": "Identifier",
+      "description": "UUID v4 assigned when the record is created."
+    },
+    "fr": {
+      "title": "Identifiant",
+      "description": "UUID v4 attribué à la création de l'enregistrement."
+    }
+  },
+  "#/properties/recordID": {
+    "en": {
+      "title": "Record ID",
+      "description": "Realtime Database key for this record."
+    },
+    "fr": {
+      "title": "ID d'enregistrement",
+      "description": "Clé de la base de données pour cet enregistrement."
+    }
+  },
+  "#/properties/userID": {
+    "en": {
+      "title": "User ID",
+      "description": "Owning user's Firebase auth UID."
+    },
+    "fr": {
+      "title": "ID utilisateur",
+      "description": "UID Firebase du propriétaire."
+    }
+  },
+  "#/properties/region": {
+    "en": {
+      "title": "Region",
+      "description": "CIOOS region the record belongs to."
+    },
+    "fr": {
+      "title": "Région",
+      "description": "Région du SIOOC à laquelle appartient l'enregistrement."
+    }
+  },
+  "#/properties/status": {
+    "en": {
+      "title": "Status",
+      "description": "Record lifecycle. An empty string means draft."
+    },
+    "fr": {
+      "title": "Statut",
+      "description": "Cycle de vie de l'enregistrement. Une chaîne vide signifie brouillon."
+    }
+  },
+  "#/properties/created": {
+    "en": {
+      "title": "Created",
+      "description": "ISO-8601 timestamp of record creation."
+    },
+    "fr": {
+      "title": "Créé le",
+      "description": "Horodatage ISO-8601 de la création."
+    }
+  },
+  "#/properties/timeFirstPublished": {
+    "en": {
+      "title": "First published",
+      "description": "ISO-8601 timestamp of first publication."
+    },
+    "fr": {
+      "title": "Première publication",
+      "description": "Horodatage ISO-8601 de la première publication."
+    }
+  },
+  "#/properties/lastEditedBy": {
+    "en": {
+      "title": "Last edited by",
+      "description": "The user who last saved the record."
+    },
+    "fr": {
+      "title": "Dernière modification par",
+      "description": "Le dernier utilisateur ayant enregistré."
+    }
+  },
+  "#/properties/userinfo": {
+    "en": {
+      "title": "User info",
+      "description": "Denormalized owner display name and email."
+    },
+    "fr": {
+      "title": "Infos utilisateur",
+      "description": "Nom et courriel du propriétaire, dénormalisés."
+    }
+  },
+  "#/properties/filename": {
+    "en": {
+      "title": "Filename",
+      "description": "Generated filename used when publishing."
+    },
+    "fr": {
+      "title": "Nom de fichier",
+      "description": "Nom de fichier généré lors de la publication."
+    }
+  },
+  "#/properties/organization": {
+    "en": {
+      "title": "Organization",
+      "description": "Publishing organization."
+    },
+    "fr": {
+      "title": "Organisme",
+      "description": "Organisme de publication."
+    }
+  },
+  "#/properties/comment": {
+    "en": {
+      "title": "Comment",
+      "description": "Reviewer comment attached to the record."
+    },
+    "fr": {
+      "title": "Commentaire",
+      "description": "Commentaire d'un réviseur."
+    }
+  },
+  "#/properties/category": {
+    "en": {
+      "title": "Category (deprecated)",
+      "description": "Superseded by resourceType. Still read as a fallback by the Python converter."
+    },
+    "fr": {
+      "title": "Catégorie (obsolète)",
+      "description": "Remplacé par resourceType."
+    }
+  },
+  "#/properties/schemaVersion": {
+    "en": {
+      "title": "Schema version",
+      "description": "Version of this schema the record was written against. Absent on records predating the schema."
+    },
+    "fr": {
+      "title": "Version du schéma",
+      "description": "Version du schéma utilisée lors de l'écriture de l'enregistrement."
+    }
+  }
+}

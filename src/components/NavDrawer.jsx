@@ -14,6 +14,7 @@ import {
   ChevronRight,
   FeedbackRounded,
   RateReview,
+  Assignment,
   Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
@@ -328,6 +329,8 @@ export default function MiniDrawer({ children }) {
     saved: <I18n en="My Records" fr="Enregistrements" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
+    forms: <I18n en="Forms" fr="Formulaires" />,
+    formSubmissions: <I18n en="Form submissions" fr="Soumissions de formulaires" />,
     admin: <I18n en="Admin" fr="Admin" />,
     signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
     signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
@@ -587,6 +590,21 @@ export default function MiniDrawer({ children }) {
                   </Tooltip>
                 )}
 
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.forms}
+                >
+                  <ListItemButton
+                    key="Forms"
+                    onClick={() => navigateAndClose(`${baseURL}/forms`)}
+                  >
+                    <ListItemIcon>
+                      <Assignment />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.forms} />
+                  </ListItemButton>
+                </Tooltip>
+
                 {userIsReviewer && (
                   <Tooltip
                     placement="right-start"
@@ -600,6 +618,23 @@ export default function MiniDrawer({ children }) {
                         <RateReview />
                       </ListItemIcon>
                       <ListItemText primary={translations.review} />
+                    </ListItemButton>
+                  </Tooltip>
+                )}
+
+                {(userIsReviewer || userIsAdmin) && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.formSubmissions}
+                  >
+                    <ListItemButton
+                      key="FormSubmissions"
+                      onClick={() => navigateAndClose(`${baseURL}/forms/review`)}
+                    >
+                      <ListItemIcon>
+                        <Assignment />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.formSubmissions} />
                     </ListItemButton>
                   </Tooltip>
                 )}

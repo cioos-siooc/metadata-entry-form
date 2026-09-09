@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exigences conditionnelles</title>
+<style>
+:root { color-scheme: light dark; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6; max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem;
+  color: #1b1b1b; background: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #e6e6e6; background: #16191c; }
+  a { color: #6db3f2; }
+  code { background: #23272b; }
+  table { border-color: #3a4046; }
+  th, td { border-color: #3a4046; }
+  thead th { background: #23272b; }
+  .card { border-color: #3a4046; }
+  .muted { color: #9aa4ad; }
+}
+h1 { font-size: 1.9rem; margin-bottom: .25rem; }
+h2 { margin-top: 2.5rem; font-size: 1.3rem; }
+h3 { margin-top: 2rem; font-size: 1.05rem; }
+a { color: #006e90; }
+code {
+  background: #f2f4f6; padding: .12em .35em; border-radius: 3px;
+  font-size: .9em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+pre { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid #d6dbe0; padding: .5rem .7rem; text-align: left; vertical-align: top; }
+thead th { background: #f2f4f6; }
+blockquote {
+  margin: 1.2rem 0; padding: .6rem 1rem; border-left: 4px solid #ffc857;
+  background: rgba(255, 200, 87, .09);
+}
+.card { border: 1px solid #d6dbe0; border-radius: 8px; padding: 1rem 1.2rem; margin: .9rem 0; }
+.card h3 { margin-top: 0; }
+.muted { color: #5c666f; font-size: .92rem; }
+.topbar { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<p><a href="../index.html">&larr; Retour à l'index</a></p><h1 id="exigences-conditionnelles">Exigences conditionnelles</h1>
+
+<p>La référence des champs générée décrit <strong>ce qu'est chaque champ</strong>. Cette page
+décrit <strong>les règles qui portent sur plusieurs champs à la fois</strong> — les cas où
+le caractère obligatoire d'un champ dépend de la valeur d'un autre.</p>
+
+<p>Ces règles sont exprimées dans <code>record.submission.schema.json</code>, que tout
+enregistrement doit satisfaire pour être soumis. Elles ne figurent
+volontairement <em>pas</em> dans <code>record.schema.json</code> : un brouillon incomplet reste
+structurellement un enregistrement.</p>
+
+<hr />
+
+<h2 id="etendue-geographique">Étendue géographique</h2>
+
+<p>Un enregistrement doit indiquer la provenance des données, de l'une des trois
+façons suivantes :</p>
+
+<table>
+<thead>
+<tr>
+  <th>Catégorie thématique</th>
+  <th>Accepté</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Biote (<code>biota</code>, ou l'ancien <code>biological</code>)</td>
+  <td>Un cadre de délimitation, <strong>ou</strong> un polygone, <strong>ou</strong> une description textuelle</td>
+</tr>
+<tr>
+  <td>Toute autre catégorie</td>
+  <td>Un cadre de délimitation <strong>ou</strong> un polygone. Une description seule ne suffit pas.</td>
+</tr>
+</tbody>
+</table>
+
+<p>Un cadre de délimitation n'est retenu que si ses quatre limites sont présentes
+et numériques. Contraintes supplémentaires, vérifiées séparément parce que JSON
+Schema ne peut pas les exprimer :</p>
+
+<ul>
+<li><code>north</code> doit être supérieur ou égal à <code>south</code>, et <code>east</code> supérieur ou égal à
+<code>west</code></li>
+<li>les latitudes doivent se situer entre -90 et 90 ; les longitudes entre -360
+et 360</li>
+<li>un polygone doit comporter au moins deux points, et son premier point doit
+être identique au dernier (il doit être fermé)</li>
+</ul>
+
+<h2 id="champs-pouvant-etre-ecartes">Champs pouvant être écartés</h2>
+
+<p>Trois cases à cocher désactivent une section autrement obligatoire. Chacune
+correspond à une valeur booléenne réelle stockée dans l'enregistrement.</p>
+
+<table>
+<thead>
+<tr>
+  <th>Cochez ceci</th>
+  <th>…et ces champs cessent d'être obligatoires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>noVerticalExtent</code></td>
+  <td><code>verticalExtentMin</code>, <code>verticalExtentMax</code>, <code>verticalExtentDirection</code></td>
+</tr>
+<tr>
+  <td><code>noTaxa</code></td>
+  <td><code>taxa</code></td>
+</tr>
+<tr>
+  <td><code>noPlatform</code></td>
+  <td><code>platforms</code></td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="plateformes-et-instruments">Plateformes et instruments</h2>
+
+<p>Un enregistrement satisfait à l'exigence de plateforme si <strong>l'une</strong> des
+conditions suivantes est remplie :</p>
+
+<ul>
+<li><code>noPlatform</code> est coché, <strong>ou</strong></li>
+<li>chaque entrée de <code>platforms</code> possède à la fois un <code>type</code> et un <code>id</code>, <strong>ou</strong></li>
+<li>l'enregistrement n'a pas de <code>metadataScope</code>, <strong>ou</strong> son <code>metadataScopeIso</code>
+vaut <code>model</code> (un modèle n'a pas de plateforme de collecte)</li>
+</ul>
+
+<p>Les instruments suivent leur propre règle, conditionnée par le nombre de
+plateformes :</p>
+
+<ul>
+<li>chaque instrument doit toujours avoir un <code>id</code></li>
+<li>dès que <strong>deux plateformes ou plus</strong> sont définies, chaque instrument doit
+également indiquer la <code>platform</code> à laquelle il appartient — avec une seule
+plateforme l'association est sans ambiguïté, elle n'est donc pas exigée</li>
+</ul>
+
+<h2 id="contacts">Contacts</h2>
+
+<p>Chaque contact doit individuellement avoir au moins un <code>role</code>, ainsi qu'au
+moins l'un des champs <code>orgName</code>, <code>givenNames</code> ou <code>lastName</code>.</p>
+
+<p>La liste de contacts <em>dans son ensemble</em> doit en outre comporter :</p>
+
+<ul>
+<li>au moins un contact ayant le rôle <strong>Dépositaire des métadonnées</strong>
+(<code>custodian</code>)</li>
+<li>au moins un contact ayant le rôle <strong>Propriétaire des données</strong> (<code>owner</code>)</li>
+<li>au moins un contact dont <code>inCitation</code> est coché</li>
+</ul>
+
+<p>Un même contact peut satisfaire plusieurs de ces conditions.</p>
+
+<h2 id="genealogie-des-donnees">Généalogie des données</h2>
+
+<p>Pour chaque étape de généalogie :</p>
+
+<ul>
+<li>chaque entrée de <code>processingStep</code> doit avoir un <code>title</code> et une <code>description</code></li>
+<li>chaque entrée de <code>source</code> doit avoir un <code>title</code> et une <code>description</code></li>
+<li>une étape dont le <code>scopeIso</code> vaut <code>collectionSession</code> doit également
+comporter un <code>statement</code> en anglais et en français</li>
+</ul>
+
+<blockquote>
+  <p><strong>Écart connu.</strong> Le validateur du formulaire vérifie <code>scope</code> plutôt que
+  <code>scopeIso</code> pour cette dernière règle. Comme <code>scope</code> contient une <em>clé</em> de
+  cadre (<code>DataCollectionSampling</code>) alors que <code>collectionSession</code> est la valeur
+  ISO de cette clé, les deux ne correspondent jamais et la règle n'a en réalité
+  jamais bloqué de soumission. Le schéma exprime la règle voulue. Voir le
+  README §11.</p>
+</blockquote>
+
+<h2 id="ressources-connexes">Ressources connexes</h2>
+
+<p>Chaque entrée de <code>associated_resources</code> doit comporter les quatre éléments
+suivants : un <code>title</code> dans les deux langues, une <code>authority</code>, un <code>code</code> et un
+<code>association_type</code>.</p>
+
+<h2 id="ressources">Ressources</h2>
+
+<p>Au moins une entrée de <code>distribution</code> doit comporter à la fois un <code>name</code> et une
+<code>url</code> valide. Les autres entrées peuvent être incomplètes.</p>
+
+<h2 id="variables-oceaniques-essentielles">Variables océaniques essentielles</h2>
+
+<p>Au moins une VOE est requise. Les VOE <strong>dépréciées</strong> en amont dans
+<code>cioos-commons</code> restent structurellement valides — les enregistrements
+existants en contiennent encore — mais empêchent la soumission tant qu'elles ne
+sont pas remplacées.</p>
+
+<h2 id="texte-bilingue">Texte bilingue</h2>
+
+<p><code>title</code> et <code>abstract</code> exigent <strong>les deux</strong> langues, anglais et français.</p>
+
+<p><code>keywords</code> exige au moins un mot-clé dans <strong>l'une ou l'autre</strong> des langues.</p>
+
+<p>Les descriptions géographiques exigent au moins une langue.</p>
+
+</body>
+</html>

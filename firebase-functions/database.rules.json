@@ -4,9 +4,47 @@
     // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level. 
     // This design requires careful structuring of rules (and data) to ensure appropriate access control 
     // throughout the database hierarchy.
+    // GLOBAL form type catalog. A literal child, so it does NOT inherit the
+    // "$region" wildcard rules below — named children are resolved before
+    // wildcards. Form types are defined once here and each region opts in via
+    // admin/{region}/formTypes.
+    //
+    // Writable by an administrator of ANY region. Form definitions are shared,
+    // so this is deliberately a shared responsibility rather than a separate
+    // role — the guardrails that limit cross-region impact are in the app:
+    // versions are immutable, a breaking change must be confirmed against the
+    // list of affected regions, and a form type with submissions cannot be
+    // deleted, only deprecated.
+    //
+    // Every region is listed explicitly because rules cannot iterate over the
+    // top-level keys. src/formEngine/__tests__/databaseRules.test.js asserts
+    // this stays in sync with src/regions.js.
+    //
+    // Each operand is guarded with isString(). Without it, a region that has no
+    // admins list makes .val() return null; null.contains(...) is a rule
+    // EVALUATION ERROR, which fails the entire || chain — denying every
+    // administrator rather than just that region's. The existing per-region
+    // rules have this same latent bug.
+    //
+    // NOTE: contains(auth.email) is substring matching, inherited from the
+    // existing per-region admin rules — "booth@cioos.ca" would match a list
+    // containing "colton.booth@cioos.ca". Tracked separately; fixing it here
+    // alone would leave the region rules inconsistent.
+    "formTypes": {
+      // Any authenticated user can read the catalog; what they may FILL IN is
+      // gated separately by each region's activation.
+      ".read": "auth.uid != null",
+      ".write": "(root.child('admin/pacific/permissions/admins').isString() && root.child('admin/pacific/permissions/admins').val().contains(auth.email)) || (root.child('admin/stlaurent/permissions/admins').isString() && root.child('admin/stlaurent/permissions/admins').val().contains(auth.email)) || (root.child('admin/atlantic/permissions/admins').isString() && root.child('admin/atlantic/permissions/admins').val().contains(auth.email)) || (root.child('admin/amundsen/permissions/admins').isString() && root.child('admin/amundsen/permissions/admins').val().contains(auth.email)) || (root.child('admin/canwin/permissions/admins').isString() && root.child('admin/canwin/permissions/admins').val().contains(auth.email)) || (root.child('admin/test/permissions/admins').isString() && root.child('admin/test/permissions/admins').val().contains(auth.email))"
+    },
     "$region": {
       // Allow read access to any authenticated user.
       ".read": "auth.uid != null",
+      "formSubmissionIndex": {
+        // Lets a region list submissions across users without reading every
+        // user subtree (RTDB has no cross-node query). Holds only
+        // {userID, status, updatedAt} — never submission data.
+        ".write": "auth.uid != null"
+      },
       "shares": {
         "$userid": {
           // Allow write access to any authenticated user. 
@@ -39,6 +77,16 @@
           // Allow write access to projects if the authenticated user's email is listed as a reviewer OR admin in the permissions for the region.
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
           // Allow read access to any authenticated user.
+          ".read": "auth.uid != null"
+        },
+        "formTypes": {
+          // Which global form types this region has switched on. Readable by any
+          // authenticated user so ordinary members can discover the forms
+          // available to them; the inherited $regionAdmin ".read" would
+          // otherwise restrict this to reviewers.
+          //
+          // Writes inherit the $regionAdmin rule above: region admins only, and
+          // only for their own region.
           ".read": "auth.uid != null"
         },
         "permissions": {

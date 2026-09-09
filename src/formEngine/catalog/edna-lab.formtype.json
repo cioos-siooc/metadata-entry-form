@@ -1,0 +1,522 @@
+{
+  "slug": "edna-lab",
+  "kind": "generic",
+  "title": {
+    "en": "eDNA Lab Metadata",
+    "fr": "Métadonnées de laboratoire ADNe"
+  },
+  "description": {
+    "en": "Lab processing record for an environmental DNA sample: extraction, quantification, and assay-specific detail. Keyed to the field sheet by sample ID.",
+    "fr": "Enregistrement du traitement en laboratoire d'un échantillon d'ADN environnemental : extraction, quantification et détails propres à l'analyse. Relié à la fiche de terrain par l'identifiant de l'échantillon."
+  },
+  "jsonSchema": {
+    "type": "object",
+    "required": [
+      "sampleId",
+      "extractionDate",
+      "assayType"
+    ],
+    "properties": {
+      "sampleId": {
+        "type": "string",
+        "title": "Sample ID"
+      },
+      "labName": {
+        "type": "string",
+        "title": "Laboratory"
+      },
+      "analystName": {
+        "type": "string",
+        "title": "Analyst"
+      },
+      "receivedDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Date received"
+      },
+      "storageTempCelsius": {
+        "type": "number",
+        "title": "Storage temperature (°C)"
+      },
+      "extractionDate": {
+        "type": "string",
+        "format": "date",
+        "title": "Extraction date"
+      },
+      "extractionMethod": {
+        "type": "string",
+        "title": "Extraction method or kit"
+      },
+      "extractionVolumeMicrolitres": {
+        "type": "number",
+        "title": "DNA volume after extraction (µL)",
+        "minimum": 0
+      },
+      "dnaConcentrationNgPerMicrolitre": {
+        "type": "number",
+        "title": "DNA concentration (ng/µL)",
+        "minimum": 0
+      },
+      "quantificationMethod": {
+        "type": "string",
+        "title": "Quantification method",
+        "enum": [
+          "Qubit",
+          "NanoDrop",
+          "qPCR",
+          "other"
+        ]
+      },
+      "extractionBlankIncluded": {
+        "type": "boolean",
+        "title": "Extraction blank included"
+      },
+      "assayType": {
+        "type": "string",
+        "title": "Assay type",
+        "enum": [
+          "metabarcoding",
+          "qPCR",
+          "ddPCR"
+        ]
+      },
+      "targetGene": {
+        "type": "string",
+        "title": "Target gene or marker"
+      },
+      "primerForward": {
+        "type": "string",
+        "title": "Forward primer"
+      },
+      "primerReverse": {
+        "type": "string",
+        "title": "Reverse primer"
+      },
+      "pcrReplicates": {
+        "type": "integer",
+        "title": "PCR replicates",
+        "minimum": 1
+      },
+      "sequencingPlatform": {
+        "type": "string",
+        "title": "Sequencing platform"
+      },
+      "readCount": {
+        "type": "integer",
+        "title": "Total read count",
+        "minimum": 0
+      },
+      "bioinformaticsPipeline": {
+        "type": "string",
+        "title": "Bioinformatics pipeline"
+      },
+      "referenceDatabase": {
+        "type": "string",
+        "title": "Reference database"
+      },
+      "targetSpecies": {
+        "type": "string",
+        "title": "Target species"
+      },
+      "quantificationCycle": {
+        "type": "number",
+        "title": "Cq / Ct value"
+      },
+      "copiesPerReaction": {
+        "type": "number",
+        "title": "Copies per reaction",
+        "minimum": 0
+      },
+      "detectionResult": {
+        "type": "string",
+        "title": "Detection result",
+        "enum": [
+          "detected",
+          "not detected",
+          "inconclusive"
+        ]
+      },
+      "labNotes": {
+        "type": "object",
+        "title": "Lab notes",
+        "properties": {
+          "en": {
+            "type": "string"
+          },
+          "fr": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "ui:steps": [
+      {
+        "id": "intake",
+        "title": {
+          "en": "Intake",
+          "fr": "Réception"
+        },
+        "fields": [
+          "sampleId",
+          "labName",
+          "analystName",
+          "receivedDate",
+          "storageTempCelsius"
+        ]
+      },
+      {
+        "id": "extraction",
+        "title": {
+          "en": "Extraction",
+          "fr": "Extraction"
+        },
+        "fields": [
+          "extractionDate",
+          "extractionMethod",
+          "extractionVolumeMicrolitres",
+          "dnaConcentrationNgPerMicrolitre",
+          "quantificationMethod",
+          "extractionBlankIncluded"
+        ]
+      },
+      {
+        "id": "assay",
+        "title": {
+          "en": "Assay",
+          "fr": "Analyse"
+        },
+        "fields": [
+          "assayType",
+          "targetGene",
+          "primerForward",
+          "primerReverse",
+          "pcrReplicates"
+        ]
+      },
+      {
+        "id": "sequencing",
+        "title": {
+          "en": "Sequencing",
+          "fr": "Séquençage"
+        },
+        "fields": [
+          "sequencingPlatform",
+          "readCount",
+          "bioinformaticsPipeline",
+          "referenceDatabase"
+        ],
+        "visibleIf": {
+          "field": "assayType",
+          "equals": "metabarcoding"
+        }
+      },
+      {
+        "id": "quantitative",
+        "title": {
+          "en": "Quantitative result",
+          "fr": "Résultat quantitatif"
+        },
+        "fields": [
+          "targetSpecies",
+          "quantificationCycle",
+          "copiesPerReaction",
+          "detectionResult"
+        ],
+        "visibleIf": {
+          "field": "assayType",
+          "in": [
+            "qPCR",
+            "ddPCR"
+          ]
+        }
+      },
+      {
+        "id": "notes",
+        "title": {
+          "en": "Notes",
+          "fr": "Notes"
+        },
+        "fields": [
+          "labNotes"
+        ]
+      }
+    ],
+    "ui:summaryFields": [
+      "sampleId",
+      "assayType",
+      "extractionDate",
+      "detectionResult"
+    ],
+    "sampleId": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sample ID",
+            "fr": "Identifiant de l'échantillon"
+          },
+          "help": {
+            "en": "Must match the sample ID on the field sheet. This is what joins the field and lab metadata into a single study metadata row.",
+            "fr": "Doit correspondre à l'identifiant sur la fiche de terrain. C'est ce qui relie les métadonnées de terrain et de laboratoire en une seule ligne de métadonnées d'étude."
+          }
+        }
+      }
+    },
+    "labName": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Laboratory",
+            "fr": "Laboratoire"
+          }
+        }
+      }
+    },
+    "analystName": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Analyst",
+            "fr": "Analyste"
+          }
+        }
+      }
+    },
+    "receivedDate": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Date received",
+            "fr": "Date de réception"
+          }
+        }
+      }
+    },
+    "storageTempCelsius": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Storage temperature (°C)",
+            "fr": "Température de conservation (°C)"
+          }
+        }
+      }
+    },
+    "extractionDate": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Extraction date",
+            "fr": "Date d'extraction"
+          }
+        }
+      }
+    },
+    "extractionMethod": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Extraction method or kit",
+            "fr": "Méthode ou trousse d'extraction"
+          },
+          "help": {
+            "en": "Name the kit and version where possible — this is often what makes results comparable between labs.",
+            "fr": "Nommez la trousse et sa version si possible — c'est souvent ce qui rend les résultats comparables entre laboratoires."
+          }
+        }
+      }
+    },
+    "extractionVolumeMicrolitres": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "DNA volume after extraction (µL)",
+            "fr": "Volume d'ADN après extraction (µL)"
+          }
+        }
+      }
+    },
+    "dnaConcentrationNgPerMicrolitre": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "DNA concentration (ng/µL)",
+            "fr": "Concentration d'ADN (ng/µL)"
+          }
+        }
+      }
+    },
+    "quantificationMethod": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Quantification method",
+            "fr": "Méthode de quantification"
+          }
+        }
+      }
+    },
+    "extractionBlankIncluded": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Extraction blank included",
+            "fr": "Blanc d'extraction inclus"
+          }
+        }
+      }
+    },
+    "assayType": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Assay type",
+            "fr": "Type d'analyse"
+          },
+          "help": {
+            "en": "Choosing an assay reveals only the fields that apply to it — metabarcoding runs show sequencing detail, qPCR and ddPCR runs show quantitative results.",
+            "fr": "Le choix de l'analyse ne révèle que les champs pertinents — le métabarcodage affiche les détails de séquençage, la qPCR et la ddPCR les résultats quantitatifs."
+          }
+        }
+      }
+    },
+    "targetGene": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Target gene or marker",
+            "fr": "Gène ou marqueur cible"
+          }
+        }
+      }
+    },
+    "primerForward": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Forward primer",
+            "fr": "Amorce sens"
+          }
+        }
+      }
+    },
+    "primerReverse": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Reverse primer",
+            "fr": "Amorce antisens"
+          }
+        }
+      }
+    },
+    "pcrReplicates": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "PCR replicates",
+            "fr": "Réplicats PCR"
+          }
+        }
+      }
+    },
+    "sequencingPlatform": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Sequencing platform",
+            "fr": "Plateforme de séquençage"
+          }
+        }
+      }
+    },
+    "readCount": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Total read count",
+            "fr": "Nombre total de lectures"
+          }
+        }
+      }
+    },
+    "bioinformaticsPipeline": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Bioinformatics pipeline",
+            "fr": "Pipeline bio-informatique"
+          }
+        }
+      }
+    },
+    "referenceDatabase": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Reference database",
+            "fr": "Base de données de référence"
+          }
+        }
+      }
+    },
+    "targetSpecies": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Target species",
+            "fr": "Espèce cible"
+          }
+        }
+      }
+    },
+    "quantificationCycle": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Cq / Ct value",
+            "fr": "Valeur Cq / Ct"
+          },
+          "help": {
+            "en": "Leave blank when nothing was detected.",
+            "fr": "Laissez vide si rien n'a été détecté."
+          }
+        }
+      }
+    },
+    "copiesPerReaction": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Copies per reaction",
+            "fr": "Copies par réaction"
+          }
+        }
+      }
+    },
+    "detectionResult": {
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Detection result",
+            "fr": "Résultat de détection"
+          }
+        }
+      }
+    },
+    "labNotes": {
+      "ui:field": "bilingualText",
+      "ui:options": {
+        "i18n": {
+          "title": {
+            "en": "Lab notes",
+            "fr": "Notes de laboratoire"
+          }
+        },
+        "multiline": true,
+        "rows": 4
+      }
+    }
+  }
+}

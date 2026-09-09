@@ -1,5 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -10,6 +14,9 @@ export default defineConfig(({ mode }) => {
     assetsInclude: ["**/*.j2"],
     resolve: {
       alias: {
+        // Backend-neutral logic shared by the browser app and (later) the
+        // Fastify API. Nothing under shared/ may import firebase or react.
+        "@shared": path.resolve(__dirname, "shared/src"),
         stream: "stream-browserify",
         buffer: "buffer",
         util: "util",
@@ -50,7 +57,10 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: "jsdom",
       setupFiles: ["./src/setupTests.js"],
-      include: ["src/**/*.{test,spec}.{js,jsx,ts,tsx}"],
+      include: [
+        "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+        "shared/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      ],
       coverage: {
         provider: "v8",
         reporter: ["text", "json", "html"],

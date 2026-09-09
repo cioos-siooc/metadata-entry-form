@@ -6,6 +6,8 @@ import {
   hasResourceType,
   resourceTypeIncludes,
 } from "./normalizeResourceType";
+// Shared with the JSON Schema's ajv custom keywords — see src/schema/predicates.js
+import { bboxIsValid, polygonIsValid } from "../schema/predicates";
 import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
@@ -27,28 +29,6 @@ function isValidHttpUrl(string) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 export const validateDOI = (val) => !val || (doiRegexp.test(val) && isValidHttpUrl(val));
-const validateLatitude = (num) => num >= -90 && num <= 90;
-
-const deepCompare = (obj1, obj2) =>
-  JSON.parse(JSON.stringify(obj1) === JSON.stringify(obj2));
-
-const validateLongitude = (num) => num >= -360 && num <= 360;
-
-const polygonIsValid = (polygon) => {
-  // eg 48,-128 56,-133 56,-147 48,-128
-  const coordinates = polygon.split(" ").map((c) => c.split(","));
-  if (coordinates.length < 2) return false;
-  if (!deepCompare(coordinates[0], coordinates[coordinates.length - 1]))
-    return false;
-
-  return (
-    coordinates.filter(
-      ([lat, lon]) =>
-        validateLongitude(parseFloat(lon)) && validateLatitude(parseFloat(lat))
-    ).length === coordinates.length
-  );
-};
-
 const contactIsFilled = (contact) =>
   Boolean(
     contact.role &&
@@ -57,7 +37,9 @@ const contactIsFilled = (contact) =>
   );
 
 // required fields and  a function to validate each
-const validators = {
+// Exported so src/schema can assert the schema and these stay in agreement,
+// and so the schema-driven completeness metric can reuse them verbatim.
+export const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
     tab: "start",
@@ -162,23 +144,10 @@ const validators = {
     tab: "spatial",
     validation: (val, record) => {
       if (!val) return false;
-      const north = parseFloat(val.north);
-      const south = parseFloat(val.south);
-      const east = parseFloat(val.east);
-      const west = parseFloat(val.west);
       const { polygon, description } = val;
 
       return (
-        (!Number.isNaN(north) &&
-          !Number.isNaN(south) &&
-          !Number.isNaN(east) &&
-          !Number.isNaN(west) &&
-          north >= south &&
-          east >= west &&
-          validateLatitude(north) &&
-          validateLatitude(south) &&
-          validateLongitude(east) &&
-          validateLongitude(west)) ||
+        bboxIsValid(val) ||
         (polygon && polygonIsValid(polygon)) ||
         !hasResourceType(record.resourceType) ||
         (resourceTypeIncludes(record.resourceType, "biota") && description)

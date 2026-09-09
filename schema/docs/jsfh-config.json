@@ -1,0 +1,12 @@
+{
+  "expand_buttons": true,
+  "link_to_reused_ref": true,
+  "show_breadcrumbs": true,
+  "show_toc": true,
+  "description_is_markdown": true,
+  "deprecated_from_description": true,
+  "collapse_long_descriptions": false,
+  "collapse_long_examples": false,
+  "with_footer": true,
+  "footer_show_time": false
+}
