@@ -9,6 +9,11 @@ import {
   Typography,
   Button,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 
 import { useParams } from "react-router-dom";
@@ -31,6 +36,8 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
   const [showSubmitButton, setShowSubmitButton] = useState(false);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
   const { language } = useParams();
 
@@ -188,11 +195,17 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                     <Button
                       onClick={() => {
                         setSubmitting(true);
-                        submitRecord().then(() => {
-                          setSubmitting(false);
-                        });
+                        submitRecord()
+                          .then(() => {
+                            setSubmitting(false);
+                            setSuccessDialogOpen(true);
+                          })
+                          .catch(() => {
+                            setSubmitting(false);
+                            setErrorDialogOpen(true);
+                          });
                       }}
-                      disabled={submitted}
+                      disabled={submitted || isSubmitting}
                     >
                       <I18n>
                         <En>Submit</En>
@@ -307,6 +320,66 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           </>
         )}
       </Grid>
+      <Dialog
+        open={successDialogOpen}
+        onClose={() => setSuccessDialogOpen(false)}
+      >
+        <DialogTitle>
+          <I18n>
+            <En>Submission received</En>
+            <Fr>Soumission reçue</Fr>
+          </I18n>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <I18n>
+              <En>
+                Your metadata form has been successfully submitted.{" "}
+                {regionInfo.title.en} has been notified and will contact you if
+                additional information is needed.
+              </En>
+              <Fr>
+                Votre formulaire de métadonnées a été soumis avec succès.{" "}
+                {regionInfo.title.fr} a été avisé et vous contactera si des
+                informations supplémentaires sont nécessaires.
+              </Fr>
+            </I18n>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSuccessDialogOpen(false)}>OK</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={errorDialogOpen}
+        onClose={() => setErrorDialogOpen(false)}
+      >
+        <DialogTitle>
+          <I18n>
+            <En>Submission failed</En>
+            <Fr>Échec de la soumission</Fr>
+          </I18n>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <I18n>
+              <En>
+                An error occurred while submitting your form. Please try again.
+                If the problem persists, contact{" "}
+              </En>
+              <Fr>
+                Une erreur s'est produite lors de la soumission de votre
+                formulaire. Veuillez réessayer. Si le problème persiste,
+                contactez{" "}
+              </Fr>
+            </I18n>
+            <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setErrorDialogOpen(false)}>OK</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };

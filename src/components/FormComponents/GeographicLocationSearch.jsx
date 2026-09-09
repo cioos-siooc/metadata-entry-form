@@ -1,0 +1,610 @@
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Autocomplete,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Box,
+  CircularProgress,
+  Chip,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import Apartment from "@mui/icons-material/Apartment";
+import Home from "@mui/icons-material/Home";
+import LocationCity from "@mui/icons-material/LocationCity";
+import Place from "@mui/icons-material/Place";
+import Map from "@mui/icons-material/Map";
+import Park from "@mui/icons-material/Park";
+import Forest from "@mui/icons-material/Forest";
+import Waves from "@mui/icons-material/Waves";
+import Water from "@mui/icons-material/Water";
+import BeachAccess from "@mui/icons-material/BeachAccess";
+import Landscape from "@mui/icons-material/Landscape";
+import AcUnit from "@mui/icons-material/AcUnit";
+import Flight from "@mui/icons-material/Flight";
+import DirectionsBoat from "@mui/icons-material/DirectionsBoat";
+import Train from "@mui/icons-material/Train";
+import DirectionsCar from "@mui/icons-material/DirectionsCar";
+import Security from "@mui/icons-material/Security";
+import Hiking from "@mui/icons-material/Hiking";
+import axios from "axios";
+import simplify from "simplify-js";
+import { useDebounce } from "use-debounce";
+import { I18n, En, Fr } from "../I18n";
+import geographicLocations from "../../utils/geographicLocations";
+
+const CONCISE_CODE_META = {
+  // Administrative
+  PROV: { Icon: Map, en: "Province", fr: "Province" },
+  TERR: { Icon: Map, en: "Territory", fr: "Territoire" },
+  GEOG: { Icon: Map, en: "Geographic Area", fr: "Zone géographique" },
+  // Settlements
+  CITY: { Icon: Apartment, en: "City", fr: "Ville" },
+  TOWN: { Icon: Home, en: "Town", fr: "Ville" },
+  VILG: { Icon: Home, en: "Village", fr: "Village" },
+  HAM: { Icon: Home, en: "Hamlet", fr: "Hameau" },
+  UTM: { Icon: LocationCity, en: "Upper Tier Municipality", fr: "Municipalité de palier supérieur" },
+  LTM: { Icon: LocationCity, en: "Lower Tier Municipality", fr: "Municipalité de palier inférieur" },
+  STM: { Icon: LocationCity, en: "Single Tier Municipality", fr: "Municipalité à palier unique" },
+  MUN1: { Icon: LocationCity, en: "Municipality", fr: "Municipalité" },
+  MUN2: { Icon: LocationCity, en: "Municipal Area", fr: "Zone municipale" },
+  UNP: { Icon: Place, en: "Unincorporated Place", fr: "Lieu non constitué" },
+  IR: { Icon: Home, en: "Indian Reserve", fr: "Réserve indienne" },
+  // Conservation / vegetation
+  PARK: { Icon: Park, en: "Conservation Area", fr: "Aire de conservation" },
+  FOR: { Icon: Forest, en: "Forest", fr: "Forêt" },
+  VEGL: { Icon: Forest, en: "Low Vegetation", fr: "Basse végétation" },
+  // Water
+  RIV: { Icon: Water, en: "River", fr: "Rivière" },
+  RIVF: { Icon: Water, en: "River Feature", fr: "Élément fluvial" },
+  FALL: { Icon: Water, en: "Falls", fr: "Chutes" },
+  LAKE: { Icon: Water, en: "Lake", fr: "Lac" },
+  SPRG: { Icon: Water, en: "Spring", fr: "Source" },
+  CHAN: { Icon: Water, en: "Channel", fr: "Chenal" },
+  RAP: { Icon: Water, en: "Rapids", fr: "Rapides" },
+  HYDR: { Icon: Water, en: "Hydraulic Construction", fr: "Construction hydraulique" },
+  // Sea / coastal
+  SEA: { Icon: Waves, en: "Sea", fr: "Mer" },
+  SEAF: { Icon: Waves, en: "Sea Feature", fr: "Élément marin" },
+  SEAU: { Icon: Waves, en: "Undersea Feature", fr: "Élément sous-marin" },
+  BAY: { Icon: Waves, en: "Bay", fr: "Baie" },
+  CAPE: { Icon: Waves, en: "Cape", fr: "Cap" },
+  SHL: { Icon: Waves, en: "Shoal", fr: "Haut-fond" },
+  BCH: { Icon: BeachAccess, en: "Beach", fr: "Plage" },
+  ISL: { Icon: BeachAccess, en: "Island", fr: "Île" },
+  MAR: { Icon: DirectionsBoat, en: "Marine Navigation Feature", fr: "Élément de navigation marine" },
+  // Terrain
+  CLF: { Icon: Landscape, en: "Cliff", fr: "Falaise" },
+  MTN: { Icon: Landscape, en: "Mountain", fr: "Montagne" },
+  VALL: { Icon: Landscape, en: "Valley", fr: "Vallée" },
+  PLN: { Icon: Landscape, en: "Plain", fr: "Plaine" },
+  CAVE: { Icon: Landscape, en: "Cave", fr: "Grotte" },
+  CRAT: { Icon: Landscape, en: "Crater", fr: "Cratère" },
+  GLAC: { Icon: AcUnit, en: "Glacier", fr: "Glacier" },
+  // Military
+  MIL: { Icon: Security, en: "Military Area", fr: "Zone militaire" },
+  // Infrastructure
+  RAIL: { Icon: Train, en: "Railway Feature", fr: "Élément ferroviaire" },
+  ROAD: { Icon: DirectionsCar, en: "Road Feature", fr: "Élément routier" },
+  AIR: { Icon: Flight, en: "Air Navigation Feature", fr: "Élément de navigation aérienne" },
+  // Recreation / sites
+  RECR: { Icon: Hiking, en: "Recreational Site", fr: "Site récréatif" },
+  RES: { Icon: Hiking, en: "Natural Resources Site", fr: "Site de ressources naturelles" },
+  CAMP: { Icon: Hiking, en: "Campsite", fr: "Camping" },
+  SITE: { Icon: Place, en: "Site", fr: "Site" },
+  MISC: { Icon: Place, en: "Miscellaneous", fr: "Divers" },
+};
+
+const GEONAMES_API = "https://geogratis.gc.ca/services/geoname";
+const GEONAME_DEBOUNCE_MS = 400;
+
+const GROUP_LABELS = {
+  predefined: { en: "Predefined regions", fr: "Régions prédéfinies" },
+  geoname: { en: "Canadian GeoNames (NRCan)", fr: "Toponymes canadiens (RNCan)" },
+};
+
+function extractBbox(geometry) {
+  if (!geometry) return null;
+  let allCoords = [];
+  if (geometry.type === "Point") allCoords = [geometry.coordinates];
+  else if (geometry.type === "MultiPoint") allCoords = geometry.coordinates;
+  else if (geometry.type === "Polygon") allCoords = geometry.coordinates[0];
+  else if (geometry.type === "MultiPolygon")
+    allCoords = geometry.coordinates.flat(2);
+  if (!allCoords.length) return null;
+  const lngs = allCoords.map(([lng]) => lng);
+  const lats = allCoords.map(([, lat]) => lat);
+  if (geometry.type === "Point" || geometry.type === "MultiPoint") {
+    const lat = lats[0];
+    const lng = lngs[0];
+    return { north: lat + 0.25, south: lat - 0.25, east: lng + 0.25, west: lng - 0.25 };
+  }
+  return {
+    west: Math.min(...lngs),
+    east: Math.max(...lngs),
+    south: Math.min(...lats),
+    north: Math.max(...lats),
+  };
+}
+
+// Shoelace formula — used to pick the largest ring from a MultiPolygon.
+function ringArea(ring) {
+  let sum = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    sum += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+  }
+  return Math.abs(sum / 2);
+}
+
+// Iteratively simplify until at most maxVertices remain. Geoman renders one
+// draggable handle per vertex, so an unbounded ring (e.g. Northumberland Strait)
+// will lock the tab.
+const MAX_VERTICES = 500;
+const INITIAL_TOLERANCE = 0.001;
+
+function simplifyRing(ring) {
+  const points = ring.map(([lng, lat]) => ({ x: lng, y: lat }));
+  if (points.length <= MAX_VERTICES) return { simplified: ring, wasSimplified: false };
+  let tolerance = INITIAL_TOLERANCE;
+  let simplified = simplify(points, tolerance, true);
+  while (simplified.length > MAX_VERTICES && tolerance < 5) {
+    tolerance *= 2;
+    simplified = simplify(points, tolerance, true);
+  }
+  return { simplified: simplified.map(({ x, y }) => [x, y]), wasSimplified: true };
+}
+
+function round4(n) {
+  return Number(n.toFixed(4));
+}
+
+function extractPolygon(geometry) {
+  if (!geometry) return { polygon: "", wasSimplified: false };
+  let ring;
+  if (geometry.type === "Polygon") {
+    ring = geometry.coordinates[0];
+  } else if (geometry.type === "MultiPolygon") {
+    // Each polygon's first sub-ring is its outer boundary; pick the largest.
+    ring = geometry.coordinates
+      .map((poly) => poly[0])
+      .reduce((a, b) => (ringArea(a) >= ringArea(b) ? a : b));
+  } else {
+    return { polygon: "", wasSimplified: false };
+  }
+  if (!ring || ring.length < 3) return { polygon: "", wasSimplified: false };
+  const { simplified, wasSimplified } = simplifyRing(ring);
+  return {
+    polygon: simplified.map(([lng, lat]) => `${round4(lat)},${round4(lng)}`).join(" "),
+    wasSimplified,
+  };
+}
+
+const TYPE_FILTERS = [
+  { value: "all", en: "All", fr: "Tout" },
+  { value: "ocean", en: "Oceans", fr: "Océans" },
+  {
+    value: "provinceTerritory",
+    en: "Provinces and Territories",
+    fr: "Provinces et territoires",
+  },
+  { value: "marineRegion", en: "Marine Regions", fr: "Régions marines" },
+  { value: "dfoBioregion", en: "DFO Bioregions", fr: "Biorégions MPO" },
+  { value: "city", en: "Cities and Districts", fr: "Villes et municipalités" },
+  {
+    value: "other",
+    en: "Other Geographic Units and Areas",
+    fr: "Autres unités et zones géographiques",
+  },
+];
+
+// Names of curated entries (en + fr, lowercased) — geoname results matching
+// any of these are dropped so the curated polygon is preferred.
+const PREDEFINED_NAME_SET = new Set(
+  geographicLocations.flatMap((loc) => [
+    loc.en.toLowerCase(),
+    loc.fr.toLowerCase(),
+  ])
+);
+
+// The record stores only what is needed to redisplay a selection
+// (record.map.selectedLocation) — geometry already lives in record.map.
+function toSavedLocation({ en, fr, type, source, concise }) {
+  return {
+    en,
+    fr,
+    source,
+    ...(type ? { type } : {}),
+    ...(concise ? { concise } : {}),
+  };
+}
+
+function savedLocationKey(saved) {
+  return saved ? `${saved.source || ""}|${saved.en}` : "";
+}
+
+// Which filter pill to show for a restored selection, so the list the user
+// left off with is the list they come back to.
+function filterForSavedLocation(saved) {
+  if (!saved || saved.source !== "predefined") return "other";
+  if (saved.type === "province" || saved.type === "territory")
+    return "provinceTerritory";
+  return saved.type || "all";
+}
+
+// The geographic extent description is prefilled with the location name, but
+// only when it is empty or still holds the previously selected name — text the
+// user typed themselves is never overwritten.
+function descriptionForSelection(description, option, previousSaved) {
+  const current = description || {};
+  const isEmpty = !current.en?.trim() && !current.fr?.trim();
+  const holdsPreviousName =
+    previousSaved &&
+    current.en === previousSaved.en &&
+    current.fr === previousSaved.fr;
+  if (!isEmpty && !holdsPreviousName) return description;
+  return {
+    en: option.en,
+    fr: option.fr,
+    // Curated names are officially bilingual and GeoNames toponyms are the same
+    // in both languages — nothing here came out of the translation service.
+    translations: { en: { verified: true }, fr: { verified: true } },
+  };
+}
+
+const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
+  const { language } = useParams();
+  const savedLocation = mapData?.selectedLocation;
+  const [typeFilter, setTypeFilter] = useState(() =>
+    savedLocation ? filterForSavedLocation(savedLocation) : "all"
+  );
+  const [inputValue, setInputValue] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [geonameOptions, setGeonameOptions] = useState([]);
+  const [geonameLoading, setGeonameLoading] = useState(false);
+  const [simplificationWarning, setSimplificationWarning] = useState(false);
+  const [debouncedInput] = useDebounce(inputValue, GEONAME_DEBOUNCE_MS);
+  // Label of the just-selected option — kept in the input after selection, so we
+  // skip re-querying NRCan for it (the user hasn't typed a new search).
+  const selectedLabelRef = useRef("");
+  // Saved selection already reflected in local state, so restoring it does not
+  // fight the user's own selections (or reset their filter mid-session).
+  const restoredKeyRef = useRef("");
+
+  useEffect(() => {
+    if (!debouncedInput || debouncedInput.length < 2) {
+      setGeonameOptions([]);
+      return undefined;
+    }
+    if (debouncedInput === selectedLabelRef.current) {
+      return undefined;
+    }
+    let active = true;
+    setGeonameLoading(true);
+    axios
+      .get(`${GEONAMES_API}/${language}/geonames.geojson`, {
+        params: { q: debouncedInput, num: 15 },
+      })
+      .then(({ data }) => {
+        if (!active) return;
+        setGeonameOptions(
+          (data?.features || []).map(({ properties, geometry }) => {
+            const { polygon, wasSimplified } = extractPolygon(geometry);
+            return {
+              source: "geoname",
+              label: properties.name,
+              en: properties.name,
+              fr: properties.name,
+              bbox: extractBbox(geometry),
+              polygon,
+              wasSimplified,
+              concise: properties.concise || "",
+              province: properties.province || "",
+            };
+          })
+        );
+      })
+      .catch(() => {
+        if (active) setGeonameOptions([]);
+      })
+      .finally(() => {
+        if (active) setGeonameLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [debouncedInput, language]);
+
+  // Redisplay the location saved on the record (tab switch, reload, or a record
+  // opened for review). Keyed on language too, so the localized name follows a
+  // language switch.
+  const savedKey = savedLocation
+    ? `${savedLocationKey(savedLocation)}|${language}`
+    : "";
+  useEffect(() => {
+    if (!savedKey) {
+      // The geometry was replaced by hand (drawn, removed, or typed in), so the
+      // saved name no longer describes the record — drop it from the field too.
+      if (restoredKeyRef.current) {
+        restoredKeyRef.current = "";
+        setSelectedOption(null);
+        selectedLabelRef.current = "";
+        setInputValue("");
+      }
+      return;
+    }
+    if (restoredKeyRef.current === savedKey) return;
+    restoredKeyRef.current = savedKey;
+    const label = savedLocation[language] || savedLocation.en;
+    setSelectedOption({
+      source: savedLocation.source || "geoname",
+      label,
+      en: savedLocation.en,
+      fr: savedLocation.fr,
+      type: savedLocation.type,
+      concise: savedLocation.concise || "",
+      // No geometry — the record already holds it, and reselecting this option
+      // must not overwrite edits made on the map.
+      bbox: null,
+      polygon: "",
+      wasSimplified: false,
+    });
+    selectedLabelRef.current = label;
+    setInputValue(label);
+    setTypeFilter(filterForSavedLocation(savedLocation));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedKey]);
+
+  const predefinedOptions = useMemo(
+    () =>
+      geographicLocations
+        .map((loc) => ({
+          source: "predefined",
+          label: loc[language] || loc.en,
+          en: loc.en,
+          fr: loc.fr,
+          type: loc.type,
+          bbox: loc.bbox,
+          polygon: loc.polygon || "",
+          wasSimplified: false,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [language]
+  );
+
+  const allOptions = useMemo(() => {
+    const opts = [...predefinedOptions, ...geonameOptions];
+    // A restored geoname is not in the freshly fetched list; include it so
+    // Autocomplete can match the controlled value to an option.
+    if (
+      selectedOption &&
+      !opts.some(
+        (o) =>
+          o.source === selectedOption.source && o.label === selectedOption.label
+      )
+    )
+      opts.push(selectedOption);
+    return opts;
+  }, [predefinedOptions, geonameOptions, selectedOption]);
+
+  function filterOptions(opts, state) {
+    const input = state.inputValue.toLowerCase().trim();
+    let predefined = opts.filter((o) => o.source === "predefined");
+    const geonames = opts.filter((o) => o.source === "geoname");
+
+    if (typeFilter === "other") {
+      // "Other geographic units and areas" is the NRCan GeoNames results only.
+      predefined = [];
+    } else if (typeFilter === "provinceTerritory") {
+      predefined = predefined.filter(
+        (o) => o.type === "province" || o.type === "territory"
+      );
+    } else if (typeFilter !== "all") {
+      predefined = predefined.filter((o) => o.type === typeFilter);
+    }
+    if (input) {
+      predefined = predefined.filter(
+        (o) =>
+          o.en.toLowerCase().includes(input) ||
+          o.fr.toLowerCase().includes(input)
+      );
+    }
+
+    const dedupedGeonames = geonames.filter(
+      (g) => !PREDEFINED_NAME_SET.has(g.label.toLowerCase())
+    );
+
+    return [...predefined, ...dedupedGeonames];
+  }
+
+  function handleSelect(option) {
+    // Cleared with the X — drop the name but leave the geometry the user may
+    // have gone on to edit.
+    if (!option) {
+      // eslint-disable-next-line no-unused-vars
+      const { selectedLocation, ...rest } = mapData || {};
+      updateMap(rest);
+      restoredKeyRef.current = "";
+      setSelectedOption(null);
+      selectedLabelRef.current = "";
+      setInputValue("");
+      return;
+    }
+    const { bbox, polygon, wasSimplified } = option;
+    const saved = toSavedLocation(option);
+    // Reselecting the location already on the record changes nothing — and
+    // pushing an update would tear down the editable layer on the map.
+    if (!bbox && !polygon && savedLocationKey(saved) === savedLocationKey(savedLocation)) {
+      setSelectedOption(option);
+      selectedLabelRef.current = option.label;
+      setInputValue(option.label);
+      return;
+    }
+    const newMapData = {
+      ...mapData,
+      selectedLocation: saved,
+      description: descriptionForSelection(
+        mapData?.description,
+        option,
+        savedLocation
+      ),
+    };
+    // A restored option carries no geometry — reselecting it must not clear the
+    // bounding box or polygon already on the record.
+    if (bbox || polygon) {
+      if (bbox) {
+        newMapData.north = bbox.north;
+        newMapData.south = bbox.south;
+        newMapData.east = bbox.east;
+        newMapData.west = bbox.west;
+      }
+      newMapData.polygon = polygon || "";
+    }
+    updateMap(newMapData);
+    if (wasSimplified) setSimplificationWarning(true);
+    // Keep the selected name visible in the field and suppress a re-search for it.
+    restoredKeyRef.current = `${savedLocationKey(saved)}|${language}`;
+    setSelectedOption(option);
+    selectedLabelRef.current = option.label;
+    setInputValue(option.label);
+    setGeonameOptions([]);
+  }
+
+  return (
+    <Box sx={{ marginBottom: 2 }}>
+      <ToggleButtonGroup
+        value={typeFilter}
+        exclusive
+        onChange={(_, newFilter) => {
+          if (newFilter !== null) setTypeFilter(newFilter);
+        }}
+        size="small"
+        disabled={disabled}
+        sx={{
+          marginBottom: 1,
+          flexWrap: "wrap",
+          gap: 1,
+          // Render each button as a self-contained pill so wrapping to a second
+          // row looks intentional (the default grouped style collapses adjacent
+          // borders, which breaks across a line wrap).
+          "& .MuiToggleButtonGroup-grouped": {
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1,
+            "&:not(:first-of-type)": { marginLeft: 0 },
+          },
+        }}
+      >
+        {TYPE_FILTERS.map((f) => (
+          <ToggleButton key={f.value} value={f.value}>
+            {f[language] || f.en}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+
+      <Autocomplete
+        options={allOptions}
+        value={selectedOption}
+        getOptionLabel={(option) => option.label || ""}
+        groupBy={(o) => GROUP_LABELS[o.source][language] || GROUP_LABELS[o.source].en}
+        filterOptions={filterOptions}
+        inputValue={inputValue}
+        onInputChange={(_, value) => setInputValue(value)}
+        onChange={(_, value) => handleSelect(value)}
+        loading={geonameLoading}
+        disabled={disabled}
+        fullWidth
+        isOptionEqualToValue={(o, v) => o.source === v.source && o.label === v.label}
+        noOptionsText={
+          inputValue.length < 2 ? (
+            <I18n>
+              <En>Type to search GeoNames…</En>
+              <Fr>Tapez pour rechercher dans les toponymes…</Fr>
+            </I18n>
+          ) : (
+            <I18n>
+              <En>No results found</En>
+              <Fr>Aucun résultat trouvé</Fr>
+            </I18n>
+          )
+        }
+        renderOption={(props, option) => {
+          const { key, ...rest } = props;
+          if (option.source === "predefined") {
+            return (
+              <Box component="li" key={key} {...rest}>
+                {option.label}
+              </Box>
+            );
+          }
+          const meta = CONCISE_CODE_META[option.concise];
+          return (
+            <Box component="li" key={key} {...rest} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {meta && (
+                <meta.Icon fontSize="small" sx={{ color: "text.secondary", flexShrink: 0 }} />
+              )}
+              <span style={{ flexGrow: 1 }}>{option.label}</span>
+              {meta && (
+                <Chip
+                  label={meta[language] || meta.en}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
+                />
+              )}
+            </Box>
+          );
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={
+              <I18n>
+                <En>Add location by name</En>
+                <Fr>Ajouter un lieu par nom</Fr>
+              </I18n>
+            }
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {geonameLoading && <CircularProgress size={20} />}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
+        )}
+      />
+
+      <Snackbar
+        open={simplificationWarning}
+        autoHideDuration={10000}
+        onClose={() => setSimplificationWarning(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSimplificationWarning(false)}
+          severity="info"
+          sx={{ width: "100%" }}
+        >
+          <I18n>
+            <En>
+              This location has a complex boundary that has been simplified to keep the map editor
+              responsive. The simplified polygon will be saved to your record. Bounding box
+              coordinates are unaffected.
+            </En>
+            <Fr>
+              Cet emplacement possède un contour complexe qui a été simplifié pour assurer la
+              réactivité de l&apos;éditeur de carte. Le polygone simplifié sera enregistré dans
+              votre fiche. Les coordonnées du cadre englobant ne sont pas affectées.
+            </Fr>
+          </I18n>
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
+export default GeographicLocationSearch;

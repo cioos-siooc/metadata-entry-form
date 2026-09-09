@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   IconButton,
   Tooltip,
@@ -25,11 +25,15 @@ import {
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { getDatabase, ref, child, update } from "firebase/database";
+import firebase from "../../firebase";
 import recordToEML from "../../utils/recordToEML";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
 import { I18n } from "../I18n";
+import { UserContext } from "../../providers/UserProvider";
+import DataciteStatusDialog from "../Dialogs/DataciteStatusDialog";
 
 /**
  * Unified action menu component for record list items.
@@ -50,6 +54,8 @@ const RecordActions = ({
   size,
   iconButtonClassName,
 }) => {
+  const { doiStatusManagement, publishDoi, registerDoi, hideDoi } = useContext(UserContext);
+
   // Main menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -58,6 +64,12 @@ const RecordActions = ({
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [publishAnchorEl, setPublishAnchorEl] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // DataCite status dialog state
+  const [dataciteDialogOpen, setDataciteDialogOpen] = useState(false);
+  const [dataciteDialogMode, setDataciteDialogMode] = useState("publish");
+  const [dataciteDialogLoading, setDataciteDialogLoading] = useState(false);
+  const [pendingRecordAction, setPendingRecordAction] = useState(null);
 
   const downloadMenuOpen = Boolean(downloadAnchorEl);
   const publishMenuOpen = Boolean(publishAnchorEl);
@@ -159,6 +171,86 @@ const RecordActions = ({
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const hasDoi = !!(record?.datasetIdentifier);
+  const currentDoiState = record?.doiCreationStatus || "";
+
+  // Extract DOI ID from full URL if needed
+  const extractDoiId = (identifier) => {
+    if (!identifier) return null;
+    return identifier.startsWith("https://doi.org/")
+      ? identifier.replace("https://doi.org/", "")
+      : identifier;
+  };
+
+  const handlePublishClick = (rID, uID) => {
+    if (doiStatusManagement === "form" && hasDoi) {
+      setPendingRecordAction({ recordID: rID, userID: uID });
+      setDataciteDialogMode("publish");
+      setDataciteDialogOpen(true);
+      handleMenuClose();
+    } else {
+      handlers.publish?.(rID, uID);
+      handleMenuClose();
+    }
+  };
+
+  const handleUnpublishClick = (rID, uID) => {
+    if (doiStatusManagement === "form" && currentDoiState === "findable") {
+      setPendingRecordAction({ recordID: rID, userID: uID });
+      setDataciteDialogMode("unpublish");
+      setDataciteDialogOpen(true);
+      handleMenuClose();
+    } else {
+      handlers.unpublish?.(rID, uID);
+      handleMenuClose();
+    }
+  };
+
+  const handleDataciteDialogSelect = async (choice) => {
+    if (!pendingRecordAction) return;
+    const { recordID: rID, userID: uID } = pendingRecordAction;
+    const doi = extractDoiId(record?.datasetIdentifier);
+
+    if (choice !== "skip" && doi) {
+      setDataciteDialogLoading(true);
+      try {
+        let result;
+        if (choice === "findable") {
+          result = await publishDoi({ doi, region });
+        } else if (choice === "registered" && dataciteDialogMode === "publish") {
+          result = await registerDoi({ doi, region });
+        } else if (choice === "registered" && dataciteDialogMode === "unpublish") {
+          result = await hideDoi({ doi, region });
+        }
+        // Persist the new DOI status back to the record so the stored value
+        // stays in sync with DataCite (mirrors the in-form status dropdown).
+        const newState = result?.data?.state || choice;
+        const recordsRef = ref(getDatabase(firebase), `${region}/users/${uID}/records`);
+        await update(child(recordsRef, rID), { doiCreationStatus: newState });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("DataCite state transition failed:", err);
+      } finally {
+        setDataciteDialogLoading(false);
+      }
+    }
+
+    setDataciteDialogOpen(false);
+    setPendingRecordAction(null);
+
+    if (dataciteDialogMode === "publish") {
+      handlers.publish?.(rID, uID);
+    } else {
+      handlers.unpublish?.(rID, uID);
+    }
+  };
+
+  const handleDataciteDialogClose = () => {
+    if (dataciteDialogLoading) return;
+    setDataciteDialogOpen(false);
+    setPendingRecordAction(null);
   };
 
   // Determine what publishing actions are available
@@ -396,10 +488,7 @@ const RecordActions = ({
     publishMenuItems.push(
       <MenuItem
         key="publish"
-        onClick={() => {
-          handlers.publish?.(recordID, userID);
-          handleMenuClose();
-        }}
+        onClick={() => handlePublishClick(recordID, userID)}
       >
         <ListItemIcon sx={menuItemIconStyle}>
           <Publish fontSize="small" />
@@ -416,10 +505,7 @@ const RecordActions = ({
     publishMenuItems.push(
       <MenuItem
         key="unpublish"
-        onClick={() => {
-          handlers.unpublish?.(recordID, userID);
-          handleMenuClose();
-        }}
+        onClick={() => handleUnpublishClick(recordID, userID)}
       >
         <ListItemIcon sx={menuItemIconStyle}>
           <Eject fontSize="small" />
@@ -487,6 +573,15 @@ const RecordActions = ({
 
   return (
     <div>
+      <DataciteStatusDialog
+        open={dataciteDialogOpen}
+        onClose={handleDataciteDialogClose}
+        onSelect={handleDataciteDialogSelect}
+        mode={dataciteDialogMode}
+        currentDoiState={currentDoiState}
+        loading={dataciteDialogLoading}
+      />
+
       <Tooltip title={<I18n en="Actions" fr="Actions" />} disableHoverListener={menuOpen}>
         <span>
           <IconButton

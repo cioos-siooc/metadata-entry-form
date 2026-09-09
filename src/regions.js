@@ -8,6 +8,7 @@ const regions = {
       en: "CIOOS Pacific Data Catalogue",
     },
     colors: { primary: "#006e90", secondary: "#ffc857" },
+    ror: "https://ror.org/00vz8a291",
     email: "info@cioospacific.ca",
     catalogueURL: {
       fr: "https://catalogue.cioospacific.ca/fr/",
@@ -35,6 +36,7 @@ const regions = {
       en: "St. Lawrence Global Observatory Data Catalogue (SLGO)",
     },
     colors: { primary: "#00adef", secondary: "#00aeef" },
+    ror: "https://ror.org/03wfagk22",
     email: "info@ogsl.ca",
     catalogueURL: {
       fr: "https://catalogue.ogsl.ca/",
@@ -57,6 +59,7 @@ const regions = {
       en: "CIOOS Atlantic Data Catalogue",
     },
     colors: { primary: "#19222b", secondary: "#e55162" },
+    ror: "",
     email: "info@cioosatlantic.ca",
     catalogueURL: {
       fr: "https://cioosatlantic.ca/ckan/fr/",
@@ -79,10 +82,11 @@ const regions = {
       en: "Amundsen Science Data Catalogue",
     },
     colors: { primary: "#E31837", secondary: "#77777A" },
+    ror: "https://ror.org/02s3xv195",
     email: "info@as.ulaval.ca",
     catalogueURL: {
-      fr: "https://catalogue.amundsenscience.ca/fr/",
-      en: "https://catalogue.amundsenscience.ca/",
+      fr: "https://catalogue.amundsenscience.com/fr/",
+      en: "https://catalogue.amundsenscience.com/",
     },
     introPageText: {
       en:
@@ -101,6 +105,7 @@ const regions = {
       en: "Canadian Watershed Information Network Data Catalogue",
     },
     colors: { primary: "#385e9d", secondary: "#1ca8e1" },
+    ror: "",
     email: "portalco@umanitoba.ca",
     catalogueURL: {
       fr: "https://canwin-datahub.ad.umanitoba.ca/",
@@ -122,6 +127,7 @@ const regions = {
       en: "Test Data Catalogue",
     },
     colors: { primary: "#fcba03", secondary: "#2518ad" },
+    ror: "",
     email: "data@hakai.org",
     catalogueURL: {
       fr: "https://catalogue.dev.cioos.com/",

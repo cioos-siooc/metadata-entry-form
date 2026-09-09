@@ -2,6 +2,10 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
+import {
+  hasResourceType,
+  resourceTypeIncludes,
+} from "./normalizeResourceType";
 import { eovs } from "../eovs";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
@@ -63,7 +67,7 @@ const validators = {
     },
   },
   resourceType: {
-    validation: (val) => val,
+    validation: (val) => hasResourceType(val),
     tab: "start",
     error: {
       en: "Please select a theme for this record",
@@ -176,8 +180,8 @@ const validators = {
           validateLongitude(east) &&
           validateLongitude(west)) ||
         (polygon && polygonIsValid(polygon)) ||
-        !record.resourceType  ||
-        (Array.isArray(record.resourceType) && record.resourceType.includes("biological") && description)
+        !hasResourceType(record.resourceType) ||
+        (resourceTypeIncludes(record.resourceType, "biota") && description)
       );
     },
   },
@@ -307,7 +311,7 @@ const validators = {
   },
   platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScope === 'model'),
+    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScopeIso === 'model'),
     error: {
       en: "Missing platform type or ID",
       fr: "Type ou ID de plateforme manquant.",

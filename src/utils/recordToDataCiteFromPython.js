@@ -1,26 +1,8 @@
 import axios from "axios";
-import firebase from "../firebase";
 import regions from "../regions";
+import { getPythonFunctionUrl } from "./pythonFunctionUrl";
 
-/**
- * Gets the URL for the Python convert_metadata Firebase function.
- * Supports both local development (emulator) and production deployment.
- */
-const getConvertMetadataUrl = () => {
-  const { options: { projectId } } = firebase;
-  const functionRegion = import.meta.env.VITE_FUNCTION_REGION || "us-central1";
-
-  // Check if we should use the emulator
-  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const useLocalFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
-
-  if (isLocal && useLocalFunctions) {
-    // Port 5001 is standard for Firebase functions and matches root firebase.json
-    return `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
-  }
-
-  return `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
-};
+const getConvertMetadataUrl = () => getPythonFunctionUrl("convert_metadata");
 
 /**
  * Converts a metadata record to DataCite JSON format using the Python conversion function,
@@ -80,14 +62,34 @@ export async function recordToDataCiteFromPython(
       throw new Error("DataCite response is not a valid object");
     }
 
-    // Step 4: Add the catalogue URL field (specific to region and language)
+    // Step 4: Add the catalogue URL field (specific to region and record's primary language)
     // This URL will be the permanent location of the dataset once published
-    const catalogueUrl = regions[region]?.catalogueURL?.[language];
+    const recordLanguage = record.language || language;
+    if (!recordLanguage) {
+      throw new Error("Please assign a primary language to the record before creating a DOI.");
+    }
+    const catalogueUrl = regions[region]?.catalogueURL?.[recordLanguage];
     if (!catalogueUrl) {
-      throw new Error(`Invalid region/language combination: ${region}/${language}`);
+      throw new Error(`Invalid region/language combination: ${region}/${recordLanguage}`);
     }
 
     dataciteObject.url = `${catalogueUrl}dataset/ca-cioos_${record.identifier}`;
+
+    // Step 4b: If no publisher was set by the conversion (no contact with publisher role),
+    // fall back to the region's organization as the default publisher.
+    if (!dataciteObject.publisher || dataciteObject.publisher.name === ":unav") {
+      const regionConfig = regions[region] || {};
+      const regionTitle = regionConfig.title?.[recordLanguage] || regionConfig.title?.en;
+      if (regionTitle) {
+        const publisher = { name: regionTitle, lang: recordLanguage };
+        if (regionConfig.ror) {
+          publisher.publisherIdentifier = regionConfig.ror;
+          publisher.publisherIdentifierScheme = "ROR";
+          publisher.schemeUri = "https://ror.org/";
+        }
+        dataciteObject.publisher = publisher;
+      }
+    }
 
     // Step 5: Wrap in DataCite API structure
     const apiObject = {

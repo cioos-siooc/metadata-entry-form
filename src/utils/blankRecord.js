@@ -24,6 +24,7 @@ const blankRecord = {
   license: "",
   contacts: [],
   status: "",
+  resourceType: [],
   comment: "",
   limitations: "",
   lastEditedBy: {},

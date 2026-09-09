@@ -1,15 +1,25 @@
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Box, CircularProgress, Snackbar, Alert } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Box, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import {
+  DataGrid,
+  useGridApiRef,
+  gridFilteredSortedRowIdsSelector,
+} from "@mui/x-data-grid";
 
-import { useColumnVisibility } from "./hooks";
+import {
+  useColumnVisibility,
+  useRecordTableFilters,
+  markFormNavigation,
+} from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";
 import copyToClipboard from "../../utils/copyToClipboard";
+import { UserContext } from "../../providers/UserProvider";
 
 const RecordTable = ({
   records,
@@ -24,6 +34,7 @@ const RecordTable = ({
   githubPublishEnabled,
 }) => {
   const { language, region } = useParams();
+  const { doiStatusManagement } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -63,37 +74,33 @@ const RecordTable = ({
     config.defaultColumnVisibility || {},
   );
 
-  // Table-specific filter and sort state (independent from card view)
-  const tableFilterKey = `record-table-filters-${config.pageId}`;
-  const [filterModel, setFilterModel] = useState(() => {
-    try {
-      const saved = localStorage.getItem(tableFilterKey);
-      if (saved) {
-        return JSON.parse(saved).filterModel || { items: [] };
-      }
-    } catch { /* ignore storage errors */ }
-    return { items: [] };
-  });
+  const {
+    filterModel,
+    setFilterModel,
+    sortModel,
+    setSortModel,
+  } = useRecordTableFilters(config.pageId);
 
-  const [sortModel, setSortModel] = useState(() => {
-    try {
-      const saved = localStorage.getItem(tableFilterKey);
-      if (saved) {
-        return JSON.parse(saved).sortModel || [];
-      }
-    } catch { /* ignore storage errors */ }
-    return [];
-  });
+  const apiRef = useGridApiRef();
+  const [visibleRowCount, setVisibleRowCount] = useState(0);
 
-  // Persist table filters to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        tableFilterKey,
-        JSON.stringify({ filterModel, sortModel })
-      );
-    } catch { /* ignore storage errors */ }
-  }, [filterModel, sortModel, tableFilterKey]);
+  const filtersActive = useMemo(() => {
+    if (filterModel?.items?.length > 0) return true;
+    if (filterModel?.quickFilterValues?.length > 0) return true;
+    if (sortModel?.length > 0) return true;
+    return false;
+  }, [filterModel, sortModel]);
+
+  const handleClearFilters = useCallback(() => {
+    setFilterModel({ items: [], quickFilterValues: [] });
+    setSortModel([]);
+  }, [setFilterModel, setSortModel]);
+
+  const handleStateChange = useCallback(() => {
+    if (apiRef.current) {
+      setVisibleRowCount(gridFilteredSortedRowIdsSelector(apiRef).length);
+    }
+  }, [apiRef]);
 
   // Toast state for copy-to-clipboard feedback
   const [toastOpen, setToastOpen] = useState(false);
@@ -175,6 +182,9 @@ const RecordTable = ({
 
     const cols = columnsToShow
       .map((colName) => {
+        // DOI status is only meaningful/up-to-date for regions that manage DOI
+        // status from the form; hide the column for DataCite-managed regions.
+        if (colName === "doiStatus" && doiStatusManagement !== "form") return null;
         const col = columnDefs[colName];
         if (!col) return null;
         return col;
@@ -217,6 +227,7 @@ const RecordTable = ({
     actionHandlers,
     githubPublishEnabled,
     isMobile,
+    doiStatusManagement,
   ]);
 
   // Transform records to rows
@@ -227,6 +238,7 @@ const RecordTable = ({
       ),
     [records, language],
   );
+
 
   if (loading) {
     return (
@@ -264,7 +276,36 @@ const RecordTable = ({
         }),
       }}
     >
+      {filtersActive && (
+        <Alert
+          severity="info"
+          variant="outlined"
+          icon={<FilterAltOffIcon fontSize="inherit" />}
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              onClick={handleClearFilters}
+              startIcon={<FilterAltOffIcon />}
+            >
+              {language === "en" ? "Clear filters" : "Effacer les filtres"}
+            </Button>
+          }
+          sx={{
+            mb: 1,
+            alignItems: "center",
+            "& .MuiAlert-action": { alignItems: "center", pt: 0 },
+          }}
+        >
+          {language === "en"
+            ? `Filter active — showing ${visibleRowCount} of ${rows.length} records`
+            : `Filtre actif — affichage de ${visibleRowCount} sur ${rows.length} enregistrements`}
+        </Alert>
+      )}
       <DataGrid
+        apiRef={apiRef}
+        onStateChange={handleStateChange}
         autoHeight={!isMobile}
         sx={{
           width: "100%",

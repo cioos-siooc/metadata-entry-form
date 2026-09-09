@@ -53,7 +53,8 @@ function mailOptionsReviewer(
     html: `
 <p><b>New record submitted for review</b></p>
 <table cellpadding="4">
-  ${row("Title", titleEn)}
+  ${row("Title (EN)", titleEn)}
+  ${row("Title (FR)", titleFr)}
   ${row("Submitted by", submittedBy)}
   ${row("Organization", orgName)}
   ${row("Region", regionEn)}
@@ -67,7 +68,8 @@ function mailOptionsReviewer(
 
 <p><b>Nouveau dossier soumis pour examen</b></p>
 <table cellpadding="4">
-  ${row("Titre", titleFr)}
+  ${row("Titre (EN)", titleEn)}
+  ${row("Titre (FR)", titleFr)}
   ${row("Soumis par", submittedBy)}
   ${row("Organisation", orgName)}
   ${row("Région", regionFr)}
@@ -79,6 +81,36 @@ function mailOptionsReviewer(
   };
 }
 
+function mailOptionsAuthorSubmissionConfirmation(
+  authorEmail,
+  titleEn,
+  titleFr,
+  region
+) {
+  const regionEn = (regionNames[region] || {}).en || region;
+  const regionFr = (regionNames[region] || {}).fr || region;
+
+  return {
+    from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
+    to: authorEmail,
+    subject: "Your CIOOS metadata record has been submitted",
+    html: `
+<p><b>Submission received</b></p>
+<p>Thank you for submitting your metadata record. ${regionEn} has been notified and will contact you if additional information is needed before your record is published.</p>
+${titleEn ? `<p>Title (EN): ${titleEn}</p>` : ""}
+${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
+<p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}">Go to form</a></p>
+
+<hr>
+
+<p><b>Soumission reçue</b></p>
+<p>Merci d'avoir soumis votre enregistrement de métadonnées. ${regionFr} a été avisé et vous contactera si des informations supplémentaires sont nécessaires avant la publication de votre enregistrement.</p>
+${titleEn ? `<p>Titre (EN) : ${titleEn}</p>` : ""}
+${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
+<p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}">Accéder au formulaire</a></p>`,
+  };
+}
+
 function mailOptionsAuthor(authorEmail, titleEn, titleFr, region) {
   return {
     from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
@@ -87,16 +119,22 @@ function mailOptionsAuthor(authorEmail, titleEn, titleFr, region) {
     html: `
 <p><b>Approved</b></p>
 <p>Your metadata record has been approved by a reviewer.</p>
-${titleEn ? `<p>Title: ${titleEn}</p>` : ""}
+${titleEn ? `<p>Title (EN): ${titleEn}</p>` : ""}
+${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
 <p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}">Go to form</a></p>
 
 <hr>
 
 <p><b>Approuvé</b></p>
 <p>Votre enregistrement de métadonnées a été approuvé par un réviseur.</p>
-${titleFr ? `<p>Titre : ${titleFr}</p>` : ""}
+${titleEn ? `<p>Titre (EN) : ${titleEn}</p>` : ""}
+${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
 <p><a href="https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}">Accéder au formulaire</a></p>`,
   };
 }
 
-module.exports = { mailOptionsReviewer, mailOptionsAuthor };
+module.exports = {
+  mailOptionsReviewer,
+  mailOptionsAuthor,
+  mailOptionsAuthorSubmissionConfirmation,
+};
