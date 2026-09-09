@@ -19,7 +19,7 @@ class EditContactClass extends FormClassTemplate {
       orgName: "",
       orgEmail: "",
       orgURL: "",
-      orgAdress: "",
+      orgAddress: "",
       orgCity: "",
       orgCountry: "",
       // ind = individual

@@ -49,13 +49,22 @@ function getBlankRecord() {
 
 const blankContact = {
   role: [],
+  orgSlug: "",
   orgName: "",
+  orgNameEn: "",
+  orgNameFr: "",
+  orgDescriptionEn: "",
+  orgDescriptionFr: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
   orgEmail: "",
   orgURL: "",
-  orgAdress: "",
+  orgAddress: "",
   orgCity: "",
   orgCountry: "",
   orgRor: "",
+  orgRorVersion: "",
   indPosition: "",
   indEmail: "",
   indOrcid: "",
@@ -66,6 +75,58 @@ const blankContact = {
 
 function getBlankContact() {
   return deepCopy(blankContact);
+}
+
+const blankOrganization = {
+  orgNameEn: "",
+  orgNameFr: "",
+  orgDescriptionEn: "",
+  orgDescriptionFr: "",
+  orgSlug: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
+  orgEmail: "",
+  orgURL: "",
+  orgAddress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  orgRorVersion: "",
+  status: "",
+  approvedBy: "",
+  approvedAt: null,
+};
+
+function getBlankOrganization() {
+  return deepCopy(blankOrganization);
+}
+
+const blankOrganizationRequest = {
+  orgNameEn: "",
+  orgNameFr: "",
+  orgDescriptionEn: "",
+  orgDescriptionFr: "",
+  orgLogoEn: "",
+  orgLogoFr: "",
+  orgAcceptedNames: [],
+  orgEmail: "",
+  orgURL: "",
+  orgAddress: "",
+  orgCity: "",
+  orgCountry: "",
+  orgRor: "",
+  orgRorVersion: "",
+  requestedBy: "",
+  requestedByEmail: "",
+  requestedFromRegion: "",
+  requestedAt: null,
+  status: "pending",
+  reviewNote: "",
+};
+
+function getBlankOrganizationRequest() {
+  return deepCopy(blankOrganizationRequest);
 }
 
 const blankInstrument = {
@@ -90,4 +151,11 @@ function getBlankPlatform() {
   return deepCopy(blankPlatform);
 }
 
-export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};
+export {
+  getBlankRecord,
+  getBlankContact,
+  getBlankOrganization,
+  getBlankOrganizationRequest,
+  getBlankInstrument,
+  getBlankPlatform,
+};

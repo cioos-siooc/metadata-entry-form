@@ -1,25 +1,30 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 
 import {
   TextField,
   Typography,
   Grid,
-  CircularProgress,
   Button,
   IconButton,
   InputAdornment,
   Autocomplete,
+  Link,
+  Alert,
+  Box,
+  Chip,
+  Snackbar,
 } from "@mui/material";
-import { useDebounce } from "use-debounce";
-import { Clear, OpenInNew } from "@mui/icons-material";
+import { Clear, OpenInNew, Warning } from "@mui/icons-material";
 import { getBlankContact } from "../../utils/blankRecord";
 
-import { validateEmail, validateURL } from "../../utils/validate";
+import { validateEmail } from "../../utils/validate";
 import RolePicker from "./RolePicker";
 import { En, Fr, I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
 import { QuestionText } from "./QuestionStyles";
+import RequestOrganizationDialog from "../Dialogs/RequestOrganizationDialog";
+import { findMatchingOrganization } from "../../utils/organizationUtils";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -37,73 +42,83 @@ function namesToCitation(givenNames, lastname) {
 
 const ContactEditor = ({
   value,
+  organizations = {},
   showRolePicker,
   disabled,
   handleClear,
   updateContact,
   updateContactEvent,
-  updateContactRor,
   updateContactOrcid,
   language,
 }) => {
-  const mounted = useRef(false);
-  const orgEmailValid = validateEmail(value.orgEmail);
-  const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.hu );
-  const givenNamesValid = !value.givenNames?.includes(",");
-  const lastNameValid = !value.lastName?.includes(",");
-  const [rorInputValue, setRorInputValue] = useState(value.orgRor);
   const [orcidInputValue, setOrcidInputValue] = useState("");
-  const [debouncedRorInputValue] = useDebounce(rorInputValue, 500);
-  const [rorOptions, setRorOptions] = useState([]);
-  const [rorSearchActive, setRorSearchActive] = useState(false);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // eslint-disable-next-line no-param-reassign
-  value = { ...getBlankContact(), ...value };
+  const contact = { ...getBlankContact(), ...value };
 
-  function updateRorOptions(newInputValue) {
-    if (
-      newInputValue.startsWith("http") &&
-      !newInputValue.includes("ror.org")
-    ) {
-       if (mounted.current) setRorSearchActive(false);
-    } else {
-      fetch(`https://api.ror.org/organizations?query="${newInputValue}"`)
-        .then((response) => response.json())
-        .then((response) => {
-          if (mounted.current){
-            setRorOptions(response.items)}
-          if (response.number_of_results === 1){
-            updateContactRor(response.items[0]);
-          }
-        })
-        .then(() => {if (mounted.current) setRorSearchActive(false)});
-    }
-  }
+  const indEmailValid = validateEmail(contact.indEmail);
+  const givenNamesValid = !contact.givenNames?.includes(",");
+  const lastNameValid = !contact.lastName?.includes(",");
 
-  useEffect(() => {
+  const orgList = Object.values(organizations);
+  const selectedOrg = contact.orgSlug ? organizations[contact.orgSlug] : null;
 
-    mounted.current = true;
-    if (debouncedRorInputValue) {
-      updateRorOptions(debouncedRorInputValue);
+  // Check if current orgName matches an approved org (for historical data)
+  const suggestedOrg = !contact.orgSlug && contact.orgName ? findMatchingOrganization(contact.orgName, organizations) : null;
+
+  function handleSelectRegistryOrg(org) {
+    if (!org) {
+      // Clear all org fields when unlinking
+      const clearFields = [
+        "orgSlug", "orgName", "orgNameEn", "orgNameFr",
+        "orgDescriptionEn", "orgDescriptionFr",
+        "orgLogoEn", "orgLogoFr", "orgAcceptedNames",
+        "orgEmail", "orgURL", "orgAddress", "orgCity",
+        "orgCountry", "orgRor", "orgRorVersion",
+      ];
+      clearFields.forEach((key) => {
+        updateContact(key)(key === "orgAcceptedNames" ? [] : "");
+      });
+      return;
     }
 
-    return () => {
-      mounted.current = false;
+    const updates = {
+      orgSlug: org.orgSlug,
+      orgName: language === "fr" ? org.orgNameFr || org.orgNameEn : org.orgNameEn,
+      orgNameEn: org.orgNameEn || "",
+      orgNameFr: org.orgNameFr || "",
+      orgDescriptionEn: org.orgDescriptionEn || "",
+      orgDescriptionFr: org.orgDescriptionFr || "",
+      orgLogoEn: org.orgLogoEn || "",
+      orgLogoFr: org.orgLogoFr || "",
+      orgAcceptedNames: org.orgAcceptedNames || [],
+      orgEmail: org.orgEmail || "",
+      orgURL: org.orgURL || "",
+      orgAddress: org.orgAddress || "",
+      orgCity: org.orgCity || "",
+      orgCountry: org.orgCountry || "",
+      orgRor: org.orgRor || "",
+      orgRorVersion: org.orgRorVersion || "",
     };
-  }, [debouncedRorInputValue]);
+
+    Object.entries(updates).forEach(([key, val]) => {
+      updateContact(key)(val);
+    });
+  }
 
   return (
     <Grid container direction="column" spacing={2}>
       <Grid >
         <Typography variant="h6">
-          {ContactTitle(value)}
+          {ContactTitle(contact)}
         </Typography>
       </Grid>
       <Grid >
         {showRolePicker && (
           <RolePicker
-            value={value}
+            value={contact}
             updateContact={updateContact}
             disabled={disabled}
           />
@@ -114,160 +129,105 @@ const ContactEditor = ({
           spacing={1}
           style={{ marginTop: "10px" }}
         >
-          {/* Organization */}
+          {/* Organization Registry Search */}
           <Grid >
             <QuestionText>
               <I18n>
-                <En>Provide any information about the organization</En>
-                <Fr>Identification de l'organisation</Fr>
+                <En>Organization</En>
+                <Fr>Organisation</Fr>
               </I18n>
             </QuestionText>
           </Grid>
-          <Grid  style={{ marginLeft: "10px", height: "33px" }}>
-            {rorSearchActive ? (
-              <CircularProgress size={20} />
-            ) : (
-              <div style={{ height: "33px" }} />
-            )}
-          </Grid>
-          <Grid  style={{ marginleft: "10px" }}>
+          <Grid >
             <Autocomplete
-              inputValue={rorInputValue}
-              onInputChange={(e, newInputValue) => {
-                setRorInputValue(newInputValue);
-                if (newInputValue === "") {
-                  setRorSearchActive(false);
-                } else {
-                  setRorSearchActive(true);
-                }
-              }}
               disabled={disabled}
-              onChange={(e, organization) => {
-                if (organization !== null) {
-                  fetch(`https://api.ror.org/organizations/${organization.id}`)
-                    .then((response) => response.json())
-                    .then((response) => {
-                      if (!response.errors) {
-                        updateContactRor(response);
-                      } // todo: do some error handling here if search fails?
-                    })
-                    .then(() => setRorSearchActive(false))
-                    .then(() => setRorInputValue(""));
-                }
+              value={selectedOrg || null}
+              onChange={(e, org) => handleSelectRegistryOrg(org)}
+              options={orgList}
+              getOptionLabel={(org) => language === "fr" ? (org.orgNameFr || org.orgNameEn) : org.orgNameEn}
+              filterOptions={(options, { inputValue }) => {
+                const search = inputValue.toLowerCase();
+                return options.filter(o => 
+                  o.orgNameEn?.toLowerCase().includes(search) || 
+                  o.orgNameFr?.toLowerCase().includes(search) ||
+                  o.orgAcceptedNames?.some(name => name.toLowerCase().includes(search))
+                );
               }}
-              freeSolo
-              filterOptions={(x) => x}
-              getOptionLabel={(e) => {
-                const match = e.names.find((n) => n.lang === language);
-                return match ? match.value : e.names[0]?.value || "";
-              }}
-              options={rorOptions}
-              fullWidth
               renderInput={(params) => (
                 <TextField
-                  // eslint-disable-next-line react/jsx-props-no-spreading
                   {...params}
-                  label={
-                    <I18n
-                      en="Type to search Research Organization Registry (ROR)"
-                      fr="Tapez pour rechercher le registre des organismes de recherche (ROR)
-"
-                    />
-                  }
+                  label={<I18n en="Search organizations" fr="Rechercher des organisations" />}
                 />
               )}
-            />
-          </Grid>
-          <Grid  style={{ marginleft: "10px" }}>
-            <TextField
-              label={<I18n active en="ROR URL" fr="URL ROR" />}
-              InputLabelProps={{ shrink: value.orgRor !== "" }}
-              value={value.orgRor}
-              disabled
-              fullWidth
-              InputProps={{
-                endAdornment: value.orgRor && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        handleClear("orgRor");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
-            />
-          </Grid>
-          <Grid  style={{ marginleft: "10px" }}>
-            <TextField
-              label={<I18n en="Organization name" fr="Nom de l'organisation" />}
-              value={value.orgName}
-              onChange={updateContactEvent("orgName")}
-              disabled={value.orgRor !== "" || disabled}
               fullWidth
             />
+            {!selectedOrg && (
+              <Typography variant="caption" sx={{ mt: 1, display: "block" }}>
+                <I18n en="Can't find your organization?" fr="Vous ne trouvez pas votre organisation ?" />{" "}
+                <Link component="button" variant="caption" onClick={() => setRequestDialogOpen(true)}>
+                  <I18n en="Request to add it" fr="Demander à l'ajouter" />
+                </Link>
+              </Typography>
+            )}
           </Grid>
-          <Grid >
-            <TextField
-              helperText={
-                !orgURLValid && <I18n en="Invalid URL" fr="URL non valide" />
-              }
-              error={!orgURLValid}
-              label={<I18n en="URL" fr="URL" />}
-              value={value.orgURL}
-              onChange={updateContactEvent("orgURL")}
-              disabled={value.orgRor !== "" || disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid >
-            <TextField
-              label={<I18n en="Address" fr="Adresse" />}
-              value={value.orgAdress}
-              onChange={updateContactEvent("orgAdress")}
-              disabled={disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid >
-            <TextField
-              label={<I18n en="City" fr="Ville" />}
-              value={value.orgCity}
-              onChange={updateContactEvent("orgCity")}
-              disabled={value.orgRor !== "" || disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid >
-            <TextField
-              label={<I18n en="Country" fr="Pays" />}
-              value={value.orgCountry}
-              onChange={updateContactEvent("orgCountry")}
-              disabled={value.orgRor !== "" || disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid >
-            <TextField
-              helperText={
-                !orgEmailValid && (
-                  <I18n en="Invalid email" fr="E-mail non valide" />
-                )
-              }
-              error={!orgEmailValid}
-              label={<I18n en="Email" fr="Courriel" />}
-              value={value.orgEmail}
-              onChange={updateContactEvent("orgEmail")}
-              fullWidth
-              disabled={disabled}
-            />{" "}
-          </Grid>
+
+          {selectedOrg && (
+            <Grid >
+              <Box sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1, bgcolor: "action.hover" }}>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box>
+                    <Typography variant="subtitle2">
+                      {language === "fr" ? selectedOrg.orgNameFr || selectedOrg.orgNameEn : selectedOrg.orgNameEn}
+                    </Typography>
+                    {selectedOrg.orgCity && selectedOrg.orgCountry && (
+                      <Typography variant="caption" color="textSecondary">
+                        {selectedOrg.orgCity}, {selectedOrg.orgCountry}
+                      </Typography>
+                    )}
+                    {selectedOrg.orgURL && (
+                      <Typography variant="caption" display="block" color="textSecondary">
+                        {selectedOrg.orgURL}
+                      </Typography>
+                    )}
+                    {selectedOrg.orgRor && (
+                      <Chip label={`ROR: ${selectedOrg.orgRor}`} size="small" sx={{ mt: 0.5 }} />
+                    )}
+                  </Box>
+                  <Button size="small" startIcon={<Clear />} onClick={() => handleSelectRegistryOrg(null)}>
+                    <I18n en="Unlink" fr="Dissocier" />
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+          )}
+
+          {suggestedOrg && (
+            <Grid >
+              <Alert severity="warning" icon={<Warning />}>
+                <I18n 
+                  en={`"${contact.orgName}" matches an approved organization: `} 
+                  fr={`"${contact.orgName}" correspond à une organisation approuvée : `} 
+                />
+                <Link component="button" onClick={() => handleSelectRegistryOrg(suggestedOrg)}>
+                  {language === "fr" ? suggestedOrg.orgNameFr : suggestedOrg.orgNameEn}
+                </Link>
+              </Alert>
+            </Grid>
+          )}
+
         </Grid>
       </Grid>
+
       <Grid >
+        <RequestOrganizationDialog 
+          open={requestDialogOpen} 
+          onClose={() => setRequestDialogOpen(false)} 
+          onSuccess={() => {
+            setSnackbarMessage("Organization request submitted. An admin will review it shortly.");
+            setSnackbarOpen(true);
+          }}
+          initialName={contact.orgName}
+        />
         {/* Individual */}
         <Typography>
           <I18n>
@@ -321,20 +281,20 @@ const ContactEditor = ({
         </Grid>
         <Grid container direction="column" spacing={1}>
           <Grid >
-            {value.givenNames && value.lastName && value.inCitation && (
+            {contact.givenNames && contact.lastName && contact.inCitation && (
               <div style={{ marginBottom: "10px" }}>
                 This name will appear in the citation as:{" "}
-                <b>{namesToCitation(value.givenNames, value.lastName)}</b>
+                <b>{namesToCitation(contact.givenNames, contact.lastName)}</b>
               </div>
             )}
           </Grid>
           <Grid >
             <TextField
               label={<I18n en="ORCID URL" fr="URL ORCID" />}
-              InputLabelProps={{ shrink: value.indOrcid !== "" }}
-              value={value.indOrcid}
+              InputLabelProps={{ shrink: contact.indOrcid !== "" }}
+              value={contact.indOrcid}
               InputProps={{
-                endAdornment: value.indOrcid && (
+                endAdornment: contact.indOrcid && (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => {
@@ -353,7 +313,7 @@ const ContactEditor = ({
           <Grid >
             <TextField
               label={<I18n en="Given name(s)" fr="Prénom" />}
-              value={value.givenNames}
+              value={contact.givenNames}
               helperText={
                 !givenNamesValid && (
                   <I18n
@@ -372,7 +332,7 @@ const ContactEditor = ({
             <TextField
               // style={{ margin: "25px" }}
               label={<I18n en="Last name" fr="Nom de famille" />}
-              value={value.lastName}
+              value={contact.lastName}
               helperText={
                 !lastNameValid && (
                   <I18n
@@ -390,7 +350,7 @@ const ContactEditor = ({
           <Grid >
             <TextField
               label={<I18n en="Position" fr="Poste occupé" />}
-              value={value.indPosition}
+              value={contact.indPosition}
               onChange={updateContactEvent("indPosition")}
               disabled={disabled}
               fullWidth
@@ -405,7 +365,7 @@ const ContactEditor = ({
               }
               error={!indEmailValid}
               label={<I18n en="Email" fr="Courriel" />}
-              value={value.indEmail}
+              value={contact.indEmail}
               onChange={updateContactEvent("indEmail")}
               disabled={disabled}
               fullWidth
@@ -413,6 +373,17 @@ const ContactEditor = ({
           </Grid>
         </Grid>
       </Grid>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" variant="filled" elevation={6}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Grid>
   );
 };

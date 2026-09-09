@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const fetch = require('node-fetch');
 
 // Function to check if a given URL is active

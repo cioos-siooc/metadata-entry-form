@@ -16,6 +16,7 @@ import EditContact from "./FormComponents/EditSavedContact";
 import EditInstrument from "./FormComponents/EditSavedInstrument";
 import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
+import OrganizationAdmin from "./Pages/OrganizationAdmin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
@@ -83,6 +84,10 @@ const Pages = () => {
                 <Route
                   path="admin"
                   element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
+                />
+                <Route
+                  path="organizations"
+                  element={userIsAdmin || userIsReviewer ? <OrganizationAdmin /> : <NotFound />}
                 />
                 <Route path="sentry-test" element={<SentryTest />} />
                 <Route path="*" element={<NotFound />} />

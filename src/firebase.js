@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getStorage } from "firebase/storage";
 
 const deployedOnTestServer = import.meta.env.VITE_DEV_DEPLOYMENT;
 const localFirebaseFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS;
@@ -44,9 +45,10 @@ if (window.location.hostname === "localhost" && localFirebaseDatabase === "true"
 }
 
 const App = initializeApp(config);
+const storage = getStorage(App);
 
 // Export the resolved config so UI components can reference values (e.g., databaseURL)
-export const firebaseConfig = config;
+export { storage, config as firebaseConfig };
 
 // // uncomment below to use firebase emulator for local development
 if (window.location.hostname === "localhost" && localFirebaseFunctions === "true") {
