@@ -1,28 +1,30 @@
 import {
-  Paper,
-  TextField,
-  Grid,
-  Tooltip,
-  IconButton,
+  Button,
+  Checkbox,
+  Collapse,
   FormControlLabel,
-  Checkbox } from "@mui/material";
-import React from "react";
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+} from "@mui/material";
+import React, { useState } from "react";
+import FormSection from "../FormShell/FormSection";
 import { useParams } from "react-router-dom";
 
-import { OpenInNew } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, OpenInNew } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 
 import MapSelect from "../FormComponents/MapSelect";
 
 import SelectInput from "../FormComponents/SelectInput";
+import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import { depthDirections } from "../../isoCodeLists";
+import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 
-import {
-  QuestionText,
-  SupplementalText,
-  paperClass,
-} from "../FormComponents/QuestionStyles";
+import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 
 const OpenEPSGDefn = ({ url }) => {
@@ -46,14 +48,143 @@ const OpenEPSGDefn = ({ url }) => {
     </IconButton>
   );
 };
+
+// The "which tool should I use" guidance, one click away rather than a wall of
+// text above the map.
+const ChooseAToolHelp = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="text"
+        size="small"
+        onClick={() => setOpen((o) => !o)}
+        endIcon={open ? <ExpandLess /> : <ExpandMore />}
+        sx={{ pl: 0, mt: 0.5 }}
+      >
+        <I18n>
+          <En>Which should I use?</En>
+          <Fr>Lequel choisir ?</Fr>
+        </I18n>
+      </Button>
+      <Collapse in={open} timeout="auto">
+        <SupplementalText sx={{ mt: 0 }}>
+          <I18n>
+            <En>
+              <div>
+                You can define the spatial extent of the dataset using one of
+                the following options:
+              </div>
+              <ul>
+                <li>
+                  Draw a bounding box or polygon using the tools on the left
+                  side of the map;
+                </li>
+                <li>
+                  Enter the coordinates (decimal degrees) manually using the
+                  fields beside the map;
+                </li>
+                <li>
+                  Type the name of a location, and its boundaries will
+                  automatically be drawn on the map (those can be edited).
+                </li>
+              </ul>
+              <div>
+                Choose the method that best represents the geographic
+                distribution of your data:
+              </div>
+              <ul>
+                <li>
+                  For broadly distributed data in the open ocean, a bounding
+                  box may be most appropriate;
+                </li>
+                <li>
+                  For tightly clustered coastal data, a polygon may better
+                  represent the sampled area by excluding land or unsampled
+                  regions;
+                </li>
+                <li>
+                  Whether data were collected at a single location or across
+                  multiple locations, define one area that encompasses all
+                  locations.
+                </li>
+              </ul>
+              <div>
+                If the data is sensitive (endangered species or protected
+                ecosystems), use a more general area rather than the exact
+                location of the observations.
+              </div>
+            </En>
+            <Fr>
+              <div>
+                Vous pouvez définir l&apos;étendue spatiale du jeu de données
+                de l&apos;une des façons suivantes :
+              </div>
+              <ul>
+                <li>
+                  Tracer un cadre ou un polygone à l&apos;aide des outils
+                  situés à gauche de la carte ;
+                </li>
+                <li>
+                  Entrer les coordonnées (degrés décimaux) manuellement dans
+                  les champs à côté de la carte ;
+                </li>
+                <li>
+                  Saisir le nom d&apos;un lieu : ces limites seront
+                  automatiquement créées sur la carte (ces limites peuvent
+                  être modifiées directement sur la carte).
+                </li>
+              </ul>
+              <div>
+                Choisissez l&apos;outil qui représente le mieux la
+                distribution géographique de vos données :
+              </div>
+              <ul>
+                <li>
+                  Pour des données largement réparties en milieu océanique,
+                  une boîte englobante peut être plus appropriée ;
+                </li>
+                <li>
+                  Pour des données côtières regroupées dans une zone
+                  restreinte, un polygone peut mieux représenter la zone
+                  échantillonnée en excluant les terres ou les zones non
+                  échantillonnées ;
+                </li>
+                <li>
+                  Que les données aient été collectées à un endroit ou à
+                  plusieurs, définissez une zone unique englobant tous les
+                  sites.
+                </li>
+              </ul>
+              <div>
+                Si les données sont sensibles (espèces protégées ou des
+                habitats vulnérables), privilégiez une emprise spatiale
+                généralisée plutôt que la localisation exacte des
+                observations.
+              </div>
+            </Fr>
+          </I18n>
+        </SupplementalText>
+      </Collapse>
+    </>
+  );
+};
+
 const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
   const { language } = useParams();
   const noVerticalExtent = record.noVerticalExtent && record.noVerticalExtent !== "false";
+  const mapData = record.map || {};
+  // Optional for every other topic category, so a record saved before this
+  // field was hidden keeps it editable rather than stranding the text.
+  const showExtentDescription =
+    resourceTypeIncludes(record.resourceType, "biota") ||
+    Boolean(mapData.description?.en || mapData.description?.fr);
 
   return (
-    <Grid>
-      <Paper style={paperClass}>
-        <QuestionText style={{ paddingBottom: "15px" }}>
+    <Stack spacing={2}>
+      <FormSection>
+        <QuestionText sx={{ pb: 1 }}>
           <I18n>
             <En>What is the spatial extent of the dataset?</En>
             <Fr>Quelle est l'étendue géographique du jeu de données?</Fr>
@@ -62,110 +193,27 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           <SupplementalText>
             <I18n>
               <En>
-                <div>
-                  You can define the spatial extent of the dataset using one of
-                  the following options:
-                </div>
-                <ul>
-                  <li>
-                    Draw a bounding box or polygon using the tools on the left
-                    side of the map;
-                  </li>
-                  <li>
-                    Enter the coordinates (decimal degrees) manually using the
-                    fields below;
-                  </li>
-                  <li>
-                    Type the name of a location, and its boundaries will
-                    automatically be drawn on the map (those can be edited).
-                  </li>
-                </ul>
-                <div>
-                  Choose the method that best represents the geographic
-                  distribution of your data:
-                </div>
-                <ul>
-                  <li>
-                    For broadly distributed data in the open ocean, a bounding
-                    box may be most appropriate;
-                  </li>
-                  <li>
-                    For tightly clustered coastal data, a polygon may better
-                    represent the sampled area by excluding land or unsampled
-                    regions;
-                  </li>
-                  <li>
-                    Whether data were collected at a single location or across
-                    multiple locations, define one area that encompasses all
-                    locations.
-                  </li>
-                </ul>
-                <div>
-                  If the data is sensitive (endangered species or protected
-                  ecosystems), use a more general area rather than the exact
-                  location of the observations.
-                </div>
+                Define the area your data covers by searching for a place
+                name, drawing on the map, or entering bounding box or polygon
+                coordinates.
               </En>
               <Fr>
-                <div>
-                  Vous pouvez définir l&apos;étendue spatiale du jeu de données
-                  de l&apos;une des façons suivantes :
-                </div>
-                <ul>
-                  <li>
-                    Tracer un cadre ou un polygone à l&apos;aide des outils
-                    situés à gauche de la carte ;
-                  </li>
-                  <li>
-                    Entrer les coordonnées (degrés décimaux) manuellement dans
-                    les champs ci-dessous ;
-                  </li>
-                  <li>
-                    Saisir le nom d&apos;un lieu : ces limites seront
-                    automatiquement créées sur la carte (ces limites peuvent
-                    être modifiées directement sur la carte).
-                  </li>
-                </ul>
-                <div>
-                  Choisissez l&apos;outil qui représente le mieux la
-                  distribution géographique de vos données :
-                </div>
-                <ul>
-                  <li>
-                    Pour des données largement réparties en milieu océanique,
-                    une boîte englobante peut être plus appropriée ;
-                  </li>
-                  <li>
-                    Pour des données côtières regroupées dans une zone
-                    restreinte, un polygone peut mieux représenter la zone
-                    échantillonnée en excluant les terres ou les zones non
-                    échantillonnées ;
-                  </li>
-                  <li>
-                    Que les données aient été collectées à un endroit ou à
-                    plusieurs, définissez une zone unique englobant tous les
-                    sites.
-                  </li>
-                </ul>
-                <div>
-                  Si les données sont sensibles (espèces protégées ou des
-                  habitats vulnérables), privilégiez une emprise spatiale
-                  généralisée plutôt que la localisation exacte des
-                  observations.
-                </div>
+                Définissez la zone couverte par vos données en recherchant un
+                lieu par son nom, en traçant sur la carte ou en saisissant les
+                coordonnées d&apos;un cadre englobant ou d&apos;un polygone.
               </Fr>
             </I18n>
           </SupplementalText>
+          <ChooseAToolHelp />
         </QuestionText>
         <MapSelect
-          mapData={record.map}
+          mapData={mapData}
           updateMap={updateRecord("map")}
-          handleUpdateMap={handleUpdateRecord("map")}
           disabled={disabled}
           record={record}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the vertical extent of the dataset in meters?</En>
@@ -302,8 +350,43 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           </Grid>
         </Grid>
         ) : ("")}
-      </Paper>
-    </Grid>
+      </FormSection>
+      {showExtentDescription && (
+        <FormSection>
+          <QuestionText>
+            <I18n>
+              <En>Describe the Geographic Extent of the dataset</En>
+              <Fr>Décrivez l'étendue géographique du jeu de données</Fr>
+            </I18n>
+            {resourceTypeIncludes(record.resourceType, "biota") && (
+              <RequiredMark passes={Boolean(mapData.description)} />
+            )}
+            <SupplementalText>
+              <I18n>
+                <En>
+                  A text description of the geographic area covered by this
+                  dataset or study. Required for Biota (biological) datasets.
+                </En>
+                <Fr>
+                  Une description textuelle de la zone géographique couverte par
+                  ce jeu de données. Obligatoire pour les jeux de données Biote
+                  (biologiques).
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+
+          <BilingualTextInput
+            value={mapData.description}
+            onChange={(e) =>
+              updateRecord("map")({ ...mapData, description: e.target.value })
+            }
+            name="description"
+            disabled={disabled}
+          />
+        </FormSection>
+      )}
+    </Stack>
   );
 };
 

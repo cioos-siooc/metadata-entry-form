@@ -4,17 +4,19 @@ import {
   Button,
   ButtonGroup,
   Box,
+  Card,
   Chip,
   Divider,
   Menu,
   MenuItem,
+  Stack,
 } from "@mui/material";
 import { Add, ArrowDropDown } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import firebase from "../../firebase";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import { Fr, En, I18n } from "../I18n";
+import { I18n } from "../I18n";
 import {
   multipleFirebaseToJSObject,
   cloneRecord,
@@ -24,9 +26,11 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import SimpleModal from "../FormComponents/SimpleModal";
 import NewRecordFromSourceDialog from "../FormComponents/NewRecordFromSourceDialog";
-import regions from "../../regions";
 import RecordList, { submissionsConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
+import DashboardHero from "../Dashboard/DashboardHero";
+import StatCards from "../Dashboard/StatCards";
+import GettingStarted from "../Dashboard/GettingStarted";
 
 const Submissions = () => {
   const { language, region } = useParams();
@@ -156,6 +160,8 @@ const Submissions = () => {
     }
   }, [region, modalKey]);
 
+  const isEmpty = !loading && records.length === 0;
+
   return (
     <Box>
       <SimpleModal
@@ -180,94 +186,72 @@ const Submissions = () => {
         aria-describedby="simple-modal-description"
       />
 
-      <Typography variant="h5" gutterBottom>
-        <I18n>
-          <En>My Records</En>
-          <Fr>Mes dossiers</Fr>
-        </I18n>
-      </Typography>
+      <DashboardHero
+        action={
+          <>
+            <ButtonGroup variant="contained" color="primary">
+              <Button
+                size="large"
+                startIcon={<Add />}
+                onClick={() => goToNewRecord()}
+              >
+                <I18n en="New record" fr="Nouvel enregistrement" />
+              </Button>
+              <Button
+                size="large"
+                onClick={(e) => setNewRecordMenuAnchor(e.currentTarget)}
+                aria-label={
+                  language === "fr"
+                    ? "Créer à partir d'une source existante"
+                    : "Create from an existing source"
+                }
+              >
+                <ArrowDropDown />
+              </Button>
+            </ButtonGroup>
 
-      <Typography variant="body2" paragraph>
-        <I18n>
-          <En>
-            To start a new record, click on "New Record" and begin adding
-            information. To continue working on a record, select it from the
-            list below. Once your record is completed and information has been
-            provided for all mandatory fields, you can submit your record for
-            review by clicking the "Submit for review" icon to the right of your
-            record title. The record will not be published until it is reviewed
-            and approved by {regions[region]?.title?.[language]} staff.
-          </En>
-          <Fr>
-            Afin de soumettre vos métadonnées, cliquez sur « Nouvel
-            enregistrement » et ajoutez-y les informations demandées. Si vous
-            désirez reprendre la saisie d'un formulaire déjà entamé,
-            sélectionnez-le dans la liste ci-dessous. Lorsque les informations
-            sont saisies pour tous les champs obligatoires, vous pouvez
-            soumettre vos métadonnées pour validation en cliquant sur l'icône «
-            soumettre pour validation ». Vos métadonnées seront publiées
-            lorsqu'elles auront été validées et approuvées par un professionel{" "}
-            {regions[region]?.titleFrPossessive}.
-          </Fr>
-        </I18n>
-      </Typography>
-
-      <Box mb={1.5}>
-        <ButtonGroup variant="contained" color="primary">
-          <Button startIcon={<Add />} onClick={() => goToNewRecord()}>
-            <I18n en="New Record" fr="Nouvel enregistrement" />
-          </Button>
-          <Button
-            size="small"
-            onClick={(e) => setNewRecordMenuAnchor(e.currentTarget)}
-            aria-label={
-              language === "fr"
-                ? "Créer à partir d'une source existante"
-                : "Create from an existing source"
-            }
-          >
-            <ArrowDropDown />
-          </Button>
-        </ButtonGroup>
-
-        <Menu
-          anchorEl={newRecordMenuAnchor}
-          open={Boolean(newRecordMenuAnchor)}
-          onClose={() => setNewRecordMenuAnchor(null)}
-        >
-          <MenuItem
-            onClick={() => {
-              setNewRecordMenuAnchor(null);
-              goToNewRecord();
-            }}
-          >
-            <I18n en="Blank record" fr="Enregistrement vide" />
-          </MenuItem>
-          <Divider />
-          {[
-            ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
-            ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
-            ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
-          ].map(([type, en, fr]) => (
-            <MenuItem
-              key={type}
-              onClick={() => {
-                setNewRecordMenuAnchor(null);
-                setSourceDialogType(type);
-              }}
-              sx={{ gap: 1, justifyContent: "space-between" }}
+            <Menu
+              anchorEl={newRecordMenuAnchor}
+              open={Boolean(newRecordMenuAnchor)}
+              onClose={() => setNewRecordMenuAnchor(null)}
             >
-              <I18n en={en} fr={fr} />
-              <Chip
-                size="small"
-                color="warning"
-                variant="outlined"
-                label={<I18n en="Experimental" fr="Expérimental" />}
-              />
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
+              <MenuItem
+                onClick={() => {
+                  setNewRecordMenuAnchor(null);
+                  goToNewRecord();
+                }}
+              >
+                <I18n en="Blank record" fr="Enregistrement vide" />
+              </MenuItem>
+              <Divider />
+              {[
+                ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
+                ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
+                ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
+              ].map(([type, en, fr]) => (
+                <MenuItem
+                  key={type}
+                  onClick={() => {
+                    setNewRecordMenuAnchor(null);
+                    setSourceDialogType(type);
+                  }}
+                  sx={{ gap: 1, justifyContent: "space-between" }}
+                >
+                  <I18n en={en} fr={fr} />
+                  <Chip
+                    size="small"
+                    color="warning"
+                    variant="outlined"
+                    label={<I18n en="Experimental" fr="Expérimental" />}
+                  />
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        }
+      />
+
+      <StatCards records={records} loading={loading} />
 
       <NewRecordFromSourceDialog
         open={Boolean(sourceDialogType)}
@@ -279,23 +263,25 @@ const Submissions = () => {
         }}
       />
 
-      <RecordList
-        records={records}
-        config={submissionsConfig}
-        loading={loading}
-        onEditRecord={handleEditRecord}
-        onDeleteRecord={handleDeleteRecord}
-        onCloneRecord={handleCloneRecord}
-        onSubmitRecord={handleSubmitRecord}
-      />
-
-      {!loading && records.length === 0 && (
-        <Typography>
-          <I18n>
-            <En>You don't have any records.</En>
-            <Fr>Vous n'avez pas d'historique de saisie.</Fr>
-          </I18n>
-        </Typography>
+      {isEmpty ? (
+        <GettingStarted />
+      ) : (
+        <Stack spacing={2}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <I18n en="Your records" fr="Vos enregistrements" />
+          </Typography>
+          <Card variant="outlined" sx={{ p: 0, overflow: "hidden" }}>
+            <RecordList
+              records={records}
+              config={submissionsConfig}
+              loading={loading}
+              onEditRecord={handleEditRecord}
+              onDeleteRecord={handleDeleteRecord}
+              onCloneRecord={handleCloneRecord}
+              onSubmitRecord={handleSubmitRecord}
+            />
+          </Card>
+        </Stack>
       )}
     </Box>
   );

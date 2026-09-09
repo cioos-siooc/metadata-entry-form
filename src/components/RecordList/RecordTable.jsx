@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useContext } from "react";
+import { useMemo, useCallback, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -122,10 +122,13 @@ const RecordTable = ({
     (row) => {
       const { userID, recordID, region: rowRegion } = row;
       if (userID && recordID) {
+        // Same marker the Actions > Edit path sets, so returning from the form
+        // keeps the table's filters either way you opened the record.
+        markFormNavigation(config.pageId);
         navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
       }
     },
-    [navigate, language, region],
+    [navigate, language, region, config.pageId],
   );
 
   const handleRowClick = useCallback(

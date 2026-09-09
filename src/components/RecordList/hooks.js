@@ -81,8 +81,8 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
         // Merge saved settings with defaults so new columns respect their default visibility
         return { ...defaultVisibility, ...parsed };
       }
-    } catch (e) {
-      // Ignore errors
+    } catch {
+      // localStorage unavailable (private mode, blocked site data)
     }
     return defaultVisibility;
   });
@@ -92,8 +92,8 @@ export function useColumnVisibility(storageKey, defaultVisibility) {
       setColumnVisibilityModel(newModel);
       try {
         localStorage.setItem(storageKey, JSON.stringify(newModel));
-      } catch (e) {
-        // Ignore errors
+      } catch {
+        // localStorage unavailable (private mode, blocked site data)
       }
     },
     [storageKey]

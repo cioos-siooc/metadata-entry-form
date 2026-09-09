@@ -16,61 +16,43 @@ import { OpenInNew, Close } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { En, Fr, I18n } from "../I18n";
-import { makeStyles } from "../../tss-cache";
 import releasesData from "../../data/githubReleases.json";
 
-const useStyles = makeStyles()((theme) => ({
-  releasePaper: {
-    padding: theme.spacing(3),
-    marginBottom: theme.spacing(3),
+// Styles for the GitHub-rendered release markdown.
+const markdownSx = {
+  "& img": { maxWidth: "100%" },
+  "& a": { color: "primary.main" },
+  "& pre": {
+    backgroundColor: "grey.100",
+    p: 2,
+    borderRadius: 1,
+    overflow: "auto",
   },
-  releaseHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    flexWrap: "wrap",
+  "& code": {
+    backgroundColor: "grey.100",
+    padding: "2px 6px",
+    borderRadius: 1,
+    fontSize: "0.875em",
   },
-  releaseDate: {
-    color: theme.palette.text.secondary,
+  "& table": {
+    borderCollapse: "collapse",
+    width: "100%",
+    mb: 2,
   },
-  markdownBody: {
-    "& img": {
-      maxWidth: "100%",
-    },
-    "& a": {
-      color: theme.palette.primary.main,
-    },
-    "& pre": {
-      backgroundColor: theme.palette.grey[100],
-      padding: theme.spacing(2),
-      borderRadius: theme.shape.borderRadius,
-      overflow: "auto",
-    },
-    "& code": {
-      backgroundColor: theme.palette.grey[100],
-      padding: "2px 6px",
-      borderRadius: 4,
-      fontSize: "0.875em",
-    },
-    "& table": {
-      borderCollapse: "collapse",
-      width: "100%",
-      marginBottom: theme.spacing(2),
-    },
-    "& th, & td": {
-      border: `1px solid ${theme.palette.divider}`,
-      padding: theme.spacing(1),
-      textAlign: "left",
-    },
-    "& blockquote": {
-      borderLeft: `4px solid ${theme.palette.divider}`,
-      margin: 0,
-      paddingLeft: theme.spacing(2),
-      color: theme.palette.text.secondary,
-    },
+  "& th, & td": {
+    border: 1,
+    borderColor: "divider",
+    p: 1,
+    textAlign: "left",
   },
-}));
+  "& blockquote": {
+    borderLeft: 4,
+    borderColor: "divider",
+    m: 0,
+    pl: 2,
+    color: "text.secondary",
+  },
+};
 
 function formatReleaseDate(dateString, language) {
   const date = new Date(dateString);
@@ -83,7 +65,6 @@ function formatReleaseDate(dateString, language) {
 
 const WhatsNewDialog = ({ open, onClose }) => {
   const { language } = useParams();
-  const { classes } = useStyles();
   const releases = releasesData.releases;
 
   return (
@@ -134,8 +115,8 @@ const WhatsNewDialog = ({ open, onClose }) => {
         )}
 
         {releases.map((release) => (
-          <Paper key={release.id} className={classes.releasePaper}>
-            <div className={classes.releaseHeader}>
+          <Paper key={release.id} sx={{ p: 3, mb: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, flexWrap: "wrap" }}>
               <Typography variant="h6">
                 {release.name || release.tag_name}
               </Typography>
@@ -154,8 +135,8 @@ const WhatsNewDialog = ({ open, onClose }) => {
                   color="warning"
                 />
               )}
-            </div>
-            <Typography variant="body2" className={classes.releaseDate}>
+            </Box>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {formatReleaseDate(release.published_at, language)}
             </Typography>
             <Link
@@ -178,7 +159,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
             </Link>
             <Divider sx={{ my: 2 }} />
             {release.body ? (
-              <div className={classes.markdownBody}>
+              <Box sx={markdownSx}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   allowedElements={[
@@ -212,7 +193,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
                 >
                   {release.body}
                 </ReactMarkdown>
-              </div>
+              </Box>
             ) : (
               <Typography color="textSecondary" variant="body2">
                 <I18n>

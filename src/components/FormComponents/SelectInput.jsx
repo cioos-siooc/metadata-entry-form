@@ -3,20 +3,11 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Typography,
   Tooltip,
 } from "@mui/material";
-import { makeStyles } from "../../tss-cache";
 
 import { I18n } from "../I18n";
-
-const useStyles = makeStyles()(() => ({
-  formControl: {
-    minWidth: 200,
-  },
-  selectEmpty: {},
-}));
 
 const SelectInput = ({
   value = "",
@@ -29,16 +20,13 @@ const SelectInput = ({
   label,
   fullWidth = true,
 }) => {
-  const { classes } = useStyles();
-
   return (
     <FormControl
       fullWidth={fullWidth}
-      className={classes.formControl}
+      sx={{ minWidth: 200 }}
       disabled={disabled}
     >
       <Select
-        className={classes.selectEmpty}
         name={name}
         fullWidth={fullWidth}
         value={value}
@@ -47,11 +35,12 @@ const SelectInput = ({
         onChange={onChange}
       >
         <MenuItem value="">
-          <InputLabel id="demo-simple-select-label">
-            <Typography>
-              {label || <I18n en="Choose" fr="Choisir" />}
-            </Typography>
-          </InputLabel>
+          {/* Placeholder row. Plain text, not an InputLabel — the theme now
+              styles outlined InputLabels as captions stacked above a field,
+              which is not what this is. */}
+          <Typography color="text.secondary">
+            {label || <I18n en="Choose" fr="Choisir" />}
+          </Typography>
         </MenuItem>
         {options.map((v, i) => (
           <MenuItem key={v} value={v}>

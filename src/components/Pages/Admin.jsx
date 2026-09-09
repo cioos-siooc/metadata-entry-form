@@ -7,22 +7,8 @@ import {
   Grid,
   InputAdornment,
   IconButton,
-  Checkbox,
-  Paper,
-  Tooltip,
-  FormControlLabel,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  RadioGroup,
-  Radio,
-  FormControl,
-  FormLabel,
-  Alert,
 } from "@mui/material";
-import { Save, Delete, PlayArrow, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
 import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
 import { Buffer } from 'buffer';
 
@@ -35,7 +21,9 @@ import withRouter from "../../utils/withRouter";
 
 import { unique } from "../../utils/misc";
 
-import { paperClass } from "../FormComponents/QuestionStyles";
+import DataciteSettings from "../Admin/DataciteSettings";
+import AdminDialogs from "../Admin/AdminDialogs";
+import FormSection from "../FormShell/FormSection";
 
 const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
@@ -405,112 +393,6 @@ class Admin extends FormClassTemplate {
     }
   }
 
-  renderDeletionDialog() {
-    return (
-      <Dialog
-        open={this.state.showDeletionDialog}
-        onClose={() => this.setState({ showDeletionDialog: false })}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          Delete Datacite Credentials?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Disabling DOI creation will delete the stored credentials. Are you
-            sure you want to proceed?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => this.setState({ showDeletionDialog: false })}
-            color="primary"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => this.handleDisableDoiCreation()}
-            color="primary"
-            autoFocus
-          >
-            Delete Credentials
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
-
-  renderCredentialsMissingDialog() {
-    return (
-      <Dialog
-        open={this.state.showCredentialsMissingDialog}
-        onClose={() => this.setState({ showCredentialsMissingDialog: false })}
-        aria-labelledby="credentials-missing-dialog-title"
-        aria-describedby="credentials-=missing-dialog-description"
-      >
-        <DialogTitle id="credentials-missing-dialog-title">
-          <I18n>
-            <En>Missing DataCite Credentials</En>
-            <Fr>Informations d'identification DataCite manquantes</Fr>
-          </I18n>
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="credentials-missing-dialog-description">
-            <I18n>
-              <En>
-                Nothing was saved. To enable DOI creation, please fill in the DataCite Prefix, Account ID, and Password.
-              </En>
-              <Fr>
-                Rien n'a été enregistré. Pour activer la création de DOI, veuillez renseigner le préfixe DataCite, l'identifiant de compte et le mot de passe.
-              </Fr>
-            </I18n>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() =>
-              this.setState({ showCredentialsMissingDialog: false })
-            }
-            color="primary"
-            autoFocus
-          >
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
-
-  renderErrorDialog() {
-    return (
-      <Dialog
-        open={this.state.showErrorDialog}
-        onClose={() => this.setState({ showErrorDialog: false })}
-        aria-labelledby="error-dialog-title"
-        aria-describedby="error-dialog-description"
-      >
-        <DialogTitle id="error-dialog-title">
-          Error
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="error-dialog-description">
-            {this.state.errorMessage}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => this.setState({ showErrorDialog: false })}
-            color="primary"
-            autoFocus
-          >
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
-
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value }, () => {
@@ -537,20 +419,11 @@ class Admin extends FormClassTemplate {
   };
 
   render() {
-    const {
-      loading,
-      reviewers,
-      admins,
-      projects,
-      showPassword,
-      datacitePrefix,
-      isDoiCreationEnabled,
-      credentialsStored,
-    } = this.state;
+    const { loading, reviewers, admins, projects } = this.state;
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid size={12}>
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -574,8 +447,8 @@ class Admin extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Paper style={paperClass}>
-              <Grid >
+            <FormSection>
+              <Grid size={12}>
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -583,7 +456,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid size={12}>
                 <TextField
                   multiline
                   fullWidth
@@ -593,9 +466,9 @@ class Admin extends FormClassTemplate {
                   }
                 />
               </Grid>
-            </Paper>
-            <Paper style={paperClass}>
-              <Grid >
+            </FormSection>
+            <FormSection>
+              <Grid size={12}>
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -603,7 +476,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid size={12}>
                 <TextField
                   multiline
                   fullWidth
@@ -613,9 +486,9 @@ class Admin extends FormClassTemplate {
                   }
                 />
               </Grid>
-            </Paper>
-            <Paper style={paperClass}>
-              <Grid >
+            </FormSection>
+            <FormSection>
+              <Grid size={12}>
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -623,7 +496,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid size={12}>
                 <TextField
                   multiline
                   fullWidth
@@ -635,357 +508,20 @@ class Admin extends FormClassTemplate {
                   }
                 />
               </Grid>
-            </Paper>
-            <Paper style={paperClass}>
-              <Grid container spacing={2}>
-                <Grid size={12}>
-                  <Typography variant="h5">
-                    <I18n>
-                      <En>DOI Creation Settings</En>
-                      <Fr>Paramètres de création de DOI</Fr>
-                    </I18n>
-                  </Typography>
-                </Grid>
-                <Grid
-                  size={12}
-                  container
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <Grid>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={this.state.isDoiCreationEnabled || false}
-                          onChange={this.handleToggleDoiCreation}
-                        />
-                      }
-                      label={
-                        <I18n>
-                          <En>Enable DOI Creation</En>
-                          <Fr>Activer la création de DOI</Fr>
-                        </I18n>
-                      }
-                    />
-                  </Grid>
-                  {isDoiCreationEnabled && (
-                    <Grid size={12}>
-                      <Alert severity={credentialsStored ? "success" : "warning"}>
-                        <I18n>
-                          <En>
-                            {credentialsStored
-                              ? "DataCite credentials are saved. Enter new values below to update them."
-                              : "No DataCite credentials stored. Please enter your credentials below."}
-                          </En>
-                          <Fr>
-                            {credentialsStored
-                              ? "Les identifiants DataCite sont enregistrés. Entrez de nouvelles valeurs ci-dessous pour les mettre à jour."
-                              : "Aucun identifiant DataCite enregistré. Veuillez entrer vos identifiants ci-dessous."}
-                          </Fr>
-                        </I18n>
-                      </Alert>
-                    </Grid>
-                  )}
-                </Grid>
-                {isDoiCreationEnabled && (
-                  <>
-                    <Grid size={12}>
-                      <FormControl>
-                        <FormLabel>
-                          <I18n>
-                            <En>DataCite API</En>
-                            <Fr>API DataCite</Fr>
-                          </I18n>
-                        </FormLabel>
-                        <RadioGroup
-                          row
-                          name="dataciteApiDomain"
-                          value={this.state.dataciteApiDomain}
-                          onChange={this.handleChange}
-                        >
-                          <FormControlLabel
-                            value="production"
-                            control={<Radio />}
-                            label={
-                              <I18n>
-                                <En>Production (api.datacite.org)</En>
-                                <Fr>Production (api.datacite.org)</Fr>
-                              </I18n>
-                            }
-                          />
-                          <FormControlLabel
-                            value="test"
-                            control={<Radio />}
-                            label={
-                              <I18n>
-                                <En>Test (api.test.datacite.org)</En>
-                                <Fr>Test (api.test.datacite.org)</Fr>
-                              </I18n>
-                            }
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                      <FormControl>
-                        <FormLabel>
-                          <I18n>
-                            <En>DOI Status Management</En>
-                            <Fr>Gestion du statut DOI</Fr>
-                          </I18n>
-                        </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
-                          <I18n>
-                            <En>
-                              When set to &quot;Managed from this form&quot;, reviewers will be prompted to set the DOI status (findable or registered) when publishing or unpublishing records. The DOI status can also be changed directly from the record form.
-                            </En>
-                            <Fr>
-                              Lorsque défini sur « Géré depuis ce formulaire », les réviseurs seront invités à définir le statut du DOI (trouvable ou enregistré) lors de la publication ou du retrait d&apos;un enregistrement. Le statut peut également être modifié directement depuis le formulaire.
-                            </Fr>
-                          </I18n>
-                        </Typography>
-                        <RadioGroup
-                          row
-                          name="doiStatusManagement"
-                          value={this.state.doiStatusManagement}
-                          onChange={this.handleChange}
-                        >
-                          <FormControlLabel
-                            value="datacite"
-                            control={<Radio />}
-                            label={
-                              <I18n>
-                                <En>Managed via DataCite portal</En>
-                                <Fr>Géré via le portail DataCite</Fr>
-                              </I18n>
-                            }
-                          />
-                          <FormControlLabel
-                            value="form"
-                            control={<Radio />}
-                            label={
-                              <I18n>
-                                <En>Managed from this form</En>
-                                <Fr>Géré depuis ce formulaire</Fr>
-                              </I18n>
-                            }
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                      <FormControl component="fieldset">
-                        <FormLabel component="legend">
-                          <I18n>
-                            <En>DOI Suffix Generation</En>
-                            <Fr>Génération du suffixe DOI</Fr>
-                          </I18n>
-                        </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
-                          <I18n>
-                            <En>
-                              Select one or more methods users may pick from when generating a DOI suffix.
-                            </En>
-                            <Fr>
-                              Sélectionnez une ou plusieurs méthodes que les utilisateurs pourront choisir pour générer un suffixe DOI.
-                            </Fr>
-                          </I18n>
-                        </Typography>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("default")}
-                              onChange={() => this.handleToggleSuffixMode("default")}
-                            />
-                          }
-                          label={
-                            <I18n>
-                              <En>Default (auto-generated by DataCite)</En>
-                              <Fr>Par défaut (généré automatiquement par DataCite)</Fr>
-                            </I18n>
-                          }
-                        />
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("identifier")}
-                              onChange={() => this.handleToggleSuffixMode("identifier")}
-                            />
-                          }
-                          label={
-                            <I18n>
-                              <En>Form identifier (record identifier)</En>
-                              <Fr>Identifiant du formulaire (identifiant de l'enregistrement)</Fr>
-                            </I18n>
-                          }
-                        />
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("manual")}
-                              onChange={() => this.handleToggleSuffixMode("manual")}
-                            />
-                          }
-                          label={
-                            <I18n>
-                              <En>Manual (user-defined value)</En>
-                              <Fr>Manuel (valeur définie par l'utilisateur)</Fr>
-                            </I18n>
-                          }
-                        />
-                      </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                      <TextField
-                        name="datacitePrefix"
-                        label={
-                          <I18n>
-                            <En>DataCite Prefix</En>
-                            <Fr>Préfixe DataCite</Fr>
-                          </I18n>
-                        }
-                        placeholder="10.0000"
-                        value={datacitePrefix || ""}
-                        onChange={this.handleChange}
-                        fullWidth
-                        error={!this.state.datacitePrefixValid}
-                        helperText={
-                          !this.state.datacitePrefixValid &&
-                          "Prefix must start with '10.' followed by numbers."
-                        }
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <TextField
-                        name="dataciteAccountId"
-                        label={
-                          <I18n>
-                            <En>Account ID</En>
-                            <Fr>Identifiant du compte</Fr>
-                          </I18n>
-                        }
-                        value={this.state.dataciteAccountId || ""}
-                        onChange={this.handleChange}
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <TextField
-                        name="datacitePass"
-                        label={
-                          <I18n>
-                            <En>Password</En>
-                            <Fr>Mot de passe</Fr>
-                          </I18n>
-                        }
-                        placeholder={credentialsStored ? "••••••••" : ""}
-                        InputLabelProps={{ shrink: credentialsStored || !!this.state.datacitePass }}
-                        helperText={
-                          credentialsStored && !this.state.datacitePass ? (
-                            <I18n>
-                              <En>A password is saved. Enter Account ID + Password to replace it.</En>
-                              <Fr>Un mot de passe est enregistré. Entrez l'identifiant et le mot de passe pour le remplacer.</Fr>
-                            </I18n>
-                          ) : undefined
-                        }
-                        type={showPassword ? "text" : "password"}
-                        onChange={this.handleChange}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={this.handleClickShowPassword}
-                                onMouseDown={this.handleMouseDownPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                        fullWidth
-                      />
-                    </Grid>
-                    {this.state.testResult && (
-                      <Grid size={12}>
-                        <Alert
-                          severity={this.state.testResult.success ? "success" : "error"}
-                          onClose={() => this.setState({ testResult: null })}
-                        >
-                          {this.state.testResult.message}
-                          {!this.state.testResult.success && this.state.testResult.message?.includes("No DataCite credentials") && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              <I18n>
-                                <En>To fix this: enter your Account ID and Password above and click &quot;Update DataCite Settings&quot;, then test again.</En>
-                                <Fr>Pour corriger cela : entrez votre identifiant de compte et votre mot de passe ci-dessus, cliquez sur « Mettre à jour les paramètres DataCite », puis testez à nouveau.</Fr>
-                              </I18n>
-                            </Typography>
-                          )}
-                        </Alert>
-                      </Grid>
-                    )}
-                    <Grid size={12} container spacing={1} justifyContent="flex-end">
-                      <Grid>
-                        <Tooltip
-                          title={
-                            this.state.datacitePass
-                              ? <I18n en="Save credentials first before testing" fr="Enregistrez les identifiants avant de tester" />
-                              : ""
-                          }
-                        >
-                          <span>
-                            <Button
-                              startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
-                              variant="outlined"
-                              color="secondary"
-                              onClick={this.handleTestCredentials}
-                              disabled={!credentialsStored || this.state.testingCredentials || !!this.state.datacitePass}
-                            >
-                              <I18n>
-                                <En>Test Credentials</En>
-                                <Fr>Tester les identifiants</Fr>
-                              </I18n>
-                            </Button>
-                          </span>
-                        </Tooltip>
-                      </Grid>
-                      <Grid>
-                        <Button
-                          startIcon={<Delete />}
-                          variant="outlined"
-                          color="error"
-                          onClick={this.handleClearDataciteFields}
-                          disabled={!credentialsStored}
-                        >
-                          <I18n>
-                            <En>Clear DataCite Credentials</En>
-                            <Fr>Effacer les identifiants DataCite</Fr>
-                          </I18n>
-                        </Button>
-                      </Grid>
-                      <Grid>
-                        <Button
-                          startIcon={<Save />}
-                          variant="contained"
-                          color="primary"
-                          onClick={this.handleSaveDatacite}
-                        >
-                          <I18n>
-                            <En>{credentialsStored ? "Update" : "Save"} DataCite Settings</En>
-                            <Fr>{credentialsStored ? "Mettre à jour" : "Enregistrer"} les paramètres DataCite</Fr>
-                          </I18n>
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </>
-                )}
-              </Grid>
-            </Paper>
-            <Paper style={paperClass}>
+            </FormSection>
+            <DataciteSettings
+              values={this.state}
+              onChange={this.handleChange}
+              onToggleDoiCreation={this.handleToggleDoiCreation}
+              onToggleSuffixMode={this.handleToggleSuffixMode}
+              onTestCredentials={this.handleTestCredentials}
+              onSave={this.handleSaveDatacite}
+              onClearFields={this.handleClearDataciteFields}
+              onToggleShowPassword={this.handleClickShowPassword}
+              onMouseDownPassword={this.handleMouseDownPassword}
+              onDismissTestResult={() => this.setState({ testResult: null })}
+            />
+            <FormSection>
               <Grid container spacing={2}>
                 <Grid size={12}>
                   <Typography variant="h5">
@@ -1107,8 +643,8 @@ class Admin extends FormClassTemplate {
                   />
                 </Grid>
               </Grid>
-            </Paper>
-            <Grid >
+            </FormSection>
+            <Grid size={12}>
               <Button
                 startIcon={<Save />}
                 variant="contained"
@@ -1124,9 +660,18 @@ class Admin extends FormClassTemplate {
             </Grid>
           </>
         )}
-        {this.renderDeletionDialog()}
-        {this.renderCredentialsMissingDialog()}
-        {this.renderErrorDialog()}
+        <AdminDialogs
+          showDeletionDialog={this.state.showDeletionDialog}
+          onCloseDeletion={() => this.setState({ showDeletionDialog: false })}
+          onConfirmDeletion={() => this.handleDisableDoiCreation()}
+          showCredentialsMissingDialog={this.state.showCredentialsMissingDialog}
+          onCloseCredentialsMissing={() =>
+            this.setState({ showCredentialsMissingDialog: false })
+          }
+          showErrorDialog={this.state.showErrorDialog}
+          onCloseError={() => this.setState({ showErrorDialog: false })}
+          errorMessage={this.state.errorMessage}
+        />
       </Grid>
     );
   }

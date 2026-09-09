@@ -49,7 +49,6 @@ const RecordActions = ({
   handlers = {},
   language,
   region,
-  datacitePrefix = "",
   githubPublishEnabled = false,
   size,
   iconButtonClassName,
