@@ -7,6 +7,7 @@ const blankRecord = {
   abstract: { en: "", fr: "" },
   keywords: { en: [], fr: [] },
   eov: [],
+  essentialVariables: [],
   progress: "",
   distribution: [],
   dateStart: null,
@@ -90,4 +91,9 @@ function getBlankPlatform() {
   return deepCopy(blankPlatform);
 }
 
-export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};
+export {
+  getBlankRecord,
+  getBlankContact,
+  getBlankInstrument,
+  getBlankPlatform,
+};

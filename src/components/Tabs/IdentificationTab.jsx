@@ -1,21 +1,15 @@
 import React from "react";
-import {
-  Paper,
-  TextField,
-  Grid,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Paper, TextField, Grid, IconButton, Tooltip } from "@mui/material";
+import { OpenInNew } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { OpenInNew, Update, Warning } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
 import { progressCodes } from "../../isoCodeLists";
-import { eovs, eovCategories } from "../../eovs";
 import { isOnlyOther } from "../../utils/normalizeResourceType";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import DateInput from "../FormComponents/DateInput";
+import EssentialVariablesInput from "../FormComponents/EssentialVariablesInput";
 import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
@@ -40,8 +34,6 @@ const IdentificationTab = ({
   const { language, region } = useParams();
   const regionInfo = regions[region];
 
-  const languageUpperCase = language.toUpperCase();
-
   const CatalogueLink = ({ lang }) => (
     <a
       href={regionInfo.catalogueURL[lang]}
@@ -56,13 +48,12 @@ const IdentificationTab = ({
   const licensesSorted = Object.values(licenses).sort((a, b) =>
     (a.title[language] || a.title.en).localeCompare(
       b.title[language] || a.title.en,
-      language
-    )
+      language,
+    ),
   );
 
   return (
     <div>
-
       {projects.length ? (
         <Paper style={paperClass}>
           <QuestionText>
@@ -72,7 +63,8 @@ const IdentificationTab = ({
                 project, email{" "}
               </En>
               <Fr>
-                Si cet enregistrement fait partie d'un des projet ci-dessous, sélectionnez le ou les projets.
+                Si cet enregistrement fait partie d'un des projet ci-dessous,
+                sélectionnez le ou les projets.
               </Fr>
             </I18n>
           </QuestionText>
@@ -136,12 +128,14 @@ const IdentificationTab = ({
               </En>
 
               <Fr>
-                La description de votre jeu de données sera utilisée comme résumé
-                dans le {regionInfo.catalogueTitle.fr}{" "}. Pour vous aider à rédiger ce
-                résumé, vous pouvez vous inspirer d’autres jeux de données déjà
-                publiés dans le catalogue <CatalogueLink lang="fr" />. Veuillez à ce qu'elle soit
-                compréhensible par tout type d’utilisateur, rédigée dans un langage clair et accessible, 
-                et ne dépasse pas 500 mots. Limitez l’utilisation de termes techniques ou de jargon.
+                La description de votre jeu de données sera utilisée comme
+                résumé dans le {regionInfo.catalogueTitle.fr} . Pour vous aider
+                à rédiger ce résumé, vous pouvez vous inspirer d’autres jeux de
+                données déjà publiés dans le catalogue{" "}
+                <CatalogueLink lang="fr" />. Veuillez à ce qu'elle soit
+                compréhensible par tout type d’utilisateur, rédigée dans un
+                langage clair et accessible, et ne dépasse pas 500 mots. Limitez
+                l’utilisation de termes techniques ou de jargon.
                 <br />
                 <br />
                 Suggestion de points à aborder dans votre résumé:
@@ -156,8 +150,8 @@ const IdentificationTab = ({
                     </li>
                     <li>
                       <b>Où</b>: Couverture spatiale de la donnée, nom/lieu des
-                      sites d’échantillonnages, déplacement d’un
-                      capteur, laboratoire, etc.
+                      sites d’échantillonnages, déplacement d’un capteur,
+                      laboratoire, etc.
                     </li>
                     <li>
                       <b>Comment</b>: Équipement, procédures, protocoles,
@@ -188,136 +182,50 @@ const IdentificationTab = ({
         />
       </Paper>
       {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
-      <Paper style={paperClass}>
-        <QuestionText>
-          <I18n>
-            <En>
-              Please select all the essential ocean variables that are contained
-              in this dataset. Hover over a variable to see its definition.
-            </En>
-            <Fr>
-              Veuillez sélectionner toutes les variables océaniques essentielles
-              contenues dans ce jeu de données. Survolez une variable pour afficher
-              sa définition ou cliquez sur l’icône <OpenInNew /> pour accéder à
-              la définition complète issue du The Global Ocean observing System
-              (GOOS).
-            </Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "eov")} />
-          <SupplementalText>
+        <Paper style={paperClass}>
+          <QuestionText>
             <I18n>
-              <En>If none of these apply you can select Other.</En>
+              <En>
+                Select all essential climate and ocean variables represented in
+                this dataset. Search by name or browse the climate-system
+                categories. Hover over a variable to see its definition.
+              </En>
               <Fr>
-                Si aucune de ces variables ne vous semble pertinente, vous
-                pouvez sélectionner « Autre ».
+                Sélectionnez toutes les variables climatiques et océaniques
+                essentielles représentées dans ce jeu de données. Recherchez une
+                variable par son nom ou parcourez les catégories du système
+                climatique. Survolez une variable pour afficher sa définition.
               </Fr>
             </I18n>
-          </SupplementalText>
-        </QuestionText>
-        {Object.entries(eovCategories).map(([categoryKey, categoryText]) => {
-          const eovsFiltered = eovs
-            .filter((e) => e.category === categoryKey)
-            .filter((e) => !e.deprecated || (record.eov || []).includes(e.value))
-            .sort((a, b) =>
-              a[`label ${languageUpperCase}`].localeCompare(
-                b[`label ${languageUpperCase}`],
-                language
-              )
-            );
-
-          return (
-            <div key={categoryText[language]}>
-              <h4>{categoryText[language]}</h4>
-              <CheckBoxList
-                value={record.eov || []}
-                labelSize={6}
-                onChange={updateRecord("eov")}
-                options={eovsFiltered.map((e) => e.value)}
-                optionLabels={eovsFiltered.map((e) => (
-                  <>
-                    <Tooltip title={e[`definition ${languageUpperCase}`]}>
-                      <span style={e.deprecated ? { textDecoration: "line-through", color: "rgba(0,0,0,0.4)" } : undefined}>
-                        {e[`label ${languageUpperCase}`]}
-                      </span>
-                    </Tooltip>
-                    {e.url && (
-                      <IconButton
-                        onClick={() => {
-                          const win = window.open(e.url, "_blank");
-                          win.focus();
-                        }}
-                      >
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Open GOOS definition in new window"
-                              fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
-                            />
-                          }
-                        >
-                          <OpenInNew />
-                        </Tooltip>
-                      </IconButton>
-                    )}
-                    {e.emerging && (
-                      <IconButton onClick={() => {}}>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="GOOS emerging EOV"
-                              fr="EOV émergent GOOS"
-                            />
-                          }
-                        >
-                          <Update />
-                        </Tooltip>
-                      </IconButton>
-                    )}
-                    {e.deprecated && (() => {
-                      const replacements = (e.replacedBy || [])
-                        .map((v) => eovs.find((x) => x.value === v))
-                        .filter(Boolean);
-                      const replacementLabelsEn = replacements
-                        .map((r) => r["label EN"])
-                        .join(", ");
-                      const replacementLabelsFr = replacements
-                        .map((r) => r["label FR"])
-                        .join(", ");
-                      return (
-                        <IconButton onClick={() => {}}>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en={`This EOV is deprecated and cannot be submitted. Please unselect it${
-                                  replacementLabelsEn
-                                    ? ` and use ${replacementLabelsEn} instead`
-                                    : ""
-                                }.`}
-                                fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
-                                  replacementLabelsFr
-                                    ? ` et utiliser ${replacementLabelsFr} à la place`
-                                    : ""
-                                }.`}
-                              />
-                            }
-                          >
-                            <Warning color="warning" />
-                          </Tooltip>
-                        </IconButton>
-                      );
-                    })()}
-                  </>
-                ))}
-                disabled={disabled}
-              />
-            </div>
-          );
-        })}
-        </Paper>)}
+            <RequiredMark
+              passes={validateField(record, "essentialVariables")}
+            />
+            <SupplementalText>
+              <I18n>
+                <En>
+                  When an EOV covers an ECV, select the more specific EOV. If
+                  none apply, select Other.
+                </En>
+                <Fr>
+                  Lorsqu’une EOV couvre une ECV, sélectionnez l’EOV plus
+                  précise. Si aucune de ces variables ne s’applique,
+                  sélectionnez « Autre ».
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+          <EssentialVariablesInput
+            disabled={disabled}
+            language={language}
+            record={record}
+            updateRecord={updateRecord}
+          />
+        </Paper>
+      )}
 
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">
-          <Grid >
+          <Grid>
             <QuestionText>
               <I18n>
                 <En>
@@ -349,8 +257,8 @@ const IdentificationTab = ({
                   <Fr>
                     <p>
                       Les mots-clés sont un moyen efficace de catégoriser vos
-                      données pour permettre aux publics ou à d'autres
-                      systèmes informatiques d’accéder à tous les jeux de données
+                      données pour permettre aux publics ou à d'autres systèmes
+                      informatiques d’accéder à tous les jeux de données
                       associés à des thèmes ou concepts similaires.
                     </p>
                     <p>
@@ -371,7 +279,7 @@ const IdentificationTab = ({
               </SupplementalText>
             </QuestionText>
           </Grid>
-          <Grid >
+          <Grid>
             <KeywordsInput
               value={record.keywords}
               onChange={handleUpdateRecord("keywords")}
@@ -402,7 +310,7 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("progress")}
           options={Object.keys(progressCodes)}
           optionLabels={Object.values(progressCodes).map(
-            ({ title }) => title[language]
+            ({ title }) => title[language],
           )}
           disabled={disabled}
           fullWidth={false}
@@ -509,8 +417,8 @@ const IdentificationTab = ({
                   Veuillez noter que ce champ n'a pas besoin d'être rempli ou
                   mis à jour lorsque des révisions sont apportées aux
                   métadonnées, mais plutôt lorsqu'une nouvelle version du
-                  fichier ou du jeu de données devient disponible,
-                  c'est-à-dire pour les données de séries temporelles.
+                  fichier ou du jeu de données devient disponible, c'est-à-dire
+                  pour les données de séries temporelles.
                 </p>
               </Fr>
             </I18n>
@@ -528,7 +436,9 @@ const IdentificationTab = ({
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
-            <Fr>Quelle licence souhaitez-vous attribuer à ce jeu de données?</Fr>
+            <Fr>
+              Quelle licence souhaitez-vous attribuer à ce jeu de données?
+            </Fr>
           </I18n>
           <RequiredMark passes={validateField(record, "license")} />
           <SupplementalText>
@@ -598,10 +508,10 @@ const IdentificationTab = ({
                   </li>
                   <li>
                     <b>Licence du gouvernement ouvert - Canada</b> - Pour les
-                    jeux de données rendus disponibles par les entités fédérales.
-                    Cette licence est similaire à CC-BY 4.0
-                    : les données sont ouvertes mais le jeu de données doit être
-                    cité lorsqu'il est utilisé par quiconque.
+                    jeux de données rendus disponibles par les entités
+                    fédérales. Cette licence est similaire à CC-BY 4.0 : les
+                    données sont ouvertes mais le jeu de données doit être cité
+                    lorsqu'il est utilisé par quiconque.
                   </li>
                 </ul>
               </Fr>

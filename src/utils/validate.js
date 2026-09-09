@@ -2,19 +2,18 @@ import validator from "validator";
 import { getFunctions, httpsCallable } from "firebase/functions";
 // eslint-disable-next-line no-unused-vars
 import firebase from "../firebase"; // this is needed to make the test pass.
-import {
-  hasResourceType,
-  resourceTypeIncludes,
-} from "./normalizeResourceType";
+import { hasResourceType, resourceTypeIncludes } from "./normalizeResourceType";
 import { eovs } from "../eovs";
+import { getRecordEssentialVariables } from "../essentialVariables";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
 const functions = getFunctions();
-const checkURLActive = httpsCallable(functions, 'checkURLActive');
+const checkURLActive = httpsCallable(functions, "checkURLActive");
 
 // See https://stackoverflow.com/a/48524047/7416701
-export const doiRegexp = /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+export const doiRegexp =
+  /^(https:\/\/doi.org\/)?10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
 function isValidHttpUrl(string) {
   let url;
 
@@ -26,7 +25,8 @@ function isValidHttpUrl(string) {
 
   return url.protocol === "http:" || url.protocol === "https:";
 }
-export const validateDOI = (val) => !val || (doiRegexp.test(val) && isValidHttpUrl(val));
+export const validateDOI = (val) =>
+  !val || (doiRegexp.test(val) && isValidHttpUrl(val));
 const validateLatitude = (num) => num >= -90 && num <= 90;
 
 const deepCompare = (obj1, obj2) =>
@@ -44,7 +44,7 @@ const polygonIsValid = (polygon) => {
   return (
     coordinates.filter(
       ([lat, lon]) =>
-        validateLongitude(parseFloat(lon)) && validateLatitude(parseFloat(lat))
+        validateLongitude(parseFloat(lon)) && validateLatitude(parseFloat(lat)),
     ).length === coordinates.length
   );
 };
@@ -52,8 +52,8 @@ const polygonIsValid = (polygon) => {
 const contactIsFilled = (contact) =>
   Boolean(
     contact.role &&
-      contact.role.length &&
-      (contact.orgName || contact.givenNames || contact.lastName)
+    contact.role.length &&
+    (contact.orgName || contact.givenNames || contact.lastName),
   );
 
 // required fields and  a function to validate each
@@ -90,18 +90,19 @@ const validators = {
       fr: "Au moins un mot clé est requis",
     },
   },
-  eov: {
-    validation: (val) => val && val.length,
+  essentialVariables: {
+    validation: (val, record) =>
+      Boolean(val && val.length) || getRecordEssentialVariables(record).length,
     tab: "dataID",
     error: {
-      en: "At least one EOV is required",
-      fr: "Au moins une variable océanique essentielle est requise",
+      en: "At least one essential climate or ocean variable is required",
+      fr: "Au moins une variable climatique ou océanique essentielle est requise",
     },
   },
   eovDeprecated: {
     validation: (_, record) => {
       const deprecatedValues = new Set(
-        eovs.filter((e) => e.deprecated).map((e) => e.value)
+        eovs.filter((e) => e.deprecated).map((e) => e.value),
       );
       const eov = Array.isArray(record.eov) ? record.eov : [];
       return !eov.some((v) => deprecatedValues.has(v));
@@ -223,7 +224,7 @@ const validators = {
         (contact) =>
           validateEmail(contact.indEmail) &&
           validateEmail(contact.orgEmail) &&
-          validateURL(contact.orgURL)
+          validateURL(contact.orgURL),
       ) &&
       val
         .filter(contactIsFilled)
@@ -233,10 +234,8 @@ const validators = {
         .find((contact) => contact.role.includes("owner")) &&
       val.filter(contactIsFilled).find((contact) => contact.inCitation),
     error: {
-      en:
-        "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
-      fr:
-        "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation.",
+      en: "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
+      fr: "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation.",
     },
   },
   distribution: {
@@ -247,10 +246,8 @@ const validators = {
         .length,
 
     error: {
-      en:
-        "Must have at least one resource. If a URL is included it must be valid.",
-      fr:
-        "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
+      en: "Must have at least one resource. If a URL is included it must be valid.",
+      fr: "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
     },
   },
   associated_resources: {
@@ -259,13 +256,17 @@ const validators = {
       !val ||
       (val &&
         val.every(
-          (work) => work.title && work.title.en && work.title.fr && work.authority && work.code && work.association_type
+          (work) =>
+            work.title &&
+            work.title.en &&
+            work.title.fr &&
+            work.authority &&
+            work.code &&
+            work.association_type,
         )),
     error: {
-      en:
-        "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
-      fr:
-        "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
+      en: "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
+      fr: "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
     },
   },
 
@@ -275,43 +276,42 @@ const validators = {
     tab: "lineage",
     validation: (val) =>
       !val ||
-      (
-        Array.isArray(val) &&
+      (Array.isArray(val) &&
         val.every(
           (lineageStep) =>
             !lineageStep.processingStep ||
-            (
-              lineageStep.processingStep &&
-              lineageStep.processingStep.every((pStep) => pStep.title && pStep.description)
-            )
+            (lineageStep.processingStep &&
+              lineageStep.processingStep.every(
+                (pStep) => pStep.title && pStep.description,
+              )),
         ) &&
         val.every(
           (lineageStep) =>
             !lineageStep.source ||
-            (
-              lineageStep.source &&
-              lineageStep.source.every((pStep) => pStep.title && pStep.description)
-            )
+            (lineageStep.source &&
+              lineageStep.source.every(
+                (pStep) => pStep.title && pStep.description,
+              )),
         ) &&
         val.every(
           (lineageStep) =>
-            lineageStep.scope !== 'collectionSession' ||
-            (
-              lineageStep.scope === 'collectionSession' &&
-              lineageStep.statement.en && lineageStep.statement.fr
-            )
-        )
-      ),
+            lineageStep.scope !== "collectionSession" ||
+            (lineageStep.scope === "collectionSession" &&
+              lineageStep.statement.en &&
+              lineageStep.statement.fr),
+        )),
     error: {
-      en:
-        "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
-      fr:
-        "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
+      en: "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
+      fr: "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
     },
   },
   platforms: {
     tab: "platform",
-    validation: (val, record) => record.noPlatform || val.every((platform) => platform.type && platform.id) || (!record.metadataScope || record.metadataScopeIso === 'model'),
+    validation: (val, record) =>
+      record.noPlatform ||
+      val.every((platform) => platform.type && platform.id) ||
+      !record.metadataScope ||
+      record.metadataScopeIso === "model",
     error: {
       en: "Missing platform type or ID",
       fr: "Type ou ID de plateforme manquant.",
@@ -323,14 +323,12 @@ const validators = {
       const platforms = record.platforms || [];
       return val.every(
         (instrument) =>
-          instrument.id && (platforms.length < 2 || instrument.platform)
+          instrument.id && (platforms.length < 2 || instrument.platform),
       );
     },
     error: {
-      en:
-        "Instrument ID is required. When multiple platforms are defined, each instrument must be associated to a platform.",
-      fr:
-        "L'identifiant de l'instrument est requis. Lorsque plusieurs plates-formes sont définies, chaque instrument doit être associé à une plate-forme.",
+      en: "Instrument ID is required. When multiple platforms are defined, each instrument must be associated to a platform.",
+      fr: "L'identifiant de l'instrument est requis. Lorsque plusieurs plates-formes sont définies, chaque instrument doit être associé à une plate-forme.",
     },
   },
   taxa: {
@@ -367,7 +365,6 @@ export const getErrorsByTab = (record) => {
   }, {});
 };
 
-
 export const warnings = {
   distribution: {
     tab: "resources",
@@ -375,21 +372,18 @@ export const warnings = {
       const processedVal = await Promise.all(
         val.map(async (dist) => {
           const res = await checkURLActive(dist.url);
-          return {...dist, status:res.data};
-        })
+          return { ...dist, status: res.data };
+        }),
       );
-      const filterVal = processedVal.filter((dist) => !dist.status)
-      return filterVal.length
+      const filterVal = processedVal.filter((dist) => !dist.status);
+      return filterVal.length;
     },
     error: {
-      en:
-        "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
-      fr:
-        "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
+      en: "Resource URL is not accessible. This could be because it has not been created yet or is otherwise unreachable",
+      fr: "L'URL de la ressource n'est pas accessible. Cela peut être dû au fait qu'il n'a pas encore été créé ou qu'il est autrement inaccessible.",
     },
   },
 };
-
 
 export const validateFieldWarning = async (record, fieldName) => {
   const valueToValidate = record[fieldName];
@@ -401,15 +395,14 @@ export const validateFieldWarning = async (record, fieldName) => {
   return validationFunction && res;
 };
 
-
-
 export const percentValid = (record) => {
   const fields = Object.keys(validators);
-  const numTotalRequired = fields.filter((field) => !validators[field].optional)
-    .length;
+  const numTotalRequired = fields.filter(
+    (field) => !validators[field].optional,
+  ).length;
 
   const validFieldsRequired = fields.filter(
-    (field) => !validators[field].optional && validateField(record, field)
+    (field) => !validators[field].optional && validateField(record, field),
   );
   const numValidRequired = validFieldsRequired.length;
 
