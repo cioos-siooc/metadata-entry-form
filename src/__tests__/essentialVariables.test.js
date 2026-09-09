@@ -24,6 +24,51 @@ describe("essential variables vocabulary", () => {
     ).toBeUndefined();
   });
 
+  test("links marine habitat EOVs to their shared broader ECV", () => {
+    [
+      "hardCoralCoverAndComposition",
+      "seagrassCoverAndComposition",
+      "macroalgalCanopyCoverAndComposition",
+    ].forEach((eovId) => {
+      expect(
+        essentialVariables.find((variable) => variable.id === `eov:${eovId}`),
+      ).toMatchObject({
+        standards: ["EOV", "ECV"],
+        standardNames: {
+          ECV: { en: "Marine Habitats", fr: "Marine Habitats" },
+        },
+      });
+    });
+
+    expect(
+      essentialVariables.find(
+        (variable) => variable.id === "ecv:ocean-biology-marine-habitats",
+      ),
+    ).toBeUndefined();
+  });
+
+  test("links plankton EOVs to their shared broader ECV", () => {
+    [
+      "phytoplanktonBiomassAndDiversity",
+      "zooplanktonBiomassAndDiversity",
+    ].forEach((eovId) => {
+      expect(
+        essentialVariables.find((variable) => variable.id === `eov:${eovId}`),
+      ).toMatchObject({
+        standards: ["EOV", "ECV"],
+        standardNames: {
+          ECV: { en: "Plankton", fr: "Plankton" },
+        },
+      });
+    });
+
+    expect(
+      essentialVariables.find(
+        (variable) => variable.id === "ecv:ocean-biology-plankton",
+      ),
+    ).toBeUndefined();
+  });
+
   test("migrates legacy EOV values and derives them when saving", () => {
     const selection = getRecordEssentialVariables({
       eov: ["seaIce", "oxygen"],

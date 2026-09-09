@@ -220,13 +220,14 @@ const eovEcvMappings = {
   oceanColour: "ocean-colour",
   oxygen: "oxygen",
   transientTracers: "transient-tracers",
+  hardCoralCoverAndComposition: "marine-habitats",
+  seagrassCoverAndComposition: "marine-habitats",
+  macroalgalCanopyCoverAndComposition: "marine-habitats",
+  phytoplanktonBiomassAndDiversity: "plankton",
+  zooplanktonBiomassAndDiversity: "plankton",
 };
 
 const coveredEcvIds = new Set(Object.values(eovEcvMappings));
-const planktonEovIds = new Set([
-  "phytoplanktonBiomassAndDiversity",
-  "zooplanktonBiomassAndDiversity",
-]);
 
 const eovDisplayLabels = {
   inorganicCarbon: {
@@ -330,9 +331,7 @@ const ecvVariables = ecvs.flatMap(([prefix, domain, category, labels]) =>
   labels
     .filter((label) => {
       const id = normalise(label);
-      return (
-        !coveredEcvIds.has(id) && !(id === "plankton" && planktonEovIds.size)
-      );
+      return !coveredEcvIds.has(id);
     })
     .map((label) => ({
       id: `ecv:${prefix}-${normalise(label)}`,
