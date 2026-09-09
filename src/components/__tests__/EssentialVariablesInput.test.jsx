@@ -24,8 +24,22 @@ describe("<EssentialVariablesInput />", () => {
 
     expect(screen.getByText("How to choose variables")).toBeInTheDocument();
     expect(
-      screen.getByText(/EOV \(Essential Ocean Variable\)/),
+      screen.getByText(/Essential Ocean Variables \(EOVs\)/),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Global Ocean Observing System (GOOS)" }),
+    ).toHaveAttribute(
+      "href",
+      "https://goosocean.org/what-we-do/framework/essential-ocean-variables/",
+    );
+    expect(
+      screen.getByRole("link", {
+        name: "Global Climate Observing System (GCOS)",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "https://gcos.wmo.int/site/global-climate-observing-system-gcos/essential-climate-variables",
+    );
     expect(screen.getByRole("tree")).toBeInTheDocument();
     expect(screen.getByRole("treeitem", { name: /^Ocean/ })).toHaveAttribute(
       "aria-expanded",

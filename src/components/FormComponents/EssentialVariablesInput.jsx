@@ -55,8 +55,22 @@ const copy = {
     guideTitle: "How to choose variables",
     guide:
       "Choose the things your dataset measures, observes, or describes. You can choose more than one.",
-    eov: "EOV (Essential Ocean Variable) is the more specific choice for ocean data.",
-    ecv: "ECV (Essential Climate Variable) describes a key part of the climate system.",
+    eov: {
+      description:
+        "Essential Ocean Variables (EOVs) are the minimum set of ocean variables needed to assess ocean state and variability.",
+      sourceLabel: "Global Ocean Observing System (GOOS)",
+      sourcePrefix: "Source: ",
+      sourceUrl:
+        "https://goosocean.org/what-we-do/framework/essential-ocean-variables/",
+    },
+    ecv: {
+      description:
+        "Essential Climate Variables (ECVs) are variables that critically contribute to characterizing Earth’s climate.",
+      sourceLabel: "Global Climate Observing System (GCOS)",
+      sourcePrefix: "Source: ",
+      sourceUrl:
+        "https://gcos.wmo.int/site/global-climate-observing-system-gcos/essential-climate-variables",
+    },
     noneSelected: "No variables selected yet.",
     otherHelp:
       "Choose Other only when your dataset does not match a variable above.",
@@ -89,8 +103,22 @@ const copy = {
     guideTitle: "Comment choisir les variables",
     guide:
       "Choisissez ce que votre jeu de données mesure, observe ou décrit. Vous pouvez choisir plusieurs variables.",
-    eov: "Une VEO (variable océanique essentielle) est le choix le plus précis pour les données océaniques.",
-    ecv: "Une VCE (variable climatique essentielle) décrit une partie importante du système climatique.",
+    eov: {
+      description:
+        "Les variables océaniques essentielles (VEO) constituent l’ensemble minimal de variables océaniques nécessaires pour évaluer l’état et la variabilité de l’océan.",
+      sourceLabel: "Système mondial d’observation de l’océan (GOOS)",
+      sourcePrefix: "Source : ",
+      sourceUrl:
+        "https://goosocean.org/what-we-do/framework/essential-ocean-variables/",
+    },
+    ecv: {
+      description:
+        "Les variables climatiques essentielles (VCE) contribuent de façon déterminante à la caractérisation du climat de la Terre.",
+      sourceLabel: "Système mondial d’observation du climat (GCOS)",
+      sourcePrefix: "Source : ",
+      sourceUrl:
+        "https://gcos.wmo.int/site/global-climate-observing-system-gcos/essential-climate-variables",
+    },
     noneSelected: "Aucune variable sélectionnée pour l’instant.",
     otherHelp:
       "Choisissez « Autre » seulement si votre jeu de données ne correspond à aucune variable ci-dessus.",
@@ -279,8 +307,18 @@ const EssentialVariablesInput = ({
           {text.guide}
         </Typography>
         <Stack spacing={0.5} sx={{ mt: 1 }}>
-          <Typography variant="body2">• {text.eov}</Typography>
-          <Typography variant="body2">• {text.ecv}</Typography>
+          {[text.eov, text.ecv].map((variable) => (
+            <Typography key={variable.sourceUrl} variant="body2">
+              • {variable.description} {variable.sourcePrefix}
+              <Link
+                href={variable.sourceUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {variable.sourceLabel}
+              </Link>
+            </Typography>
+          ))}
         </Stack>
       </Paper>
 
