@@ -186,15 +186,16 @@ const IdentificationTab = ({
           <QuestionText>
             <I18n>
               <En>
-                Select all essential climate and ocean variables represented in
-                this dataset. Search by name or browse the climate-system
-                categories. Hover over a variable to see its definition.
+                Select the essential climate and ocean variables that your
+                dataset measures, observes, or describes. Use search or browse
+                by area of study, then read each variable’s description before
+                selecting it.
               </En>
               <Fr>
                 Sélectionnez toutes les variables climatiques et océaniques
-                essentielles représentées dans ce jeu de données. Recherchez une
-                variable par son nom ou parcourez les catégories du système
-                climatique. Survolez une variable pour afficher sa définition.
+                essentielles que votre jeu de données mesure, observe ou décrit.
+                Recherchez une variable ou parcourez les domaines d’étude, puis
+                lisez sa description avant de la sélectionner.
               </Fr>
             </I18n>
             <RequiredMark

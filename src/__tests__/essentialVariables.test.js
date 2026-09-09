@@ -40,4 +40,17 @@ describe("essential variables vocabulary", () => {
       ),
     ).toMatchObject({ standards: ["ECV"] });
   });
+
+  test("retains the EOV icon and the mapped ECV name for details views", () => {
+    expect(
+      essentialVariables.find((variable) => variable.id === "eov:oxygen"),
+    ).toMatchObject({
+      icon: "dissolved-oxygen.svg",
+      goosIcon: "Oxygen.png",
+      standardNames: {
+        EOV: { en: "Oxygen", fr: "Oxygène" },
+        ECV: { en: "Oxygen", fr: "Oxygen" },
+      },
+    });
+  });
 });
