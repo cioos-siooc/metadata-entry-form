@@ -11,6 +11,12 @@ const {
   regenerateXMLforRecord,
 } = require("./updates");
 const { githubPublishRecord } = require("./githubPublish");
+const {
+  shareRecord,
+  unshareRecord,
+  claimInvites,
+  transferRecord,
+} = require("./sharing");
 
 admin.initializeApp();
 
@@ -34,3 +40,7 @@ exports.publishDoi = publishDoi;
 exports.registerDoi = registerDoi;
 exports.hideDoi = hideDoi;
 exports.githubPublishRecord = githubPublishRecord;
+exports.shareRecord = shareRecord;
+exports.unshareRecord = unshareRecord;
+exports.claimInvites = claimInvites;
+exports.transferRecord = transferRecord;

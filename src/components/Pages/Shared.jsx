@@ -55,9 +55,12 @@ const Shared = () => {
                       const userInfo = { email: recordDetails.userinfo?.email || "" };
                       return standardizeRecord(jsRecord, userInfo, authorID, recordID);
                     }
-                    throw new Error(
+                    // Record was deleted or moved. Skip it rather than failing
+                    // the whole list.
+                    console.warn(
                       `No details found for record ${recordID} by author ${authorID}`,
                     );
+                    return null;
                   });
                   recordsPromises.push(recordPromise);
                 });
@@ -66,7 +69,7 @@ const Shared = () => {
 
             try {
               const loadedRecords = await Promise.all(recordsPromises);
-              setRecords(loadedRecords);
+              setRecords(loadedRecords.filter(Boolean));
             } catch (error) {
               console.error("Error loading shared records:", error);
               setRecords([]);

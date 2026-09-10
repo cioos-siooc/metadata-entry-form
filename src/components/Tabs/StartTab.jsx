@@ -388,13 +388,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
         disabled={disabled}
       />
       
-      {showShareRecord && (
-        <SharedUsersList
-        region={region}
-        updateRecord={updateRecord}
-        record={record}
-      />
-      )}
+      {showShareRecord && <SharedUsersList region={region} record={record} />}
     </Grid>
   );
 };

@@ -7,11 +7,12 @@
     "$region": {
       // Allow read access to any authenticated user.
       ".read": "auth.uid != null",
+      // 'shares' is the reverse index backing the "Shared with me" page. It is written
+      // only by the shareRecord/unshareRecord cloud functions (the admin SDK bypasses
+      // these rules), so clients get no write access at all.
       "shares": {
         "$userid": {
-          // Allow write access to any authenticated user. 
-          // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
-          ".write": "auth.uid != null",
+          ".write": false,
         }
       },
       "users": {
@@ -28,6 +29,15 @@
           }
         }
       }
+    },
+    // Pending share invitations, keyed by email address. Server-only: it holds the
+    // email addresses of people who don't have accounts yet. This must be a named
+    // top-level node, not a child of a region - a named child takes precedence over
+    // the "$region" wildcard, whose ".read" would otherwise cascade down and cannot
+    // be revoked lower in the tree.
+    "invites": {
+      ".read": false,
+      ".write": false
     },
     "admin": { // Section of the database dedicated to admin configurations.
       "$regionAdmin": {
