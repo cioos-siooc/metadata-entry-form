@@ -17,7 +17,7 @@ import { I18n, En, Fr } from "../I18n";
 import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
-import { validateField } from "../../utils/validate";
+import { validateField, bboxProblems } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
@@ -403,6 +403,12 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           />
         </Grid>
       </Grid>
+
+      {bboxProblems(mapData).map((problem) => (
+        <Typography key={problem.en} color="error" variant="body2">
+          <I18n en={problem.en} fr={problem.fr} />
+        </Typography>
+      ))}
 
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
         <I18n>
