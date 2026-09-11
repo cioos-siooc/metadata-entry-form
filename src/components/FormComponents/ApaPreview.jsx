@@ -2,6 +2,8 @@ import React from "react";
 
 import Cite from "citation-js";
 
+import { metadataScopeCodes } from "../../isoCodeLists";
+
 export function generateCitation(record, language, format) {
   const {
     title,
@@ -11,6 +13,7 @@ export function generateCitation(record, language, format) {
     datePublished,
     dateRevised,
     metadataScope,
+    metadataScopeIso,
   } = record;
 
   const publishers = contacts
@@ -52,7 +55,13 @@ export function generateCitation(record, language, format) {
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
       version: `v${record.edition}`,
-      type: metadataScope,
+      type: metadataScopeIso,
+      // APA already renders "[Data set]" for the dataset type; genre supplies
+      // the bracketed descriptor for every other resource type.
+      genre:
+        metadataScope === "Dataset"
+          ? undefined
+          : metadataScopeCodes[metadataScope]?.title[language],
     },
   ];
 
