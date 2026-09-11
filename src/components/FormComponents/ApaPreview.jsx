@@ -54,7 +54,7 @@ export function generateCitation(record, language, format) {
       issued: { "date-parts": [[dateRevised || datePublished || created]] },
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
-      version: `v${record.edition}`,
+      version: record.edition ? `v${record.edition}` : undefined,
       type: metadataScopeIso,
       // APA already renders "[Data set]" for the dataset type; genre supplies
       // the bracketed descriptor for every other resource type.

@@ -40,6 +40,16 @@ describe("generateCitation", () => {
     expect(citation).toContain("[Rapport]");
   });
 
+  it("omits the version when there is no edition", () => {
+    const citation = generateCitation(
+      { ...recordWithScope("Report", "document"), edition: "" },
+      "en",
+      "text"
+    );
+
+    expect(citation).not.toContain("Version");
+  });
+
   it("omits the descriptor for an unknown scope instead of throwing", () => {
     const citation = generateCitation(
       recordWithScope("NotAScopeCode", "document"),
