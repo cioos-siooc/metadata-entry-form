@@ -91,7 +91,15 @@ const LeftList = ({
     updateItems(items.concat(duplicatedItem));
   }
 
-  const savedUserItemList = Object.values(savedUserItems || {});
+  // itemTitle returns an <I18n> element for blank entries; those sort first
+  const titleText = (item) => {
+    const title = itemTitle(item);
+    return typeof title === "string" ? title : "";
+  };
+
+  const savedUserItemList = Object.values(savedUserItems || {}).sort((a, b) =>
+    titleText(a).localeCompare(titleText(b))
+  );
 
   const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
