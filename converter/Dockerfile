@@ -4,14 +4,16 @@ WORKDIR /app
 
 COPY pyproject.toml ./
 COPY converter ./converter
-# git is needed at install time only: cioos-metadata-conversion declares
-# `metadata-xml @ git+https://...` in its own dependencies, so pip shells out to
-# git to fetch it. Removed again in the same layer to keep the image small.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends git \
-  && pip install --no-cache-dir . \
-  && apt-get purge -y git && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+# cioos-metadata-conversion (main) declares `metadata-xml @ git+https://...`, so
+# a plain `pip install .` shells out to a git binary this image does not have.
+# uv resolves the same dependency from GitHub's tarball instead — installing git
+# is the obvious alternative, but apt pulls in perl and 30 other packages, which
+# took ~20 minutes on the deploy host and timed the deployment out.
+RUN pip install --no-cache-dir uv \
+  && echo 'metadata-xml @ https://github.com/cioos-siooc/metadata-xml/archive/refs/heads/master.tar.gz' > /tmp/overrides.txt \
+  && uv pip install --system --no-cache --override /tmp/overrides.txt . \
+  && pip uninstall -y uv \
+  && rm /tmp/overrides.txt
 
 EXPOSE 8000
 CMD ["uvicorn", "converter.main:app", "--host", "0.0.0.0", "--port", "8000"]
