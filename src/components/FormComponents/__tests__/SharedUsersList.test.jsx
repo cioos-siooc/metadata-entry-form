@@ -17,6 +17,10 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+vi.mock("../../../api/records", () => ({
+  getRecord: vi.fn().mockResolvedValue({ sharedWith: {}, pendingShares: {} }),
+}));
+
 const theme = createTheme();
 
 const shareRecord = vi.fn();
@@ -29,16 +33,19 @@ const renderList = (record) =>
         <UserContext.Provider value={{ shareRecord, unshareRecord }}>
           <SharedUsersList
             region="pacific"
+            updateRecord={() => () => {}}
             record={{ recordID: "rec1", language: "en", ...record }}
           />
         </UserContext.Provider>
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
 beforeEach(() => {
   vi.clearAllMocks();
-  shareRecord.mockResolvedValue({ data: { status: "shared", emailSent: true } });
+  shareRecord.mockResolvedValue({
+    data: { status: "shared", emailSent: true },
+  });
   unshareRecord.mockResolvedValue({ data: { status: "unshared" } });
 });
 
@@ -49,7 +56,9 @@ describe("<SharedUsersList />", () => {
 
     await user.type(screen.getByRole("textbox"), "not-an-email");
 
-    expect(screen.getByText("Please enter a valid email address.")).toBeVisible();
+    expect(
+      screen.getByText("Please enter a valid email address."),
+    ).toBeVisible();
     expect(screen.getByRole("button", { name: /Share Record/ })).toBeDisabled();
     expect(shareRecord).not.toHaveBeenCalled();
   });

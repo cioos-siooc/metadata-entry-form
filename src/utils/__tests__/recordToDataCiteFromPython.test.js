@@ -1,13 +1,11 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import axios from "axios";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { convertMetadata } from "../../api/actions";
+import { ApiError } from "../../api/client";
 import { recordToDataCiteFromPython } from "../recordToDataCiteFromPython";
 
 // Mock dependencies
-vi.mock("axios");
-vi.mock("../../firebase", () => ({
-  default: {
-    options: { projectId: "test-project" },
-  },
+vi.mock("../../api/actions", () => ({
+  convertMetadata: vi.fn(),
 }));
 vi.mock("../../regions", () => ({
   default: {
@@ -40,7 +38,9 @@ describe("recordToDataCiteFromPython", () => {
     publisher: "Test Publisher",
     publicationYear: 2024,
     subjects: [{ subject: "oceanography" }],
-    descriptions: [{ description: "A test dataset", descriptionType: "Abstract" }],
+    descriptions: [
+      { description: "A test dataset", descriptionType: "Abstract" },
+    ],
   };
 
   // Factory function to create fresh mock responses for each test
@@ -51,46 +51,36 @@ describe("recordToDataCiteFromPython", () => {
     publisher: "Test Publisher",
     publicationYear: 2024,
     subjects: [{ subject: "oceanography" }],
-    descriptions: [{ description: "A test dataset", descriptionType: "Abstract" }],
+    descriptions: [
+      { description: "A test dataset", descriptionType: "Abstract" },
+    ],
     types: { resourceTypeGeneral: "Dataset" },
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("VITE_FUNCTION_REGION", "us-central1");
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe("CREATE operation (forUpdate: false)", () => {
     it("should convert record to DataCite API format with type and prefix", async () => {
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: createMockDataCiteResponse(),
+      });
 
       const result = await recordToDataCiteFromPython(
         mockRecord,
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: false }
+        { forUpdate: false },
       );
 
       // Verify API call
-      expect(axios.post).toHaveBeenCalledWith(
-        "https://us-central1-test-project.cloudfunctions.net/convert_metadata",
-        {
-          data: {
-            record_data: mockRecord,
-            output_format: "datacite_json",
-          },
-        }
-      );
+      expect(convertMetadata).toHaveBeenCalledWith({
+        region: "pacific",
+        record: mockRecord,
+        outputFormat: "datacite_json",
+      });
 
       // Verify structure includes type and prefix
       expect(result).toHaveProperty("data.type", "dois");
@@ -99,7 +89,7 @@ describe("recordToDataCiteFromPython", () => {
       // Verify URL is added
       expect(result).toHaveProperty(
         "data.attributes.url",
-        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123"
+        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123",
       );
 
       // Verify all original fields are present
@@ -109,25 +99,42 @@ describe("recordToDataCiteFromPython", () => {
     });
 
     it("should use correct catalogue URL for different regions and languages", async () => {
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
-
       const testCases = [
-        { region: "pacific", language: "en", expectedUrl: "https://catalogue.cioospacific.ca/" },
-        { region: "pacific", language: "fr", expectedUrl: "https://catalogue.cioospacific.ca/fr/" },
-        { region: "atlantic", language: "en", expectedUrl: "https://cioosatlantic.ca/ckan/" },
-        { region: "atlantic", language: "fr", expectedUrl: "https://cioosatlantic.ca/ckan/fr/" },
-        { region: "stlaurent", language: "en", expectedUrl: "https://catalogue.ogsl.ca/en/" },
-        { region: "stlaurent", language: "fr", expectedUrl: "https://catalogue.ogsl.ca/" },
+        {
+          region: "pacific",
+          language: "en",
+          expectedUrl: "https://catalogue.cioospacific.ca/",
+        },
+        {
+          region: "pacific",
+          language: "fr",
+          expectedUrl: "https://catalogue.cioospacific.ca/fr/",
+        },
+        {
+          region: "atlantic",
+          language: "en",
+          expectedUrl: "https://cioosatlantic.ca/ckan/",
+        },
+        {
+          region: "atlantic",
+          language: "fr",
+          expectedUrl: "https://cioosatlantic.ca/ckan/fr/",
+        },
+        {
+          region: "stlaurent",
+          language: "en",
+          expectedUrl: "https://catalogue.ogsl.ca/en/",
+        },
+        {
+          region: "stlaurent",
+          language: "fr",
+          expectedUrl: "https://catalogue.ogsl.ca/",
+        },
       ];
 
       for (const testCase of testCases) {
-        axios.post.mockResolvedValue({
-          data: { data: createMockDataCiteResponse() },
+        convertMetadata.mockResolvedValue({
+          data: createMockDataCiteResponse(),
         });
 
         const result = await recordToDataCiteFromPython(
@@ -135,7 +142,7 @@ describe("recordToDataCiteFromPython", () => {
           testCase.language,
           testCase.region,
           "10.14284",
-          { forUpdate: false }
+          { forUpdate: false },
         );
 
         const expectedUrl = `${testCase.expectedUrl}dataset/ca-cioos_test-123`;
@@ -146,19 +153,16 @@ describe("recordToDataCiteFromPython", () => {
 
   describe("UPDATE operation (forUpdate: true)", () => {
     it("should omit type and prefix fields for updates", async () => {
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: createMockDataCiteResponse(),
+      });
 
       const result = await recordToDataCiteFromPython(
         mockRecord,
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: true }
+        { forUpdate: true },
       );
 
       // Verify type and prefix are NOT included
@@ -168,7 +172,7 @@ describe("recordToDataCiteFromPython", () => {
       // Verify URL is still added
       expect(result).toHaveProperty(
         "data.attributes.url",
-        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123"
+        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123",
       );
 
       // Verify attributes still has the DataCite fields
@@ -178,128 +182,90 @@ describe("recordToDataCiteFromPython", () => {
 
   describe("Error handling", () => {
     it("should throw error if response structure is invalid", async () => {
-      axios.post.mockResolvedValue({
-        data: null,
-      });
+      convertMetadata.mockResolvedValue(null);
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Invalid response structure");
     });
 
-    it("should throw error if response.data.data is missing", async () => {
-      axios.post.mockResolvedValue({
-        data: {
-          // missing 'data' field
-        },
+    it("should throw error if response.data is missing", async () => {
+      convertMetadata.mockResolvedValue({
+        // missing 'data' field
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Invalid response structure");
     });
 
     it("should throw error if DataCite response is not an object", async () => {
-      axios.post.mockResolvedValue({
-        data: {
-          data: JSON.stringify("invalid string"), // Valid JSON but represents a string, not an object
-        },
+      convertMetadata.mockResolvedValue({
+        data: JSON.stringify("invalid string"), // Valid JSON but represents a string, not an object
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("not a valid object");
     });
 
     it("should throw error if DataCite response is an array", async () => {
-      axios.post.mockResolvedValue({
-        data: {
-          data: [], // Arrays are not valid DataCite objects
-        },
+      convertMetadata.mockResolvedValue({
+        data: [], // Arrays are not valid DataCite objects
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("not a valid object");
     });
 
     it("should throw error for invalid region/language combination", async () => {
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: createMockDataCiteResponse(),
+      });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "invalid-region", "10.14284")
+        recordToDataCiteFromPython(
+          mockRecord,
+          "en",
+          "invalid-region",
+          "10.14284",
+        ),
       ).rejects.toThrow("Invalid region/language combination");
     });
 
     it("should throw error with HTTP status from failed conversion", async () => {
-      axios.post.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { error: "Invalid record data" },
-        },
-      });
+      convertMetadata.mockRejectedValue(
+        new ApiError(400, "Invalid record data", {
+          error: "Invalid record data",
+        }),
+      );
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("DataCite conversion failed (400)");
     });
 
     it("should throw error for network failures", async () => {
-      axios.post.mockRejectedValue(new Error("Network timeout"));
+      convertMetadata.mockRejectedValue(new Error("Network timeout"));
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Failed to convert record to DataCite format");
-    });
-  });
-
-  describe("Local development (emulator)", () => {
-    it("should use local emulator URL when running locally", async () => {
-      // Mock window.location
-      const originalLocation = window.location;
-      delete window.location;
-      window.location = { hostname: "localhost" };
-      vi.stubEnv("VITE_FIREBASE_LOCAL_FUNCTIONS", "true");
-
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
-
-      await recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284");
-
-      expect(axios.post).toHaveBeenCalledWith(
-        expect.stringContaining("http://localhost:5001"),
-        expect.any(Object)
-      );
-
-      // Cleanup
-      window.location = originalLocation;
-      vi.unstubAllEnvs();
     });
   });
 
   describe("Default options", () => {
     it("should default to forUpdate: false when options not provided", async () => {
-      const mockResponse = {
-        data: {
-          data: createMockDataCiteResponse(),
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: createMockDataCiteResponse(),
+      });
 
       const result = await recordToDataCiteFromPython(
         mockRecord,
         "en",
         "pacific",
-        "10.14284"
+        "10.14284",
         // No options parameter
       );
 
@@ -312,19 +278,16 @@ describe("recordToDataCiteFromPython", () => {
   describe("JSON string response handling", () => {
     it("should parse DataCite response if it's a JSON string", async () => {
       const dataciteObj = createMockDataCiteResponse();
-      const mockResponse = {
-        data: {
-          data: JSON.stringify(dataciteObj), // Return as JSON string instead of object
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: JSON.stringify(dataciteObj), // Return as JSON string instead of object
+      });
 
       const result = await recordToDataCiteFromPython(
         mockRecord,
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: false }
+        { forUpdate: false },
       );
 
       // Verify structure is correctly formatted despite receiving a string
@@ -335,15 +298,12 @@ describe("recordToDataCiteFromPython", () => {
     });
 
     it("should throw error for invalid JSON string", async () => {
-      const mockResponse = {
-        data: {
-          data: "not valid json{", // Invalid JSON
-        },
-      };
-      axios.post.mockResolvedValue(mockResponse);
+      convertMetadata.mockResolvedValue({
+        data: "not valid json{", // Invalid JSON
+      });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Failed to parse DataCite response as JSON");
     });
   });

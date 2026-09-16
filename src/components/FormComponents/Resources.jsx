@@ -135,10 +135,10 @@ const Resources = ({ updateResources, resources, disabled }) => {
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid size={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
-              <Grid >
+              <Grid>
                 <List>
                   <SortableList
                     items={resources}
@@ -230,7 +230,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
               </Grid>
             )}
 
-            <Grid >
+            <Grid>
               <Button
                 disabled={disabled}
                 startIcon={<Add />}
@@ -249,7 +249,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
           {resourceStep && (
             <Paper variant="outlined" style={{ padding: 10 }}>
               <Grid container direction="column" spacing={3}>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter a name for the resource</En>
@@ -268,7 +268,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter the URL for the resource</En>
@@ -322,7 +322,7 @@ const Resources = ({ updateResources, resources, disabled }) => {
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>Enter a description of the resource</En>

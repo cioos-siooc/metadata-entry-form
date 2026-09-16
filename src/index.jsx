@@ -4,7 +4,6 @@ import * as Sentry from "@sentry/react";
 
 import "./index.css";
 import App from "./components/App";
-import * as serviceWorker from "./serviceWorker";
 
 Sentry.init({
   dsn: "https://b21f672d78630938fcc78d26097dfece@o4505071053766656.ingest.us.sentry.io/4507704416796672",
@@ -32,7 +31,5 @@ const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(<App />);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// Service worker registration is handled by vite-plugin-pwa
+// (PWAUpdatePrompt drives the update flow).

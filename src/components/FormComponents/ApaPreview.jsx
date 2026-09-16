@@ -17,7 +17,7 @@ export function generateCitation(record, language, format) {
     .filter(
       (contact) =>
         // citation-js crashes sometimes with single letter input for a name
-        contact.inCitation && contact.role.includes("publisher")
+        contact.inCitation && contact.role.includes("publisher"),
     )
     .map((contact) => contact.orgName);
 
@@ -29,14 +29,14 @@ export function generateCitation(record, language, format) {
         // if only publisher is checked, it just appears in publisher section
         .filter(
           (contact) =>
-            !(contact.role.includes("publisher") && contact.role.length === 1)
+            !(contact.role.includes("publisher") && contact.role.length === 1),
         )
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
             contact.inCitation &&
             ((contact.givenNames?.length > 1 && contact.lastName?.length > 1) ||
-              contact.orgName?.length > 1)
+              contact.orgName?.length > 1),
         )
 
         .map((contact) => {
@@ -65,7 +65,7 @@ export function generateCitation(record, language, format) {
       lang: "en-US",
     });
     return res;
-  } catch (e) {
+  } catch {
     // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
     return "";
   }
@@ -76,7 +76,6 @@ export function ApaPreview({ record, language }) {
   return (
     <div>
       <div
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: citation }}
         style={{ padding: "5px" }}
       />

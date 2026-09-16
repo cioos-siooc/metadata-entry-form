@@ -1,0 +1,46 @@
+# Development override: backend services in docker, SPA on the host with HMR.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   npm run dev   (Vite proxies /api — including /api/v1/auth — to these containers)
+services:
+  postgres:
+    ports:
+      # host 5433 to avoid clashing with a locally-running postgres
+      - "5433:5432"
+
+  api:
+    build: ./server
+    command: sh -c "npx node-pg-migrate --migrations-dir migrations --migration-file-language sql up && node scripts/seed-dev.js && node --watch src/index.js"
+    environment:
+      NODE_ENV: development
+      # admin@example.org is a superadmin (admin of the whole service); reviewer
+      # and admin also get per-region roles from scripts/seed-dev.js. The seeded
+      # local accounts (author/reviewer/admin@example.org) have password "password".
+      SUPERADMIN_EMAILS: admin@example.org
+      # SPA runs on the host at :3000; JWT signing keys are auto-generated in dev
+      # (ephemeral — sessions reset when the api restarts).
+      SPA_URL: http://localhost:3000
+      COOKIE_SECURE: "false"
+      COOKIE_SAMESITE: lax
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+    volumes:
+      - ./server/src:/app/src:ro
+      - ./server/migrations:/app/migrations:ro
+      - ./server/scripts:/app/scripts:ro
+    ports:
+      - "3001:3001"
+
+  converter:
+    ports:
+      - "8000:8000"
+
+  # Catches all outgoing notification email in dev — UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  web:
+    profiles: ["prod-web"] # SPA runs on the host in dev; keep web out of the dev stack

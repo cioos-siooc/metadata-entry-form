@@ -1,38 +1,20 @@
-import axios from "axios";
-import firebase from "../firebase";
-import { getRecordFilename } from "./misc";
+import { buildPublishPayload } from "@cioos/shared/publishPayload.js";
 
-const getConvertMetadataUrl = () => {
-  const { options: { projectId } } = firebase;
-  const functionRegion = import.meta.env.VITE_FUNCTION_REGION || "us-central1";
-
-  // Check if we should use the emulator
-  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const useLocalFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
-
-  if (isLocal && useLocalFunctions) {
-    // Port 5001 is standard for Firebase functions and matches root firebase.json
-    return `http://localhost:5001/${projectId}/${functionRegion}/convert_metadata`;
-  }
-
-  return `https://${functionRegion}-${projectId}.cloudfunctions.net/convert_metadata`;
-};
+import { convertMetadata } from "../api/actions";
 
 /**
- * Converts a record to the specified format using the cloud function.
+ * Converts a record to the specified format using the metadata conversion API.
  */
-export const convertRecord = async (record, format) => {
-  const url = getConvertMetadataUrl();
+export const convertRecord = async (record, format, region) => {
   try {
-    const response = await axios.post(url, {
-      data: {
-        record_data: record,
-        output_format: format,
-      },
+    const response = await convertMetadata({
+      region,
+      record,
+      outputFormat: format,
     });
 
-    if (response.data && response.data.data) {
-      return response.data.data;
+    if (response && response.data) {
+      return response.data;
     }
     throw new Error("Invalid response from conversion service");
   } catch (error) {
@@ -44,56 +26,27 @@ export const convertRecord = async (record, format) => {
 /**
  * Prepares the payload for GitHub publishing by converting the record and generating paths.
  */
-export const preparePublishPayload = async (record, environments, commitMessage, config, region) => {
-  const { fileTemplate } = config;
-
-  // Logic to generate filename matches the backend helper
-  let filenameBase = fileTemplate || "{filename}";
-  if (filenameBase.includes("{filename}")) {
-    const historicalFilename = getRecordFilename(record);
-    filenameBase = filenameBase.replace("{filename}", historicalFilename);
-  }
-  const { id, identifier, title: recordTitle } = record;
-  const uuid = id || identifier;
-  filenameBase = filenameBase.replace("{uuid}", uuid);
-  const title = recordTitle ? (recordTitle.en || recordTitle.fr || "untitled") : "untitled";
-  const sanitizedTitle = title.replace(/[^a-zA-Z0-9-_]/g, "-");
-  filenameBase = filenameBase.replace("{title}", sanitizedTitle);
-
+export const preparePublishPayload = async (
+  record,
+  environments,
+  commitMessage,
+  config,
+  region,
+) => {
   const [xmlContent, yamlContent] = await Promise.all([
-    convertRecord(record, "iso19115-3_xml"),
-    convertRecord(record, "yaml"),
+    convertRecord(record, "iso19115-3_xml", region),
+    convertRecord(record, "yaml", region),
   ]);
-  // Store only the record JSON, excluding database-specific user info
-  const recordForJson = { ...record };
-  if (recordForJson.userinfo) delete recordForJson.userinfo;
-  const jsonContent = JSON.stringify(recordForJson, null, 2);
 
-  const files = [];
-  environments.forEach((env) => {
-    const baseDir = region ? `forms/${region}/${env}` : `forms/${env}`;
-    files.push({
-      path: `${baseDir}/${filenameBase}.xml`,
-      content: xmlContent,
-    });
-    files.push({
-      path: `${baseDir}/${filenameBase}.yaml`,
-      content: yamlContent,
-    });
-    files.push({
-      path: `${baseDir}/${filenameBase}.json`,
-      content: jsonContent,
-    });
+  // Path construction lives in @cioos/shared: the WAF harvests these paths, so
+  // the web app and the mobile app have to produce exactly the same ones.
+  return buildPublishPayload({
+    record,
+    environments,
+    commitMessage,
+    config,
+    region,
+    xmlContent,
+    yamlContent,
   });
-
-  // Also store a copy of the original JSON in a top-level records directory
-  files.push({
-    path: `records/${filenameBase}.json`,
-    content: jsonContent,
-  });
-
-  return {
-    files,
-    commitMessage: commitMessage || `Publish metadata record: ${title}`,
-  };
 };

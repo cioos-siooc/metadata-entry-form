@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   Typography,
   Button,
@@ -11,17 +11,15 @@ import {
 } from "@mui/material";
 import { Add, ArrowDropDown } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDatabase, ref, onValue, off } from "firebase/database";
-import firebase from "../../firebase";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
+import { UserContext } from "../../providers/UserProvider";
 import { Fr, En, I18n } from "../I18n";
 import {
-  multipleFirebaseToJSObject,
+  loadUserRecords,
   cloneRecord,
   deleteRecord,
   submitRecord,
   returnRecordToDraft,
-} from "../../utils/firebaseRecordFunctions";
+} from "../../api/records";
 import SimpleModal from "../FormComponents/SimpleModal";
 import NewRecordFromSourceDialog from "../FormComponents/NewRecordFromSourceDialog";
 import regions from "../../regions";
@@ -31,10 +29,10 @@ import { markFormNavigation } from "../RecordList/hooks";
 const Submissions = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
+  const { user, authIsLoading } = useContext(UserContext);
+  const userID = user?.uid;
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const listenerRefs = useRef([]);
-  const unsubscribeRef = useRef(null);
 
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -51,60 +49,42 @@ const Submissions = () => {
       markFormNavigation(submissionsConfig.pageId);
       navigate(`/${language}/${region}/new`, state ? { state } : undefined);
     },
-    [navigate, language, region]
+    [navigate, language, region],
   );
 
-  // Load records on mount
-  useEffect(() => {
+  const loadRecords = useCallback(async () => {
+    if (!userID) return;
     setLoading(true);
+    try {
+      const loadedRecords = await loadUserRecords(region, userID);
+      setRecords(loadedRecords || []);
+    } catch (error) {
+      console.error("Error loading records:", error);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [region, userID]);
 
-    unsubscribeRef.current = onAuthStateChanged(getAuth(firebase), (user) => {
-      if (user) {
-        const database = getDatabase(firebase);
-        const recordsRef = ref(database, `${region}/users/${user.uid}/records`);
-
-        onValue(recordsRef, (recordsSnapshot) => {
-          const allUsersRecords = recordsSnapshot.toJSON();
-          const recordsObject = multipleFirebaseToJSObject(allUsersRecords);
-
-          // Convert object to array with recordID and userID included
-          const recordsArray = Object.entries(recordsObject || {}).map(
-            ([key, record]) => ({
-              ...record,
-              recordID: key,
-              userinfo: {
-                ...record.userinfo,
-                userID: user.uid,
-              },
-            }),
-          );
-
-          setRecords(recordsArray);
-          setLoading(false);
-        });
-
-        listenerRefs.current.push(recordsRef);
-      }
-    });
-
-    // Cleanup
-    return () => {
-      if (unsubscribeRef.current) unsubscribeRef.current();
-      listenerRefs.current.forEach((refListener) => off(refListener));
-      listenerRefs.current = [];
-    };
-  }, [region]);
+  // Load records on mount and when the region or user changes
+  useEffect(() => {
+    if (userID) {
+      loadRecords();
+    } else if (!authIsLoading) {
+      setRecords([]);
+      setLoading(false);
+    }
+  }, [userID, authIsLoading, loadRecords]);
 
   // Action handlers
   const handleEditRecord = useCallback(
     (recordID) => {
-      const { currentUser } = auth;
-      if (currentUser) {
+      if (userID) {
         markFormNavigation(submissionsConfig.pageId);
-        navigate(`/${language}/${region}/${currentUser.uid}/${recordID}`);
+        navigate(`/${language}/${region}/${userID}/${recordID}`);
       }
     },
-    [navigate, language, region],
+    [navigate, language, region, userID],
   );
 
   const handleDeleteRecord = useCallback((recordID) => {
@@ -113,48 +93,48 @@ const Submissions = () => {
   }, []);
 
   const confirmDelete = useCallback(async () => {
-    if (auth.currentUser && modalKey) {
-      await deleteRecord(region, auth.currentUser.uid, modalKey);
+    if (modalKey) {
+      await deleteRecord(region, modalKey);
+      loadRecords();
     }
-  }, [region, modalKey]);
+  }, [region, modalKey, loadRecords]);
 
   const handleCloneRecord = useCallback(
-    (recordID) => {
-      if (auth.currentUser) {
-        cloneRecord(
-          recordID,
-          auth.currentUser.uid,
-          auth.currentUser.uid,
-          region,
-        );
-      }
+    async (recordID) => {
+      await cloneRecord(region, recordID);
+      loadRecords();
     },
-    [region],
+    [region, loadRecords],
   );
 
-  const handleSubmitRecord = useCallback((recordID, userID, newStatus) => {
-    if (newStatus === "submitted") {
-      // Submit for review
-      setModalKey(recordID);
-      setSubmitModalOpen(true);
-    } else if (newStatus === "") {
-      // Withdraw (return to draft)
-      setModalKey(recordID);
-      setWithdrawModalOpen(true);
-    }
-  }, []);
+  const handleSubmitRecord = useCallback(
+    (recordID, recordUserID, newStatus) => {
+      if (newStatus === "submitted") {
+        // Submit for review
+        setModalKey(recordID);
+        setSubmitModalOpen(true);
+      } else if (newStatus === "") {
+        // Withdraw (return to draft)
+        setModalKey(recordID);
+        setWithdrawModalOpen(true);
+      }
+    },
+    [],
+  );
 
   const confirmSubmit = useCallback(async () => {
-    if (auth.currentUser && modalKey) {
-      await submitRecord(region, auth.currentUser.uid, modalKey, "submitted");
+    if (modalKey) {
+      await submitRecord(region, modalKey, "submitted");
+      loadRecords();
     }
-  }, [region, modalKey]);
+  }, [region, modalKey, loadRecords]);
 
   const confirmWithdraw = useCallback(async () => {
-    if (auth.currentUser && modalKey) {
-      await returnRecordToDraft(region, auth.currentUser.uid, modalKey);
+    if (modalKey) {
+      await returnRecordToDraft(region, modalKey);
+      loadRecords();
     }
-  }, [region, modalKey]);
+  }, [region, modalKey, loadRecords]);
 
   return (
     <Box>
@@ -246,8 +226,16 @@ const Submissions = () => {
           <Divider />
           {[
             ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
-            ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
-            ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
+            [
+              "obis",
+              "From an OBIS dataset…",
+              "À partir d'un jeu de données OBIS…",
+            ],
+            [
+              "pdc",
+              "From a PDC record (CCIN)…",
+              "À partir d'un enregistrement du CDDP (CCIN)…",
+            ],
           ].map(([type, en, fr]) => (
             <MenuItem
               key={type}

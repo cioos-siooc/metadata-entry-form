@@ -1,17 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button } from "@mui/material";
 import { Save } from "@mui/icons-material";
-import {child, getDatabase, onValue, ref, update, push} from "firebase/database";
-import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { platforms as platformsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 
 import { En, Fr, I18n } from "../I18n";
 
 import PlatformEditor from "./PlatformEditor";
 import FormClassTemplate from "../Pages/FormClassTemplate";
 import { paperClass } from "./QuestionStyles";
-
 
 class EditPlatformClass extends FormClassTemplate {
   constructor(props) {
@@ -21,20 +19,18 @@ class EditPlatformClass extends FormClassTemplate {
       type: "",
       description: { en: "", fr: "" },
     };
-    const { region } = props;
-
-    const database = getDatabase(firebase)
-    this.platformsRef = ref(database, `${region}/users/${auth.currentUser.uid}/platforms`);
   }
 
-  async componentDidMount() {
-    const { platformID } = this.props;
+  componentDidMount() {
+    this.loadData();
+  }
 
-    if (auth.currentUser && platformID) {
-      this.setState({ platformID });
-      const platformRef = child(this.platformsRef, (platformID));
-      onValue(platformRef, (platform) => this.setState(platform.toJSON()));
-      this.listenerRefs.push(platformRef);
+  async loadData() {
+    const { region, platformID, userID } = this.props;
+
+    if (userID && platformID) {
+      const platform = await platformsAPI.getOne(region, userID, platformID);
+      if (platform) this.safeSetState(platform);
     }
   }
 
@@ -55,12 +51,13 @@ class EditPlatformClass extends FormClassTemplate {
 
   // Create or update platform
   async handleSubmitClick() {
-    const { region, language, platformID, navigate } = this.props;
+    const { region, language, platformID, userID, navigate } = this.props;
 
     // update
-    if (platformID) update(child(this.platformsRef, platformID), this.state);
+    if (platformID)
+      await platformsAPI.update(region, userID, platformID, this.state);
     // create
-    else push(this.platformsRef, this.state);
+    else await platformsAPI.create(region, userID, this.state);
 
     navigate(`/${language}/${region}/platforms`);
   }
@@ -68,7 +65,7 @@ class EditPlatformClass extends FormClassTemplate {
   render() {
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid >
+        <Grid>
           <PlatformEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -77,7 +74,7 @@ class EditPlatformClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button
             startIcon={<Save />}
             variant="contained"
@@ -108,15 +105,18 @@ class EditPlatformClass extends FormClassTemplate {
   }
 }
 
-// Wrapper component to provide router params and navigate to the class component
+// Wrapper component to provide router params, navigate, and the signed-in
+// user's ID to the class component
 const EditPlatform = () => {
   const { language, region, platformID } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   return (
     <EditPlatformClass
       language={language}
       region={region}
       platformID={platformID}
+      userID={user?.uid}
       navigate={navigate}
     />
   );

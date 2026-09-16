@@ -1,11 +1,9 @@
-import axios from "axios";
-
-import { getBlankRecord } from "./blankRecord";
-import { standardizeContact } from "./firebaseRecordFunctions";
-import { getPythonFunctionUrl } from "./pythonFunctionUrl";
+import { post } from "../api/client";
+import { getBlankContact, getBlankRecord } from "./blankRecord";
 
 const DOI_URL_RE = /^https?:\/\/(dx\.)?doi\.org\//i;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CCIN_RE = /^\d+$/;
 
 /**
@@ -21,7 +19,11 @@ export function detectSourceType(input) {
   const value = (input || "").trim();
   if (!value) return null;
 
-  if (DOI_URL_RE.test(value) || value.startsWith("10.") || value.toLowerCase().startsWith("doi:"))
+  if (
+    DOI_URL_RE.test(value) ||
+    value.startsWith("10.") ||
+    value.toLowerCase().startsWith("doi:")
+  )
     return "doi";
 
   if (value.includes("polardata.ca") || CCIN_RE.test(value)) return "pdc";
@@ -33,31 +35,21 @@ export function detectSourceType(input) {
 
 /**
  * Fetches a metadata record from an external catalogue and returns it in the
- * Firebase record shape, via the Python create_record_from_source function.
+ * record shape, via the API's converter-backed record-from-source endpoint.
  *
  * @param {"doi"|"obis"|"pdc"} sourceType
  * @param {string} identifier
  * @returns {Promise<Object>} The record as returned by cioos-metadata-conversion
- * @throws {Error} With the server's message when the source can't be retrieved
+ * @throws {ApiError} With the server's message when the source can't be retrieved
  */
 export async function createRecordFromSource(sourceType, identifier) {
-  const url = getPythonFunctionUrl("create_record_from_source");
-
-  try {
-    const response = await axios.post(url, {
-      data: { source_type: sourceType, identifier },
-    });
-
-    const record = response?.data?.data;
-    if (!record || typeof record !== "object")
-      throw new Error("The conversion service returned an empty record.");
-
-    return record;
-  } catch (e) {
-    const serverMessage = e.response?.data?.error;
-    if (serverMessage) throw new Error(serverMessage);
-    throw e;
-  }
+  const { data: record } = await post("/record-from-source", {
+    sourceType,
+    identifier,
+  });
+  if (!record || typeof record !== "object")
+    throw new Error("The conversion service returned an empty record.");
+  return record;
 }
 
 // Fields the loaders populate from the source record but which describe *this*
@@ -128,7 +120,10 @@ export function normalizePrefilledRecord(remote) {
   // PDC reports a DOI state even when it found no DOI to attach.
   if (!record.datasetIdentifier) record.doiCreationStatus = "";
 
-  record.contacts = (record.contacts || []).map(standardizeContact);
+  record.contacts = (record.contacts || []).map((contact) => ({
+    ...getBlankContact(),
+    ...contact,
+  }));
 
   return record;
 }

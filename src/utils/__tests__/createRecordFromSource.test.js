@@ -1,17 +1,12 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import axios from "axios";
+import { post } from "../../api/client";
 import {
   createRecordFromSource,
   detectSourceType,
   normalizePrefilledRecord,
 } from "../createRecordFromSource";
 
-vi.mock("axios");
-vi.mock("../../firebase", () => ({
-  default: {
-    options: { projectId: "test-project" },
-  },
-}));
+vi.mock("../../api/client", () => ({ post: vi.fn() }));
 
 describe("detectSourceType", () => {
   it.each([
@@ -42,12 +37,13 @@ describe("detectSourceType", () => {
     expect(detectSourceType("https://doi.org/10.21963/13172")).toBe("doi");
   });
 
-  it.each([["", null], ["   ", null], ["not an identifier", null]])(
-    "returns null for %o",
-    (input, expected) => {
-      expect(detectSourceType(input)).toBe(expected);
-    }
-  );
+  it.each([
+    ["", null],
+    ["   ", null],
+    ["not an identifier", null],
+  ])("returns null for %o", (input, expected) => {
+    expect(detectSourceType(input)).toBe(expected);
+  });
 
   it("ignores surrounding whitespace", () => {
     expect(detectSourceType("  13172  ")).toBe("pdc");
@@ -60,24 +56,22 @@ describe("createRecordFromSource", () => {
   });
 
   it("posts the source type and identifier and unwraps the record", async () => {
-    axios.post.mockResolvedValue({ data: { data: { title: { en: "A record" } } } });
+    post.mockResolvedValue({ data: { title: { en: "A record" } } });
 
     const record = await createRecordFromSource("pdc", "13172");
 
-    expect(axios.post).toHaveBeenCalledWith(
-      expect.stringContaining("create_record_from_source"),
-      { data: { source_type: "pdc", identifier: "13172" } }
-    );
+    expect(post).toHaveBeenCalledWith("/record-from-source", {
+      sourceType: "pdc",
+      identifier: "13172",
+    });
     expect(record).toEqual({ title: { en: "A record" } });
   });
 
   it("surfaces the server's error message", async () => {
-    axios.post.mockRejectedValue({
-      response: { data: { error: "Could not retrieve pdc record '999'" } },
-    });
+    post.mockRejectedValue(new Error("Could not retrieve pdc record '999'"));
 
     await expect(createRecordFromSource("pdc", "999")).rejects.toThrow(
-      "Could not retrieve pdc record '999'"
+      "Could not retrieve pdc record '999'",
     );
   });
 });
@@ -124,7 +118,7 @@ describe("normalizePrefilledRecord", () => {
 
     expect(record.identifier).not.toBe(pdcRecord.identifier);
     expect(record.identifier).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 

@@ -22,13 +22,27 @@ import {
   FormLabel,
   Alert,
 } from "@mui/material";
-import { Save, Delete, PlayArrow, Visibility, VisibilityOff } from "@mui/icons-material";
-import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
-import { Buffer } from 'buffer';
+import {
+  Save,
+  Delete,
+  PlayArrow,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+import { Buffer } from "buffer";
 
-import firebase from "../../firebase";
+import {
+  getPermissions,
+  savePermissions,
+  saveProjects,
+  getDataciteCredentials,
+  saveDataciteCredentials,
+  deleteDataciteCredentials,
+  getGithubCredentials,
+  saveGithubCredentials,
+} from "../../api/admin";
+import { getRegionProjects } from "../../api/records";
 import { UserContext } from "../../providers/UserProvider";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 import withRouter from "../../utils/withRouter";
@@ -71,105 +85,90 @@ class Admin extends FormClassTemplate {
       githubBranch: "main",
       githubFileTemplate: "{filename}",
       githubEnvironments: "prod",
+      hasGithubToken: false,
       showGithubToken: false,
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.loadData();
+  }
+
+  async loadData() {
     const { match } = this.props;
     const { region } = match.params;
-    const database = getDatabase(firebase);
 
-    this.setState({ loading: true });
+    this.safeSetState({ loading: true });
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
-      if (user) {
-        // Reference to the regionAdmin in the database
-        const adminRef = ref(database, "admin");
-        const regionAdminRef = child(adminRef, region);
-        const permissionsRef = child(regionAdminRef, "permissions");
+    // Permissions come back from the API as arrays of emails; tolerate the
+    // legacy CSV-string shape just in case.
+    const toArray = (value) => {
+      if (Array.isArray(value)) return value;
+      if (typeof value === "string" && value) return value.split(",");
+      return [];
+    };
 
-        // Load datacite credentials directly from the realtime database (same DB the client writes to).
-        // This avoids the Firebase Functions emulator potentially reading from a different project's DB.
-        const dataciteRef = child(regionAdminRef, "dataciteCredentials");
-        onValue(dataciteRef, (snapshot) => {
-          const data = snapshot.val();
-          const credentialsStored = !!(data?.dataciteHash && data?.prefix);
-          const updates = {
-            credentialsStored,
-            isDoiCreationEnabled: credentialsStored || this.state.isDoiCreationEnabled,
-            datacitePrefix: data?.prefix || this.state.datacitePrefix || "",
-          };
-          if (data?.apiDomain) {
-            updates.dataciteApiDomain = data.apiDomain;
-          }
-          if (Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0) {
-            updates.doiSuffixModes = data.doiSuffixModes;
-          }
-          if (data?.doiStatusManagement) {
-            updates.doiStatusManagement = data.doiStatusManagement;
-          }
-          if (data?.accountId) {
-            updates.dataciteAccountId = data.accountId;
-          }
-          if (data?.dataciteHash) {
-            updates.dataciteHash = data.dataciteHash;
-          }
-          this.setState(updates);
-        });
-        this.listenerRefs.push(dataciteRef);
+    try {
+      const [permissions, projectsResponse, dataciteConfig, githubConfig] =
+        await Promise.all([
+          getPermissions(region),
+          getRegionProjects(region),
+          getDataciteCredentials(region),
+          getGithubCredentials(region),
+        ]);
 
-        const githubRef = child(regionAdminRef, "githubCredentials");
-        onValue(githubRef, (snapshot) => {
-          const data = snapshot.val();
-          // Always update state, even if data is null (first time setup)
-          this.setState({
-            githubOwner: data?.owner || "cioos-siooc",
-            githubRepo: data?.repo || "cioos-siooc-forms",
-            githubBranch: data?.branch || "main",
-            githubFileTemplate: data?.fileTemplate || "{filename}",
-            githubEnvironments: (data?.environments || ["prod"]).join("\n"),
-            githubToken: data?.token || "",
-          });
-        });
+      const credentialsStored = Boolean(dataciteConfig?.hasCredentials);
+      // The API may expose the environment list under `environments` or
+      // `environment`; normalize to an array.
+      const githubEnvs =
+        githubConfig?.environments ?? githubConfig?.environment;
+      const githubEnvList = Array.isArray(githubEnvs)
+        ? githubEnvs
+        : githubEnvs
+          ? [githubEnvs]
+          : ["prod"];
 
-        const projectsRef = child(regionAdminRef, "projects");
-        onValue(projectsRef, (snapshot) => {
-          const projectsData = snapshot.val();
-          if (projectsData) {
-            this.setState({
-              projects: Object.values(projectsData),
-            });
-          }
-        });
-
-        onValue(permissionsRef, (permissionsFirebase) => {
-          const permissions = permissionsFirebase.toJSON();
-
-          const admins = permissions.admins ? permissions.admins.split(",") : [];
-          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
-
-          // Do not set `projects` here to avoid overwriting the more recent
-          // value from the `projectsRef` listener above.
-          // credentialsStored / datacitePrefix are set by the dataciteRef listener.
-          this.setState({
-            admins,
-            reviewers,
-            loading: false,
-          });
-        });
-        this.listenerRefs.push(permissionsRef);
-        this.listenerRefs.push(projectsRef);
-        this.listenerRefs.push(githubRef);
-      }
-    });
+      this.safeSetState({
+        admins: toArray(permissions?.admins),
+        reviewers: toArray(permissions?.reviewers),
+        projects: Array.isArray(projectsResponse)
+          ? projectsResponse
+          : projectsResponse?.projects || [],
+        datacitePrefix: dataciteConfig?.prefix || "",
+        dataciteApiDomain: dataciteConfig?.apiDomain || "production",
+        doiSuffixModes: dataciteConfig?.doiSuffixModes || ["default"],
+        doiStatusManagement: dataciteConfig?.doiStatusManagement || "datacite",
+        credentialsStored,
+        isDoiCreationEnabled: credentialsStored,
+        githubOwner: githubConfig?.owner || "cioos-siooc",
+        githubRepo: githubConfig?.repo || "cioos-siooc-forms",
+        githubBranch: githubConfig?.branch || "main",
+        githubFileTemplate: githubConfig?.fileTemplate || "{filename}",
+        githubEnvironments: githubEnvList.join("\n"),
+        // Tokens are write-only; the API only reports whether one is stored
+        hasGithubToken: Boolean(githubConfig?.hasToken),
+        githubToken: "",
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Failed to load admin settings:", error);
+      this.safeSetState({
+        loading: false,
+        showErrorDialog: true,
+        errorMessage: `Failed to load admin settings: ${error.message}`,
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { match } = this.props;
+    // Refresh data when region changes via the URL
+    if (match.params.region !== prevProps.match.params.region) {
+      this.loadData();
+    }
     // Check if credentialsStored state has changed
     if (prevState.credentialsStored !== this.state.credentialsStored) {
       if (this.state.credentialsStored) {
-        // eslint-disable-next-line react/no-did-update-set-state
         this.setState({ isDoiCreationEnabled: true });
       }
     }
@@ -206,8 +205,7 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      const database = getDatabase(firebase);
-      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      await deleteDataciteCredentials(region);
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",
@@ -229,8 +227,7 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      const database = getDatabase(firebase);
-      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      await deleteDataciteCredentials(region);
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",
@@ -262,16 +259,11 @@ class Admin extends FormClassTemplate {
       credentialsStored,
     } = this.state;
 
-    if (!auth.currentUser) {
-      this.setState({
-        showErrorDialog: true,
-        errorMessage: "You must be logged in to save DataCite settings",
-      });
-      return;
-    }
-
     // For new credentials, all fields are required
-    if (!credentialsStored && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
+    if (
+      !credentialsStored &&
+      (!datacitePrefix || !dataciteAccountId || !datacitePass)
+    ) {
       this.setState({ showCredentialsMissingDialog: true });
       return;
     }
@@ -279,36 +271,30 @@ class Admin extends FormClassTemplate {
     // Note: for updates, apiDomain / doiSuffixModes / doiStatusManagement always carry values so
     // there is always something to save. No blocking validation needed here.
 
-    const database = getDatabase(firebase);
-    const updates = {};
+    const credentials = {};
 
     if (datacitePrefix) {
-      updates["dataciteCredentials/prefix"] = datacitePrefix;
+      credentials.prefix = datacitePrefix;
     }
 
     if (dataciteAccountId && datacitePass) {
       const bufferObj = Buffer.from(
         `${dataciteAccountId}:${datacitePass}`,
-        "utf8"
+        "utf8",
       );
-      updates["dataciteCredentials/dataciteHash"] = bufferObj.toString("base64");
-      updates["dataciteCredentials/accountId"] = dataciteAccountId;
-    } else if (dataciteAccountId && !datacitePass) {
-      updates["dataciteCredentials/accountId"] = dataciteAccountId;
+      credentials.dataciteHash = bufferObj.toString("base64");
     }
 
     if (dataciteApiDomain) {
-      updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
+      credentials.apiDomain = dataciteApiDomain;
     }
 
     if (Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0) {
-      updates["dataciteCredentials/doiSuffixModes"] = doiSuffixModes;
+      credentials.doiSuffixModes = doiSuffixModes;
     }
+    credentials.doiStatusManagement = doiStatusManagement || "datacite";
 
-    updates["dataciteCredentials/doiStatusManagement"] = doiStatusManagement || "datacite";
-
-    const regionAdminRef = ref(database, `admin/${region}`);
-    update(regionAdminRef, updates)
+    saveDataciteCredentials(region, credentials)
       .then(() => {
         this.setState({
           datacitePass: "",
@@ -326,16 +312,26 @@ class Admin extends FormClassTemplate {
   handleTestCredentials = async () => {
     const { region } = this.props.match.params;
     const { testDataciteCredentials } = this.context;
-    const { dataciteHash, datacitePrefix, dataciteApiDomain } = this.state;
+    const { datacitePrefix, dataciteAccountId, datacitePass } = this.state;
 
     this.setState({ testingCredentials: true, testResult: null });
 
     try {
+      // If new credentials have been typed in, test those; otherwise the
+      // server tests the stored (write-only) credentials.
+      const authHash =
+        dataciteAccountId && datacitePass
+          ? Buffer.from(
+              `${dataciteAccountId}:${datacitePass}`,
+              "utf8",
+            ).toString("base64")
+          : undefined;
+
       const result = await testDataciteCredentials({
         region,
-        dataciteHash: dataciteHash || undefined,
         prefix: datacitePrefix || undefined,
-        apiDomain: dataciteApiDomain || undefined,
+        authHash,
+        apiDomain: this.state.dataciteApiDomain || undefined,
       });
       this.setState({
         testingCredentials: false,
@@ -352,7 +348,7 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  handleSave() {
+  async handleSave() {
     const { match } = this.props;
     const { region } = match.params;
     const {
@@ -366,41 +362,34 @@ class Admin extends FormClassTemplate {
       githubFileTemplate,
       githubEnvironments,
     } = this.state;
-    const database = getDatabase(firebase);
 
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const updates = {};
+    try {
+      // 1. Permissions (arrays of email addresses)
+      await savePermissions(region, {
+        admins: cleanArr(admins),
+        reviewers: cleanArr(reviewers),
+      });
 
-      // 1. Permissions
-      updates["permissions/admins"] = cleanArr(admins).join();
-      updates["permissions/reviewers"] = cleanArr(reviewers).join();
-      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
+      // 2. Projects
+      await saveProjects(region, cleanArr(projects));
 
-      // 2. GitHub Credentials
-      const githubCredentials = {
+      // 3. GitHub credentials. The token is write-only: only send it when the
+      // admin typed a new one, otherwise the stored token is left untouched.
+      await saveGithubCredentials(region, {
         owner: githubOwner,
         repo: githubRepo,
-        token: githubToken,
         branch: githubBranch,
         fileTemplate: githubFileTemplate,
-        environments: cleanArr(githubEnvironments.split("\n")),
-      };
-      updates.githubCredentials = githubCredentials;
+        environment: cleanArr(githubEnvironments.split("\n")),
+        token: githubToken || undefined,
+      });
 
-      update(regionAdminRef, updates)
-        .catch((error) => {
-          console.error('Failed to save admin settings:', error);
-          this.setState({
-            showErrorDialog: true,
-            errorMessage: `Failed to save admin settings: ${error.message}`,
-          });
-        });
-    } else {
-      console.error('No authenticated user found');
+      await this.loadData();
+    } catch (error) {
+      console.error("Failed to save admin settings:", error);
       this.setState({
         showErrorDialog: true,
-        errorMessage: 'You must be logged in to save admin settings',
+        errorMessage: `Failed to save admin settings: ${error.message}`,
       });
     }
   }
@@ -459,10 +448,13 @@ class Admin extends FormClassTemplate {
           <DialogContentText id="credentials-missing-dialog-description">
             <I18n>
               <En>
-                Nothing was saved. To enable DOI creation, please fill in the DataCite Prefix, Account ID, and Password.
+                Other settings were saved; DataCite credentials were not. Please
+                add credentials to enable DOI creation.
               </En>
               <Fr>
-                Rien n'a été enregistré. Pour activer la création de DOI, veuillez renseigner le préfixe DataCite, l'identifiant de compte et le mot de passe.
+                Les autres paramètres ont été enregistrés; les informations
+                DataCite ne l'ont pas été. Ajoutez les informations pour activer
+                la création de DOI.
               </Fr>
             </I18n>
           </DialogContentText>
@@ -490,9 +482,7 @@ class Admin extends FormClassTemplate {
         aria-labelledby="error-dialog-title"
         aria-describedby="error-dialog-description"
       >
-        <DialogTitle id="error-dialog-title">
-          Error
-        </DialogTitle>
+        <DialogTitle id="error-dialog-title">Error</DialogTitle>
         <DialogContent>
           <DialogContentText id="error-dialog-description">
             {this.state.errorMessage}
@@ -527,7 +517,9 @@ class Admin extends FormClassTemplate {
 
   handleToggleSuffixMode = (mode) => {
     this.setState((prevState) => {
-      const current = Array.isArray(prevState.doiSuffixModes) ? prevState.doiSuffixModes : [];
+      const current = Array.isArray(prevState.doiSuffixModes)
+        ? prevState.doiSuffixModes
+        : [];
       const next = current.includes(mode)
         ? current.filter((m) => m !== mode)
         : [...current, mode];
@@ -550,7 +542,7 @@ class Admin extends FormClassTemplate {
 
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <Typography variant="h5">
             <I18n>
               <En>Admin</En>
@@ -575,7 +567,7 @@ class Admin extends FormClassTemplate {
         ) : (
           <>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Projects</En>
@@ -583,7 +575,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -595,7 +587,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Admins</En>
@@ -603,7 +595,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -615,7 +607,7 @@ class Admin extends FormClassTemplate {
               </Grid>
             </Paper>
             <Paper style={paperClass}>
-              <Grid >
+              <Grid>
                 <Typography>
                   <I18n>
                     <En>Reviewers</En>
@@ -623,7 +615,7 @@ class Admin extends FormClassTemplate {
                   </I18n>
                 </Typography>
               </Grid>
-              <Grid >
+              <Grid>
                 <TextField
                   multiline
                   fullWidth
@@ -670,7 +662,9 @@ class Admin extends FormClassTemplate {
                   </Grid>
                   {isDoiCreationEnabled && (
                     <Grid size={12}>
-                      <Alert severity={credentialsStored ? "success" : "warning"}>
+                      <Alert
+                        severity={credentialsStored ? "success" : "warning"}
+                      >
                         <I18n>
                           <En>
                             {credentialsStored
@@ -734,13 +728,26 @@ class Admin extends FormClassTemplate {
                             <Fr>Gestion du statut DOI</Fr>
                           </I18n>
                         </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ display: "block", marginBottom: 4 }}
+                        >
                           <I18n>
                             <En>
-                              When set to &quot;Managed from this form&quot;, reviewers will be prompted to set the DOI status (findable or registered) when publishing or unpublishing records. The DOI status can also be changed directly from the record form.
+                              When set to &quot;Managed from this form&quot;,
+                              reviewers will be prompted to set the DOI status
+                              (findable or registered) when publishing or
+                              unpublishing records. The DOI status can also be
+                              changed directly from the record form.
                             </En>
                             <Fr>
-                              Lorsque défini sur « Géré depuis ce formulaire », les réviseurs seront invités à définir le statut du DOI (trouvable ou enregistré) lors de la publication ou du retrait d&apos;un enregistrement. Le statut peut également être modifié directement depuis le formulaire.
+                              Lorsque défini sur « Géré depuis ce formulaire »,
+                              les réviseurs seront invités à définir le statut
+                              du DOI (trouvable ou enregistré) lors de la
+                              publication ou du retrait d&apos;un
+                              enregistrement. Le statut peut également être
+                              modifié directement depuis le formulaire.
                             </Fr>
                           </I18n>
                         </Typography>
@@ -781,49 +788,73 @@ class Admin extends FormClassTemplate {
                             <Fr>Génération du suffixe DOI</Fr>
                           </I18n>
                         </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ display: "block", marginBottom: 4 }}
+                        >
                           <I18n>
                             <En>
-                              Select one or more methods users may pick from when generating a DOI suffix.
+                              Select one or more methods users may pick from
+                              when generating a DOI suffix.
                             </En>
                             <Fr>
-                              Sélectionnez une ou plusieurs méthodes que les utilisateurs pourront choisir pour générer un suffixe DOI.
+                              Sélectionnez une ou plusieurs méthodes que les
+                              utilisateurs pourront choisir pour générer un
+                              suffixe DOI.
                             </Fr>
                           </I18n>
                         </Typography>
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("default")}
-                              onChange={() => this.handleToggleSuffixMode("default")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("default")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("default")
+                              }
                             />
                           }
                           label={
                             <I18n>
                               <En>Default (auto-generated by DataCite)</En>
-                              <Fr>Par défaut (généré automatiquement par DataCite)</Fr>
+                              <Fr>
+                                Par défaut (généré automatiquement par DataCite)
+                              </Fr>
                             </I18n>
                           }
                         />
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("identifier")}
-                              onChange={() => this.handleToggleSuffixMode("identifier")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("identifier")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("identifier")
+                              }
                             />
                           }
                           label={
                             <I18n>
                               <En>Form identifier (record identifier)</En>
-                              <Fr>Identifiant du formulaire (identifiant de l'enregistrement)</Fr>
+                              <Fr>
+                                Identifiant du formulaire (identifiant de
+                                l'enregistrement)
+                              </Fr>
                             </I18n>
                           }
                         />
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("manual")}
-                              onChange={() => this.handleToggleSuffixMode("manual")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("manual")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("manual")
+                              }
                             />
                           }
                           label={
@@ -864,7 +895,21 @@ class Admin extends FormClassTemplate {
                             <Fr>Identifiant du compte</Fr>
                           </I18n>
                         }
-                        value={this.state.dataciteAccountId || ""}
+                        placeholder={credentialsStored ? "••••••••" : ""}
+                        helperText={
+                          credentialsStored && !this.state.dataciteAccountId ? (
+                            <I18n>
+                              <En>
+                                Account ID is saved. Enter a new value to update
+                                it.
+                              </En>
+                              <Fr>
+                                L'identifiant est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
+                              </Fr>
+                            </I18n>
+                          ) : undefined
+                        }
                         onChange={this.handleChange}
                         fullWidth
                       />
@@ -879,12 +924,21 @@ class Admin extends FormClassTemplate {
                           </I18n>
                         }
                         placeholder={credentialsStored ? "••••••••" : ""}
-                        InputLabelProps={{ shrink: credentialsStored || !!this.state.datacitePass }}
+                        InputLabelProps={{
+                          shrink:
+                            credentialsStored || !!this.state.datacitePass,
+                        }}
                         helperText={
                           credentialsStored && !this.state.datacitePass ? (
                             <I18n>
-                              <En>A password is saved. Enter Account ID + Password to replace it.</En>
-                              <Fr>Un mot de passe est enregistré. Entrez l'identifiant et le mot de passe pour le remplacer.</Fr>
+                              <En>
+                                Password is saved. Enter a new value to update
+                                it.
+                              </En>
+                              <Fr>
+                                Le mot de passe est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
+                              </Fr>
                             </I18n>
                           ) : undefined
                         }
@@ -913,37 +967,72 @@ class Admin extends FormClassTemplate {
                     {this.state.testResult && (
                       <Grid size={12}>
                         <Alert
-                          severity={this.state.testResult.success ? "success" : "error"}
+                          severity={
+                            this.state.testResult.success ? "success" : "error"
+                          }
                           onClose={() => this.setState({ testResult: null })}
                         >
                           {this.state.testResult.message}
-                          {!this.state.testResult.success && this.state.testResult.message?.includes("No DataCite credentials") && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              <I18n>
-                                <En>To fix this: enter your Account ID and Password above and click &quot;Update DataCite Settings&quot;, then test again.</En>
-                                <Fr>Pour corriger cela : entrez votre identifiant de compte et votre mot de passe ci-dessus, cliquez sur « Mettre à jour les paramètres DataCite », puis testez à nouveau.</Fr>
-                              </I18n>
-                            </Typography>
-                          )}
+                          {!this.state.testResult.success &&
+                            this.state.testResult.message?.includes(
+                              "No DataCite credentials",
+                            ) && (
+                              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                <I18n>
+                                  <En>
+                                    To fix this: enter your Account ID and
+                                    Password above and click &quot;Update
+                                    DataCite Settings&quot;, then test again.
+                                  </En>
+                                  <Fr>
+                                    Pour corriger cela : entrez votre
+                                    identifiant de compte et votre mot de passe
+                                    ci-dessus, cliquez sur « Mettre à jour les
+                                    paramètres DataCite », puis testez à
+                                    nouveau.
+                                  </Fr>
+                                </I18n>
+                              </Typography>
+                            )}
                         </Alert>
                       </Grid>
                     )}
-                    <Grid size={12} container spacing={1} justifyContent="flex-end">
+                    <Grid
+                      size={12}
+                      container
+                      spacing={1}
+                      justifyContent="flex-end"
+                    >
                       <Grid>
                         <Tooltip
                           title={
-                            this.state.datacitePass
-                              ? <I18n en="Save credentials first before testing" fr="Enregistrez les identifiants avant de tester" />
-                              : ""
+                            this.state.datacitePass ? (
+                              <I18n
+                                en="Save credentials first before testing"
+                                fr="Enregistrez les identifiants avant de tester"
+                              />
+                            ) : (
+                              ""
+                            )
                           }
                         >
                           <span>
                             <Button
-                              startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
+                              startIcon={
+                                this.state.testingCredentials ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <PlayArrow />
+                                )
+                              }
                               variant="outlined"
                               color="secondary"
                               onClick={this.handleTestCredentials}
-                              disabled={!credentialsStored || this.state.testingCredentials || !!this.state.datacitePass}
+                              disabled={
+                                !credentialsStored ||
+                                this.state.testingCredentials ||
+                                !!this.state.datacitePass
+                              }
                             >
                               <I18n>
                                 <En>Test Credentials</En>
@@ -975,8 +1064,16 @@ class Admin extends FormClassTemplate {
                           onClick={this.handleSaveDatacite}
                         >
                           <I18n>
-                            <En>{credentialsStored ? "Update" : "Save"} DataCite Settings</En>
-                            <Fr>{credentialsStored ? "Mettre à jour" : "Enregistrer"} les paramètres DataCite</Fr>
+                            <En>
+                              {credentialsStored ? "Update" : "Save"} DataCite
+                              Settings
+                            </En>
+                            <Fr>
+                              {credentialsStored
+                                ? "Mettre à jour"
+                                : "Enregistrer"}{" "}
+                              les paramètres DataCite
+                            </Fr>
                           </I18n>
                         </Button>
                       </Grid>
@@ -997,16 +1094,17 @@ class Admin extends FormClassTemplate {
                   <Typography variant="body2" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>
-                        Configure the GitHub repository where metadata records will
-                        be published. This allows reviewers to push approved
-                        records directly to a GitHub repository as XML and YAML
-                        files.
+                        Configure the GitHub repository where metadata records
+                        will be published. This allows reviewers to push
+                        approved records directly to a GitHub repository as XML
+                        and YAML files.
                       </En>
                       <Fr>
-                        Configurez le référentiel GitHub où les enregistrements de
-                        métadonnées seront publiés. Cela permet aux réviseurs de
-                        pousser les enregistrements approuvés directement vers un
-                        référentiel GitHub sous forme de fichiers XML et YAML.
+                        Configurez le référentiel GitHub où les enregistrements
+                        de métadonnées seront publiés. Cela permet aux réviseurs
+                        de pousser les enregistrements approuvés directement
+                        vers un référentiel GitHub sous forme de fichiers XML et
+                        YAML.
                       </Fr>
                     </I18n>
                   </Typography>
@@ -1045,6 +1143,20 @@ class Admin extends FormClassTemplate {
                     label="GitHub Token"
                     type={this.state.showGithubToken ? "text" : "password"}
                     value={this.state.githubToken}
+                    placeholder={this.state.hasGithubToken ? "••••••••" : ""}
+                    helperText={
+                      this.state.hasGithubToken && !this.state.githubToken ? (
+                        <I18n>
+                          <En>
+                            A token is saved. Enter a new value to replace it.
+                          </En>
+                          <Fr>
+                            Un jeton est enregistré. Entrez une nouvelle valeur
+                            pour le remplacer.
+                          </Fr>
+                        </I18n>
+                      ) : undefined
+                    }
                     onChange={this.handleChange}
                     InputProps={{
                       endAdornment: (
@@ -1067,9 +1179,7 @@ class Admin extends FormClassTemplate {
                   />
                   <Typography variant="caption" color="textSecondary">
                     <I18n>
-                      <En>
-                        Personal Access Token (PAT) with 'repo' scope.
-                      </En>
+                      <En>Personal Access Token (PAT) with 'repo' scope.</En>
                       <Fr>
                         Jeton d'accès personnel (PAT) avec la portée 'repo'.
                       </Fr>
@@ -1108,7 +1218,7 @@ class Admin extends FormClassTemplate {
                 </Grid>
               </Grid>
             </Paper>
-            <Grid >
+            <Grid>
               <Button
                 startIcon={<Save />}
                 variant="contained"

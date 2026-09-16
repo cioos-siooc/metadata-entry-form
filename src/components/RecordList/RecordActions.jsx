@@ -24,9 +24,8 @@ import {
   ChevronRight,
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { getDatabase, ref, child, update } from "firebase/database";
-import firebase from "../../firebase";
+import { convertMetadata } from "../../api/actions";
+import { saveRecord } from "../../api/records";
 import recordToEML from "../../utils/recordToEML";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
@@ -49,12 +48,13 @@ const RecordActions = ({
   handlers = {},
   language,
   region,
-  datacitePrefix = "",
+  _datacitePrefix = "",
   githubPublishEnabled = false,
   size,
   iconButtonClassName,
 }) => {
-  const { doiStatusManagement, publishDoi, registerDoi, hideDoi } = useContext(UserContext);
+  const { doiStatusManagement, publishDoi, registerDoi, hideDoi } =
+    useContext(UserContext);
 
   // Main menu state
   const [anchorEl, setAnchorEl] = useState(null);
@@ -150,11 +150,10 @@ const RecordActions = ({
         });
       } else {
         // Server-side conversion
-        const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, "convert_metadata");
         const resp = await convertMetadata({
-          record_data: record,
-          output_format: fileType,
+          region,
+          record,
+          outputFormat: fileType,
         });
         const resultText = resp?.data ?? "";
         blob = new Blob([resultText], {
@@ -173,7 +172,7 @@ const RecordActions = ({
     }
   };
 
-  const hasDoi = !!(record?.datasetIdentifier);
+  const hasDoi = !!record?.datasetIdentifier;
   const currentDoiState = record?.doiCreationStatus || "";
 
   // Extract DOI ID from full URL if needed
@@ -219,16 +218,24 @@ const RecordActions = ({
         let result;
         if (choice === "findable") {
           result = await publishDoi({ doi, region });
-        } else if (choice === "registered" && dataciteDialogMode === "publish") {
+        } else if (
+          choice === "registered" &&
+          dataciteDialogMode === "publish"
+        ) {
           result = await registerDoi({ doi, region });
-        } else if (choice === "registered" && dataciteDialogMode === "unpublish") {
+        } else if (
+          choice === "registered" &&
+          dataciteDialogMode === "unpublish"
+        ) {
           result = await hideDoi({ doi, region });
         }
         // Persist the new DOI status back to the record so the stored value
         // stays in sync with DataCite (mirrors the in-form status dropdown).
         const newState = result?.data?.state || choice;
-        const recordsRef = ref(getDatabase(firebase), `${region}/users/${uID}/records`);
-        await update(child(recordsRef, rID), { doiCreationStatus: newState });
+        await saveRecord(region, rID, {
+          ...record,
+          doiCreationStatus: newState,
+        });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("DataCite state transition failed:", err);
@@ -263,9 +270,18 @@ const RecordActions = ({
     (!isDraft && actions.showSubmitAction);
 
   // Check if we need dividers
-  const hasBasicActions = actions.showViewAction || actions.showEditAction || actions.showCloneAction || actions.showTransferButton;
+  const hasBasicActions =
+    actions.showViewAction ||
+    actions.showEditAction ||
+    actions.showCloneAction ||
+    actions.showTransferButton;
   const showCatalogueDivider = isPublished && catalogueURL;
-  const showDeleteDivider = actions.showDeleteAction && (hasBasicActions || hasPublishActions || actions.showDownloadButton || showCatalogueDivider);
+  const showDeleteDivider =
+    actions.showDeleteAction &&
+    (hasBasicActions ||
+      hasPublishActions ||
+      actions.showDownloadButton ||
+      showCatalogueDivider);
 
   // Icon size based on context
   const iconProps = size === "small" ? { fontSize: "small" } : {};
@@ -303,7 +319,7 @@ const RecordActions = ({
             <I18n en="Edit" fr="Modifier" />
           )}
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -323,7 +339,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Clone" fr="Dupliquer" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -343,7 +359,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Transfer" fr="Transférer" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -367,7 +383,7 @@ const RecordActions = ({
           <I18n en="Publishing" fr="Publication" />
         </ListItemText>
         <ChevronRight fontSize="small" sx={{ ml: 1 }} />
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -387,7 +403,7 @@ const RecordActions = ({
           <I18n en="Download" fr="Télécharger" />
         </ListItemText>
         <ChevronRight fontSize="small" sx={{ ml: 1 }} />
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -409,7 +425,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Open in catalogue" fr="Ouvrir dans le catalogue" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -435,7 +451,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Delete" fr="Supprimer" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -459,7 +475,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Submit for review" fr="Soumettre pour examen" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -479,7 +495,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Return to draft" fr="Revenir au brouillon" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -496,7 +512,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Publish" fr="Publier" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -513,7 +529,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Un-publish" fr="Dépublier" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -533,7 +549,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Return to draft" fr="Revenir au brouillon" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -567,7 +583,7 @@ const RecordActions = ({
             }
           />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -582,7 +598,10 @@ const RecordActions = ({
         loading={dataciteDialogLoading}
       />
 
-      <Tooltip title={<I18n en="Actions" fr="Actions" />} disableHoverListener={menuOpen}>
+      <Tooltip
+        title={<I18n en="Actions" fr="Actions" />}
+        disableHoverListener={menuOpen}
+      >
         <span>
           <IconButton
             {...buttonProps}
@@ -649,9 +668,7 @@ const RecordActions = ({
         <MenuItem onClick={() => handleDownloadRecord("iso19115-3_xml")}>
           ISO 19115-3 XML
         </MenuItem>
-        <MenuItem onClick={() => handleDownloadRecord("yaml")}>
-          YAML
-        </MenuItem>
+        <MenuItem onClick={() => handleDownloadRecord("yaml")}>YAML</MenuItem>
         <MenuItem onClick={() => handleDownloadRecord("erddap")}>
           ERDDAP snippet
         </MenuItem>

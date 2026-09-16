@@ -39,7 +39,7 @@ const LineageAdditionalDocumentation = ({
   function addDocumentation() {
     updateDocumentations(documentations.concat(deepCopy(emptyDocumentation)));
     setActiveDocumentation(documentations.length);
-  };
+  }
 
   function updateDocumentationField(key) {
     return (e) => {
@@ -50,10 +50,11 @@ const LineageAdditionalDocumentation = ({
   }
   function removeDocumentation() {
     updateDocumentations(
-      documentations.filter((e, index) => index !== activeDocumentation)
+      documentations.filter((e, index) => index !== activeDocumentation),
     );
-    if (documentations.length) setActiveDocumentation(documentations.length - 2);
-  };
+    if (documentations.length)
+      setActiveDocumentation(documentations.length - 2);
+  }
 
   function urlIsValid(url) {
     return !url || validateURL(url);
@@ -61,27 +62,28 @@ const LineageAdditionalDocumentation = ({
 
   function handleIdentifierChange(key) {
     return (e) => {
-
       const newValue = [...documentations];
       newValue[activeDocumentation][key] = e.target.value;
 
-      const s = newValue[activeDocumentation].code
+      const s = newValue[activeDocumentation].code;
       switch (true) {
-        case urlIsValid(newValue[activeDocumentation].code) && /^http.?:\/\/doi\.org\//i.test(s):
-          newValue[activeDocumentation].authority = 'DOI'
+        case urlIsValid(newValue[activeDocumentation].code) &&
+          /^http.?:\/\/doi\.org\//i.test(s):
+          newValue[activeDocumentation].authority = "DOI";
           break;
         case urlIsValid(newValue[activeDocumentation].code):
-          newValue[activeDocumentation].authority = 'URL'
+          newValue[activeDocumentation].authority = "URL";
           break;
         default:
-          newValue[activeDocumentation].authority = ''
+          newValue[activeDocumentation].authority = "";
           break;
       }
       updateDocumentations(newValue);
     };
   }
 
-  const documentation = documentations.length > 0 && documentations[activeDocumentation];
+  const documentation =
+    documentations.length > 0 && documentations[activeDocumentation];
 
   return (
     <Grid container spacing={0}>
@@ -94,135 +96,145 @@ const LineageAdditionalDocumentation = ({
           <SupplementalText>
             <I18n>
               <En>
-                A citation to additional lineage documentation. This could be a publication that describes the whole process, dataset, or model.
+                A citation to additional lineage documentation. This could be a
+                publication that describes the whole process, dataset, or model.
               </En>
               <Fr>
-                Information supplémentaire sur la généalogie des données. Peut être une publication décrivant le processus complet, la base de données ou le modèle.
+                Information supplémentaire sur la généalogie des données. Peut
+                être une publication décrivant le processus complet, la base de
+                données ou le modèle.
               </Fr>
             </I18n>
           </SupplementalText>
         </QuestionText>
       </Grid>
 
-
       <Grid container item direction="row" spacing={1}>
-        <Grid size={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Grid container direction="column" spacing={1}>
-            <Grid >
+            <Grid>
               <List>
-              {documentations.map((documentationItem, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    button
-                    onClick={() => setActiveDocumentation(i)}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography
-                          style={{
-                            fontWeight: activeDocumentation === i ? "bold" : "",
-                          }}
-                        >
-                          {i + 1}. {
-                            (documentationItem.title[language] ?? '').length <= 50 ?
-                              (documentationItem.title[language] ?? '') : `${documentationItem.title[language].substring(0, 50)}...`
-                          }
-                        </Typography>
+                {documentations.map((documentationItem, i) => {
+                  return (
+                    <ListItem
+                      key={i}
+                      button
+                      onClick={() => setActiveDocumentation(i)}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            style={{
+                              fontWeight:
+                                activeDocumentation === i ? "bold" : "",
+                            }}
+                          >
+                            {i + 1}.{" "}
+                            {(documentationItem.title[language] ?? "").length <=
+                            50
+                              ? (documentationItem.title[language] ?? "")
+                              : `${documentationItem.title[language].substring(0, 50)}...`}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Grid>
+
+            <Grid>
+              <Button
+                disabled={disabled}
+                startIcon={<Add />}
+                onClick={() => addDocumentation()}
+                style={{ height: "56px", marginLeft: "10px" }}
+              >
+                <I18n>
+                  <En>Add documentation</En>
+                  <Fr>Ajouter une documentation</Fr>
+                </I18n>
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid size="grow">
+          <Grid container direction="column">
+            {documentation && (
+              <Paper style={paperClass}>
+                <Grid container direction="column" spacing={2}>
+                  <Grid>
+                    <I18n>
+                      <En>Title</En>
+                      <Fr>Titre</Fr>
+                    </I18n>
+                    <RequiredMark
+                      passes={
+                        documentation.title?.en || documentation.title?.fr
                       }
                     />
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Grid>
-
-          <Grid >
-            <Button
-              disabled={disabled}
-              startIcon={<Add />}
-              onClick={() => addDocumentation()}
-              style={{ height: "56px", marginLeft: "10px" }}
-            >
-              <I18n>
-                <En>Add documentation</En>
-                <Fr>Ajouter une documentation</Fr>
-              </I18n>
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid size="grow">
-        <Grid container direction="column">
-          {documentation && (
-            <Paper style={paperClass}>
-              <Grid container direction="column" spacing={2}>
-                <Grid >
-                  <I18n>
-                    <En>Title</En>
-                    <Fr>Titre</Fr>
-                  </I18n>
-                  <RequiredMark passes={documentation.title?.en || documentation.title?.fr} />
-                  <BilingualTextInput
-                    value={documentation.title}
-                    onChange={updateDocumentationField("title")}
-                    fullWidth
-                    disabled={disabled}
-                  />
-                </Grid>
-                <Grid >
-                  <TextField
-                    label={
+                    <BilingualTextInput
+                      value={documentation.title}
+                      onChange={updateDocumentationField("title")}
+                      fullWidth
+                      disabled={disabled}
+                    />
+                  </Grid>
+                  <Grid>
+                    <TextField
+                      label={
+                        <I18n>
+                          <En>Identifier or URL</En>
+                          <Fr>Identifiant ou URL</Fr>
+                        </I18n>
+                      }
+                      value={documentation.code}
+                      onChange={handleIdentifierChange("code")}
+                      fullWidth
+                      disabled={disabled}
+                    />
+                  </Grid>
+                  <Grid>
+                    <QuestionText>
                       <I18n>
-                        <En>Identifier or URL</En>
-                        <Fr>Identifiant ou URL</Fr>
+                        <En>Enter the identifier type</En>
+                        <Fr>Entrez le type d'identifiant</Fr>
                       </I18n>
-                    }
-                    value={documentation.code}
-                    onChange={handleIdentifierChange("code")}
-                    fullWidth
-                    disabled={disabled}
-                  />
-                </Grid>
-                <Grid >
-                  <QuestionText>
-                    <I18n>
-                      <En>Enter the identifier type</En>
-                      <Fr>Entrez le type d'identifiant</Fr>
-                    </I18n>
-                    {documentation?.code && (
-                      <RequiredMark passes={documentation.authority} />
-                    )}
-                  </QuestionText>
+                      {documentation?.code && (
+                        <RequiredMark passes={documentation.authority} />
+                      )}
+                    </QuestionText>
 
-                  <SelectInput
-                    value={documentation.authority}
-                    onChange={updateDocumentationField("authority")}
-                    options={identifierType}
-                    optionLabels={identifierType}
-                    disabled={disabled}
-                    label={< I18n en="Identifier Type" fr="Type d'identifiant" />}
-                    fullWidth={false}
-                  />
+                    <SelectInput
+                      value={documentation.authority}
+                      onChange={updateDocumentationField("authority")}
+                      options={identifierType}
+                      optionLabels={identifierType}
+                      disabled={disabled}
+                      label={
+                        <I18n en="Identifier Type" fr="Type d'identifiant" />
+                      }
+                      fullWidth={false}
+                    />
+                  </Grid>
+                  <Grid>
+                    <Button
+                      startIcon={<Delete />}
+                      disabled={disabled}
+                      onClick={() => removeDocumentation()}
+                    >
+                      <I18n>
+                        <En>Remove documentation</En>
+                        <Fr>Supprimer la documentation</Fr>
+                      </I18n>
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid >
-                  <Button
-                    startIcon={<Delete />}
-                    disabled={disabled}
-                    onClick={() => removeDocumentation()}
-                  >
-                    <I18n>
-                      <En>Remove documentation</En>
-                      <Fr>Supprimer la documentation</Fr>
-                    </I18n>
-                  </Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          )}
+              </Paper>
+            )}
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
     </Grid>
   );
 };

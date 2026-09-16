@@ -1,0 +1,20 @@
+{
+  "name": "cioos-metadata-migration",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One-time Firebase RTDB -> Postgres migration tooling for the CIOOS metadata entry form",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "transform": "node transform.js",
+    "load": "node load.js",
+    "verify": "node verify.js",
+    "test": "node --test test.js",
+    "test:integration": "node integration-test.js",
+    "cleanup:fixture": "node cleanup-fixture.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

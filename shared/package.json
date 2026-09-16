@@ -1,0 +1,19 @@
+{
+  "name": "@cioos/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Record model, validation and controlled vocabularies shared by the web SPA and the mobile app.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json",
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0",
+    "validator": "^13.6.0"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

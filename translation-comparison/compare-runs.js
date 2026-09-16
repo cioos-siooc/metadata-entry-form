@@ -12,8 +12,11 @@ if (runNames.length < 2) {
 
   // List available runs
   if (fs.existsSync(RESULTS_DIR)) {
-    const available = fs.readdirSync(RESULTS_DIR)
-      .filter((d) => fs.existsSync(path.join(RESULTS_DIR, d, "intermediate.json")));
+    const available = fs
+      .readdirSync(RESULTS_DIR)
+      .filter((d) =>
+        fs.existsSync(path.join(RESULTS_DIR, d, "intermediate.json")),
+      );
     if (available.length > 0) {
       console.error(`\nAvailable runs: ${available.join(", ")}`);
     }
@@ -85,49 +88,68 @@ for (const key of allKeys) {
 // Compute stats
 function computeRunStats(run) {
   const total = run.entries.length;
-  const errors = run.entries.filter((e) => e.cohereTranslation?.startsWith("[ERROR:")).length;
+  const errors = run.entries.filter((e) =>
+    e.cohereTranslation?.startsWith("[ERROR:"),
+  ).length;
   return { total, errors, translated: total - errors };
 }
 
 // Generate HTML
 function esc(s) {
   if (!s) return "";
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function generateHtml() {
-  const runHeaders = runs.map((r) =>
-    `<th>${esc(r.name)}<br><small>${esc(r.meta.model)}</small></th>`
-  ).join("");
+  const runHeaders = runs
+    .map(
+      (r) => `<th>${esc(r.name)}<br><small>${esc(r.meta.model)}</small></th>`,
+    )
+    .join("");
 
-  const runStats = runs.map((r) => {
-    const s = computeRunStats(r);
-    return `<div class="stat"><span class="stat-value">${s.translated}</span><span class="stat-label">${esc(r.name)} translated</span></div>
+  const runStats = runs
+    .map((r) => {
+      const s = computeRunStats(r);
+      return `<div class="stat"><span class="stat-value">${s.translated}</span><span class="stat-label">${esc(r.name)} translated</span></div>
     <div class="stat"><span class="stat-value">${s.errors}</span><span class="stat-label">${esc(r.name)} errors</span></div>`;
-  }).join("");
+    })
+    .join("");
 
   // Count how many entries differ between runs
   let differCount = 0;
   let identicalCount = 0;
   for (const comp of comparisons) {
-    const texts = runs.map((r) => comp.translations[r.name]?.text?.trim() || "").filter(Boolean);
+    const texts = runs
+      .map((r) => comp.translations[r.name]?.text?.trim() || "")
+      .filter(Boolean);
     if (texts.length >= 2 && new Set(texts).size === 1) identicalCount++;
     else if (texts.length >= 2) differCount++;
   }
 
-  const rows = comparisons.map((comp) => {
-    const texts = runs.map((r) => comp.translations[r.name]?.text?.trim() || "");
-    const allSame = texts.length >= 2 && new Set(texts.filter(Boolean)).size <= 1;
-    const rowClass = allSame ? "row-identical" : "row-different";
+  const rows = comparisons
+    .map((comp) => {
+      const texts = runs.map(
+        (r) => comp.translations[r.name]?.text?.trim() || "",
+      );
+      const allSame =
+        texts.length >= 2 && new Set(texts.filter(Boolean)).size <= 1;
+      const rowClass = allSame ? "row-identical" : "row-different";
 
-    const cells = runs.map((r) => {
-      const t = comp.translations[r.name];
-      if (!t) return `<td class="missing">N/A</td>`;
-      if (t.text?.startsWith("[ERROR:")) return `<td class="error">${esc(t.text)}</td>`;
-      return `<td>${esc(t.text)}</td>`;
-    }).join("");
+      const cells = runs
+        .map((r) => {
+          const t = comp.translations[r.name];
+          if (!t) return `<td class="missing">N/A</td>`;
+          if (t.text?.startsWith("[ERROR:"))
+            return `<td class="error">${esc(t.text)}</td>`;
+          return `<td>${esc(t.text)}</td>`;
+        })
+        .join("");
 
-    return `<tr class="${rowClass}" data-region="${esc(comp.region)}" data-field="${comp.field}" data-direction="${comp.sourceLang}2${comp.targetLang}">
+      return `<tr class="${rowClass}" data-region="${esc(comp.region)}" data-field="${comp.field}" data-direction="${comp.sourceLang}2${comp.targetLang}">
       <td class="meta-cell">
         <strong>${esc(comp.displayTitle)}</strong><br>
         <small>${comp.field} (${comp.sourceLang} &rarr; ${comp.targetLang})</small><br>
@@ -136,7 +158,8 @@ function generateHtml() {
       <td class="source-cell">${esc(comp.sourceText?.substring(0, 200))}${comp.sourceText?.length > 200 ? "..." : ""}</td>
       ${cells}
     </tr>`;
-  }).join("\n");
+    })
+    .join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -253,12 +276,17 @@ document.querySelectorAll('.filter-btn[data-filter]').forEach(function(btn) {
 console.log(`Comparing runs: ${runNames.join(", ")}`);
 runs.forEach((r) => {
   const s = computeRunStats(r);
-  console.log(`  ${r.name}: ${s.total} entries, ${s.errors} errors (model: ${r.meta.model})`);
+  console.log(
+    `  ${r.name}: ${s.total} entries, ${s.errors} errors (model: ${r.meta.model})`,
+  );
 });
 console.log(`  ${allKeys.size} unique fields across all runs\n`);
 
 const html = generateHtml();
-const outputPath = path.join(RESULTS_DIR, `comparison-${runNames.join("-vs-")}.html`);
+const outputPath = path.join(
+  RESULTS_DIR,
+  `comparison-${runNames.join("-vs-")}.html`,
+);
 fs.writeFileSync(outputPath, html);
 console.log(`Comparison report saved to: ${outputPath}`);
 console.log(`Serve with: npx serve results`);

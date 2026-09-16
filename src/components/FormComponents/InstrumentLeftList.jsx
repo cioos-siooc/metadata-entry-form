@@ -79,7 +79,7 @@ const InstrumentLeftList = ({
 
   function handleAddFromSavedInstruments(e) {
     const index = e.target.value;
-    const { role, ...instrument } = instrumentList[index];
+    const { ...instrument } = instrumentList[index];
 
     updateInstruments(
       instruments.concat(deepCopy({ ...getBlankInstrument(), ...instrument })),
@@ -95,7 +95,7 @@ const InstrumentLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             {instruments.length ? (
               <I18n>
@@ -110,7 +110,7 @@ const InstrumentLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <List>
             <SortableList
               items={instruments}
@@ -218,7 +218,7 @@ const InstrumentLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewInstrument}
@@ -233,13 +233,13 @@ const InstrumentLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedInstruments}
-            optionLabels={instrumentList.map((instrumentItem) => (
-              <InstrumentTitle instrument={instrumentItem} />
+            optionLabels={instrumentList.map((instrumentItem, i) => (
+              <InstrumentTitle key={i} instrument={instrumentItem} />
             ))}
             options={instrumentList.map((v, i) => i)}
             disabled={!instrumentList.length || disabled}

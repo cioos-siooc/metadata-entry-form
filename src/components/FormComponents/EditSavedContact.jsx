@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button } from "@mui/material";
 import { Save } from "@mui/icons-material";
-import { getDatabase, ref, onValue, push, child, update } from "firebase/database";
-import firebase from "../../firebase";
-import { auth } from "../../auth";
+import { contacts as contactsAPI } from "../../api/entities";
+import { UserContext } from "../../providers/UserProvider";
 
 import { En, Fr, I18n } from "../I18n";
 
@@ -29,20 +28,18 @@ class EditContactClass extends FormClassTemplate {
       givenNames: "",
       lastName: "",
     };
-    const { region } = props;
-
-    const database = getDatabase(firebase);
-    this.contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
   }
 
-  async componentDidMount() {
-    const { contactID } = this.props;
+  componentDidMount() {
+    this.loadData();
+  }
 
-    if (auth.currentUser && contactID) {
-      this.setState({ contactID });
-      const contactRef = child(this.contactsRef, contactID);
-      onValue(contactRef, (contact) => this.setState(contact.toJSON()));
-      this.listenerRefs.push(contactRef);
+  async loadData() {
+    const { region, contactID, userID } = this.props;
+
+    if (userID && contactID) {
+      const contact = await contactsAPI.getOne(region, userID, contactID);
+      if (contact) this.safeSetState(contact);
     }
   }
 
@@ -61,9 +58,13 @@ class EditContactClass extends FormClassTemplate {
       this.setState({
         orgRor: payload.id,
         orgName: payload.names.find((n) => n.lang === language)?.value || "",
-        orgURL: payload.links.find((l) => l.type ==="website")?.value || "",
-        orgCity: payload.locations.find((g) => g.geonames_details.name)?.geonames_details.name || "",
-        orgCountry: payload.locations.find((g) => g.geonames_details.country_name)?.geonames_details.country_name || "",
+        orgURL: payload.links.find((l) => l.type === "website")?.value || "",
+        orgCity:
+          payload.locations.find((g) => g.geonames_details.name)
+            ?.geonames_details.name || "",
+        orgCountry:
+          payload.locations.find((g) => g.geonames_details.country_name)
+            ?.geonames_details.country_name || "",
       });
     };
   }
@@ -90,12 +91,13 @@ class EditContactClass extends FormClassTemplate {
 
   // Create or update contact
   async handleSubmitClick() {
-    const { region, language, contactID, navigate } = this.props;
+    const { region, language, contactID, userID, navigate } = this.props;
 
     // update
-    if (contactID) update(child(this.contactsRef, contactID), this.state);
+    if (contactID)
+      await contactsAPI.update(region, userID, contactID, this.state);
     // create
-    else push(this.contactsRef, this.state);
+    else await contactsAPI.create(region, userID, this.state);
 
     navigate(`/${language}/${region}/contacts`);
   }
@@ -106,7 +108,7 @@ class EditContactClass extends FormClassTemplate {
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid >
+        <Grid>
           <ContactEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -117,7 +119,7 @@ class EditContactClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button
             startIcon={<Save />}
             variant="contained"
@@ -148,15 +150,18 @@ class EditContactClass extends FormClassTemplate {
   }
 }
 
-// Wrapper component to provide router params and navigate to the class component
+// Wrapper component to provide router params, navigate, and the signed-in
+// user's ID to the class component
 const EditContact = () => {
   const { language, region, contactID } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   return (
     <EditContactClass
       language={language}
       region={region}
       contactID={contactID}
+      userID={user?.uid}
       navigate={navigate}
     />
   );

@@ -20,6 +20,7 @@ import {
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
+import { getRecord } from "../../api/records";
 import { validateEmail } from "../../utils/validate";
 
 // Legacy shares were stored as { userID: true }, with the email only available by
@@ -48,7 +49,9 @@ const messages = {
     />
   ),
   unshared: <I18n en="Access removed." fr="Accès retiré." />,
-  "invite-withdrawn": <I18n en="Invitation withdrawn." fr="Invitation retirée." />,
+  "invite-withdrawn": (
+    <I18n en="Invitation withdrawn." fr="Invitation retirée." />
+  ),
 };
 
 const emailFailed = (
@@ -58,7 +61,7 @@ const emailFailed = (
   />
 );
 
-const SharedUsersList = ({ record, region }) => {
+const SharedUsersList = ({ record, updateRecord, region }) => {
   const { shareRecord, unshareRecord } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -69,12 +72,15 @@ const SharedUsersList = ({ record, region }) => {
   const pendingShares = record.pendingShares || {};
   const emailIsValid = Boolean(email.trim()) && validateEmail(email.trim());
 
-  // The record is kept in sync by MetadataForm's onValue listener, so there is
-  // nothing to update locally once the server has written the change.
+  // Shares live server-side, outside the record document, so pull the fresh
+  // lists back into form state once the server has written the change.
   const run = async (call, args) => {
     setBusy(true);
     try {
       const { data } = await call(args);
+      const fresh = await getRecord(region, recordID);
+      updateRecord("sharedWith")(fresh.sharedWith || {});
+      updateRecord("pendingShares")(fresh.pendingShares || {});
       const failed = data.emailSent === false;
       setFeedback({
         severity: failed ? "warning" : "success",
@@ -106,14 +112,15 @@ const SharedUsersList = ({ record, region }) => {
           <Typography>
             <I18n>
               <En>
-                To share editing access, enter the email address of the person you
-                want to share this record with. If they don't have an account yet,
-                they will be invited to create one.
+                To share editing access, enter the email address of the person
+                you want to share this record with. If they don't have an
+                account yet, they will be invited to create one.
               </En>
               <Fr>
-                Pour partager l'accès en modification, saisissez l'adresse courriel
-                de la personne avec qui vous souhaitez partager cet enregistrement.
-                Si elle n'a pas encore de compte, elle sera invitée à en créer un.
+                Pour partager l'accès en modification, saisissez l'adresse
+                courriel de la personne avec qui vous souhaitez partager cet
+                enregistrement. Si elle n'a pas encore de compte, elle sera
+                invitée à en créer un.
               </Fr>
             </I18n>
           </Typography>
@@ -123,7 +130,9 @@ const SharedUsersList = ({ record, region }) => {
                 <p>Please save the form before sharing access.</p>
               </En>
               <Fr>
-                <p>Veuillez enregistrer le formulaire avant de partager l'accès.</p>
+                <p>
+                  Veuillez enregistrer le formulaire avant de partager l'accès.
+                </p>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -137,7 +146,8 @@ const SharedUsersList = ({ record, region }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && recordID && emailIsValid && !busy) share();
+                  if (e.key === "Enter" && recordID && emailIsValid && !busy)
+                    share();
                 }}
                 fullWidth
                 label={<I18n en="Share with..." fr="Partager avec..." />}
@@ -173,7 +183,7 @@ const SharedUsersList = ({ record, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
+            <Grid size={{ xs: 12, md: 6 }} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {(Object.keys(sharedWith).length > 0 ||
@@ -181,7 +191,8 @@ const SharedUsersList = ({ record, region }) => {
                     <I18n>
                       <En>Users this record is shared with:</En>
                       <Fr>
-                        Utilisateurs avec lesquels cet enregistrement est partagé :
+                        Utilisateurs avec lesquels cet enregistrement est
+                        partagé :
                       </Fr>
                     </I18n>
                   )}
@@ -200,7 +211,11 @@ const SharedUsersList = ({ record, region }) => {
                           disabled={busy}
                           style={{ marginRight: "60px" }}
                           onClick={() =>
-                            run(unshareRecord, { region, recordID, uid: userID })
+                            run(unshareRecord, {
+                              region,
+                              recordID,
+                              uid: userID,
+                            })
                           }
                         >
                           <Delete />
@@ -208,35 +223,44 @@ const SharedUsersList = ({ record, region }) => {
                       </ListItemSecondaryAction>
                     </ListItem>
                   ))}
-                  {Object.entries(pendingShares).map(([inviteKey, pendingEmail]) => (
-                    <ListItem key={inviteKey}>
-                      <ListItemText
-                        primary={<Typography>{pendingEmail}</Typography>}
-                        secondary={
-                          <Chip
-                            size="small"
-                            label={
-                              <I18n en="Invitation sent" fr="Invitation envoyée" />
+                  {Object.entries(pendingShares).map(
+                    ([inviteKey, pendingEmail]) => (
+                      <ListItem key={inviteKey}>
+                        <ListItemText
+                          primary={<Typography>{pendingEmail}</Typography>}
+                          secondary={
+                            <Chip
+                              size="small"
+                              label={
+                                <I18n
+                                  en="Invitation sent"
+                                  fr="Invitation envoyée"
+                                />
+                              }
+                            />
+                          }
+                          // a Chip is a div, which can't live inside <p>
+                          slotProps={{ secondary: { component: "div" } }}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton
+                            aria-label="delete"
+                            disabled={busy}
+                            style={{ marginRight: "60px" }}
+                            onClick={() =>
+                              run(unshareRecord, {
+                                region,
+                                recordID,
+                                inviteKey,
+                              })
                             }
-                          />
-                        }
-                        // a Chip is a div, which can't live inside <p>
-                        slotProps={{ secondary: { component: "div" } }}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          aria-label="delete"
-                          disabled={busy}
-                          style={{ marginRight: "60px" }}
-                          onClick={() =>
-                            run(unshareRecord, { region, recordID, inviteKey })
-                          }
-                        >
-                          <Delete />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    ),
+                  )}
                 </List>
               </Box>
             </Grid>

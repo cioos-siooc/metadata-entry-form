@@ -65,14 +65,14 @@ describe("githubPublishRecord", () => {
 
   const data = {
     region: "test-region",
-    files: [
-      { path: "test.xml", content: "<xml/>" },
-    ],
+    files: [{ path: "test.xml", content: "<xml/>" }],
     commitMessage: "test commit",
   };
 
   it("should fail if user is unauthenticated", async () => {
-    await expect(githubPublishRecord(data, {})).rejects.toThrow("The function must be called while authenticated.");
+    await expect(githubPublishRecord(data, {})).rejects.toThrow(
+      "The function must be called while authenticated.",
+    );
   });
 
   it("should fail if permissions are denied", async () => {
@@ -82,18 +82,22 @@ describe("githubPublishRecord", () => {
       reviewers: "reviewer@example.com",
     });
 
-    await expect(githubPublishRecord(data, context)).rejects.toThrow("User must be an admin or reviewer.");
+    await expect(githubPublishRecord(data, context)).rejects.toThrow(
+      "User must be an admin or reviewer.",
+    );
   });
 
   it("should succeed with valid permissions and config", async () => {
     const mockSnapshot = await admin.database().ref().once();
-    
+
     // 1. Permissions mock
     mockSnapshot.val
-      .mockReturnValueOnce({ // first call in checkPermissions
+      .mockReturnValueOnce({
+        // first call in checkPermissions
         admins: "test@example.com",
       })
-      .mockReturnValueOnce({ // second call for config
+      .mockReturnValueOnce({
+        // second call for config
         token: "gh-token",
         owner: "test-owner",
         repo: "test-repo",
@@ -119,12 +123,14 @@ describe("githubPublishRecord", () => {
 
     expect(result.success).toBe(true);
     expect(result.commitSha).toBe("new-commit-sha");
-    
-    expect(mockOctokitInstance.rest.git.createTree).toHaveBeenCalledWith(expect.objectContaining({
-      base_tree: "tree-sha",
-      tree: expect.arrayContaining([
-        expect.objectContaining({ path: "test.xml", content: "<xml/>" }),
-      ]),
-    }));
+
+    expect(mockOctokitInstance.rest.git.createTree).toHaveBeenCalledWith(
+      expect.objectContaining({
+        base_tree: "tree-sha",
+        tree: expect.arrayContaining([
+          expect.objectContaining({ path: "test.xml", content: "<xml/>" }),
+        ]),
+      }),
+    );
   });
 });

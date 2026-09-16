@@ -85,7 +85,7 @@ const ContactLeftList = ({
   const handleAddFromSavedContacts = useCallback(
     (e) => {
       const index = e.target.value;
-      const { role, ...contact } = contactList[index];
+      const { ...contact } = contactList[index];
 
       updateContacts(
         contacts.concat(deepCopy({ ...getBlankContact(), ...contact })),
@@ -103,7 +103,7 @@ const ContactLeftList = ({
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" justifyContent="flex-start">
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             {contacts.length ? (
               <I18n>
@@ -118,7 +118,7 @@ const ContactLeftList = ({
             )}
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <List>
             <SortableList
               items={contacts}
@@ -233,7 +233,7 @@ const ContactLeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={handleAddNewContact}
@@ -248,13 +248,13 @@ const ContactLeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedContacts}
-            optionLabels={contactList.map((contactItem) => (
-              <ContactTitle contact={contactItem} />
+            optionLabels={contactList.map((contactItem, i) => (
+              <ContactTitle key={i} contact={contactItem} />
             ))}
             options={contactList.map((v, i) => i)}
             disabled={!contactList.length || disabled}

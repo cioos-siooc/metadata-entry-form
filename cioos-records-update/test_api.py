@@ -1,7 +1,8 @@
-import pytest
 import json
-from pathlib import Path
 import os
+from pathlib import Path
+
+import pytest
 
 firebase_key = Path(__file__).parent / "key.json"
 os.environ["FIREBASE_SERVICE_ACCOUNT_KEY"] = firebase_key.read_text()
@@ -38,7 +39,7 @@ local_test_records = list((Path(__file__).parent / "tests" / "data").glob("*.jso
 
 @pytest.fixture
 def local_record():
-    with open(local_test_records[0], "r") as f:
+    with open(local_test_records[0]) as f:
         return json.load(f)
 
 
@@ -56,7 +57,7 @@ def test_record(client, record_id, waf_url):
 
 
 @pytest.mark.dependancy(depends=["test_record"])
-@pytest.mark.parametrize("record_id,filename", zip(record_ids, filenames))
+@pytest.mark.parametrize("record_id,filename", zip(record_ids, filenames, strict=False))
 def test_delete_record(client, record_id, filename):
     response = client.get(f"/recordDelete?filename={filename}")
     assert response.status_code == 200
