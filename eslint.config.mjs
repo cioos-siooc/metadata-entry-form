@@ -100,6 +100,18 @@ export default [
     },
   },
   {
+    // Jest test files for the API server (Node CommonJS).
+    files: ["server/test/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+  },
+  {
     ignores: [
       "build/**",
       "dist/**",

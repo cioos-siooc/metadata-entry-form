@@ -156,7 +156,6 @@ exports.notifyUser = functions.database
       console.log("Emailing ", authorEmail);
 
       const record = recordFB.toJSON();
-      const { language } = record;
       const titleEn = record.title && record.title.en;
       const titleFr = record.title && record.title.fr;
 

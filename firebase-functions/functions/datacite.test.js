@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-const functions = require("firebase-functions");
 const axios = require("axios");
 
 // Mock firebase-admin
@@ -84,7 +83,7 @@ function mockFirebaseDbReads(values) {
     };
     // child returns another chainable or terminal with once()
     obj.child.mockImplementation((fieldName) => {
-      if (resolvedValues.hasOwnProperty(fieldName)) {
+      if (Object.prototype.hasOwnProperty.call(resolvedValues, fieldName)) {
         return {
           once: jest.fn().mockResolvedValue({ val: () => resolvedValues[fieldName] }),
           child: obj.child,

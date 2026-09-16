@@ -30,7 +30,7 @@ try:  # pragma: no cover - exercised only with the real library installed
     from cioos_metadata_conversion.record import Record
 
     CONVERSION_IMPORT_ERROR = None
-except Exception as err:  # pragma: no cover
+except Exception as err:  # noqa: BLE001  # pragma: no cover
     Record = None
     CONVERSION_IMPORT_ERROR = err
 
@@ -58,8 +58,13 @@ try:  # pragma: no cover - exercised only with the real library installed
         "pdc": retrieve_pdc_as_firebase_record,
     }
     # "We looked, it isn't there / isn't valid" as opposed to "something broke".
-    NOT_FOUND_ERRORS = (DOIRetrievalError, PDCRetrievalError, requests.HTTPError, ValueError)
-except Exception:  # pragma: no cover
+    NOT_FOUND_ERRORS = (
+        DOIRetrievalError,
+        PDCRetrievalError,
+        requests.HTTPError,
+        ValueError,
+    )
+except Exception:  # noqa: BLE001  # pragma: no cover
     SOURCE_LOADERS = {}
     NOT_FOUND_ERRORS = ()
 
@@ -166,7 +171,9 @@ def convert(body: ConvertRequest):
         raise
     except Exception as err:  # pylint: disable=broad-except
         logger.exception("Conversion failed")
-        raise HTTPException(status_code=500, detail=f"Conversion failed: {err}") from err
+        raise HTTPException(
+            status_code=500, detail=f"Conversion failed: {err}"
+        ) from err
     return {"data": converted}
 
 
@@ -191,7 +198,9 @@ def record_update(body: RecordRequest):
         raise
     except Exception as err:  # pylint: disable=broad-except
         logger.exception("Error creating xml")
-        raise HTTPException(status_code=500, detail=f"Error creating xml: {err}") from err
+        raise HTTPException(
+            status_code=500, detail=f"Error creating xml: {err}"
+        ) from err
 
     xml_path, yaml_path = record_paths(body.region, basename)
     xml_path.parent.mkdir(parents=True, exist_ok=True)
@@ -217,12 +226,17 @@ def record_from_source(body: RecordFromSourceRequest):
     """Returns {"data": <record>} built from an external catalogue entry."""
     identifier = body.identifier.strip()
     if body.source_type not in SOURCE_TYPES:
-        raise HTTPException(status_code=400, detail=f"source_type must be one of {list(SOURCE_TYPES)}")
+        raise HTTPException(
+            status_code=400, detail=f"source_type must be one of {list(SOURCE_TYPES)}"
+        )
     if not identifier:
         raise HTTPException(status_code=400, detail="identifier is required")
     loader = SOURCE_LOADERS.get(body.source_type)
     if loader is None:
-        raise HTTPException(status_code=503, detail="cioos-metadata-conversion loaders are not installed")
+        raise HTTPException(
+            status_code=503,
+            detail="cioos-metadata-conversion loaders are not installed",
+        )
 
     try:
         record = loader(identifier)
@@ -234,5 +248,7 @@ def record_from_source(body: RecordFromSourceRequest):
         ) from err
     except Exception as err:  # pylint: disable=broad-except
         logger.exception("Record retrieval failed")
-        raise HTTPException(status_code=500, detail=f"Record retrieval failed: {err}") from err
+        raise HTTPException(
+            status_code=500, detail=f"Record retrieval failed: {err}"
+        ) from err
     return {"data": record}

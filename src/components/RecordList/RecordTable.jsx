@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useContext } from "react";
+import { useMemo, useCallback, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
