@@ -1,5 +1,10 @@
 const { randomUUID } = require("crypto");
-const { buildTestApp, signToken, authHeader, envSuperadmin } = require("./helpers");
+const {
+  buildTestApp,
+  signToken,
+  authHeader,
+  envSuperadmin,
+} = require("./helpers");
 const { query, pool } = require("../src/db");
 
 describe("regions API", () => {
@@ -126,7 +131,9 @@ describe("regions API", () => {
       method: "PUT",
       url: `/api/v1/regions/${id}`,
       headers: authHeader(superadmin.token),
-      payload: { config: { title: { en: "After" }, showInRegionSelector: false } },
+      payload: {
+        config: { title: { en: "After" }, showInRegionSelector: false },
+      },
     });
     expect(updated.statusCode).toBe(200);
 

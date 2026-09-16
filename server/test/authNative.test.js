@@ -19,23 +19,36 @@ const { query } = require("../src/db");
 
 const pkce = () => {
   const verifier = randomBytes(32).toString("base64url");
-  return { verifier, challenge: createHash("sha256").update(verifier).digest("base64url") };
+  return {
+    verifier,
+    challenge: createHash("sha256").update(verifier).digest("base64url"),
+  };
 };
 
 /** Creates a verified local account and returns a native session for it. */
-async function nativeLogin(app, { email, password = "sup3rsecret!", deviceName } = {}) {
+async function nativeLogin(
+  app,
+  { email, password = "sup3rsecret!", deviceName } = {},
+) {
   const mail = email ?? `native-${randomUUID()}@test.example`;
   await app.inject({
     method: "POST",
     url: "/api/v1/auth/register",
     payload: { email: mail, password, name: "Native Tester" },
   });
-  await query("UPDATE users SET email_verified = true WHERE email = $1", [mail]);
+  await query("UPDATE users SET email_verified = true WHERE email = $1", [
+    mail,
+  ]);
 
   const res = await app.inject({
     method: "POST",
     url: "/api/v1/auth/token",
-    payload: { email: mail, password, deviceId: "device-1", deviceName: deviceName || "iPhone" },
+    payload: {
+      email: mail,
+      password,
+      deviceId: "device-1",
+      deviceName: deviceName || "iPhone",
+    },
   });
   return { email: mail, password, res, body: res.json() };
 }
@@ -60,13 +73,16 @@ describe("native sessions", () => {
       expect(body.user.email).toBeTruthy();
 
       // The whole point of the native namespace: no Set-Cookie to depend on.
-      expect(res.cookies.find((c) => c.name === "refresh_token")).toBeUndefined();
+      expect(
+        res.cookies.find((c) => c.name === "refresh_token"),
+      ).toBeUndefined();
     });
 
     test("native refresh tokens outlive web ones", async () => {
       const { body } = await nativeLogin(app);
       const days =
-        (new Date(body.refreshTokenExpiresAt) - Date.now()) / (1000 * 60 * 60 * 24);
+        (new Date(body.refreshTokenExpiresAt) - Date.now()) /
+        (1000 * 60 * 60 * 24);
       // 90-day default, well beyond the web 30.
       expect(days).toBeGreaterThan(60);
     });
@@ -81,9 +97,11 @@ describe("native sessions", () => {
       });
       expect(sessions.statusCode).toBe(200);
       const mine = sessions.json();
-      expect(mine.some((s) => s.deviceName === "Deck iPad" && s.clientType === "native")).toBe(
-        true,
-      );
+      expect(
+        mine.some(
+          (s) => s.deviceName === "Deck iPad" && s.clientType === "native",
+        ),
+      ).toBe(true);
     });
 
     test("rejects an unverified account", async () => {
@@ -114,7 +132,11 @@ describe("native sessions", () => {
 
   describe("POST /auth/token/refresh", () => {
     const refresh = (refreshToken) =>
-      app.inject({ method: "POST", url: "/api/v1/auth/token/refresh", payload: { refreshToken } });
+      app.inject({
+        method: "POST",
+        url: "/api/v1/auth/token/refresh",
+        payload: { refreshToken },
+      });
 
     test("rotates: the old token stops working, the new one works", async () => {
       const { body } = await nativeLogin(app);
@@ -251,7 +273,10 @@ describe("native sessions", () => {
       const { challenge } = pkce();
       const state = await startNative("ca.cioos.metadata://auth", challenge);
 
-      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
+      const cb = await completeCallback(
+        state,
+        `oauth-native-${randomUUID()}@test.example`,
+      );
       expect(cb.statusCode).toBe(302);
 
       const location = cb.headers.location;
@@ -261,13 +286,18 @@ describe("native sessions", () => {
       expect(url.searchParams.get("code")).toBeTruthy();
       // The refresh token must never travel in a custom-scheme URL.
       expect(location).not.toContain("refreshToken");
-      expect(cb.cookies.find((c) => c.name === "refresh_token")).toBeUndefined();
+      expect(
+        cb.cookies.find((c) => c.name === "refresh_token"),
+      ).toBeUndefined();
     });
 
     test("the code exchanges for tokens with the right verifier", async () => {
       const { verifier, challenge } = pkce();
       const state = await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
+      const cb = await completeCallback(
+        state,
+        `oauth-native-${randomUUID()}@test.example`,
+      );
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const res = await app.inject({
@@ -284,7 +314,10 @@ describe("native sessions", () => {
       // and any installed app can register the same scheme.
       const { challenge } = pkce();
       const state = await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
+      const cb = await completeCallback(
+        state,
+        `oauth-native-${randomUUID()}@test.example`,
+      );
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const res = await app.inject({
@@ -298,7 +331,10 @@ describe("native sessions", () => {
     test("a code is single use", async () => {
       const { verifier, challenge } = pkce();
       const state = await startNative("ca.cioos.metadata://auth", challenge);
-      const cb = await completeCallback(state, `oauth-native-${randomUUID()}@test.example`);
+      const cb = await completeCallback(
+        state,
+        `oauth-native-${randomUUID()}@test.example`,
+      );
       const code = new URL(cb.headers.location).searchParams.get("code");
 
       const exchange = () =>

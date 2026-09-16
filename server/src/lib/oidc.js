@@ -26,7 +26,11 @@ async function getConfig(provider) {
   }
   if (!configs[provider]) {
     const client = await oc();
-    configs[provider] = await client.discovery(new URL(p.discoveryUrl), p.clientId, p.clientSecret);
+    configs[provider] = await client.discovery(
+      new URL(p.discoveryUrl),
+      p.clientId,
+      p.clientSecret,
+    );
   }
   return configs[provider];
 }
@@ -57,7 +61,11 @@ async function startAuth(provider) {
 
 // Exchanges the callback code for tokens, validates the ID token, and returns
 // normalized identity claims.
-async function completeAuth(provider, currentUrl, { codeVerifier, nonce, state }) {
+async function completeAuth(
+  provider,
+  currentUrl,
+  { codeVerifier, nonce, state },
+) {
   const client = await oc();
   const cfg = await getConfig(provider);
   const tokens = await client.authorizationCodeGrant(cfg, new URL(currentUrl), {
@@ -70,7 +78,8 @@ async function completeAuth(provider, currentUrl, { codeVerifier, nonce, state }
   return {
     providerSubject: claims.sub,
     email: claims.email || null,
-    emailVerified: claims.email_verified === true || claims.email_verified === "true",
+    emailVerified:
+      claims.email_verified === true || claims.email_verified === "true",
     name: claims.name || claims.given_name || null,
   };
 }

@@ -10,7 +10,9 @@ describe("localized()", () => {
   describe("reads all three real-world shapes", () => {
     test("nested { en, fr } pair", () => {
       expect(localized({ en: "Oxygen", fr: "Oxygène" }, "fr")).toBe("Oxygène");
-      expect(localized(eovCategories.Biogeochemical, "fr")).toBe("Biogéochimie");
+      expect(localized(eovCategories.Biogeochemical, "fr")).toBe(
+        "Biogéochimie",
+      );
     });
 
     test("snake suffix — platforms.json", () => {
@@ -36,8 +38,12 @@ describe("localized()", () => {
   describe("fallback", () => {
     test("falls back to the other language by default", () => {
       expect(localized({ en: "Only English" }, "fr")).toBe("Only English");
-      expect(localized({ en: "Only English", fr: "" }, "fr")).toBe("Only English");
-      expect(localized({ label_en: "Only English" }, "fr", "label")).toBe("Only English");
+      expect(localized({ en: "Only English", fr: "" }, "fr")).toBe(
+        "Only English",
+      );
+      expect(localized({ label_en: "Only English" }, "fr", "label")).toBe(
+        "Only English",
+      );
     });
 
     test("real case: most licenses have no French title", () => {
@@ -58,7 +64,9 @@ describe("localized()", () => {
 
     test("fallback can be turned off for user-authored content", () => {
       const recordTitle = { en: "Hakai nearshore CTD", fr: "" };
-      expect(localized(recordTitle, "fr", undefined, { fallback: false })).toBe("");
+      expect(localized(recordTitle, "fr", undefined, { fallback: false })).toBe(
+        "",
+      );
       expect(localized(recordTitle, "fr")).toBe("Hakai nearshore CTD");
     });
 

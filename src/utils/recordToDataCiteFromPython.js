@@ -71,20 +71,28 @@ export async function recordToDataCiteFromPython(
     // This URL will be the permanent location of the dataset once published
     const recordLanguage = record.language || language;
     if (!recordLanguage) {
-      throw new Error("Please assign a primary language to the record before creating a DOI.");
+      throw new Error(
+        "Please assign a primary language to the record before creating a DOI.",
+      );
     }
     const catalogueUrl = regions[region]?.catalogueURL?.[recordLanguage];
     if (!catalogueUrl) {
-      throw new Error(`Invalid region/language combination: ${region}/${recordLanguage}`);
+      throw new Error(
+        `Invalid region/language combination: ${region}/${recordLanguage}`,
+      );
     }
 
     dataciteObject.url = `${catalogueUrl}dataset/ca-cioos_${record.identifier}`;
 
     // Step 4b: If no publisher was set by the conversion (no contact with publisher role),
     // fall back to the region's organization as the default publisher.
-    if (!dataciteObject.publisher || dataciteObject.publisher.name === ":unav") {
+    if (
+      !dataciteObject.publisher ||
+      dataciteObject.publisher.name === ":unav"
+    ) {
       const regionConfig = regions[region] || {};
-      const regionTitle = regionConfig.title?.[recordLanguage] || regionConfig.title?.en;
+      const regionTitle =
+        regionConfig.title?.[recordLanguage] || regionConfig.title?.en;
       if (regionTitle) {
         const publisher = { name: regionTitle, lang: recordLanguage };
         if (regionConfig.ror) {

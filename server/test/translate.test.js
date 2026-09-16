@@ -87,7 +87,9 @@ describe("translate", () => {
     it("strips <text_to_translate> wrapper tags echoed by the model", async () => {
       mockChat.mockResolvedValue({
         message: {
-          content: [{ text: "<text_to_translate>\nBonjour\n</text_to_translate>" }],
+          content: [
+            { text: "<text_to_translate>\nBonjour\n</text_to_translate>" },
+          ],
         },
       });
 
@@ -106,7 +108,9 @@ describe("translate", () => {
     it("throws when the Cohere API errors", async () => {
       mockChat.mockRejectedValue(new Error("API rate limit"));
 
-      await expect(translateText("hello", "en")).rejects.toThrow("API rate limit");
+      await expect(translateText("hello", "en")).rejects.toThrow(
+        "API rate limit",
+      );
     });
   });
 

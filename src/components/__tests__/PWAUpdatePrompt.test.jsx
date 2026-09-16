@@ -43,6 +43,8 @@ describe("<PWAUpdatePrompt />", () => {
         <PWAUpdatePrompt />
       </MemoryRouter>,
     );
-    expect(screen.queryByText(/new version is available/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/new version is available/),
+    ).not.toBeInTheDocument();
   });
 });

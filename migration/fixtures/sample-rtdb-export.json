@@ -8,7 +8,10 @@
         },
         "records": {
           "fixture-rec-1": {
-            "title": { "en": "Fixture Published Record", "fr": "Enregistrement publie" },
+            "title": {
+              "en": "Fixture Published Record",
+              "fr": "Enregistrement publie"
+            },
             "status": "published",
             "created": "2021-05-04T12:00:00.000Z",
             "timeFirstPublished": "2021-06-01T00:00:00.000Z",
@@ -17,8 +20,14 @@
             "filename": "fixture_published_record_3f250",
             "language": "en",
             "license": "CC-BY-4.0",
-            "abstract": { "en": "A published fixture record", "fr": "Un enregistrement" },
-            "keywords": { "en": { "0": "oceans", "1": "fixture" }, "fr": { "0": "oceans-fr" } },
+            "abstract": {
+              "en": "A published fixture record",
+              "fr": "Un enregistrement"
+            },
+            "keywords": {
+              "en": { "0": "oceans", "1": "fixture" },
+              "fr": { "0": "oceans-fr" }
+            },
             "eov": { "0": "oxygen", "1": "seaSurfaceTemperature" },
             "distribution": {
               "0": {
@@ -36,10 +45,22 @@
                 "inCitation": true
               }
             },
-            "map": { "north": "60", "south": "50", "east": "-120", "west": "-130", "polygon": "" },
+            "map": {
+              "north": "60",
+              "south": "50",
+              "east": "-120",
+              "west": "-130",
+              "polygon": ""
+            },
             "progress": "onGoing",
-            "sharedWith": { "fixture-uid-bob": true, "fixture-uid-ghost": true },
-            "lastEditedBy": { "name": "Alice Fixture", "email": "alice@fixture.example" }
+            "sharedWith": {
+              "fixture-uid-bob": true,
+              "fixture-uid-ghost": true
+            },
+            "lastEditedBy": {
+              "name": "Alice Fixture",
+              "email": "alice@fixture.example"
+            }
           },
           "fixture-rec-2": {
             "title": { "en": "Fixture Draft Missing Status", "fr": "" },

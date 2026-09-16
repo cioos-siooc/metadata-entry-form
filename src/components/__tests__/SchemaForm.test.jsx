@@ -73,7 +73,9 @@ describe("<SchemaForm />", () => {
 
   it("blocks submit and shows an error when a required field is missing", async () => {
     renderForm({ onSubmit });
-    fireEvent.submit(screen.getByRole("button", { name: /submit/i }).closest("form"));
+    fireEvent.submit(
+      screen.getByRole("button", { name: /submit/i }).closest("form"),
+    );
     await waitFor(() => {
       expect(screen.getAllByText(/required/i).length).toBeGreaterThan(0);
     });
@@ -82,7 +84,9 @@ describe("<SchemaForm />", () => {
 
   it("submits valid data", async () => {
     renderForm({ onSubmit, formData: { name: "Buoy 7" } });
-    fireEvent.submit(screen.getByRole("button", { name: /submit/i }).closest("form"));
+    fireEvent.submit(
+      screen.getByRole("button", { name: /submit/i }).closest("form"),
+    );
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ name: "Buoy 7" });
   });

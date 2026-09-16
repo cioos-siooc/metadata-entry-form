@@ -38,14 +38,17 @@ async function authRoutes(app) {
   app.post("/auth/register", async (request, reply) => {
     const { email, password, name } = request.body || {};
     if (!email || !password || password.length < MIN_PASSWORD) {
-      return reply
-        .code(400)
-        .send({ error: `Email and a password of at least ${MIN_PASSWORD} characters are required` });
+      return reply.code(400).send({
+        error: `Email and a password of at least ${MIN_PASSWORD} characters are required`,
+      });
     }
     const normEmail = String(email).trim().toLowerCase();
     const passwordHash = await argon2.hash(password);
 
-    const existing = await query("SELECT id, password_hash FROM users WHERE email = $1", [normEmail]);
+    const existing = await query(
+      "SELECT id, password_hash FROM users WHERE email = $1",
+      [normEmail],
+    );
     if (!existing.rows.length) {
       const inserted = await query(
         "INSERT INTO users (email, display_name, password_hash, email_verified) VALUES ($1, $2, $3, false) RETURNING id",
@@ -58,7 +61,10 @@ async function authRoutes(app) {
       );
       const token = await createEmailToken(userId, "verify_email");
       await sendVerifyEmail(normEmail, token).catch((err) =>
-        request.log.error({ err: err.message }, "failed to send verification email"),
+        request.log.error(
+          { err: err.message },
+          "failed to send verification email",
+        ),
       );
     }
     // An account already exists. Do nothing.
@@ -82,7 +88,8 @@ async function authRoutes(app) {
     const { token } = request.body || {};
     if (!token) return reply.code(400).send({ error: "Missing token" });
     const userId = await consumeEmailToken(token, "verify_email");
-    if (!userId) return reply.code(400).send({ error: "Invalid or expired token" });
+    if (!userId)
+      return reply.code(400).send({ error: "Invalid or expired token" });
     const verified = await query(
       "UPDATE users SET email_verified = true WHERE id = $1 RETURNING email",
       [userId],
@@ -93,10 +100,13 @@ async function authRoutes(app) {
 
   app.post("/auth/login", async (request, reply) => {
     const { email, password } = request.body || {};
-    if (!email || !password) return reply.code(400).send({ error: "Email and password are required" });
+    if (!email || !password)
+      return reply.code(400).send({ error: "Email and password are required" });
     const normEmail = String(email).trim().toLowerCase();
 
-    const row = await query("SELECT * FROM users WHERE email = $1", [normEmail]);
+    const row = await query("SELECT * FROM users WHERE email = $1", [
+      normEmail,
+    ]);
     const user = row.rows[0];
     // Verify against the stored hash, or a dummy to keep timing ~constant.
     const hash = user?.password_hash;
@@ -112,11 +122,15 @@ async function authRoutes(app) {
       return reply.code(401).send({ error: "Invalid email or password" });
     }
     if (!user.email_verified) {
-      return reply.code(403).send({ error: "Please verify your email address before signing in" });
+      return reply
+        .code(403)
+        .send({ error: "Please verify your email address before signing in" });
     }
 
     const accessToken = await startSession(reply, user);
-    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [user.id]);
+    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [
+      user.id,
+    ]);
     return { accessToken, user: publicUser(user) };
   });
 
@@ -128,7 +142,9 @@ async function authRoutes(app) {
       clearRefreshCookie(reply);
       return reply.code(401).send({ error: "Session expired" });
     }
-    const row = await query("SELECT * FROM users WHERE id = $1", [rotated.userId]);
+    const row = await query("SELECT * FROM users WHERE id = $1", [
+      rotated.userId,
+    ]);
     if (!row.rows.length) {
       clearRefreshCookie(reply);
       return reply.code(401).send({ error: "Session expired" });
@@ -149,7 +165,10 @@ async function authRoutes(app) {
     const { email } = request.body || {};
     if (email) {
       const normEmail = String(email).trim().toLowerCase();
-      const row = await query("SELECT id, password_hash FROM users WHERE email = $1", [normEmail]);
+      const row = await query(
+        "SELECT id, password_hash FROM users WHERE email = $1",
+        [normEmail],
+      );
       // Deliberately does NOT require an existing password_hash. An OAuth-only
       // user has none, and this is their legitimate route to one — clicking an
       // emailed link proves control of the address, which is the same trust
@@ -159,7 +178,9 @@ async function authRoutes(app) {
       if (row.rows.length) {
         const isFirstPassword = !row.rows[0].password_hash;
         const token = await createEmailToken(row.rows[0].id, "reset_password");
-        await sendPasswordResetEmail(normEmail, token, { isFirstPassword }).catch((err) =>
+        await sendPasswordResetEmail(normEmail, token, {
+          isFirstPassword,
+        }).catch((err) =>
           request.log.error({ err: err.message }, "failed to send reset email"),
         );
       }
@@ -171,18 +192,19 @@ async function authRoutes(app) {
   app.post("/auth/password/reset", async (request, reply) => {
     const { token, newPassword } = request.body || {};
     if (!token || !newPassword || newPassword.length < MIN_PASSWORD) {
-      return reply
-        .code(400)
-        .send({ error: `A valid token and a password of at least ${MIN_PASSWORD} characters are required` });
+      return reply.code(400).send({
+        error: `A valid token and a password of at least ${MIN_PASSWORD} characters are required`,
+      });
     }
     const userId = await consumeEmailToken(token, "reset_password");
-    if (!userId) return reply.code(400).send({ error: "Invalid or expired token" });
+    if (!userId)
+      return reply.code(400).send({ error: "Invalid or expired token" });
     const passwordHash = await argon2.hash(newPassword);
     // Resetting via an emailed link also proves control of the address.
-    await query("UPDATE users SET password_hash = $2, email_verified = true WHERE id = $1", [
-      userId,
-      passwordHash,
-    ]);
+    await query(
+      "UPDATE users SET password_hash = $2, email_verified = true WHERE id = $1",
+      [userId, passwordHash],
+    );
     // An OAuth-only account setting its first password has no `local` identity
     // row yet. Register used to create one; it no longer runs for existing
     // accounts, so do it here.
@@ -202,41 +224,52 @@ async function authRoutes(app) {
   // Set or change a password while signed in. This is what the native client
   // uses: deep-linking an emailed token back into an app webview is fiddly and
   // a known App Store review snag.
-  app.post("/auth/password", { preHandler: [app.authenticate] }, async (request, reply) => {
-    const { currentPassword, newPassword } = request.body || {};
-    if (!newPassword || newPassword.length < MIN_PASSWORD) {
-      return reply
-        .code(400)
-        .send({ error: `A password of at least ${MIN_PASSWORD} characters is required` });
-    }
+  app.post(
+    "/auth/password",
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const { currentPassword, newPassword } = request.body || {};
+      if (!newPassword || newPassword.length < MIN_PASSWORD) {
+        return reply.code(400).send({
+          error: `A password of at least ${MIN_PASSWORD} characters is required`,
+        });
+      }
 
-    const row = await query("SELECT password_hash FROM users WHERE id = $1", [request.user.id]);
-    const existingHash = row.rows[0]?.password_hash;
+      const row = await query("SELECT password_hash FROM users WHERE id = $1", [
+        request.user.id,
+      ]);
+      const existingHash = row.rows[0]?.password_hash;
 
-    // Only required when there is one to prove — an OAuth-only account is
-    // already authenticated by its bearer token.
-    if (existingHash) {
-      const ok =
-        Boolean(currentPassword) &&
-        (await argon2.verify(existingHash, currentPassword).catch(() => false));
-      if (!ok) return reply.code(403).send({ error: "Current password is incorrect" });
-    }
+      // Only required when there is one to prove — an OAuth-only account is
+      // already authenticated by its bearer token.
+      if (existingHash) {
+        const ok =
+          Boolean(currentPassword) &&
+          (await argon2
+            .verify(existingHash, currentPassword)
+            .catch(() => false));
+        if (!ok)
+          return reply
+            .code(403)
+            .send({ error: "Current password is incorrect" });
+      }
 
-    await query("UPDATE users SET password_hash = $2 WHERE id = $1", [
-      request.user.id,
-      await argon2.hash(newPassword),
-    ]);
-    await query(
-      "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
-        // Casts are required: $1 is a uuid for user_id but text for
-        // provider_subject, and Postgres refuses to deduce both from one
-        // parameter ("inconsistent types deduced for parameter $1").
-        "SELECT $1::uuid, 'local', $1::text, email FROM users WHERE id = $1::uuid " +
-        "ON CONFLICT (provider, provider_subject) DO NOTHING",
-      [request.user.id],
-    );
-    return { ok: true };
-  });
+      await query("UPDATE users SET password_hash = $2 WHERE id = $1", [
+        request.user.id,
+        await argon2.hash(newPassword),
+      ]);
+      await query(
+        "INSERT INTO user_identities (user_id, provider, provider_subject, email) " +
+          // Casts are required: $1 is a uuid for user_id but text for
+          // provider_subject, and Postgres refuses to deduce both from one
+          // parameter ("inconsistent types deduced for parameter $1").
+          "SELECT $1::uuid, 'local', $1::text, email FROM users WHERE id = $1::uuid " +
+          "ON CONFLICT (provider, provider_subject) DO NOTHING",
+        [request.user.id],
+      );
+      return { ok: true };
+    },
+  );
 
   // --- Social / OIDC providers --------------------------------------------
 
@@ -256,7 +289,9 @@ async function authRoutes(app) {
     const isNative = request.query.client === "native";
     const appCodeChallenge = isNative ? request.query.codeChallenge : null;
     if (isNative && !appCodeChallenge) {
-      return reply.code(400).send({ error: "codeChallenge is required for native sign-in" });
+      return reply
+        .code(400)
+        .send({ error: "codeChallenge is required for native sign-in" });
     }
 
     await query(
@@ -292,7 +327,9 @@ async function authRoutes(app) {
     const fail = (msg) => {
       const base = failTarget ?? `${config.spaBaseUrl}/#/`;
       const sep = base.includes("?") ? "&" : "?";
-      return reply.redirect(`${base}${sep}auth_error=${encodeURIComponent(msg)}`);
+      return reply.redirect(
+        `${base}${sep}auth_error=${encodeURIComponent(msg)}`,
+      );
     };
 
     if (!state) return fail("Missing state");
@@ -300,13 +337,16 @@ async function authRoutes(app) {
       "DELETE FROM oauth_flows WHERE state = $1 AND provider = $2 RETURNING *",
       [state, provider],
     );
-    if (!flowRow.rows.length) return fail("Login session expired, please try again");
+    if (!flowRow.rows.length)
+      return fail("Login session expired, please try again");
     const flow = flowRow.rows[0];
 
     const isNative = flow.client_type === "native";
-    if (isNative) failTarget = safeReturnTo(flow.return_to, { allowNative: true });
+    if (isNative)
+      failTarget = safeReturnTo(flow.return_to, { allowNative: true });
 
-    if (new Date(flow.expires_at) < new Date()) return fail("Login session expired, please try again");
+    if (new Date(flow.expires_at) < new Date())
+      return fail("Login session expired, please try again");
 
     let identity;
     try {
@@ -338,7 +378,9 @@ async function authRoutes(app) {
         deviceId: flow.device_id,
         deviceName: flow.device_name,
       });
-      const target = new URL(safeReturnTo(flow.return_to, { allowNative: true }));
+      const target = new URL(
+        safeReturnTo(flow.return_to, { allowNative: true }),
+      );
       target.searchParams.set("code", code);
       return reply.redirect(target.href);
     }

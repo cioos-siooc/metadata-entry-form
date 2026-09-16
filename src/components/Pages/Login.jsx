@@ -172,7 +172,8 @@ const Login = () => {
   const [submitting, setSubmitting] = useState(false);
   const regionEmail = regions[region]?.email;
 
-  const setField = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  const setField = (key) => (e) =>
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleLogin = async (loginMethod) => {
     try {
@@ -190,11 +191,18 @@ const Login = () => {
     setSubmitting(true);
     try {
       if (mode === "register") {
-        await register({ email: form.email, password: form.password, name: form.name });
+        await register({
+          email: form.email,
+          password: form.password,
+          name: form.name,
+        });
         setInfo("Account created — check your email for a verification link.");
         setMode("signin");
       } else {
-        await signInWithPassword({ email: form.email, password: form.password });
+        await signInWithPassword({
+          email: form.email,
+          password: form.password,
+        });
         // Reload so UserProvider re-initialises with the new session.
         window.location.reload();
       }
@@ -279,7 +287,11 @@ const Login = () => {
           </Stack>
 
           {enableLocal && (
-            <Box component="form" onSubmit={handleLocalSubmit} sx={{ marginTop: 2 }}>
+            <Box
+              component="form"
+              onSubmit={handleLocalSubmit}
+              sx={{ marginTop: 2 }}
+            >
               <Divider sx={{ marginBottom: 2 }}>
                 <Typography variant="caption" color="text.secondary">
                   <I18n>
@@ -291,7 +303,12 @@ const Login = () => {
               <Stack spacing={1.5}>
                 {mode === "register" && (
                   <TextField
-                    label={<I18n><En>Name</En><Fr>Nom</Fr></I18n>}
+                    label={
+                      <I18n>
+                        <En>Name</En>
+                        <Fr>Nom</Fr>
+                      </I18n>
+                    }
                     value={form.name}
                     onChange={setField("name")}
                     size="small"
@@ -300,7 +317,12 @@ const Login = () => {
                 )}
                 <TextField
                   type="email"
-                  label={<I18n><En>Email</En><Fr>Courriel</Fr></I18n>}
+                  label={
+                    <I18n>
+                      <En>Email</En>
+                      <Fr>Courriel</Fr>
+                    </I18n>
+                  }
                   value={form.email}
                   onChange={setField("email")}
                   size="small"
@@ -309,7 +331,12 @@ const Login = () => {
                 />
                 <TextField
                   type="password"
-                  label={<I18n><En>Password</En><Fr>Mot de passe</Fr></I18n>}
+                  label={
+                    <I18n>
+                      <En>Password</En>
+                      <Fr>Mot de passe</Fr>
+                    </I18n>
+                  }
                   value={form.password}
                   onChange={setField("password")}
                   size="small"
@@ -324,9 +351,15 @@ const Login = () => {
                   className={classes.button}
                 >
                   {mode === "register" ? (
-                    <I18n><En>Create account</En><Fr>Créer un compte</Fr></I18n>
+                    <I18n>
+                      <En>Create account</En>
+                      <Fr>Créer un compte</Fr>
+                    </I18n>
                   ) : (
-                    <I18n><En>Sign in</En><Fr>Se connecter</Fr></I18n>
+                    <I18n>
+                      <En>Sign in</En>
+                      <Fr>Se connecter</Fr>
+                    </I18n>
                   )}
                 </Button>
                 <Box sx={{ textAlign: "center" }}>

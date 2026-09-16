@@ -12,7 +12,8 @@ function makeEntityApi(kind) {
     // returns the new id (push().key equivalent)
     create: async (region, userID, entity) =>
       (await post(base(region, userID), entity)).id,
-    update: (region, userID, id, entity) => put(`${base(region, userID)}/${id}`, entity),
+    update: (region, userID, id, entity) =>
+      put(`${base(region, userID)}/${id}`, entity),
     remove: (region, userID, id) => del(`${base(region, userID)}/${id}`),
     clone: async (region, userID, id) =>
       (await post(`${base(region, userID)}/${id}/clone`, {})).id,

@@ -13,16 +13,25 @@ process.env.CONVERTER_URL = "http://converter.test";
 
 const mockSendMail = jest.fn();
 jest.mock("nodemailer", () => ({
-  createTransport: jest.fn(() => ({ sendMail: (...args) => mockSendMail(...args) })),
+  createTransport: jest.fn(() => ({
+    sendMail: (...args) => mockSendMail(...args),
+  })),
 }));
 
 const mockGithubRequest = jest.fn();
 jest.mock("octokit", () => ({
-  Octokit: jest.fn(() => ({ request: (...args) => mockGithubRequest(...args) })),
+  Octokit: jest.fn(() => ({
+    request: (...args) => mockGithubRequest(...args),
+  })),
 }));
 
 jest.mock("axios", () => {
-  const instance = { post: jest.fn(), get: jest.fn(), put: jest.fn(), delete: jest.fn() };
+  const instance = {
+    post: jest.fn(),
+    get: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+  };
   return { ...instance, create: jest.fn(() => instance) };
 });
 
@@ -105,12 +114,16 @@ describe("onRecordChange transitions", () => {
 
     const confirmation = mockSendMail.mock.calls[0][0];
     expect(confirmation.to).toBe(record.userinfo.email);
-    expect(confirmation.from).toBe("CIOOS Test Notifications <notify@test.example>");
+    expect(confirmation.from).toBe(
+      "CIOOS Test Notifications <notify@test.example>",
+    );
     expect(confirmation.subject).toMatch(/has been submitted/);
 
     const reviewerMail = mockSendMail.mock.calls[1][0];
     expect([...reviewerMail.to].sort()).toEqual([reviewer1, reviewer2].sort());
-    expect(reviewerMail.subject).toBe("New CIOOS Metadata record to be reviewed");
+    expect(reviewerMail.subject).toBe(
+      "New CIOOS Metadata record to be reviewed",
+    );
     expect(reviewerMail.html).toContain("Ocean Org"); // custodian org
     expect(reviewerMail.html).toContain(`${record.userID}/${record.recordID}`);
 
@@ -127,7 +140,9 @@ describe("onRecordChange transitions", () => {
   });
 
   test("submitting author who is a reviewer gets confirmation only", async () => {
-    const record = makeRecord({ userinfo: { email: reviewer1, displayName: "Rev One" } });
+    const record = makeRecord({
+      userinfo: { email: reviewer1, displayName: "Rev One" },
+    });
     await onRecordChange(log, {
       region: REGION,
       record,
@@ -151,7 +166,10 @@ describe("onRecordChange transitions", () => {
     });
 
     expect(mockSendMail).not.toHaveBeenCalled();
-    expect(axios.post).toHaveBeenCalledWith(`${CONVERTER}/record`, expect.any(Object));
+    expect(axios.post).toHaveBeenCalledWith(
+      `${CONVERTER}/record`,
+      expect.any(Object),
+    );
   });
 
   test("submitted -> published: author approval mail + XML update", async () => {
@@ -218,7 +236,10 @@ describe("onRecordChange transitions", () => {
       kind: "create",
     });
     expect(Date.now() - started).toBeGreaterThanOrEqual(1000);
-    expect(axios.post).toHaveBeenCalledWith(`${CONVERTER}/record`, expect.any(Object));
+    expect(axios.post).toHaveBeenCalledWith(
+      `${CONVERTER}/record`,
+      expect.any(Object),
+    );
     expect(mockSendMail).not.toHaveBeenCalled(); // creates never notify
   });
 
@@ -280,7 +301,9 @@ describe("onRecordChange transitions", () => {
   });
 
   test("hakai issue is skipped for JUST TESTING titles", async () => {
-    const record = makeRecord({ title: { en: "JUST TESTING the form", fr: "" } });
+    const record = makeRecord({
+      title: { en: "JUST TESTING the form", fr: "" },
+    });
     await onRecordChange(log, {
       region: "hakai",
       record,
@@ -326,7 +349,10 @@ describe("onRecordChange transitions", () => {
         expect.any(Object),
       );
     } finally {
-      await query("UPDATE regions SET record_generator_url = NULL WHERE id = $1", [REGION]);
+      await query(
+        "UPDATE regions SET record_generator_url = NULL WHERE id = $1",
+        [REGION],
+      );
     }
   });
 });
@@ -414,7 +440,9 @@ describe("record export routes", () => {
   });
 
   test("record-export proxies /convert and returns the payload", async () => {
-    axios.post.mockResolvedValueOnce({ data: { data: "<xml>converted</xml>" } });
+    axios.post.mockResolvedValueOnce({
+      data: { data: "<xml>converted</xml>" },
+    });
 
     const record = { title: { en: "Export me", fr: "" }, language: "en" };
     const res = await app.inject({
@@ -444,7 +472,10 @@ describe("record export routes", () => {
 
   test("record-export surfaces converter failures", async () => {
     const err = new Error("boom");
-    err.response = { status: 500, data: { detail: "Conversion failed: bad record" } };
+    err.response = {
+      status: 500,
+      data: { detail: "Conversion failed: bad record" },
+    };
     axios.post.mockRejectedValueOnce(err);
 
     const res = await app.inject({

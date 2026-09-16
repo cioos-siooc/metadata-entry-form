@@ -49,7 +49,9 @@ const messages = {
     />
   ),
   unshared: <I18n en="Access removed." fr="Accès retiré." />,
-  "invite-withdrawn": <I18n en="Invitation withdrawn." fr="Invitation retirée." />,
+  "invite-withdrawn": (
+    <I18n en="Invitation withdrawn." fr="Invitation retirée." />
+  ),
 };
 
 const emailFailed = (
@@ -110,14 +112,15 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
           <Typography>
             <I18n>
               <En>
-                To share editing access, enter the email address of the person you
-                want to share this record with. If they don't have an account yet,
-                they will be invited to create one.
+                To share editing access, enter the email address of the person
+                you want to share this record with. If they don't have an
+                account yet, they will be invited to create one.
               </En>
               <Fr>
-                Pour partager l'accès en modification, saisissez l'adresse courriel
-                de la personne avec qui vous souhaitez partager cet enregistrement.
-                Si elle n'a pas encore de compte, elle sera invitée à en créer un.
+                Pour partager l'accès en modification, saisissez l'adresse
+                courriel de la personne avec qui vous souhaitez partager cet
+                enregistrement. Si elle n'a pas encore de compte, elle sera
+                invitée à en créer un.
               </Fr>
             </I18n>
           </Typography>
@@ -127,7 +130,9 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 <p>Please save the form before sharing access.</p>
               </En>
               <Fr>
-                <p>Veuillez enregistrer le formulaire avant de partager l'accès.</p>
+                <p>
+                  Veuillez enregistrer le formulaire avant de partager l'accès.
+                </p>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -141,7 +146,8 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && recordID && emailIsValid && !busy) share();
+                  if (e.key === "Enter" && recordID && emailIsValid && !busy)
+                    share();
                 }}
                 fullWidth
                 label={<I18n en="Share with..." fr="Partager avec..." />}
@@ -185,7 +191,8 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                     <I18n>
                       <En>Users this record is shared with:</En>
                       <Fr>
-                        Utilisateurs avec lesquels cet enregistrement est partagé :
+                        Utilisateurs avec lesquels cet enregistrement est
+                        partagé :
                       </Fr>
                     </I18n>
                   )}
@@ -204,7 +211,11 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                           disabled={busy}
                           style={{ marginRight: "60px" }}
                           onClick={() =>
-                            run(unshareRecord, { region, recordID, uid: userID })
+                            run(unshareRecord, {
+                              region,
+                              recordID,
+                              uid: userID,
+                            })
                           }
                         >
                           <Delete />
@@ -212,35 +223,44 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                       </ListItemSecondaryAction>
                     </ListItem>
                   ))}
-                  {Object.entries(pendingShares).map(([inviteKey, pendingEmail]) => (
-                    <ListItem key={inviteKey}>
-                      <ListItemText
-                        primary={<Typography>{pendingEmail}</Typography>}
-                        secondary={
-                          <Chip
-                            size="small"
-                            label={
-                              <I18n en="Invitation sent" fr="Invitation envoyée" />
+                  {Object.entries(pendingShares).map(
+                    ([inviteKey, pendingEmail]) => (
+                      <ListItem key={inviteKey}>
+                        <ListItemText
+                          primary={<Typography>{pendingEmail}</Typography>}
+                          secondary={
+                            <Chip
+                              size="small"
+                              label={
+                                <I18n
+                                  en="Invitation sent"
+                                  fr="Invitation envoyée"
+                                />
+                              }
+                            />
+                          }
+                          // a Chip is a div, which can't live inside <p>
+                          slotProps={{ secondary: { component: "div" } }}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton
+                            aria-label="delete"
+                            disabled={busy}
+                            style={{ marginRight: "60px" }}
+                            onClick={() =>
+                              run(unshareRecord, {
+                                region,
+                                recordID,
+                                inviteKey,
+                              })
                             }
-                          />
-                        }
-                        // a Chip is a div, which can't live inside <p>
-                        slotProps={{ secondary: { component: "div" } }}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          aria-label="delete"
-                          disabled={busy}
-                          style={{ marginRight: "60px" }}
-                          onClick={() =>
-                            run(unshareRecord, { region, recordID, inviteKey })
-                          }
-                        >
-                          <Delete />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    ),
+                  )}
                 </List>
               </Box>
             </Grid>

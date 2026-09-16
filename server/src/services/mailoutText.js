@@ -49,7 +49,9 @@ function mailOptionsReviewer(
   const reviewerUrlEn = `https://cioos-siooc.github.io/metadata-entry-form/#/en/${region}/reviewer`;
   const reviewerUrlFr = `https://cioos-siooc.github.io/metadata-entry-form/#/fr/${region}/reviewer`;
 
-  const submittedBy = authorName ? `${authorName} &lt;${authorEmail}&gt;` : authorEmail;
+  const submittedBy = authorName
+    ? `${authorName} &lt;${authorEmail}&gt;`
+    : authorEmail;
 
   return {
     from: fromAddress(),
@@ -86,7 +88,12 @@ function mailOptionsReviewer(
   };
 }
 
-function mailOptionsAuthorSubmissionConfirmation(authorEmail, titleEn, titleFr, region) {
+function mailOptionsAuthorSubmissionConfirmation(
+  authorEmail,
+  titleEn,
+  titleFr,
+  region,
+) {
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;
 
@@ -134,7 +141,16 @@ ${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
 }
 
 // Shared by both share emails: who sent it, what record, and where to open it.
-function shareBody(titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language) {
+function shareBody(
+  titleEn,
+  titleFr,
+  region,
+  ownerName,
+  ownerEmail,
+  userID,
+  recordID,
+  language,
+) {
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;
   const lang = language || "en";
@@ -144,7 +160,9 @@ function shareBody(titleEn, titleFr, region, ownerName, ownerEmail, userID, reco
     String(v || "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
   titleEn = esc(titleEn);
   titleFr = esc(titleFr);
-  const sharedBy = ownerName ? `${esc(ownerName)} &lt;${esc(ownerEmail)}&gt;` : esc(ownerEmail);
+  const sharedBy = ownerName
+    ? `${esc(ownerName)} &lt;${esc(ownerEmail)}&gt;`
+    : esc(ownerEmail);
 
   return {
     recordUrl,
@@ -173,10 +191,17 @@ function mailOptionsRecordShared(
   ownerEmail,
   userID,
   recordID,
-  language
+  language,
 ) {
   const { recordUrl, tableEn, tableFr } = shareBody(
-    titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language
+    titleEn,
+    titleFr,
+    region,
+    ownerName,
+    ownerEmail,
+    userID,
+    recordID,
+    language,
   );
 
   return {
@@ -209,10 +234,17 @@ function mailOptionsShareInvitation(
   ownerEmail,
   userID,
   recordID,
-  language
+  language,
 ) {
   const { recordUrl, tableEn, tableFr } = shareBody(
-    titleEn, titleFr, region, ownerName, ownerEmail, userID, recordID, language
+    titleEn,
+    titleFr,
+    region,
+    ownerName,
+    ownerEmail,
+    userID,
+    recordID,
+    language,
   );
   const lang = language || "en";
   const signUpUrl = `https://cioos-siooc.github.io/metadata-entry-form/#/${lang}/${region}`;

@@ -67,8 +67,8 @@ export function buildAccentRamp(brandHex) {
  * @returns {{ step: number, hex: string, contrast: number, meetsFloor: boolean }}
  */
 export function pickAccentStep(ramp, surfaceHex, minContrast = 4.5) {
-  const surfaceIsLight = contrastRatio(surfaceHex, "#000000") >
-    contrastRatio(surfaceHex, "#ffffff");
+  const surfaceIsLight =
+    contrastRatio(surfaceHex, "#000000") > contrastRatio(surfaceHex, "#ffffff");
 
   // Walk from the middle of the ramp toward whichever end adds contrast.
   const ordered = surfaceIsLight
@@ -104,7 +104,11 @@ export function pickAccentStep(ramp, surfaceHex, minContrast = 4.5) {
  * @param {string} surfaces.onAccent  Text colour placed *on* the accent fill.
  * @param {number} [minContrast=4.5]
  */
-export function resolveAccent(brandHex, { surface, onAccent }, minContrast = 4.5) {
+export function resolveAccent(
+  brandHex,
+  { surface, onAccent },
+  minContrast = 4.5,
+) {
   const ramp = buildAccentRamp(brandHex);
   const text = pickAccentStep(ramp, surface, minContrast);
 

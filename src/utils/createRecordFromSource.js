@@ -2,7 +2,8 @@ import { post } from "../api/client";
 import { getBlankContact, getBlankRecord } from "./blankRecord";
 
 const DOI_URL_RE = /^https?:\/\/(dx\.)?doi\.org\//i;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CCIN_RE = /^\d+$/;
 
 /**
@@ -18,7 +19,11 @@ export function detectSourceType(input) {
   const value = (input || "").trim();
   if (!value) return null;
 
-  if (DOI_URL_RE.test(value) || value.startsWith("10.") || value.toLowerCase().startsWith("doi:"))
+  if (
+    DOI_URL_RE.test(value) ||
+    value.startsWith("10.") ||
+    value.toLowerCase().startsWith("doi:")
+  )
     return "doi";
 
   if (value.includes("polardata.ca") || CCIN_RE.test(value)) return "pdc";
@@ -38,7 +43,10 @@ export function detectSourceType(input) {
  * @throws {ApiError} With the server's message when the source can't be retrieved
  */
 export async function createRecordFromSource(sourceType, identifier) {
-  const { data: record } = await post("/record-from-source", { sourceType, identifier });
+  const { data: record } = await post("/record-from-source", {
+    sourceType,
+    identifier,
+  });
   if (!record || typeof record !== "object")
     throw new Error("The conversion service returned an empty record.");
   return record;

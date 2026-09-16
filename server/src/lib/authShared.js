@@ -29,7 +29,10 @@ function setRefreshCookie(reply, raw) {
 }
 
 function clearRefreshCookie(reply) {
-  appendCookie(reply, REFRESH_COOKIE, "", { ...refreshCookieOpts(), maxAge: 0 });
+  appendCookie(reply, REFRESH_COOKIE, "", {
+    ...refreshCookieOpts(),
+    maxAge: 0,
+  });
 }
 
 function publicUser(user) {
@@ -98,12 +101,17 @@ async function verifyCredentials(email, password) {
   const user = row.rows[0];
   const hash = user?.password_hash;
 
-  const ok = await argon2.verify(hash || DUMMY_HASH, password).catch(() => false);
+  const ok = await argon2
+    .verify(hash || DUMMY_HASH, password)
+    .catch(() => false);
   if (!user || !hash || !ok) {
     return { status: 401, error: "Invalid email or password" };
   }
   if (!user.email_verified) {
-    return { status: 403, error: "Please verify your email address before signing in" };
+    return {
+      status: 403,
+      error: "Please verify your email address before signing in",
+    };
   }
   return { user };
 }

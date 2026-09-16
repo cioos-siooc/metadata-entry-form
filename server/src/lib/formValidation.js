@@ -28,7 +28,10 @@ function validateSubmissionData(formTypeRow, data) {
     valid,
     errors: valid
       ? []
-      : validate.errors.map((e) => ({ instancePath: e.instancePath, message: e.message })),
+      : validate.errors.map((e) => ({
+          instancePath: e.instancePath,
+          message: e.message,
+        })),
   };
 }
 

@@ -21,7 +21,9 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 if (!process.env.CREDENTIALS_ENC_KEY) {
-  console.error("CREDENTIALS_ENC_KEY is required (to encrypt region credentials)");
+  console.error(
+    "CREDENTIALS_ENC_KEY is required (to encrypt region credentials)",
+  );
   process.exit(1);
 }
 // server/src/lib/crypto.js requires server/src/config.js, which insists on
@@ -279,14 +281,14 @@ async function main() {
     // ---- Admin config: replace per region present in the source admin tree.
     const adminRegions = [
       ...new Set(
-        (data.admin_regions && data.admin_regions.length
+        data.admin_regions && data.admin_regions.length
           ? data.admin_regions
           : [
               ...data.permissions.map((p) => p.region),
               ...data.projects.map((p) => p.region),
               ...data.credentials.map((c) => c.region),
               ...data.region_urls.map((r) => r.region),
-            ]),
+            ],
       ),
     ];
 

@@ -21,10 +21,15 @@ export function buildDataCitePayload({
   datacitePrefix = undefined,
   forUpdate = false,
 }) {
-  if (typeof dataciteObject !== "object" || dataciteObject === null || Array.isArray(dataciteObject)) {
+  if (
+    typeof dataciteObject !== "object" ||
+    dataciteObject === null ||
+    Array.isArray(dataciteObject)
+  ) {
     throw new Error("DataCite response is not a valid object");
   }
-  if (!catalogueUrl) throw new Error("No catalogue URL for this region and language");
+  if (!catalogueUrl)
+    throw new Error("No catalogue URL for this region and language");
 
   const attributes = {
     ...dataciteObject,
@@ -45,7 +50,10 @@ export function buildDataCitePayload({
 
 /** A bare DOI from whatever URL form the record stores it in. */
 export function bareDoi(datasetIdentifier) {
-  return String(datasetIdentifier ?? "").replace(/^https?:\/\/(?:dx\.)?doi\.org\//, "");
+  return String(datasetIdentifier ?? "").replace(
+    /^https?:\/\/(?:dx\.)?doi\.org\//,
+    "",
+  );
 }
 
 /**

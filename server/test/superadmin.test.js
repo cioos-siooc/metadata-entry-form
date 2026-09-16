@@ -1,5 +1,10 @@
 const { randomUUID } = require("crypto");
-const { buildTestApp, signToken, authHeader, envSuperadmin } = require("./helpers");
+const {
+  buildTestApp,
+  signToken,
+  authHeader,
+  envSuperadmin,
+} = require("./helpers");
 const { query, pool } = require("../src/db");
 
 // Region no other test file writes permissions for.
@@ -47,7 +52,11 @@ describe("superadmin", () => {
       url: `/api/v1/regions/${REGION}/me`,
       headers: authHeader(superadmin.token),
     });
-    expect(me.json()).toMatchObject({ isSuperadmin: true, isAdmin: true, isReviewer: true });
+    expect(me.json()).toMatchObject({
+      isSuperadmin: true,
+      isAdmin: true,
+      isReviewer: true,
+    });
 
     const seed = await app.inject({
       method: "PUT",

@@ -4,7 +4,12 @@ async function meRoutes(app) {
   // Global profile — who am I?
   app.get("/me", { preHandler: [app.authenticate] }, async (request) => {
     const { id, email, display_name: displayName } = request.user;
-    return { userID: id, email, displayName, isSuperadmin: request.isSuperadmin };
+    return {
+      userID: id,
+      email,
+      displayName,
+      isSuperadmin: request.isSuperadmin,
+    };
   });
 
   // Region-scoped session bootstrap: everything UserProvider needs on load.
@@ -34,10 +39,14 @@ async function meRoutes(app) {
         ...request.roles,
         hasSharedRecords: shares.rows.length > 0,
         datacitePrefix: dataciteConfig.prefix ?? null,
-        dataciteApiDomain: ["test", "api.test.datacite.org"].includes(dataciteConfig.apiDomain)
+        dataciteApiDomain: ["test", "api.test.datacite.org"].includes(
+          dataciteConfig.apiDomain,
+        )
           ? "test"
           : "production",
-        doiSuffixModes: dataciteConfig.doiSuffixModes?.length ? dataciteConfig.doiSuffixModes : ["default"],
+        doiSuffixModes: dataciteConfig.doiSuffixModes?.length
+          ? dataciteConfig.doiSuffixModes
+          : ["default"],
         doiStatusManagement: dataciteConfig.doiStatusManagement || "datacite",
       };
     },

@@ -15,8 +15,12 @@ function Probe() {
   return (
     <div>
       <span data-testid="loaded">{String(regionsLoaded)}</span>
-      <span data-testid="pacific-title">{contextRegions.pacific?.title?.en}</span>
-      <span data-testid="new-region">{contextRegions["api-only"]?.title?.en || "none"}</span>
+      <span data-testid="pacific-title">
+        {contextRegions.pacific?.title?.en}
+      </span>
+      <span data-testid="new-region">
+        {contextRegions["api-only"]?.title?.en || "none"}
+      </span>
     </div>
   );
 }
@@ -31,7 +35,10 @@ describe("<RegionsProvider />", () => {
     regionsApi.getRegions.mockResolvedValue({
       regions: {
         pacific: { title: { en: "CIOOS Pacific (API)" } },
-        "api-only": { title: { en: "Brand New Region" }, showInRegionSelector: true },
+        "api-only": {
+          title: { en: "Brand New Region" },
+          showInRegionSelector: true,
+        },
       },
     });
 
@@ -44,9 +51,15 @@ describe("<RegionsProvider />", () => {
     // gated behind a spinner until the fetch resolves
     expect(screen.queryByTestId("loaded")).not.toBeInTheDocument();
 
-    await waitFor(() => expect(screen.getByTestId("loaded")).toHaveTextContent("true"));
-    expect(screen.getByTestId("pacific-title")).toHaveTextContent("CIOOS Pacific (API)");
-    expect(screen.getByTestId("new-region")).toHaveTextContent("Brand New Region");
+    await waitFor(() =>
+      expect(screen.getByTestId("loaded")).toHaveTextContent("true"),
+    );
+    expect(screen.getByTestId("pacific-title")).toHaveTextContent(
+      "CIOOS Pacific (API)",
+    );
+    expect(screen.getByTestId("new-region")).toHaveTextContent(
+      "Brand New Region",
+    );
     // static imports observe the same object
     expect(regions["api-only"].title.en).toBe("Brand New Region");
     // untouched static keys survive the merge
@@ -54,7 +67,9 @@ describe("<RegionsProvider />", () => {
   });
 
   it("falls back to the bundled config when the API fails", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     regionsApi.getRegions.mockRejectedValue(new Error("network down"));
 
     render(
@@ -63,7 +78,9 @@ describe("<RegionsProvider />", () => {
       </RegionsProvider>,
     );
 
-    await waitFor(() => expect(screen.getByTestId("loaded")).toHaveTextContent("true"));
+    await waitFor(() =>
+      expect(screen.getByTestId("loaded")).toHaveTextContent("true"),
+    );
     expect(screen.getByTestId("new-region")).toHaveTextContent("none");
     expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();

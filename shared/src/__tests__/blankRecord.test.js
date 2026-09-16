@@ -50,9 +50,19 @@ describe("blankRecord / submit gate", () => {
     // those sections can look complete while holding nothing.
     expect(percentValid(getBlankRecord())).toBeCloseTo(6 / 21, 5);
 
-    const vacuous = ["map", "platforms", "instruments", "history", "associated_resources", "eovDeprecated"];
+    const vacuous = [
+      "map",
+      "platforms",
+      "instruments",
+      "history",
+      "associated_resources",
+      "eovDeprecated",
+    ];
     for (const field of vacuous) {
-      expect(validateField(getBlankRecord(), field), `${field} should pass vacuously`).toBeTruthy();
+      expect(
+        validateField(getBlankRecord(), field),
+        `${field} should pass vacuously`,
+      ).toBeTruthy();
     }
   });
 

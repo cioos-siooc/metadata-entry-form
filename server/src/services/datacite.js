@@ -10,7 +10,10 @@ const { decryptSecret } = require("../lib/crypto");
 
 const DEFAULT_API_DOMAIN = "api.datacite.org";
 // The form stores "production"/"test" (as the RTDB did); hostnames also work.
-const API_DOMAINS = { production: DEFAULT_API_DOMAIN, test: "api.test.datacite.org" };
+const API_DOMAINS = {
+  production: DEFAULT_API_DOMAIN,
+  test: "api.test.datacite.org",
+};
 
 function serviceError(statusCode, message, details = null) {
   const err = new Error(message);
@@ -31,7 +34,9 @@ async function getDataciteCredentials(region) {
   return {
     prefix: row.config?.prefix ?? null,
     apiDomain: row.config?.apiDomain ?? DEFAULT_API_DOMAIN,
-    doiSuffixModes: row.config?.doiSuffixModes?.length ? row.config.doiSuffixModes : ["default"],
+    doiSuffixModes: row.config?.doiSuffixModes?.length
+      ? row.config.doiSuffixModes
+      : ["default"],
     doiStatusManagement: row.config?.doiStatusManagement || "datacite",
     authHash: row.secret_enc ? decryptSecret(row.secret_enc) : null,
   };
@@ -84,15 +89,19 @@ function handleDataCiteError(err, defaultMessage, statusMessages = {}) {
     // Apply status-specific overrides (only if no detailed API error was extracted)
     const hasApiError = errorMessage.startsWith("DataCite API error:");
     if (statusCode === 401) {
-      errorMessage = statusMessages[401] || "Unauthorized: Please check your API credentials.";
+      errorMessage =
+        statusMessages[401] ||
+        "Unauthorized: Please check your API credentials.";
     } else if (statusCode === 404) {
-      errorMessage = statusMessages[404] || "Not found: The resource could not be found.";
+      errorMessage =
+        statusMessages[404] || "Not found: The resource could not be found.";
     } else if (statusCode === 422 && !hasApiError) {
       errorMessage =
         statusMessages[422] ||
         "Validation error: The metadata does not meet DataCite requirements.";
     } else if (statusCode === 400 && !hasApiError) {
-      errorMessage = statusMessages[400] || "Bad request: Invalid metadata provided.";
+      errorMessage =
+        statusMessages[400] || "Bad request: Invalid metadata provided.";
     }
   } else if (err.message) {
     errorMessage = err.message;
@@ -100,7 +109,9 @@ function handleDataCiteError(err, defaultMessage, statusMessages = {}) {
 
   // Statuses other than the ones the original mapped explicitly surface as 500
   // (the original threw HttpsError('unknown') for those).
-  const mappedStatus = [400, 401, 404, 422].includes(statusCode) ? statusCode : 500;
+  const mappedStatus = [400, 401, 404, 422].includes(statusCode)
+    ? statusCode
+    : 500;
   throw serviceError(mappedStatus, errorMessage, { details, statusCode });
 }
 
@@ -116,7 +127,10 @@ async function createDraftDoi(region, record) {
     });
     return response.data;
   } catch (err) {
-    return handleDataCiteError(err, "An error occurred while creating the draft DOI.");
+    return handleDataCiteError(
+      err,
+      "An error occurred while creating the draft DOI.",
+    );
   }
 }
 
@@ -131,12 +145,19 @@ async function updateDraftDoi(region, doi, data) {
         "Content-Type": "application/vnd.api+json",
       },
     });
-    return { status: response.status, message: "Draft DOI updated successfully" };
+    return {
+      status: response.status,
+      message: "Draft DOI updated successfully",
+    };
   } catch (err) {
-    return handleDataCiteError(err, "An error occurred while updating the draft DOI.", {
-      404: "Not found: The DOI could not be found. It may have been deleted.",
-      422: "Validation error: The updated metadata does not meet DataCite requirements.",
-    });
+    return handleDataCiteError(
+      err,
+      "An error occurred while updating the draft DOI.",
+      {
+        404: "Not found: The DOI could not be found. It may have been deleted.",
+        422: "Validation error: The updated metadata does not meet DataCite requirements.",
+      },
+    );
   }
 }
 
@@ -150,10 +171,14 @@ async function deleteDraftDoi(region, doi) {
     });
     return response.status;
   } catch (err) {
-    return handleDataCiteError(err, "An error occurred while deleting the draft DOI.", {
-      404: "Not found: The DOI could not be found. It may have already been deleted.",
-      422: "Validation error: Cannot delete this DOI.",
-    });
+    return handleDataCiteError(
+      err,
+      "An error occurred while deleting the draft DOI.",
+      {
+        404: "Not found: The DOI could not be found. It may have already been deleted.",
+        422: "Validation error: Cannot delete this DOI.",
+      },
+    );
   }
 }
 
@@ -194,7 +219,10 @@ async function getDoiStatus(region, doi) {
 // Pass {prefix, authHash, apiDomain} to test unsaved values; omitted fields
 // fall back to the stored region credentials (the original always used the
 // stored ones). Returns {success, message} or throws {statusCode, message}.
-async function testDataciteCredentials(region, { prefix, authHash, apiDomain } = {}) {
+async function testDataciteCredentials(
+  region,
+  { prefix, authHash, apiDomain } = {},
+) {
   if (!prefix || !authHash) {
     const stored = await getDataciteCredentials(region);
     prefix = prefix || stored?.prefix;
@@ -257,7 +285,8 @@ async function testDataciteCredentials(region, { prefix, authHash, apiDomain } =
 
   return {
     success: true,
-    message: "Credentials verified successfully. A test DOI was created and removed.",
+    message:
+      "Credentials verified successfully. A test DOI was created and removed.",
   };
 }
 
@@ -278,10 +307,14 @@ async function transitionDoiState(region, doi, event) {
     );
     return response.data?.data?.attributes?.state;
   } catch (err) {
-    return handleDataCiteError(err, `Failed to transition DOI state with event "${event}".`, {
-      404: "Not found: The DOI could not be found.",
-      422: "Validation error: The DOI cannot be transitioned to the requested state. Ensure required metadata fields are present.",
-    });
+    return handleDataCiteError(
+      err,
+      `Failed to transition DOI state with event "${event}".`,
+      {
+        404: "Not found: The DOI could not be found.",
+        422: "Validation error: The DOI cannot be transitioned to the requested state. Ensure required metadata fields are present.",
+      },
+    );
   }
 }
 

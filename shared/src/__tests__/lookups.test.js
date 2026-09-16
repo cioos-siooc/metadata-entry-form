@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { extractOrcid, orcidToContact, rorName, rorToContact } from "../lookups.js";
+import {
+  extractOrcid,
+  orcidToContact,
+  rorName,
+  rorToContact,
+} from "../lookups.js";
 
 // Trimmed from a real api.ror.org response — the shape that matters is the
 // several-names-per-organisation one.
@@ -8,16 +13,33 @@ const dfo = {
   id: "https://ror.org/02qa1x782",
   names: [
     { lang: null, types: ["acronym"], value: "DFO" },
-    { lang: "en", types: ["alias"], value: "Department of Fisheries and Oceans" },
-    { lang: "en", types: ["ror_display", "label"], value: "Fisheries and Oceans Canada" },
+    {
+      lang: "en",
+      types: ["alias"],
+      value: "Department of Fisheries and Oceans",
+    },
+    {
+      lang: "en",
+      types: ["ror_display", "label"],
+      value: "Fisheries and Oceans Canada",
+    },
     { lang: "fr", types: ["label"], value: "Pêches et Océans Canada" },
   ],
   links: [
-    { type: "wikipedia", value: "http://en.wikipedia.org/wiki/Fisheries_and_Oceans_Canada" },
+    {
+      type: "wikipedia",
+      value: "http://en.wikipedia.org/wiki/Fisheries_and_Oceans_Canada",
+    },
     { type: "website", value: "https://www.dfo-mpo.gc.ca" },
   ],
   locations: [
-    { geonames_details: { name: "Ottawa", country_name: "Canada", country_code: "CA" } },
+    {
+      geonames_details: {
+        name: "Ottawa",
+        country_name: "Canada",
+        country_code: "CA",
+      },
+    },
   ],
 };
 
@@ -38,7 +60,9 @@ describe("rorName", () => {
   });
 
   it("falls back to any name rather than returning nothing", () => {
-    expect(rorName({ names: [{ lang: null, types: ["acronym"], value: "DFO" }] })).toBe("DFO");
+    expect(
+      rorName({ names: [{ lang: null, types: ["acronym"], value: "DFO" }] }),
+    ).toBe("DFO");
   });
 
   it("survives a payload with no names at all", () => {
@@ -75,7 +99,9 @@ describe("rorToContact", () => {
 
 describe("extractOrcid", () => {
   it("reads an identifier out of a pasted URL", () => {
-    expect(extractOrcid("https://orcid.org/0000-0002-1825-0097")).toBe("0000-0002-1825-0097");
+    expect(extractOrcid("https://orcid.org/0000-0002-1825-0097")).toBe(
+      "0000-0002-1825-0097",
+    );
   });
 
   it("accepts a bare identifier", () => {
@@ -97,7 +123,10 @@ describe("orcidToContact", () => {
   const record = {
     "orcid-identifier": { uri: "https://orcid.org/0000-0002-1825-0097" },
     person: {
-      name: { "given-names": { value: "Josiah" }, "family-name": { value: "Carberry" } },
+      name: {
+        "given-names": { value: "Josiah" },
+        "family-name": { value: "Carberry" },
+      },
       emails: { email: [{ email: "josiah@example.org" }] },
     },
   };
@@ -112,7 +141,10 @@ describe("orcidToContact", () => {
   });
 
   it("handles a profile with no public email", () => {
-    const noEmail = { ...record, person: { ...record.person, emails: { email: [] } } };
+    const noEmail = {
+      ...record,
+      person: { ...record.person, emails: { email: [] } },
+    };
     expect(orcidToContact(noEmail).indEmail).toBe("");
     expect(orcidToContact(noEmail).givenNames).toBe("Josiah");
   });
@@ -121,7 +153,10 @@ describe("orcidToContact", () => {
     // ORCID allows it, and the web app throws on exactly this.
     const mononym = {
       ...record,
-      person: { ...record.person, name: { "given-names": { value: "Prince" } } },
+      person: {
+        ...record.person,
+        name: { "given-names": { value: "Prince" } },
+      },
     };
     expect(orcidToContact(mononym).lastName).toBe("");
     expect(orcidToContact(mononym).givenNames).toBe("Prince");

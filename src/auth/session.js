@@ -7,7 +7,8 @@ import { ApiError } from "../api/client";
 // post credentials directly.
 
 const API = import.meta.env.VITE_API_BASE_URL || "/api";
-const authUrl = (path) => new URL(`${API}/v1/auth${path}`, window.location.origin);
+const authUrl = (path) =>
+  new URL(`${API}/v1/auth${path}`, window.location.origin);
 
 let accessToken = null;
 let claims = null;
@@ -32,7 +33,10 @@ function setAccess(token) {
 
 async function doRefresh() {
   try {
-    const res = await fetch(authUrl("/refresh"), { method: "POST", credentials: "include" });
+    const res = await fetch(authUrl("/refresh"), {
+      method: "POST",
+      credentials: "include",
+    });
     if (!res.ok) {
       setAccess(null);
       return null;
@@ -82,12 +86,16 @@ async function postAuth(path, body) {
   const res = await fetch(authUrl(path), {
     method: "POST",
     credentials: "include",
-    headers: { "Content-Type": "application/json", "X-Requested-With": "fetch" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Requested-With": "fetch",
+    },
     body: JSON.stringify(body),
   });
   const text = await res.text();
   const json = text ? JSON.parse(text) : null;
-  if (!res.ok) throw new ApiError(res.status, json?.error || res.statusText, json);
+  if (!res.ok)
+    throw new ApiError(res.status, json?.error || res.statusText, json);
   return json;
 }
 

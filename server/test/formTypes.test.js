@@ -60,7 +60,9 @@ describe("form types API", () => {
     await query(
       "DELETE FROM form_types WHERE created_by IN (SELECT id FROM users WHERE email LIKE '%@formtypes.test')",
     );
-    await query("DELETE FROM region_permissions WHERE email LIKE '%@formtypes.test'");
+    await query(
+      "DELETE FROM region_permissions WHERE email LIKE '%@formtypes.test'",
+    );
     await query("DELETE FROM users WHERE email LIKE '%@formtypes.test'");
     await app.close();
     await pool.end();
@@ -176,7 +178,9 @@ describe("form types API", () => {
     });
     expect(blocked.statusCode).toBe(409);
 
-    await query("DELETE FROM form_submissions WHERE form_type_id = $1", [type.id]);
+    await query("DELETE FROM form_submissions WHERE form_type_id = $1", [
+      type.id,
+    ]);
     const deleted = await app.inject({
       method: "DELETE",
       url: `/api/v1/regions/${REGION}/form-types/${type.id}`,

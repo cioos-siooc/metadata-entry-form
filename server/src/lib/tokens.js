@@ -10,7 +10,9 @@ const config = require("../config");
 // Node KeyObjects; jose accepts these directly for sign/verify.
 const privateKey = crypto.createPrivateKey(config.auth.privateKeyPem);
 
-const publicJwk = crypto.createPublicKey(config.auth.publicKeyPem).export({ format: "jwk" });
+const publicJwk = crypto
+  .createPublicKey(config.auth.publicKeyPem)
+  .export({ format: "jwk" });
 publicJwk.kid = config.auth.kid;
 publicJwk.alg = "RS256";
 publicJwk.use = "sig";

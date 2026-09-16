@@ -138,10 +138,15 @@ const ContactTab = ({
             <Alert severity="info" sx={{ mt: 2 }}>
               <I18n>
                 <En>
-                  No contact has the <strong>publisher</strong> role. The region default (<strong>{regions[region]?.title?.[language]}</strong>) will be used as publisher for DOI records.
+                  No contact has the <strong>publisher</strong> role. The region
+                  default (<strong>{regions[region]?.title?.[language]}</strong>
+                  ) will be used as publisher for DOI records.
                 </En>
                 <Fr>
-                  Aucun contact n'a le rôle d'<strong>éditeur</strong>. La valeur par défaut de la région (<strong>{regions[region]?.title?.[language]}</strong>) sera utilisée comme éditeur pour les enregistrements DOI.
+                  Aucun contact n'a le rôle d'<strong>éditeur</strong>. La
+                  valeur par défaut de la région (
+                  <strong>{regions[region]?.title?.[language]}</strong>) sera
+                  utilisée comme éditeur pour les enregistrements DOI.
                 </Fr>
               </I18n>
             </Alert>

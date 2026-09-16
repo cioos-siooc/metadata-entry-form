@@ -13,7 +13,7 @@ const transporter = require("./mailer");
 exports.findCustodianOrgName = (record) => {
   const contacts = Object.values((record && record.contacts) || {});
   const custodian = contacts.find((c) =>
-    Object.values((c && c.role) || {}).includes("custodian")
+    Object.values((c && c.role) || {}).includes("custodian"),
   );
   return custodian && custodian.orgName;
 };
@@ -61,7 +61,7 @@ exports.notifyReviewer = functions.database
         console.log("Creating github issue");
         await createIssue(
           title,
-          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`
+          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`,
         );
       }
 
@@ -71,14 +71,14 @@ exports.notifyReviewer = functions.database
           authorEmail,
           titleEn,
           titleFr,
-          region
+          region,
         ),
         (e, info) => {
           console.log(info);
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
 
       if (reviewers.includes(authorEmail)) {
@@ -105,14 +105,14 @@ exports.notifyReviewer = functions.database
           orgName,
           userID,
           recordID,
-          language
+          language,
         ),
         (e, info) => {
           console.log(info);
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
     }
   });
@@ -171,7 +171,7 @@ exports.notifyUser = functions.database
           if (e) {
             console.log(e);
           }
-        }
+        },
       );
     }
   });

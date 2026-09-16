@@ -27,7 +27,10 @@ export default function RegionsProvider({ children }) {
     getRegions()
       .then((data) => mergeRegions(data?.regions))
       .catch((err) => {
-        console.error("Failed to load regions from API, using bundled config", err);
+        console.error(
+          "Failed to load regions from API, using bundled config",
+          err,
+        );
       })
       .finally(() => {
         if (!cancelled) setRegionsLoaded(true);
@@ -40,8 +43,12 @@ export default function RegionsProvider({ children }) {
   const value = useMemo(() => ({ regions, regionsLoaded }), [regionsLoaded]);
 
   if (!regionsLoaded) {
-    return <CircularProgress style={{ margin: "40vh auto", display: "block" }} />;
+    return (
+      <CircularProgress style={{ margin: "40vh auto", display: "block" }} />
+    );
   }
 
-  return <RegionsContext.Provider value={value}>{children}</RegionsContext.Provider>;
+  return (
+    <RegionsContext.Provider value={value}>{children}</RegionsContext.Provider>
+  );
 }

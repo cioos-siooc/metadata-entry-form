@@ -26,7 +26,13 @@ async function resolveUser(claims) {
 //   2. verified email -> claim/link an existing users row (Firebase-migration
 //      breadcrumb), else create a new user
 //   3. unverified email colliding with an existing row -> 409 (anti-takeover)
-async function resolveUserForIdentity({ provider, providerSubject, email, emailVerified, name }) {
+async function resolveUserForIdentity({
+  provider,
+  providerSubject,
+  email,
+  emailVerified,
+  name,
+}) {
   return withTransaction(async (client) => {
     const q = (text, params) => client.query(text, params);
 
@@ -120,7 +126,10 @@ async function authPlugin(app, opts) {
 
     let claims;
     try {
-      ({ payload: claims } = await jwtVerify(token, jwks, { issuer, audience }));
+      ({ payload: claims } = await jwtVerify(token, jwks, {
+        issuer,
+        audience,
+      }));
     } catch (err) {
       request.log.info({ err: err.message }, "token verification failed");
       return reply.code(401).send({ error: "Invalid token" });
@@ -136,7 +145,9 @@ async function authPlugin(app, opts) {
     if (config.superadminEmails.includes(request.user.email.toLowerCase())) {
       request.isSuperadmin = true;
     } else {
-      const row = await query("SELECT 1 FROM superadmins WHERE email = $1", [request.user.email]);
+      const row = await query("SELECT 1 FROM superadmins WHERE email = $1", [
+        request.user.email,
+      ]);
       request.isSuperadmin = row.rows.length > 0;
     }
     return undefined;
@@ -152,4 +163,8 @@ async function authPlugin(app, opts) {
   });
 }
 
-module.exports = { authPlugin: fp(authPlugin), resolveUser, resolveUserForIdentity };
+module.exports = {
+  authPlugin: fp(authPlugin),
+  resolveUser,
+  resolveUserForIdentity,
+};

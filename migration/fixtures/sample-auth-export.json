@@ -10,7 +10,9 @@
     {
       "localId": "fixture-uid-bob",
       "email": "bob@fixture.example",
-      "providerUserInfo": [{ "providerId": "github.com", "email": "bob@fixture.example" }]
+      "providerUserInfo": [
+        { "providerId": "github.com", "email": "bob@fixture.example" }
+      ]
     }
   ]
 }

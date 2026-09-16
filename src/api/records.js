@@ -26,11 +26,18 @@ export function createRecord(region, record) {
   return post(`/regions/${region}/records`, record);
 }
 
-export function saveRecord(region, recordID, record, { ifUnmodifiedSince } = {}) {
+export function saveRecord(
+  region,
+  recordID,
+  record,
+  { ifUnmodifiedSince } = {},
+) {
   return put(
     `/regions/${region}/records/${recordID}`,
     record,
-    ifUnmodifiedSince ? { "If-Unmodified-Since": ifUnmodifiedSince } : undefined,
+    ifUnmodifiedSince
+      ? { "If-Unmodified-Since": ifUnmodifiedSince }
+      : undefined,
   );
 }
 

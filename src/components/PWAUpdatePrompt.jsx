@@ -21,7 +21,11 @@ export default function PWAUpdatePrompt() {
         severity="info"
         onClose={() => setNeedRefresh(false)}
         action={
-          <Button color="inherit" size="small" onClick={() => updateServiceWorker(true)}>
+          <Button
+            color="inherit"
+            size="small"
+            onClick={() => updateServiceWorker(true)}
+          >
             <I18n en="Reload" fr="Recharger" />
           </Button>
         }

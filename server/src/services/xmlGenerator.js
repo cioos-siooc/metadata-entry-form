@@ -11,7 +11,10 @@ const { query } = require("../db");
 async function generatorUrlFor(region) {
   let url = null;
   try {
-    const result = await query("SELECT record_generator_url FROM regions WHERE id = $1", [region]);
+    const result = await query(
+      "SELECT record_generator_url FROM regions WHERE id = $1",
+      [region],
+    );
     url = result.rows[0]?.record_generator_url ?? null;
   } catch (error) {
     console.error(

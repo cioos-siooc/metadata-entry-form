@@ -8,4 +8,5 @@ export const createRegion = (id, config) => post("/regions", { id, config });
 export const updateRegion = (id, config) => put(`/regions/${id}`, { config });
 
 export const getSuperadmins = () => get("/superadmins");
-export const saveSuperadmins = (superadmins) => put("/superadmins", { superadmins });
+export const saveSuperadmins = (superadmins) =>
+  put("/superadmins", { superadmins });

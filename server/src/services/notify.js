@@ -20,7 +20,9 @@ const { getTransporter } = require("../lib/mailer");
 // retain the object shape.
 function findCustodianOrgName(record) {
   const contacts = Object.values((record && record.contacts) || {});
-  const custodian = contacts.find((c) => Object.values((c && c.role) || {}).includes("custodian"));
+  const custodian = contacts.find((c) =>
+    Object.values((c && c.role) || {}).includes("custodian"),
+  );
   return custodian && custodian.orgName;
 }
 
@@ -37,7 +39,13 @@ Email the reviewers for the region (and confirmation to the author) when a
 record is submitted for review. Also opens the hakai review GitHub issue.
 Mirrors notifyReviewer.
 */
-async function notifySubmitted({ region, record, authorUserinfo, reviewerEmails, log = console }) {
+async function notifySubmitted({
+  region,
+  record,
+  authorUserinfo,
+  reviewerEmails,
+  log = console,
+}) {
   const author = authorUserinfo || record.userinfo || {};
   const authorEmail = author.email;
 
@@ -62,7 +70,12 @@ async function notifySubmitted({ region, record, authorUserinfo, reviewerEmails,
   if (authorEmail) {
     log.info(`Emailing submission confirmation to author ${authorEmail}`);
     await getTransporter().sendMail(
-      mailOptionsAuthorSubmissionConfirmation(authorEmail, titleEn, titleFr, region),
+      mailOptionsAuthorSubmissionConfirmation(
+        authorEmail,
+        titleEn,
+        titleFr,
+        region,
+      ),
     );
   }
 
@@ -100,7 +113,13 @@ Email the author when their record is published — unless the author is a
 reviewer themselves. Mirrors notifyUser (including the quirk that nothing is
 sent when the region has no reviewers).
 */
-async function notifyPublished({ region, record, authorUserinfo, reviewerEmails, log = console }) {
+async function notifyPublished({
+  region,
+  record,
+  authorUserinfo,
+  reviewerEmails,
+  log = console,
+}) {
   const reviewers = reviewerEmails ?? (await getReviewerEmails(region));
   if (!reviewers.length) {
     log.info(`No reviewers for region ${region}`);
@@ -123,7 +142,14 @@ async function notifyPublished({ region, record, authorUserinfo, reviewerEmails,
   }
 
   log.info(`Emailing ${authorEmail}`);
-  await getTransporter().sendMail(mailOptionsAuthor(authorEmail, titleEn, titleFr, region));
+  await getTransporter().sendMail(
+    mailOptionsAuthor(authorEmail, titleEn, titleFr, region),
+  );
 }
 
-module.exports = { notifySubmitted, notifyPublished, findCustodianOrgName, getReviewerEmails };
+module.exports = {
+  notifySubmitted,
+  notifyPublished,
+  findCustodianOrgName,
+  getReviewerEmails,
+};

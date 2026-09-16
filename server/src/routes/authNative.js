@@ -28,7 +28,9 @@ const {
 
 async function nativeSessionPayload(user, raw) {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + config.auth.nativeRefreshTokenTtlDays);
+  expiresAt.setDate(
+    expiresAt.getDate() + config.auth.nativeRefreshTokenTtlDays,
+  );
   return {
     accessToken: await signAccessToken(user),
     expiresIn: accessTokenTtlSeconds(),
@@ -49,14 +51,17 @@ async function authNativeRoutes(app) {
     const { email, password, deviceId, deviceName } = request.body || {};
 
     const result = await verifyCredentials(email, password);
-    if (result.error) return reply.code(result.status).send({ error: result.error });
+    if (result.error)
+      return reply.code(result.status).send({ error: result.error });
 
     const { raw } = await issueRefreshToken(null, result.user.id, undefined, {
       clientType: "native",
       deviceId,
       deviceName,
     });
-    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [result.user.id]);
+    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [
+      result.user.id,
+    ]);
 
     return nativeSessionPayload(result.user, raw);
   });
@@ -66,10 +71,14 @@ async function authNativeRoutes(app) {
   // between a dropped LTE handoff being a hiccup and being a lockout at sea.
   app.post("/auth/token/refresh", async (request, reply) => {
     const { refreshToken } = request.body || {};
-    if (!refreshToken) return reply.code(400).send({ error: "refreshToken is required" });
+    if (!refreshToken)
+      return reply.code(400).send({ error: "refreshToken is required" });
 
     const rotated = await rotateRefreshToken(refreshToken);
-    if (!rotated) return reply.code(401).send({ error: "Invalid or expired refresh token" });
+    if (!rotated)
+      return reply
+        .code(401)
+        .send({ error: "Invalid or expired refresh token" });
 
     const user = await loadUser(rotated.userId);
     if (!user) return reply.code(401).send({ error: "User no longer exists" });
@@ -90,11 +99,14 @@ async function authNativeRoutes(app) {
   app.post("/auth/token/exchange", async (request, reply) => {
     const { code, codeVerifier, deviceId, deviceName } = request.body || {};
     if (!code || !codeVerifier) {
-      return reply.code(400).send({ error: "code and codeVerifier are required" });
+      return reply
+        .code(400)
+        .send({ error: "code and codeVerifier are required" });
     }
 
     const consumed = await consumeNativeAuthCode(code, codeVerifier);
-    if (!consumed) return reply.code(400).send({ error: "Invalid or expired code" });
+    if (!consumed)
+      return reply.code(400).send({ error: "Invalid or expired code" });
 
     const user = await loadUser(consumed.userId);
     if (!user) return reply.code(401).send({ error: "User no longer exists" });
@@ -104,31 +116,37 @@ async function authNativeRoutes(app) {
       deviceId: deviceId || consumed.deviceId,
       deviceName: deviceName || consumed.deviceName,
     });
-    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [user.id]);
+    await query("UPDATE users SET last_login_at = now() WHERE id = $1", [
+      user.id,
+    ]);
 
     return nativeSessionPayload(user, raw);
   });
 
   // "Sign out my lost phone." Schema-ready thanks to the device columns.
-  app.get("/auth/sessions", { preHandler: [app.authenticate] }, async (request) => {
-    const rows = await query(
-      `SELECT DISTINCT ON (session_id)
+  app.get(
+    "/auth/sessions",
+    { preHandler: [app.authenticate] },
+    async (request) => {
+      const rows = await query(
+        `SELECT DISTINCT ON (session_id)
          session_id, client_type, device_id, device_name, created_at, last_used_at, expires_at
        FROM refresh_tokens
        WHERE user_id = $1 AND revoked_at IS NULL AND expires_at > now()
        ORDER BY session_id, created_at DESC`,
-      [request.user.id],
-    );
-    return rows.rows.map((r) => ({
-      sessionId: r.session_id,
-      clientType: r.client_type,
-      deviceId: r.device_id,
-      deviceName: r.device_name,
-      createdAt: r.created_at,
-      lastUsedAt: r.last_used_at,
-      expiresAt: r.expires_at,
-    }));
-  });
+        [request.user.id],
+      );
+      return rows.rows.map((r) => ({
+        sessionId: r.session_id,
+        clientType: r.client_type,
+        deviceId: r.device_id,
+        deviceName: r.device_name,
+        createdAt: r.created_at,
+        lastUsedAt: r.last_used_at,
+        expiresAt: r.expires_at,
+      }));
+    },
+  );
 
   app.delete(
     "/auth/sessions/:sessionId",
@@ -142,7 +160,8 @@ async function authNativeRoutes(app) {
          RETURNING id`,
         [request.params.sessionId, request.user.id],
       );
-      if (!result.rows.length) return reply.code(404).send({ error: "Session not found" });
+      if (!result.rows.length)
+        return reply.code(404).send({ error: "Session not found" });
       return { ok: true };
     },
   );

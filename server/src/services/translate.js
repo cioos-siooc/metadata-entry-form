@@ -36,8 +36,10 @@ function getClient() {
 }
 
 function buildPrompt(originalText, sourceLanguageCode, targetLanguageCode) {
-  const sourceLang = sourceLanguageCode === "en" ? "Canadian English" : "Canadian French";
-  const targetLang = targetLanguageCode === "en" ? "Canadian English" : "Canadian French";
+  const sourceLang =
+    sourceLanguageCode === "en" ? "Canadian English" : "Canadian French";
+  const targetLang =
+    targetLanguageCode === "en" ? "Canadian English" : "Canadian French";
 
   return promptTemplate
     .replace("{{sourceLang}}", sourceLang)
@@ -60,7 +62,11 @@ async function translateText(text, fromLang) {
     messages: [{ role: "user", content: prompt }],
   });
 
-  if (response.message && response.message.content && response.message.content.length > 0) {
+  if (
+    response.message &&
+    response.message.content &&
+    response.message.content.length > 0
+  ) {
     let translatedText = response.message.content[0].text;
     // Strip <text_to_translate> wrapper tags if the model echoes them back
     const match = translatedText.match(

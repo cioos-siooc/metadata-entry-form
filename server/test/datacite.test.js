@@ -17,7 +17,9 @@ const REGION = "amundsen";
 const PREFIX = "10.1234";
 const AUTH_HASH = "dGVzdDpwYXNz";
 
-async function saveDataciteCredentials(config = { prefix: PREFIX, apiDomain: "api.test.datacite.org" }) {
+async function saveDataciteCredentials(
+  config = { prefix: PREFIX, apiDomain: "api.test.datacite.org" },
+) {
   await query(
     `INSERT INTO region_credentials (region, kind, config, secret_enc)
      VALUES ($1, 'datacite', $2, $3)
@@ -33,29 +35,32 @@ describe("datacite", () => {
 
   beforeAll(async () => {
     app = await buildTestApp();
-    await query("DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'", [
-      REGION,
-    ]);
+    await query(
+      "DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'",
+      [REGION],
+    );
     await saveDataciteCredentials();
 
     admin = { email: `admin-${randomUUID()}@datacite.test` };
     admin.token = await signToken({ email: admin.email });
-    await query("INSERT INTO region_permissions (region, email, role) VALUES ($1, $2, 'admin')", [
-      REGION,
-      admin.email,
-    ]);
+    await query(
+      "INSERT INTO region_permissions (region, email, role) VALUES ($1, $2, 'admin')",
+      [REGION, admin.email],
+    );
 
     member = { email: `member-${randomUUID()}@datacite.test` };
     member.token = await signToken({ email: member.email });
   });
 
   afterAll(async () => {
-    await query("DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'", [
-      REGION,
-    ]);
-    await query("DELETE FROM region_permissions WHERE region = $1 AND email LIKE '%@datacite.test'", [
-      REGION,
-    ]);
+    await query(
+      "DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'",
+      [REGION],
+    );
+    await query(
+      "DELETE FROM region_permissions WHERE region = $1 AND email LIKE '%@datacite.test'",
+      [REGION],
+    );
     await query("DELETE FROM users WHERE email LIKE '%@datacite.test'");
     await app.close();
     await pool.end();
@@ -78,7 +83,9 @@ describe("datacite", () => {
     });
 
     it("returns null for a region without stored credentials", async () => {
-      expect(await datacite.getDataciteCredentials("no-such-region")).toBeNull();
+      expect(
+        await datacite.getDataciteCredentials("no-such-region"),
+      ).toBeNull();
     });
   });
 
@@ -116,7 +123,9 @@ describe("datacite", () => {
     });
 
     it("sends the publish event and returns the new state", async () => {
-      axios.put.mockResolvedValue({ data: { data: { attributes: { state: "findable" } } } });
+      axios.put.mockResolvedValue({
+        data: { data: { attributes: { state: "findable" } } },
+      });
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi/state`,
@@ -144,7 +153,9 @@ describe("datacite", () => {
 
     it("maps the form's 'test' apiDomain value to the test API host", async () => {
       await saveDataciteCredentials({ prefix: PREFIX, apiDomain: "test" });
-      axios.put.mockResolvedValue({ data: { data: { attributes: { state: "registered" } } } });
+      axios.put.mockResolvedValue({
+        data: { data: { attributes: { state: "registered" } } },
+      });
       await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi/state`,
@@ -152,7 +163,9 @@ describe("datacite", () => {
         payload: { doi: `${PREFIX}/test-doi`, event: "register" },
       });
       await saveDataciteCredentials();
-      expect(axios.put.mock.calls[0][0]).toBe(`https://api.test.datacite.org/dois/${PREFIX}/test-doi/`);
+      expect(axios.put.mock.calls[0][0]).toBe(
+        `https://api.test.datacite.org/dois/${PREFIX}/test-doi/`,
+      );
     });
   });
 
@@ -162,7 +175,9 @@ describe("datacite", () => {
     it("creates a draft DOI successfully", async () => {
       const mockResponse = {
         status: 201,
-        data: { data: { attributes: { doi: `${PREFIX}/test-doi`, state: "draft" } } },
+        data: {
+          data: { attributes: { doi: `${PREFIX}/test-doi`, state: "draft" } },
+        },
       };
       axios.post.mockResolvedValue(mockResponse);
 
@@ -210,7 +225,10 @@ describe("datacite", () => {
           data: {
             errors: [
               { title: "Missing field", detail: "creators is required" },
-              { title: "Invalid value", detail: "publicationYear must be a number" },
+              {
+                title: "Invalid value",
+                detail: "publicationYear must be a number",
+              },
             ],
           },
         },
@@ -246,7 +264,10 @@ describe("datacite", () => {
 
     it("returns 500 with the message field for server errors", async () => {
       axios.post.mockRejectedValue({
-        response: { status: 500, data: { message: "Internal server error occurred" } },
+        response: {
+          status: 500,
+          data: { message: "Internal server error occurred" },
+        },
       });
 
       const res = await app.inject({
@@ -307,7 +328,10 @@ describe("datacite", () => {
       });
 
       expect(res.statusCode).toBe(200);
-      expect(res.json()).toEqual({ status: 200, message: "Draft DOI updated successfully" });
+      expect(res.json()).toEqual({
+        status: 200,
+        message: "Draft DOI updated successfully",
+      });
       expect(axios.put).toHaveBeenCalledWith(
         `https://api.test.datacite.org/dois/${PREFIX}/test-doi/`,
         expect.any(Object),
@@ -365,7 +389,9 @@ describe("datacite", () => {
       expect(axios.delete).toHaveBeenCalledWith(
         `https://api.test.datacite.org/dois/${PREFIX}/test-doi/`,
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: `Basic ${AUTH_HASH}` }),
+          headers: expect.objectContaining({
+            Authorization: `Basic ${AUTH_HASH}`,
+          }),
         }),
       );
     });
@@ -499,7 +525,9 @@ describe("datacite", () => {
     });
 
     it("creates and deletes a test DOI with the stored credentials", async () => {
-      axios.post.mockResolvedValue({ data: { data: { id: `${PREFIX}/test-cred` } } });
+      axios.post.mockResolvedValue({
+        data: { data: { id: `${PREFIX}/test-cred` } },
+      });
       axios.delete.mockResolvedValue({ status: 204 });
 
       const res = await app.inject({
@@ -515,7 +543,9 @@ describe("datacite", () => {
         "https://api.test.datacite.org/dois/",
         { data: { type: "dois", attributes: { prefix: PREFIX } } },
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: `Basic ${AUTH_HASH}` }),
+          headers: expect.objectContaining({
+            Authorization: `Basic ${AUTH_HASH}`,
+          }),
         }),
       );
       expect(axios.delete).toHaveBeenCalledWith(
@@ -540,13 +570,17 @@ describe("datacite", () => {
         expect.any(String),
         { data: { type: "dois", attributes: { prefix: "10.5555" } } },
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: "Basic bmV3OmNyZWRz" }),
+          headers: expect.objectContaining({
+            Authorization: "Basic bmV3OmNyZWRz",
+          }),
         }),
       );
     });
 
     it("returns 401 when the credentials are rejected", async () => {
-      axios.post.mockRejectedValue({ response: { status: 401, statusText: "Unauthorized" } });
+      axios.post.mockRejectedValue({
+        response: { status: 401, statusText: "Unauthorized" },
+      });
 
       const res = await app.inject({
         method: "POST",
@@ -560,7 +594,9 @@ describe("datacite", () => {
     });
 
     it("returns 403 when the account lacks permission", async () => {
-      axios.post.mockRejectedValue({ response: { status: 403, statusText: "Forbidden" } });
+      axios.post.mockRejectedValue({
+        response: { status: 403, statusText: "Forbidden" },
+      });
 
       const res = await app.inject({
         method: "POST",
@@ -574,7 +610,9 @@ describe("datacite", () => {
     });
 
     it("still succeeds when test DOI cleanup fails", async () => {
-      axios.post.mockResolvedValue({ data: { data: { id: `${PREFIX}/leftover` } } });
+      axios.post.mockResolvedValue({
+        data: { data: { id: `${PREFIX}/leftover` } },
+      });
       axios.delete.mockRejectedValue(new Error("delete failed"));
 
       const res = await app.inject({
@@ -591,9 +629,10 @@ describe("datacite", () => {
 
   describe("without stored credentials", () => {
     beforeAll(async () => {
-      await query("DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'", [
-        REGION,
-      ]);
+      await query(
+        "DELETE FROM region_credentials WHERE region = $1 AND kind = 'datacite'",
+        [REGION],
+      );
     });
 
     afterAll(async () => {

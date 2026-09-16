@@ -78,17 +78,17 @@ export const bboxProblems = (map = {}) => {
       !Number.isNaN(coords[k]) &&
       !(k === "north" || k === "south"
         ? validateLatitude(coords[k])
-        : validateLongitude(coords[k]))
+        : validateLongitude(coords[k])),
   );
   if (outOfRange.length)
     problems.push({
       en: `Coordinate(s) out of range: ${names(
         outOfRange,
-        "en"
+        "en",
       )}. Latitudes must be between -90 and 90, longitudes between -360 and 360`,
       fr: `Coordonnée(s) hors limites : ${names(
         outOfRange,
-        "fr"
+        "fr",
       )}. Les latitudes doivent être comprises entre -90 et 90, les longitudes entre -360 et 360`,
     });
 
@@ -225,10 +225,8 @@ export const validators = {
         };
       if (val && val.polygon)
         return {
-          en:
-            "Polygon coordinates are invalid: use space separated lat,lon pairs that start and end with the same point",
-          fr:
-            "Les coordonnées du polygone sont invalides : utilisez des paires lat,lon séparées par des espaces qui commencent et se terminent par le même point",
+          en: "Polygon coordinates are invalid: use space separated lat,lon pairs that start and end with the same point",
+          fr: "Les coordonnées du polygone sont invalides : utilisez des paires lat,lon séparées par des espaces qui commencent et se terminent par le même point",
         };
       return {
         en: "Spatial information is missing",

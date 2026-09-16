@@ -48,10 +48,17 @@ const ResetPassword = () => {
               <Typography variant="body2">
                 <I18n>
                   <En>Your password has been reset. You can now sign in.</En>
-                  <Fr>Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter.</Fr>
+                  <Fr>
+                    Votre mot de passe a été réinitialisé. Vous pouvez
+                    maintenant vous connecter.
+                  </Fr>
                 </I18n>
               </Typography>
-              <Button component={RouterLink} to="/en/region-select" variant="contained">
+              <Button
+                component={RouterLink}
+                to="/en/region-select"
+                variant="contained"
+              >
                 <I18n>
                   <En>Continue</En>
                   <Fr>Continuer</Fr>
@@ -61,10 +68,17 @@ const ResetPassword = () => {
           ) : (
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={2}>
-                {status === "error" && message && <Alert severity="error">{message}</Alert>}
+                {status === "error" && message && (
+                  <Alert severity="error">{message}</Alert>
+                )}
                 <TextField
                   type="password"
-                  label={<I18n><En>New password</En><Fr>Nouveau mot de passe</Fr></I18n>}
+                  label={
+                    <I18n>
+                      <En>New password</En>
+                      <Fr>Nouveau mot de passe</Fr>
+                    </I18n>
+                  }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

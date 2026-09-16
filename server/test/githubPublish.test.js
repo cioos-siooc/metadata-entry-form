@@ -25,7 +25,12 @@ async function saveGithubCredentials() {
      ON CONFLICT (region, kind) DO UPDATE SET config = $2, secret_enc = $3`,
     [
       REGION,
-      JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main", environment: "" }),
+      JSON.stringify({
+        owner: "test-owner",
+        repo: "test-repo",
+        branch: "main",
+        environment: "",
+      }),
       encryptSecret(TOKEN),
     ],
   );
@@ -59,7 +64,10 @@ describe("githubPublish", () => {
   });
 
   afterAll(async () => {
-    await query("DELETE FROM region_credentials WHERE region = $1 AND kind = 'github'", [REGION]);
+    await query(
+      "DELETE FROM region_credentials WHERE region = $1 AND kind = 'github'",
+      [REGION],
+    );
     await query(
       "DELETE FROM region_permissions WHERE region = $1 AND email LIKE '%@ghpublish.test'",
       [REGION],
@@ -74,10 +82,18 @@ describe("githubPublish", () => {
     mockOctokitInstance = {
       rest: {
         git: {
-          getRef: jest.fn().mockResolvedValue({ data: { object: { sha: "commit-sha" } } }),
-          getCommit: jest.fn().mockResolvedValue({ data: { tree: { sha: "tree-sha" } } }),
-          createTree: jest.fn().mockResolvedValue({ data: { sha: "new-tree-sha" } }),
-          createCommit: jest.fn().mockResolvedValue({ data: { sha: "new-commit-sha" } }),
+          getRef: jest
+            .fn()
+            .mockResolvedValue({ data: { object: { sha: "commit-sha" } } }),
+          getCommit: jest
+            .fn()
+            .mockResolvedValue({ data: { tree: { sha: "tree-sha" } } }),
+          createTree: jest
+            .fn()
+            .mockResolvedValue({ data: { sha: "new-tree-sha" } }),
+          createCommit: jest
+            .fn()
+            .mockResolvedValue({ data: { sha: "new-commit-sha" } }),
           updateRef: jest.fn().mockResolvedValue({}),
         },
       },
@@ -143,7 +159,9 @@ describe("githubPublish", () => {
     expect(body.success).toBe(true);
     expect(body.commitSha).toBe("new-commit-sha");
     expect(body.files).toEqual(["test.xml"]);
-    expect(body.commitUrl).toBe("https://github.com/test-owner/test-repo/commit/new-commit-sha");
+    expect(body.commitUrl).toBe(
+      "https://github.com/test-owner/test-repo/commit/new-commit-sha",
+    );
 
     // authenticated with the decrypted stored token
     expect(Octokit).toHaveBeenCalledWith({ auth: TOKEN });
@@ -162,7 +180,10 @@ describe("githubPublish", () => {
       }),
     );
     expect(mockOctokitInstance.rest.git.createCommit).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "test commit", parents: ["commit-sha"] }),
+      expect.objectContaining({
+        message: "test commit",
+        parents: ["commit-sha"],
+      }),
     );
     expect(mockOctokitInstance.rest.git.updateRef).toHaveBeenCalledWith(
       expect.objectContaining({ ref: "heads/main", sha: "new-commit-sha" }),
@@ -184,7 +205,9 @@ describe("githubPublish", () => {
   });
 
   it("maps GitHub API failures to a 500 error", async () => {
-    mockOctokitInstance.rest.git.getRef.mockRejectedValue(new Error("Bad credentials"));
+    mockOctokitInstance.rest.git.getRef.mockRejectedValue(
+      new Error("Bad credentials"),
+    );
 
     const res = await app.inject({
       method: "POST",
@@ -198,7 +221,10 @@ describe("githubPublish", () => {
   });
 
   it("fails when GitHub configuration is missing", async () => {
-    await query("DELETE FROM region_credentials WHERE region = $1 AND kind = 'github'", [REGION]);
+    await query(
+      "DELETE FROM region_credentials WHERE region = $1 AND kind = 'github'",
+      [REGION],
+    );
 
     const res = await app.inject({
       method: "POST",

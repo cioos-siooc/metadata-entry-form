@@ -49,7 +49,7 @@ const Submissions = () => {
       markFormNavigation(submissionsConfig.pageId);
       navigate(`/${language}/${region}/new`, state ? { state } : undefined);
     },
-    [navigate, language, region]
+    [navigate, language, region],
   );
 
   const loadRecords = useCallback(async () => {
@@ -226,8 +226,16 @@ const Submissions = () => {
           <Divider />
           {[
             ["doi", "From a DOI (DataCite)…", "À partir d'un DOI (DataCite)…"],
-            ["obis", "From an OBIS dataset…", "À partir d'un jeu de données OBIS…"],
-            ["pdc", "From a PDC record (CCIN)…", "À partir d'un enregistrement du CDDP (CCIN)…"],
+            [
+              "obis",
+              "From an OBIS dataset…",
+              "À partir d'un jeu de données OBIS…",
+            ],
+            [
+              "pdc",
+              "From a PDC record (CCIN)…",
+              "À partir d'un enregistrement du CDDP (CCIN)…",
+            ],
           ].map(([type, en, fr]) => (
             <MenuItem
               key={type}

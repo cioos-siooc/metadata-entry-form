@@ -19,7 +19,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function onRecordChange(log, { region, record, before, after, kind }) {
   log.info(
-    { region, recordID: record?.recordID, kind, before: before?.status, after: after?.status },
+    {
+      region,
+      recordID: record?.recordID,
+      kind,
+      before: before?.status,
+      after: after?.status,
+    },
     "record change hook",
   );
 
@@ -56,7 +62,10 @@ async function onRecordChange(log, { region, record, before, after, kind }) {
 
   // Mirrors notifyReviewer: entering 'submitted' from draft/none — not from
   // 'published' (a demoted published record isn't a new submission).
-  if (afterStatus === "submitted" && (!beforeStatus || beforeStatus === "draft")) {
+  if (
+    afterStatus === "submitted" &&
+    (!beforeStatus || beforeStatus === "draft")
+  ) {
     try {
       await notifySubmitted({ region, record, log });
     } catch (err) {
@@ -76,7 +85,10 @@ async function onRecordChange(log, { region, record, before, after, kind }) {
   // Mirrors updatesRecordUpdate: if the record was or is submitted/published,
   // tell the converter — with the record's NEW status, so leaving those
   // states (demotion to draft) removes the WAF files.
-  if (XML_STATUSES.includes(beforeStatus) || XML_STATUSES.includes(afterStatus)) {
+  if (
+    XML_STATUSES.includes(beforeStatus) ||
+    XML_STATUSES.includes(afterStatus)
+  ) {
     try {
       await updateRecordXML({ region, record });
     } catch (err) {

@@ -174,7 +174,8 @@ const RecordTable = ({
       .map((colName) => {
         // DOI status is only meaningful/up-to-date for regions that manage DOI
         // status from the form; hide the column for DataCite-managed regions.
-        if (colName === "doiStatus" && doiStatusManagement !== "form") return null;
+        if (colName === "doiStatus" && doiStatusManagement !== "form")
+          return null;
         const col = columnDefs[colName];
         if (!col) return null;
         return col;

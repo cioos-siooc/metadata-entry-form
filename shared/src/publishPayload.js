@@ -24,7 +24,9 @@ export function publishFilenameBase(record, fileTemplate) {
   const uuid = record.id || record.identifier;
   base = base.replace("{uuid}", uuid);
 
-  const title = record.title ? record.title.en || record.title.fr || "untitled" : "untitled";
+  const title = record.title
+    ? record.title.en || record.title.fr || "untitled"
+    : "untitled";
   return base.replace("{title}", title.replace(/[^a-zA-Z0-9-_]/g, "-"));
 }
 
@@ -54,14 +56,22 @@ export function buildPublishPayload({
   for (const env of environments) {
     const baseDir = region ? `forms/${region}/${env}` : `forms/${env}`;
     files.push({ path: `${baseDir}/${filenameBase}.xml`, content: xmlContent });
-    files.push({ path: `${baseDir}/${filenameBase}.yaml`, content: yamlContent });
-    files.push({ path: `${baseDir}/${filenameBase}.json`, content: jsonContent });
+    files.push({
+      path: `${baseDir}/${filenameBase}.yaml`,
+      content: yamlContent,
+    });
+    files.push({
+      path: `${baseDir}/${filenameBase}.json`,
+      content: jsonContent,
+    });
   }
 
   // A copy of the record JSON outside the per-environment tree.
   files.push({ path: `records/${filenameBase}.json`, content: jsonContent });
 
-  const title = record.title ? record.title.en || record.title.fr || "untitled" : "untitled";
+  const title = record.title
+    ? record.title.en || record.title.fr || "untitled"
+    : "untitled";
   return {
     files,
     commitMessage: commitMessage || `Publish metadata record: ${title}`,

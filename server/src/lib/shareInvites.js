@@ -2,7 +2,9 @@
 // address before they had an account. Only call once the email is verified —
 // otherwise registering someone else's address would claim their invites.
 async function claimInvites(q, userId, email) {
-  const normalized = String(email || "").trim().toLowerCase();
+  const normalized = String(email || "")
+    .trim()
+    .toLowerCase();
   if (!normalized) return;
   await q(
     `WITH claimed AS (

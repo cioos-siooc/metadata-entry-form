@@ -18,7 +18,10 @@ import {
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { I18n, En, Fr } from "../../I18n";
-import { loadMyFormSubmissions, deleteFormSubmission } from "../../../api/formSubmissions";
+import {
+  loadMyFormSubmissions,
+  deleteFormSubmission,
+} from "../../../api/formSubmissions";
 
 // The caller's schema-driven form submissions across all form types.
 export default function MyFormSubmissions() {
@@ -64,7 +67,10 @@ export default function MyFormSubmissions() {
 
       {submissions.length === 0 ? (
         <Typography>
-          <I18n en="No submissions yet." fr="Aucune soumission pour l'instant." />
+          <I18n
+            en="No submissions yet."
+            fr="Aucune soumission pour l'instant."
+          />
         </Typography>
       ) : (
         <TableContainer component={Paper}>
@@ -96,7 +102,11 @@ export default function MyFormSubmissions() {
                   <TableCell>
                     <Chip
                       size="small"
-                      color={submission.status === "submitted" ? "success" : "default"}
+                      color={
+                        submission.status === "submitted"
+                          ? "success"
+                          : "default"
+                      }
                       label={
                         submission.status === "submitted" ? (
                           <I18n en="Submitted" fr="Soumis" />
@@ -106,7 +116,9 @@ export default function MyFormSubmissions() {
                       }
                     />
                   </TableCell>
-                  <TableCell>{new Date(submission.updatedAt).toLocaleString()}</TableCell>
+                  <TableCell>
+                    {new Date(submission.updatedAt).toLocaleString()}
+                  </TableCell>
                   <TableCell align="right">
                     <Tooltip title={<I18n en="Edit" fr="Modifier" />}>
                       <IconButton
@@ -121,7 +133,10 @@ export default function MyFormSubmissions() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
-                      <IconButton size="small" onClick={() => handleDelete(submission)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(submission)}
+                      >
                         <Delete />
                       </IconButton>
                     </Tooltip>

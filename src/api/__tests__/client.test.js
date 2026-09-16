@@ -17,7 +17,10 @@ function mockFetch(response) {
   return fetchMock;
 }
 
-function jsonResponse(body, { ok = true, status = 200, statusText = "OK" } = {}) {
+function jsonResponse(
+  body,
+  { ok = true, status = 200, statusText = "OK" } = {},
+) {
   return {
     ok,
     status,
@@ -72,7 +75,9 @@ describe("apiFetch", () => {
   it("refreshes once and retries on a 401", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(jsonResponse({ error: "expired" }, { ok: false, status: 401 }))
+      .mockResolvedValueOnce(
+        jsonResponse({ error: "expired" }, { ok: false, status: 401 }),
+      )
       .mockResolvedValueOnce(jsonResponse({ ok: true }));
     vi.stubGlobal("fetch", fetchMock);
 

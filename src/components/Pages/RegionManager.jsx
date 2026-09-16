@@ -75,7 +75,9 @@ function configToForm(id, config = {}) {
 function formToConfig(form) {
   return {
     title: { en: form.titleEn, fr: form.titleFr },
-    ...(form.titleFrPossessive && { titleFrPossessive: form.titleFrPossessive }),
+    ...(form.titleFrPossessive && {
+      titleFrPossessive: form.titleFrPossessive,
+    }),
     catalogueTitle: { en: form.catalogueTitleEn, fr: form.catalogueTitleFr },
     colors: { primary: form.colorPrimary, secondary: form.colorSecondary },
     email: form.email,
@@ -87,7 +89,14 @@ function formToConfig(form) {
   };
 }
 
-const bilingualPair = (form, handleChange, baseName, labelEn, labelFr, extra = {}) => (
+const bilingualPair = (
+  form,
+  handleChange,
+  baseName,
+  labelEn,
+  labelFr,
+  extra = {},
+) => (
   <>
     <Grid size={{ xs: 12, md: 6 }}>
       <TextField
@@ -144,7 +153,10 @@ export default function RegionManager() {
       <Grid container direction="column" spacing={2} alignItems="center">
         <Grid>
           <Typography>
-            <I18n en="Sign in to manage regions." fr="Connectez-vous pour gérer les régions." />
+            <I18n
+              en="Sign in to manage regions."
+              fr="Connectez-vous pour gérer les régions."
+            />
           </Typography>
         </Grid>
         <Grid>
@@ -162,7 +174,10 @@ export default function RegionManager() {
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const selectRegion = (id) => {
@@ -177,7 +192,8 @@ export default function RegionManager() {
     if (isNew && !/^[a-z0-9-]+$/.test(id)) {
       setStatus({
         severity: "error",
-        message: "Region id must contain only lowercase letters, digits, and hyphens.",
+        message:
+          "Region id must contain only lowercase letters, digits, and hyphens.",
       });
       return;
     }
@@ -195,7 +211,10 @@ export default function RegionManager() {
         [isNew ? id : selected]: { ...prev[isNew ? id : selected], ...config },
       }));
       if (isNew) setSelected(id);
-      setStatus({ severity: "success", message: `Region ${isNew ? id : selected} saved.` });
+      setStatus({
+        severity: "success",
+        message: `Region ${isNew ? id : selected} saved.`,
+      });
     } catch (err) {
       setStatus({ severity: "error", message: err.message });
     } finally {
@@ -229,8 +248,13 @@ export default function RegionManager() {
         </Typography>
         <Typography variant="body2">
           <I18n>
-            <En>Create and edit organizations/regions, and manage superadmins.</En>
-            <Fr>Créez et modifiez des organisations/régions et gérez les superadministrateurs.</Fr>
+            <En>
+              Create and edit organizations/regions, and manage superadmins.
+            </En>
+            <Fr>
+              Créez et modifiez des organisations/régions et gérez les
+              superadministrateurs.
+            </Fr>
           </I18n>
         </Typography>
       </Grid>
@@ -265,7 +289,10 @@ export default function RegionManager() {
                   </ListItemButton>
                 ))}
             </List>
-            <Button startIcon={<Add />} onClick={() => selectRegion(NEW_REGION)}>
+            <Button
+              startIcon={<Add />}
+              onClick={() => selectRegion(NEW_REGION)}
+            >
               <I18n en="New region" fr="Nouvelle région" />
             </Button>
           </Paper>
@@ -314,12 +341,37 @@ export default function RegionManager() {
                     fullWidth
                   />
                 </Grid>
-                {bilingualPair(form, handleChange, "catalogueTitle", "Catalogue title", "Titre du catalogue")}
-                {bilingualPair(form, handleChange, "catalogueURL", "Catalogue URL", "URL du catalogue")}
-                {bilingualPair(form, handleChange, "introPageText", "Intro text", "Texte d'introduction", {
-                  multiline: true,
-                })}
-                {bilingualPair(form, handleChange, "logo", "Logo URL", "URL du logo")}
+                {bilingualPair(
+                  form,
+                  handleChange,
+                  "catalogueTitle",
+                  "Catalogue title",
+                  "Titre du catalogue",
+                )}
+                {bilingualPair(
+                  form,
+                  handleChange,
+                  "catalogueURL",
+                  "Catalogue URL",
+                  "URL du catalogue",
+                )}
+                {bilingualPair(
+                  form,
+                  handleChange,
+                  "introPageText",
+                  "Intro text",
+                  "Texte d'introduction",
+                  {
+                    multiline: true,
+                  },
+                )}
+                {bilingualPair(
+                  form,
+                  handleChange,
+                  "logo",
+                  "Logo URL",
+                  "URL du logo",
+                )}
                 <Grid size={{ xs: 6, md: 3 }}>
                   <TextField
                     name="colorPrimary"
@@ -347,18 +399,38 @@ export default function RegionManager() {
                         onChange={handleChange}
                       />
                     }
-                    label={<I18n en="Show in region selector" fr="Afficher dans le sélecteur" />}
+                    label={
+                      <I18n
+                        en="Show in region selector"
+                        fr="Afficher dans le sélecteur"
+                      />
+                    }
                   />
                   <FormControlLabel
-                    control={<Checkbox name="isRA" checked={form.isRA} onChange={handleChange} />}
-                    label={<I18n en="Regional Association" fr="Association régionale" />}
+                    control={
+                      <Checkbox
+                        name="isRA"
+                        checked={form.isRA}
+                        onChange={handleChange}
+                      />
+                    }
+                    label={
+                      <I18n
+                        en="Regional Association"
+                        fr="Association régionale"
+                      />
+                    }
                   />
                 </Grid>
                 <Grid size={12}>
                   <Button
-                    startIcon={saving ? <CircularProgress size={20} /> : <Save />}
+                    startIcon={
+                      saving ? <CircularProgress size={20} /> : <Save />
+                    }
                     variant="contained"
-                    disabled={saving || (selected === NEW_REGION && !form.id.trim())}
+                    disabled={
+                      saving || (selected === NEW_REGION && !form.id.trim())
+                    }
                     onClick={handleSaveRegion}
                   >
                     <I18n en="Save region" fr="Enregistrer la région" />
@@ -408,7 +480,10 @@ export default function RegionManager() {
                 disabled={saving}
                 onClick={handleSaveSuperadmins}
               >
-                <I18n en="Save superadmins" fr="Enregistrer les superadministrateurs" />
+                <I18n
+                  en="Save superadmins"
+                  fr="Enregistrer les superadministrateurs"
+                />
               </Button>
             </Grid>
           </Grid>

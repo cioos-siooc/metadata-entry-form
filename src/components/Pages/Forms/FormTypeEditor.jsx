@@ -89,21 +89,32 @@ export default function FormTypeEditor() {
     reload();
   }, [reload]);
 
-  const jsonSchema = useMemo(() => parseJson(form.jsonSchemaText), [form.jsonSchemaText]);
-  const uiSchema = useMemo(() => parseJson(form.uiSchemaText), [form.uiSchemaText]);
+  const jsonSchema = useMemo(
+    () => parseJson(form.jsonSchemaText),
+    [form.jsonSchemaText],
+  );
+  const uiSchema = useMemo(
+    () => parseJson(form.uiSchemaText),
+    [form.uiSchemaText],
+  );
 
   if (!formTypes) return <CircularProgress />;
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const select = (id) => {
     setStatus(null);
     setSelected(id);
     setForm(
-      id === NEW_TYPE ? emptyForm : typeToForm(formTypes.find((formType) => formType.id === id)),
+      id === NEW_TYPE
+        ? emptyForm
+        : typeToForm(formTypes.find((formType) => formType.id === id)),
     );
   };
 
@@ -120,7 +131,10 @@ export default function FormTypeEditor() {
     };
     try {
       if (selected === NEW_TYPE) {
-        const created = await createFormType(region, { ...payload, slug: form.slug.trim() });
+        const created = await createFormType(region, {
+          ...payload,
+          slug: form.slug.trim(),
+        });
         setSelected(created.id);
       } else {
         await saveFormType(region, selected, payload);
@@ -261,7 +275,9 @@ export default function FormTypeEditor() {
                       minRows={10}
                       error={Boolean(jsonSchema.error)}
                       helperText={jsonSchema.error}
-                      slotProps={{ input: { style: { fontFamily: "monospace" } } }}
+                      slotProps={{
+                        input: { style: { fontFamily: "monospace" } },
+                      }}
                     />
                   </Grid>
                   <Grid size={12}>
@@ -275,18 +291,26 @@ export default function FormTypeEditor() {
                       minRows={4}
                       error={Boolean(uiSchema.error)}
                       helperText={uiSchema.error}
-                      slotProps={{ input: { style: { fontFamily: "monospace" } } }}
+                      slotProps={{
+                        input: { style: { fontFamily: "monospace" } },
+                      }}
                     />
                   </Grid>
                   <Grid size={12} container alignItems="center" spacing={1}>
                     <FormControlLabel
                       control={
-                        <Checkbox name="enabled" checked={form.enabled} onChange={handleChange} />
+                        <Checkbox
+                          name="enabled"
+                          checked={form.enabled}
+                          onChange={handleChange}
+                        />
                       }
                       label={<I18n en="Enabled" fr="Activé" />}
                     />
                     <Button
-                      startIcon={saving ? <CircularProgress size={20} /> : <Save />}
+                      startIcon={
+                        saving ? <CircularProgress size={20} /> : <Save />
+                      }
                       variant="contained"
                       disabled={
                         saving ||
@@ -325,7 +349,10 @@ export default function FormTypeEditor() {
                     />
                   </Typography>
                 ) : (
-                  <SchemaForm jsonSchema={jsonSchema.value} uiSchema={uiSchema.value}>
+                  <SchemaForm
+                    jsonSchema={jsonSchema.value}
+                    uiSchema={uiSchema.value}
+                  >
                     {/* hide the submit button in preview */}
                     <span />
                   </SchemaForm>

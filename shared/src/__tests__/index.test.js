@@ -3,7 +3,13 @@ import * as shared from "../index.js";
 
 describe("shared barrel", () => {
   test("exposes the validation gate", () => {
-    for (const name of ["validators", "validateField", "percentValid", "recordIsValid", "getErrorsByTab"]) {
+    for (const name of [
+      "validators",
+      "validateField",
+      "percentValid",
+      "recordIsValid",
+      "getErrorsByTab",
+    ]) {
       expect(shared, name).toHaveProperty(name);
     }
   });

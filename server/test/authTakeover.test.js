@@ -5,7 +5,10 @@ const mockMailer = {
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
 };
 jest.mock("../src/lib/mailer", () => mockMailer);
-jest.mock("../src/lib/oidc", () => ({ startAuth: jest.fn(), completeAuth: jest.fn() }));
+jest.mock("../src/lib/oidc", () => ({
+  startAuth: jest.fn(),
+  completeAuth: jest.fn(),
+}));
 
 const { buildTestApp, authHeader, signToken } = require("./helpers");
 const { query } = require("../src/db");
@@ -49,7 +52,9 @@ describe("register no longer takes over passwordless accounts", () => {
     // Still a generic 201 — no account enumeration.
     expect(register.statusCode).toBe(201);
 
-    const after = await query("SELECT password_hash FROM users WHERE id = $1", [id]);
+    const after = await query("SELECT password_hash FROM users WHERE id = $1", [
+      id,
+    ]);
     expect(after.rows[0].password_hash).toBeNull();
 
     const login = await app.inject({
@@ -86,7 +91,10 @@ describe("register no longer takes over passwordless accounts", () => {
     expect(res.statusCode).toBe(201);
     expect(mockMailer.sendVerifyEmail).toHaveBeenCalled();
 
-    const row = await query("SELECT password_hash FROM users WHERE email = $1", [email]);
+    const row = await query(
+      "SELECT password_hash FROM users WHERE email = $1",
+      [email],
+    );
     expect(row.rows[0].password_hash).toBeTruthy();
   });
 });
@@ -207,7 +215,9 @@ describe("POST /auth/password", () => {
       url: "/api/v1/auth/register",
       payload: { email, password: "original-password" },
     });
-    await query("UPDATE users SET email_verified = true WHERE email = $1", [email]);
+    await query("UPDATE users SET email_verified = true WHERE email = $1", [
+      email,
+    ]);
     const row = await query("SELECT id FROM users WHERE email = $1", [email]);
     const token = await signToken({ sub: row.rows[0].id, email });
 
@@ -223,7 +233,10 @@ describe("POST /auth/password", () => {
       method: "POST",
       url: "/api/v1/auth/password",
       headers: authHeader(token),
-      payload: { currentPassword: "original-password", newPassword: "replacement-pw" },
+      payload: {
+        currentPassword: "original-password",
+        newPassword: "replacement-pw",
+      },
     });
     expect(right.statusCode).toBe(200);
   });
@@ -259,7 +272,9 @@ describe("safeReturnTo is an origin check, not a prefix match", () => {
   });
 
   test("rejects unregistered schemes even for native flows", () => {
-    expect(safeReturnTo("evilapp://steal", { allowNative: true })).toBe(config.spaBaseUrl);
+    expect(safeReturnTo("evilapp://steal", { allowNative: true })).toBe(
+      config.spaBaseUrl,
+    );
   });
 
   test.each([null, undefined, "", "not a url", "javascript:alert(1)"])(

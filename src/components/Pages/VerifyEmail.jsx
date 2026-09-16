@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link as RouterLink } from "react-router-dom";
-import { Box, Card, CardContent, Typography, CircularProgress, Button } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+  Button,
+} from "@mui/material";
 import { verifyEmail } from "../../auth/session";
 import { En, Fr, I18n } from "../I18n";
 
@@ -36,10 +43,17 @@ const VerifyEmail = () => {
               <Typography variant="body2" sx={{ mb: 2 }}>
                 <I18n>
                   <En>Your email is confirmed. You can now sign in.</En>
-                  <Fr>Votre courriel est confirmé. Vous pouvez maintenant vous connecter.</Fr>
+                  <Fr>
+                    Votre courriel est confirmé. Vous pouvez maintenant vous
+                    connecter.
+                  </Fr>
                 </I18n>
               </Typography>
-              <Button component={RouterLink} to="/en/region-select" variant="contained">
+              <Button
+                component={RouterLink}
+                to="/en/region-select"
+                variant="contained"
+              >
                 <I18n>
                   <En>Continue</En>
                   <Fr>Continuer</Fr>

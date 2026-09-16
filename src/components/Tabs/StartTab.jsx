@@ -31,7 +31,10 @@ import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
 import { topicCategories } from "../../utils/themes";
-import { normalizeResourceType, isOnlyOther } from "../../utils/normalizeResourceType";
+import {
+  normalizeResourceType,
+  isOnlyOther,
+} from "../../utils/normalizeResourceType";
 
 import SelectInput from "../FormComponents/SelectInput";
 
@@ -62,9 +65,12 @@ const StartTab = ({
   const nonProminentTopics = allTopics.filter((t) => !t.prominent);
   const nonProminentKeys = nonProminentTopics.map((t) => t.key);
 
-  const normalizedResourceType = normalizeResourceType(record.resourceType || []);
+  const normalizedResourceType = normalizeResourceType(
+    record.resourceType || [],
+  );
   const hasNonProminentSelected =
-    normalizedResourceType.filter((val) => nonProminentKeys.includes(val)).length > 0;
+    normalizedResourceType.filter((val) => nonProminentKeys.includes(val))
+      .length > 0;
 
   const updateResourceType = (value) => {
     if (isOnlyOther(value)) {
@@ -308,7 +314,9 @@ const StartTab = ({
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
               <En>What is the topic category of this record?</En>
-              <Fr>Quelle est la catégorie thématique de cet enregistrement ?</Fr>
+              <Fr>
+                Quelle est la catégorie thématique de cet enregistrement ?
+              </Fr>
             </I18n>
             <RequiredMark passes={record.resourceType?.length} />
             <SupplementalText>
@@ -372,7 +380,7 @@ const StartTab = ({
                 options={nonProminentTopics.map((t) => t.key)}
                 optionLabels={nonProminentTopics.map((t) => t.title[language])}
                 optionTooltips={nonProminentTopics.map(
-                  (t) => t.definition[language]
+                  (t) => t.definition[language],
                 )}
                 disabled={disabled}
               />

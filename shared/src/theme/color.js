@@ -86,7 +86,12 @@ export function oklchToRgb({ L, C, h }) {
 }
 
 const inGamut = ({ r, g, b }) =>
-  r >= -1e-4 && r <= 1.0001 && g >= -1e-4 && g <= 1.0001 && b >= -1e-4 && b <= 1.0001;
+  r >= -1e-4 &&
+  r <= 1.0001 &&
+  g >= -1e-4 &&
+  g <= 1.0001 &&
+  b >= -1e-4 &&
+  b <= 1.0001;
 
 /**
  * Convert to sRGB, reducing chroma until the colour actually fits in the gamut.

@@ -53,7 +53,8 @@ const RecordActions = ({
   size,
   iconButtonClassName,
 }) => {
-  const { doiStatusManagement, publishDoi, registerDoi, hideDoi } = useContext(UserContext);
+  const { doiStatusManagement, publishDoi, registerDoi, hideDoi } =
+    useContext(UserContext);
 
   // Main menu state
   const [anchorEl, setAnchorEl] = useState(null);
@@ -171,7 +172,7 @@ const RecordActions = ({
     }
   };
 
-  const hasDoi = !!(record?.datasetIdentifier);
+  const hasDoi = !!record?.datasetIdentifier;
   const currentDoiState = record?.doiCreationStatus || "";
 
   // Extract DOI ID from full URL if needed
@@ -217,15 +218,24 @@ const RecordActions = ({
         let result;
         if (choice === "findable") {
           result = await publishDoi({ doi, region });
-        } else if (choice === "registered" && dataciteDialogMode === "publish") {
+        } else if (
+          choice === "registered" &&
+          dataciteDialogMode === "publish"
+        ) {
           result = await registerDoi({ doi, region });
-        } else if (choice === "registered" && dataciteDialogMode === "unpublish") {
+        } else if (
+          choice === "registered" &&
+          dataciteDialogMode === "unpublish"
+        ) {
           result = await hideDoi({ doi, region });
         }
         // Persist the new DOI status back to the record so the stored value
         // stays in sync with DataCite (mirrors the in-form status dropdown).
         const newState = result?.data?.state || choice;
-        await saveRecord(region, rID, { ...record, doiCreationStatus: newState });
+        await saveRecord(region, rID, {
+          ...record,
+          doiCreationStatus: newState,
+        });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("DataCite state transition failed:", err);
@@ -588,7 +598,10 @@ const RecordActions = ({
         loading={dataciteDialogLoading}
       />
 
-      <Tooltip title={<I18n en="Actions" fr="Actions" />} disableHoverListener={menuOpen}>
+      <Tooltip
+        title={<I18n en="Actions" fr="Actions" />}
+        disableHoverListener={menuOpen}
+      >
         <span>
           <IconButton
             {...buttonProps}

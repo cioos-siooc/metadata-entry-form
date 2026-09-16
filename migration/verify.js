@@ -28,7 +28,8 @@ if (!process.env.DATABASE_URL) {
 let decryptSecret = null;
 if (process.env.CREDENTIALS_ENC_KEY) {
   process.env.KEYCLOAK_ISSUER =
-    process.env.KEYCLOAK_ISSUER || "http://keycloak.invalid/unused-by-migration";
+    process.env.KEYCLOAK_ISSUER ||
+    "http://keycloak.invalid/unused-by-migration";
   ({ decryptSecret } = require(
     path.join(__dirname, "..", "server", "src", "lib", "crypto"),
   ));
@@ -62,7 +63,9 @@ function deepDiff(a, b, prefix = "") {
   if (a && typeof a === "object") {
     const diffs = [];
     for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
-      diffs.push(...deepDiff(a[key], b[key], prefix ? `${prefix}.${key}` : key));
+      diffs.push(
+        ...deepDiff(a[key], b[key], prefix ? `${prefix}.${key}` : key),
+      );
     return diffs;
   }
   return [{ path: prefix || "(root)", source: a, db: b }];
@@ -103,10 +106,18 @@ async function main() {
     );
     for (const r of recRes.rows)
       dbRecordCounts.set(`${r.region}/${r.status}`, r.n);
-    for (const key of new Set([...srcRecordCounts.keys(), ...dbRecordCounts.keys()])) {
+    for (const key of new Set([
+      ...srcRecordCounts.keys(),
+      ...dbRecordCounts.keys(),
+    ])) {
       const src = srcRecordCounts.get(key) || 0;
       const db = dbRecordCounts.get(key) || 0;
-      summary.push({ check: `records ${key}`, source: src, db, ok: src === db });
+      summary.push({
+        check: `records ${key}`,
+        source: src,
+        db,
+        ok: src === db,
+      });
       if (src !== db) fail({ type: "record_count", key, source: src, db });
     }
 
@@ -128,8 +139,14 @@ async function main() {
       for (const region of new Set([...srcCounts.keys(), ...dbCounts.keys()])) {
         const src = srcCounts.get(region) || 0;
         const db = dbCounts.get(region) || 0;
-        summary.push({ check: `${table} ${region}`, source: src, db, ok: src === db });
-        if (src !== db) fail({ type: "entity_count", table, region, source: src, db });
+        summary.push({
+          check: `${table} ${region}`,
+          source: src,
+          db,
+          ok: src === db,
+        });
+        if (src !== db)
+          fail({ type: "entity_count", table, region, source: src, db });
       }
     }
 
@@ -147,7 +164,8 @@ async function main() {
       ok: userByUid.size === srcUids.length,
     });
     for (const uid of srcUids)
-      if (!userByUid.has(uid)) fail({ type: "user_missing", firebase_uid: uid });
+      if (!userByUid.has(uid))
+        fail({ type: "user_missing", firebase_uid: uid });
 
     // Permissions per region (set equality).
     const srcPerms = new Set(
@@ -175,7 +193,9 @@ async function main() {
       if (!srcPerms.has(p)) fail({ type: "permission_unexpected", entry: p });
 
     // Projects per region (set equality).
-    const srcProjects = new Set(data.projects.map((p) => `${p.region}|${p.name}`));
+    const srcProjects = new Set(
+      data.projects.map((p) => `${p.region}|${p.name}`),
+    );
     const projRegions = [...new Set(data.projects.map((p) => p.region))];
     const projRes = projRegions.length
       ? await client.query(
@@ -183,7 +203,9 @@ async function main() {
           [projRegions],
         )
       : { rows: [] };
-    const dbProjects = new Set(projRes.rows.map((p) => `${p.region}|${p.name}`));
+    const dbProjects = new Set(
+      projRes.rows.map((p) => `${p.region}|${p.name}`),
+    );
     summary.push({
       check: "region_projects",
       source: srcProjects.size,
@@ -202,27 +224,46 @@ async function main() {
         [cred.region, cred.kind],
       );
       if (!res.rows.length) {
-        fail({ type: "credential_missing", region: cred.region, kind: cred.kind });
+        fail({
+          type: "credential_missing",
+          region: cred.region,
+          kind: cred.kind,
+        });
         continue;
       }
       const row = res.rows[0];
       const cfgDiffs = deepDiff(cred.config ?? {}, row.config ?? {});
       if (cfgDiffs.length)
-        fail({ type: "credential_config", region: cred.region, kind: cred.kind, diffs: cfgDiffs });
+        fail({
+          type: "credential_config",
+          region: cred.region,
+          kind: cred.kind,
+          diffs: cfgDiffs,
+        });
       if (cred.secret) {
         if (!row.secret_enc) {
-          fail({ type: "credential_secret_missing", region: cred.region, kind: cred.kind });
+          fail({
+            type: "credential_secret_missing",
+            region: cred.region,
+            kind: cred.kind,
+          });
         } else if (decryptSecret) {
           const plain = decryptSecret(row.secret_enc);
           if (plain !== cred.secret)
-            fail({ type: "credential_secret_mismatch", region: cred.region, kind: cred.kind });
+            fail({
+              type: "credential_secret_mismatch",
+              region: cred.region,
+              kind: cred.kind,
+            });
         }
       }
     }
     summary.push({
       check: `region_credentials${decryptSecret ? " (incl. secrets)" : " (config only)"}`,
       source: data.credentials.length,
-      db: data.credentials.length - failures.filter((f) => String(f.type).startsWith("credential")).length,
+      db:
+        data.credentials.length -
+        failures.filter((f) => String(f.type).startsWith("credential")).length,
       ok: !failures.some((f) => String(f.type).startsWith("credential")),
     });
 
@@ -234,22 +275,33 @@ async function main() {
       );
       const db = res.rows[0]?.record_generator_url ?? null;
       if (db !== r.record_generator_url)
-        fail({ type: "region_url", region: r.region, source: r.record_generator_url, db });
+        fail({
+          type: "region_url",
+          region: r.region,
+          source: r.record_generator_url,
+          db,
+        });
     }
     summary.push({
       check: "region record_generator_url",
       source: data.region_urls.length,
-      db: data.region_urls.length - failures.filter((f) => f.type === "region_url").length,
+      db:
+        data.region_urls.length -
+        failures.filter((f) => f.type === "region_url").length,
       ok: !failures.some((f) => f.type === "region_url"),
     });
 
     // ---------- (b) deep-diff sample ----------
 
-    const published = data.records.filter((r) => r.columns.status === "published");
+    const published = data.records.filter(
+      (r) => r.columns.status === "published",
+    );
     const others = data.records
       .filter((r) => r.columns.status !== "published")
       .sort((a, b) =>
-        `${a.region}/${a.firebase_key}`.localeCompare(`${b.region}/${b.firebase_key}`),
+        `${a.region}/${a.firebase_key}`.localeCompare(
+          `${b.region}/${b.firebase_key}`,
+        ),
       )
       // deterministic ~10% sample: sorted, every 10th — no randomness
       .filter((_, i) => i % 10 === 0);
@@ -263,7 +315,11 @@ async function main() {
         [rec.region, rec.firebase_key],
       );
       if (!res.rows.length) {
-        fail({ type: "record_missing", region: rec.region, firebase_key: rec.firebase_key });
+        fail({
+          type: "record_missing",
+          region: rec.region,
+          firebase_key: rec.firebase_key,
+        });
         diffFailures += 1;
         continue;
       }
@@ -313,7 +369,10 @@ async function main() {
         [row.id],
       );
       const dbShares = new Set(shareRes.rows.map((r) => r.firebase_uid));
-      const shareDiffs = deepDiff([...expectedShares].sort(), [...dbShares].sort());
+      const shareDiffs = deepDiff(
+        [...expectedShares].sort(),
+        [...dbShares].sort(),
+      );
       if (shareDiffs.length) {
         diffFailures += 1;
         fail({
@@ -334,9 +393,7 @@ async function main() {
 
     // ---------- (c) summary ----------
     console.log("");
-    console.table(
-      summary.map((s) => ({ ...s, ok: s.ok ? "OK" : "FAIL" })),
-    );
+    console.table(summary.map((s) => ({ ...s, ok: s.ok ? "OK" : "FAIL" })));
   } finally {
     await client.end();
   }

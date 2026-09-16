@@ -37,12 +37,13 @@ describe("detectSourceType", () => {
     expect(detectSourceType("https://doi.org/10.21963/13172")).toBe("doi");
   });
 
-  it.each([["", null], ["   ", null], ["not an identifier", null]])(
-    "returns null for %o",
-    (input, expected) => {
-      expect(detectSourceType(input)).toBe(expected);
-    }
-  );
+  it.each([
+    ["", null],
+    ["   ", null],
+    ["not an identifier", null],
+  ])("returns null for %o", (input, expected) => {
+    expect(detectSourceType(input)).toBe(expected);
+  });
 
   it("ignores surrounding whitespace", () => {
     expect(detectSourceType("  13172  ")).toBe("pdc");
@@ -70,7 +71,7 @@ describe("createRecordFromSource", () => {
     post.mockRejectedValue(new Error("Could not retrieve pdc record '999'"));
 
     await expect(createRecordFromSource("pdc", "999")).rejects.toThrow(
-      "Could not retrieve pdc record '999'"
+      "Could not retrieve pdc record '999'",
     );
   });
 });
@@ -117,7 +118,7 @@ describe("normalizePrefilledRecord", () => {
 
     expect(record.identifier).not.toBe(pdcRecord.identifier);
     expect(record.identifier).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 

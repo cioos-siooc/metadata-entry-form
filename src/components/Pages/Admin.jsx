@@ -120,7 +120,8 @@ class Admin extends FormClassTemplate {
       const credentialsStored = Boolean(dataciteConfig?.hasCredentials);
       // The API may expose the environment list under `environments` or
       // `environment`; normalize to an array.
-      const githubEnvs = githubConfig?.environments ?? githubConfig?.environment;
+      const githubEnvs =
+        githubConfig?.environments ?? githubConfig?.environment;
       const githubEnvList = Array.isArray(githubEnvs)
         ? githubEnvs
         : githubEnvs
@@ -516,7 +517,9 @@ class Admin extends FormClassTemplate {
 
   handleToggleSuffixMode = (mode) => {
     this.setState((prevState) => {
-      const current = Array.isArray(prevState.doiSuffixModes) ? prevState.doiSuffixModes : [];
+      const current = Array.isArray(prevState.doiSuffixModes)
+        ? prevState.doiSuffixModes
+        : [];
       const next = current.includes(mode)
         ? current.filter((m) => m !== mode)
         : [...current, mode];
@@ -725,13 +728,26 @@ class Admin extends FormClassTemplate {
                             <Fr>Gestion du statut DOI</Fr>
                           </I18n>
                         </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ display: "block", marginBottom: 4 }}
+                        >
                           <I18n>
                             <En>
-                              When set to &quot;Managed from this form&quot;, reviewers will be prompted to set the DOI status (findable or registered) when publishing or unpublishing records. The DOI status can also be changed directly from the record form.
+                              When set to &quot;Managed from this form&quot;,
+                              reviewers will be prompted to set the DOI status
+                              (findable or registered) when publishing or
+                              unpublishing records. The DOI status can also be
+                              changed directly from the record form.
                             </En>
                             <Fr>
-                              Lorsque défini sur « Géré depuis ce formulaire », les réviseurs seront invités à définir le statut du DOI (trouvable ou enregistré) lors de la publication ou du retrait d&apos;un enregistrement. Le statut peut également être modifié directement depuis le formulaire.
+                              Lorsque défini sur « Géré depuis ce formulaire »,
+                              les réviseurs seront invités à définir le statut
+                              du DOI (trouvable ou enregistré) lors de la
+                              publication ou du retrait d&apos;un
+                              enregistrement. Le statut peut également être
+                              modifié directement depuis le formulaire.
                             </Fr>
                           </I18n>
                         </Typography>
@@ -772,49 +788,73 @@ class Admin extends FormClassTemplate {
                             <Fr>Génération du suffixe DOI</Fr>
                           </I18n>
                         </FormLabel>
-                        <Typography variant="caption" color="textSecondary" style={{ display: "block", marginBottom: 4 }}>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ display: "block", marginBottom: 4 }}
+                        >
                           <I18n>
                             <En>
-                              Select one or more methods users may pick from when generating a DOI suffix.
+                              Select one or more methods users may pick from
+                              when generating a DOI suffix.
                             </En>
                             <Fr>
-                              Sélectionnez une ou plusieurs méthodes que les utilisateurs pourront choisir pour générer un suffixe DOI.
+                              Sélectionnez une ou plusieurs méthodes que les
+                              utilisateurs pourront choisir pour générer un
+                              suffixe DOI.
                             </Fr>
                           </I18n>
                         </Typography>
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("default")}
-                              onChange={() => this.handleToggleSuffixMode("default")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("default")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("default")
+                              }
                             />
                           }
                           label={
                             <I18n>
                               <En>Default (auto-generated by DataCite)</En>
-                              <Fr>Par défaut (généré automatiquement par DataCite)</Fr>
+                              <Fr>
+                                Par défaut (généré automatiquement par DataCite)
+                              </Fr>
                             </I18n>
                           }
                         />
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("identifier")}
-                              onChange={() => this.handleToggleSuffixMode("identifier")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("identifier")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("identifier")
+                              }
                             />
                           }
                           label={
                             <I18n>
                               <En>Form identifier (record identifier)</En>
-                              <Fr>Identifiant du formulaire (identifiant de l'enregistrement)</Fr>
+                              <Fr>
+                                Identifiant du formulaire (identifiant de
+                                l'enregistrement)
+                              </Fr>
                             </I18n>
                           }
                         />
                         <FormControlLabel
                           control={
                             <Checkbox
-                              checked={(this.state.doiSuffixModes || []).includes("manual")}
-                              onChange={() => this.handleToggleSuffixMode("manual")}
+                              checked={(
+                                this.state.doiSuffixModes || []
+                              ).includes("manual")}
+                              onChange={() =>
+                                this.handleToggleSuffixMode("manual")
+                              }
                             />
                           }
                           label={
@@ -884,7 +924,10 @@ class Admin extends FormClassTemplate {
                           </I18n>
                         }
                         placeholder={credentialsStored ? "••••••••" : ""}
-                        InputLabelProps={{ shrink: credentialsStored || !!this.state.datacitePass }}
+                        InputLabelProps={{
+                          shrink:
+                            credentialsStored || !!this.state.datacitePass,
+                        }}
                         helperText={
                           credentialsStored && !this.state.datacitePass ? (
                             <I18n>
@@ -930,14 +973,27 @@ class Admin extends FormClassTemplate {
                           onClose={() => this.setState({ testResult: null })}
                         >
                           {this.state.testResult.message}
-                          {!this.state.testResult.success && this.state.testResult.message?.includes("No DataCite credentials") && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              <I18n>
-                                <En>To fix this: enter your Account ID and Password above and click &quot;Update DataCite Settings&quot;, then test again.</En>
-                                <Fr>Pour corriger cela : entrez votre identifiant de compte et votre mot de passe ci-dessus, cliquez sur « Mettre à jour les paramètres DataCite », puis testez à nouveau.</Fr>
-                              </I18n>
-                            </Typography>
-                          )}
+                          {!this.state.testResult.success &&
+                            this.state.testResult.message?.includes(
+                              "No DataCite credentials",
+                            ) && (
+                              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                <I18n>
+                                  <En>
+                                    To fix this: enter your Account ID and
+                                    Password above and click &quot;Update
+                                    DataCite Settings&quot;, then test again.
+                                  </En>
+                                  <Fr>
+                                    Pour corriger cela : entrez votre
+                                    identifiant de compte et votre mot de passe
+                                    ci-dessus, cliquez sur « Mettre à jour les
+                                    paramètres DataCite », puis testez à
+                                    nouveau.
+                                  </Fr>
+                                </I18n>
+                              </Typography>
+                            )}
                         </Alert>
                       </Grid>
                     )}
@@ -950,18 +1006,33 @@ class Admin extends FormClassTemplate {
                       <Grid>
                         <Tooltip
                           title={
-                            this.state.datacitePass
-                              ? <I18n en="Save credentials first before testing" fr="Enregistrez les identifiants avant de tester" />
-                              : ""
+                            this.state.datacitePass ? (
+                              <I18n
+                                en="Save credentials first before testing"
+                                fr="Enregistrez les identifiants avant de tester"
+                              />
+                            ) : (
+                              ""
+                            )
                           }
                         >
                           <span>
                             <Button
-                              startIcon={this.state.testingCredentials ? <CircularProgress size={20} /> : <PlayArrow />}
+                              startIcon={
+                                this.state.testingCredentials ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <PlayArrow />
+                                )
+                              }
                               variant="outlined"
                               color="secondary"
                               onClick={this.handleTestCredentials}
-                              disabled={!credentialsStored || this.state.testingCredentials || !!this.state.datacitePass}
+                              disabled={
+                                !credentialsStored ||
+                                this.state.testingCredentials ||
+                                !!this.state.datacitePass
+                              }
                             >
                               <I18n>
                                 <En>Test Credentials</En>

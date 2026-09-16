@@ -41,7 +41,15 @@ async function issueRefreshToken(
     `INSERT INTO refresh_tokens
        (user_id, session_id, token_hash, expires_at, client_type, device_id, device_name)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-    [userId, sessionId, hashToken(raw), refreshExpiry(clientType), clientType, deviceId, deviceName],
+    [
+      userId,
+      sessionId,
+      hashToken(raw),
+      refreshExpiry(clientType),
+      clientType,
+      deviceId,
+      deviceName,
+    ],
   );
   return { raw, id: row.rows[0].id, sessionId };
 }
@@ -83,9 +91,10 @@ function isWithinNativeGrace(token) {
 // window, where a fresh token is issued in the same family instead.
 async function rotateRefreshToken(rawToken) {
   return withTransaction(async (client) => {
-    const found = await client.query("SELECT * FROM refresh_tokens WHERE token_hash = $1", [
-      hashToken(rawToken),
-    ]);
+    const found = await client.query(
+      "SELECT * FROM refresh_tokens WHERE token_hash = $1",
+      [hashToken(rawToken)],
+    );
     if (!found.rows.length) return null;
     const token = found.rows[0];
 
@@ -100,15 +109,20 @@ async function rotateRefreshToken(rawToken) {
             [token.replaced_by],
           );
         }
-        const retry = await issueRefreshToken(client, token.user_id, token.session_id, {
-          clientType: token.client_type,
-          deviceId: token.device_id,
-          deviceName: token.device_name,
-        });
-        await client.query("UPDATE refresh_tokens SET replaced_by = $1 WHERE id = $2", [
-          retry.id,
-          token.id,
-        ]);
+        const retry = await issueRefreshToken(
+          client,
+          token.user_id,
+          token.session_id,
+          {
+            clientType: token.client_type,
+            deviceId: token.device_id,
+            deviceName: token.device_name,
+          },
+        );
+        await client.query(
+          "UPDATE refresh_tokens SET replaced_by = $1 WHERE id = $2",
+          [retry.id, token.id],
+        );
         return {
           raw: retry.raw,
           userId: token.user_id,
@@ -128,11 +142,16 @@ async function rotateRefreshToken(rawToken) {
     if (new Date(token.expires_at) < new Date()) return null;
 
     // Carry the session's identity onto the successor.
-    const next = await issueRefreshToken(client, token.user_id, token.session_id, {
-      clientType: token.client_type,
-      deviceId: token.device_id,
-      deviceName: token.device_name,
-    });
+    const next = await issueRefreshToken(
+      client,
+      token.user_id,
+      token.session_id,
+      {
+        clientType: token.client_type,
+        deviceId: token.device_id,
+        deviceName: token.device_name,
+      },
+    );
     await client.query(
       "UPDATE refresh_tokens SET replaced_by = $1, revoked_at = now(), last_used_at = now() WHERE id = $2",
       [next.id, token.id],
@@ -149,9 +168,10 @@ async function rotateRefreshToken(rawToken) {
 
 // Revokes the family a token belongs to (logout). Silent if unknown.
 async function revokeRefreshToken(rawToken) {
-  const found = await query("SELECT session_id FROM refresh_tokens WHERE token_hash = $1", [
-    hashToken(rawToken),
-  ]);
+  const found = await query(
+    "SELECT session_id FROM refresh_tokens WHERE token_hash = $1",
+    [hashToken(rawToken)],
+  );
   if (!found.rows.length) return;
   await query(
     "UPDATE refresh_tokens SET revoked_at = now() WHERE session_id = $1 AND revoked_at IS NULL",
@@ -160,9 +180,10 @@ async function revokeRefreshToken(rawToken) {
 }
 
 async function revokeAllForUser(userId) {
-  await query("UPDATE refresh_tokens SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL", [
-    userId,
-  ]);
+  await query(
+    "UPDATE refresh_tokens SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL",
+    [userId],
+  );
 }
 
 function emailTokenExpiry() {
@@ -203,14 +224,26 @@ function pkceChallengeFor(verifier) {
   return crypto.createHash("sha256").update(verifier).digest("base64url");
 }
 
-async function createNativeAuthCode(userId, { appCodeChallenge, deviceId, deviceName }) {
+async function createNativeAuthCode(
+  userId,
+  { appCodeChallenge, deviceId, deviceName },
+) {
   const raw = randomToken();
-  const expires = new Date(Date.now() + config.auth.nativeAuthCodeTtlSeconds * 1000);
+  const expires = new Date(
+    Date.now() + config.auth.nativeAuthCodeTtlSeconds * 1000,
+  );
   await query(
     `INSERT INTO native_auth_codes
        (code_hash, user_id, app_code_challenge, device_id, device_name, expires_at)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [hashToken(raw), userId, appCodeChallenge, deviceId || null, deviceName || null, expires],
+    [
+      hashToken(raw),
+      userId,
+      appCodeChallenge,
+      deviceId || null,
+      deviceName || null,
+      expires,
+    ],
   );
   return raw;
 }
@@ -237,7 +270,10 @@ async function consumeNativeAuthCode(rawCode, codeVerifier) {
 
   const expected = Buffer.from(record.app_code_challenge);
   const actual = Buffer.from(pkceChallengeFor(codeVerifier));
-  if (expected.length !== actual.length || !crypto.timingSafeEqual(expected, actual)) {
+  if (
+    expected.length !== actual.length ||
+    !crypto.timingSafeEqual(expected, actual)
+  ) {
     return null;
   }
 

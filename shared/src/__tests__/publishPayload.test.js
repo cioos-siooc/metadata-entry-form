@@ -33,13 +33,18 @@ describe("publishFilenameBase", () => {
   });
 
   it("falls back to the bare filename with no template", () => {
-    expect(publishFilenameBase(record, "")).toBe("sea_surface_temperature_abcde");
+    expect(publishFilenameBase(record, "")).toBe(
+      "sea_surface_temperature_abcde",
+    );
   });
 });
 
 describe("buildPublishPayload", () => {
   it("writes xml, yaml and json per environment plus one records copy", () => {
-    const payload = buildPublishPayload({ ...base, environments: ["prod", "dev"] });
+    const payload = buildPublishPayload({
+      ...base,
+      environments: ["prod", "dev"],
+    });
     expect(payload.files).toHaveLength(7);
     expect(payload.files.map((f) => f.path)).toEqual([
       "forms/pacific/prod/sea_surface_temperature_abcde.xml",
@@ -68,14 +73,17 @@ describe("buildPublishPayload", () => {
   });
 
   it("keeps a supplied commit message", () => {
-    expect(buildPublishPayload({ ...base, commitMessage: "fix: paths" }).commitMessage).toBe(
-      "fix: paths",
-    );
+    expect(
+      buildPublishPayload({ ...base, commitMessage: "fix: paths" })
+        .commitMessage,
+    ).toBe("fix: paths");
   });
 
   it("omits the region directory when there is no region", () => {
     const payload = buildPublishPayload({ ...base, region: undefined });
-    expect(payload.files[0].path).toBe("forms/prod/sea_surface_temperature_abcde.xml");
+    expect(payload.files[0].path).toBe(
+      "forms/prod/sea_surface_temperature_abcde.xml",
+    );
   });
 
   it("survives a record with no dataset language set", () => {

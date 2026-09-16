@@ -64,9 +64,13 @@ describe("form submissions API", () => {
   });
 
   afterAll(async () => {
-    await query("DELETE FROM form_submissions WHERE form_type_id = $1", [formType.id]);
+    await query("DELETE FROM form_submissions WHERE form_type_id = $1", [
+      formType.id,
+    ]);
     await query("DELETE FROM form_types WHERE id = $1", [formType.id]);
-    await query("DELETE FROM region_permissions WHERE email LIKE '%@formsubs.test'");
+    await query(
+      "DELETE FROM region_permissions WHERE email LIKE '%@formsubs.test'",
+    );
     await query("DELETE FROM users WHERE email LIKE '%@formsubs.test'");
     await app.close();
     await pool.end();
@@ -88,7 +92,11 @@ describe("form submissions API", () => {
     expect(badSubmit.statusCode).toBe(422);
     const { validationErrors } = badSubmit.json();
     expect(validationErrors.length).toBeGreaterThan(0);
-    expect(validationErrors.some((e) => e.instancePath === "/name" || e.message.includes("depth"))).toBe(true);
+    expect(
+      validationErrors.some(
+        (e) => e.instancePath === "/name" || e.message.includes("depth"),
+      ),
+    ).toBe(true);
 
     const goodSubmit = await app.inject({
       method: "PUT",
@@ -114,7 +122,11 @@ describe("form submissions API", () => {
     const submission = (await createDraft(owner, { name: "mine" })).json();
     const url = `/api/v1/regions/${REGION}/form-submissions/${submission.id}`;
 
-    const strangerGet = await app.inject({ method: "GET", url, headers: authHeader(stranger.token) });
+    const strangerGet = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(stranger.token),
+    });
     expect(strangerGet.statusCode).toBe(403);
 
     const strangerPut = await app.inject({
@@ -125,10 +137,18 @@ describe("form submissions API", () => {
     });
     expect(strangerPut.statusCode).toBe(403);
 
-    const reviewerGet = await app.inject({ method: "GET", url, headers: authHeader(reviewer.token) });
+    const reviewerGet = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(reviewer.token),
+    });
     expect(reviewerGet.statusCode).toBe(200);
 
-    const ownerGet = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    const ownerGet = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(owner.token),
+    });
     expect(ownerGet.statusCode).toBe(200);
   });
 
@@ -174,13 +194,25 @@ describe("form submissions API", () => {
     const submission = (await createDraft(owner)).json();
     const url = `/api/v1/regions/${REGION}/form-submissions/${submission.id}`;
 
-    const denied = await app.inject({ method: "DELETE", url, headers: authHeader(stranger.token) });
+    const denied = await app.inject({
+      method: "DELETE",
+      url,
+      headers: authHeader(stranger.token),
+    });
     expect(denied.statusCode).toBe(403);
 
-    const deleted = await app.inject({ method: "DELETE", url, headers: authHeader(owner.token) });
+    const deleted = await app.inject({
+      method: "DELETE",
+      url,
+      headers: authHeader(owner.token),
+    });
     expect(deleted.statusCode).toBe(200);
 
-    const gone = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    const gone = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(owner.token),
+    });
     expect(gone.statusCode).toBe(404);
   });
 

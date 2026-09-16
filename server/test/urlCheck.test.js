@@ -51,7 +51,10 @@ describe("checkURLActive", () => {
     fetch.mockResolvedValue({ ok: true, status: 200 });
 
     expect(await checkURLActive("example.com/data")).toBe(true);
-    expect(fetch).toHaveBeenCalledWith("http://example.com/data", expect.any(Object));
+    expect(fetch).toHaveBeenCalledWith(
+      "http://example.com/data",
+      expect.any(Object),
+    );
   });
 
   it("returns false when the hostname does not resolve", async () => {
@@ -77,24 +80,30 @@ describe("checkURLActive", () => {
       ["172.16/12 upper bound", "172.31.255.254"],
       ["192.168/16", "192.168.1.1"],
       ["link-local", "169.254.169.254"],
-    ])("rejects hosts resolving to private IPv4 range %s", async (_label, address) => {
-      dns.lookup.mockResolvedValue([{ address, family: 4 }]);
+    ])(
+      "rejects hosts resolving to private IPv4 range %s",
+      async (_label, address) => {
+        dns.lookup.mockResolvedValue([{ address, family: 4 }]);
 
-      expect(await checkURLActive("http://internal.example.com")).toBe(false);
-      expect(fetch).not.toHaveBeenCalled();
-    });
+        expect(await checkURLActive("http://internal.example.com")).toBe(false);
+        expect(fetch).not.toHaveBeenCalled();
+      },
+    );
 
     it.each([
       ["loopback", "::1"],
       ["unique local fc00::/7", "fd12:3456:789a::1"],
       ["link-local fe80::/10", "fe80::1"],
       ["IPv4-mapped private", "::ffff:192.168.0.10"],
-    ])("rejects hosts resolving to private IPv6 range %s", async (_label, address) => {
-      dns.lookup.mockResolvedValue([{ address, family: 6 }]);
+    ])(
+      "rejects hosts resolving to private IPv6 range %s",
+      async (_label, address) => {
+        dns.lookup.mockResolvedValue([{ address, family: 6 }]);
 
-      expect(await checkURLActive("http://internal.example.com")).toBe(false);
-      expect(fetch).not.toHaveBeenCalled();
-    });
+        expect(await checkURLActive("http://internal.example.com")).toBe(false);
+        expect(fetch).not.toHaveBeenCalled();
+      },
+    );
 
     it("rejects IPv6 literal URLs pointing at loopback", async () => {
       dns.lookup.mockResolvedValue([{ address: "::1", family: 6 }]);

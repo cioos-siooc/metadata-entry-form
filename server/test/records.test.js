@@ -4,7 +4,9 @@ const { query, pool } = require("../src/db");
 const { claimInvites } = require("../src/lib/shareInvites");
 
 const mockSendMail = jest.fn().mockResolvedValue({});
-jest.mock("../src/lib/mailer", () => ({ getTransporter: () => ({ sendMail: mockSendMail }) }));
+jest.mock("../src/lib/mailer", () => ({
+  getTransporter: () => ({ sendMail: mockSendMail }),
+}));
 
 const REGION = "test";
 
@@ -46,7 +48,9 @@ describe("records API", () => {
   });
 
   afterAll(async () => {
-    await query("DELETE FROM region_permissions WHERE email LIKE '%@records.test'");
+    await query(
+      "DELETE FROM region_permissions WHERE email LIKE '%@records.test'",
+    );
     await query(
       "DELETE FROM records WHERE user_id IN (SELECT id FROM users WHERE email LIKE '%@records.test')",
     );
@@ -77,7 +81,13 @@ describe("records API", () => {
     expect(record.title.en).toBe("Test dataset");
     // standardizeRecord defaults applied
     expect(record.eov).toEqual([]);
-    expect(record.map).toEqual({ north: "", south: "", east: "", west: "", polygon: "" });
+    expect(record.map).toEqual({
+      north: "",
+      south: "",
+      east: "",
+      west: "",
+      polygon: "",
+    });
   });
 
   test("owner can update; stranger cannot; reviewer can", async () => {
@@ -166,8 +176,14 @@ describe("records API", () => {
       headers: authHeader(owner.token),
       payload: { email: sharedUser.email.toUpperCase() },
     });
-    expect(shared.json()).toEqual({ status: "shared", email: sharedUser.email, emailSent: true });
-    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({ to: sharedUser.email }));
+    expect(shared.json()).toEqual({
+      status: "shared",
+      email: sharedUser.email,
+      emailSent: true,
+    });
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({ to: sharedUser.email }),
+    );
 
     const again = await app.inject({
       method: "POST",
@@ -186,16 +202,25 @@ describe("records API", () => {
     });
     expect(invited.json().status).toBe("invited");
 
-    const got = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    const got = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(owner.token),
+    });
     expect(got.json().sharedWith).toEqual({ [sharedUserId]: sharedUser.email });
     expect(got.json().pendingShares).toEqual({ [newcomer]: newcomer });
 
     // Newcomer signs up with a verified email: the invitation becomes a share.
-    const created = await query("INSERT INTO users (email, email_verified) VALUES ($1, true) RETURNING id", [
-      newcomer,
-    ]);
+    const created = await query(
+      "INSERT INTO users (email, email_verified) VALUES ($1, true) RETURNING id",
+      [newcomer],
+    );
     await claimInvites(query, created.rows[0].id, newcomer);
-    const claimed = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    const claimed = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(owner.token),
+    });
     expect(claimed.json().sharedWith[created.rows[0].id]).toBe(newcomer);
     expect(claimed.json().pendingShares).toBeUndefined();
 
@@ -259,7 +284,9 @@ describe("records API", () => {
   });
 
   test("clone resets identity fields into caller's records", async () => {
-    const record = await createRecord(owner, { title: { en: "Original", fr: "Originale" } });
+    const record = await createRecord(owner, {
+      title: { en: "Original", fr: "Originale" },
+    });
     const clone = await app.inject({
       method: "POST",
       url: `/api/v1/regions/${REGION}/records/${record.recordID}/clone`,
@@ -363,7 +390,11 @@ describe("saved entities API", () => {
     expect(created.statusCode).toBe(201);
     const { id } = created.json();
 
-    const list = await app.inject({ method: "GET", url: base, headers: authHeader(identity.token) });
+    const list = await app.inject({
+      method: "GET",
+      url: base,
+      headers: authHeader(identity.token),
+    });
     expect(list.json()[id].lastName).toBe("Doe");
 
     const updated = await app.inject({
@@ -381,7 +412,11 @@ describe("saved entities API", () => {
     });
     expect(del.statusCode).toBe(200);
 
-    const after = await app.inject({ method: "GET", url: base, headers: authHeader(identity.token) });
+    const after = await app.inject({
+      method: "GET",
+      url: base,
+      headers: authHeader(identity.token),
+    });
     expect(after.json()[id]).toBeUndefined();
   });
 });

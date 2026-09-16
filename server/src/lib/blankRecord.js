@@ -78,4 +78,10 @@ function getRecordFilename(record) {
     .replace(/[^a-zA-Z0-9]/g, "_");
 }
 
-module.exports = { blankRecord, blankContact, standardizeRecord, standardizeContact, getRecordFilename };
+module.exports = {
+  blankRecord,
+  blankContact,
+  standardizeRecord,
+  standardizeContact,
+  getRecordFilename,
+};

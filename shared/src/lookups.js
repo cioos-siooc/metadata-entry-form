@@ -19,7 +19,9 @@
 export function rorName(payload, language = "en") {
   const names = Array.isArray(payload?.names) ? payload.names : [];
   const typed = (type, lang) =>
-    names.find((n) => n?.types?.includes(type) && (lang ? n.lang === lang : true))?.value;
+    names.find(
+      (n) => n?.types?.includes(type) && (lang ? n.lang === lang : true),
+    )?.value;
 
   return (
     typed("ror_display", language) ||
@@ -33,7 +35,9 @@ export function rorName(payload, language = "en") {
 
 /** The contact fields a ROR record fills in. Everything else is left alone. */
 export function rorToContact(payload, language = "en") {
-  const location = Array.isArray(payload?.locations) ? payload.locations[0] : undefined;
+  const location = Array.isArray(payload?.locations)
+    ? payload.locations[0]
+    : undefined;
   const website = Array.isArray(payload?.links)
     ? payload.links.find((l) => l?.type === "website")?.value
     : undefined;

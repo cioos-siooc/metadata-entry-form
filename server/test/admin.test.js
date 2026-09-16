@@ -1,5 +1,10 @@
 const { randomUUID } = require("crypto");
-const { buildTestApp, signToken, authHeader, envSuperadmin } = require("./helpers");
+const {
+  buildTestApp,
+  signToken,
+  authHeader,
+  envSuperadmin,
+} = require("./helpers");
 const { query, pool } = require("../src/db");
 const { encryptSecret, decryptSecret } = require("../src/lib/crypto");
 
@@ -80,8 +85,15 @@ describe("admin API", () => {
     });
     expect(adminUpdate.statusCode).toBe(200);
 
-    const get = await app.inject({ method: "GET", url, headers: authHeader(user.token) });
-    expect(get.json()).toEqual({ admins: [admin.email], reviewers: [user.email] });
+    const get = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(user.token),
+    });
+    expect(get.json()).toEqual({
+      admins: [admin.email],
+      reviewers: [user.email],
+    });
   });
 
   test("datacite credentials: write-only secret, presence flag, prefix exposed via /me", async () => {
@@ -99,11 +111,19 @@ describe("admin API", () => {
       method: "PUT",
       url,
       headers: authHeader(admin.token),
-      payload: { prefix: "10.9999", apiDomain: "api.test.datacite.org", dataciteHash: "c2VjcmV0" },
+      payload: {
+        prefix: "10.9999",
+        apiDomain: "api.test.datacite.org",
+        dataciteHash: "c2VjcmV0",
+      },
     });
     expect(put.statusCode).toBe(200);
 
-    const get = await app.inject({ method: "GET", url, headers: authHeader(admin.token) });
+    const get = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(admin.token),
+    });
     expect(get.json()).toEqual({
       prefix: "10.9999",
       apiDomain: "api.test.datacite.org",
@@ -118,10 +138,17 @@ describe("admin API", () => {
       method: "PUT",
       url,
       headers: authHeader(admin.token),
-      payload: { doiSuffixModes: ["default", "manual"], doiStatusManagement: "form" },
+      payload: {
+        doiSuffixModes: ["default", "manual"],
+        doiStatusManagement: "form",
+      },
     });
     expect(partial.statusCode).toBe(200);
-    const after = await app.inject({ method: "GET", url, headers: authHeader(admin.token) });
+    const after = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(admin.token),
+    });
     expect(after.json()).toMatchObject({
       prefix: "10.9999",
       doiSuffixModes: ["default", "manual"],
@@ -152,14 +179,27 @@ describe("admin API", () => {
       method: "PUT",
       url,
       headers: authHeader(admin.token),
-      payload: { owner: "cioos-siooc", repo: "forms", branch: "main", token: "ghp_secret123" },
+      payload: {
+        owner: "cioos-siooc",
+        repo: "forms",
+        branch: "main",
+        token: "ghp_secret123",
+      },
     });
     expect(put.statusCode).toBe(200);
 
     // reviewer can read config (needed to publish), token masked
-    const get = await app.inject({ method: "GET", url, headers: authHeader(user.token) });
+    const get = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(user.token),
+    });
     expect(get.statusCode).toBe(200);
-    expect(get.json()).toMatchObject({ owner: "cioos-siooc", repo: "forms", hasToken: true });
+    expect(get.json()).toMatchObject({
+      owner: "cioos-siooc",
+      repo: "forms",
+      hasToken: true,
+    });
     expect(get.body).not.toContain("ghp_secret123");
 
     const updateNoToken = await app.inject({
@@ -205,10 +245,19 @@ describe("admin API", () => {
     });
     expect(put.statusCode).toBe(200);
 
-    const get = await app.inject({ method: "GET", url, headers: authHeader(admin.token) });
+    const get = await app.inject({
+      method: "GET",
+      url,
+      headers: authHeader(admin.token),
+    });
     expect(get.json().url).toBe("https://api.example.org/");
 
     // reset
-    await app.inject({ method: "PUT", url, headers: authHeader(admin.token), payload: {} });
+    await app.inject({
+      method: "PUT",
+      url,
+      headers: authHeader(admin.token),
+      payload: {},
+    });
   });
 });

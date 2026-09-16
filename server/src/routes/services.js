@@ -27,7 +27,11 @@ async function serviceRoutes(app) {
     preHandler: [app.authenticate, app.regionContext, app.requireAdmin],
   };
   const reviewerOrAdmin = {
-    preHandler: [app.authenticate, app.regionContext, app.requireReviewerOrAdmin],
+    preHandler: [
+      app.authenticate,
+      app.regionContext,
+      app.requireReviewerOrAdmin,
+    ],
   };
 
   // --- translate -------------------------------------------------------------
@@ -70,17 +74,23 @@ async function serviceRoutes(app) {
 
   // Replaces publishDoi / registerDoi / hideDoi. Body: {doi, event}.
   const DOI_EVENTS = ["publish", "register", "hide"];
-  app.post("/regions/:region/doi/state", reviewerOrAdmin, async (request, reply) => {
-    const { doi, event } = request.body || {};
-    if (!doi || !DOI_EVENTS.includes(event)) {
-      return reply.code(422).send({ error: `doi and event (${DOI_EVENTS.join("|")}) required` });
-    }
-    try {
-      return { state: await transitionDoiState(request.region, doi, event) };
-    } catch (err) {
-      return sendServiceError(reply, err);
-    }
-  });
+  app.post(
+    "/regions/:region/doi/state",
+    reviewerOrAdmin,
+    async (request, reply) => {
+      const { doi, event } = request.body || {};
+      if (!doi || !DOI_EVENTS.includes(event)) {
+        return reply
+          .code(422)
+          .send({ error: `doi and event (${DOI_EVENTS.join("|")}) required` });
+      }
+      try {
+        return { state: await transitionDoiState(request.region, doi, event) };
+      } catch (err) {
+        return sendServiceError(reply, err);
+      }
+    },
+  );
 
   // Replaces createDraftDoi. Body: {record} (the DataCite payload).
   app.post("/regions/:region/doi", reviewerOrAdmin, async (request, reply) => {
@@ -104,21 +114,26 @@ async function serviceRoutes(app) {
   });
 
   // Replaces deleteDraftDoi. Body: {doi}.
-  app.delete("/regions/:region/doi", reviewerOrAdmin, async (request, reply) => {
-    const { doi } = request.body || {};
-    if (!doi) return reply.code(422).send({ error: "doi required" });
-    try {
-      const status = await deleteDraftDoi(request.region, doi);
-      return { status };
-    } catch (err) {
-      return sendServiceError(reply, err);
-    }
-  });
+  app.delete(
+    "/regions/:region/doi",
+    reviewerOrAdmin,
+    async (request, reply) => {
+      const { doi } = request.body || {};
+      if (!doi) return reply.code(422).send({ error: "doi required" });
+      try {
+        const status = await deleteDraftDoi(request.region, doi);
+        return { status };
+      } catch (err) {
+        return sendServiceError(reply, err);
+      }
+    },
+  );
 
   // Replaces getDoiStatus. ?doi=...
   app.get("/regions/:region/doi/status", member, async (request, reply) => {
     const { doi } = request.query || {};
-    if (!doi) return reply.code(422).send({ error: "doi query parameter required" });
+    if (!doi)
+      return reply.code(422).send({ error: "doi query parameter required" });
     try {
       const status = await getDoiStatus(request.region, doi);
       return { status };
@@ -129,27 +144,43 @@ async function serviceRoutes(app) {
 
   // Replaces testDataciteCredentials. Body may supply {prefix, authHash}
   // (e.g. before saving); omitted values fall back to the stored credentials.
-  app.post("/regions/:region/doi/test-credentials", adminOnly, async (request, reply) => {
-    const { prefix, authHash, apiDomain } = request.body || {};
-    try {
-      return await testDataciteCredentials(request.region, { prefix, authHash, apiDomain });
-    } catch (err) {
-      return sendServiceError(reply, err);
-    }
-  });
+  app.post(
+    "/regions/:region/doi/test-credentials",
+    adminOnly,
+    async (request, reply) => {
+      const { prefix, authHash, apiDomain } = request.body || {};
+      try {
+        return await testDataciteCredentials(request.region, {
+          prefix,
+          authHash,
+          apiDomain,
+        });
+      } catch (err) {
+        return sendServiceError(reply, err);
+      }
+    },
+  );
 
   // --- GitHub publish ------------------------------------------------------------
 
   // Replaces githubPublishRecord. Body: {files: [{path, content}], commitMessage}.
-  app.post("/regions/:region/github-publish", reviewerOrAdmin, async (request, reply) => {
-    const { files, commitMessage } = request.body || {};
-    try {
-      return await publishToGithub({ region: request.region, files, commitMessage });
-    } catch (err) {
-      request.log.error({ err }, "github publish failed");
-      return sendServiceError(reply, err);
-    }
-  });
+  app.post(
+    "/regions/:region/github-publish",
+    reviewerOrAdmin,
+    async (request, reply) => {
+      const { files, commitMessage } = request.body || {};
+      try {
+        return await publishToGithub({
+          region: request.region,
+          files,
+          commitMessage,
+        });
+      } catch (err) {
+        request.log.error({ err }, "github publish failed");
+        return sendServiceError(reply, err);
+      }
+    },
+  );
 }
 
 module.exports = { serviceRoutes };

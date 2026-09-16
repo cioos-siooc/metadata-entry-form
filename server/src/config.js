@@ -1,5 +1,9 @@
 require("dotenv").config();
-const { generateKeyPairSync, createPrivateKey, createPublicKey } = require("crypto");
+const {
+  generateKeyPairSync,
+  createPrivateKey,
+  createPublicKey,
+} = require("crypto");
 
 function required(name) {
   const value = process.env[name];
@@ -14,7 +18,8 @@ function pemCandidates(raw) {
   const out = [trimmed, trimmed.replace(/\\n/g, "\n")];
   try {
     const decoded = Buffer.from(trimmed, "base64").toString("utf8");
-    if (decoded.includes("BEGIN")) out.push(decoded, decoded.replace(/\\n/g, "\n"));
+    if (decoded.includes("BEGIN"))
+      out.push(decoded, decoded.replace(/\\n/g, "\n"));
   } catch {
     // not base64; ignore
   }
@@ -54,12 +59,16 @@ function loadSigningKeys() {
   let publicKey = loadKey("JWT_PUBLIC_KEY", "public");
   if (!privateKey || !publicKey) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("JWT_PRIVATE_KEY and JWT_PUBLIC_KEY are required in production");
+      throw new Error(
+        "JWT_PRIVATE_KEY and JWT_PUBLIC_KEY are required in production",
+      );
     }
     const pair = generateKeyPairSync("rsa", { modulusLength: 2048 });
     privateKey = pair.privateKey.export({ type: "pkcs8", format: "pem" });
     publicKey = pair.publicKey.export({ type: "spki", format: "pem" });
-    console.warn("[config] JWT_PRIVATE_KEY/JWT_PUBLIC_KEY not set; using an ephemeral dev keypair");
+    console.warn(
+      "[config] JWT_PRIVATE_KEY/JWT_PUBLIC_KEY not set; using an ephemeral dev keypair",
+    );
   } else {
     console.log("[config] auth signing keys loaded and validated");
   }
@@ -82,10 +91,11 @@ const signingKeys = loadSigningKeys();
 
 // e.g. https://form.example.org — origin of the SPA. Used for OAuth redirect
 // targets, email links, and the redirect/CORS allowlist.
-const spaBaseUrl = (process.env.SPA_URL || process.env.PUBLIC_URL || "http://localhost:3000").replace(
-  /\/+$/,
-  "",
-);
+const spaBaseUrl = (
+  process.env.SPA_URL ||
+  process.env.PUBLIC_URL ||
+  "http://localhost:3000"
+).replace(/\/+$/, "");
 
 // Public origin the API is reached at (for OAuth redirect_uri). In the
 // same-origin nginx setup this equals spaBaseUrl; override with API_URL only
@@ -103,7 +113,11 @@ const oauth = {
     "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
     ["openid", "email", "profile"],
   ),
-  orcid: oauthProvider("ORCID", "https://orcid.org/.well-known/openid-configuration", ["openid"]),
+  orcid: oauthProvider(
+    "ORCID",
+    "https://orcid.org/.well-known/openid-configuration",
+    ["openid"],
+  ),
 };
 
 const config = {
@@ -123,7 +137,10 @@ const config = {
     publicKeyPem: signingKeys.publicKey,
     accessTokenTtl: process.env.ACCESS_TOKEN_TTL || "15m",
     // Refresh token lifetime in days.
-    refreshTokenTtlDays: parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "30", 10),
+    refreshTokenTtlDays: parseInt(
+      process.env.REFRESH_TOKEN_TTL_DAYS || "30",
+      10,
+    ),
     // Native clients get longer: a field crew can be offline for most of a
     // season, and 30 days is not enough to guarantee they can still sign in.
     nativeRefreshTokenTtlDays: parseInt(

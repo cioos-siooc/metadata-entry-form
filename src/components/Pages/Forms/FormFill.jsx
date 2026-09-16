@@ -13,7 +13,10 @@ import { Save, Send, Undo } from "@mui/icons-material";
 import { I18n } from "../../I18n";
 import SchemaForm from "../../SchemaForm/SchemaForm";
 import { getFormType } from "../../../api/formTypes";
-import { getFormSubmission, saveFormSubmission } from "../../../api/formSubmissions";
+import {
+  getFormSubmission,
+  saveFormSubmission,
+} from "../../../api/formSubmissions";
 import { paperClass } from "../../FormComponents/QuestionStyles";
 
 // Fill/edit one schema-driven form submission. Drafts save without
@@ -32,7 +35,10 @@ export default function FormFill() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getFormType(region, formTypeId), getFormSubmission(region, submissionId)])
+    Promise.all([
+      getFormType(region, formTypeId),
+      getFormSubmission(region, submissionId),
+    ])
       .then(([type, sub]) => {
         if (cancelled) return;
         dataRef.current = sub.data || {};
@@ -54,7 +60,12 @@ export default function FormFill() {
     setBusy(true);
     setStatus(null);
     try {
-      const updated = await saveFormSubmission(region, submissionId, dataRef.current, newStatus);
+      const updated = await saveFormSubmission(
+        region,
+        submissionId,
+        dataRef.current,
+        newStatus,
+      );
       setSubmission(updated);
       setStatus({
         severity: "success",
@@ -131,7 +142,9 @@ export default function FormFill() {
                 <>
                   <Grid>
                     <Button
-                      startIcon={busy ? <CircularProgress size={20} /> : <Save />}
+                      startIcon={
+                        busy ? <CircularProgress size={20} /> : <Save />
+                      }
                       disabled={busy}
                       onClick={() => save("draft")}
                     >
@@ -152,7 +165,11 @@ export default function FormFill() {
               )}
               {readOnly && (
                 <Grid>
-                  <Button startIcon={<Undo />} disabled={busy} onClick={() => save("draft")}>
+                  <Button
+                    startIcon={<Undo />}
+                    disabled={busy}
+                    onClick={() => save("draft")}
+                  >
                     <I18n en="Return to draft" fr="Remettre en brouillon" />
                   </Button>
                 </Grid>
@@ -162,7 +179,10 @@ export default function FormFill() {
                   disabled={busy}
                   onClick={() => navigate(`/${language}/${region}/forms/mine`)}
                 >
-                  <I18n en="Back to my submissions" fr="Retour à mes soumissions" />
+                  <I18n
+                    en="Back to my submissions"
+                    fr="Retour à mes soumissions"
+                  />
                 </Button>
               </Grid>
             </Grid>

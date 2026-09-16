@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { identifierCodeIsValid, inferIdentifierAuthority } from "../identifiers.js";
+import {
+  identifierCodeIsValid,
+  inferIdentifierAuthority,
+} from "../identifiers.js";
 
 describe("inferIdentifierAuthority", () => {
   it("recognises a DOI URL", () => {
     expect(inferIdentifierAuthority("https://doi.org/10.0000/abc")).toBe("DOI");
-    expect(inferIdentifierAuthority("http://dx.doi.org/10.0000/abc")).toBe("DOI");
+    expect(inferIdentifierAuthority("http://dx.doi.org/10.0000/abc")).toBe(
+      "DOI",
+    );
   });
 
   it("calls any other URL a URL", () => {
-    expect(inferIdentifierAuthority("https://data.cioos.ca/dataset/x")).toBe("URL");
+    expect(inferIdentifierAuthority("https://data.cioos.ca/dataset/x")).toBe(
+      "URL",
+    );
   });
 
   it("guesses nothing for a bare code", () => {

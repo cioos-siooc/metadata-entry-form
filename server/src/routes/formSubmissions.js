@@ -21,22 +21,28 @@ function toApi(row) {
       formType: { slug: row.form_type_slug, title: row.form_type_title },
     }),
     ...(row.owner_email && {
-      userinfo: { userID: row.user_id, email: row.owner_email, displayName: row.owner_name },
+      userinfo: {
+        userID: row.user_id,
+        email: row.owner_email,
+        displayName: row.owner_name,
+      },
     }),
   };
 }
 
 function canAccess(request, row) {
   return (
-    row.user_id === request.user.id || request.roles.isReviewer || request.roles.isAdmin
+    row.user_id === request.user.id ||
+    request.roles.isReviewer ||
+    request.roles.isAdmin
   );
 }
 
 async function loadSubmission(region, id) {
-  const result = await query("SELECT * FROM form_submissions WHERE region = $1 AND id = $2", [
-    region,
-    id,
-  ]);
+  const result = await query(
+    "SELECT * FROM form_submissions WHERE region = $1 AND id = $2",
+    [region, id],
+  );
   return result.rows[0] || null;
 }
 
@@ -75,16 +81,20 @@ async function formSubmissionRoutes(app) {
   );
 
   // The caller's submissions across all form types in the region.
-  app.get("/regions/:region/form-submissions/mine", memberGuard, async (request) => {
-    const result = await query(
-      `SELECT s.*, t.slug AS form_type_slug, t.title AS form_type_title
+  app.get(
+    "/regions/:region/form-submissions/mine",
+    memberGuard,
+    async (request) => {
+      const result = await query(
+        `SELECT s.*, t.slug AS form_type_slug, t.title AS form_type_title
        FROM form_submissions s JOIN form_types t ON t.id = s.form_type_id
        WHERE s.region = $1 AND s.user_id = $2
        ORDER BY s.updated_at DESC`,
-      [request.region, request.user.id],
-    );
-    return result.rows.map(toApi);
-  });
+        [request.region, request.user.id],
+      );
+      return result.rows.map(toApi);
+    },
+  );
 
   // Create a draft. Data may be partial/invalid — validation happens on submit.
   app.post(
@@ -96,7 +106,8 @@ async function formSubmissionRoutes(app) {
         [request.region, request.params.formTypeId],
       );
       const formType = typeResult.rows[0];
-      if (!formType) return reply.code(404).send({ error: "Form type not found" });
+      if (!formType)
+        return reply.code(404).send({ error: "Form type not found" });
 
       const inserted = await query(
         `INSERT INTO form_submissions (region, form_type_id, form_type_version, user_id, data)
@@ -113,51 +124,71 @@ async function formSubmissionRoutes(app) {
     },
   );
 
-  app.get("/regions/:region/form-submissions/:id", memberGuard, async (request, reply) => {
-    const row = await loadSubmission(request.region, request.params.id);
-    if (!row) return reply.code(404).send({ error: "Submission not found" });
-    if (!canAccess(request, row)) return reply.code(403).send({ error: "No access" });
-    return toApi(row);
-  });
+  app.get(
+    "/regions/:region/form-submissions/:id",
+    memberGuard,
+    async (request, reply) => {
+      const row = await loadSubmission(request.region, request.params.id);
+      if (!row) return reply.code(404).send({ error: "Submission not found" });
+      if (!canAccess(request, row))
+        return reply.code(403).send({ error: "No access" });
+      return toApi(row);
+    },
+  );
 
-  app.put("/regions/:region/form-submissions/:id", memberGuard, async (request, reply) => {
-    const row = await loadSubmission(request.region, request.params.id);
-    if (!row) return reply.code(404).send({ error: "Submission not found" });
-    if (!canAccess(request, row)) return reply.code(403).send({ error: "No access" });
+  app.put(
+    "/regions/:region/form-submissions/:id",
+    memberGuard,
+    async (request, reply) => {
+      const row = await loadSubmission(request.region, request.params.id);
+      if (!row) return reply.code(404).send({ error: "Submission not found" });
+      if (!canAccess(request, row))
+        return reply.code(403).send({ error: "No access" });
 
-    const data = request.body?.data ?? row.data;
-    const status = request.body?.status ?? row.status;
-    if (!["draft", "submitted"].includes(status)) {
-      return reply.code(422).send({ error: `Invalid status: ${status}` });
-    }
-
-    if (status === "submitted") {
-      const typeResult = await query("SELECT * FROM form_types WHERE id = $1", [
-        row.form_type_id,
-      ]);
-      const { valid, errors } = validateSubmissionData(typeResult.rows[0], data);
-      if (!valid) {
-        return reply
-          .code(422)
-          .send({ error: "Submission data fails schema validation", validationErrors: errors });
+      const data = request.body?.data ?? row.data;
+      const status = request.body?.status ?? row.status;
+      if (!["draft", "submitted"].includes(status)) {
+        return reply.code(422).send({ error: `Invalid status: ${status}` });
       }
-    }
 
-    const updated = await query(
-      `UPDATE form_submissions SET data = $3, status = $4, updated_at = now()
+      if (status === "submitted") {
+        const typeResult = await query(
+          "SELECT * FROM form_types WHERE id = $1",
+          [row.form_type_id],
+        );
+        const { valid, errors } = validateSubmissionData(
+          typeResult.rows[0],
+          data,
+        );
+        if (!valid) {
+          return reply.code(422).send({
+            error: "Submission data fails schema validation",
+            validationErrors: errors,
+          });
+        }
+      }
+
+      const updated = await query(
+        `UPDATE form_submissions SET data = $3, status = $4, updated_at = now()
        WHERE region = $1 AND id = $2 RETURNING *`,
-      [request.region, request.params.id, JSON.stringify(data), status],
-    );
-    return toApi(updated.rows[0]);
-  });
+        [request.region, request.params.id, JSON.stringify(data), status],
+      );
+      return toApi(updated.rows[0]);
+    },
+  );
 
-  app.delete("/regions/:region/form-submissions/:id", memberGuard, async (request, reply) => {
-    const row = await loadSubmission(request.region, request.params.id);
-    if (!row) return reply.code(404).send({ error: "Submission not found" });
-    if (!canAccess(request, row)) return reply.code(403).send({ error: "No access" });
-    await query("DELETE FROM form_submissions WHERE id = $1", [row.id]);
-    return { deleted: true };
-  });
+  app.delete(
+    "/regions/:region/form-submissions/:id",
+    memberGuard,
+    async (request, reply) => {
+      const row = await loadSubmission(request.region, request.params.id);
+      if (!row) return reply.code(404).send({ error: "Submission not found" });
+      if (!canAccess(request, row))
+        return reply.code(403).send({ error: "No access" });
+      await query("DELETE FROM form_submissions WHERE id = $1", [row.id]);
+      return { deleted: true };
+    },
+  );
 }
 
 module.exports = { formSubmissionRoutes };

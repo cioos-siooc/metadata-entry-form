@@ -17,12 +17,17 @@ export default function RegionSelect() {
   // config; the hardcoded list fixes their display order.
   const raOrder = ["pacific", "stlaurent", "atlantic"];
   const raCodes = Object.entries(regions)
-    .filter(([, regionInfo]) => regionInfo.isRA && regionInfo.showInRegionSelector)
+    .filter(
+      ([, regionInfo]) => regionInfo.isRA && regionInfo.showInRegionSelector,
+    )
     .map(([code]) => code)
     .sort((a, b) => {
       const ia = raOrder.indexOf(a);
       const ib = raOrder.indexOf(b);
-      if (ia !== -1 || ib !== -1) return (ia === -1 ? raOrder.length : ia) - (ib === -1 ? raOrder.length : ib);
+      if (ia !== -1 || ib !== -1)
+        return (
+          (ia === -1 ? raOrder.length : ia) - (ib === -1 ? raOrder.length : ib)
+        );
       return a.localeCompare(b);
     });
   // Build list of organizations excluding the RA codes (highlighted separately)

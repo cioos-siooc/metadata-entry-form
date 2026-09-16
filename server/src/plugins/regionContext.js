@@ -10,7 +10,9 @@ async function regionContextPlugin(app) {
   app.decorate("regionContext", async (request, reply) => {
     const { region } = request.params;
 
-    const regionRow = await query("SELECT id FROM regions WHERE id = $1", [region]);
+    const regionRow = await query("SELECT id FROM regions WHERE id = $1", [
+      region,
+    ]);
     if (!regionRow.rows.length) {
       return reply.code(404).send({ error: `Unknown region: ${region}` });
     }
@@ -43,7 +45,9 @@ async function regionContextPlugin(app) {
 
   app.decorate("requireReviewerOrAdmin", async (request, reply) => {
     if (!request.roles?.isAdmin && !request.roles?.isReviewer) {
-      return reply.code(403).send({ error: "Reviewer or admin access required" });
+      return reply
+        .code(403)
+        .send({ error: "Reviewer or admin access required" });
     }
     return undefined;
   });

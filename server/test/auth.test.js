@@ -36,7 +36,10 @@ describe("local auth", () => {
       payload: { email, password, name: "Local User" },
     });
     expect(reg.statusCode).toBe(201);
-    expect(mockMailer.sendVerifyEmail).toHaveBeenCalledWith(email, expect.any(String));
+    expect(mockMailer.sendVerifyEmail).toHaveBeenCalledWith(
+      email,
+      expect.any(String),
+    );
 
     // Login is blocked before verification.
     const early = await app.inject({
@@ -68,7 +71,11 @@ describe("local auth", () => {
     expect(refresh).toBeTruthy();
 
     // The access token authenticates a protected route.
-    const me = await app.inject({ method: "GET", url: "/api/v1/me", headers: authHeader(accessToken) });
+    const me = await app.inject({
+      method: "GET",
+      url: "/api/v1/me",
+      headers: authHeader(accessToken),
+    });
     expect(me.statusCode).toBe(200);
     expect(me.json().email).toBe(email);
   });
@@ -215,7 +222,10 @@ describe("oauth (mocked provider)", () => {
       state,
     });
 
-    const start = await app.inject({ method: "GET", url: "/api/v1/auth/oauth/google/start" });
+    const start = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/oauth/google/start",
+    });
     expect(start.statusCode).toBe(302);
     expect(start.headers.location).toContain("accounts.google.com");
 

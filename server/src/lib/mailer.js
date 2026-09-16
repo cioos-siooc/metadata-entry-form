@@ -9,7 +9,9 @@ function getTransporter() {
       host: config.smtp.host,
       port: config.smtp.port,
       secure: config.smtp.secure,
-      auth: config.smtp.user ? { user: config.smtp.user, pass: config.smtp.pass } : undefined,
+      auth: config.smtp.user
+        ? { user: config.smtp.user, pass: config.smtp.pass }
+        : undefined,
     });
   }
   return transporter;
@@ -30,7 +32,11 @@ async function sendVerifyEmail(to, token) {
 // `isFirstPassword` is true for an account created through Google, Microsoft
 // or ORCID, which has no password yet. "Reset your password" would be
 // confusing for someone who has never had one, so the copy differs.
-async function sendPasswordResetEmail(to, token, { isFirstPassword = false } = {}) {
+async function sendPasswordResetEmail(
+  to,
+  token,
+  { isFirstPassword = false } = {},
+) {
   // Same SPA route either way — the token and the screen are identical, and
   // adding a route would mean touching the web app. Only the copy differs.
   const link = `${config.spaBaseUrl}/#/auth/reset-password?token=${encodeURIComponent(token)}`;

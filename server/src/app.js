@@ -14,7 +14,10 @@ const { regionRoutes } = require("./routes/regions");
 const { formTypeRoutes } = require("./routes/formTypes");
 const { formSubmissionRoutes } = require("./routes/formSubmissions");
 const { serviceRoutes } = require("./routes/services");
-const { recordExportRoutes, recordFromSourceRoutes } = require("./routes/recordExport");
+const {
+  recordExportRoutes,
+  recordFromSourceRoutes,
+} = require("./routes/recordExport");
 
 // Builds the Fastify app. Options let tests inject overrides (e.g. a local
 // JWKS keypair + issuer/audience for the token verifier).

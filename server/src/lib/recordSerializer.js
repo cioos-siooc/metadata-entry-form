@@ -6,8 +6,16 @@ const { standardizeRecord } = require("./blankRecord");
 // and the rest as JSONB. These two functions are the single boundary between
 // the shapes — nothing else in the server may build or pick apart a record.
 
-const STATUS_TO_API = { draft: "", submitted: "submitted", published: "published" };
-const STATUS_TO_DB = { "": "draft", submitted: "submitted", published: "published" };
+const STATUS_TO_API = {
+  draft: "",
+  submitted: "submitted",
+  published: "published",
+};
+const STATUS_TO_DB = {
+  "": "draft",
+  submitted: "submitted",
+  published: "published",
+};
 
 // Fields owned by columns; stripped from data on write, merged back on read.
 const COLUMN_FIELDS = [
@@ -31,7 +39,10 @@ const COLUMN_FIELDS = [
   "clientRecordId",
 ];
 
-function toApi(row, { sharedWith = null, pendingShares = null, userinfo = null } = {}) {
+function toApi(
+  row,
+  { sharedWith = null, pendingShares = null, userinfo = null } = {},
+) {
   const record = standardizeRecord({
     ...row.data,
     recordID: row.id,
@@ -40,7 +51,10 @@ function toApi(row, { sharedWith = null, pendingShares = null, userinfo = null }
     identifier: row.identifier ?? "",
     datasetIdentifier: row.dataset_identifier ?? "",
     filename: row.filename ?? "",
-    created: row.created instanceof Date ? row.created.toISOString() : (row.created ?? ""),
+    created:
+      row.created instanceof Date
+        ? row.created.toISOString()
+        : (row.created ?? ""),
     timeFirstPublished:
       row.time_first_published instanceof Date
         ? row.time_first_published.toISOString()
@@ -50,7 +64,9 @@ function toApi(row, { sharedWith = null, pendingShares = null, userinfo = null }
   // optimistic-concurrency token for PUT If-Unmodified-Since
   if (row.updated_at) {
     record.updatedAt =
-      row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at;
+      row.updated_at instanceof Date
+        ? row.updated_at.toISOString()
+        : row.updated_at;
   }
 
   if (sharedWith) record.sharedWith = sharedWith;

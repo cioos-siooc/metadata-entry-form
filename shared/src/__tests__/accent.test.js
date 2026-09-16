@@ -30,7 +30,14 @@ const BRAND_COLOURS = Object.entries(regions)
 
 describe("colour maths", () => {
   test("hex round-trips", () => {
-    for (const hex of ["#52a79b", "#006e90", "#19222b", "#fcba03", "#ffffff", "#000000"]) {
+    for (const hex of [
+      "#52a79b",
+      "#006e90",
+      "#19222b",
+      "#fcba03",
+      "#ffffff",
+      "#000000",
+    ]) {
       expect(toHex(parseHex(hex))).toBe(hex.toLowerCase());
     }
   });
@@ -88,7 +95,11 @@ describe("colour maths", () => {
 describe("buildAccentRamp", () => {
   test("produces all nine steps as valid hex", () => {
     const ramp = buildAccentRamp("#52a79b");
-    expect(Object.keys(ramp).map(Number).sort((a, b) => a - b)).toEqual(RAMP_STEPS);
+    expect(
+      Object.keys(ramp)
+        .map(Number)
+        .sort((a, b) => a - b),
+    ).toEqual(RAMP_STEPS);
     for (const step of RAMP_STEPS) {
       expect(ramp[step]).toMatch(/^#[0-9a-f]{6}$/);
     }
@@ -108,9 +119,10 @@ describe("buildAccentRamp", () => {
 
   test("preserves the brand hue", () => {
     for (const [id, brand] of BRAND_COLOURS) {
-      const brandHue = rgbToOklch(parseHex(brand)).C < 0.02
-        ? null // near-grey: hue is not meaningful, skip
-        : rgbToOklch(parseHex(brand)).h;
+      const brandHue =
+        rgbToOklch(parseHex(brand)).C < 0.02
+          ? null // near-grey: hue is not meaningful, skip
+          : rgbToOklch(parseHex(brand)).h;
       if (brandHue === null) continue;
 
       const midHue = rgbToOklch(parseHex(buildAccentRamp(brand)[500])).h;

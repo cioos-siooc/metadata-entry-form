@@ -39,12 +39,18 @@ describe("buildDataCitePayload", () => {
   });
 
   it("rejects a non-object conversion result", () => {
-    expect(() => buildDataCitePayload({ ...base, dataciteObject: [] })).toThrow();
-    expect(() => buildDataCitePayload({ ...base, dataciteObject: null })).toThrow();
+    expect(() =>
+      buildDataCitePayload({ ...base, dataciteObject: [] }),
+    ).toThrow();
+    expect(() =>
+      buildDataCitePayload({ ...base, dataciteObject: null }),
+    ).toThrow();
   });
 
   it("rejects a create with no prefix rather than sending one DataCite will refuse", () => {
-    expect(() => buildDataCitePayload({ ...base, datacitePrefix: "" })).toThrow();
+    expect(() =>
+      buildDataCitePayload({ ...base, datacitePrefix: "" }),
+    ).toThrow();
     // An update legitimately has none — the DOI already exists.
     expect(() =>
       buildDataCitePayload({ ...base, datacitePrefix: "", forUpdate: true }),
@@ -52,7 +58,9 @@ describe("buildDataCitePayload", () => {
   });
 
   it("rejects a missing catalogue URL rather than building a broken one", () => {
-    expect(() => buildDataCitePayload({ ...base, catalogueUrl: undefined })).toThrow();
+    expect(() =>
+      buildDataCitePayload({ ...base, catalogueUrl: undefined }),
+    ).toThrow();
   });
 });
 

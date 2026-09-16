@@ -30,11 +30,16 @@ test("users: extracted, normalized, auth-export emails merged", () => {
 });
 
 test("user without email is flagged, not dropped", () => {
-  const noEmail = data.users.find((u) => u.firebase_uid === "fixture-uid-noemail");
+  const noEmail = data.users.find(
+    (u) => u.firebase_uid === "fixture-uid-noemail",
+  );
   assert.ok(noEmail, "user kept in output");
   assert.equal(noEmail.email, null);
   assert.equal(warnings.users_without_email.length, 1);
-  assert.equal(warnings.users_without_email[0].firebase_uid, "fixture-uid-noemail");
+  assert.equal(
+    warnings.users_without_email[0].firebase_uid,
+    "fixture-uid-noemail",
+  );
 });
 
 test("records: keys, owners, created preserved; status mapped", () => {
@@ -49,7 +54,10 @@ test("records: keys, owners, created preserved; status mapped", () => {
   assert.equal(rec1.columns.time_first_published, "2021-06-01T00:00:00.000Z");
   // uuid lowercased for the uuid column
   assert.equal(rec1.columns.identifier, "3f2504e0-4f89-11d3-9a0c-0305e82c3301");
-  assert.equal(rec1.columns.dataset_identifier, "https://doi.org/10.99999/fixture");
+  assert.equal(
+    rec1.columns.dataset_identifier,
+    "https://doi.org/10.99999/fixture",
+  );
   assert.equal(rec1.columns.filename, "fixture_published_record_3f250");
 
   // missing status -> draft
@@ -106,7 +114,10 @@ test("sharedWith is the union of record.sharedWith and the /shares index", () =>
   ]);
   // share pointing at a record that no longer exists -> warning
   assert.equal(warnings.shares_for_missing_record.length, 1);
-  assert.equal(warnings.shares_for_missing_record[0].record_key, "fixture-rec-gone");
+  assert.equal(
+    warnings.shares_for_missing_record[0].record_key,
+    "fixture-rec-gone",
+  );
 });
 
 test("invalid (non-uuid) identifier is nulled with a warning", () => {
@@ -138,12 +149,17 @@ test("saved entities keep pushKeys and get array-normalized", () => {
   assert.equal(data.platforms[0].firebase_uid_owner, "fixture-uid-noemail");
 
   assert.equal(data.instruments.length, 1);
-  assert.equal(data.instruments[0].data.manufacturer, "Fixture Instruments Inc");
+  assert.equal(
+    data.instruments[0].data.manufacturer,
+    "Fixture Instruments Inc",
+  );
 });
 
 test("CSV permissions split, trimmed, lowercased", () => {
   assert.deepEqual(
-    data.permissions.sort((a, b) => (a.email + a.role).localeCompare(b.email + b.role)),
+    data.permissions.sort((a, b) =>
+      (a.email + a.role).localeCompare(b.email + b.role),
+    ),
     [
       { region: "test", email: "admin2@fixture.example", role: "admin" },
       { region: "test", email: "alice@fixture.example", role: "admin" },
@@ -153,21 +169,31 @@ test("CSV permissions split, trimmed, lowercased", () => {
 });
 
 test("projects, credentials, generator URL", () => {
-  assert.deepEqual(
-    data.projects.map((p) => p.name).sort(),
-    ["Fixture Project A", "Fixture Project B"],
-  );
+  assert.deepEqual(data.projects.map((p) => p.name).sort(), [
+    "Fixture Project A",
+    "Fixture Project B",
+  ]);
 
   const dc = data.credentials.find((c) => c.kind === "datacite");
-  assert.deepEqual(dc.config, { prefix: "10.99999", apiDomain: "api.test.datacite.org" });
+  assert.deepEqual(dc.config, {
+    prefix: "10.99999",
+    apiDomain: "api.test.datacite.org",
+  });
   assert.equal(dc.secret, "Zml4dHVyZTpkYXRhY2l0ZS1oYXNo");
 
   const gh = data.credentials.find((c) => c.kind === "github");
-  assert.deepEqual(gh.config, { owner: "fixture-org", repo: "fixture-repo", branch: "main" });
+  assert.deepEqual(gh.config, {
+    owner: "fixture-org",
+    repo: "fixture-repo",
+    branch: "main",
+  });
   assert.equal(gh.secret, "ghp_fixturetoken123");
 
   assert.deepEqual(data.region_urls, [
-    { region: "test", record_generator_url: "https://fixture.example/recordGenerator" },
+    {
+      region: "test",
+      record_generator_url: "https://fixture.example/recordGenerator",
+    },
   ]);
 });
 

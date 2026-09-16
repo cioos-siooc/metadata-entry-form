@@ -16,7 +16,9 @@ vi.mock("react-leaflet", () => ({
   useMap: () => ({}),
 }));
 vi.mock("../FormComponents/GeomanControl", () => ({ default: () => null }));
-vi.mock("../FormComponents/GeographicLocationSearch", () => ({ default: () => null }));
+vi.mock("../FormComponents/GeographicLocationSearch", () => ({
+  default: () => null,
+}));
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
@@ -34,7 +36,13 @@ function renderMapSelect(props = {}) {
   return render(
     <MemoryRouter>
       <UserContext.Provider value={{ translate: vi.fn() }}>
-        <MapSelect updateMap={vi.fn()} mapData={{}} disabled={false} record={{}} {...props} />
+        <MapSelect
+          updateMap={vi.fn()}
+          mapData={{}}
+          disabled={false}
+          record={{}}
+          {...props}
+        />
       </UserContext.Provider>
     </MemoryRouter>,
   );
@@ -43,7 +51,10 @@ function renderMapSelect(props = {}) {
 describe("<MapSelect /> use my location", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(window, "isSecureContext", { value: true, configurable: true });
+    Object.defineProperty(window, "isSecureContext", {
+      value: true,
+      configurable: true,
+    });
   });
 
   it("fills a bounding box around the device location", async () => {
@@ -67,21 +78,29 @@ describe("<MapSelect /> use my location", () => {
 
   it("shows a message when permission is denied", async () => {
     mockGeolocation({
-      getCurrentPosition: (success, error) => error({ code: 1, message: "denied" }),
+      getCurrentPosition: (success, error) =>
+        error({ code: 1, message: "denied" }),
     });
 
     renderMapSelect();
     fireEvent.click(screen.getByRole("button", { name: /use my location/i }));
 
     await waitFor(() =>
-      expect(screen.getByText(/Location permission denied/)).toBeInTheDocument(),
+      expect(
+        screen.getByText(/Location permission denied/),
+      ).toBeInTheDocument(),
     );
   });
 
   it("hides the button when geolocation is unavailable", () => {
-    Object.defineProperty(window, "isSecureContext", { value: false, configurable: true });
+    Object.defineProperty(window, "isSecureContext", {
+      value: false,
+      configurable: true,
+    });
     renderMapSelect();
-    expect(screen.queryByRole("button", { name: /use my location/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /use my location/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("manual bounding box entry still propagates", () => {
@@ -89,6 +108,8 @@ describe("<MapSelect /> use my location", () => {
     renderMapSelect({ updateMap });
     const north = screen.getByLabelText(/North/);
     fireEvent.change(north, { target: { value: "50" } });
-    expect(updateMap).toHaveBeenCalledWith(expect.objectContaining({ north: "50" }));
+    expect(updateMap).toHaveBeenCalledWith(
+      expect.objectContaining({ north: "50" }),
+    );
   });
 });

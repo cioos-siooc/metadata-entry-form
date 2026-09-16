@@ -215,7 +215,8 @@ const BaseLayout = () => {
       },
     },
   });
-  const regionTitle = regions[region].title?.[language] || regions[region].title?.en || region;
+  const regionTitle =
+    regions[region].title?.[language] || regions[region].title?.en || region;
   const title = {
     en: `${regionTitle} Metadata Intake Form`,
     fr: `Formulaire de réception des métadonnées ${regionTitle}`,

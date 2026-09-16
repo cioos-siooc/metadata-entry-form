@@ -15,7 +15,9 @@ const KINDS = {
 
 function canWrite(request, ownerId) {
   return (
-    request.user.id === ownerId || request.roles.isReviewer || request.roles.isAdmin
+    request.user.id === ownerId ||
+    request.roles.isReviewer ||
+    request.roles.isAdmin
   );
 }
 
@@ -39,7 +41,8 @@ async function entityRoutes(app) {
         `SELECT id, data FROM ${table} WHERE region = $1 AND user_id = $2 AND id = $3`,
         [request.region, request.params.userId, request.params.id],
       );
-      if (!result.rows.length) return reply.code(404).send({ error: "Not found" });
+      if (!result.rows.length)
+        return reply.code(404).send({ error: "Not found" });
       return result.rows[0].data;
     });
 
@@ -49,7 +52,11 @@ async function entityRoutes(app) {
       }
       const result = await query(
         `INSERT INTO ${table} (region, user_id, data) VALUES ($1, $2, $3) RETURNING id`,
-        [request.region, request.params.userId, JSON.stringify(request.body || {})],
+        [
+          request.region,
+          request.params.userId,
+          JSON.stringify(request.body || {}),
+        ],
       );
       return reply.code(201).send({ id: result.rows[0].id });
     });
@@ -68,7 +75,8 @@ async function entityRoutes(app) {
           JSON.stringify(request.body || {}),
         ],
       );
-      if (!result.rows.length) return reply.code(404).send({ error: "Not found" });
+      if (!result.rows.length)
+        return reply.code(404).send({ error: "Not found" });
       return { id: result.rows[0].id };
     });
 
@@ -80,7 +88,8 @@ async function entityRoutes(app) {
         `DELETE FROM ${table} WHERE region = $1 AND user_id = $2 AND id = $3 RETURNING id`,
         [request.region, request.params.userId, request.params.id],
       );
-      if (!result.rows.length) return reply.code(404).send({ error: "Not found" });
+      if (!result.rows.length)
+        return reply.code(404).send({ error: "Not found" });
       return { deleted: true };
     });
 
@@ -96,7 +105,8 @@ async function entityRoutes(app) {
          RETURNING id`,
         [request.region, request.params.userId, request.params.id],
       );
-      if (!result.rows.length) return reply.code(404).send({ error: "Not found" });
+      if (!result.rows.length)
+        return reply.code(404).send({ error: "Not found" });
       return reply.code(201).send({ id: result.rows[0].id });
     });
   });

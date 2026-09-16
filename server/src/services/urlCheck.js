@@ -20,7 +20,8 @@ function isPrivateIPv4(address) {
 function isPrivateIPv6(address) {
   const addr = address.toLowerCase();
   // IPv4-mapped IPv6 (e.g. ::ffff:10.0.0.1): check the embedded IPv4 part
-  if (addr.includes(".")) return isPrivateIPv4(addr.slice(addr.lastIndexOf(":") + 1));
+  if (addr.includes("."))
+    return isPrivateIPv4(addr.slice(addr.lastIndexOf(":") + 1));
   if (addr === "::1" || addr === "0:0:0:0:0:0:0:1") return true; // loopback
   const firstGroup = parseInt(addr.split(":")[0] || "0", 16);
   return (
@@ -50,7 +51,9 @@ async function isSafeUrl(url) {
   try {
     const addresses = await dns.lookup(hostname, { all: true });
     if (!addresses.length) return false;
-    return addresses.every(({ address, family }) => !isPrivateAddress(address, family));
+    return addresses.every(
+      ({ address, family }) => !isPrivateAddress(address, family),
+    );
   } catch {
     // Hostname does not resolve — nothing to fetch
     return false;

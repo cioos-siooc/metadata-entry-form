@@ -4,9 +4,13 @@ import { get, post, put, del } from "./client";
 // {data}-shaped object so existing call sites (which unwrap `.data`) keep
 // working unchanged. New code should prefer src/api/* modules directly.
 
-export const translate = async (payload) => ({ data: await post("/translate", payload) });
+export const translate = async (payload) => ({
+  data: await post("/translate", payload),
+});
 
-export const checkURLActive = async (url) => ({ data: (await post("/url-check", { url })).active });
+export const checkURLActive = async (url) => ({
+  data: (await post("/url-check", { url })).active,
+});
 
 export const regenerateXMLforRecord = async ({ region, recordID }) => ({
   data: await post(`/regions/${region}/records/${recordID}/regenerate-xml`, {}),
@@ -44,24 +48,41 @@ export const getDatacitePrefix = async (region) => ({
   data: (await get(`/regions/${region}/doi/config`)).prefix,
 });
 
-export const testDataciteCredentials = async ({ region, prefix, authHash, apiDomain }) => ({
-  data: await post(`/regions/${region}/doi/test-credentials`, { prefix, authHash, apiDomain }),
+export const testDataciteCredentials = async ({
+  region,
+  prefix,
+  authHash,
+  apiDomain,
+}) => ({
+  data: await post(`/regions/${region}/doi/test-credentials`, {
+    prefix,
+    authHash,
+    apiDomain,
+  }),
 });
 
 // Replaces publishDoi / registerDoi / hideDoi: {data: {state}}.
-const transitionDoi = (event) => async ({ region, doi }) => ({
-  data: await post(`/regions/${region}/doi/state`, { doi, event }),
-});
+const transitionDoi =
+  (event) =>
+  async ({ region, doi }) => ({
+    data: await post(`/regions/${region}/doi/state`, { doi, event }),
+  });
 export const publishDoi = transitionDoi("publish");
 export const registerDoi = transitionDoi("register");
 export const hideDoi = transitionDoi("hide");
 
 export const shareRecord = async ({ region, recordID, email, language }) => ({
-  data: await post(`/regions/${region}/records/${recordID}/shares`, { email, language }),
+  data: await post(`/regions/${region}/records/${recordID}/shares`, {
+    email,
+    language,
+  }),
 });
 
 export const unshareRecord = async ({ region, recordID, uid, inviteKey }) => ({
-  data: await del(`/regions/${region}/records/${recordID}/shares`, { uid, inviteKey }),
+  data: await del(`/regions/${region}/records/${recordID}/shares`, {
+    uid,
+    inviteKey,
+  }),
 });
 
 // Reviewer transfer by email: {data: {success, reason?}}, like the callable.
@@ -70,11 +91,19 @@ export const transferRecord = async ({ region, recordID, email }) => {
     await post(`/regions/${region}/records/${recordID}/transfer`, { email });
     return { data: { success: true } };
   } catch (error) {
-    if (error.status === 404) return { data: { success: false, reason: "user-not-found" } };
+    if (error.status === 404)
+      return { data: { success: false, reason: "user-not-found" } };
     throw error;
   }
 };
 
-export const githubPublishRecord = async ({ region, files, commitMessage }) => ({
-  data: await post(`/regions/${region}/github-publish`, { files, commitMessage }),
+export const githubPublishRecord = async ({
+  region,
+  files,
+  commitMessage,
+}) => ({
+  data: await post(`/regions/${region}/github-publish`, {
+    files,
+    commitMessage,
+  }),
 });

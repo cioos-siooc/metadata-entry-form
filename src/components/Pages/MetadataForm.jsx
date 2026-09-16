@@ -184,7 +184,9 @@ class MetadataForm extends FormClassTemplate {
       const record = await getRecord(region, recordID);
       const loggedInUserOwnsRecord = record.userID === loggedInUserID;
       // Older records store `true`, newer ones store the recipient's email.
-      const loggedInUserIsSharedWith = Boolean(record.sharedWith?.[loggedInUserID]);
+      const loggedInUserIsSharedWith = Boolean(
+        record.sharedWith?.[loggedInUserID],
+      );
       const loggedInUserCanEditRecord =
         isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
@@ -304,7 +306,11 @@ class MetadataForm extends FormClassTemplate {
     if (id) {
       await instruments.update(region, loggedInUserID, id, instrument);
     } else {
-      instrumentID = await instruments.create(region, loggedInUserID, instrument);
+      instrumentID = await instruments.create(
+        region,
+        loggedInUserID,
+        instrument,
+      );
     }
     this.loadUserEntities();
     return instrumentID;
@@ -383,7 +389,9 @@ class MetadataForm extends FormClassTemplate {
           { ...getBlankRecord(), ...record },
           { ifUnmodifiedSince: record.updatedAt },
         );
-        this.safeSetState({ record: { ...record, updatedAt: saved.updatedAt } });
+        this.safeSetState({
+          record: { ...record, updatedAt: saved.updatedAt },
+        });
       } else {
         // new record
         const created = await createRecord(region, record);

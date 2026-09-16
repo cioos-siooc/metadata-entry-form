@@ -68,7 +68,7 @@ collapse to a warm pair there. Never hard-code green for "complete".
 
 **Bilingual en/fr is non-negotiable.** UI strings live in `src/i18n/locales`,
 and a test fails if the two catalogues drift apart. Controlled-vocabulary text —
-EOV labels, platform types, role codes — is *not* in those catalogues. It stays
+EOV labels, platform types, role codes — is _not_ in those catalogues. It stays
 as data in `@cioos/shared` and is read through `localized()`, which handles the
 three incompatible key conventions the vocabularies grew.
 

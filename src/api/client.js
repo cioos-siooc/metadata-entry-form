@@ -25,11 +25,15 @@ async function sendRequest(url, { method, body, headers }, token) {
   });
 }
 
-export async function apiFetch(path, { method = "GET", body, params, headers } = {}) {
+export async function apiFetch(
+  path,
+  { method = "GET", body, params, headers } = {},
+) {
   const url = new URL(`${BASE_URL}/v1${path}`, window.location.origin);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) url.searchParams.set(key, value);
+      if (value !== undefined && value !== null)
+        url.searchParams.set(key, value);
     });
   }
 
@@ -40,19 +44,25 @@ export async function apiFetch(path, { method = "GET", body, params, headers } =
   // refresh once and retry.
   if (response.status === 401) {
     token = await refreshAccessToken();
-    if (token) response = await sendRequest(url, { method, body, headers }, token);
+    if (token)
+      response = await sendRequest(url, { method, body, headers }, token);
   }
 
   const text = await response.text();
   const json = text ? JSON.parse(text) : null;
 
   if (!response.ok) {
-    throw new ApiError(response.status, json?.error || response.statusText, json);
+    throw new ApiError(
+      response.status,
+      json?.error || response.statusText,
+      json,
+    );
   }
   return json;
 }
 
 export const get = (path, params) => apiFetch(path, { params });
 export const post = (path, body) => apiFetch(path, { method: "POST", body });
-export const put = (path, body, headers) => apiFetch(path, { method: "PUT", body, headers });
+export const put = (path, body, headers) =>
+  apiFetch(path, { method: "PUT", body, headers });
 export const del = (path, body) => apiFetch(path, { method: "DELETE", body });
