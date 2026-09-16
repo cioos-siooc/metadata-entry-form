@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -15,6 +15,7 @@ import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";
 import copyToClipboard from "../../utils/copyToClipboard";
+import { UserContext } from "../../providers/UserProvider";
 
 const RecordTable = ({
   records,
@@ -29,6 +30,7 @@ const RecordTable = ({
   githubPublishEnabled,
 }) => {
   const { language, region } = useParams();
+  const { doiStatusManagement } = useContext(UserContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -170,6 +172,9 @@ const RecordTable = ({
 
     const cols = columnsToShow
       .map((colName) => {
+        // DOI status is only meaningful/up-to-date for regions that manage DOI
+        // status from the form; hide the column for DataCite-managed regions.
+        if (colName === "doiStatus" && doiStatusManagement !== "form") return null;
         const col = columnDefs[colName];
         if (!col) return null;
         return col;
@@ -212,6 +217,7 @@ const RecordTable = ({
     actionHandlers,
     githubPublishEnabled,
     isMobile,
+    doiStatusManagement,
   ]);
 
   // Transform records to rows

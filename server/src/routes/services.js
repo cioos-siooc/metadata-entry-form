@@ -10,6 +10,7 @@ const {
   deleteDraftDoi,
   getDoiStatus,
   testDataciteCredentials,
+  transitionDoiState,
 } = require("../services/datacite");
 const { publishToGithub } = require("../services/githubPublish");
 
@@ -67,8 +68,22 @@ async function serviceRoutes(app) {
     };
   });
 
+  // Replaces publishDoi / registerDoi / hideDoi. Body: {doi, event}.
+  const DOI_EVENTS = ["publish", "register", "hide"];
+  app.post("/regions/:region/doi/state", reviewerOrAdmin, async (request, reply) => {
+    const { doi, event } = request.body || {};
+    if (!doi || !DOI_EVENTS.includes(event)) {
+      return reply.code(422).send({ error: `doi and event (${DOI_EVENTS.join("|")}) required` });
+    }
+    try {
+      return { state: await transitionDoiState(request.region, doi, event) };
+    } catch (err) {
+      return sendServiceError(reply, err);
+    }
+  });
+
   // Replaces createDraftDoi. Body: {record} (the DataCite payload).
-  app.post("/regions/:region/doi", member, async (request, reply) => {
+  app.post("/regions/:region/doi", reviewerOrAdmin, async (request, reply) => {
     try {
       return await createDraftDoi(request.region, request.body?.record);
     } catch (err) {
@@ -78,7 +93,7 @@ async function serviceRoutes(app) {
 
   // Replaces updateDraftDoi. Body: {doi, data}. DOI strings contain '/', so
   // they travel in the body rather than the path.
-  app.put("/regions/:region/doi", member, async (request, reply) => {
+  app.put("/regions/:region/doi", reviewerOrAdmin, async (request, reply) => {
     const { doi, data } = request.body || {};
     if (!doi) return reply.code(422).send({ error: "doi required" });
     try {
@@ -89,7 +104,7 @@ async function serviceRoutes(app) {
   });
 
   // Replaces deleteDraftDoi. Body: {doi}.
-  app.delete("/regions/:region/doi", member, async (request, reply) => {
+  app.delete("/regions/:region/doi", reviewerOrAdmin, async (request, reply) => {
     const { doi } = request.body || {};
     if (!doi) return reply.code(422).send({ error: "doi required" });
     try {

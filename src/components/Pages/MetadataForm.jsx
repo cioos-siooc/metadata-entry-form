@@ -46,6 +46,7 @@ import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
+import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
 import performUpdateDraftDoi from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
@@ -168,15 +169,22 @@ class MetadataForm extends FormClassTemplate {
     this.safeSetState({ projects });
 
     if (isNewRecord) {
-      this.safeSetState({ loading: false, loggedInUserCanEditRecord: true });
+      // Started from an existing DOI/OBIS/PDC record. It stays in memory
+      // like any other new record, so the user reviews it before saving.
+      const prefill = this.props.locationState?.prefillRecord;
+      this.safeSetState({
+        loading: false,
+        loggedInUserCanEditRecord: true,
+        ...(prefill && { record: normalizePrefilledRecord(prefill) }),
+      });
       return;
     }
 
     try {
       const record = await getRecord(region, recordID);
       const loggedInUserOwnsRecord = record.userID === loggedInUserID;
-      const loggedInUserIsSharedWith =
-        record.sharedWith && record.sharedWith[loggedInUserID] === true;
+      // Older records store `true`, newer ones store the recipient's email.
+      const loggedInUserIsSharedWith = Boolean(record.sharedWith?.[loggedInUserID]);
       const loggedInUserCanEditRecord =
         isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
@@ -185,7 +193,7 @@ class MetadataForm extends FormClassTemplate {
         loggedInUserCanEditRecord,
         loading: false,
       });
-    } catch (err) {
+    } catch {
       // Record not found, eg a bad link
       this.safeSetState({ loading: false, record: null });
     }
@@ -657,6 +665,7 @@ const MetadataFormWrapper = (props) => {
       match={match}
       history={{ push: navigate }}
       isSmallScreen={isSmallScreen}
+      locationState={location.state}
     />
   );
 };

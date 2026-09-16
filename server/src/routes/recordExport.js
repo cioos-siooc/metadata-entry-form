@@ -61,4 +61,31 @@ async function recordExportRoutes(app) {
   });
 }
 
-module.exports = { recordExportRoutes };
+// Proxies the converter's /record-from-source (the create_record_from_source
+// cloud function). Not region-scoped: it only reads a public catalogue.
+// Body: {sourceType: "doi"|"obis"|"pdc", identifier}. Returns {data: record}.
+async function recordFromSourceRoutes(app) {
+  app.post("/record-from-source", { preHandler: [app.authenticate] }, async (request, reply) => {
+    const { sourceType, identifier } = request.body || {};
+    if (!sourceType || !identifier) {
+      return reply.code(422).send({ error: "sourceType and identifier are required" });
+    }
+    try {
+      const response = await axios.post(
+        `${config.converterUrl.replace(/\/+$/, "")}/record-from-source`,
+        { source_type: sourceType, identifier },
+        { timeout: 180000 },
+      );
+      return response.data;
+    } catch (err) {
+      request.log.error({ err: err.message }, "record-from-source: converter call failed");
+      const status = err.response?.status;
+      const detail = err.response?.data?.detail;
+      return reply
+        .code(status && status >= 400 && status < 500 ? status : 502)
+        .send({ error: detail || "Record retrieval failed" });
+    }
+  });
+}
+
+module.exports = { recordExportRoutes, recordFromSourceRoutes };

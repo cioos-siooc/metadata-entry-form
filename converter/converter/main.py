@@ -14,6 +14,7 @@ Endpoints:
                       volume (WAF_DIR/{region}/{filename}.{xml,yaml});
                       drafts get their files deleted instead
 - POST /recordDelete  remove a record's files from the WAF volume
+- POST /record-from-source  build a new record from a DOI, OBIS dataset or PDC CCIN
 """
 
 import logging
@@ -32,6 +33,37 @@ try:  # pragma: no cover - exercised only with the real library installed
 except Exception as err:  # pragma: no cover
     Record = None
     CONVERSION_IMPORT_ERROR = err
+
+# Ported from firebase-functions/python-functions/main.py create_record_from_source.
+# Only these three sources may be loaded. Dispatching on an explicit source_type
+# rather than Record(source).load() is deliberate: load() falls through to
+# load_from_file/load_from_url for anything it doesn't recognise, which would let
+# a caller-supplied string turn into a local file read or an arbitrary outbound
+# request.
+try:  # pragma: no cover - exercised only with the real library installed
+    import requests
+    from cioos_metadata_conversion.load_from.datacite import (
+        DOIRetrievalError,
+        retrieve_doi_as_firebase_record,
+    )
+    from cioos_metadata_conversion.load_from.obis import retrieve_obis_metadata
+    from cioos_metadata_conversion.load_from.pdc import (
+        PDCRetrievalError,
+        retrieve_pdc_as_firebase_record,
+    )
+
+    SOURCE_LOADERS = {
+        "doi": retrieve_doi_as_firebase_record,
+        "obis": retrieve_obis_metadata,
+        "pdc": retrieve_pdc_as_firebase_record,
+    }
+    # "We looked, it isn't there / isn't valid" as opposed to "something broke".
+    NOT_FOUND_ERRORS = (DOIRetrievalError, PDCRetrievalError, requests.HTTPError, ValueError)
+except Exception:  # pragma: no cover
+    SOURCE_LOADERS = {}
+    NOT_FOUND_ERRORS = ()
+
+SOURCE_TYPES = ("doi", "obis", "pdc")
 
 logger = logging.getLogger("converter")
 
@@ -109,6 +141,11 @@ class RecordRequest(BaseModel):
     region: str
 
 
+class RecordFromSourceRequest(BaseModel):
+    source_type: str
+    identifier: str
+
+
 class RecordDeleteRequest(BaseModel):
     filename: str
     region: str
@@ -173,3 +210,29 @@ def record_delete(body: RecordDeleteRequest):
         raise HTTPException(status_code=400, detail="filename required")
     deleted = delete_record_files(body.region, basename)
     return {"message": "record deleted", "deleted": deleted}
+
+
+@app.post("/record-from-source")
+def record_from_source(body: RecordFromSourceRequest):
+    """Returns {"data": <record>} built from an external catalogue entry."""
+    identifier = body.identifier.strip()
+    if body.source_type not in SOURCE_TYPES:
+        raise HTTPException(status_code=400, detail=f"source_type must be one of {list(SOURCE_TYPES)}")
+    if not identifier:
+        raise HTTPException(status_code=400, detail="identifier is required")
+    loader = SOURCE_LOADERS.get(body.source_type)
+    if loader is None:
+        raise HTTPException(status_code=503, detail="cioos-metadata-conversion loaders are not installed")
+
+    try:
+        record = loader(identifier)
+    except NOT_FOUND_ERRORS as err:
+        logger.warning("No %s record for '%s': %s", body.source_type, identifier, err)
+        raise HTTPException(
+            status_code=404,
+            detail=f"Could not retrieve {body.source_type} record '{identifier}': {err}",
+        ) from err
+    except Exception as err:  # pylint: disable=broad-except
+        logger.exception("Record retrieval failed")
+        raise HTTPException(status_code=500, detail=f"Record retrieval failed: {err}") from err
+    return {"data": record}

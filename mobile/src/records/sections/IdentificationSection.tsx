@@ -1,6 +1,7 @@
 import { metadataScopeCodes } from "@cioos/shared/isoCodeLists.js";
 import { localized } from "@cioos/shared/localized.js";
-import themesList from "@cioos/shared/themes.js";
+import { normalizeResourceType } from "@cioos/shared/normalizeResourceType.js";
+import { topicCategories } from "@cioos/shared/themes.js";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -27,16 +28,15 @@ export function IdentificationSection({ document, update }: SectionProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language as Language;
 
-  // `themesList` is a parallel en/fr array rather than a keyed vocabulary, so
-  // the record's stored value is the lowercased English label.
+  // ISO 19115 topic categories, prominent ones first. Legacy values
+  // ("oceanographic", "biological") are mapped on read so they still show selected.
   const themeChoices = useMemo<Choice[]>(() => {
-    const english = (themesList[0]?.en ?? []) as string[];
-    const localizedLabels = ((themesList[0] as Record<string, string[]>)[language] ??
-      english) as string[];
-    return english.map((label, index) => ({
-      value: label.toLowerCase(),
-      label: localizedLabels[index] ?? label,
-    }));
+    const entries = Object.entries(
+      topicCategories as Record<string, { title: Record<string, string>; prominent: boolean }>,
+    );
+    return [...entries.filter(([, c]) => c.prominent), ...entries.filter(([, c]) => !c.prominent)].map(
+      ([value, c]) => ({ value, label: c.title[language] ?? c.title.en }),
+    );
   }, [language]);
 
   const scopeChoices = useMemo<Choice[]>(
@@ -67,7 +67,7 @@ export function IdentificationSection({ document, update }: SectionProps) {
         <ChoiceInput
           multiple
           choices={themeChoices}
-          selected={(document.resourceType as string[]) ?? []}
+          selected={normalizeResourceType(document.resourceType)}
           onChange={(next) => update("resourceType", next)}
         />
       </Field>

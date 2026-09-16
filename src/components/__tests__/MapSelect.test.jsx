@@ -13,8 +13,10 @@ vi.mock("react-leaflet", () => ({
   FeatureGroup: ({ children }) => <div>{children}</div>,
   Polygon: () => null,
   Rectangle: () => null,
+  useMap: () => ({}),
 }));
 vi.mock("../FormComponents/GeomanControl", () => ({ default: () => null }));
+vi.mock("../FormComponents/GeographicLocationSearch", () => ({ default: () => null }));
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");

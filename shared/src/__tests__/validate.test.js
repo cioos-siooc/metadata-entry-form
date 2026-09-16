@@ -4,6 +4,7 @@ import {
   validateURL,
   validateDOI,
   validateField,
+  getErrorsByTab,
 } from "../validate.js";
 
 // No network mock needed: the URL-reachability warning moved to
@@ -48,6 +49,31 @@ describe("Utility: validate.js", () => {
       expect(validateField(invalid, "keywords")).toBeFalsy();
     });
 
+    test("Bounding box errors are specific", () => {
+      const flipped = {
+        map: { north: "1", south: "10", east: "1", west: "10" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      const [error] = getErrorsByTab(flipped).spatial;
+      expect(error.en).toMatch(/North latitude must be greater/);
+      expect(error.en).toMatch(/East longitude must be greater/);
+
+      const outOfRange = {
+        map: { north: "100", south: "1", east: "10", west: "1" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      expect(getErrorsByTab(outOfRange).spatial[0].en).toMatch(/out of range: North/);
+
+      const partial = {
+        map: { north: "10", south: "", east: "10", west: "1" },
+        resourceType: ["dataset"], noPlatform: true, instruments: [],
+      };
+      expect(getErrorsByTab(partial).spatial[0].en).toMatch(/Missing bounding box coordinate\(s\): South/);
+
+      const empty = { map: { north: "", south: "", east: "", west: "" }, resourceType: ["dataset"], noPlatform: true, instruments: [] };
+      expect(getErrorsByTab(empty).spatial[0].en).toBe("Spatial information is missing");
+    });
+
     test("Spatial Map validation", () => {
       const validBox = {
         map: { north: "10", south: "1", east: "10", west: "1" },
@@ -69,6 +95,20 @@ describe("Utility: validate.js", () => {
       };
       // This fails if '0' is falsy in the validation logic (fixed bug)
       expect(validateField(validBoxWithZero, "map")).toBe(true);
+    });
+
+    test("Spatial Map validation requires description for biota (ISO) datasets", () => {
+      const biotaNoDesc = { map: { north: "", south: "", east: "", west: "" }, resourceType: ["biota"] };
+      expect(validateField(biotaNoDesc, "map")).toBeFalsy();
+      const biotaWithDesc = { map: { north: "", south: "", east: "", west: "", description: "Northwest Atlantic" }, resourceType: ["biota"] };
+      expect(validateField(biotaWithDesc, "map")).toBeTruthy();
+    });
+
+    test("Spatial Map validation requires description for legacy biological datasets", () => {
+      const biologicalNoDesc = { map: { north: "", south: "", east: "", west: "" }, resourceType: ["biological"] };
+      expect(validateField(biologicalNoDesc, "map")).toBeFalsy();
+      const biologicalWithDesc = { map: { north: "", south: "", east: "", west: "", description: "Northwest Atlantic" }, resourceType: ["biological"] };
+      expect(validateField(biologicalWithDesc, "map")).toBeTruthy();
     });
 
     test("Contacts validation", () => {

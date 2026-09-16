@@ -18,6 +18,7 @@ export {
   validateURL,
   validateDOI,
   doiRegexp,
+  bboxProblems,
 } from "@cioos/shared/validate.js";
 
 export const { warnings, validateFieldWarning } = createWarnings({

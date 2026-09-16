@@ -84,13 +84,35 @@ async function adminRoutes(app) {
     return {
       prefix: row?.config?.prefix ?? "",
       apiDomain: row?.config?.apiDomain ?? "api.datacite.org",
+      doiSuffixModes: row?.config?.doiSuffixModes?.length ? row.config.doiSuffixModes : ["default"],
+      doiStatusManagement: row?.config?.doiStatusManagement || "datacite",
       hasCredentials: row?.has_credentials ?? false,
     };
   });
 
+  // Partial update: omitted fields keep their stored values, so settings can
+  // change without re-entering the write-only secret.
   app.put("/regions/:region/admin/datacite-credentials", adminGuard, async (request, reply) => {
-    const { prefix, apiDomain, dataciteHash } = request.body || {};
-    if (!prefix || !dataciteHash) {
+    const { prefix, apiDomain, dataciteHash, doiSuffixModes, doiStatusManagement } =
+      request.body || {};
+    const existing = (
+      await query(
+        "SELECT config, secret_enc FROM region_credentials WHERE region = $1 AND kind = 'datacite'",
+        [request.region],
+      )
+    ).rows[0];
+
+    const config = {
+      ...existing?.config,
+      ...(prefix && { prefix }),
+      ...(apiDomain && { apiDomain }),
+      ...(Array.isArray(doiSuffixModes) && doiSuffixModes.length && { doiSuffixModes }),
+      ...(doiStatusManagement && { doiStatusManagement }),
+    };
+    config.apiDomain = config.apiDomain || "api.datacite.org";
+    const secretEnc = dataciteHash ? encryptSecret(dataciteHash) : existing?.secret_enc;
+
+    if (!config.prefix || !secretEnc) {
       return reply.code(422).send({ error: "prefix and dataciteHash required" });
     }
     await query(
@@ -98,12 +120,7 @@ async function adminRoutes(app) {
        VALUES ($1, 'datacite', $2, $3, now(), $4)
        ON CONFLICT (region, kind)
        DO UPDATE SET config = $2, secret_enc = $3, updated_at = now(), updated_by = $4`,
-      [
-        request.region,
-        JSON.stringify({ prefix, apiDomain: apiDomain || "api.datacite.org" }),
-        encryptSecret(dataciteHash),
-        request.user.id,
-      ],
+      [request.region, JSON.stringify(config), secretEnc, request.user.id],
     );
     return { saved: true };
   });

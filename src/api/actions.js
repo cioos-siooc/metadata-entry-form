@@ -44,9 +44,36 @@ export const getDatacitePrefix = async (region) => ({
   data: (await get(`/regions/${region}/doi/config`)).prefix,
 });
 
-export const testDataciteCredentials = async ({ region, prefix, authHash }) => ({
-  data: await post(`/regions/${region}/doi/test-credentials`, { prefix, authHash }),
+export const testDataciteCredentials = async ({ region, prefix, authHash, apiDomain }) => ({
+  data: await post(`/regions/${region}/doi/test-credentials`, { prefix, authHash, apiDomain }),
 });
+
+// Replaces publishDoi / registerDoi / hideDoi: {data: {state}}.
+const transitionDoi = (event) => async ({ region, doi }) => ({
+  data: await post(`/regions/${region}/doi/state`, { doi, event }),
+});
+export const publishDoi = transitionDoi("publish");
+export const registerDoi = transitionDoi("register");
+export const hideDoi = transitionDoi("hide");
+
+export const shareRecord = async ({ region, recordID, email, language }) => ({
+  data: await post(`/regions/${region}/records/${recordID}/shares`, { email, language }),
+});
+
+export const unshareRecord = async ({ region, recordID, uid, inviteKey }) => ({
+  data: await del(`/regions/${region}/records/${recordID}/shares`, { uid, inviteKey }),
+});
+
+// Reviewer transfer by email: {data: {success, reason?}}, like the callable.
+export const transferRecord = async ({ region, recordID, email }) => {
+  try {
+    await post(`/regions/${region}/records/${recordID}/transfer`, { email });
+    return { data: { success: true } };
+  } catch (error) {
+    if (error.status === 404) return { data: { success: false, reason: "user-not-found" } };
+    throw error;
+  }
+};
 
 export const githubPublishRecord = async ({ region, files, commitMessage }) => ({
   data: await post(`/regions/${region}/github-publish`, { files, commitMessage }),

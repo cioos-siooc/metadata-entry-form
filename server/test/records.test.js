@@ -1,6 +1,10 @@
 const { randomUUID } = require("crypto");
 const { buildTestApp, signToken, authHeader } = require("./helpers");
 const { query, pool } = require("../src/db");
+const { claimInvites } = require("../src/lib/shareInvites");
+
+const mockSendMail = jest.fn().mockResolvedValue({});
+jest.mock("../src/lib/mailer", () => ({ getTransporter: () => ({ sendMail: mockSendMail }) }));
 
 const REGION = "test";
 
@@ -141,6 +145,75 @@ describe("records API", () => {
       headers: authHeader(sharedUser.token),
     });
     expect(sharedList.json().map((r) => r.recordID)).toContain(record.recordID);
+  });
+
+  test("share by email: existing user gets access, unknown address is invited then claimed", async () => {
+    const record = await createRecord(owner);
+    const url = `/api/v1/regions/${REGION}/records/${record.recordID}`;
+    const sharedUserId = await userIdFor(app, sharedUser);
+
+    const denied = await app.inject({
+      method: "POST",
+      url: `${url}/shares`,
+      headers: authHeader(stranger.token),
+      payload: { email: sharedUser.email },
+    });
+    expect(denied.statusCode).toBe(403);
+
+    const shared = await app.inject({
+      method: "POST",
+      url: `${url}/shares`,
+      headers: authHeader(owner.token),
+      payload: { email: sharedUser.email.toUpperCase() },
+    });
+    expect(shared.json()).toEqual({ status: "shared", email: sharedUser.email, emailSent: true });
+    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({ to: sharedUser.email }));
+
+    const again = await app.inject({
+      method: "POST",
+      url: `${url}/shares`,
+      headers: authHeader(owner.token),
+      payload: { email: sharedUser.email },
+    });
+    expect(again.json().status).toBe("already-shared");
+
+    const newcomer = `newcomer-${randomUUID()}@records.test`;
+    const invited = await app.inject({
+      method: "POST",
+      url: `${url}/shares`,
+      headers: authHeader(owner.token),
+      payload: { email: newcomer },
+    });
+    expect(invited.json().status).toBe("invited");
+
+    const got = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    expect(got.json().sharedWith).toEqual({ [sharedUserId]: sharedUser.email });
+    expect(got.json().pendingShares).toEqual({ [newcomer]: newcomer });
+
+    // Newcomer signs up with a verified email: the invitation becomes a share.
+    const created = await query("INSERT INTO users (email, email_verified) VALUES ($1, true) RETURNING id", [
+      newcomer,
+    ]);
+    await claimInvites(query, created.rows[0].id, newcomer);
+    const claimed = await app.inject({ method: "GET", url, headers: authHeader(owner.token) });
+    expect(claimed.json().sharedWith[created.rows[0].id]).toBe(newcomer);
+    expect(claimed.json().pendingShares).toBeUndefined();
+
+    const removed = await app.inject({
+      method: "DELETE",
+      url: `${url}/shares`,
+      headers: authHeader(owner.token),
+      payload: { uid: sharedUserId },
+    });
+    expect(removed.json().status).toBe("unshared");
+
+    const invalid = await app.inject({
+      method: "POST",
+      url: `${url}/shares`,
+      headers: authHeader(owner.token),
+      payload: { email: "not-an-email" },
+    });
+    expect(invalid.statusCode).toBe(422);
   });
 
   test("submit sets status and backfills filename; publish is reviewer-only", async () => {

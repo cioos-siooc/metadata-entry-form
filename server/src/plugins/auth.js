@@ -3,6 +3,7 @@ const { jwtVerify } = require("jose");
 const config = require("../config");
 const { query, withTransaction } = require("../db");
 const { localJwks } = require("../lib/tokens");
+const { claimInvites } = require("../lib/shareInvites");
 
 // Loads the user for a verified access token. `sub` is our internal users.id
 // (the token was minted by a login/refresh route that already provisioned the
@@ -77,6 +78,7 @@ async function resolveUserForIdentity({ provider, providerSubject, email, emailV
         [email, name || null],
       );
       await addIdentity(inserted.rows[0].id);
+      await claimInvites(q, inserted.rows[0].id, email);
       return inserted.rows[0];
     }
 

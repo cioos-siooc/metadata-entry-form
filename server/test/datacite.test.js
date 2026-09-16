@@ -71,6 +71,8 @@ describe("datacite", () => {
       expect(credentials).toEqual({
         prefix: PREFIX,
         apiDomain: "api.test.datacite.org",
+        doiSuffixModes: ["default"],
+        doiStatusManagement: "datacite",
         authHash: AUTH_HASH,
       });
     });
@@ -101,6 +103,59 @@ describe("datacite", () => {
     });
   });
 
+  describe("DOI permissions and state transitions", () => {
+    it("rejects DOI mutations from plain region members", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: `/api/v1/regions/${REGION}/doi`,
+        headers: authHeader(member.token),
+        payload: { record: {} },
+      });
+      expect(res.statusCode).toBe(403);
+      expect(axios.post).not.toHaveBeenCalled();
+    });
+
+    it("sends the publish event and returns the new state", async () => {
+      axios.put.mockResolvedValue({ data: { data: { attributes: { state: "findable" } } } });
+      const res = await app.inject({
+        method: "POST",
+        url: `/api/v1/regions/${REGION}/doi/state`,
+        headers: authHeader(admin.token),
+        payload: { doi: `${PREFIX}/test-doi`, event: "publish" },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual({ state: "findable" });
+      expect(axios.put).toHaveBeenCalledWith(
+        `https://api.test.datacite.org/dois/${PREFIX}/test-doi/`,
+        { data: { attributes: { event: "publish" } } },
+        expect.any(Object),
+      );
+    });
+
+    it("rejects unknown events", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: `/api/v1/regions/${REGION}/doi/state`,
+        headers: authHeader(admin.token),
+        payload: { doi: `${PREFIX}/test-doi`, event: "destroy" },
+      });
+      expect(res.statusCode).toBe(422);
+    });
+
+    it("maps the form's 'test' apiDomain value to the test API host", async () => {
+      await saveDataciteCredentials({ prefix: PREFIX, apiDomain: "test" });
+      axios.put.mockResolvedValue({ data: { data: { attributes: { state: "registered" } } } });
+      await app.inject({
+        method: "POST",
+        url: `/api/v1/regions/${REGION}/doi/state`,
+        headers: authHeader(admin.token),
+        payload: { doi: `${PREFIX}/test-doi`, event: "register" },
+      });
+      await saveDataciteCredentials();
+      expect(axios.put.mock.calls[0][0]).toBe(`https://api.test.datacite.org/dois/${PREFIX}/test-doi/`);
+    });
+  });
+
   describe("createDraftDoi (POST /doi)", () => {
     const record = { data: { type: "dois", attributes: { prefix: PREFIX } } };
 
@@ -114,7 +169,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -140,7 +195,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -164,7 +219,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -181,7 +236,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -197,7 +252,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -211,7 +266,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record },
       });
 
@@ -244,7 +299,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "PUT",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: {
           doi: `${PREFIX}/test-doi`,
           data: { data: { attributes: { titles: [{ title: "Updated" }] } } },
@@ -271,7 +326,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "PUT",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { doi: `${PREFIX}/nonexistent`, data: {} },
       });
 
@@ -285,7 +340,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "PUT",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { doi: `${PREFIX}/test`, data: {} },
       });
 
@@ -301,7 +356,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "DELETE",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { doi: `${PREFIX}/test-doi` },
       });
 
@@ -321,7 +376,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "DELETE",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { doi: `${PREFIX}/already-deleted` },
       });
 
@@ -335,7 +390,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "DELETE",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { doi: `${PREFIX}/published` },
       });
 
@@ -558,7 +613,7 @@ describe("datacite", () => {
       const res = await app.inject({
         method: "POST",
         url: `/api/v1/regions/${REGION}/doi`,
-        headers: authHeader(member.token),
+        headers: authHeader(admin.token),
         payload: { record: {} },
       });
       expect(res.statusCode).toBe(400);

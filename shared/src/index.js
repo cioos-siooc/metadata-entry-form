@@ -43,7 +43,13 @@ export { getRegionLogo, mergeRegions, default as regions } from "./regions.js";
 export { default as licenses } from "./licenses.js";
 export { default as keywords } from "./keywords.js";
 export { default as tabs } from "./tabs.js";
-export { default as themesList } from "./themes.js";
+export { topicCategories, legacyThemeMapping } from "./themes.js";
+export {
+  normalizeResourceType,
+  resourceTypeIncludes,
+  isOnlyOther,
+  hasResourceType,
+} from "./normalizeResourceType.js";
 export { default as associationTypeToIso } from "./associationTypeMapping.js";
 
 export * from "./isoCodeLists.js";

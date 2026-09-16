@@ -21,6 +21,7 @@ const COLUMN_FIELDS = [
   "timeFirstPublished",
   "lastEditedBy",
   "sharedWith",
+  "pendingShares",
   "userinfo",
   "userID",
   "updatedAt",
@@ -30,7 +31,7 @@ const COLUMN_FIELDS = [
   "clientRecordId",
 ];
 
-function toApi(row, { sharedWith = null, userinfo = null } = {}) {
+function toApi(row, { sharedWith = null, pendingShares = null, userinfo = null } = {}) {
   const record = standardizeRecord({
     ...row.data,
     recordID: row.id,
@@ -53,6 +54,7 @@ function toApi(row, { sharedWith = null, userinfo = null } = {}) {
   }
 
   if (sharedWith) record.sharedWith = sharedWith;
+  if (pendingShares) record.pendingShares = pendingShares;
   if (userinfo) record.userinfo = userinfo;
   if (row.user_id) record.userID = row.user_id;
   if (row.client_record_id) record.clientRecordId = row.client_record_id;

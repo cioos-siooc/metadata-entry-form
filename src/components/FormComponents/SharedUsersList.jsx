@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Add, Delete } from "@mui/icons-material";
 import {
   Typography,
@@ -12,110 +12,96 @@ import {
   IconButton,
   ListItemSecondaryAction,
   Box,
-  Autocomplete,
+  Chip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
-import { loadRegionUsers, updateRecordShares } from "../../api/records";
+import { UserContext } from "../../providers/UserProvider";
+import { getRecord } from "../../api/records";
+import { validateEmail } from "../../utils/validate";
+
+// Legacy shares were stored as { userID: true }, with the email only available by
+// downloading the region's user list. New ones store the email as the value.
+const shareLabel = (userID, value) =>
+  typeof value === "string" ? value : `Unknown user (${userID.slice(0, 6)}…)`;
+
+const messages = {
+  shared: <I18n en="Record shared." fr="Enregistrement partagé." />,
+  invited: (
+    <I18n
+      en="No account found for that address, so an invitation to create one has been sent. Access is granted as soon as they sign up."
+      fr="Aucun compte n'est associé à cette adresse ; une invitation à en créer un a été envoyée. L'accès sera accordé dès l'inscription."
+    />
+  ),
+  "already-shared": (
+    <I18n
+      en="This record is already shared with that address."
+      fr="Cet enregistrement est déjà partagé avec cette adresse."
+    />
+  ),
+  "already-invited": (
+    <I18n
+      en="An invitation has already been sent to that address."
+      fr="Une invitation a déjà été envoyée à cette adresse."
+    />
+  ),
+  unshared: <I18n en="Access removed." fr="Accès retiré." />,
+  "invite-withdrawn": <I18n en="Invitation withdrawn." fr="Invitation retirée." />,
+};
+
+const emailFailed = (
+  <I18n
+    en="Saved, but the notification email could not be sent."
+    fr="Enregistré, mais le courriel de notification n'a pas pu être envoyé."
+  />
+);
 
 const SharedUsersList = ({ record, updateRecord, region }) => {
-  // [{userID, email, displayName}]
-  const [users, setUsers] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [inputValue, setInputValue] = useState("");
-  const [sharedWithUsers, setSharedWithUsers] = useState({});
-  const [shareRecordDisabled, setShareRecordDisabled] = useState(true);
+  const { shareRecord, unshareRecord } = useContext(UserContext);
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
-  // fetching users based on region
-  useEffect(() => {
-    let isMounted = true;
+  const { recordID } = record;
+  const sharedWith = record.sharedWith || {};
+  const pendingShares = record.pendingShares || {};
+  const emailIsValid = Boolean(email.trim()) && validateEmail(email.trim());
 
-    if (record.recordID) {
-      setShareRecordDisabled(false);
-    }
-
-    const fetchRegionUsers = async () => {
-      try {
-        const regionUsers = await loadRegionUsers(region);
-
-        if (isMounted) {
-          setUsers(regionUsers);
-        }
-      } catch (error) {
-        throw new Error(`Error loading region users: ${error}`);
-      }
-    };
-
-    fetchRegionUsers();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [region, record.recordID]);
-
-  // Updates state with user emails for each userID in record.sharedWith, to track which users a record is shared with.
-  useEffect(() => {
-    const sharedWithDetails = {};
-    Object.keys(record.sharedWith || {}).forEach((userID) => {
-      const user = users.find((u) => u.userID === userID);
-      const name = user?.displayName;
-      if (name) {
-        const domain = user?.email?.split("@").pop();
-        sharedWithDetails[userID] = {
-          name: domain ? `${name} (${domain})` : name,
-        };
-      }
-    });
-
-    setSharedWithUsers(sharedWithDetails);
-  }, [record.sharedWith, users]);
-
-  const saveShares = (updatedSharedWith) => {
-    updateRecord("sharedWith")(updatedSharedWith);
-
-    const userIds = Object.keys(updatedSharedWith);
-    updateRecordShares(region, record.recordID, userIds).catch((error) => {
-      throw new Error(`Failed to update shared record: ${error}`);
-    });
-  };
-
-  // Function to add a user to the sharedWith list
-  const addUserToSharedWith = (userID) => {
-    saveShares({ ...record.sharedWith, [userID]: true });
-  };
-
-  // Function to remove a user from the sharedWith list
-  const removeUserFromSharedWith = (userID) => {
-    if (record.sharedWith && record.sharedWith[userID]) {
-      const updatedSharedWith = { ...record.sharedWith };
-      delete updatedSharedWith[userID];
-      saveShares(updatedSharedWith);
+  // Shares live server-side, outside the record document, so pull the fresh
+  // lists back into form state once the server has written the change.
+  const run = async (call, args) => {
+    setBusy(true);
+    try {
+      const { data } = await call(args);
+      const fresh = await getRecord(region, recordID);
+      updateRecord("sharedWith")(fresh.sharedWith || {});
+      updateRecord("pendingShares")(fresh.pendingShares || {});
+      const failed = data.emailSent === false;
+      setFeedback({
+        severity: failed ? "warning" : "success",
+        message: failed ? emailFailed : messages[data.status] || null,
+      });
+      return true;
+    } catch (e) {
+      setFeedback({ severity: "error", message: e.message });
+      return false;
+    } finally {
+      setBusy(false);
     }
   };
 
-  const shareWithOptions = users
-    .map(({ userID, displayName, email }) => {
-      const domain = email?.split("@").pop();
-      const label = displayName
-        ? domain
-          ? `${displayName} (${domain})`
-          : displayName
-        : "";
-      return {
-        label,
-        userID,
-      };
-    })
-    .filter((x) => x.label)
-    .reduce((acc, current) => {
-      // Avoid duplicates by checking if label already exists
-      if (!acc.find((item) => item.label === current.label)) {
-        acc.push(current);
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => a.label.localeCompare(b.label));
+  const share = async () => {
+    const sent = await run(shareRecord, {
+      region,
+      recordID,
+      email: email.trim(),
+      language: record.language,
+    });
+    if (sent) setEmail("");
+  };
 
   return (
     <Grid>
@@ -124,13 +110,14 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
           <Typography>
             <I18n>
               <En>
-                To share editing access with another user, start typing their
-                name and select from the suggestions.
+                To share editing access, enter the email address of the person you
+                want to share this record with. If they don't have an account yet,
+                they will be invited to create one.
               </En>
               <Fr>
-                Pour partager l'accès en modification avec un autre utilisateur,
-                commencez à saisir son nom avant de le sélectionner parmi les
-                suggestions.
+                Pour partager l'accès en modification, saisissez l'adresse courriel
+                de la personne avec qui vous souhaitez partager cet enregistrement.
+                Si elle n'a pas encore de compte, elle sera invitée à en créer un.
               </Fr>
             </I18n>
           </Typography>
@@ -140,9 +127,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
                 <p>Please save the form before sharing access.</p>
               </En>
               <Fr>
-                <p>
-                  Veuillez enregistrer le formulaire avant de partager l'accès.
-                </p>
+                <p>Veuillez enregistrer le formulaire avant de partager l'accès.</p>
               </Fr>
             </I18n>
           </SupplementalText>
@@ -150,47 +135,34 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
         <Grid style={{ margin: "10px" }}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Autocomplete
-                id="share-with-emails"
-                options={shareWithOptions}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) =>
-                  option.userID === value.userID
-                }
-                value={currentUser}
-                inputValue={inputValue}
-                onInputChange={(_, newValue) => setInputValue(newValue)}
-                onChange={(event, newValue) => setCurrentUser(newValue)}
+              <TextField
+                id="share-with-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && recordID && emailIsValid && !busy) share();
+                }}
                 fullWidth
-                filterSelectedOptions
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={<I18n en="Share with..." fr="Partager avec..." />}
-                    variant="outlined"
-                    style={{ marginTop: "16px" }}
-                    error={inputValue && !currentUser}
-                    helperText={
-                      inputValue &&
-                      !currentUser && (
-                        <I18n
-                          en="User not found. Please select from the list."
-                          fr="Utilisateur non trouvé. Veuillez sélectionner dans la liste."
-                        />
-                      )
-                    }
-                  />
-                )}
+                label={<I18n en="Share with..." fr="Partager avec..." />}
+                placeholder="name@example.org"
+                variant="outlined"
+                style={{ marginTop: "16px" }}
+                error={Boolean(email) && !emailIsValid}
+                helperText={
+                  Boolean(email) &&
+                  !emailIsValid && (
+                    <I18n
+                      en="Please enter a valid email address."
+                      fr="Veuillez saisir une adresse courriel valide."
+                    />
+                  )
+                }
               />
               <Button
-                disabled={shareRecordDisabled || !currentUser}
+                disabled={!recordID || !emailIsValid || busy}
                 startIcon={<Add />}
-                onClick={() => {
-                  if (currentUser) {
-                    addUserToSharedWith(currentUser.userID);
-                    setCurrentUser(null);
-                  }
-                }}
+                onClick={share}
                 style={{
                   height: "46px",
                   justifyContent: "center",
@@ -208,41 +180,85 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
             <Grid size={{ xs: 12, md: 6 }} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
-                  {Object.keys(sharedWithUsers).length > 0 && (
+                  {(Object.keys(sharedWith).length > 0 ||
+                    Object.keys(pendingShares).length > 0) && (
                     <I18n>
                       <En>Users this record is shared with:</En>
                       <Fr>
-                        Utilisateurs avec lesquels cet enregistrement est
-                        partagé :
+                        Utilisateurs avec lesquels cet enregistrement est partagé :
                       </Fr>
                     </I18n>
                   )}
                 </Typography>
                 <List>
-                  {Object.entries(sharedWithUsers).map(
-                    ([userID, userDetails], index) => (
-                      <ListItem key={index}>
-                        <ListItemText
-                          primary={<Typography>{userDetails.name}</Typography>}
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            aria-label="delete"
-                            style={{ marginRight: "60px" }}
-                            onClick={() => removeUserFromSharedWith(userID)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ),
-                  )}
+                  {Object.entries(sharedWith).map(([userID, value]) => (
+                    <ListItem key={userID}>
+                      <ListItemText
+                        primary={
+                          <Typography>{shareLabel(userID, value)}</Typography>
+                        }
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          aria-label="delete"
+                          disabled={busy}
+                          style={{ marginRight: "60px" }}
+                          onClick={() =>
+                            run(unshareRecord, { region, recordID, uid: userID })
+                          }
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                  {Object.entries(pendingShares).map(([inviteKey, pendingEmail]) => (
+                    <ListItem key={inviteKey}>
+                      <ListItemText
+                        primary={<Typography>{pendingEmail}</Typography>}
+                        secondary={
+                          <Chip
+                            size="small"
+                            label={
+                              <I18n en="Invitation sent" fr="Invitation envoyée" />
+                            }
+                          />
+                        }
+                        // a Chip is a div, which can't live inside <p>
+                        slotProps={{ secondary: { component: "div" } }}
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          aria-label="delete"
+                          disabled={busy}
+                          style={{ marginRight: "60px" }}
+                          onClick={() =>
+                            run(unshareRecord, { region, recordID, inviteKey })
+                          }
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
                 </List>
               </Box>
             </Grid>
           </Grid>
         </Grid>
       </Paper>
+      <Snackbar
+        open={Boolean(feedback)}
+        autoHideDuration={6000}
+        onClose={() => setFeedback(null)}
+      >
+        <Alert
+          onClose={() => setFeedback(null)}
+          severity={feedback?.severity || "info"}
+        >
+          {feedback?.message}
+        </Alert>
+      </Snackbar>
     </Grid>
   );
 };

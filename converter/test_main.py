@@ -154,3 +154,15 @@ def test_convert_degrades_gracefully_without_library(waf_dir, monkeypatch):
         "/recordDelete", json={"filename": "whatever", "region": "pacific"}
     )
     assert response.status_code == 200
+
+
+def test_record_from_source(client, monkeypatch):
+    monkeypatch.setitem(main.SOURCE_LOADERS, "pdc", lambda identifier: {"title": {"en": identifier}})
+    response = client.post("/record-from-source", json={"source_type": "pdc", "identifier": " 13172 "})
+    assert response.status_code == 200
+    assert response.json() == {"data": {"title": {"en": "13172"}}}
+
+
+def test_record_from_source_rejects_unknown_source(client):
+    response = client.post("/record-from-source", json={"source_type": "file", "identifier": "/etc/passwd"})
+    assert response.status_code == 400

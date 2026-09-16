@@ -21,6 +21,9 @@ const UserProvider = ({ children }) => {
     reviewers: [],
     hasSharedRecords: false,
     datacitePrefix: null,
+    dataciteApiDomain: "production",
+    doiSuffixModes: ["default"],
+    doiStatusManagement: "datacite",
   });
 
   useEffect(() => {
@@ -76,6 +79,9 @@ const UserProvider = ({ children }) => {
           reviewers: permissions.reviewers ?? [],
           hasSharedRecords: Boolean(me.hasSharedRecords),
           datacitePrefix: me.datacitePrefix ?? null,
+          dataciteApiDomain: me.dataciteApiDomain ?? "production",
+          doiSuffixModes: me.doiSuffixModes ?? ["default"],
+          doiStatusManagement: me.doiStatusManagement ?? "datacite",
         });
       }
     }
@@ -100,7 +106,13 @@ const UserProvider = ({ children }) => {
       getCredentialsStored: actions.getCredentialsStored,
       getDatacitePrefix: actions.getDatacitePrefix,
       testDataciteCredentials: actions.testDataciteCredentials,
+      publishDoi: actions.publishDoi,
+      registerDoi: actions.registerDoi,
+      hideDoi: actions.hideDoi,
       publishRecordToGitHub: actions.githubPublishRecord,
+      shareRecord: actions.shareRecord,
+      unshareRecord: actions.unshareRecord,
+      transferRecord: actions.transferRecord,
     }),
     [state],
   );

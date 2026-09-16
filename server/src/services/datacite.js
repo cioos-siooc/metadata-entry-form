@@ -9,6 +9,8 @@ const { query } = require("../db");
 const { decryptSecret } = require("../lib/crypto");
 
 const DEFAULT_API_DOMAIN = "api.datacite.org";
+// The form stores "production"/"test" (as the RTDB did); hostnames also work.
+const API_DOMAINS = { production: DEFAULT_API_DOMAIN, test: "api.test.datacite.org" };
 
 function serviceError(statusCode, message, details = null) {
   const err = new Error(message);
@@ -29,6 +31,8 @@ async function getDataciteCredentials(region) {
   return {
     prefix: row.config?.prefix ?? null,
     apiDomain: row.config?.apiDomain ?? DEFAULT_API_DOMAIN,
+    doiSuffixModes: row.config?.doiSuffixModes?.length ? row.config.doiSuffixModes : ["default"],
+    doiStatusManagement: row.config?.doiStatusManagement || "datacite",
     authHash: row.secret_enc ? decryptSecret(row.secret_enc) : null,
   };
 }
@@ -36,7 +40,7 @@ async function getDataciteCredentials(region) {
 // DataCite DOIs REST endpoint for a region's configured API domain
 // (e.g. api.datacite.org or api.test.datacite.org). Falls back to production.
 function baseUrlFor(apiDomain) {
-  return `https://${apiDomain || DEFAULT_API_DOMAIN}/dois/`;
+  return `https://${API_DOMAINS[apiDomain] || apiDomain || DEFAULT_API_DOMAIN}/dois/`;
 }
 
 async function requireCredentials(region) {
@@ -257,7 +261,32 @@ async function testDataciteCredentials(region, { prefix, authHash, apiDomain } =
   };
 }
 
+// Send a state-transition event for an existing DOI and return the new state.
+// event: "publish" (→ findable), "register" (→ registered), "hide" (findable → registered).
+async function transitionDoiState(region, doi, event) {
+  const { authHash, apiDomain } = await requireCredentials(region);
+  try {
+    const response = await axios.put(
+      `${baseUrlFor(apiDomain)}${doi}/`,
+      { data: { attributes: { event } } },
+      {
+        headers: {
+          Authorization: `Basic ${authHash}`,
+          "Content-Type": "application/vnd.api+json",
+        },
+      },
+    );
+    return response.data?.data?.attributes?.state;
+  } catch (err) {
+    return handleDataCiteError(err, `Failed to transition DOI state with event "${event}".`, {
+      404: "Not found: The DOI could not be found.",
+      422: "Validation error: The DOI cannot be transitioned to the requested state. Ensure required metadata fields are present.",
+    });
+  }
+}
+
 module.exports = {
+  transitionDoiState,
   getDataciteCredentials,
   createDraftDoi,
   updateDraftDoi,

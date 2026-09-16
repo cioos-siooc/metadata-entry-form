@@ -15,6 +15,7 @@ const { sendVerifyEmail, sendPasswordResetEmail } = require("../lib/mailer");
 const { startAuth, completeAuth } = require("../lib/oidc");
 const { resolveUserForIdentity } = require("../plugins/auth");
 const { getCookie } = require("../lib/cookies");
+const { claimInvites } = require("../lib/shareInvites");
 const {
   REFRESH_COOKIE,
   MIN_PASSWORD,
@@ -82,7 +83,11 @@ async function authRoutes(app) {
     if (!token) return reply.code(400).send({ error: "Missing token" });
     const userId = await consumeEmailToken(token, "verify_email");
     if (!userId) return reply.code(400).send({ error: "Invalid or expired token" });
-    await query("UPDATE users SET email_verified = true WHERE id = $1", [userId]);
+    const verified = await query(
+      "UPDATE users SET email_verified = true WHERE id = $1 RETURNING email",
+      [userId],
+    );
+    await claimInvites(query, userId, verified.rows[0]?.email);
     return { ok: true };
   });
 

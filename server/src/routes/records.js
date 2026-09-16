@@ -3,16 +3,46 @@ const { query, withTransaction } = require("../db");
 const { toApi, fromApi, STATUS_TO_DB } = require("../lib/recordSerializer");
 const { getRecordFilename } = require("../lib/blankRecord");
 const { fireRecordChange } = require("../services/recordHooks");
+const { getTransporter } = require("../lib/mailer");
+const {
+  mailOptionsRecordShared,
+  mailOptionsShareInvitation,
+} = require("../services/mailoutText");
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// ponytail: flat per-record cap, not a real rate limit. Sharing mails arbitrary
+// addresses; add a per-user daily quota if that gets abused.
+const MAX_SHARES_PER_RECORD = 20;
 
 async function loadRecordRow(region, id) {
   const result = await query("SELECT * FROM records WHERE region = $1 AND id = $2", [region, id]);
   return result.rows[0] || null;
 }
 
+// {userID: email} for users the record is shared with.
 async function loadSharedWith(recordId) {
-  const result = await query("SELECT user_id FROM record_shares WHERE record_id = $1", [recordId]);
+  const result = await query(
+    "SELECT s.user_id, u.email FROM record_shares s JOIN users u ON u.id = s.user_id WHERE s.record_id = $1",
+    [recordId],
+  );
   if (!result.rows.length) return null;
-  return Object.fromEntries(result.rows.map((r) => [r.user_id, true]));
+  return Object.fromEntries(result.rows.map((r) => [r.user_id, r.email]));
+}
+
+// {inviteKey: email} for invitations not yet claimed. The key is the email.
+async function loadPendingShares(recordId) {
+  const result = await query("SELECT email FROM record_share_invites WHERE record_id = $1", [
+    recordId,
+  ]);
+  if (!result.rows.length) return null;
+  return Object.fromEntries(result.rows.map((r) => [r.email, r.email]));
+}
+
+async function shareFields(recordId) {
+  return {
+    sharedWith: await loadSharedWith(recordId),
+    pendingShares: await loadPendingShares(recordId),
+  };
 }
 
 async function canWriteRecord(request, row) {
@@ -115,7 +145,7 @@ async function recordRoutes(app) {
     const row = await loadRecordRow(request.region, request.params.id);
     if (!row) return reply.code(404).send({ error: "Record not found" });
     return toApi(row, {
-      sharedWith: await loadSharedWith(row.id),
+      ...(await shareFields(row.id)),
       userinfo: await userinfoFor(row.user_id),
     });
   });
@@ -224,7 +254,7 @@ async function recordRoutes(app) {
         kind: "update",
       });
     }
-    return toApi(updated, { sharedWith: await loadSharedWith(updated.id) });
+    return toApi(updated, await shareFields(updated.id));
   });
 
   // submitRecord / returnRecordToDraft replacement. Body: {status} in API shape.
@@ -347,6 +377,10 @@ async function recordRoutes(app) {
       "UPDATE records SET user_id = $2, updated_at = now() WHERE id = $1 RETURNING *",
       [row.id, destination.rows[0].id],
     );
+    await query("DELETE FROM record_shares WHERE record_id = $1 AND user_id = $2", [
+      row.id,
+      destination.rows[0].id,
+    ]);
     const updated = result.rows[0];
 
     // Matches updatesRecordCreate: a transferred submitted/published record
@@ -385,6 +419,100 @@ async function recordRoutes(app) {
     });
 
     return { sharedWith: Object.fromEntries(userIds.map((u) => [u, true])) };
+  });
+
+  // shareRecord replacement: share by email. An existing account gets access
+  // immediately; otherwise an invitation is stored and claimed on sign-up.
+  // Body: {email, language}. Returns {status, email, emailSent}.
+  app.post("/regions/:region/records/:id/shares", guarded, async (request, reply) => {
+    const row = await loadRecordRow(request.region, request.params.id);
+    if (!row) return reply.code(404).send({ error: "Record not found" });
+    if (row.user_id !== request.user.id && !(request.roles.isReviewer || request.roles.isAdmin)) {
+      return reply.code(403).send({ error: "Not allowed to share this record" });
+    }
+
+    const email = String(request.body?.email || "").trim().toLowerCase();
+    if (email.length > 254 || !EMAIL_RE.test(email)) {
+      return reply.code(422).send({ error: "A valid email address is required." });
+    }
+
+    const owner = await userinfoFor(row.user_id);
+    if (email === owner?.email?.toLowerCase()) {
+      return reply.code(422).send({ error: "You cannot share a record with its owner." });
+    }
+
+    const { sharedWith, pendingShares } = await shareFields(row.id);
+    if (
+      Object.keys(sharedWith || {}).length + Object.keys(pendingShares || {}).length >=
+      MAX_SHARES_PER_RECORD
+    ) {
+      return reply
+        .code(429)
+        .send({ error: `A record can be shared with at most ${MAX_SHARES_PER_RECORD} people.` });
+    }
+
+    const record = toApi(row);
+    const mailArgs = [
+      email,
+      record.title?.en,
+      record.title?.fr,
+      request.region,
+      request.user.display_name || "",
+      request.user.email,
+      row.user_id,
+      row.id,
+      request.body?.language || record.language,
+    ];
+    const send = async (mailOptions) => {
+      try {
+        await getTransporter().sendMail(mailOptions);
+        return true;
+      } catch (err) {
+        // Access already changed; don't undo it because the mail bounced.
+        request.log.error({ err: err.message }, "failed to send share email");
+        return false;
+      }
+    };
+
+    const user = (await query("SELECT id FROM users WHERE email = $1", [email])).rows[0];
+    if (user) {
+      const inserted = await query(
+        "INSERT INTO record_shares (record_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING 1",
+        [row.id, user.id],
+      );
+      if (!inserted.rows.length) return { status: "already-shared", email };
+      return { status: "shared", email, emailSent: await send(mailOptionsRecordShared(...mailArgs)) };
+    }
+
+    const invited = await query(
+      "INSERT INTO record_share_invites (record_id, email, invited_by) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING 1",
+      [row.id, email, request.user.id],
+    );
+    if (!invited.rows.length) return { status: "already-invited", email };
+    return { status: "invited", email, emailSent: await send(mailOptionsShareInvitation(...mailArgs)) };
+  });
+
+  // unshareRecord replacement. Body: {uid} (existing share) or {inviteKey}.
+  app.delete("/regions/:region/records/:id/shares", guarded, async (request, reply) => {
+    const row = await loadRecordRow(request.region, request.params.id);
+    if (!row) return reply.code(404).send({ error: "Record not found" });
+    if (row.user_id !== request.user.id && !(request.roles.isReviewer || request.roles.isAdmin)) {
+      return reply.code(403).send({ error: "Not allowed to share this record" });
+    }
+
+    const { uid, inviteKey } = request.body || {};
+    if (uid) {
+      await query("DELETE FROM record_shares WHERE record_id = $1 AND user_id = $2", [row.id, uid]);
+      return { status: "unshared" };
+    }
+    if (inviteKey) {
+      await query("DELETE FROM record_share_invites WHERE record_id = $1 AND email = $2", [
+        row.id,
+        String(inviteKey).toLowerCase(),
+      ]);
+      return { status: "invite-withdrawn" };
+    }
+    return reply.code(422).send({ error: "Either uid or inviteKey is required." });
   });
 }
 

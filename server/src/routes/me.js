@@ -24,6 +24,8 @@ async function meRoutes(app) {
         [request.region],
       );
 
+      const dataciteConfig = datacite.rows[0]?.config ?? {};
+
       return {
         userID: id,
         email,
@@ -31,7 +33,12 @@ async function meRoutes(app) {
         isSuperadmin: request.isSuperadmin,
         ...request.roles,
         hasSharedRecords: shares.rows.length > 0,
-        datacitePrefix: datacite.rows[0]?.config?.prefix ?? null,
+        datacitePrefix: dataciteConfig.prefix ?? null,
+        dataciteApiDomain: ["test", "api.test.datacite.org"].includes(dataciteConfig.apiDomain)
+          ? "test"
+          : "production",
+        doiSuffixModes: dataciteConfig.doiSuffixModes?.length ? dataciteConfig.doiSuffixModes : ["default"],
+        doiStatusManagement: dataciteConfig.doiStatusManagement || "datacite",
       };
     },
   );

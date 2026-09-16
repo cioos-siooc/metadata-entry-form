@@ -107,9 +107,27 @@ describe("admin API", () => {
     expect(get.json()).toEqual({
       prefix: "10.9999",
       apiDomain: "api.test.datacite.org",
+      doiSuffixModes: ["default"],
+      doiStatusManagement: "datacite",
       hasCredentials: true,
     });
     expect(get.body).not.toContain("c2VjcmV0");
+
+    // settings-only update keeps the stored secret
+    const partial = await app.inject({
+      method: "PUT",
+      url,
+      headers: authHeader(admin.token),
+      payload: { doiSuffixModes: ["default", "manual"], doiStatusManagement: "form" },
+    });
+    expect(partial.statusCode).toBe(200);
+    const after = await app.inject({ method: "GET", url, headers: authHeader(admin.token) });
+    expect(after.json()).toMatchObject({
+      prefix: "10.9999",
+      doiSuffixModes: ["default", "manual"],
+      doiStatusManagement: "form",
+      hasCredentials: true,
+    });
 
     // hash is encrypted at rest
     const row = await query(
