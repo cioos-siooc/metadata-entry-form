@@ -4,17 +4,22 @@ const path = require("path");
 // --- CLI args ---
 function getArg(name) {
   const idx = process.argv.indexOf(`--${name}`);
-  return idx !== -1 && idx + 1 < process.argv.length ? process.argv[idx + 1] : null;
+  return idx !== -1 && idx + 1 < process.argv.length
+    ? process.argv[idx + 1]
+    : null;
 }
 
 function findLatestRun() {
   const resultsDir = path.resolve(__dirname, "results");
   if (!fs.existsSync(resultsDir)) return null;
-  const runs = fs.readdirSync(resultsDir)
+  const runs = fs
+    .readdirSync(resultsDir)
     .filter((d) => fs.existsSync(path.join(resultsDir, d, "run-meta.json")))
     .map((d) => ({
       name: d,
-      meta: JSON.parse(fs.readFileSync(path.join(resultsDir, d, "run-meta.json"), "utf-8")),
+      meta: JSON.parse(
+        fs.readFileSync(path.join(resultsDir, d, "run-meta.json"), "utf-8"),
+      ),
     }))
     .sort((a, b) => b.meta.timestamp.localeCompare(a.meta.timestamp));
   return runs.length > 0 ? runs[0].name : null;
@@ -22,7 +27,9 @@ function findLatestRun() {
 
 const runName = getArg("run") || findLatestRun();
 if (!runName) {
-  console.error("Error: no runs found. Run compare.js first, or specify --run <name>.");
+  console.error(
+    "Error: no runs found. Run compare.js first, or specify --run <name>.",
+  );
   process.exit(1);
 }
 
@@ -50,14 +57,24 @@ function computeStats(entries) {
     (e) =>
       e.cohereTranslation &&
       !e.cohereTranslation.startsWith("[ERROR:") &&
-      e.awsTranslation.trim() === e.cohereTranslation.trim()
+      e.awsTranslation.trim() === e.cohereTranslation.trim(),
   ).length;
   const errors = entries.filter((e) =>
-    e.cohereTranslation?.startsWith("[ERROR:")
+    e.cohereTranslation?.startsWith("[ERROR:"),
   ).length;
   const verified = entries.filter((e) => e.verified).length;
 
-  return { total, titleCount, abstractCount, enToFr, frToEn, identical, different: total - identical - errors, errors, verified };
+  return {
+    total,
+    titleCount,
+    abstractCount,
+    enToFr,
+    frToEn,
+    identical,
+    different: total - identical - errors,
+    errors,
+    verified,
+  };
 }
 
 function groupByRecord(entries) {
@@ -84,7 +101,7 @@ function generateHtml(entries, runMeta, promptContent) {
   const promptLabel = runMeta.promptTemplateCopy || "Prompt";
   const promptBase64 = Buffer.from(
     promptContent || "Prompt snapshot not available for this run.",
-    "utf-8"
+    "utf-8",
   ).toString("base64");
   const serializedPromptBase64 = JSON.stringify(promptBase64)
     .replace(/</g, "\\u003c")
@@ -169,12 +186,23 @@ function generateHtml(entries, runMeta, promptContent) {
   .region-pacific, .region-hakai, .region-iys { background: var(--cioos-pacific); }
   .region-stlaurent { background: var(--cioos-slgo); }
   .region-amundsen, .region-canwin { background: var(--cioos-primary); }
-  ${regions.map((r) => {
-    // Only generate fallback for regions not already covered above
-    const known = ['atlantic','pacific','hakai','iys','stlaurent','amundsen','canwin'];
-    if (known.includes(r)) return '';
-    return `.region-${r} { background: var(--cioos-primary); }`;
-  }).filter(Boolean).join("\n  ")}
+  ${regions
+    .map((r) => {
+      // Only generate fallback for regions not already covered above
+      const known = [
+        "atlantic",
+        "pacific",
+        "hakai",
+        "iys",
+        "stlaurent",
+        "amundsen",
+        "canwin",
+      ];
+      if (known.includes(r)) return "";
+      return `.region-${r} { background: var(--cioos-primary); }`;
+    })
+    .filter(Boolean)
+    .join("\n  ")}
 
   .field-comparison { padding: 16px 24px; border-top: 1px solid var(--cioos-teal-light); width: 100%; }
   .field-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -618,7 +646,9 @@ function generateHtml(entries, runMeta, promptContent) {
 // --- Main ---
 function main() {
   if (!fs.existsSync(INTERMEDIATE_PATH)) {
-    console.error(`Error: ${INTERMEDIATE_PATH} not found. Run compare.js first.`);
+    console.error(
+      `Error: ${INTERMEDIATE_PATH} not found. Run compare.js first.`,
+    );
     process.exit(1);
   }
 
@@ -629,11 +659,12 @@ function main() {
     ? path.join(RUN_DIR, runMeta.promptTemplateCopy)
     : null;
   const promptSourcePath = runMeta.promptTemplate || null;
-  const promptContent = promptPath && fs.existsSync(promptPath)
-    ? fs.readFileSync(promptPath, "utf-8")
-    : promptSourcePath && fs.existsSync(promptSourcePath)
-      ? fs.readFileSync(promptSourcePath, "utf-8")
-      : "Prompt snapshot not available for this run.";
+  const promptContent =
+    promptPath && fs.existsSync(promptPath)
+      ? fs.readFileSync(promptPath, "utf-8")
+      : promptSourcePath && fs.existsSync(promptSourcePath)
+        ? fs.readFileSync(promptSourcePath, "utf-8")
+        : "Prompt snapshot not available for this run.";
 
   console.log(`Run: ${runName}`);
   console.log("Loading comparison data...");
@@ -645,7 +676,9 @@ function main() {
   // Write data as separate JSON file so the HTML stays small
   const DATA_PATH = path.join(RUN_DIR, "data.json");
   fs.writeFileSync(DATA_PATH, JSON.stringify(records));
-  console.log(`Data written to: ${DATA_PATH} (${(fs.statSync(DATA_PATH).size / 1024 / 1024).toFixed(1)}MB)`);
+  console.log(
+    `Data written to: ${DATA_PATH} (${(fs.statSync(DATA_PATH).size / 1024 / 1024).toFixed(1)}MB)`,
+  );
 
   console.log("Generating HTML report...");
   const html = generateHtml(entries, runMeta, promptContent);

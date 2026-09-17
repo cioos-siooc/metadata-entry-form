@@ -1,19 +1,17 @@
 import glob
+import json
 import os
 import traceback
 from pathlib import Path
-import json
 
+import sentry_sdk
 import yaml
 from firebase_to_xml.__main__ import get_filename
 from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
-from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from firebase_to_xml.organizations import get_record_owner
+from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from flask import Flask, jsonify, make_response, request
 from metadata_xml.template_functions import metadata_to_xml
-
-
-import sentry_sdk
 
 sentry_sdk.init(
     dsn="https://e0623f41d68caf57dc1563203f482daf@o4505071053766656.ingest.us.sentry.io/4508490893426688",

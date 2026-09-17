@@ -49,7 +49,7 @@ const KeywordsInput = ({
         en: value.en,
         fr: value.fr,
         [deletedChipLang]: value[deletedChipLang].filter(
-          (keyword) => keyword !== chipText
+          (keyword) => keyword !== chipText,
         ),
       };
 
@@ -90,7 +90,7 @@ const KeywordsInput = ({
 
   return (
     <Grid container spacing={3} direction="column">
-      <Grid >
+      <Grid>
         <Autocomplete
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
@@ -108,14 +108,14 @@ const KeywordsInput = ({
           fullWidth
           renderInput={(params) => (
             <TextField
-              // eslint-disable-next-line react/jsx-props-no-spreading
+               
               {...params}
               label={language.toUpperCase()}
             />
           )}
         />
       </Grid>
-      <Grid >
+      <Grid>
         <TextField
           value={selectedKeywordAltLang || ""}
           onChange={(e) => setSelectedKeywordAltLang(e.target.value)}
@@ -146,7 +146,7 @@ const KeywordsInput = ({
         </Button>
       </Grid>
 
-      <Grid >
+      <Grid>
         {languages
           .filter((lang) => value[lang]?.length)
           .map((lang) => (
@@ -155,7 +155,7 @@ const KeywordsInput = ({
                 {lang.toUpperCase()}
               </InputAdornment>
               <Grid container direction="row">
-                <Grid >
+                <Grid>
                   {(value[lang] || []).map((keyword, i) => (
                     <Chip
                       key={i}

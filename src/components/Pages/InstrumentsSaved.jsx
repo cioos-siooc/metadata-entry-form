@@ -20,7 +20,7 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@mui/icons-material";
-import {getDatabase, onValue, ref} from "firebase/database";
+import { getDatabase, onValue, ref } from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import {
@@ -53,10 +53,13 @@ class Instruments extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        const database = getDatabase(firebase)
-        const instrumentsRef = ref(database, `${region}/users/${user.uid}/instruments`)
+        const database = getDatabase(firebase);
+        const instrumentsRef = ref(
+          database,
+          `${region}/users/${user.uid}/instruments`,
+        );
         onValue(instrumentsRef, (records) =>
-          this.setState({ instruments: records.toJSON(), loading: false })
+          this.setState({ instruments: records.toJSON(), loading: false }),
         );
         this.listenerRefs.push(instrumentsRef);
       }
@@ -110,7 +113,7 @@ class Instruments extends FormClassTemplate {
     const { modalOpen, modalKey, loading, instruments } = this.state;
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +129,7 @@ class Instruments extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -141,7 +144,7 @@ class Instruments extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addInstrument()}>
             <I18n>
               <En>Add instrument</En>
@@ -154,7 +157,7 @@ class Instruments extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {instruments && Object.keys(instruments).length ? (
                 <div>
                   <Typography>
@@ -172,7 +175,9 @@ class Instruments extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editInstrument(key)}>
+                                <IconButton
+                                  onClick={() => this.editInstrument(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
@@ -180,13 +185,17 @@ class Instruments extends FormClassTemplate {
                             <Tooltip title={<I18n en="Clone" fr="Clone" />}>
                               <span>
                                 <IconButton
-                                  onClick={() => this.handleCloneInstrument(key)}
+                                  onClick={() =>
+                                    this.handleCloneInstrument(key)
+                                  }
                                 >
                                   <FileCopy />
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}
@@ -198,7 +207,9 @@ class Instruments extends FormClassTemplate {
                           </>
                         }
                       >
-                        <ListItemButton onClick={() => this.editInstrument(key)}>
+                        <ListItemButton
+                          onClick={() => this.editInstrument(key)}
+                        >
                           <ListItemAvatar>
                             <Avatar>
                               <PermContactCalendar />

@@ -18,21 +18,19 @@ const PlatformTab = ({
 }) => {
   const noPlatform = record.noPlatform && record.noPlatform !== "false";
 
-
   useEffect(() => {
-    if (record.platformID){
+    if (record.platformID) {
       updateRecord("platforms")([
         {
           id: record.platformID,
           description: record.platformDescription,
           type: record.platform,
-
         },
         ...record.platforms,
-      ])
-      updateRecord("platformID")(null)
-      updateRecord("platformDescription")(null)
-      updateRecord("platform")(null)
+      ]);
+      updateRecord("platformID")(null);
+      updateRecord("platformDescription")(null);
+      updateRecord("platform")(null);
     }
   }, [record.platformID, record.platform, record.platformDescription]);
 
@@ -40,7 +38,7 @@ const PlatformTab = ({
     <div>
       <Paper style={paperClass}>
         <Grid container direction="column" spacing={0}>
-          <Grid  style={paperClass}>
+          <Grid style={paperClass}>
             <QuestionText>
               <I18n>
                 <En>
@@ -59,9 +57,9 @@ const PlatformTab = ({
                   of the page.
                 </En>
                 <Fr>
-                  Une plateforme désigne tout « objet » sur lequel un ou plusieurs
-                  instruments sont attachés et utilisés dans la collecte des
-                  données. Par exemple :
+                  Une plateforme désigne tout « objet » sur lequel un ou
+                  plusieurs instruments sont attachés et utilisés dans la
+                  collecte des données. Par exemple :
                   <ul>
                     <li>
                       <i>Glider</i>
@@ -72,7 +70,9 @@ const PlatformTab = ({
                     <li>Véhicule téléopéré (ROV)</li>
                     <li>Amarrage</li>
                   </ul>
-                  Vous devez décrire le plus précisément possible la plateforme utilisée dans le cadre de la collecte de données et les instruments.
+                  Vous devez décrire le plus précisément possible la plateforme
+                  utilisée dans le cadre de la collecte de données et les
+                  instruments.
                 </Fr>
               </I18n>
             </QuestionText>
@@ -99,7 +99,7 @@ const PlatformTab = ({
             />
           </Grid>
 
-          <Grid  style={paperClass}>
+          <Grid style={paperClass}>
             {!noPlatform ? (
               <>
                 <Platform
@@ -117,7 +117,8 @@ const PlatformTab = ({
                 <I18n>
                   <En>You can still enter an instrument without a platform</En>
                   <Fr>
-                    Veuillez renseigner les informations sur les instruments utilisés.
+                    Veuillez renseigner les informations sur les instruments
+                    utilisés.
                   </Fr>
                 </I18n>
               </QuestionText>

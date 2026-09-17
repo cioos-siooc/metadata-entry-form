@@ -12,7 +12,11 @@ import {
 import Alert from "@mui/material/Alert";
 import { makeStyles } from "../../tss-cache";
 import { En, Fr, I18n } from "../I18n";
-import { signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../../auth";
+import {
+  signInWithGoogle,
+  signInWithMicrosoft,
+  signInWithOrcid,
+} from "../../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
 import regions from "../../regions";
 
@@ -171,7 +175,12 @@ const Login = () => {
     <Box className={classes.root}>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <Typography variant="h4" component="h1" className={classes.title} align="center">
+          <Typography
+            variant="h4"
+            component="h1"
+            className={classes.title}
+            align="center"
+          >
             <I18n>
               <En>Welcome</En>
               <Fr>Bienvenue</Fr>
@@ -184,9 +193,7 @@ const Login = () => {
             align="center"
           >
             <I18n>
-              <En>
-                Please sign in to access your metadata records.
-              </En>
+              <En>Please sign in to access your metadata records.</En>
               <Fr>
                 Veuillez vous connecter pour accéder à vos enregistrements de
                 métadonnées.
@@ -244,7 +251,10 @@ const Login = () => {
                   <En>For any issues, contact </En>
                   <Fr>En cas de problème, contactez </Fr>
                 </I18n>
-                <a href={`mailto:${regionEmail}`} className={classes.supportEmail}>
+                <a
+                  href={`mailto:${regionEmail}`}
+                  className={classes.supportEmail}
+                >
                   {regionEmail}
                 </a>
               </Typography>
@@ -253,7 +263,12 @@ const Login = () => {
 
           <Box className={classes.footer}>
             <img
-              src={new URL("../../static/cioos-national_EN_FR_min.svg", import.meta.url).href}
+              src={
+                new URL(
+                  "../../static/cioos-national_EN_FR_min.svg",
+                  import.meta.url,
+                ).href
+              }
               alt="CIOOS"
               className={classes.footerLogo}
             />

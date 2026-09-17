@@ -2,17 +2,17 @@ name: Build and Deploy to Github pages
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to deploy to GitHub Pages (e.g. v1.2.3)'
+        description: "Tag to deploy to GitHub Pages (e.g. v1.2.3)"
         required: true
         type: string
       skip_cross_trigger:
-        description: 'Skip triggering the other deployment workflow (prevents loops)'
+        description: "Skip triggering the other deployment workflow (prevents loops)"
         required: false
-        default: 'false'
+        default: "false"
         type: string
 permissions:
   contents: write
@@ -39,7 +39,7 @@ jobs:
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: "22.x"
 
       - name: Install and Build 🔧
         run: |
