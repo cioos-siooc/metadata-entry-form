@@ -23,9 +23,7 @@ vi.mock("../../utils/doiUpdate", () => ({
 }));
 
 // Import component after mocks
-const { default: DOIInput } = await import(
-  "../FormComponents/DOIInput"
-);
+const { default: DOIInput } = await import("../FormComponents/DOIInput");
 
 // --- Helpers ---
 
@@ -56,12 +54,16 @@ function renderDOIInput(recordOverrides = {}, props = {}) {
       <DOIInput
         record={record}
         name="datasetIdentifier"
-        handleUpdateDatasetIdentifier={props.handleUpdateDatasetIdentifier || vi.fn()}
-        handleUpdateDoiCreationStatus={props.handleUpdateDoiCreationStatus || vi.fn()}
+        handleUpdateDatasetIdentifier={
+          props.handleUpdateDatasetIdentifier || vi.fn()
+        }
+        handleUpdateDoiCreationStatus={
+          props.handleUpdateDoiCreationStatus || vi.fn()
+        }
         disabled={false}
         {...props}
       />
-    </UserContext.Provider>
+    </UserContext.Provider>,
   );
 }
 
@@ -124,7 +126,7 @@ describe("DOIInput", () => {
 
       renderDOIInput(
         { doiCreationStatus: "", status: "" },
-        { contextValue: { doiSuffixModes: ["identifier"] } }
+        { contextValue: { doiSuffixModes: ["identifier"] } },
       );
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
@@ -134,7 +136,9 @@ describe("DOIInput", () => {
         expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
       });
 
-      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+      expect(
+        mockCreateDraftDoi.mock.calls[0][0].record.data.attributes,
+      ).toEqual({
         doi: "10.5678/rec-1234567890abcdef",
         prefix: "10.5678",
       });
@@ -153,7 +157,7 @@ describe("DOIInput", () => {
 
       renderDOIInput(
         { doiCreationStatus: "", status: "" },
-        { contextValue: { doiSuffixModes: ["manual"] } }
+        { contextValue: { doiSuffixModes: ["manual"] } },
       );
 
       const suffixField = screen.getByRole("textbox", { name: /doi suffix/i });
@@ -166,7 +170,9 @@ describe("DOIInput", () => {
         expect(mockCreateDraftDoi).toHaveBeenCalledTimes(1);
       });
 
-      expect(mockCreateDraftDoi.mock.calls[0][0].record.data.attributes).toEqual({
+      expect(
+        mockCreateDraftDoi.mock.calls[0][0].record.data.attributes,
+      ).toEqual({
         doi: "10.5678/my-custom-suffix",
         prefix: "10.5678",
       });
@@ -190,7 +196,7 @@ describe("DOIInput", () => {
 
       renderDOIInput(
         { recordID: "rec-1", doiCreationStatus: "", status: "" },
-        { handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus }
+        { handleUpdateDatasetIdentifier, handleUpdateDoiCreationStatus },
       );
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
@@ -223,7 +229,11 @@ describe("DOIInput", () => {
         },
       });
 
-      renderDOIInput({ recordID: "rec-1", doiCreationStatus: "", status: "submitted" });
+      renderDOIInput({
+        recordID: "rec-1",
+        doiCreationStatus: "",
+        status: "submitted",
+      });
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       await user.click(generateBtn);
@@ -232,8 +242,11 @@ describe("DOIInput", () => {
         expect(mockPerformUpdateDraftDoi).toHaveBeenCalledTimes(1);
       });
 
-      const [updatedRecord, region, language, prefix] = mockPerformUpdateDraftDoi.mock.calls[0];
-      expect(updatedRecord.datasetIdentifier).toBe("https://doi.org/10.5678/sub-1");
+      const [updatedRecord, region, language, prefix] =
+        mockPerformUpdateDraftDoi.mock.calls[0];
+      expect(updatedRecord.datasetIdentifier).toBe(
+        "https://doi.org/10.5678/sub-1",
+      );
       expect(updatedRecord.doiCreationStatus).toBe("draft");
       expect(region).toBe("pacific");
       expect(language).toBe("en");
@@ -255,7 +268,11 @@ describe("DOIInput", () => {
         },
       });
 
-      renderDOIInput({ recordID: "rec-1", doiCreationStatus: "", status: "published" });
+      renderDOIInput({
+        recordID: "rec-1",
+        doiCreationStatus: "",
+        status: "published",
+      });
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       await user.click(generateBtn);
@@ -293,7 +310,9 @@ describe("DOIInput", () => {
 
     it("should show error alert when auto-update fails after generation", async () => {
       const user = userEvent.setup();
-      mockPerformUpdateDraftDoi.mockRejectedValue(new Error("Update metadata failed"));
+      mockPerformUpdateDraftDoi.mockRejectedValue(
+        new Error("Update metadata failed"),
+      );
 
       mockCreateDraftDoi.mockResolvedValue({
         data: {
@@ -306,7 +325,11 @@ describe("DOIInput", () => {
         },
       });
 
-      renderDOIInput({ recordID: "rec-1", doiCreationStatus: "", status: "submitted" });
+      renderDOIInput({
+        recordID: "rec-1",
+        doiCreationStatus: "",
+        status: "submitted",
+      });
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
       await user.click(generateBtn);
@@ -335,7 +358,7 @@ describe("DOIInput", () => {
     it("should be disabled for non-reviewer/non-admin users", () => {
       renderDOIInput(
         { recordID: "rec-1", doiCreationStatus: "" },
-        { contextValue: { isReviewer: false, isAdmin: false } }
+        { contextValue: { isReviewer: false, isAdmin: false } },
       );
 
       const generateBtn = screen.getByRole("button", { name: /generate doi/i });
@@ -350,7 +373,10 @@ describe("DOIInput", () => {
       // Make createDraftDoi hang so loadingDoi stays true
       let resolveCreate;
       mockCreateDraftDoi.mockImplementation(
-        () => new Promise((resolve) => { resolveCreate = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveCreate = resolve;
+          }),
       );
 
       renderDOIInput({
@@ -371,7 +397,10 @@ describe("DOIInput", () => {
       // Click Update DOI to start an update
       let resolveUpdate;
       mockPerformUpdateDraftDoi.mockImplementation(
-        () => new Promise((resolve) => { resolveUpdate = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveUpdate = resolve;
+          }),
       );
 
       await user.click(updateBtn);
@@ -392,7 +421,10 @@ describe("DOIInput", () => {
 
       let resolveDelete;
       mockDeleteDraftDoi.mockImplementation(
-        () => new Promise((resolve) => { resolveDelete = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveDelete = resolve;
+          }),
       );
 
       renderDOIInput({
@@ -407,7 +439,9 @@ describe("DOIInput", () => {
 
       // Clicking Delete now opens a confirmation prompt describing the consequences.
       await user.click(deleteBtn);
-      const confirmBtn = await screen.findByRole("button", { name: /^confirm$/i });
+      const confirmBtn = await screen.findByRole("button", {
+        name: /^confirm$/i,
+      });
       await user.click(confirmBtn);
 
       // Once confirmed, the in-flight delete disables the Delete button.
@@ -427,10 +461,12 @@ describe("DOIInput", () => {
         datasetIdentifier: "https://doi.org/10.5678/existing-record",
       });
 
-      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      const recordLink = screen.getByRole("link", {
+        name: /view datacite record/i,
+      });
       expect(recordLink).toHaveAttribute(
         "href",
-        "https://doi.datacite.org/dois/10.5678%2Fexisting-record"
+        "https://doi.datacite.org/dois/10.5678%2Fexisting-record",
       );
       expect(recordLink).toHaveAttribute("target", "_blank");
     });
@@ -445,13 +481,15 @@ describe("DOIInput", () => {
           contextValue: {
             dataciteApiDomain: "test",
           },
-        }
+        },
       );
 
-      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      const recordLink = screen.getByRole("link", {
+        name: /view datacite record/i,
+      });
       expect(recordLink).toHaveAttribute(
         "href",
-        "https://doi.test.datacite.org/dois/10.5678%2Ftest-record"
+        "https://doi.test.datacite.org/dois/10.5678%2Ftest-record",
       );
     });
 
@@ -461,10 +499,12 @@ describe("DOIInput", () => {
         datasetIdentifier: "https://doi.org/10.5678/draft-record",
       });
 
-      const recordLink = screen.getByRole("link", { name: /view datacite record/i });
+      const recordLink = screen.getByRole("link", {
+        name: /view datacite record/i,
+      });
       expect(recordLink).toHaveAttribute(
         "href",
-        "https://doi.datacite.org/dois/10.5678%2Fdraft-record"
+        "https://doi.datacite.org/dois/10.5678%2Fdraft-record",
       );
     });
 
@@ -475,7 +515,7 @@ describe("DOIInput", () => {
       });
 
       expect(
-        screen.queryByRole("link", { name: /view datacite record/i })
+        screen.queryByRole("link", { name: /view datacite record/i }),
       ).not.toBeInTheDocument();
     });
   });

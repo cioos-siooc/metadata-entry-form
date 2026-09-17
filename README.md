@@ -127,6 +127,29 @@ npm install
 npm start
 ```
 
+## Linting & Pre-commit Hooks
+
+The repo is linted with **ruff** (Python), **eslint** + **prettier** (JavaScript/JSX),
+and **prettier** for Markdown/JSON/CSS/YAML. These run automatically before each
+commit via [pre-commit](https://pre-commit.com/), and again on every pull request
+through [super-linter](https://github.com/super-linter/super-linter).
+
+Set up the local hooks once after cloning:
+
+```shell
+pip install pre-commit   # or: uv tool install pre-commit / brew install pre-commit
+pre-commit install
+```
+
+Useful commands:
+
+```shell
+pre-commit run --all-files   # lint/format the whole repo
+npm run lint                 # eslint check (JS/JSX)
+npm run format               # prettier write (JS/JSON/CSS/MD/YAML/HTML)
+ruff check . && ruff format  # run inside a Python package directory
+```
+
 ## Monitoring
 
 Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.

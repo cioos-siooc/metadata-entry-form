@@ -21,7 +21,8 @@ vi.mock("../../data/githubReleases.json", () => ({
         name: "v1.0.0",
         tag_name: "v1.0.0",
         published_at: "2026-02-20T00:00:00Z",
-        html_url: "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v1.0.0",
+        html_url:
+          "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v1.0.0",
         prerelease: false,
         body: "## What's New\n\n- Feature 1\n- Feature 2\n\nThis is a test release.",
       },
@@ -30,7 +31,8 @@ vi.mock("../../data/githubReleases.json", () => ({
         name: "v0.9.0-beta",
         tag_name: "v0.9.0-beta",
         published_at: "2026-02-15T00:00:00Z",
-        html_url: "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.9.0-beta",
+        html_url:
+          "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.9.0-beta",
         prerelease: true,
         body: "## Beta Release\n\n- Beta feature 1\n- Beta feature 2",
       },
@@ -39,7 +41,8 @@ vi.mock("../../data/githubReleases.json", () => ({
         name: "v0.8.0",
         tag_name: "v0.8.0",
         published_at: "2026-02-10T00:00:00Z",
-        html_url: "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.8.0",
+        html_url:
+          "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.8.0",
         prerelease: false,
         body: null,
       },
@@ -65,14 +68,14 @@ describe("<WhatsNewDialog />", () => {
     render(<WhatsNewDialog open={true} onClose={mockOnClose} />);
 
     expect(
-      screen.getByText(/Recent updates and releases/i)
+      screen.getByText(/Recent updates and releases/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("does not render when closed", () => {
     const { container } = render(
-      <WhatsNewDialog open={false} onClose={mockOnClose} />
+      <WhatsNewDialog open={false} onClose={mockOnClose} />,
     );
 
     // The dialog should not be visible when open is false
@@ -128,14 +131,16 @@ describe("<WhatsNewDialog />", () => {
     expect(githubLinks).toHaveLength(3);
 
     // Verify links have correct URLs
-    const releaseLinks = screen.getAllByRole("link", { name: /View on GitHub/i });
+    const releaseLinks = screen.getAllByRole("link", {
+      name: /View on GitHub/i,
+    });
     expect(releaseLinks[0]).toHaveAttribute(
       "href",
-      "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v1.0.0"
+      "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v1.0.0",
     );
     expect(releaseLinks[1]).toHaveAttribute(
       "href",
-      "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.9.0-beta"
+      "https://github.com/cioos-siooc/metadata-entry-form/releases/tag/v0.9.0-beta",
     );
   });
 
@@ -148,7 +153,7 @@ describe("<WhatsNewDialog />", () => {
     expect(allReleasesLink).toBeInTheDocument();
     expect(allReleasesLink).toHaveAttribute(
       "href",
-      "https://github.com/cioos-siooc/metadata-entry-form/releases"
+      "https://github.com/cioos-siooc/metadata-entry-form/releases",
     );
   });
 
@@ -205,7 +210,9 @@ describe("<WhatsNewDialog />", () => {
     expect(screen.getByText(/Feature 2/)).toBeInTheDocument();
 
     // Verify that the markdown container exists and has content
-    const markdownDivs = document.querySelectorAll(".markdownBody, .css-i4xmxb-markdownBody");
+    const markdownDivs = document.querySelectorAll(
+      ".markdownBody, .css-i4xmxb-markdownBody",
+    );
     expect(markdownDivs.length).toBeGreaterThan(0);
   });
 });

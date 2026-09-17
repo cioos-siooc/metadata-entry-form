@@ -23,7 +23,10 @@ export const copyToClipboard = (text) =>
     };
 
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(String(text)).then(resolve).catch(fallbackCopy);
+      navigator.clipboard
+        .writeText(String(text))
+        .then(resolve)
+        .catch(fallbackCopy);
     } else {
       fallbackCopy();
     }

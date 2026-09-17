@@ -2,12 +2,16 @@ import React, { useContext } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { CircularProgress, Grid } from "@mui/material";
-import { createTheme, ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeProvider,
+  StyledEngineProvider,
+} from "@mui/material/styles";
 import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
 import Instruments from "./Pages/InstrumentsSaved";
-import Shared from "./Pages/Shared"
+import Shared from "./Pages/Shared";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
@@ -33,16 +37,18 @@ const RegionLogo = ({ children }) => {
         {logoSrc ? (
           <img src={logoSrc} alt={region} />
         ) : (
-          <div style={{
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            padding: '10px 0',
-          }}>{titleText}</div>
+          <div
+            style={{
+              fontSize: "1.8rem",
+              fontWeight: 600,
+              padding: "10px 0",
+            }}
+          >
+            {titleText}
+          </div>
         )}
       </Grid>
-      <Grid>
-        {children}
-      </Grid>
+      <Grid>{children}</Grid>
     </Grid>
   );
 };
@@ -68,9 +74,15 @@ const Pages = () => {
                 <Route path="contacts/:contactID" element={<EditContact />} />
                 <Route path="contacts/new" element={<EditContact />} />
                 <Route path="contacts" element={<Contacts />} />
-                <Route path="instruments/:instrumentID" element={<EditInstrument />} />
+                <Route
+                  path="instruments/:instrumentID"
+                  element={<EditInstrument />}
+                />
                 <Route path="instruments" element={<Instruments />} />
-                <Route path="platforms/:platformID" element={<EditPlatform />} />
+                <Route
+                  path="platforms/:platformID"
+                  element={<EditPlatform />}
+                />
                 <Route path="platforms" element={<Platforms />} />
                 <Route path="shared" element={<Shared />} />
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
@@ -78,11 +90,15 @@ const Pages = () => {
                 <Route path="published" element={<Published />} />
                 <Route
                   path="reviewer"
-                  element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />
+                  }
                 />
                 <Route
                   path="admin"
-                  element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />
+                  }
                 />
                 <Route path="sentry-test" element={<SentryTest />} />
                 <Route path="*" element={<NotFound />} />
@@ -112,12 +128,12 @@ const BaseLayout = () => {
       MuiFormControlLabel: {
         styleOverrides: {
           root: {
-            '&.Mui-disabled': {
-              '& .MuiCheckbox-root': {
-                color: '#ababab',
+            "&.Mui-disabled": {
+              "& .MuiCheckbox-root": {
+                color: "#ababab",
               },
-              '& .MuiTypography-root': {
-                color: '#ababab',
+              "& .MuiTypography-root": {
+                color: "#ababab",
               },
             },
           },
@@ -126,9 +142,9 @@ const BaseLayout = () => {
       MuiInputBase: {
         styleOverrides: {
           input: {
-            '&.Mui-disabled': {
-              color: '#ababab',
-              WebkitTextFillColor: '#ababab',
+            "&.Mui-disabled": {
+              color: "#ababab",
+              WebkitTextFillColor: "#ababab",
             },
           },
         },
@@ -136,14 +152,14 @@ const BaseLayout = () => {
       MuiAccordionDetails: {
         styleOverrides: {
           root: {
-            flexDirection: 'column',
+            flexDirection: "column",
           },
         },
       },
       MuiTypography: {
         styleOverrides: {
           root: {
-            whiteSpace: 'pre-wrap',
+            whiteSpace: "pre-wrap",
           },
         },
       },

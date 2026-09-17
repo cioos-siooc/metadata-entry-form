@@ -27,7 +27,7 @@ jobs:
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: "22.x"
       - name: Install and Build 🔧
         env:
           VITE_DEV_DEPLOYMENT: true
@@ -40,10 +40,10 @@ jobs:
       - id: deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CIOOS_METADATA_FORM }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_CIOOS_METADATA_FORM }}"
           expires: 30d
-          entryPoint: '.'
+          entryPoint: "."
           projectId: cioos-metadata-form-dev-258dc
           channelId: ${{ github.ref_name == 'development' && 'development' || '' }}
         env:
