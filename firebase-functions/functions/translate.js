@@ -85,7 +85,6 @@ const translateText = async (
       throw new Error("No translation received from Cohere API");
     }
   } catch (err) {
-     
     console.error("translateText error: ", err);
     throw err;
   }

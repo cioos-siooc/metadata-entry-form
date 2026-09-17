@@ -110,7 +110,6 @@ export default function GitHubPublishDialog({
                   </Typography>
                 ) : (
                   progressLogs.map((msg, idx) => (
-                     
                     <Typography key={idx} variant="body2">
                       {msg}
                     </Typography>

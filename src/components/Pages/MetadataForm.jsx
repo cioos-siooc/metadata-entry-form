@@ -1,4 +1,3 @@
- 
 import React from "react";
 import {
   Box,
@@ -178,7 +177,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorContactsRef, (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).forEach(([k, v]) => {
-             
             v.contactID = k;
           });
           this.setState({ userContacts });
@@ -191,7 +189,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorInstrumentsRef, (instrumentsFB) => {
           const userInstruments = instrumentsFB.toJSON();
           Object.entries(userInstruments || {}).forEach(([k, v]) => {
-             
             v.instrumentID = k;
           });
           this.setState({ userInstruments });
@@ -204,7 +201,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorPlatformsRef, (platformsFB) => {
           const userPlatforms = platformsFB.toJSON();
           Object.entries(userPlatforms || {}).forEach(([k, v]) => {
-             
             v.instrumentID = k;
           });
           this.setState({ userPlatforms });
@@ -331,7 +327,6 @@ class MetadataForm extends FormClassTemplate {
         }
       }
     } catch (err) {
-       
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
       throw err;
@@ -475,7 +470,7 @@ class MetadataForm extends FormClassTemplate {
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
-     
+
     return recordID;
   }
 

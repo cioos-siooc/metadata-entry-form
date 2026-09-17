@@ -137,7 +137,8 @@ def main(
         key (str): Path to firebase OAuth2 key file
         record_url (str): URL to a single record to process
         split_by_owner (bool): Create a subdirectory for each owner
-        organizations (path): JSON listing all the organizations mapping for record owners
+        organizations (path): JSON listing all the organizations mapping for
+            record owners
     """
 
     # verify if key is a json string or a file

@@ -248,7 +248,9 @@ def create_record_from_source(req: https_fn.Request):  # type: ignore
         return https_fn.Response(
             json.dumps(
                 {
-                    "error": f"Could not retrieve {source_type} record '{identifier}': {e}"
+                    "error": (
+                        f"Could not retrieve {source_type} record '{identifier}': {e}"
+                    )
                 }
             ),
             status=404,

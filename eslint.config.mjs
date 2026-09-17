@@ -57,7 +57,16 @@ export default [
       // General rules
       "no-console": "off",
       "comma-dangle": ["error", "always-multiline"],
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^React$" }],
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^React$",
+          // `const { role, ...rest } = x` is how we strip a field; keep it legal.
+          ignoreRestSiblings: true,
+          caughtErrors: "none",
+        },
+      ],
 
       // Import rules
       "import/no-unresolved": "off", // Vite handles resolution
@@ -84,7 +93,10 @@ export default [
       },
     },
     rules: {
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", ignoreRestSiblings: true, caughtErrors: "none" },
+      ],
     },
   },
   {

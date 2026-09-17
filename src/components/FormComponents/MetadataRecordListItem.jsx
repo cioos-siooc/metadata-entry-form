@@ -83,7 +83,6 @@ const MetadataRecordListItem = ({
   };
 
   if (!record.title) {
-     
     console.log(record);
     return <></>;
   }
@@ -144,7 +143,6 @@ const MetadataRecordListItem = ({
         `${getRecordFilename(record)}${extensions[fileType]}`,
       );
     } catch (e) {
-       
       console.error(e);
     } finally {
       setIsLoading({ downloadXML: false });

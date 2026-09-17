@@ -76,7 +76,6 @@ export function ApaPreview({ record, language }) {
   return (
     <div>
       <div
-         
         dangerouslySetInnerHTML={{ __html: citation }}
         style={{ padding: "5px" }}
       />

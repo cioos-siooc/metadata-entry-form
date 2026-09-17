@@ -187,7 +187,7 @@ const Instruments = ({
                       name="platform"
                       value={instrument.platform}
                       optionLabels={platformList.map((platform) => (
-                        <PlatformTitle platform={platform} />
+                        <PlatformTitle key={platform.id} platform={platform} />
                       ))}
                       options={platformList.map((platform) => platform.id)}
                       onChange={updateInstrumentField("platform")}

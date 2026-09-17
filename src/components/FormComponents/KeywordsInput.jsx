@@ -107,11 +107,7 @@ const KeywordsInput = ({
             .map((e) => e[language])}
           fullWidth
           renderInput={(params) => (
-            <TextField
-               
-              {...params}
-              label={language.toUpperCase()}
-            />
+            <TextField {...params} label={language.toUpperCase()} />
           )}
         />
       </Grid>

@@ -368,9 +368,8 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
                         </En>
                         <Fr>
                           <p>
-                            Spécifiez la relation entre la ressource
-                            principale (A) et la ressource connexe (B). Par
-                            exemple :
+                            Spécifiez la relation entre la ressource principale
+                            (A) et la ressource connexe (B). Par exemple :
                           </p>
                           <ul>
                             «»

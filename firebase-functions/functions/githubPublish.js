@@ -132,7 +132,6 @@ exports.githubPublishRecord = functions.https.onCall(async (data, context) => {
       commitUrl: `https://github.com/${owner}/${repo}/commit/${newCommitSha}`,
     };
   } catch (error) {
-     
     console.error("GitHub API Error", error);
     throw new functions.https.HttpsError(
       "internal",

@@ -253,8 +253,8 @@ const ContactLeftList = ({
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedContacts}
-            optionLabels={contactList.map((contactItem) => (
-              <ContactTitle contact={contactItem} />
+            optionLabels={contactList.map((contactItem, i) => (
+              <ContactTitle key={i} contact={contactItem} />
             ))}
             options={contactList.map((v, i) => i)}
             disabled={!contactList.length || disabled}

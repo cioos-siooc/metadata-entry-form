@@ -44,7 +44,6 @@ export function firebaseToJSObject(input) {
   if (out.contacts) {
     Object.values(out.contacts).forEach((contact) => {
       if (contact.role) {
-         
         contact.role = Object.values(contact.role);
       }
     });

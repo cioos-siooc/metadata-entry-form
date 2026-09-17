@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useContext } from "react";
+import { useMemo, useCallback, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -10,11 +10,7 @@ import {
   gridFilteredSortedRowIdsSelector,
 } from "@mui/x-data-grid";
 
-import {
-  useColumnVisibility,
-  useRecordTableFilters,
-  markFormNavigation,
-} from "./hooks";
+import { useColumnVisibility, useRecordTableFilters } from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";

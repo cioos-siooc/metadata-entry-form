@@ -51,7 +51,8 @@ app = Flask(__name__)
 
 def delete_record(basename):
     # before writing/update a file, delete the old one
-    # this way if the status changes (and so the folder changes), we dont end up with multiple copies
+    # this way if the status changes (and so the folder changes), we dont end
+    # up with multiple copies
     # sanitize filename. just for security, the names should already be safe
     basename = "".join(
         [
@@ -103,7 +104,8 @@ def recordDelete():
     return jsonify(message="record deleted")
 
 
-# this would make us need to connect AWS Lambda to Firebase, doable, but I cant think how this would help anything
+# this would make us need to connect AWS Lambda to Firebase, doable, but I cant
+# think how this would help anything
 # create XML,YAML snippet, and write them to the WAF
 @app.route("/record")
 def recordUpdate():

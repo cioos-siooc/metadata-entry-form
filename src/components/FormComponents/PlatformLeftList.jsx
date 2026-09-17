@@ -237,8 +237,8 @@ const PlatformLeftList = ({
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedPlatforms}
-            optionLabels={platformList.map((platformItem) => (
-              <PlatformTitle platform={platformItem} />
+            optionLabels={platformList.map((platformItem, i) => (
+              <PlatformTitle key={i} platform={platformItem} />
             ))}
             options={platformList.map((v, i) => i)}
             disabled={!platformList.length || disabled}

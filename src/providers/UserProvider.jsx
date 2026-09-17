@@ -1,4 +1,3 @@
- 
 import React, { createContext } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";

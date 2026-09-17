@@ -57,7 +57,7 @@ def test_record(client, record_id, waf_url):
 
 
 @pytest.mark.dependancy(depends=["test_record"])
-@pytest.mark.parametrize("record_id,filename", zip(record_ids, filenames))
+@pytest.mark.parametrize("record_id,filename", zip(record_ids, filenames, strict=True))
 def test_delete_record(client, record_id, filename):
     response = client.get(f"/recordDelete?filename={filename}")
     assert response.status_code == 200

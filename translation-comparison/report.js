@@ -43,7 +43,7 @@ function escapeHtml(text) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
+    .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
 
@@ -96,7 +96,6 @@ function groupByRecord(entries) {
 
 function generateHtml(entries, runMeta, promptContent) {
   const stats = computeStats(entries);
-  const records = groupByRecord(entries);
   const regions = [...new Set(entries.map((e) => e.region))].sort();
   const promptLabel = runMeta.promptTemplateCopy || "Prompt";
   const promptBase64 = Buffer.from(

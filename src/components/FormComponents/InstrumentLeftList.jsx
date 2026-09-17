@@ -238,8 +238,8 @@ const InstrumentLeftList = ({
             value=""
             labelId="add-existing"
             onChange={handleAddFromSavedInstruments}
-            optionLabels={instrumentList.map((instrumentItem) => (
-              <InstrumentTitle instrument={instrumentItem} />
+            optionLabels={instrumentList.map((instrumentItem, i) => (
+              <InstrumentTitle key={i} instrument={instrumentItem} />
             ))}
             options={instrumentList.map((v, i) => i)}
             disabled={!instrumentList.length || disabled}

@@ -190,7 +190,6 @@ class Admin extends FormClassTemplate {
     // Check if credentialsStored state has changed
     if (prevState.credentialsStored !== this.state.credentialsStored) {
       if (this.state.credentialsStored) {
-         
         this.setState({ isDoiCreationEnabled: true });
       }
     }

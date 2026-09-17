@@ -229,7 +229,10 @@ const Reviewer = () => {
     (recordID, userID, newStatus) => {
       const record = records.find((r) => r.recordID === recordID);
 
-      if (newStatus === "submitted") {
+      if (newStatus === "submitted" && record?.status === "published") {
+        // Published -> Submitted (unpublish)
+        toggleModal(setUnPublishModalOpen, true, recordID, userID);
+      } else if (newStatus === "submitted") {
         // Draft -> Submitted
         toggleModal(setSubmitModalOpen, true, recordID, userID);
       } else if (newStatus === "published") {
@@ -238,9 +241,6 @@ const Reviewer = () => {
       } else if (newStatus === "" && record?.status === "submitted") {
         // Submitted -> Draft (unsubmit)
         toggleModal(setUnSubmitModalOpen, true, recordID, userID);
-      } else if (newStatus === "submitted" && record?.status === "published") {
-        // Published -> Submitted (unpublish)
-        toggleModal(setUnPublishModalOpen, true, recordID, userID);
       }
     },
     [records, toggleModal],

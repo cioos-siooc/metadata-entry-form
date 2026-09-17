@@ -49,7 +49,6 @@ const RecordActions = ({
   handlers = {},
   language,
   region,
-  datacitePrefix = "",
   githubPublishEnabled = false,
   size,
   iconButtonClassName,
@@ -240,7 +239,6 @@ const RecordActions = ({
         );
         await update(child(recordsRef, rID), { doiCreationStatus: newState });
       } catch (err) {
-         
         console.error("DataCite state transition failed:", err);
       } finally {
         setDataciteDialogLoading(false);

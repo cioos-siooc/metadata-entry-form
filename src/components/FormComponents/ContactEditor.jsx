@@ -58,7 +58,6 @@ const ContactEditor = ({
   const [rorOptions, setRorOptions] = useState([]);
   const [rorSearchActive, setRorSearchActive] = useState(false);
 
-   
   value = { ...getBlankContact(), ...value };
 
   function updateRorOptions(newInputValue) {
@@ -165,7 +164,6 @@ const ContactEditor = ({
               fullWidth
               renderInput={(params) => (
                 <TextField
-                   
                   {...params}
                   label={
                     <I18n
