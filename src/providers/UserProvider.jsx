@@ -133,6 +133,8 @@ class UserProviderClass extends FormClassTemplate {
     const shareRecord = httpsCallable(functions, "shareRecord");
     const unshareRecord = httpsCallable(functions, "unshareRecord");
     const transferRecord = httpsCallable(functions, "transferRecord");
+    // The reviewer's URL + LLM checks can take a while; the function allows 300s.
+    const reviewRecord = httpsCallable(functions, "reviewRecord", { timeout: 300000 });
 
     return (
       <UserContext.Provider
@@ -156,6 +158,7 @@ class UserProviderClass extends FormClassTemplate {
           shareRecord,
           unshareRecord,
           transferRecord,
+          reviewRecord,
         }}
       >
         {children}

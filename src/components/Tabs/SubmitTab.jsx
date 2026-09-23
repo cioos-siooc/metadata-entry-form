@@ -30,6 +30,7 @@ import {
 import tabs from "../../utils/tabs";
 
 import GetRegionInfo from "../FormComponents/Regions";
+import AutomatedReview from "../FormComponents/AutomatedReview";
 
 const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const mounted = useRef(false);
@@ -319,6 +320,9 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
             )}
           </>
         )}
+        <Grid>
+          <AutomatedReview record={record} />
+        </Grid>
       </Grid>
       <Dialog
         open={successDialogOpen}
