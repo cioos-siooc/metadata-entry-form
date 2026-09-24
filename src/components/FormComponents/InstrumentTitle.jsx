@@ -5,7 +5,7 @@ import { I18n } from "../I18n";
 /* Functions used to format text in the instrument page, left column */
 // creates text from an instrument in the form
 // <instrumentName> - <instrumentType>
-function getInstrumentTitleFromNames(instrument) {
+export function getInstrumentTitleFromNames(instrument) {
     const { id, manufacturer } = instrument;
     const titleParts = [manufacturer, id];
 

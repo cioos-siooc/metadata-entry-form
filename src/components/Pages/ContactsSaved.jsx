@@ -28,7 +28,9 @@ import {
   cloneContact,
   deleteContact,
 } from "../../utils/firebaseContactFunctions";
-import ContactTitle from "../FormComponents/ContactTitle";
+import ContactTitle, {
+  getContactTitleFromNames,
+} from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
@@ -108,6 +110,9 @@ class Contacts extends FormClassTemplate {
 
   render() {
     const { modalOpen, modalKey, loading, contacts } = this.state;
+    const contactsSorted = Object.entries(contacts || {}).sort(([, a], [, b]) =>
+      getContactTitleFromNames(a).localeCompare(getContactTitleFromNames(b))
+    );
     return (
       <Grid container direction="column" spacing={3}>
         <Grid >
@@ -164,7 +169,7 @@ class Contacts extends FormClassTemplate {
                     </I18n>
                   </Typography>
                   <List>
-                    {Object.entries(contacts).map(([key, val]) => (
+                    {contactsSorted.map(([key, val]) => (
                       <ListItem
                         key={key}
                         disablePadding

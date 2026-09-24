@@ -28,7 +28,9 @@ import {
   clonePlatform,
   deletePlatform,
 } from "../../utils/firebasePlatformFunctions";
-import PlatformTitle from "../FormComponents/PlatformTitle";
+import PlatformTitle, {
+  getPlatformTitleFromNames,
+} from "../FormComponents/PlatformTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
@@ -108,6 +110,9 @@ class Platforms extends FormClassTemplate {
 
   render() {
     const { modalOpen, modalKey, loading, platforms } = this.state;
+    const platformsSorted = Object.entries(platforms || {}).sort(([, a], [, b]) =>
+      getPlatformTitleFromNames(a).localeCompare(getPlatformTitleFromNames(b))
+    );
     return (
       <Grid container direction="column" spacing={3}>
         <Grid >
@@ -164,7 +169,7 @@ class Platforms extends FormClassTemplate {
                     </I18n>
                   </Typography>
                   <List>
-                    {Object.entries(platforms).map(([key, val]) => (
+                    {platformsSorted.map(([key, val]) => (
                       <ListItem
                         key={key}
                         disablePadding
