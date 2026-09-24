@@ -68,9 +68,7 @@ const CopyableCell = ({
             whiteSpace: "nowrap",
           }),
         }}
-        title={
-          truncate && typeof content === "string" ? content : undefined
-        }
+        title={truncate && typeof content === "string" ? content : undefined}
       >
         {content}
       </Box>

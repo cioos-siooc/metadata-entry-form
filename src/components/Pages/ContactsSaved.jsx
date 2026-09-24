@@ -56,9 +56,12 @@ class Contacts extends FormClassTemplate {
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), (user) => {
       if (user) {
         const database = getDatabase(firebase);
-        const contactsRef = ref(database, `${region}/users/${user.uid}/contacts`);
+        const contactsRef = ref(
+          database,
+          `${region}/users/${user.uid}/contacts`,
+        );
         onValue(contactsRef, (records) =>
-          this.setState({ contacts: records.toJSON(), loading: false })
+          this.setState({ contacts: records.toJSON(), loading: false }),
         );
         this.listenerRefs.push(contactsRef);
       }
@@ -111,11 +114,11 @@ class Contacts extends FormClassTemplate {
   render() {
     const { modalOpen, modalKey, loading, contacts } = this.state;
     const contactsSorted = Object.entries(contacts || {}).sort(([, a], [, b]) =>
-      getContactTitleFromNames(a).localeCompare(getContactTitleFromNames(b))
+      getContactTitleFromNames(a).localeCompare(getContactTitleFromNames(b)),
     );
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -131,7 +134,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -146,7 +149,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -159,7 +162,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>
@@ -177,7 +180,9 @@ class Contacts extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editContact(key)}>
+                                <IconButton
+                                  onClick={() => this.editContact(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
@@ -191,7 +196,9 @@ class Contacts extends FormClassTemplate {
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}

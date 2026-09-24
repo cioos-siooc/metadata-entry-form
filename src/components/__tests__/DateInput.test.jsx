@@ -1,6 +1,14 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach, beforeAll, afterAll } from "vitest";
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  beforeAll,
+  afterAll,
+} from "vitest";
 
 import DateInput from "../FormComponents/DateInput";
 
@@ -38,10 +46,12 @@ describe("<DateInput />", () => {
         value={mockEventValue}
         name={mockComponentName}
         onChange={mockOnChange}
-      />
+      />,
     );
 
     // Check that the date picker rendered - MUI v8 date picker uses group role with spinbuttons
-    expect(screen.getByRole("group", { name: "Select date" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: "Select date" }),
+    ).toBeInTheDocument();
   });
 });

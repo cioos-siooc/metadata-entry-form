@@ -14,7 +14,7 @@ describe("generateCitation", () => {
     const citation = generateCitation(
       recordWithScope("Dataset", "dataset"),
       "en",
-      "text"
+      "text",
     );
 
     expect(citation).toContain("[Data set]");
@@ -24,7 +24,7 @@ describe("generateCitation", () => {
     const citation = generateCitation(
       recordWithScope("Report", "document"),
       "en",
-      "text"
+      "text",
     );
 
     expect(citation).toContain("[Report]");
@@ -34,7 +34,7 @@ describe("generateCitation", () => {
     const citation = generateCitation(
       recordWithScope("Report", "document"),
       "fr",
-      "text"
+      "text",
     );
 
     expect(citation).toContain("[Rapport]");
@@ -44,7 +44,7 @@ describe("generateCitation", () => {
     const citation = generateCitation(
       { ...recordWithScope("Report", "document"), edition: "" },
       "en",
-      "text"
+      "text",
     );
 
     expect(citation).not.toContain("Version");
@@ -54,7 +54,7 @@ describe("generateCitation", () => {
     const citation = generateCitation(
       recordWithScope("NotAScopeCode", "document"),
       "en",
-      "text"
+      "text",
     );
 
     expect(citation).not.toContain("[");

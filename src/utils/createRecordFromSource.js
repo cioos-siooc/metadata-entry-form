@@ -5,7 +5,8 @@ import { standardizeContact } from "./firebaseRecordFunctions";
 import { getPythonFunctionUrl } from "./pythonFunctionUrl";
 
 const DOI_URL_RE = /^https?:\/\/(dx\.)?doi\.org\//i;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CCIN_RE = /^\d+$/;
 
 /**
@@ -21,7 +22,11 @@ export function detectSourceType(input) {
   const value = (input || "").trim();
   if (!value) return null;
 
-  if (DOI_URL_RE.test(value) || value.startsWith("10.") || value.toLowerCase().startsWith("doi:"))
+  if (
+    DOI_URL_RE.test(value) ||
+    value.startsWith("10.") ||
+    value.toLowerCase().startsWith("doi:")
+  )
     return "doi";
 
   if (value.includes("polardata.ca") || CCIN_RE.test(value)) return "pdc";

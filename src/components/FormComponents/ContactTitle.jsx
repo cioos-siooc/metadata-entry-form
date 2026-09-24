@@ -20,10 +20,11 @@ export function getContactTitleFromNames(contact) {
     .join(" - ");
 }
 
-function ContactTitle( contact ) {
+function ContactTitle(contact) {
   return (
-    getContactTitleFromNames(contact) ||
-    (<I18n en="New contact" fr="Nouveau contact" />)
+    getContactTitleFromNames(contact) || (
+      <I18n en="New contact" fr="Nouveau contact" />
+    )
   );
 }
 

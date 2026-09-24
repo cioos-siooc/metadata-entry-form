@@ -1,5 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
-import { getDatabase, ref, child, set, get, remove, push } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  child,
+  set,
+  get,
+  remove,
+  push,
+} from "firebase/database";
 
 import firebase from "../firebase";
 
@@ -10,10 +18,13 @@ export async function cloneRecord(
   recordID,
   sourceUserID,
   destinationUserID,
-  region
+  region,
 ) {
   const database = getDatabase(firebase);
-  const sourceUserRecordsRef = ref(database, `${region}/users/${sourceUserID}/records`);
+  const sourceUserRecordsRef = ref(
+    database,
+    `${region}/users/${sourceUserID}/records`,
+  );
 
   const record = (
     await get(child(sourceUserRecordsRef, recordID), "value")
@@ -35,7 +46,10 @@ export async function cloneRecord(
   record.identifier = uuidv4();
   record.created = new Date().toISOString();
 
-  const destinationUserRecordsRef = ref(database, `${region}/users/${destinationUserID}/records`);
+  const destinationUserRecordsRef = ref(
+    database,
+    `${region}/users/${destinationUserID}/records`,
+  );
 
   push(destinationUserRecordsRef, record);
 }
@@ -70,7 +84,7 @@ export function loadRegionRecords(regionRecords, statusFilter) {
       Object.entries(user.records).forEach(([key, record]) => {
         if (statusFilter.includes(record.status))
           records.push(
-            standardizeRecord(firebaseToJSObject(record), user, userID, key)
+            standardizeRecord(firebaseToJSObject(record), user, userID, key),
           );
       });
     }
@@ -81,9 +95,9 @@ export function loadRegionRecords(regionRecords, statusFilter) {
 
 export async function submitRecord(region, userID, key, status, record) {
   const database = getDatabase(firebase);
-  const recordRef = ref(database, `${region}/users/${userID}/records/${key}`)
+  const recordRef = ref(database, `${region}/users/${userID}/records/${key}`);
 
-  await set(child(recordRef,"status"), status);
+  await set(child(recordRef, "status"), status);
   if (status === "published")
     await set(child(recordRef, "timeFirstPublished"), new Date().toISOString());
 
@@ -91,7 +105,6 @@ export async function submitRecord(region, userID, key, status, record) {
     const filename = getRecordFilename(record);
     await set(child(recordRef, "filename"), filename);
   }
-
 }
 
 export function deleteRecord(region, userID, key) {
@@ -101,16 +114,18 @@ export function deleteRecord(region, userID, key) {
 
 export function returnRecordToDraft(region, userID, key) {
   const database = getDatabase(firebase);
-  return set(ref(database, `${region}/users/${userID}/records/${key}/status`), "");
+  return set(
+    ref(database, `${region}/users/${userID}/records/${key}/status`),
+    "",
+  );
 }
 
 export async function getRegionProjects(region) {
   const database = getDatabase(firebase);
 
   const projects = Object.values(
-    (
-      await get(ref(database, `admin/${region}/projects`), "value")
-    ).toJSON() || {}
+    (await get(ref(database, `admin/${region}/projects`), "value")).toJSON() ||
+      {},
   );
   return projects;
 }
