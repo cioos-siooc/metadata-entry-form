@@ -56,7 +56,7 @@ jobs:
         run: npm ci
         working-directory: firebase-functions/functions
       - name: Install UV
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.2.0
       - name: Install Python environment in venv
         working-directory: firebase-functions/python-functions
         run: |
