@@ -28,7 +28,9 @@ import {
   cloneInstrument,
   deleteInstrument,
 } from "../../utils/firebaseInstrumentFunctions";
-import InstrumentTitle from "../FormComponents/InstrumentTitle";
+import InstrumentTitle, {
+  getInstrumentTitleFromNames,
+} from "../FormComponents/InstrumentTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
@@ -111,6 +113,12 @@ class Instruments extends FormClassTemplate {
 
   render() {
     const { modalOpen, modalKey, loading, instruments } = this.state;
+    const instrumentsSorted = Object.entries(instruments || {}).sort(
+      ([, a], [, b]) =>
+        getInstrumentTitleFromNames(a).localeCompare(
+          getInstrumentTitleFromNames(b),
+        ),
+    );
     return (
       <Grid container direction="column" spacing={3}>
         <Grid>
@@ -167,7 +175,7 @@ class Instruments extends FormClassTemplate {
                     </I18n>
                   </Typography>
                   <List>
-                    {Object.entries(instruments).map(([key, val]) => (
+                    {instrumentsSorted.map(([key, val]) => (
                       <ListItem
                         key={key}
                         disablePadding
