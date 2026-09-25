@@ -1,5 +1,6 @@
 import React from "react";
-import { Paper, TextField, Grid, IconButton, Tooltip } from "@mui/material";
+import FormSection from "../FormShell/FormSection";
+import { TextField, Grid, IconButton, Tooltip, Stack } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update, Warning } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
@@ -19,7 +20,6 @@ import { validateField } from "../../utils/validate";
 import {
   QuestionText,
   SupplementalText,
-  paperClass,
 } from "../FormComponents/QuestionStyles";
 
 import regions from "../../regions";
@@ -49,15 +49,15 @@ const IdentificationTab = ({
   // sort into array of objects sorted by name?
   const licensesSorted = Object.values(licenses).sort((a, b) =>
     (a.title[language] || a.title.en).localeCompare(
-      b.title[language] || a.title.en,
+      b.title[language] || b.title.en,
       language,
     ),
   );
 
   return (
-    <div>
+    <Stack spacing={2}>
       {projects.length ? (
-        <Paper style={paperClass}>
+        <FormSection>
           <QuestionText>
             <I18n>
               <En>
@@ -78,12 +78,12 @@ const IdentificationTab = ({
             optionLabels={projects}
             disabled={disabled}
           />
-        </Paper>
+        </FormSection>
       ) : (
         <div />
       )}
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -182,9 +182,9 @@ const IdentificationTab = ({
           disabled={disabled}
           multiline
         />
-      </Paper>
+      </FormSection>
       {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
-        <Paper style={paperClass}>
+        <FormSection>
           <QuestionText>
             <I18n>
               <En>
@@ -322,10 +322,10 @@ const IdentificationTab = ({
               </div>
             );
           })}
-        </Paper>
+        </FormSection>
       )}
 
-      <Paper style={paperClass}>
+      <FormSection>
         <Grid container spacing={3} direction="column">
           <Grid>
             <QuestionText>
@@ -389,9 +389,9 @@ const IdentificationTab = ({
             />
           </Grid>
         </Grid>
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the status of this dataset?</En>
@@ -418,9 +418,9 @@ const IdentificationTab = ({
           fullWidth={false}
           style={{ width: "200px" }}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the start date when data was first collected?</En>
@@ -452,8 +452,8 @@ const IdentificationTab = ({
           disabled={disabled}
           dateStart={record.dateStart || undefined}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -472,9 +472,9 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("datePublished")}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>The version number of this dataset. For example, 1.1</En>
@@ -490,9 +490,9 @@ const IdentificationTab = ({
           style={{ marginTop: "10px" }}
           fullWidth
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>
@@ -532,9 +532,9 @@ const IdentificationTab = ({
           onChange={handleUpdateRecord("dateRevised")}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>
@@ -623,8 +623,8 @@ const IdentificationTab = ({
         <SelectInput
           value={record.license}
           onChange={handleUpdateRecord("license")}
-          optionLabels={licensesSorted.map((l, i) => (
-            <span key={i}>
+          optionLabels={licensesSorted.map((l) => (
+            <span key={l.code}>
               {l.title[language] || l.title.en}
 
               <Tooltip
@@ -649,8 +649,8 @@ const IdentificationTab = ({
           options={licensesSorted.map((l) => l.code)}
           disabled={disabled}
         />
-      </Paper>
-      <Paper style={paperClass}>
+      </FormSection>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What are the limitations affecting the dataset?</En>
@@ -691,8 +691,8 @@ const IdentificationTab = ({
           multiline
           disabled={disabled}
         />
-      </Paper>
-    </div>
+      </FormSection>
+    </Stack>
   );
 };
 

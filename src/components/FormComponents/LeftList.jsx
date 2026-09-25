@@ -1,22 +1,16 @@
 import React, { useState } from "react";
 import {
+  Box,
   Button,
   Grid,
   IconButton,
   List,
   ListItemButton,
-  ListItemSecondaryAction,
-  ListItemText,
   Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  Delete,
-  DragHandle as DragHandleIcon,
-  FileCopy,
-  Save,
-} from "@mui/icons-material";
+import { Delete, DragIndicator, FileCopy, Save } from "@mui/icons-material";
 import {
   SortableList,
   SortableItem,
@@ -116,132 +110,135 @@ const LeftList = ({
   }
 
   return (
-    <Paper style={paperClass}>
-      <Grid container direction="column" justifyContent="flex-start">
+    // Sticky so "Add new" stays reachable while scrolling a long editor.
+    <Paper style={{ ...paperClass, position: "sticky", top: 8 }}>
+      <Grid container direction="column" wrap="nowrap">
         <Grid style={{ margin: "10px" }}>
           <Typography>
             {items.length
               ? leftListHeader || (
                   <I18n>
                     <En>Items in this record:</En>
-                    <Fr>Plateforme dans cet enregistrement :</Fr>
+                    <Fr>Éléments dans cet enregistrement :</Fr>
                   </I18n>
                 )
               : leftListEmptyHeader || (
                   <I18n>
                     <En>There are no items in this record.</En>
-                    <Fr>Il n'y a aucune plateforme dans cet enregistrement.</Fr>
+                    <Fr>Il n'y a aucun élément dans cet enregistrement.</Fr>
                   </I18n>
                 )}
           </Typography>
         </Grid>
         <Grid>
-          <List>
+          <List style={{ maxHeight: "50vh", overflowY: "auto" }}>
             <SortableList items={items} onDrop={onDrop} getItemId={getItemId}>
               {items.map((itemEntry, i) => {
                 const itemId = getItemId(itemEntry, i);
                 return (
                   <SortableItem key={itemId} id={itemId}>
-                    <ListItemButton onClick={() => setActiveItem(i)}>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            style={{
-                              fontWeight: activeItem === i ? "bold" : "",
-                              width: "80%",
-                            }}
-                          >
-                            {itemTitle(itemEntry) || (
-                              <I18n en="New item" fr="Nouveau article" />
-                            )}
-                          </Typography>
+                    <ListItemButton
+                      selected={activeItem === i}
+                      onClick={() => setActiveItem(i)}
+                      style={{ alignItems: "flex-start", paddingLeft: 4 }}
+                    >
+                      <Tooltip
+                        title={
+                          <I18n
+                            en="Drag to reorder"
+                            fr="Faites glisser pour réorganiser"
+                          />
                         }
-                      />
-                      <ListItemSecondaryAction>
-                        <Tooltip
-                          title={<I18n en="Duplicate entry" fr="Dupliquer" />}
+                      >
+                        <DragHandle disabled={disabled}>
+                          <IconButton size="small" aria-label="reorder">
+                            <DragIndicator fontSize="small" />
+                          </IconButton>
+                        </DragHandle>
+                      </Tooltip>
+                      <Box style={{ minWidth: 0, flex: 1 }}>
+                        <Typography
+                          style={{
+                            fontWeight: activeItem === i ? "bold" : "",
+                            overflowWrap: "anywhere",
+                          }}
                         >
-                          <span>
-                            <IconButton
-                              onClick={() => duplicateItem(i)}
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <FileCopy />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Remove from this record"
-                              fr="Supprimer cette entrée"
-                            />
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              onClick={() => removeItem(i)}
-                              edge="end"
-                              aria-label="clone"
-                              disabled={disabled}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Add to saved items"
-                              fr="Ajouter aux articles enregistrés"
-                            />
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              onClick={() => {
-                                const toSave = deepCopy(items[i]);
+                          {itemTitle(itemEntry) || (
+                            <I18n en="New item" fr="Nouvel élément" />
+                          )}
+                        </Typography>
+                        <Box>
+                          <Tooltip
+                            title={<I18n en="Duplicate" fr="Dupliquer" />}
+                          >
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => duplicateItem(i)}
+                                aria-label="duplicate"
+                                disabled={disabled}
+                              >
+                                <FileCopy fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              <I18n
+                                en="Remove from this record"
+                                fr="Supprimer de cet enregistrement"
+                              />
+                            }
+                          >
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => removeItem(i)}
+                                aria-label="remove"
+                                disabled={disabled}
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              <I18n
+                                en="Add to saved items"
+                                fr="Ajouter aux éléments enregistrés"
+                              />
+                            }
+                          >
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  const toSave = deepCopy(items[i]);
 
-                                // at this point the contact object could have
-                                // a role field, which shouldn't be saved
-                                fieldsNotSavedInFirebase.forEach(
-                                  (fieldName) => {
-                                    delete toSave[fieldName];
-                                  },
-                                );
+                                  // at this point the contact object could have
+                                  // a role field, which shouldn't be saved
+                                  fieldsNotSavedInFirebase.forEach(
+                                    (fieldName) => {
+                                      delete toSave[fieldName];
+                                    },
+                                  );
 
-                                toSave.contactID = saveItem(toSave);
+                                  toSave.contactID = saveItem(toSave);
 
-                                setItems(items);
-                              }}
-                              disabled={
-                                (itemValidator && itemValidator(itemEntry)) ||
-                                itemEntry.id?.length === 0
-                              }
-                              edge="end"
-                              aria-label="clone"
-                            >
-                              <Save />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            <I18n
-                              en="Drag to reorder"
-                              fr="Faites glisser pour réorganiser"
-                            />
-                          }
-                        >
-                          <DragHandle disabled={disabled}>
-                            <IconButton edge="end" aria-label="reorder">
-                              <DragHandleIcon />
-                            </IconButton>
-                          </DragHandle>
-                        </Tooltip>
-                      </ListItemSecondaryAction>
+                                  setItems(items);
+                                }}
+                                disabled={
+                                  (itemValidator && itemValidator(itemEntry)) ||
+                                  itemEntry.id?.length === 0
+                                }
+                                aria-label="save"
+                              >
+                                <Save fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </Box>
+                      </Box>
                     </ListItemButton>
                   </SortableItem>
                 );
@@ -260,7 +257,7 @@ const LeftList = ({
               {addNewItemText || (
                 <I18n>
                   <En>Add new item</En>
-                  <Fr>Ajouter un contact</Fr>
+                  <Fr>Ajouter un élément</Fr>
                 </I18n>
               )}
             </Typography>

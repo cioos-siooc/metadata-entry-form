@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import FormSection from "../FormShell/FormSection";
 import {
   SortableList,
   SortableItem,
@@ -6,10 +7,10 @@ import {
   useStableItemIds,
 } from "../FormComponents/SortableList";
 import {
-  Paper,
   List,
   ListItem,
   ListItemText,
+  Paper,
   Typography,
   Grid,
   TextField,
@@ -26,6 +27,7 @@ import {
   FormControlLabel,
   Checkbox,
   Autocomplete,
+  Stack,
 } from "@mui/material";
 import { ArrowDownward, Delete } from "@mui/icons-material";
 import { capitalize } from "@mui/material/utils";
@@ -34,7 +36,6 @@ import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";
 import { En, Fr, I18n } from "../I18n";
 import {
-  paperClass,
   QuestionText,
   SupplementalText,
 } from "../FormComponents/QuestionStyles";
@@ -156,8 +157,8 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
   const noTaxa = record.noTaxa && record.noTaxa !== "false";
 
   return (
-    <Grid>
-      <Paper style={paperClass}>
+    <Stack spacing={2}>
+      <FormSection>
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>
@@ -200,9 +201,9 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
             </I18n>
           }
         />
-      </Paper>
+      </FormSection>
       {!noTaxa ? (
-        <Paper style={paperClass}>
+        <FormSection>
           <Grid container direction="column" spacing={0}>
             <Autocomplete
               inputValue={inputValue}
@@ -263,7 +264,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               <Box
                 border={1}
                 borderRadius="4px"
-                borderColor="#ababab"
+                borderColor="divider"
                 margin="10px"
               >
                 <List>
@@ -330,7 +331,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               <Box
                 border={1}
                 borderRadius="4px"
-                borderColor="#ababab"
+                borderColor="divider"
                 margin="10px"
                 minHeight="48px"
               >
@@ -370,11 +371,11 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               </Box>
             </Grid>
           </Grid>
-        </Paper>
+        </FormSection>
       ) : (
         ""
       )}
-    </Grid>
+    </Stack>
   );
 };
 export default TaxaTab;

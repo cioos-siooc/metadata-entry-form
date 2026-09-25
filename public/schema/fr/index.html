@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schéma des enregistrements de métadonnées du SIOOC</title>
+<style>
+:root { color-scheme: light dark; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6; max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem;
+  color: #1b1b1b; background: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #e6e6e6; background: #16191c; }
+  a { color: #6db3f2; }
+  code { background: #23272b; }
+  table { border-color: #3a4046; }
+  th, td { border-color: #3a4046; }
+  thead th { background: #23272b; }
+  .card { border-color: #3a4046; }
+  .muted { color: #9aa4ad; }
+}
+h1 { font-size: 1.9rem; margin-bottom: .25rem; }
+h2 { margin-top: 2.5rem; font-size: 1.3rem; }
+h3 { margin-top: 2rem; font-size: 1.05rem; }
+a { color: #006e90; }
+code {
+  background: #f2f4f6; padding: .12em .35em; border-radius: 3px;
+  font-size: .9em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+pre { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid #d6dbe0; padding: .5rem .7rem; text-align: left; vertical-align: top; }
+thead th { background: #f2f4f6; }
+blockquote {
+  margin: 1.2rem 0; padding: .6rem 1rem; border-left: 4px solid #ffc857;
+  background: rgba(255, 200, 87, .09);
+}
+.card { border: 1px solid #d6dbe0; border-radius: 8px; padding: 1rem 1.2rem; margin: .9rem 0; }
+.card h3 { margin-top: 0; }
+.muted { color: #5c666f; font-size: .92rem; }
+.topbar { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Schéma des enregistrements de métadonnées du SIOOC</h1>
+  <p><a href="../en/index.html">English</a></p>
+</div>
+<p>Le schéma décrivant un enregistrement de métadonnées du SIOOC, tel que produit par le formulaire de saisie de métadonnées du SIOOC.</p>
+<p class="muted">Version 1.0.0</p>
+
+<div class="card">
+  <h3><a href="fields.html">Référence des champs</a></h3>
+  <p>Chaque champ, son type et son vocabulaire contrôlé.</p>
+  <p class="muted"><a href="fields.md">Référence des champs (Markdown)</a></p>
+</div>
+
+<div class="card">
+  <h3><a href="conditional-requirements.html">Exigences conditionnelles</a></h3>
+  <p>Règles portant sur plusieurs champs — lorsqu'un champ devient obligatoire en raison de la valeur d'un autre.</p>
+</div>
+
+<div class="card">
+  <h3>Fichiers du schéma</h3>
+  <p>Le schéma lui-même, lisible par machine.</p>
+  <ul>
+    <li><a href="../record.schema.json"><code>record.schema.json</code></a>
+        &mdash; Schéma structurel — ce qu'est un enregistrement</li>
+    <li><a href="../record.submission.schema.json"><code>record.submission.schema.json</code></a>
+        &mdash; Schéma de soumission — ce qu'un enregistrement doit être pour être soumis</li>
+  </ul>
+</div>
+
+</body>
+</html>
