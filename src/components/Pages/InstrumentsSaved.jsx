@@ -177,7 +177,7 @@ class Instruments extends FormClassTemplate {
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Clone" fr="Clone" />}>
+                            <Tooltip title={<I18n en="Duplicate" fr="Dupliquer" />}>
                               <span>
                                 <IconButton
                                   onClick={() => this.handleCloneInstrument(key)}

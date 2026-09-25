@@ -23,7 +23,7 @@ const SelectInput = ({
   return (
     <FormControl
       fullWidth={fullWidth}
-      sx={{ minWidth: 200 }}
+      sx={fullWidth ? undefined : { minWidth: 200 }}
       disabled={disabled}
     >
       <Select

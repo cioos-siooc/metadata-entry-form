@@ -11,36 +11,31 @@ import {
   Divider,
 } from "@mui/material";
 import {
-  CheckCircleOutline,
+  CheckCircle,
   RadioButtonUnchecked,
   ChevronLeft,
   ChevronRight,
 } from "@mui/icons-material";
+import { I18n } from "../I18n";
 
-function StateIndicator({ state, errorCount }) {
+// Section status: green check when complete, red ✵ (same mark as required
+// fields) when something required is missing, grey ring when untouched.
+export function StateIndicator({ state }) {
   if (state === "error") {
     return (
-      <Box
-        sx={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: "error.main",
-          color: "error.contrastText",
-          fontSize: 11,
-          fontWeight: 700,
-          minWidth: 20,
-          height: 20,
-          px: 0.75,
-          borderRadius: "10px",
-        }}
-      >
-        {errorCount}
-      </Box>
+      <Tooltip title={<I18n en="Required fields missing" fr="Champs obligatoires manquants" />}>
+        <Box
+          component="span"
+          aria-label="required fields missing"
+          sx={{ color: "error.main", fontSize: 18, lineHeight: 1 }}
+        >
+          ✵
+        </Box>
+      </Tooltip>
     );
   }
   if (state === "complete") {
-    return <CheckCircleOutline sx={{ fontSize: 18, color: "success.main" }} />;
+    return <CheckCircle sx={{ fontSize: 18, color: "success.main" }} />;
   }
   return (
     <RadioButtonUnchecked sx={{ fontSize: 16, color: "text.disabled" }} />
@@ -161,10 +156,7 @@ export default function SectionRail({
                     }}
                   />
                   <Box sx={{ ml: 1, flexShrink: 0 }}>
-                    <StateIndicator
-                      state={section.state}
-                      errorCount={section.errorCount}
-                    />
+                    <StateIndicator state={section.state} />
                   </Box>
                 </>
               )}

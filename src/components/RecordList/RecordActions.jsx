@@ -320,7 +320,7 @@ const RecordActions = ({
           <FileCopy fontSize="small" />
         </ListItemIcon>
         <ListItemText>
-          <I18n en="Clone" fr="Dupliquer" />
+          <I18n en="Duplicate" fr="Dupliquer" />
         </ListItemText>
       </MenuItem>
     );

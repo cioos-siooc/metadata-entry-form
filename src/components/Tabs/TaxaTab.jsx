@@ -6,7 +6,7 @@ import {
   arrayMove,
   useStableItemIds,
 } from "../FormComponents/SortableList";
-import { List, ListItem, ListItemText, Paper, Typography, Grid, TextField, Button, TableContainer, Table, TableBody, TableRow, TableCell, Box, ListItemSecondaryAction, Tooltip, IconButton, FormControlLabel, Checkbox, Autocomplete } from "@mui/material";
+import { List, ListItem, ListItemText, Paper, Typography, Grid, TextField, Button, TableContainer, Table, TableBody, TableRow, TableCell, Box, ListItemSecondaryAction, Tooltip, IconButton, FormControlLabel, Checkbox, Autocomplete, Stack } from "@mui/material";
 import { ArrowDownward, Delete } from "@mui/icons-material";
 import { capitalize } from "@mui/material/utils";
 import axios from "axios";
@@ -133,7 +133,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
   const noTaxa = record.noTaxa && record.noTaxa !== "false";
 
   return (
-    <Grid>
+    <Stack spacing={2}>
       <FormSection>
         <QuestionText>
           <En>Taxonomic Coverage</En>
@@ -352,7 +352,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
       ) : (
         ""
       )}
-    </Grid>
+    </Stack>
   );
 };
 export default TaxaTab;

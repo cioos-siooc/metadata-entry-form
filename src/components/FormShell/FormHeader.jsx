@@ -20,15 +20,13 @@ import {
 import {
   MoreVert,
   Menu as MenuIcon,
-  CheckCircleOutline,
-  ErrorOutline,
-  RadioButtonUnchecked,
 } from "@mui/icons-material";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
+import { StateIndicator } from "./SectionRail";
 import { I18n, En, Fr } from "../I18n";
 
-// Sticky form header: title, status, progress dots, last-edited, primary
+// Sticky form header: title, status, sections-complete count, last-edited, primary
 // Save action, overflow menu. The non-drawer width is owned by the parent
 // (FormShell) via flex layout.
 export default function FormHeader({
@@ -45,13 +43,11 @@ export default function FormHeader({
   sections,
   activeSection,
   onSectionChange,
-  percentValid,
   overflowActions,
   language,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileRailOpen, setMobileRailOpen] = useState(false);
-  const activeIndex = sections.findIndex((s) => s.id === activeSection);
   const menuOpen = Boolean(anchorEl);
 
   const titleText =
@@ -166,84 +162,6 @@ export default function FormHeader({
               <I18n en="sections" fr="sections" />
             </Typography>
           </Stack>
-          <Box
-            sx={{
-              mt: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.25,
-            }}
-          >
-            <Box sx={{ display: "flex", gap: 0.5, flexGrow: 1, flexWrap: "wrap" }}>
-              {sections.map((section, idx) => {
-                const isActive = idx === activeIndex;
-                const color =
-                  section.state === "error"
-                    ? "error.main"
-                    : section.state === "complete"
-                    ? "success.main"
-                    : "action.disabled";
-                return (
-                  <Tooltip
-                    key={section.id}
-                    title={
-                      <Box>
-                        <Box sx={{ fontWeight: 600 }}>{section.label}</Box>
-                        {section.state === "error" && (
-                          <Box sx={{ fontSize: "0.75rem" }}>
-                            {section.errorCount}{" "}
-                            <I18n en="error(s)" fr="erreur(s)" />
-                          </Box>
-                        )}
-                      </Box>
-                    }
-                  >
-                    <Box
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => onSectionChange(section.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          onSectionChange(section.id);
-                        }
-                      }}
-                      sx={(theme) => ({
-                        height: 6,
-                        flex: "1 1 32px",
-                        minWidth: 20,
-                        borderRadius: 3,
-                        bgcolor: color,
-                        opacity: isActive ? 1 : 0.7,
-                        outline: isActive
-                          ? `2px solid rgba(${theme.vars.palette.primary.mainChannel} / 0.4)`
-                          : "none",
-                        outlineOffset: isActive ? 2 : 0,
-                        cursor: "pointer",
-                        transition: theme.transitions.create(
-                          ["background-color", "opacity"],
-                          { duration: theme.transitions.duration.shortest }
-                        ),
-                        "&:hover": { opacity: 1 },
-                      })}
-                    />
-                  </Tooltip>
-                );
-              })}
-            </Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontVariantNumeric: "tabular-nums",
-                color: "text.secondary",
-                fontSize: "0.8125rem",
-                minWidth: 36,
-                textAlign: "right",
-              }}
-            >
-              {Math.round((percentValid || 0) * 100)}%
-            </Typography>
-          </Box>
         </Box>
 
         <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
@@ -337,24 +255,9 @@ export default function FormHeader({
                     fontWeight: isActive ? 600 : 500,
                   }}
                 />
-                {section.state === "error" && (
-                  <ErrorOutline
-                    fontSize="small"
-                    sx={{ color: "error.main", ml: 1 }}
-                  />
-                )}
-                {section.state === "complete" && (
-                  <CheckCircleOutline
-                    fontSize="small"
-                    sx={{ color: "success.main", ml: 1 }}
-                  />
-                )}
-                {section.state === "empty" && (
-                  <RadioButtonUnchecked
-                    fontSize="small"
-                    sx={{ color: "text.disabled", ml: 1 }}
-                  />
-                )}
+                <Box sx={{ ml: 1, display: "flex" }}>
+                  <StateIndicator state={section.state} />
+                </Box>
               </ListItemButton>
             );
           })}

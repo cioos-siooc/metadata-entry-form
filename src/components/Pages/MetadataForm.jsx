@@ -479,7 +479,6 @@ class MetadataForm extends FormClassTemplate {
       );
     }
 
-    const percentValidFraction = percentValid(record);
     const activeSection = tabIndex || "start";
     const saveButtonDisabled =
       saveDisabled || !(record.title?.en || record.title?.fr) || disabled;
@@ -564,7 +563,6 @@ class MetadataForm extends FormClassTemplate {
         onCloseSavedSnackbar={() =>
           this.setState({ savedSnackbarOpen: false })
         }
-        percentValidFraction={percentValidFraction}
       />
     );
   }
@@ -588,7 +586,6 @@ function FormShellWrapper({
   modal,
   savedSnackbarOpen,
   onCloseSavedSnackbar,
-  percentValidFraction,
 }) {
   const sections = FormShellSections({
     record,
@@ -616,7 +613,6 @@ function FormShellWrapper({
           saveDisabled,
           onSave,
           overflowActions,
-          percentValid: percentValidFraction,
           language,
         }}
         actionBarProps={{

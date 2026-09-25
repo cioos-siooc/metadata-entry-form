@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import FormSection from "../FormShell/FormSection";
 
 import { useParams } from "react-router-dom";
 
-import { Grid } from "@mui/material";
-import DragHandleIcon from "@mui/icons-material/DragHandle";
+import { Grid, Stack } from "@mui/material";
+import DragIndicator from "@mui/icons-material/DragIndicator";
 
 import EditContact from "../FormComponents/ContactEditor";
 
@@ -19,6 +19,7 @@ import { ApaPreview } from "../FormComponents/ApaPreview";
 
 import regions from "../../regions";
 import LeftList from "../FormComponents/LeftList";
+import { UserContext } from "../../providers/UserProvider";
 import ContactTitle from "../FormComponents/ContactTitle";
 import {getBlankContact} from "../../utils/blankRecord";
 
@@ -31,6 +32,7 @@ const ContactTab = ({
 }) => {
   const { language, region } = useParams();
   const { contacts = [] } = record;
+  const { user } = useContext(UserContext);
 
   const updateContacts = updateRecord("contacts");
 
@@ -77,15 +79,27 @@ const ContactTab = ({
     updateContacts(newContacts);
   }
 
+  function updateIndFromAccount() {
+    // ponytail: splits the account display name at the last space; users fix
+    // multi-word surnames by hand. Accounts don't carry an ORCID iD.
+    const name = user?.displayName?.includes("@") ? "" : user?.displayName;
+    const cut = name?.lastIndexOf(" ") ?? -1;
+    const newContacts = [...contacts];
+    newContacts[activeContact].givenNames = cut > 0 ? name.slice(0, cut) : "";
+    newContacts[activeContact].lastName = cut > 0 ? name.slice(cut + 1) : "";
+    newContacts[activeContact].indEmail = user?.email || "";
+    updateContacts(newContacts);
+  }
+
   const showApaBox =
     record.title?.[language] &&
-    contacts.length &&
+    contacts.length > 0 &&
     record.created &&
     record.contacts?.some((c) => c.inCitation);
 
   const contact = contacts[activeContact];
   return (
-    <Grid container spacing={3}>
+    <Stack spacing={2}>
       <FormSection>
         <Grid >
           <QuestionText>
@@ -148,13 +162,13 @@ const ContactTab = ({
                 <En>
                   This is how your record citation will look in the catalogue.
                   To change the citation order, drag the{" "}
-                  <DragHandleIcon style={{ verticalAlign: "middle" }} /> symbol.
+                  <DragIndicator style={{ verticalAlign: "middle" }} /> symbol.
                 </En>
                 <Fr>
                   Voici à quoi ressemblera votre citation dans le catalogue.
                   Seuls les contacts identifiés comme faisant partie de la citation
                   (en cochant la case appropriée) y figurent. Pour changer l'ordre, faites glisser le{" "}
-                  <DragHandleIcon style={{ verticalAlign: "middle" }} />.
+                  <DragIndicator style={{ verticalAlign: "middle" }} />.
                 </Fr>
               </I18n>
             </div>
@@ -166,7 +180,7 @@ const ContactTab = ({
       )}
 
       <Grid container direction="row" spacing={2} style={{ marginLeft: "5px" }}>
-        <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <LeftList
             items={contacts}
             updateItems={updateContacts}
@@ -178,6 +192,9 @@ const ContactTab = ({
             itemTitle={ContactTitle}
             getBlankItem={getBlankContact}
             addSavedItemLabel={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />}
+            addNewItemText={<I18n en="Add new contact" fr="Ajouter un nouveau contact" />}
+            leftListHeader={<I18n en="Contacts in this record:" fr="Contacts dans cet enregistrement :" />}
+            leftListEmptyHeader={<I18n en="There are no contacts in this record." fr="Il n'y a aucun contact dans cet enregistrement." />}
             uidFields={["lastName", "orgName"]}
             itemValidator={(currentContact) => !(
                                   currentContact.orgName?.length ||
@@ -187,7 +204,7 @@ const ContactTab = ({
           />
         </Grid>
         {contact && (
-          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Grid container direction="column">
               <FormSection>
                 <Grid container direction="column" spacing={3}>
@@ -200,6 +217,7 @@ const ContactTab = ({
                       updateContact={(key) => updateContact(key)}
                       updateContactRor={(payload) => updateOrgFromRor(payload, language)}
                       updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
+                      updateContactFromAccount={user && updateIndFromAccount}
                       disabled={disabled}
                       language={language}
                     />
@@ -210,7 +228,7 @@ const ContactTab = ({
           </Grid>
         )}
       </Grid>
-    </Grid>
+    </Stack>
   );
 };
 

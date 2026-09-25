@@ -1,6 +1,6 @@
 import React from "react";
 import FormSection from "../FormShell/FormSection";
-import { TextField, Grid, IconButton, Tooltip } from "@mui/material";
+import { TextField, Grid, IconButton, Tooltip, Stack } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update, Warning } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
@@ -52,7 +52,7 @@ const IdentificationTab = ({
   );
 
   return (
-    <div>
+    <Stack spacing={2}>
 
       {projects.length ? (
         <FormSection>
@@ -671,7 +671,7 @@ const IdentificationTab = ({
           disabled={disabled}
         />
       </FormSection>
-    </div>
+    </Stack>
   );
 };
 

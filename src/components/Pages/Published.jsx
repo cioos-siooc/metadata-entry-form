@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Typography, Box } from "@mui/material";
+import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import { Typography, Box, FormControlLabel, Switch } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import firebase from "../../firebase";
@@ -11,6 +11,7 @@ import {
 import { Fr, En, I18n } from "../I18n";
 import RecordList, { publishedConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
+import { UserContext } from "../../providers/UserProvider";
 
 const Published = () => {
   const { language, region } = useParams();
@@ -19,6 +20,16 @@ const Published = () => {
   const [loading, setLoading] = useState(true);
   const listenerRefs = useRef([]);
   const unsubscribeRef = useRef(null);
+  const { user, isReviewer, isAdmin } = useContext(UserContext);
+  const canSeeAll = isReviewer || isAdmin;
+  const [mineToggle, setMineToggle] = useState(false);
+  const mineOnly = !canSeeAll || mineToggle;
+  const config = mineOnly
+    ? {
+        ...publishedConfig,
+        columns: publishedConfig.columns.filter((c) => c !== "author"),
+      }
+    : publishedConfig;
 
   // Load records on mount
   useEffect(() => {
@@ -70,9 +81,12 @@ const Published = () => {
     [region],
   );
 
-  // Filter to only show published records
+  // Filter to only show published records. ponytail: UI-only scoping; the
+  // Firebase rules still let any signed-in user read the whole region.
   const publishedRecords = records.filter(
-    (record) => record.status === "published",
+    (record) =>
+      record.status === "published" &&
+      (!mineOnly || record.userinfo?.userID === user?.uid),
   );
 
   return (
@@ -86,14 +100,38 @@ const Published = () => {
 
       <Typography variant="body2" paragraph>
         <I18n>
-          <En>These are the published records in your region.</En>
-          <Fr>Il s'agit des enregistrements publiés dans votre région.</Fr>
+          {mineOnly ? (
+            <>
+              <En>These are your published records.</En>
+              <Fr>Voici vos enregistrements publiés.</Fr>
+            </>
+          ) : (
+            <>
+              <En>These are all the published records in your region.</En>
+              <Fr>
+                Il s'agit de tous les enregistrements publiés dans votre
+                région.
+              </Fr>
+            </>
+          )}
         </I18n>
       </Typography>
 
+      {canSeeAll && (
+        <FormControlLabel
+          control={
+            <Switch
+              checked={mineToggle}
+              onChange={(e) => setMineToggle(e.target.checked)}
+            />
+          }
+          label={<I18n en="Mine only" fr="Seulement les miens" />}
+        />
+      )}
+
       <RecordList
         records={publishedRecords}
-        config={publishedConfig}
+        config={config}
         loading={loading}
         onEditRecord={handleEditRecord}
         onCloneRecord={handleCloneRecord}

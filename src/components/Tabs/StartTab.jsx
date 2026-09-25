@@ -4,12 +4,12 @@ import FormSection from "../FormShell/FormSection";
 import { Save, ExpandMore } from "@mui/icons-material";
 import {
   Typography,
-  Grid,
   FormControl,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
@@ -108,7 +108,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
   }, [userID, record.userID, record.recordID]);
 
   return (
-    <Grid >
+    <Stack spacing={2}>
       <FormSection>
         {disabled && (
           <QuestionText style={{ paddingBottom: "15px" }}>
@@ -395,7 +395,7 @@ const StartTab = ({ disabled, record, updateRecord, handleUpdateRecord, userID }
         record={record}
       />
       )}
-    </Grid>
+    </Stack>
   );
 };
 
