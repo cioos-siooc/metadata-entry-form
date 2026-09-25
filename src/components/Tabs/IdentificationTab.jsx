@@ -49,7 +49,7 @@ const IdentificationTab = ({
   // sort into array of objects sorted by name?
   const licensesSorted = Object.values(licenses).sort((a, b) =>
     (a.title[language] || a.title.en).localeCompare(
-      b.title[language] || a.title.en,
+      b.title[language] || b.title.en,
       language,
     ),
   );
@@ -624,7 +624,7 @@ const IdentificationTab = ({
           value={record.license}
           onChange={handleUpdateRecord("license")}
           optionLabels={licensesSorted.map((l) => (
-            <span>
+            <span key={l.code}>
               {l.title[language] || l.title.en}
 
               <Tooltip
