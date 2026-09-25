@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
 import {
   Box,
@@ -74,7 +73,7 @@ const LinearProgressWithLabel = ({ value }) => (
       </Box>
       <Box minWidth={35}>
         <Typography variant="body2" color="textSecondary">{`${Math.round(
-          value
+          value,
         )}%`}</Typography>
       </Box>
     </Box>
@@ -159,7 +158,7 @@ class MetadataForm extends FormClassTemplate {
         // get info of the person openeing the record
         const editorDataRef = child(
           ref(database, `${region}/users`),
-          loggedInUserID
+          loggedInUserID,
         );
         const userinfoRef = child(editorDataRef, "userinfo");
         onValue(userinfoRef, (userinfo) => {
@@ -178,7 +177,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorContactsRef, (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).forEach(([k, v]) => {
-            // eslint-disable-next-line no-param-reassign
             v.contactID = k;
           });
           this.setState({ userContacts });
@@ -191,7 +189,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorInstrumentsRef, (instrumentsFB) => {
           const userInstruments = instrumentsFB.toJSON();
           Object.entries(userInstruments || {}).forEach(([k, v]) => {
-            // eslint-disable-next-line no-param-reassign
             v.instrumentID = k;
           });
           this.setState({ userInstruments });
@@ -204,7 +201,6 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorPlatformsRef, (platformsFB) => {
           const userPlatforms = platformsFB.toJSON();
           Object.entries(userPlatforms || {}).forEach(([k, v]) => {
-            // eslint-disable-next-line no-param-reassign
             v.instrumentID = k;
           });
           this.setState({ userPlatforms });
@@ -225,7 +221,7 @@ class MetadataForm extends FormClassTemplate {
                 normalizePrefilledRecord(prefill),
                 null,
                 null,
-                ""
+                "",
               ),
             }),
           });
@@ -241,8 +237,10 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
-            const loggedInUserIsSharedWith =
-              record.sharedWith && record.sharedWith[loggedInUserID] === true;
+            // Older records store `true`, newer ones store the recipient's email.
+            const loggedInUserIsSharedWith = Boolean(
+              record.sharedWith && record.sharedWith[loggedInUserID],
+            );
 
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
@@ -294,7 +292,7 @@ class MetadataForm extends FormClassTemplate {
 
     const contactsRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/contacts`
+      `${region}/users/${auth.currentUser.uid}/contacts`,
     );
 
     // existing contact
@@ -319,7 +317,7 @@ class MetadataForm extends FormClassTemplate {
           record,
           region,
           language,
-          datacitePrefix
+          datacitePrefix,
         );
 
         if (statusCode === 200) {
@@ -329,7 +327,6 @@ class MetadataForm extends FormClassTemplate {
         }
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
       throw err;
@@ -345,7 +342,7 @@ class MetadataForm extends FormClassTemplate {
     const database = getDatabase(firebase);
     const instrumentsRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/instruments`
+      `${region}/users/${auth.currentUser.uid}/instruments`,
     );
 
     // existing instrument
@@ -369,7 +366,7 @@ class MetadataForm extends FormClassTemplate {
     const database = getDatabase(firebase);
     const platformRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/platforms`
+      `${region}/users/${auth.currentUser.uid}/platforms`,
     );
 
     // existing instrument
@@ -444,7 +441,7 @@ class MetadataForm extends FormClassTemplate {
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record }
+        { ...getBlankRecord(), ...record },
       );
     } else {
       // new record
@@ -473,7 +470,7 @@ class MetadataForm extends FormClassTemplate {
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
-    // eslint-disable-next-line consistent-return
+
     return recordID;
   }
 

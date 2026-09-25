@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import regions from "../regions";
 import NavDrawer from "./NavDrawer";
 
 import BaseLayout from "./BaseLayout";

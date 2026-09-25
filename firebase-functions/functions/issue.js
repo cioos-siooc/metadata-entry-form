@@ -1,9 +1,9 @@
 const { Octokit } = require("octokit");
 const fs = require("fs");
-const { defineString } = require('firebase-functions/params');
+const { defineString } = require("firebase-functions/params");
 
-const githubAuth = defineString('GITHUB_AUTH');
-const githubAuthCred = process.env.GITHUB_AUTH || githubAuth.value()
+const githubAuth = defineString("GITHUB_AUTH");
+const githubAuthCred = process.env.GITHUB_AUTH || githubAuth.value();
 
 function readIssueText(filename) {
   try {
