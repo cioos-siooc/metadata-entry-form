@@ -53,8 +53,11 @@ export default function FormHeader({
   const titleText =
     title || (language === "fr" ? "Nouvel enregistrement" : "New Record");
 
-  const sectionCountComplete = sections.filter((s) => s.state === "complete")
-    .length;
+  // Submit is an action, not content to fill in, so it isn't counted.
+  const countedSections = sections.filter((s) => s.id !== "submit");
+  const sectionCountComplete = countedSections.filter(
+    (s) => s.state === "complete"
+  ).length;
 
   return (
     <AppBar
@@ -158,7 +161,7 @@ export default function FormHeader({
               component="span"
               sx={{ color: "text.secondary", fontSize: "0.8125rem" }}
             >
-              {sectionCountComplete}/{sections.length}{" "}
+              {sectionCountComplete}/{countedSections.length}{" "}
               <I18n en="sections" fr="sections" />
             </Typography>
           </Stack>
