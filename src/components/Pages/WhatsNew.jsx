@@ -116,7 +116,15 @@ const WhatsNewDialog = ({ open, onClose }) => {
 
         {releases.map((release) => (
           <Paper key={release.id} sx={{ p: 3, mb: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, flexWrap: "wrap" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                mb: 1,
+                flexWrap: "wrap",
+              }}
+            >
               <Typography variant="h6">
                 {release.name || release.tag_name}
               </Typography>
@@ -128,9 +136,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
               />
               {release.prerelease && (
                 <Chip
-                  label={
-                    language === "fr" ? "Pré-version" : "Pre-release"
-                  }
+                  label={language === "fr" ? "Pré-version" : "Pre-release"}
                   size="small"
                   color="warning"
                 />

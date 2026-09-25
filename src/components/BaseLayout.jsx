@@ -8,7 +8,7 @@ import Submissions from "./Pages/Submissions";
 import Published from "./Pages/Published";
 import Contacts from "./Pages/ContactsSaved";
 import Instruments from "./Pages/InstrumentsSaved";
-import Shared from "./Pages/Shared"
+import Shared from "./Pages/Shared";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
@@ -45,9 +45,15 @@ const Pages = () => {
                 <Route path="contacts/:contactID" element={<EditContact />} />
                 <Route path="contacts/new" element={<EditContact />} />
                 <Route path="contacts" element={<Contacts />} />
-                <Route path="instruments/:instrumentID" element={<EditInstrument />} />
+                <Route
+                  path="instruments/:instrumentID"
+                  element={<EditInstrument />}
+                />
                 <Route path="instruments" element={<Instruments />} />
-                <Route path="platforms/:platformID" element={<EditPlatform />} />
+                <Route
+                  path="platforms/:platformID"
+                  element={<EditPlatform />}
+                />
                 <Route path="platforms" element={<Platforms />} />
                 <Route path="shared" element={<Shared />} />
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
@@ -55,11 +61,15 @@ const Pages = () => {
                 <Route path="published" element={<Published />} />
                 <Route
                   path="reviewer"
-                  element={userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />
+                  }
                 />
                 <Route
                   path="admin"
-                  element={userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />}
+                  element={
+                    userIsAdmin || userIsReviewer ? <Admin /> : <NotFound />
+                  }
                 />
                 <Route path="sentry-test" element={<SentryTest />} />
                 <Route path="*" element={<NotFound />} />

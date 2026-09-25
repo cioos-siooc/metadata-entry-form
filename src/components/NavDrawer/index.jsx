@@ -64,8 +64,7 @@ export default function MiniDrawer({ children }) {
   const navigate = useNavigate();
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const {
     user,
@@ -118,7 +117,8 @@ export default function MiniDrawer({ children }) {
   const regionInfo = regions[region];
   const regionEmailLower = (regionInfo?.email || "").toLowerCase();
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
-  const [connectedAccountsOpen, setConnectedAccountsOpen] = React.useState(false);
+  const [connectedAccountsOpen, setConnectedAccountsOpen] =
+    React.useState(false);
   const [accountSubmenuOpen, setAccountSubmenuOpen] = React.useState(false);
 
   const handleDrawerClose = () => {
@@ -144,13 +144,19 @@ export default function MiniDrawer({ children }) {
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
-    signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
-    signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
+    signInGoogle: (
+      <I18n en="Sign in with Google" fr="Se connecter avec Google" />
+    ),
+    signInMicrosoft: (
+      <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />
+    ),
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
     connectedAccounts: <I18n en="Connected accounts" fr="Comptes connectés" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
-    envConnection: <I18n en="Development database" fr="Base de données de développement" />,
+    envConnection: (
+      <I18n en="Development database" fr="Base de données de développement" />
+    ),
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
     helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
@@ -166,10 +172,9 @@ export default function MiniDrawer({ children }) {
 
   // add some text to indicate connected to dev d
   const usingDevDatabase =
-    import.meta.env.VITE_DEV_DEPLOYMENT ||
-    import.meta.env.DEV;
+    import.meta.env.VITE_DEV_DEPLOYMENT || import.meta.env.DEV;
   // Derive database URL from firebase config (injected at build) if not production
-  const databaseUrl = usingDevDatabase ? (firebaseConfig?.databaseURL || '') : '';
+  const databaseUrl = usingDevDatabase ? firebaseConfig?.databaseURL || "" : "";
   // Sentry's widget takes literal colours, so it needs the resolved scheme
   // rather than the theme's CSS variables.
   const { mode, systemMode } = useColorScheme();
@@ -180,14 +185,10 @@ export default function MiniDrawer({ children }) {
     colorScheme: (mode === "system" ? systemMode : mode) || "light",
   });
 
-
   return (
     <Box sx={styles.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={styles.appBar}
-      >
+      <AppBar position="fixed" sx={styles.appBar}>
         <Toolbar
           sx={[
             styles.appBarToolbar,
@@ -297,7 +298,10 @@ export default function MiniDrawer({ children }) {
         >
           <Box sx={[styles.toolbar, !open && styles.toolbarCollapsed]}>
             {open && (
-              <Typography variant="subtitle1" style={{ flexGrow: 1, paddingLeft: 16, fontWeight: 'bold' }}>
+              <Typography
+                variant="subtitle1"
+                style={{ flexGrow: 1, paddingLeft: 16, fontWeight: "bold" }}
+              >
                 <I18n>
                   <En>Metadata Entry Tool</En>
                   <Fr>Outil de saisie de métadonnées</Fr>
@@ -482,7 +486,6 @@ export default function MiniDrawer({ children }) {
             )}
           </List>
 
-
           <Box sx={styles.bottomList}>
             <List sx={{ px: 1, py: 0.5 }}>
               {usingDevDatabase && (
@@ -589,7 +592,8 @@ export default function MiniDrawer({ children }) {
                           whiteSpace: "nowrap",
                         }}
                       />
-                      {open && (accountSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
+                      {open &&
+                        (accountSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
                   </Tooltip>
                   <Collapse in={accountSubmenuOpen && open} timeout="auto">
@@ -610,7 +614,9 @@ export default function MiniDrawer({ children }) {
                         <ListItemIcon>
                           <LinkIcon />
                         </ListItemIcon>
-                        <ListItemText primary={translations.connectedAccounts} />
+                        <ListItemText
+                          primary={translations.connectedAccounts}
+                        />
                       </ListItemButton>
                       <ListItemButton
                         key="Logout"

@@ -1,4 +1,11 @@
-import { eovList, progressCodes, roleCodes, associationTypeCode, initiativeTypeCode, metadataScopeCodes } from "../isoCodeLists";
+import {
+  eovList,
+  progressCodes,
+  roleCodes,
+  associationTypeCode,
+  initiativeTypeCode,
+  metadataScopeCodes,
+} from "../isoCodeLists";
 
 it("Defines constants", () => {
   expect(eovList).toBeDefined();

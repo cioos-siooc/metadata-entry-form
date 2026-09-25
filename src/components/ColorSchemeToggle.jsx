@@ -30,7 +30,9 @@ export default function ColorSchemeToggle() {
         onClick={() => setMode(next)}
         size="small"
         sx={{ color: "primary.contrastText" }}
-        aria-label={next === "dark" ? "Switch to dark mode" : "Switch to light mode"}
+        aria-label={
+          next === "dark" ? "Switch to dark mode" : "Switch to light mode"
+        }
       >
         {resolved === "dark" ? (
           <LightModeOutlined fontSize="small" />

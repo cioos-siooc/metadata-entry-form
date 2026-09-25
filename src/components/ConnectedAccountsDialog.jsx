@@ -38,7 +38,7 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
   const providerData = user?.providerData || [];
   const linkedIds = new Set(providerData.map((p) => p.providerId));
   const emailByProvider = Object.fromEntries(
-    providerData.map((p) => [p.providerId, p.email])
+    providerData.map((p) => [p.providerId, p.email]),
   );
 
   const refresh = async () => {
@@ -95,7 +95,8 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           <I18n>
             <En>
-              Link providers so you can sign in to this account with any of them.
+              Link providers so you can sign in to this account with any of
+              them.
             </En>
             <Fr>
               Liez des fournisseurs pour pouvoir vous connecter à ce compte avec
@@ -159,8 +160,10 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
                     width: 40,
                     height: 40,
                     borderRadius: 1.5,
-                    backgroundColor: (theme) => theme.vars.palette.background.paper,
-                    border: (theme) => `1px solid ${theme.vars.palette.divider}`,
+                    backgroundColor: (theme) =>
+                      theme.vars.palette.background.paper,
+                    border: (theme) =>
+                      `1px solid ${theme.vars.palette.divider}`,
                     flexShrink: 0,
                   }}
                 >
@@ -220,7 +223,9 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
                         onlyOneLinked ? (
                           <I18n>
                             <En>You must keep at least one provider linked</En>
-                            <Fr>Vous devez garder au moins un fournisseur lié</Fr>
+                            <Fr>
+                              Vous devez garder au moins un fournisseur lié
+                            </Fr>
                           </I18n>
                         ) : (
                           ""

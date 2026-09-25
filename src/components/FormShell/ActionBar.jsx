@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Slide,
-  Stack,
-  Typography,
-  Paper,
-} from "@mui/material";
+import { Box, Button, Slide, Stack, Typography, Paper } from "@mui/material";
 import { I18n } from "../I18n";
 
 // Sticky bottom bar. Appears when the record is dirty, or whenever `alwaysShow`
@@ -43,7 +36,12 @@ export default function ActionBar({
           flexWrap: "wrap",
         })}
       >
-        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ flexGrow: 1, minWidth: 0 }}>
+        <Stack
+          direction="row"
+          spacing={1.25}
+          alignItems="center"
+          sx={{ flexGrow: 1, minWidth: 0 }}
+        >
           {dirty ? (
             <>
               <Box
@@ -60,14 +58,14 @@ export default function ActionBar({
                 variant="body2"
                 sx={{ color: "text.secondary", fontWeight: 500 }}
               >
-                <I18n en="Unsaved changes" fr="Modifications non enregistrées" />
+                <I18n
+                  en="Unsaved changes"
+                  fr="Modifications non enregistrées"
+                />
               </Typography>
             </>
           ) : (
-            <Typography
-              variant="body2"
-              sx={{ color: "text.secondary" }}
-            >
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {lastSavedLabel || (
                 <I18n
                   en="All changes saved"
@@ -77,11 +75,7 @@ export default function ActionBar({
             </Typography>
           )}
         </Stack>
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{ flexShrink: 0, ml: "auto" }}
-        >
+        <Stack direction="row" spacing={1} sx={{ flexShrink: 0, ml: "auto" }}>
           {onCancel && (
             <Button variant="text" color="inherit" onClick={onCancel}>
               <I18n en="Cancel" fr="Annuler" />

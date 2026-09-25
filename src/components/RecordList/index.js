@@ -1,2 +1,7 @@
-export { default } from './RecordTable';
-export { reviewerConfig, publishedConfig, submissionsConfig, sharedConfig } from './config';
+export { default } from "./RecordTable";
+export {
+  reviewerConfig,
+  publishedConfig,
+  submissionsConfig,
+  sharedConfig,
+} from "./config";

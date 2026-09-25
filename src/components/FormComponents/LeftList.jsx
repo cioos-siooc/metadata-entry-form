@@ -10,12 +10,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  Delete,
-  DragIndicator,
-  FileCopy,
-  Save,
-} from "@mui/icons-material";
+import { Delete, DragIndicator, FileCopy, Save } from "@mui/icons-material";
 import {
   SortableList,
   SortableItem,
@@ -90,7 +85,15 @@ const LeftList = ({
     updateItems(items.concat(duplicatedItem));
   }
 
-  const savedUserItemList = Object.values(savedUserItems || {});
+  // itemTitle returns an <I18n> element for blank entries; those sort first
+  const titleText = (item) => {
+    const title = itemTitle(item);
+    return typeof title === "string" ? title : "";
+  };
+
+  const savedUserItemList = Object.values(savedUserItems || {}).sort((a, b) =>
+    titleText(a).localeCompare(titleText(b)),
+  );
 
   const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
@@ -110,7 +113,7 @@ const LeftList = ({
     // Sticky so "Add new" stays reachable while scrolling a long editor.
     <Paper style={{ ...paperClass, position: "sticky", top: 8 }}>
       <Grid container direction="column" wrap="nowrap">
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Typography>
             {items.length
               ? leftListHeader || (
@@ -127,7 +130,7 @@ const LeftList = ({
                 )}
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <List style={{ maxHeight: "50vh", overflowY: "auto" }}>
             <SortableList items={items} onDrop={onDrop} getItemId={getItemId}>
               {items.map((itemEntry, i) => {
@@ -243,7 +246,7 @@ const LeftList = ({
             </SortableList>
           </List>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <Button
             disabled={disabled}
             onClick={() => handleAddNewBlankItem()}
@@ -260,7 +263,7 @@ const LeftList = ({
             </Typography>
           </Button>
         </Grid>
-        <Grid  style={{ margin: "10px" }}>
+        <Grid style={{ margin: "10px" }}>
           <SelectInput
             value=""
             labelId="add-existing"

@@ -8,17 +8,16 @@ import json
 import traceback
 from pathlib import Path
 
+import click
 import yaml
 from dotenv import load_dotenv
-from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from loguru import logger
 from metadata_xml.template_functions import metadata_to_xml
-from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 from tqdm import tqdm
-import click
-from loguru import logger
 
+from firebase_to_xml.get_records_from_firebase import get_records_from_firebase
 from firebase_to_xml.organizations import get_record_owner
+from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
 
 load_dotenv()
 
@@ -101,7 +100,7 @@ def _test_key(key_file: Path):
     "--split-by-owner",
     is_flag=True,
     help="Create a subdirectory for each owner",
-    envvar="SPLIT_BY_OWNER"
+    envvar="SPLIT_BY_OWNER",
 )
 @click.option(
     "--organizations",
@@ -138,7 +137,8 @@ def main(
         key (str): Path to firebase OAuth2 key file
         record_url (str): URL to a single record to process
         split_by_owner (bool): Create a subdirectory for each owner
-        organizations (path): JSON listing all the organizations mapping for record owners
+        organizations (path): JSON listing all the organizations mapping for
+            record owners
     """
 
     # verify if key is a json string or a file
@@ -154,7 +154,7 @@ def main(
     )
     if not record_list:
         raise ValueError("No records found")
-    
+
     if organizations:
         logger.info(f"Loading organizations from {organizations}")
         organizations = json.loads(Path(organizations).read_text(encoding="UTF-8"))

@@ -1,10 +1,5 @@
 import React, { useContext } from "react";
-import {
-  Box,
-  Stack,
-  Typography,
-  Chip,
-} from "@mui/material";
+import { Box, Stack, Typography, Chip } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { UserContext } from "../../providers/UserProvider";
 import regions from "../../regions";
@@ -22,9 +17,7 @@ export default function DashboardHero({ action }) {
     (language === "fr" ? "collègue" : "there");
 
   const greeting =
-    language === "fr"
-      ? `Bonjour, ${firstName}`
-      : `Welcome back, ${firstName}`;
+    language === "fr" ? `Bonjour, ${firstName}` : `Welcome back, ${firstName}`;
 
   return (
     <Box

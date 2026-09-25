@@ -53,7 +53,12 @@ export default function TransferModal({
 
       <DialogContent>
         {isTransferring ? (
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ py: 1 }}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            sx={{ py: 1 }}
+          >
             <CircularProgress size={20} />
             <Typography>
               <I18n>
@@ -68,12 +73,12 @@ export default function TransferModal({
               <I18n>
                 <En>
                   Enter the email address of the user to transfer this record
-                  to. The user must have logged into this region at least once:
+                  to. The user must already have an account:
                 </En>
                 <Fr>
                   Entrez l'adresse e-mail de l'utilisateur vers lequel
-                  transférer cet enregistrement. L'utilisateur doit s'être
-                  connecté à cette région au moins une fois:
+                  transférer cet enregistrement. L'utilisateur doit déjà avoir
+                  un compte :
                 </Fr>
               </I18n>
             </DialogContentText>

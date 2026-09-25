@@ -28,7 +28,9 @@ import {
   cloneContact,
   deleteContact,
 } from "../../utils/firebaseContactFunctions";
-import ContactTitle from "../FormComponents/ContactTitle";
+import ContactTitle, {
+  getContactTitleFromNames,
+} from "../FormComponents/ContactTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
@@ -54,9 +56,12 @@ class Contacts extends FormClassTemplate {
     this.unsubscribe = onAuthStateChanged(getAuth(firebase), (user) => {
       if (user) {
         const database = getDatabase(firebase);
-        const contactsRef = ref(database, `${region}/users/${user.uid}/contacts`);
+        const contactsRef = ref(
+          database,
+          `${region}/users/${user.uid}/contacts`,
+        );
         onValue(contactsRef, (records) =>
-          this.setState({ contacts: records.toJSON(), loading: false })
+          this.setState({ contacts: records.toJSON(), loading: false }),
         );
         this.listenerRefs.push(contactsRef);
       }
@@ -108,9 +113,12 @@ class Contacts extends FormClassTemplate {
 
   render() {
     const { modalOpen, modalKey, loading, contacts } = this.state;
+    const contactsSorted = Object.entries(contacts || {}).sort(([, a], [, b]) =>
+      getContactTitleFromNames(a).localeCompare(getContactTitleFromNames(b)),
+    );
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +134,7 @@ class Contacts extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -141,7 +149,7 @@ class Contacts extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addContact()}>
             <I18n>
               <En>Add contact</En>
@@ -154,7 +162,7 @@ class Contacts extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {contacts && Object.keys(contacts).length ? (
                 <div>
                   <Typography>
@@ -164,7 +172,7 @@ class Contacts extends FormClassTemplate {
                     </I18n>
                   </Typography>
                   <List>
-                    {Object.entries(contacts).map(([key, val]) => (
+                    {contactsSorted.map(([key, val]) => (
                       <ListItem
                         key={key}
                         disablePadding
@@ -172,12 +180,16 @@ class Contacts extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editContact(key)}>
+                                <IconButton
+                                  onClick={() => this.editContact(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Duplicate" fr="Dupliquer" />}>
+                            <Tooltip
+                              title={<I18n en="Duplicate" fr="Dupliquer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.handleCloneContact(key)}
@@ -186,7 +198,9 @@ class Contacts extends FormClassTemplate {
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}

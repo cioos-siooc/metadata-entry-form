@@ -18,7 +18,6 @@ import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 import {
   loadRegionRecords,
-  transferRecord,
   deleteRecord,
   submitRecord,
   cloneRecord,
@@ -65,7 +64,7 @@ const CONFIRMATIONS = [
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord } = useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -244,10 +243,16 @@ const Reviewer = () => {
 
   const confirmTransfer = useCallback(async () => {
     if (modalKey && modalUserID) {
-      return transferRecord(transferEmail, modalKey, modalUserID, region);
+      const { data } = await transferRecord({
+        region,
+        recordID: modalKey,
+        sourceUserID: modalUserID,
+        email: transferEmail,
+      });
+      return data.success;
     }
     return false;
-  }, [transferEmail, modalKey, modalUserID, region]);
+  }, [transferRecord, transferEmail, modalKey, modalUserID, region]);
 
   const handleSubmitRecord = useCallback(
     (recordID, userID, newStatus) => {
@@ -436,13 +441,13 @@ const Reviewer = () => {
           >
             <I18n>
               <En>
-                Review, manage, and publish metadata records. Use filters to find
-                specific submissions by status, author, or title.
+                Review, manage, and publish metadata records. Use filters to
+                find specific submissions by status, author, or title.
               </En>
               <Fr>
                 Examinez, gérez et publiez les enregistrements de métadonnées.
-                Utilisez les filtres pour trouver des soumissions spécifiques par
-                statut, auteur ou titre.
+                Utilisez les filtres pour trouver des soumissions spécifiques
+                par statut, auteur ou titre.
               </Fr>
             </I18n>
           </Typography>

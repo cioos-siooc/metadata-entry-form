@@ -17,10 +17,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import {
-  MoreVert,
-  Menu as MenuIcon,
-} from "@mui/icons-material";
+import { MoreVert, Menu as MenuIcon } from "@mui/icons-material";
 import StatusChip from "../FormComponents/StatusChip";
 import LastEdited from "../FormComponents/LastEdited";
 import { StateIndicator } from "./SectionRail";
@@ -56,7 +53,7 @@ export default function FormHeader({
   // Submit is an action, not content to fill in, so it isn't counted.
   const countedSections = sections.filter((s) => s.id !== "submit");
   const sectionCountComplete = countedSections.filter(
-    (s) => s.state === "complete"
+    (s) => s.state === "complete",
   ).length;
 
   return (
@@ -82,9 +79,7 @@ export default function FormHeader({
         }}
       >
         <Tooltip
-          title={
-            <I18n en="Show sections" fr="Afficher les sections" />
-          }
+          title={<I18n en="Show sections" fr="Afficher les sections" />}
           placement="bottom-start"
         >
           <IconButton
@@ -146,16 +141,23 @@ export default function FormHeader({
                     <En>by </En>
                     <Fr>par </Fr>
                   </I18n>
-                  <Box component="span" sx={{ color: "text.primary", fontWeight: 500 }}>
+                  <Box
+                    component="span"
+                    sx={{ color: "text.primary", fontWeight: 500 }}
+                  >
                     {lastEditedBy.displayName}
                   </Box>
                   {isReviewer && lastEditedBy.email && (
-                    <Box component="span" sx={{ ml: 0.5 }}>({lastEditedBy.email})</Box>
+                    <Box component="span" sx={{ ml: 0.5 }}>
+                      ({lastEditedBy.email})
+                    </Box>
                   )}
                 </>
               )}
             </Typography>
-            <Box component="span" sx={{ color: "divider" }}>·</Box>
+            <Box component="span" sx={{ color: "divider" }}>
+              ·
+            </Box>
             <Typography
               variant="body2"
               component="span"
@@ -167,7 +169,12 @@ export default function FormHeader({
           </Stack>
         </Box>
 
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ flexShrink: 0 }}
+        >
           <Button
             variant="contained"
             size="medium"
@@ -210,7 +217,9 @@ export default function FormHeader({
                     }}
                   >
                     {action.icon && (
-                      <Box sx={{ mr: 1.5, display: "inline-flex" }}>{action.icon}</Box>
+                      <Box sx={{ mr: 1.5, display: "inline-flex" }}>
+                        {action.icon}
+                      </Box>
                     )}
                     {action.label}
                   </MenuItem>

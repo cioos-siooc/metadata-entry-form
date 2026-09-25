@@ -49,7 +49,7 @@ export default function FormSection({
           : "none",
         transition: theme.transitions.create(
           ["border-color", "box-shadow", "transform"],
-          { duration: theme.transitions.duration.short }
+          { duration: theme.transitions.duration.short },
         ),
         overflow: "visible",
         ...(typeof sx === "function" ? sx(theme) : sx),
@@ -102,7 +102,10 @@ export default function FormSection({
                       bgcolor: "error.main",
                       color: "error.contrastText",
                       height: 22,
-                      "& .MuiChip-icon": { color: "error.contrastText", ml: "4px" },
+                      "& .MuiChip-icon": {
+                        color: "error.contrastText",
+                        ml: "4px",
+                      },
                       "& .MuiChip-label": { px: 0.75, fontWeight: 600 },
                     }}
                   />
@@ -153,4 +156,3 @@ export default function FormSection({
     </Card>
   );
 }
-

@@ -2,6 +2,8 @@ import React from "react";
 
 import Cite from "citation-js";
 
+import { metadataScopeCodes } from "../../isoCodeLists";
+
 export function generateCitation(record, language, format) {
   const {
     title,
@@ -11,13 +13,14 @@ export function generateCitation(record, language, format) {
     datePublished,
     dateRevised,
     metadataScope,
+    metadataScopeIso,
   } = record;
 
   const publishers = contacts
     .filter(
       (contact) =>
         // citation-js crashes sometimes with single letter input for a name
-        contact.inCitation && contact.role.includes("publisher")
+        contact.inCitation && contact.role.includes("publisher"),
     )
     .map((contact) => contact.orgName);
 
@@ -29,14 +32,14 @@ export function generateCitation(record, language, format) {
         // if only publisher is checked, it just appears in publisher section
         .filter(
           (contact) =>
-            !(contact.role.includes("publisher") && contact.role.length === 1)
+            !(contact.role.includes("publisher") && contact.role.length === 1),
         )
         .filter(
           (contact) =>
             // citation-js crashes sometimes with single letter input for a name
             contact.inCitation &&
             ((contact.givenNames?.length > 1 && contact.lastName?.length > 1) ||
-              contact.orgName?.length > 1)
+              contact.orgName?.length > 1),
         )
 
         .map((contact) => {
@@ -51,8 +54,14 @@ export function generateCitation(record, language, format) {
       issued: { "date-parts": [[dateRevised || datePublished || created]] },
       publisher: publishers.join(", "),
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
-      version: `v${record.edition}`,
-      type: metadataScope,
+      version: record.edition ? `v${record.edition}` : undefined,
+      type: metadataScopeIso,
+      // APA already renders "[Data set]" for the dataset type; genre supplies
+      // the bracketed descriptor for every other resource type.
+      genre:
+        metadataScope === "Dataset"
+          ? undefined
+          : metadataScopeCodes[metadataScope]?.title[language],
     },
   ];
 
@@ -76,7 +85,6 @@ export function ApaPreview({ record, language }) {
   return (
     <div>
       <div
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: citation }}
         style={{ padding: "5px" }}
       />

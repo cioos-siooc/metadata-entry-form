@@ -65,21 +65,15 @@ const RecordTable = ({
     ],
   );
 
-  const {
-    columnVisibilityModel,
-    handleColumnVisibilityChange,
-  } = useColumnVisibility(
-    config.table?.columnVisibilityStorageKey ||
-    `${config.pageId}-column-visibility`,
-    config.defaultColumnVisibility || {},
-  );
+  const { columnVisibilityModel, handleColumnVisibilityChange } =
+    useColumnVisibility(
+      config.table?.columnVisibilityStorageKey ||
+        `${config.pageId}-column-visibility`,
+      config.defaultColumnVisibility || {},
+    );
 
-  const {
-    filterModel,
-    setFilterModel,
-    sortModel,
-    setSortModel,
-  } = useRecordTableFilters(config.pageId);
+  const { filterModel, setFilterModel, sortModel, setSortModel } =
+    useRecordTableFilters(config.pageId);
 
   const apiRef = useGridApiRef();
   const [visibleRowCount, setVisibleRowCount] = useState(0);
@@ -181,13 +175,14 @@ const RecordTable = ({
   const columns = useMemo(() => {
     // On mobile, show only essential columns: title, status, progress, created, and actions
     const mobileColumns = ["title", "author", "status", "progress", "created"];
-    const columnsToShow = isMobile ? mobileColumns : (config.columns || []);
+    const columnsToShow = isMobile ? mobileColumns : config.columns || [];
 
     const cols = columnsToShow
       .map((colName) => {
         // DOI status is only meaningful/up-to-date for regions that manage DOI
         // status from the form; hide the column for DataCite-managed regions.
-        if (colName === "doiStatus" && doiStatusManagement !== "form") return null;
+        if (colName === "doiStatus" && doiStatusManagement !== "form")
+          return null;
         const col = columnDefs[colName];
         if (!col) return null;
         return col;
@@ -241,7 +236,6 @@ const RecordTable = ({
       ),
     [records, language],
   );
-
 
   if (loading) {
     return (
@@ -322,7 +316,7 @@ const RecordTable = ({
         rows={rows}
         columns={columns}
         onRowClick={handleRowClick}
-        getRowHeight={() => isMobile ? "auto" : 52}
+        getRowHeight={() => (isMobile ? "auto" : 52)}
         initialState={{
           pagination: {
             paginationModel: {
@@ -331,9 +325,7 @@ const RecordTable = ({
             },
           },
         }}
-        pageSizeOptions={
-          config.table?.rowsPerPageOptions || [10, 20, 50, 100]
-        }
+        pageSizeOptions={config.table?.rowsPerPageOptions || [10, 20, 50, 100]}
         showToolbar={true}
         filterModel={filterModel}
         onFilterModelChange={setFilterModel}
@@ -352,15 +344,15 @@ const RecordTable = ({
         slotProps={{
           row: isMobile
             ? {
-              language,
-              region,
-              config,
-              actionHandlers,
-              githubPublishEnabled,
-              onCopy: handleCopyCell,
-              onNavigate: handleNavigateToRecord,
-              tooltipTitle: rowTooltipTitle,
-            }
+                language,
+                region,
+                config,
+                actionHandlers,
+                githubPublishEnabled,
+                onCopy: handleCopyCell,
+                onNavigate: handleNavigateToRecord,
+                tooltipTitle: rowTooltipTitle,
+              }
             : { title: rowTooltipTitle },
           filterPanel: {
             sx: {
@@ -411,10 +403,10 @@ const RecordTable = ({
         columnVisibilityModel={
           isMobile
             ? {
-              ...Object.fromEntries(columns.map((col) => [col.field, false])),
-              // Keep one column visible so DataGrid renders rows
-              title: true,
-            }
+                ...Object.fromEntries(columns.map((col) => [col.field, false])),
+                // Keep one column visible so DataGrid renders rows
+                title: true,
+              }
             : columnVisibilityModel
         }
         onColumnVisibilityModelChange={handleColumnVisibilityChange}

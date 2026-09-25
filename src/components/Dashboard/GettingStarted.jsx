@@ -47,7 +47,10 @@ function Step({ Icon, title, description, cta, onClick }) {
         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
           {title}
         </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary", lineHeight: 1.55 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", lineHeight: 1.55 }}
+        >
           {description}
         </Typography>
       </Box>
@@ -86,7 +89,12 @@ export default function GettingStarted() {
       >
         <Step
           Icon={PeopleAltOutlined}
-          title={<I18n en="Add your first contact" fr="Ajouter votre premier contact" />}
+          title={
+            <I18n
+              en="Add your first contact"
+              fr="Ajouter votre premier contact"
+            />
+          }
           description={
             <I18n
               en="Save researchers and data stewards once — then reuse them across records."

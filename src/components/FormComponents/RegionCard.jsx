@@ -43,7 +43,7 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
         borderColor: alpha(primaryColor, 0.25),
         transition: theme.transitions.create(
           ["transform", "box-shadow", "border-color"],
-          { duration: theme.transitions.duration.short }
+          { duration: theme.transitions.duration.short },
         ),
         "&:hover, &:focus-visible": {
           transform: "translateY(-3px)",

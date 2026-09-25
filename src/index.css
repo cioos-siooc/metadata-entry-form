@@ -6,8 +6,9 @@ body,
 }
 
 code {
-  font-family: "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas,
-    "Courier New", monospace;
+  font-family:
+    "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 /* Sentry feedback backdrop - ensure it's clickable */

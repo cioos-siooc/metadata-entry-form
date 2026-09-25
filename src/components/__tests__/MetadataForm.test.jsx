@@ -26,7 +26,7 @@ describe("<MetadataForm />", () => {
         <MemoryRouter>
           <MetadataForm />
         </MemoryRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     // Verify component renders - check for the form or a key element

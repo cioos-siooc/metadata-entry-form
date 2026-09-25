@@ -1,4 +1,3 @@
- 
 import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -16,7 +15,7 @@ import "leaflet/dist/leaflet.css";
 import { I18n, En, Fr } from "../I18n";
 import GeomanControl from "./GeomanControl";
 import { HeadingText, SupplementalText } from "./QuestionStyles";
-import { validateField } from "../../utils/validate";
+import { validateField, bboxProblems } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import GeographicLocationSearch from "./GeographicLocationSearch";
 import { radii } from "../../theme/tokens";
@@ -47,7 +46,7 @@ const bboxCoordTest = /-?\d+\.?\d+/;
 function parsePolyString(polygonList) {
   const polyPattern = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
   return [...polygonList.matchAll(polyPattern)].map((match) =>
-    match[0].split(",").map(Number)
+    match[0].split(",").map(Number),
   );
 }
 
@@ -68,7 +67,10 @@ const BboxLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
     )
       return;
 
-    const rect = L.rectangle([[north, east], [south, west]]);
+    const rect = L.rectangle([
+      [north, east],
+      [south, west],
+    ]);
     rect.addTo(map);
     // pm:markerdragend fires only on the layer (not the map), so attach directly
     rect.on("pm:markerdragend", () => handleLayerEditRef.current(rect));
@@ -160,7 +162,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current.remove();
         drawnLayerRef.current = null;
       }
-      const newData = { ...withoutSelectedLocation(mapData), [key]: e.target.value };
+      const newData = {
+        ...withoutSelectedLocation(mapData),
+        [key]: e.target.value,
+      };
       updateMap(newData);
     };
   }
@@ -177,7 +182,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
 
-      const newData = { ...withoutSelectedLocation(mapData), polygon: e.target.value, north: '', south: '', east: '', west: '' };
+      const newData = {
+        ...withoutSelectedLocation(mapData),
+        polygon: e.target.value,
+        north: "",
+        south: "",
+        east: "",
+        west: "",
+      };
       try {
         const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
@@ -199,7 +211,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     testN = mapData.north,
     testS = mapData.south,
     testE = mapData.east,
-    testW = mapData.west
+    testW = mapData.west,
   ) => {
     const test =
       coordTest.test(testN) &&
@@ -226,7 +238,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         case "Polygon": {
           const points = layer.getLatLngs()[0];
           const polygonStrings = points.map(
-            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`,
           );
           const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
@@ -256,7 +268,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           east = limitDecimals(east);
           west = limitDecimals(west);
 
-          updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+          updateMap({
+            ...currentMapData,
+            north,
+            south,
+            east,
+            west,
+            polygon: "",
+          });
           break;
         }
       }
@@ -267,7 +286,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       // Enable corner/vertex handles immediately after drawing
       layer.pm.enable({ preventMarkerRemoval: true });
     },
-    [updateMap]
+    [updateMap],
   );
 
   const onRemove = useCallback(() => {
@@ -303,13 +322,13 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       } else {
         const points = layer.getLatLngs()[0];
         const polygonStrings = points.map(
-          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`,
         );
         const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
         updateMap({ ...currentMapData, polygon, north, south, east, west });
       }
     },
-    [updateMap]
+    [updateMap],
   );
   // Ref so BboxLayer's listener always calls the latest closure
   const handleLayerEditRef = useRef(handleLayerEdit);
@@ -324,11 +343,11 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       }
       updateMap(newMapData);
     },
-    [updateMap]
+    [updateMap],
   );
 
   const bboxIsDrawn = Boolean(
-    mapData.north || mapData.south || mapData.east || mapData.west
+    mapData.north || mapData.south || mapData.east || mapData.west,
   );
 
   const polyIsDrawn = Boolean(mapData.polygon);
@@ -438,72 +457,78 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </GroupHeading>
 
         <SidebarSection title={<I18n en="Bounding box" fr="Cadre englobant" />}>
-        <SupplementalText>
-          <I18n>
-            <En>
-              Decimal degrees (eg 58.66), not degrees, minutes and seconds.
-            </En>
-            <Fr>
-              Degrés décimaux (p. ex. 58,66), et non degrés, minutes et
-              secondes.
-            </Fr>
-          </I18n>
-        </SupplementalText>
-        <Box
-          sx={{
-            mt: 1,
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            columnGap: 1.5,
-            rowGap: 1,
-          }}
-        >
-          {BBOX_FIELDS.map(({ key, label, gridColumn }) => (
-            <TextField
-              key={key}
-              sx={{ gridColumn, ...CENTERED_FIELD_SX }}
-              label={label}
-              value={mapData[key] ?? ""}
-              onChange={handleBBoxChange(key)}
-              type="number"
-              size="small"
-              fullWidth
-              inputProps={{ inputMode: "numeric" }}
-              disabled={disabled || Boolean(mapData.polygon)}
-            />
+          <SupplementalText>
+            <I18n>
+              <En>
+                Decimal degrees (eg 58.66), not degrees, minutes and seconds.
+              </En>
+              <Fr>
+                Degrés décimaux (p. ex. 58,66), et non degrés, minutes et
+                secondes.
+              </Fr>
+            </I18n>
+          </SupplementalText>
+          <Box
+            sx={{
+              mt: 1,
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              columnGap: 1.5,
+              rowGap: 1,
+            }}
+          >
+            {BBOX_FIELDS.map(({ key, label, gridColumn }) => (
+              <TextField
+                key={key}
+                sx={{ gridColumn, ...CENTERED_FIELD_SX }}
+                label={label}
+                value={mapData[key] ?? ""}
+                onChange={handleBBoxChange(key)}
+                type="number"
+                size="small"
+                fullWidth
+                inputProps={{ inputMode: "numeric" }}
+                disabled={disabled || Boolean(mapData.polygon)}
+              />
+            ))}
+          </Box>
+          {bboxProblems(mapData).map((problem) => (
+            <Typography
+              key={problem.en}
+              color="error"
+              variant="body2"
+              sx={{ mt: 1 }}
+            >
+              <I18n en={problem.en} fr={problem.fr} />
+            </Typography>
           ))}
-        </Box>
         </SidebarSection>
 
         <SidebarSection
-          title={
-            <I18n en="Polygon coordinates" fr="Coordonnées du polygone" />
-          }
+          title={<I18n en="Polygon coordinates" fr="Coordonnées du polygone" />}
         >
-        <SupplementalText>
-          <I18n>
-            <En>
-              Coordinates must start and end with the same point. Eg,
-            </En>
-            <Fr>
-              La suite de coordonnées doit commencer et se terminer par le même
-              point. Par exemple,
-            </Fr>
-          </I18n>{" "}
-          48,-128 56,-133 56,-147 48,-128
-        </SupplementalText>
-        <TextField
-          value={mapData.polygon || ""}
-          onChange={handleChangePoly()}
-          type="text"
-          size="small"
-          multiline
-          minRows={2}
-          maxRows={4}
-          fullWidth
-          sx={{ mt: 1 }}
-          disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
-        />
+          <SupplementalText>
+            <I18n>
+              <En>Coordinates must start and end with the same point. Eg,</En>
+              <Fr>
+                La suite de coordonnées doit commencer et se terminer par le
+                même point. Par exemple,
+              </Fr>
+            </I18n>{" "}
+            48,-128 56,-133 56,-147 48,-128
+          </SupplementalText>
+          <TextField
+            value={mapData.polygon || ""}
+            onChange={handleChangePoly()}
+            type="text"
+            size="small"
+            multiline
+            minRows={2}
+            maxRows={4}
+            fullWidth
+            sx={{ mt: 1 }}
+            disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
+          />
         </SidebarSection>
       </Card>
     </Stack>

@@ -76,7 +76,9 @@ export default function DataciteSettings({
 
   return (
     <FormSection
-      title={<I18n en="DOI Creation Settings" fr="Paramètres de création de DOI" />}
+      title={
+        <I18n en="DOI Creation Settings" fr="Paramètres de création de DOI" />
+      }
     >
       <Grid container spacing={2}>
         <Grid
@@ -151,10 +153,7 @@ export default function DataciteSettings({
             <Grid size={12}>
               <FormControl>
                 <FormLabel>
-                  <I18n
-                    en="DOI Status Management"
-                    fr="Gestion du statut DOI"
-                  />
+                  <I18n en="DOI Status Management" fr="Gestion du statut DOI" />
                 </FormLabel>
                 <Typography
                   variant="caption"
@@ -311,9 +310,7 @@ export default function DataciteSettings({
                 >
                   {testResult.message}
                   {!testResult.success &&
-                    testResult.message?.includes(
-                      "No DataCite credentials"
-                    ) && (
+                    testResult.message?.includes("No DataCite credentials") && (
                       <Typography variant="body2" sx={{ mt: 0.5 }}>
                         <I18n
                           en='To fix this: enter your Account ID and Password above and click "Update DataCite Settings", then test again.'

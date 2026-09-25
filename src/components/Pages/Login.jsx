@@ -33,9 +33,9 @@ const Login = () => {
       setLoadingProvider(key);
       await loginMethod();
     } catch (err) {
-      console.error("Login Error:", err);
+      console.error("Login Error:", err.code, err.customData, err);
       if (err.code !== "auth/cancelled-popup-request") {
-        setError(err.message);
+        setError(`${err.message} (${err.code})`);
       }
     } finally {
       setLoadingProvider(null);
@@ -43,9 +43,26 @@ const Login = () => {
   };
 
   const providers = [
-    { key: "google", icon: <GoogleIcon />, label: <I18n en="Continue with Google" fr="Continuer avec Google" />, fn: signInWithGoogle },
-    enableMicrosoft && { key: "microsoft", icon: <MicrosoftIcon />, label: <I18n en="Continue with Microsoft" fr="Continuer avec Microsoft" />, fn: signInWithMicrosoft },
-    enableOrcid && { key: "orcid", icon: <OrcidIcon />, label: <I18n en="Continue with ORCID" fr="Continuer avec ORCID" />, fn: signInWithOrcid },
+    {
+      key: "google",
+      icon: <GoogleIcon />,
+      label: <I18n en="Continue with Google" fr="Continuer avec Google" />,
+      fn: signInWithGoogle,
+    },
+    enableMicrosoft && {
+      key: "microsoft",
+      icon: <MicrosoftIcon />,
+      label: (
+        <I18n en="Continue with Microsoft" fr="Continuer avec Microsoft" />
+      ),
+      fn: signInWithMicrosoft,
+    },
+    enableOrcid && {
+      key: "orcid",
+      icon: <OrcidIcon />,
+      label: <I18n en="Continue with ORCID" fr="Continuer avec ORCID" />,
+      fn: signInWithOrcid,
+    },
   ].filter(Boolean);
 
   return (
@@ -173,7 +190,12 @@ const Login = () => {
           >
             <Box
               component="img"
-              src={new URL("../../static/cioos-national_EN_FR_min.svg", import.meta.url).href}
+              src={
+                new URL(
+                  "../../static/cioos-national_EN_FR_min.svg",
+                  import.meta.url,
+                ).href
+              }
               alt="CIOOS"
               sx={{ maxHeight: 40, width: "auto", opacity: 0.7 }}
             />
@@ -187,11 +209,7 @@ const Login = () => {
         onClose={() => setError(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={() => setError(null)}
-          severity="error"
-          variant="filled"
-        >
+        <Alert onClose={() => setError(null)} severity="error" variant="filled">
           {error}
         </Alert>
       </Snackbar>

@@ -24,7 +24,10 @@ import BilingualTextInput from "../FormComponents/BilingualTextInput";
 import { depthDirections } from "../../isoCodeLists";
 import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import {
+  QuestionText,
+  SupplementalText,
+} from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 
 const OpenEPSGDefn = ({ url }) => {
@@ -96,8 +99,8 @@ const ChooseAToolHelp = () => {
               </div>
               <ul>
                 <li>
-                  For broadly distributed data in the open ocean, a bounding
-                  box may be most appropriate;
+                  For broadly distributed data in the open ocean, a bounding box
+                  may be most appropriate;
                 </li>
                 <li>
                   For tightly clustered coastal data, a polygon may better
@@ -118,38 +121,37 @@ const ChooseAToolHelp = () => {
             </En>
             <Fr>
               <div>
-                Vous pouvez définir l&apos;étendue spatiale du jeu de données
-                de l&apos;une des façons suivantes :
+                Vous pouvez définir l&apos;étendue spatiale du jeu de données de
+                l&apos;une des façons suivantes :
               </div>
               <ul>
                 <li>
-                  Tracer un cadre ou un polygone à l&apos;aide des outils
-                  situés à gauche de la carte ;
+                  Tracer un cadre ou un polygone à l&apos;aide des outils situés
+                  à gauche de la carte ;
                 </li>
                 <li>
-                  Entrer les coordonnées (degrés décimaux) manuellement dans
-                  les champs à côté de la carte ;
+                  Entrer les coordonnées (degrés décimaux) manuellement dans les
+                  champs à côté de la carte ;
                 </li>
                 <li>
                   Saisir le nom d&apos;un lieu : ces limites seront
-                  automatiquement créées sur la carte (ces limites peuvent
-                  être modifiées directement sur la carte).
+                  automatiquement créées sur la carte (ces limites peuvent être
+                  modifiées directement sur la carte).
                 </li>
               </ul>
               <div>
-                Choisissez l&apos;outil qui représente le mieux la
-                distribution géographique de vos données :
+                Choisissez l&apos;outil qui représente le mieux la distribution
+                géographique de vos données :
               </div>
               <ul>
                 <li>
-                  Pour des données largement réparties en milieu océanique,
-                  une boîte englobante peut être plus appropriée ;
+                  Pour des données largement réparties en milieu océanique, une
+                  boîte englobante peut être plus appropriée ;
                 </li>
                 <li>
-                  Pour des données côtières regroupées dans une zone
-                  restreinte, un polygone peut mieux représenter la zone
-                  échantillonnée en excluant les terres ou les zones non
-                  échantillonnées ;
+                  Pour des données côtières regroupées dans une zone restreinte,
+                  un polygone peut mieux représenter la zone échantillonnée en
+                  excluant les terres ou les zones non échantillonnées ;
                 </li>
                 <li>
                   Que les données aient été collectées à un endroit ou à
@@ -158,10 +160,9 @@ const ChooseAToolHelp = () => {
                 </li>
               </ul>
               <div>
-                Si les données sont sensibles (espèces protégées ou des
-                habitats vulnérables), privilégiez une emprise spatiale
-                généralisée plutôt que la localisation exacte des
-                observations.
+                Si les données sont sensibles (espèces protégées ou des habitats
+                vulnérables), privilégiez une emprise spatiale généralisée
+                plutôt que la localisation exacte des observations.
               </div>
             </Fr>
           </I18n>
@@ -173,7 +174,8 @@ const ChooseAToolHelp = () => {
 
 const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
   const { language } = useParams();
-  const noVerticalExtent = record.noVerticalExtent && record.noVerticalExtent !== "false";
+  const noVerticalExtent =
+    record.noVerticalExtent && record.noVerticalExtent !== "false";
   const mapData = record.map || {};
   // Optional for every other topic category, so a record saved before this
   // field was hidden keeps it editable rather than stranding the text.
@@ -193,8 +195,8 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           <SupplementalText>
             <I18n>
               <En>
-                Define the area your data covers by searching for a place
-                name, drawing on the map, or entering bounding box or polygon
+                Define the area your data covers by searching for a place name,
+                drawing on the map, or entering bounding box or polygon
                 coordinates.
               </En>
               <Fr>
@@ -236,9 +238,9 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
                 </En>
 
                 <Fr>
-                  Cela permet de renseigner les profondeurs minimales et maximales
-                  (ou la hauteur depuis le fond marin) où l'instrument a enregistré des
-                  données.
+                  Cela permet de renseigner les profondeurs minimales et
+                  maximales (ou la hauteur depuis le fond marin) où l'instrument
+                  a enregistré des données.
                 </Fr>
               </I18n>
             </div>
@@ -290,66 +292,74 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           }
           label={
             <I18n>
-              <En>This dataset does not have a depth or height, value will be set to zero</En>
-              <Fr>Ce jeu de données n'a ni profondeur ni hauteur, la valeur sera zéro</Fr>
+              <En>
+                This dataset does not have a depth or height, value will be set
+                to zero
+              </En>
+              <Fr>
+                Ce jeu de données n'a ni profondeur ni hauteur, la valeur sera
+                zéro
+              </Fr>
             </I18n>
           }
         />
         {!noVerticalExtent ? (
-        <Grid
-          container
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={4}
-        >
-          <Grid size={5}>
-            <SelectInput
-              value={record.verticalExtentDirection || ""}
-              onChange={handleUpdateRecord("verticalExtentDirection")}
-              options={Object.keys(depthDirections)}
-              optionLabels={Object.values(depthDirections).map(
-                (e) => e[language]
-              )}
-              disabled={disabled}
-            />
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={4}
+          >
+            <Grid size={5}>
+              <SelectInput
+                value={record.verticalExtentDirection || ""}
+                onChange={handleUpdateRecord("verticalExtentDirection")}
+                options={Object.keys(depthDirections)}
+                optionLabels={Object.values(depthDirections).map(
+                  (e) => e[language],
+                )}
+                disabled={disabled}
+              />
               <p>
-              <I18n>
-                <En>OR</En>
-                <Fr>OU</Fr>
-            </I18n>
+                <I18n>
+                  <En>OR</En>
+                  <Fr>OU</Fr>
+                </I18n>
               </p>
-            <TextField
+              <TextField
                 value={record.verticalExtentEPSG}
                 onChange={handleUpdateRecord("verticalExtentEPSG")}
                 label="EPSG code"
                 fullWidth
                 type="number"
                 disabled={disabled}
-            />
+              />
+            </Grid>
+            <Grid size={2}>
+              <TextField
+                value={record.verticalExtentMin}
+                onChange={handleUpdateRecord("verticalExtentMin")}
+                label="Min"
+                fullWidth
+                type="number"
+                disabled={disabled}
+              />
+            </Grid>
+            <Grid size={2}>
+              <TextField
+                value={record.verticalExtentMax}
+                onChange={handleUpdateRecord("verticalExtentMax")}
+                label="Max"
+                fullWidth
+                type="number"
+                disabled={disabled}
+              />
+            </Grid>
           </Grid>
-          <Grid size={2}>
-            <TextField
-              value={record.verticalExtentMin}
-              onChange={handleUpdateRecord("verticalExtentMin")}
-              label="Min"
-              fullWidth
-              type="number"
-              disabled={disabled}
-            />
-          </Grid>
-          <Grid size={2}>
-            <TextField
-              value={record.verticalExtentMax}
-              onChange={handleUpdateRecord("verticalExtentMax")}
-              label="Max"
-              fullWidth
-              type="number"
-              disabled={disabled}
-            />
-          </Grid>
-        </Grid>
-        ) : ("")}
+        ) : (
+          ""
+        )}
       </FormSection>
       {showExtentDescription && (
         <FormSection>

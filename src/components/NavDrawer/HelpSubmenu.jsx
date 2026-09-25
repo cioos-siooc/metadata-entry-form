@@ -66,7 +66,7 @@ export default function HelpSubmenu({
     const subject = encodeURIComponent(
       language === "fr"
         ? `Formulaire ${regionTitle} – Question`
-        : `${regionTitle} Form – Question`
+        : `${regionTitle} Form – Question`,
     );
     window.location.href = `mailto:${regionEmail}?subject=${subject}`;
   };

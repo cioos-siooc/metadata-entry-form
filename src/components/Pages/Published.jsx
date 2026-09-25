@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import { Typography, Box, FormControlLabel, Switch } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue, off } from "firebase/database";
@@ -109,8 +115,7 @@ const Published = () => {
             <>
               <En>These are all the published records in your region.</En>
               <Fr>
-                Il s'agit de tous les enregistrements publiés dans votre
-                région.
+                Il s'agit de tous les enregistrements publiés dans votre région.
               </Fr>
             </>
           )}

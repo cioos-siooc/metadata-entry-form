@@ -45,9 +45,21 @@ const CONCISE_CODE_META = {
   TOWN: { Icon: Home, en: "Town", fr: "Ville" },
   VILG: { Icon: Home, en: "Village", fr: "Village" },
   HAM: { Icon: Home, en: "Hamlet", fr: "Hameau" },
-  UTM: { Icon: LocationCity, en: "Upper Tier Municipality", fr: "Municipalité de palier supérieur" },
-  LTM: { Icon: LocationCity, en: "Lower Tier Municipality", fr: "Municipalité de palier inférieur" },
-  STM: { Icon: LocationCity, en: "Single Tier Municipality", fr: "Municipalité à palier unique" },
+  UTM: {
+    Icon: LocationCity,
+    en: "Upper Tier Municipality",
+    fr: "Municipalité de palier supérieur",
+  },
+  LTM: {
+    Icon: LocationCity,
+    en: "Lower Tier Municipality",
+    fr: "Municipalité de palier inférieur",
+  },
+  STM: {
+    Icon: LocationCity,
+    en: "Single Tier Municipality",
+    fr: "Municipalité à palier unique",
+  },
   MUN1: { Icon: LocationCity, en: "Municipality", fr: "Municipalité" },
   MUN2: { Icon: LocationCity, en: "Municipal Area", fr: "Zone municipale" },
   UNP: { Icon: Place, en: "Unincorporated Place", fr: "Lieu non constitué" },
@@ -64,7 +76,11 @@ const CONCISE_CODE_META = {
   SPRG: { Icon: Water, en: "Spring", fr: "Source" },
   CHAN: { Icon: Water, en: "Channel", fr: "Chenal" },
   RAP: { Icon: Water, en: "Rapids", fr: "Rapides" },
-  HYDR: { Icon: Water, en: "Hydraulic Construction", fr: "Construction hydraulique" },
+  HYDR: {
+    Icon: Water,
+    en: "Hydraulic Construction",
+    fr: "Construction hydraulique",
+  },
   // Sea / coastal
   SEA: { Icon: Waves, en: "Sea", fr: "Mer" },
   SEAF: { Icon: Waves, en: "Sea Feature", fr: "Élément marin" },
@@ -74,7 +90,11 @@ const CONCISE_CODE_META = {
   SHL: { Icon: Waves, en: "Shoal", fr: "Haut-fond" },
   BCH: { Icon: BeachAccess, en: "Beach", fr: "Plage" },
   ISL: { Icon: BeachAccess, en: "Island", fr: "Île" },
-  MAR: { Icon: DirectionsBoat, en: "Marine Navigation Feature", fr: "Élément de navigation marine" },
+  MAR: {
+    Icon: DirectionsBoat,
+    en: "Marine Navigation Feature",
+    fr: "Élément de navigation marine",
+  },
   // Terrain
   CLF: { Icon: Landscape, en: "Cliff", fr: "Falaise" },
   MTN: { Icon: Landscape, en: "Mountain", fr: "Montagne" },
@@ -88,10 +108,18 @@ const CONCISE_CODE_META = {
   // Infrastructure
   RAIL: { Icon: Train, en: "Railway Feature", fr: "Élément ferroviaire" },
   ROAD: { Icon: DirectionsCar, en: "Road Feature", fr: "Élément routier" },
-  AIR: { Icon: Flight, en: "Air Navigation Feature", fr: "Élément de navigation aérienne" },
+  AIR: {
+    Icon: Flight,
+    en: "Air Navigation Feature",
+    fr: "Élément de navigation aérienne",
+  },
   // Recreation / sites
   RECR: { Icon: Hiking, en: "Recreational Site", fr: "Site récréatif" },
-  RES: { Icon: Hiking, en: "Natural Resources Site", fr: "Site de ressources naturelles" },
+  RES: {
+    Icon: Hiking,
+    en: "Natural Resources Site",
+    fr: "Site de ressources naturelles",
+  },
   CAMP: { Icon: Hiking, en: "Campsite", fr: "Camping" },
   SITE: { Icon: Place, en: "Site", fr: "Site" },
   MISC: { Icon: Place, en: "Miscellaneous", fr: "Divers" },
@@ -102,7 +130,10 @@ const GEONAME_DEBOUNCE_MS = 400;
 
 const GROUP_LABELS = {
   predefined: { en: "Predefined regions", fr: "Régions prédéfinies" },
-  geoname: { en: "Canadian GeoNames (NRCan)", fr: "Toponymes canadiens (RNCan)" },
+  geoname: {
+    en: "Canadian GeoNames (NRCan)",
+    fr: "Toponymes canadiens (RNCan)",
+  },
 };
 
 function extractBbox(geometry) {
@@ -119,7 +150,12 @@ function extractBbox(geometry) {
   if (geometry.type === "Point" || geometry.type === "MultiPoint") {
     const lat = lats[0];
     const lng = lngs[0];
-    return { north: lat + 0.25, south: lat - 0.25, east: lng + 0.25, west: lng - 0.25 };
+    return {
+      north: lat + 0.25,
+      south: lat - 0.25,
+      east: lng + 0.25,
+      west: lng - 0.25,
+    };
   }
   return {
     west: Math.min(...lngs),
@@ -146,14 +182,18 @@ const INITIAL_TOLERANCE = 0.001;
 
 function simplifyRing(ring) {
   const points = ring.map(([lng, lat]) => ({ x: lng, y: lat }));
-  if (points.length <= MAX_VERTICES) return { simplified: ring, wasSimplified: false };
+  if (points.length <= MAX_VERTICES)
+    return { simplified: ring, wasSimplified: false };
   let tolerance = INITIAL_TOLERANCE;
   let simplified = simplify(points, tolerance, true);
   while (simplified.length > MAX_VERTICES && tolerance < 5) {
     tolerance *= 2;
     simplified = simplify(points, tolerance, true);
   }
-  return { simplified: simplified.map(({ x, y }) => [x, y]), wasSimplified: true };
+  return {
+    simplified: simplified.map(({ x, y }) => [x, y]),
+    wasSimplified: true,
+  };
 }
 
 function round4(n) {
@@ -176,7 +216,9 @@ function extractPolygon(geometry) {
   if (!ring || ring.length < 3) return { polygon: "", wasSimplified: false };
   const { simplified, wasSimplified } = simplifyRing(ring);
   return {
-    polygon: simplified.map(([lng, lat]) => `${round4(lat)},${round4(lng)}`).join(" "),
+    polygon: simplified
+      .map(([lng, lat]) => `${round4(lat)},${round4(lng)}`)
+      .join(" "),
     wasSimplified,
   };
 }
@@ -205,7 +247,7 @@ const PREDEFINED_NAME_SET = new Set(
   geographicLocations.flatMap((loc) => [
     loc.en.toLowerCase(),
     loc.fr.toLowerCase(),
-  ])
+  ]),
 );
 
 // The record stores only what is needed to redisplay a selection
@@ -257,7 +299,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
   const { language } = useParams();
   const savedLocation = mapData?.selectedLocation;
   const [typeFilter, setTypeFilter] = useState(() =>
-    savedLocation ? filterForSavedLocation(savedLocation) : "all"
+    savedLocation ? filterForSavedLocation(savedLocation) : "all",
   );
   const [inputValue, setInputValue] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
@@ -302,7 +344,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
               concise: properties.concise || "",
               province: properties.province || "",
             };
-          })
+          }),
         );
       })
       .catch(() => {
@@ -370,7 +412,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
           wasSimplified: false,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)),
-    [language]
+    [language],
   );
 
   const allOptions = useMemo(() => {
@@ -381,7 +423,8 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       selectedOption &&
       !opts.some(
         (o) =>
-          o.source === selectedOption.source && o.label === selectedOption.label
+          o.source === selectedOption.source &&
+          o.label === selectedOption.label,
       )
     )
       opts.push(selectedOption);
@@ -398,7 +441,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       predefined = [];
     } else if (typeFilter === "provinceTerritory") {
       predefined = predefined.filter(
-        (o) => o.type === "province" || o.type === "territory"
+        (o) => o.type === "province" || o.type === "territory",
       );
     } else if (typeFilter !== "all") {
       predefined = predefined.filter((o) => o.type === typeFilter);
@@ -407,12 +450,12 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       predefined = predefined.filter(
         (o) =>
           o.en.toLowerCase().includes(input) ||
-          o.fr.toLowerCase().includes(input)
+          o.fr.toLowerCase().includes(input),
       );
     }
 
     const dedupedGeonames = geonames.filter(
-      (g) => !PREDEFINED_NAME_SET.has(g.label.toLowerCase())
+      (g) => !PREDEFINED_NAME_SET.has(g.label.toLowerCase()),
     );
 
     return [...predefined, ...dedupedGeonames];
@@ -435,7 +478,11 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
     const saved = toSavedLocation(option);
     // Reselecting the location already on the record changes nothing — and
     // pushing an update would tear down the editable layer on the map.
-    if (!bbox && !polygon && savedLocationKey(saved) === savedLocationKey(savedLocation)) {
+    if (
+      !bbox &&
+      !polygon &&
+      savedLocationKey(saved) === savedLocationKey(savedLocation)
+    ) {
       setSelectedOption(option);
       selectedLabelRef.current = option.label;
       setInputValue(option.label);
@@ -447,7 +494,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
       description: descriptionForSelection(
         mapData?.description,
         option,
-        savedLocation
+        savedLocation,
       ),
     };
     // A restored option carries no geometry — reselecting it must not clear the
@@ -497,7 +544,9 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
         options={allOptions}
         value={selectedOption}
         getOptionLabel={(option) => option.label || ""}
-        groupBy={(o) => GROUP_LABELS[o.source][language] || GROUP_LABELS[o.source].en}
+        groupBy={(o) =>
+          GROUP_LABELS[o.source][language] || GROUP_LABELS[o.source].en
+        }
         filterOptions={filterOptions}
         inputValue={inputValue}
         onInputChange={(_, value) => setInputValue(value)}
@@ -505,7 +554,9 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
         loading={geonameLoading}
         disabled={disabled}
         fullWidth
-        isOptionEqualToValue={(o, v) => o.source === v.source && o.label === v.label}
+        isOptionEqualToValue={(o, v) =>
+          o.source === v.source && o.label === v.label
+        }
         noOptionsText={
           inputValue.length < 2 ? (
             <I18n>
@@ -530,9 +581,17 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
           }
           const meta = CONCISE_CODE_META[option.concise];
           return (
-            <Box component="li" key={key} {...rest} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              component="li"
+              key={key}
+              {...rest}
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               {meta && (
-                <meta.Icon fontSize="small" sx={{ color: "text.secondary", flexShrink: 0 }} />
+                <meta.Icon
+                  fontSize="small"
+                  sx={{ color: "text.secondary", flexShrink: 0 }}
+                />
               )}
               <span style={{ flexGrow: 1 }}>{option.label}</span>
               {meta && (
@@ -559,7 +618,10 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
               ...params.InputProps,
               startAdornment: (
                 <>
-                  <Search fontSize="small" sx={{ color: "text.secondary", ml: 0.5 }} />
+                  <Search
+                    fontSize="small"
+                    sx={{ color: "text.secondary", ml: 0.5 }}
+                  />
                   {params.InputProps.startAdornment}
                 </>
               ),
@@ -587,14 +649,15 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
         >
           <I18n>
             <En>
-              This location has a complex boundary that has been simplified to keep the map editor
-              responsive. The simplified polygon will be saved to your record. Bounding box
-              coordinates are unaffected.
+              This location has a complex boundary that has been simplified to
+              keep the map editor responsive. The simplified polygon will be
+              saved to your record. Bounding box coordinates are unaffected.
             </En>
             <Fr>
-              Cet emplacement possède un contour complexe qui a été simplifié pour assurer la
-              réactivité de l&apos;éditeur de carte. Le polygone simplifié sera enregistré dans
-              votre fiche. Les coordonnées du cadre englobant ne sont pas affectées.
+              Cet emplacement possède un contour complexe qui a été simplifié
+              pour assurer la réactivité de l&apos;éditeur de carte. Le polygone
+              simplifié sera enregistré dans votre fiche. Les coordonnées du
+              cadre englobant ne sont pas affectées.
             </Fr>
           </I18n>
         </Alert>

@@ -42,7 +42,7 @@ export default function useFormSections({
     if (!record) return [];
 
     const touched = Boolean(
-      record.title?.en || record.title?.fr || record.recordID
+      record.title?.en || record.title?.fr || record.recordID,
     );
 
     const baseSections = [
@@ -100,7 +100,7 @@ export default function useFormSections({
       const validatorKeys = SECTION_TO_VALIDATOR_TABS[section.id] || [];
       const errorCount = validatorKeys.reduce(
         (sum, key) => sum + (errorsByTab[key]?.length || 0),
-        0
+        0,
       );
 
       let state = "empty";

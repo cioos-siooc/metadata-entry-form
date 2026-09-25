@@ -29,14 +29,16 @@ describe("<Submissions />", () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
-          <Submissions match={{ params: { region: "pacific", language: "en" } }} />
+          <Submissions
+            match={{ params: { region: "pacific", language: "en" } }}
+          />
         </MemoryRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     // Dashboard surfaces a primary "New record" CTA and a welcome heading.
     expect(
-      screen.getByRole("button", { name: /new record/i })
+      screen.getByRole("button", { name: /new record/i }),
     ).toBeInTheDocument();
   });
 });

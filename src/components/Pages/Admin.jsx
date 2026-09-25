@@ -9,8 +9,15 @@ import {
   IconButton,
 } from "@mui/material";
 import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
-import { getDatabase, ref, child, onValue, update, remove } from "firebase/database";
-import { Buffer } from 'buffer';
+import {
+  getDatabase,
+  ref,
+  child,
+  onValue,
+  update,
+  remove,
+} from "firebase/database";
+import { Buffer } from "buffer";
 
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
@@ -85,13 +92,17 @@ class Admin extends FormClassTemplate {
           const credentialsStored = !!(data?.dataciteHash && data?.prefix);
           const updates = {
             credentialsStored,
-            isDoiCreationEnabled: credentialsStored || this.state.isDoiCreationEnabled,
+            isDoiCreationEnabled:
+              credentialsStored || this.state.isDoiCreationEnabled,
             datacitePrefix: data?.prefix || this.state.datacitePrefix || "",
           };
           if (data?.apiDomain) {
             updates.dataciteApiDomain = data.apiDomain;
           }
-          if (Array.isArray(data?.doiSuffixModes) && data.doiSuffixModes.length > 0) {
+          if (
+            Array.isArray(data?.doiSuffixModes) &&
+            data.doiSuffixModes.length > 0
+          ) {
             updates.doiSuffixModes = data.doiSuffixModes;
           }
           if (data?.doiStatusManagement) {
@@ -134,8 +145,12 @@ class Admin extends FormClassTemplate {
         onValue(permissionsRef, (permissionsFirebase) => {
           const permissions = permissionsFirebase.toJSON();
 
-          const admins = permissions.admins ? permissions.admins.split(",") : [];
-          const reviewers = permissions.reviewers ? permissions.reviewers.split(",") : [];
+          const admins = permissions.admins
+            ? permissions.admins.split(",")
+            : [];
+          const reviewers = permissions.reviewers
+            ? permissions.reviewers.split(",")
+            : [];
 
           // Do not set `projects` here to avoid overwriting the more recent
           // value from the `projectsRef` listener above.
@@ -259,7 +274,10 @@ class Admin extends FormClassTemplate {
     }
 
     // For new credentials, all fields are required
-    if (!credentialsStored && (!datacitePrefix || !dataciteAccountId || !datacitePass)) {
+    if (
+      !credentialsStored &&
+      (!datacitePrefix || !dataciteAccountId || !datacitePass)
+    ) {
       this.setState({ showCredentialsMissingDialog: true });
       return;
     }
@@ -277,9 +295,10 @@ class Admin extends FormClassTemplate {
     if (dataciteAccountId && datacitePass) {
       const bufferObj = Buffer.from(
         `${dataciteAccountId}:${datacitePass}`,
-        "utf8"
+        "utf8",
       );
-      updates["dataciteCredentials/dataciteHash"] = bufferObj.toString("base64");
+      updates["dataciteCredentials/dataciteHash"] =
+        bufferObj.toString("base64");
       updates["dataciteCredentials/accountId"] = dataciteAccountId;
     } else if (dataciteAccountId && !datacitePass) {
       updates["dataciteCredentials/accountId"] = dataciteAccountId;
@@ -293,7 +312,8 @@ class Admin extends FormClassTemplate {
       updates["dataciteCredentials/doiSuffixModes"] = doiSuffixModes;
     }
 
-    updates["dataciteCredentials/doiStatusManagement"] = doiStatusManagement || "datacite";
+    updates["dataciteCredentials/doiStatusManagement"] =
+      doiStatusManagement || "datacite";
 
     const regionAdminRef = ref(database, `admin/${region}`);
     update(regionAdminRef, updates)
@@ -376,19 +396,18 @@ class Admin extends FormClassTemplate {
       };
       updates.githubCredentials = githubCredentials;
 
-      update(regionAdminRef, updates)
-        .catch((error) => {
-          console.error('Failed to save admin settings:', error);
-          this.setState({
-            showErrorDialog: true,
-            errorMessage: `Failed to save admin settings: ${error.message}`,
-          });
+      update(regionAdminRef, updates).catch((error) => {
+        console.error("Failed to save admin settings:", error);
+        this.setState({
+          showErrorDialog: true,
+          errorMessage: `Failed to save admin settings: ${error.message}`,
         });
+      });
     } else {
-      console.error('No authenticated user found');
+      console.error("No authenticated user found");
       this.setState({
         showErrorDialog: true,
-        errorMessage: 'You must be logged in to save admin settings',
+        errorMessage: "You must be logged in to save admin settings",
       });
     }
   }
@@ -409,7 +428,9 @@ class Admin extends FormClassTemplate {
 
   handleToggleSuffixMode = (mode) => {
     this.setState((prevState) => {
-      const current = Array.isArray(prevState.doiSuffixModes) ? prevState.doiSuffixModes : [];
+      const current = Array.isArray(prevState.doiSuffixModes)
+        ? prevState.doiSuffixModes
+        : [];
       const next = current.includes(mode)
         ? current.filter((m) => m !== mode)
         : [...current, mode];
@@ -533,16 +554,17 @@ class Admin extends FormClassTemplate {
                   <Typography variant="body2" style={{ marginTop: "10px" }}>
                     <I18n>
                       <En>
-                        Configure the GitHub repository where metadata records will
-                        be published. This allows reviewers to push approved
-                        records directly to a GitHub repository as XML and YAML
-                        files.
+                        Configure the GitHub repository where metadata records
+                        will be published. This allows reviewers to push
+                        approved records directly to a GitHub repository as XML
+                        and YAML files.
                       </En>
                       <Fr>
-                        Configurez le référentiel GitHub où les enregistrements de
-                        métadonnées seront publiés. Cela permet aux réviseurs de
-                        pousser les enregistrements approuvés directement vers un
-                        référentiel GitHub sous forme de fichiers XML et YAML.
+                        Configurez le référentiel GitHub où les enregistrements
+                        de métadonnées seront publiés. Cela permet aux réviseurs
+                        de pousser les enregistrements approuvés directement
+                        vers un référentiel GitHub sous forme de fichiers XML et
+                        YAML.
                       </Fr>
                     </I18n>
                   </Typography>
@@ -603,9 +625,7 @@ class Admin extends FormClassTemplate {
                   />
                   <Typography variant="caption" color="textSecondary">
                     <I18n>
-                      <En>
-                        Personal Access Token (PAT) with 'repo' scope.
-                      </En>
+                      <En>Personal Access Token (PAT) with 'repo' scope.</En>
                       <Fr>
                         Jeton d'accès personnel (PAT) avec la portée 'repo'.
                       </Fr>

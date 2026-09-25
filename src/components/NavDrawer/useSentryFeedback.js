@@ -59,7 +59,7 @@ export default function useSentryFeedback({
           // form does nothing until we turn them back on.
           setTimeout(() => {
             const backdrop = document.querySelector(
-              "[data-sentry-feedback-backdrop]"
+              "[data-sentry-feedback-backdrop]",
             );
             if (backdrop) backdrop.style.pointerEvents = "auto";
           }, 0);

@@ -20,7 +20,7 @@ import {
   PermContactCalendar,
   FileCopy,
 } from "@mui/icons-material";
-import {getDatabase, onValue, ref} from "firebase/database";
+import { getDatabase, onValue, ref } from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import {
@@ -28,7 +28,9 @@ import {
   cloneInstrument,
   deleteInstrument,
 } from "../../utils/firebaseInstrumentFunctions";
-import InstrumentTitle from "../FormComponents/InstrumentTitle";
+import InstrumentTitle, {
+  getInstrumentTitleFromNames,
+} from "../FormComponents/InstrumentTitle";
 import { I18n, En, Fr } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import FormClassTemplate from "./FormClassTemplate";
@@ -53,10 +55,13 @@ class Instruments extends FormClassTemplate {
 
     this.unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        const database = getDatabase(firebase)
-        const instrumentsRef = ref(database, `${region}/users/${user.uid}/instruments`)
+        const database = getDatabase(firebase);
+        const instrumentsRef = ref(
+          database,
+          `${region}/users/${user.uid}/instruments`,
+        );
         onValue(instrumentsRef, (records) =>
-          this.setState({ instruments: records.toJSON(), loading: false })
+          this.setState({ instruments: records.toJSON(), loading: false }),
         );
         this.listenerRefs.push(instrumentsRef);
       }
@@ -108,9 +113,15 @@ class Instruments extends FormClassTemplate {
 
   render() {
     const { modalOpen, modalKey, loading, instruments } = this.state;
+    const instrumentsSorted = Object.entries(instruments || {}).sort(
+      ([, a], [, b]) =>
+        getInstrumentTitleFromNames(a).localeCompare(
+          getInstrumentTitleFromNames(b),
+        ),
+    );
     return (
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <SimpleModal
             open={modalOpen}
             onClose={() => this.toggleModal(false)}
@@ -126,7 +137,7 @@ class Instruments extends FormClassTemplate {
             </I18n>
           </Typography>
         </Grid>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -141,7 +152,7 @@ class Instruments extends FormClassTemplate {
           </Typography>
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button startIcon={<Add />} onClick={() => this.addInstrument()}>
             <I18n>
               <En>Add instrument</En>
@@ -154,7 +165,7 @@ class Instruments extends FormClassTemplate {
           <CircularProgress />
         ) : (
           <>
-            <Grid >
+            <Grid>
               {instruments && Object.keys(instruments).length ? (
                 <div>
                   <Typography>
@@ -164,7 +175,7 @@ class Instruments extends FormClassTemplate {
                     </I18n>
                   </Typography>
                   <List>
-                    {Object.entries(instruments).map(([key, val]) => (
+                    {instrumentsSorted.map(([key, val]) => (
                       <ListItem
                         key={key}
                         disablePadding
@@ -172,21 +183,29 @@ class Instruments extends FormClassTemplate {
                           <>
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
-                                <IconButton onClick={() => this.editInstrument(key)}>
+                                <IconButton
+                                  onClick={() => this.editInstrument(key)}
+                                >
                                   <Edit />
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Duplicate" fr="Dupliquer" />}>
+                            <Tooltip
+                              title={<I18n en="Duplicate" fr="Dupliquer" />}
+                            >
                               <span>
                                 <IconButton
-                                  onClick={() => this.handleCloneInstrument(key)}
+                                  onClick={() =>
+                                    this.handleCloneInstrument(key)
+                                  }
                                 >
                                   <FileCopy />
                                 </IconButton>
                               </span>
                             </Tooltip>
-                            <Tooltip title={<I18n en="Delete" fr="Supprimer" />}>
+                            <Tooltip
+                              title={<I18n en="Delete" fr="Supprimer" />}
+                            >
                               <span>
                                 <IconButton
                                   onClick={() => this.toggleModal(true, key)}
@@ -198,7 +217,9 @@ class Instruments extends FormClassTemplate {
                           </>
                         }
                       >
-                        <ListItemButton onClick={() => this.editInstrument(key)}>
+                        <ListItemButton
+                          onClick={() => this.editInstrument(key)}
+                        >
                           <ListItemAvatar>
                             <Avatar>
                               <PermContactCalendar />

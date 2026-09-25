@@ -23,7 +23,14 @@ import { I18n } from "../I18n";
 export function StateIndicator({ state }) {
   if (state === "error") {
     return (
-      <Tooltip title={<I18n en="Required fields missing" fr="Champs obligatoires manquants" />}>
+      <Tooltip
+        title={
+          <I18n
+            en="Required fields missing"
+            fr="Champs obligatoires manquants"
+          />
+        }
+      >
         <Box
           component="span"
           aria-label="required fields missing"
@@ -37,9 +44,7 @@ export function StateIndicator({ state }) {
   if (state === "complete") {
     return <CheckCircle sx={{ fontSize: 18, color: "success.main" }} />;
   }
-  return (
-    <RadioButtonUnchecked sx={{ fontSize: 16, color: "text.disabled" }} />
-  );
+  return <RadioButtonUnchecked sx={{ fontSize: 16, color: "text.disabled" }} />;
 }
 
 export default function SectionRail({

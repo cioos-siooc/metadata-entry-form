@@ -6,14 +6,39 @@ import {
   arrayMove,
   useStableItemIds,
 } from "../FormComponents/SortableList";
-import { List, ListItem, ListItemText, Paper, Typography, Grid, TextField, Button, TableContainer, Table, TableBody, TableRow, TableCell, Box, ListItemSecondaryAction, Tooltip, IconButton, FormControlLabel, Checkbox, Autocomplete, Stack } from "@mui/material";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  TableContainer,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+  Box,
+  ListItemSecondaryAction,
+  Tooltip,
+  IconButton,
+  FormControlLabel,
+  Checkbox,
+  Autocomplete,
+  Stack,
+} from "@mui/material";
 import { ArrowDownward, Delete } from "@mui/icons-material";
 import { capitalize } from "@mui/material/utils";
 import axios from "axios";
 import { useDebouncedCallback } from "use-debounce";
 import { deepEquals } from "../../utils/misc";
 import { En, Fr, I18n } from "../I18n";
-import { QuestionText, SupplementalText } from "../FormComponents/QuestionStyles";
+import {
+  QuestionText,
+  SupplementalText,
+} from "../FormComponents/QuestionStyles";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
 
@@ -112,7 +137,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
         requestInProgress.current = false;
       })
       .catch((error) => {
-         
         console.error(error);
         requestInProgress.current = false;
       });
@@ -207,7 +231,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               fullWidth
               renderInput={(params) => (
                 <TextField
-                   
                   {...params}
                   label={
                     <I18n>

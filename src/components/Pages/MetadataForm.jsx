@@ -1,11 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
-import {
-  Box,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+import { Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getDatabase,
@@ -60,7 +55,7 @@ function SectionSwitcher({ sections, activeSection, render }) {
           >
             {render(section.id)}
           </Box>
-        ) : null
+        ) : null,
       )}
     </Box>
   );
@@ -118,7 +113,7 @@ class MetadataForm extends FormClassTemplate {
         // get info of the person openeing the record
         const editorDataRef = child(
           ref(database, `${region}/users`),
-          loggedInUserID
+          loggedInUserID,
         );
         const userinfoRef = child(editorDataRef, "userinfo");
         onValue(userinfoRef, (userinfo) => {
@@ -184,7 +179,7 @@ class MetadataForm extends FormClassTemplate {
                 normalizePrefilledRecord(prefill),
                 null,
                 null,
-                ""
+                "",
               ),
             }),
           });
@@ -200,8 +195,10 @@ class MetadataForm extends FormClassTemplate {
             }
             const record = firebaseToJSObject(recordFireBaseObj);
 
-            const loggedInUserIsSharedWith =
-              record.sharedWith && record.sharedWith[loggedInUserID] === true;
+            // Older records store `true`, newer ones store the recipient's email.
+            const loggedInUserIsSharedWith = Boolean(
+              record.sharedWith && record.sharedWith[loggedInUserID],
+            );
 
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
@@ -253,7 +250,7 @@ class MetadataForm extends FormClassTemplate {
 
     const contactsRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/contacts`
+      `${region}/users/${auth.currentUser.uid}/contacts`,
     );
 
     // existing contact
@@ -278,7 +275,7 @@ class MetadataForm extends FormClassTemplate {
           record,
           region,
           language,
-          datacitePrefix
+          datacitePrefix,
         );
 
         if (statusCode === 200) {
@@ -304,7 +301,7 @@ class MetadataForm extends FormClassTemplate {
     const database = getDatabase(firebase);
     const instrumentsRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/instruments`
+      `${region}/users/${auth.currentUser.uid}/instruments`,
     );
 
     // existing instrument
@@ -328,7 +325,7 @@ class MetadataForm extends FormClassTemplate {
     const database = getDatabase(firebase);
     const platformRef = ref(
       database,
-      `${region}/users/${auth.currentUser.uid}/platforms`
+      `${region}/users/${auth.currentUser.uid}/platforms`,
     );
 
     // existing instrument
@@ -403,7 +400,7 @@ class MetadataForm extends FormClassTemplate {
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record }
+        { ...getBlankRecord(), ...record },
       );
     } else {
       // new record
@@ -560,9 +557,7 @@ class MetadataForm extends FormClassTemplate {
           />
         }
         savedSnackbarOpen={this.state.savedSnackbarOpen}
-        onCloseSavedSnackbar={() =>
-          this.setState({ savedSnackbarOpen: false })
-        }
+        onCloseSavedSnackbar={() => this.setState({ savedSnackbarOpen: false })}
       />
     );
   }

@@ -1,11 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  Box,
-  Card,
-  Skeleton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Card, Skeleton, Stack, Typography } from "@mui/material";
 import {
   EditNoteOutlined,
   HourglassTopOutlined,
@@ -94,11 +88,7 @@ export default function StatCards({ records, loading }) {
   }, [records]);
 
   return (
-    <Stack
-      direction={{ xs: "column", sm: "row" }}
-      spacing={2}
-      sx={{ mb: 3 }}
-    >
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
       <StatCard
         label={<I18n en="Drafts" fr="Brouillons" />}
         value={counts.draft}

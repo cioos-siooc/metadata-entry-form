@@ -1,4 +1,3 @@
-
 export const drawerWidth = 260;
 // Collapsed rail: wide enough for the nav icons, which keep their tooltips.
 // Matches SectionRail's collapsed width so the two rails agree.

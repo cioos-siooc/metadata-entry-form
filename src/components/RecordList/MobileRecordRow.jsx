@@ -30,10 +30,7 @@ const MobileRecordRow = ({
     row.title || (language === "en" ? "Untitled" : "Sans titre");
 
   const handleCardClick = (event) => {
-    if (
-      event.target.closest("button") ||
-      event.target.closest("a")
-    ) {
+    if (event.target.closest("button") || event.target.closest("a")) {
       return;
     }
     onNavigate?.(row);
@@ -73,11 +70,7 @@ const MobileRecordRow = ({
           WebkitBoxOrient: "vertical",
         }}
       >
-        <CopyableCell
-          text={row.title}
-          onCopy={onCopy}
-          language={language}
-        >
+        <CopyableCell text={row.title} onCopy={onCopy} language={language}>
           {titleDisplay}
         </CopyableCell>
       </Box>

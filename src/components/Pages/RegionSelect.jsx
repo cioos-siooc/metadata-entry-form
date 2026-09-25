@@ -15,12 +15,15 @@ export default function RegionSelect() {
   };
 
   const { raRegions, otherOrganizations } = useMemo(() => {
-    const ra = RA_CODES
-      .map((code) => ({ code, info: regions[code] }))
-      .filter(({ info }) => info && info.showInRegionSelector);
+    const ra = RA_CODES.map((code) => ({ code, info: regions[code] })).filter(
+      ({ info }) => info && info.showInRegionSelector,
+    );
 
     const others = Object.entries(regions)
-      .filter(([code, regionInfo]) => !RA_CODES.includes(code) && regionInfo.showInRegionSelector)
+      .filter(
+        ([code, regionInfo]) =>
+          !RA_CODES.includes(code) && regionInfo.showInRegionSelector,
+      )
       .map(([code, info]) => ({ code, info }))
       .sort((a, b) => {
         const getName = (o) =>
@@ -28,7 +31,7 @@ export default function RegionSelect() {
         return getName(a).localeCompare(
           getName(b),
           language === "fr" ? "fr" : "en",
-          { sensitivity: "base" }
+          { sensitivity: "base" },
         );
       });
 
@@ -49,14 +52,18 @@ export default function RegionSelect() {
             <Stack spacing={1} sx={{ mb: 3 }}>
               <Typography
                 variant="overline"
-                sx={{ color: "primary.main", fontWeight: 700, letterSpacing: "0.12em" }}
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                }}
               >
                 {t("Regional Associations", "Associations régionales")}
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
                 {t(
                   "CIOOS Regional Associations",
-                  "Associations régionales du SIOOC"
+                  "Associations régionales du SIOOC",
                 )}
               </Typography>
             </Stack>
@@ -80,12 +87,19 @@ export default function RegionSelect() {
             <Stack spacing={1} sx={{ mb: 3 }}>
               <Typography
                 variant="overline"
-                sx={{ color: "text.secondary", fontWeight: 700, letterSpacing: "0.12em" }}
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                }}
               >
                 {t("Affiliated Organizations", "Organisations affiliées")}
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                {t("Collaborating organizations", "Organisations collaboratrices")}
+                {t(
+                  "Collaborating organizations",
+                  "Organisations collaboratrices",
+                )}
               </Typography>
             </Stack>
             <Grid container spacing={3} alignItems="stretch">
