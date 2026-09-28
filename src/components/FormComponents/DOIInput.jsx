@@ -780,13 +780,17 @@ const DOIInput = ({
                 title={
                   <I18n
                     en={
-                      record.doiCreationStatus === "findable"
-                        ? "This DOI is findable. DataCite is updated with the form's metadata only when the record is published."
+                      ["registered", "findable"].includes(
+                        record.doiCreationStatus,
+                      )
+                        ? "This DOI is registered or findable. DataCite is updated with the form's metadata only when the record is published."
                         : "Push the latest metadata to DataCite so the conversion can be reviewed."
                     }
                     fr={
-                      record.doiCreationStatus === "findable"
-                        ? "Ce DOI est trouvable. DataCite est mis à jour avec les métadonnées du formulaire uniquement lors de la publication."
+                      ["registered", "findable"].includes(
+                        record.doiCreationStatus,
+                      )
+                        ? "Ce DOI est enregistré ou trouvable. DataCite est mis à jour avec les métadonnées du formulaire uniquement lors de la publication."
                         : "Envoie les métadonnées les plus récentes à DataCite afin de vérifier la conversion."
                     }
                   />

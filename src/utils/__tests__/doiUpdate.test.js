@@ -196,9 +196,9 @@ describe("DOI update guards", () => {
     expect(isManagedDoi({ doiCreationStatus: "draft" }, prefix)).toBe(false);
   });
 
-  it("allows pushing form edits to draft and registered DOIs only", () => {
+  it("allows pushing form edits to draft DOIs only", () => {
     expect(canPushFormToDoi(rec("draft"), prefix)).toBe(true);
-    expect(canPushFormToDoi(rec("registered"), prefix)).toBe(true);
+    expect(canPushFormToDoi(rec("registered"), prefix)).toBe(false);
     expect(canPushFormToDoi(rec("findable"), prefix)).toBe(false);
     expect(canPushFormToDoi(rec(""), prefix)).toBe(false);
   });

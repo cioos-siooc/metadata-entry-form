@@ -311,9 +311,9 @@ class MetadataForm extends FormClassTemplate {
     const { record } = this.state;
     const { datacitePrefix, isReviewer, isAdmin } = this.context;
 
-    // Keep a reviewer's non-findable DOI in sync on submit. updateDraftDoi is
-    // reviewer/admin-only server-side, findable DOIs are only updated on
-    // publish, and a DataCite failure must not block the submit.
+    // Keep a reviewer's draft DOI in sync on submit. updateDraftDoi is
+    // reviewer/admin-only server-side, registered/findable DOIs are only
+    // updated on publish, and a DataCite failure must not block the submit.
     try {
       if ((isReviewer || isAdmin) && canPushFormToDoi(record, datacitePrefix)) {
         const statusCode = await performUpdateDraftDoi(

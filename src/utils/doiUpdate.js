@@ -40,13 +40,12 @@ export function isManagedDoi(record, datacitePrefix) {
   );
 }
 
-// Unreviewed form edits may reach DataCite only while the DOI is not findable.
-// Once findable, the DataCite record is updated only when the record is
-// published (see Reviewer).
+// Unreviewed form edits may reach DataCite only while the DOI is a draft.
+// Registered and findable DOIs are permanent and resolvable, so their DataCite
+// record is updated only when the record is published (see Reviewer).
 export function canPushFormToDoi(record, datacitePrefix) {
   return (
-    isManagedDoi(record, datacitePrefix) &&
-    record.doiCreationStatus !== "findable"
+    isManagedDoi(record, datacitePrefix) && record.doiCreationStatus === "draft"
   );
 }
 

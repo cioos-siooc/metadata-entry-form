@@ -419,30 +419,30 @@ describe("DOIInput", () => {
   describe("Update DOI button availability by DOI state", () => {
     const doi = "https://doi.org/10.5678/abc-123";
 
-    it.each(["draft", "registered"])(
-      "should be enabled for a %s DOI on an unsubmitted record",
+    it("should be enabled for a draft DOI on an unsubmitted record", () => {
+      renderDOIInput({
+        datasetIdentifier: doi,
+        doiCreationStatus: "draft",
+        status: "",
+      });
+      expect(
+        screen.getByRole("button", { name: /update doi/i }),
+      ).not.toBeDisabled();
+    });
+
+    it.each(["registered", "findable"])(
+      "should be disabled for a %s DOI (updated only on publish)",
       (doiCreationStatus) => {
         renderDOIInput({
           datasetIdentifier: doi,
           doiCreationStatus,
-          status: "",
+          status: "submitted",
         });
         expect(
           screen.getByRole("button", { name: /update doi/i }),
-        ).not.toBeDisabled();
+        ).toBeDisabled();
       },
     );
-
-    it("should be disabled for a findable DOI (updated only on publish)", () => {
-      renderDOIInput({
-        datasetIdentifier: doi,
-        doiCreationStatus: "findable",
-        status: "submitted",
-      });
-      expect(
-        screen.getByRole("button", { name: /update doi/i }),
-      ).toBeDisabled();
-    });
   });
 
   describe("Delete DOI button disabled during concurrent operations", () => {
