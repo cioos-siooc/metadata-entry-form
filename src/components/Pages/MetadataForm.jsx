@@ -309,10 +309,16 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record } = this.state;
-    const { datacitePrefix } = this.context;
+    const { datacitePrefix, isReviewer, isAdmin } = this.context;
 
+    // updateDraftDoi is reviewer/admin-only server-side; owners submitting
+    // a record with a DOI must not hit it or the submit fails.
     try {
-      if (datacitePrefix && record.datasetIdentifier) {
+      if (
+        (isReviewer || isAdmin) &&
+        datacitePrefix &&
+        record.datasetIdentifier
+      ) {
         const statusCode = await performUpdateDraftDoi(
           record,
           region,
@@ -329,7 +335,6 @@ class MetadataForm extends FormClassTemplate {
     } catch (err) {
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
-      throw err;
     }
   }
 
