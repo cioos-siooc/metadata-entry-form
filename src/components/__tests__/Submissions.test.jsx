@@ -21,12 +21,16 @@ describe("<Submissions />", () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
-          <Submissions match={{ params: { region: "pacific", language: "en" } }} />
+          <Submissions
+            match={{ params: { region: "pacific", language: "en" } }}
+          />
         </MemoryRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     // Verify component renders - check for "My Records" heading
-    expect(screen.getByRole("heading", { name: /my records/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /my records/i }),
+    ).toBeInTheDocument();
   });
 });

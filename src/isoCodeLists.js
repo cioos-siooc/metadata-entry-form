@@ -30,10 +30,8 @@ export const roleCodes = {
       fr: "Dépositaire des métadonnées",
     },
     text: {
-      en:
-        "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
-      fr:
-        "Partie qui accepte la reddition de comptes et la responsabilité de la ressource et assure le soin et l'entretien appropriés de la ressource ",
+      en: "Party that accepts accountability and responsibility for the resource and ensures appropriate care and maintenance of the resource ",
+      fr: "Partie qui accepte la reddition de comptes et la responsabilité de la ressource et assure le soin et l'entretien appropriés de la ressource ",
     },
     required: true,
     showProminently: true,
@@ -70,10 +68,8 @@ export const roleCodes = {
   collaborator: {
     title: { en: "Collaborator", fr: "Collaborateur" },
     text: {
-      en:
-        "Party who assists with the generation of the resource other than the principal investigator",
-      fr:
-        "Partie qui aide à la production de la ressource autre que le chercheur principal",
+      en: "Party who assists with the generation of the resource other than the principal investigator",
+      fr: "Partie qui aide à la production de la ressource autre que le chercheur principal",
     },
   },
   contributor: {
@@ -87,8 +83,7 @@ export const roleCodes = {
     title: { en: "Editor", fr: "Réviseur" },
     text: {
       en: "Party who reviewed or modified the resource to improve the content",
-      fr:
-        "Partie qui a examiné ou modifié la ressource pour améliorer le contenu",
+      fr: "Partie qui a examiné ou modifié la ressource pour améliorer le contenu",
     },
   },
   funder: {
@@ -101,10 +96,8 @@ export const roleCodes = {
   mediator: {
     title: { en: "Mediator", fr: "Médiateur" },
     text: {
-      en:
-        "A class of entity that mediates access to the resource and for whom the resource is intended or useful ",
-      fr:
-        "Classe d'entité qui sert de médiateur à l'accès à la ressource et pour laquelle la ressource est destinée ou utile",
+      en: "A class of entity that mediates access to the resource and for whom the resource is intended or useful ",
+      fr: "Classe d'entité qui sert de médiateur à l'accès à la ressource et pour laquelle la ressource est destinée ou utile",
     },
   },
   originator: {
@@ -117,29 +110,23 @@ export const roleCodes = {
   pointOfContact: {
     title: { en: "Point Of Contact", fr: "Point de contact" },
     text: {
-      en:
-        "Party who can be contacted for acquiring knowledge about or acquisition of the resource",
-      fr:
-        "Partie qui peut être contactée pour acquérir des connaissances sur la ressource ou l'acquisition de la ressource",
+      en: "Party who can be contacted for acquiring knowledge about or acquisition of the resource",
+      fr: "Partie qui peut être contactée pour acquérir des connaissances sur la ressource ou l'acquisition de la ressource",
     },
   },
 
   principalInvestigator: {
     title: { en: "Principal Investigator", fr: "Responsable de recherche" },
     text: {
-      en:
-        "Key party responsible for gathering information and conducting research",
-      fr:
-        "Partie clé responsable de la collecte de l'information et de la réalisation de la recherche",
+      en: "Key party responsible for gathering information and conducting research",
+      fr: "Partie clé responsable de la collecte de l'information et de la réalisation de la recherche",
     },
   },
   processor: {
     title: { en: "Processor", fr: "Transformateur" },
     text: {
-      en:
-        "Party who has processed the data in a manner such that the resource has been modified",
-      fr:
-        "Partie qui a traité les données d'une manière telle que la ressource a été modifiée",
+      en: "Party who has processed the data in a manner such that the resource has been modified",
+      fr: "Partie qui a traité les données d'une manière telle que la ressource a été modifiée",
     },
   },
   publisher: {
@@ -173,10 +160,8 @@ export const roleCodes = {
   stakeholder: {
     title: { en: "Stakeholder", fr: "Actionnaire" },
     text: {
-      en:
-        "Party who has an interest in the resource or the use of the resource ",
-      fr:
-        "Partie qui a un intérêt dans la ressource ou l'utilisation de la ressource",
+      en: "Party who has an interest in the resource or the use of the resource ",
+      fr: "Partie qui a un intérêt dans la ressource ou l'utilisation de la ressource",
     },
   },
 };
@@ -185,30 +170,24 @@ export const progressCodes = {
   onGoing: {
     title: { en: "Ongoing", fr: "En cours" },
     text: {
-      en:
-        "Data is continually being updated. e.g satellite dataset that continues to be augmented",
-      fr:
-        "Les données sont continuellement mises à jour, C'est le cas par exemple pour un jeu de données satellitaires qui continue d'être alimenté.",
+      en: "Data is continually being updated. e.g satellite dataset that continues to be augmented",
+      fr: "Les données sont continuellement mises à jour, C'est le cas par exemple pour un jeu de données satellitaires qui continue d'être alimenté.",
     },
   },
 
   historicalArchive: {
     title: { en: "Historical Archive", fr: "Archives historiques" },
     text: {
-      en:
-        "Data has been stored in an offline storage facility. use to indicate data are archived",
-      fr:
-        "Les données ont été stockées dans une installation de stockage hors connexion. Utilisez cette option pour indiquer que les données sont archivées",
+      en: "Data has been stored in an offline storage facility. use to indicate data are archived",
+      fr: "Les données ont été stockées dans une installation de stockage hors connexion. Utilisez cette option pour indiquer que les données sont archivées",
     },
   },
 
   completed: {
     title: { en: "Completed", fr: "Terminé" },
     text: {
-      en:
-        "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
-      fr:
-        "La production des données a été terminée. C'est le cas par exemple pour des données brutes qui ne sont plus alimentées, ou encore pour un modèle terminé",
+      en: "Production of the data has been completed 	e.g. raw data that is not ongoing, completed model",
+      fr: "La production des données a été terminée. C'est le cas par exemple pour des données brutes qui ne sont plus alimentées, ou encore pour un modèle terminé",
     },
   },
 };
@@ -563,337 +542,386 @@ export const associationTypeCode = {
   IsCitedBy: {
     title: { en: "Is Cited By", fr: "Est cité par" },
     text: {
-      en: "A is cited by B", fr: "A est cité par B",
+      en: "A is cited by B",
+      fr: "A est cité par B",
     },
     isoValue: "crossReference",
   },
   Cites: {
     title: { en: "Cites", fr: "Cites" },
     text: {
-      en: "A cites B", fr: "A cite B",
+      en: "A cites B",
+      fr: "A cite B",
     },
     isoValue: "crossReference",
   },
   IsSupplementTo: {
     title: { en: "Is Supplement To", fr: "Est un supplément à" },
     text: {
-      en: "A is supplement to B", fr: "A est un complément à B",
+      en: "A is supplement to B",
+      fr: "A est un complément à B",
     },
     isoValue: "crossReference",
   },
   IsSupplementedBy: {
     title: { en: "Is Supplemented By", fr: "Est complété par" },
     text: {
-      en: "A is supplemented by B", fr: "A est complété par B",
+      en: "A is supplemented by B",
+      fr: "A est complété par B",
     },
     isoValue: "crossReference",
   },
   IsContinuedBy: {
     title: { en: "Is Continued By", fr: "Est continué par" },
     text: {
-      en: "A is continued by B", fr: "A est continué par B",
+      en: "A is continued by B",
+      fr: "A est continué par B",
     },
     isoValue: "series",
   },
   Continues: {
     title: { en: "Continues", fr: "Continue" },
     text: {
-      en: "A continues B", fr: "A continue B",
+      en: "A continues B",
+      fr: "A continue B",
     },
     isoValue: "series",
   },
   IsDescribedBy: {
     title: { en: "Is Described By", fr: "Est décrit par" },
     text: {
-      en: "A is described by B", fr: "A est décrit par B",
+      en: "A is described by B",
+      fr: "A est décrit par B",
     },
     isoValue: "crossReference",
   },
   Describes: {
     title: { en: "Describes", fr: "Décrit" },
     text: {
-      en: "A describes B", fr: "A décrit B",
+      en: "A describes B",
+      fr: "A décrit B",
     },
     isoValue: "crossReference",
   },
   HasMetadata: {
     title: { en: "Has Metadata", fr: "Possède des métadonnées" },
     text: {
-      en: "A has metadata B", fr: "A a des métadonnées B",
+      en: "A has metadata B",
+      fr: "A a des métadonnées B",
     },
     isoValue: "crossReference",
   },
   IsMetadataFor: {
-    title: { en: "Is Metadata For", fr: "Les métadonnées sont-elles destinées" },
+    title: {
+      en: "Is Metadata For",
+      fr: "Les métadonnées sont-elles destinées",
+    },
     text: {
-      en: "A is metadata for B", fr: "A est une métadonnée pour B",
+      en: "A is metadata for B",
+      fr: "A est une métadonnée pour B",
     },
     isoValue: "crossReference",
   },
   HasVersion: {
     title: { en: "Has Version", fr: "A une version" },
     text: {
-      en: "A has version B", fr: "A a la version B",
+      en: "A has version B",
+      fr: "A a la version B",
     },
     isoValue: "revisionOf",
   },
   IsVersionOf: {
     title: { en: "Is Version Of", fr: "Est la version de" },
     text: {
-      en: "A is version of B", fr: "A est la version de B",
+      en: "A is version of B",
+      fr: "A est la version de B",
     },
     isoValue: "revisionOf",
   },
   IsNewVersionOf: {
     title: { en: "Is New Version Of", fr: "Est-ce une nouvelle version de" },
     text: {
-      en: "A is new version of B", fr: "A est une nouvelle version de B",
+      en: "A is new version of B",
+      fr: "A est une nouvelle version de B",
     },
     isoValue: "revisionOf",
   },
   PreviousVersionOf: {
     title: { en: "Previous Version Of", fr: "Version précédente de" },
     text: {
-      en: "A is previous version of B", fr: "A est la version précédente de B",
+      en: "A is previous version of B",
+      fr: "A est la version précédente de B",
     },
     isoValue: "crossReference",
   },
   IsPartOf: {
     title: { en: "Is Part Of", fr: "Fait partie de" },
     text: {
-      en: "A is part of B", fr: "A fait partie de B",
+      en: "A is part of B",
+      fr: "A fait partie de B",
     },
     isoValue: "largerWorkCitation",
   },
   HasPart: {
     title: { en: "Has Part", fr: "A une partie" },
     text: {
-      en: "A has part B", fr: "A a la partie B",
+      en: "A has part B",
+      fr: "A a la partie B",
     },
     isoValue: "isComposedOf",
   },
   IsPublishedIn: {
     title: { en: "Is Published In", fr: "Est publié dans" },
     text: {
-      en: "A is published in B", fr: "A est publié dans B",
+      en: "A is published in B",
+      fr: "A est publié dans B",
     },
     isoValue: "largerWorkCitation",
   },
   IsReferencedBy: {
     title: { en: "Is Referenced By", fr: "Est référencé par" },
     text: {
-      en: "A is referenced by B", fr: "A est référencé par B",
+      en: "A is referenced by B",
+      fr: "A est référencé par B",
     },
     isoValue: "crossReference",
   },
   References: {
     title: { en: "References", fr: "Les références" },
     text: {
-      en: "A references B", fr: "A références B",
+      en: "A references B",
+      fr: "A références B",
     },
     isoValue: "crossReference",
   },
   IsDocumentedBy: {
     title: { en: "Is Documented By", fr: "Est documenté par" },
     text: {
-      en: "A is documented by B", fr: "A est documenté par B",
+      en: "A is documented by B",
+      fr: "A est documenté par B",
     },
     isoValue: "crossReference",
   },
   Documents: {
     title: { en: "Documents", fr: "Documents" },
     text: {
-      en: "A documents B", fr: "Un document B",
+      en: "A documents B",
+      fr: "Un document B",
     },
     isoValue: "crossReference",
   },
   IsCompiledBy: {
     title: { en: "Is Compiled By", fr: "Est compilé par" },
     text: {
-      en: "A is compiled by B", fr: "A est compilé par B",
+      en: "A is compiled by B",
+      fr: "A est compilé par B",
     },
     isoValue: "dependency",
   },
   Compiles: {
     title: { en: "Compiles", fr: "Compile" },
     text: {
-      en: "A compiles B", fr: "A compile B",
+      en: "A compiles B",
+      fr: "A compile B",
     },
     isoValue: "dependency",
   },
   IsVariantFormOf: {
     title: { en: "Is Variant Form Of", fr: "Est une forme variante de" },
     text: {
-      en: "A is variant form of B", fr: "A est une variante de B",
+      en: "A is variant form of B",
+      fr: "A est une variante de B",
     },
     isoValue: "crossReference",
   },
   IsOriginalFormOf: {
     title: { en: "Is Original Form Of", fr: "Est la forme originale de" },
     text: {
-      en: "A is original form of B", fr: "A est la forme originale de B",
+      en: "A is original form of B",
+      fr: "A est la forme originale de B",
     },
     isoValue: "crossReference",
   },
   IsIdenticalTo: {
     title: { en: "Is Identical To", fr: "Est identique à" },
     text: {
-      en: "A is identical to B", fr: "A est identique à B",
+      en: "A is identical to B",
+      fr: "A est identique à B",
     },
     isoValue: "crossReference",
   },
   IsReviewedBy: {
     title: { en: "Is Reviewed By", fr: "Est révisé par" },
     text: {
-      en: "A is reviewed by B", fr: "A est examiné par B",
+      en: "A is reviewed by B",
+      fr: "A est examiné par B",
     },
     isoValue: "crossReference",
   },
   Reviews: {
     title: { en: "Reviews", fr: "Commentaires" },
     text: {
-      en: "A reviews B", fr: "A avis B",
+      en: "A reviews B",
+      fr: "A avis B",
     },
     isoValue: "crossReference",
   },
   IsDerivedFrom: {
     title: { en: "Is Derived From", fr: "Dérive de" },
     text: {
-      en: "A is derived from B", fr: "A est dérivé de B",
+      en: "A is derived from B",
+      fr: "A est dérivé de B",
     },
     isoValue: "dependency",
   },
   IsSourceOf: {
     title: { en: "Is Source Of", fr: "Est la source de" },
     text: {
-      en: "A is source of B", fr: "A est la source de B",
+      en: "A is source of B",
+      fr: "A est la source de B",
     },
     isoValue: "dependency",
   },
   Requires: {
     title: { en: "Requires", fr: "A besoin" },
     text: {
-      en: "A requires B", fr: "A nécessite B",
+      en: "A requires B",
+      fr: "A nécessite B",
     },
     isoValue: "dependency",
   },
   IsRequiredBy: {
     title: { en: "Is Required By", fr: "Est requis par" },
     text: {
-      en: "A is required by B", fr: "A est requis par B",
+      en: "A is required by B",
+      fr: "A est requis par B",
     },
     isoValue: "dependency",
   },
   IsObsoletedBy: {
     title: { en: "Is Obsoleted By", fr: "Est obsolète par" },
     text: {
-      en: "A is obsoleted by B", fr: "A est obsolète par B",
+      en: "A is obsoleted by B",
+      fr: "A est obsolète par B",
     },
     isoValue: "crossReference",
   },
   Obsoletes: {
     title: { en: "Obsoletes", fr: "Obsolètes" },
     text: {
-      en: "A obsoletes B", fr: "A rend obsolète B",
+      en: "A obsoletes B",
+      fr: "A rend obsolète B",
     },
     isoValue: "revisionOf",
   },
 };
 
-
-
 export const initiativeTypeCode = {
   campaign: {
     title: { en: "campaign", fr: "" },
     text: {
-      en: "series of organized planned actions", fr: "",
+      en: "series of organized planned actions",
+      fr: "",
     },
   },
   collection: {
     title: { en: "collection", fr: "" },
     text: {
-      en: "accumulation of datasets assembled for a specific purpose", fr: "",
+      en: "accumulation of datasets assembled for a specific purpose",
+      fr: "",
     },
   },
   exercise: {
     title: { en: "exercise", fr: "" },
     text: {
-      en: "specific performance of a function or group of functions", fr: "",
+      en: "specific performance of a function or group of functions",
+      fr: "",
     },
   },
   experiment: {
     title: { en: "experiment", fr: "" },
     text: {
-      en: "process designed to find if something is effective or valid", fr: "",
+      en: "process designed to find if something is effective or valid",
+      fr: "",
     },
   },
   investigation: {
     title: { en: "investigation", fr: "" },
     text: {
-      en: "search or systematic inquiry", fr: "",
+      en: "search or systematic inquiry",
+      fr: "",
     },
   },
   mission: {
     title: { en: "mission", fr: "" },
     text: {
-      en: "specific operation of a data collection system", fr: "",
+      en: "specific operation of a data collection system",
+      fr: "",
     },
   },
   operation: {
     title: { en: "operation", fr: "" },
     text: {
-      en: "action that is part of a series of actions", fr: "",
+      en: "action that is part of a series of actions",
+      fr: "",
     },
   },
   platform: {
     title: { en: "platform", fr: "" },
     text: {
-      en: "vehicle or other support base that holds a sensor", fr: "",
+      en: "vehicle or other support base that holds a sensor",
+      fr: "",
     },
   },
   process: {
     title: { en: "process", fr: "" },
     text: {
-      en: "method of doing something involving a number of steps", fr: "",
+      en: "method of doing something involving a number of steps",
+      fr: "",
     },
   },
   program: {
     title: { en: "program", fr: "" },
     text: {
-      en: "specific planned activity", fr: "",
+      en: "specific planned activity",
+      fr: "",
     },
   },
   project: {
     title: { en: "project", fr: "" },
     text: {
-      en: "organized undertaking, research, or development", fr: "",
+      en: "organized undertaking, research, or development",
+      fr: "",
     },
   },
   sensor: {
     title: { en: "sensor", fr: "" },
     text: {
-      en: "device or piece of equipment which detects or records", fr: "",
+      en: "device or piece of equipment which detects or records",
+      fr: "",
     },
   },
   study: {
     title: { en: "study", fr: "" },
     text: {
-      en: "examination or investigation", fr: "",
+      en: "examination or investigation",
+      fr: "",
     },
   },
   task: {
     title: { en: "task", fr: "" },
     text: {
-      en: "piece of work", fr: "",
+      en: "piece of work",
+      fr: "",
     },
   },
   trial: {
     title: { en: "trial", fr: "" },
     text: {
-      en: "process of testing to discover or demonstrate somethin", fr: "",
+      en: "process of testing to discover or demonstrate somethin",
+      fr: "",
     },
   },
-
 };
 
 export const identifierType = [
@@ -917,5 +945,4 @@ export const identifierType = [
   "URL",
   "URN",
   "w3id",
-]
-
+];

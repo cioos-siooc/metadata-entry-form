@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { 
+import {
   Grid,
   Accordion,
   AccordionSummary,
@@ -21,21 +21,18 @@ import {
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 
-
-
-
 const ResourcesTab = ({ disabled, record, updateRecord }) => {
   // const [value, setValue] = React.useState("resources");
-  const { language } = useParams() 
+  const { language } = useParams();
 
   // const handleChange = (event, newValue) => {
   //   setValue(newValue);
   // };
 
   const [AccordionDefaultExpanded] = React.useState([
-    (record.distribution && record.distribution.length === 0),
-    (record.associated_resources && record.associated_resources.length === 0),
-    (record.history && record.history.length === 0),
+    record.distribution && record.distribution.length === 0,
+    record.associated_resources && record.associated_resources.length === 0,
+    record.history && record.history.length === 0,
   ]);
 
   // const handleDrawerOpen = () => {
@@ -48,35 +45,46 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
 
   return (
     <div>
-
-      <Accordion defaultExpanded={AccordionDefaultExpanded[0]} style={{ width:'90%', margin:20}}>
+      <Accordion
+        defaultExpanded={AccordionDefaultExpanded[0]}
+        style={{ width: "90%", margin: 20 }}
+      >
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
-          style={{ backgroundColor: '#00000015' }}
+          style={{ backgroundColor: "#00000015" }}
         >
           <HeadingText>
             <I18n>
               <En>Resource</En>
               <Fr>La ressource</Fr>
             </I18n>
-            {record.distribution && record.distribution.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.distribution.length} variant="outlined" />)}
+            {record.distribution && record.distribution.length > 0 && (
+              <Chip
+                style={{ marginLeft: 10 }}
+                label={record.distribution.length}
+                variant="outlined"
+              />
+            )}
           </HeadingText>
         </AccordionSummary>
         <AccordionDetails>
           <Grid>
             <QuestionText>
-              <En>Enter one or more links to the primary resource described by this
-                metadata record. Resources added here should not already have their
-                own metadata record or digital object identifier, such resources
-                should be added to the "Related Works" section.</En>
+              <En>
+                Enter one or more links to the primary resource described by
+                this metadata record. Resources added here should not already
+                have their own metadata record or digital object identifier,
+                such resources should be added to the "Related Works" section.
+              </En>
               <Fr>
-                Entrez un ou plusieurs liens vers la ressource principale décrite par
-                cet enregistrement de métadonnées. Les ressources ajoutées ici ne
-                doivent pas déjà avoir leur propre enregistrement de métadonnées ou
-                identifiant d'objet numérique. Ces ressources doivent être ajoutées à
-                la section "Travaux connexes".
+                Entrez un ou plusieurs liens vers la ressource principale
+                décrite par cet enregistrement de métadonnées. Les ressources
+                ajoutées ici ne doivent pas déjà avoir leur propre
+                enregistrement de métadonnées ou identifiant d'objet numérique.
+                Ces ressources doivent être ajoutées à la section "Travaux
+                connexes".
               </Fr>
               <RequiredMark passes={validateField(record, "distribution")} />
               <SupplementalText>
@@ -90,9 +98,9 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                       <li>Images</li>
                       <li>Online forms to request access to the data</li>
                     </ul>
-                    A Resource URL that links to a compressed data package or folder is
-                    preferred. Otherwise, list primary resource first followed by
-                    supporting resources.
+                    A Resource URL that links to a compressed data package or
+                    folder is preferred. Otherwise, list primary resource first
+                    followed by supporting resources.
                   </En>
                   <Fr>
                     Voici quelques exemples de ressources :
@@ -101,11 +109,14 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                       <li>Fichiers CSV</li>
                       <li>Ensembles de données ERDDAP</li>
                       <li>Images</li>
-                      <li>Formulaires en ligne pour demander l'accès aux données</li>
+                      <li>
+                        Formulaires en ligne pour demander l'accès aux données
+                      </li>
                     </ul>
-                    Une URL de ressource qui renvoie à un package ou un dossier de données
-                    compressées est préférable. Sinon, répertoriez d'abord la ressource
-                    principale, suivie des ressources de support.
+                    Une URL de ressource qui renvoie à un package ou un dossier
+                    de données compressées est préférable. Sinon, répertoriez
+                    d'abord la ressource principale, suivie des ressources de
+                    support.
                   </Fr>
                 </I18n>
               </SupplementalText>
@@ -119,48 +130,85 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion defaultExpanded={AccordionDefaultExpanded[1]} style={{ width: '90%', margin: 20 }}>
+      <Accordion
+        defaultExpanded={AccordionDefaultExpanded[1]}
+        style={{ width: "90%", margin: 20 }}
+      >
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel2a-content"
           id="panel2a-header"
-          style={{ backgroundColor: '#00000015' }}
+          style={{ backgroundColor: "#00000015" }}
         >
           <HeadingText>
             <I18n>
               <En>Related Works</En>
               <Fr>Travaux connexes</Fr>
             </I18n>
-            {record.associated_resources && record.associated_resources.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.associated_resources.length} variant="outlined" />)}
+            {record.associated_resources &&
+              record.associated_resources.length > 0 && (
+                <Chip
+                  style={{ marginLeft: 10 }}
+                  label={record.associated_resources.length}
+                  variant="outlined"
+                />
+              )}
           </HeadingText>
         </AccordionSummary>
-        <AccordionDetails> 
+        <AccordionDetails>
           <Grid>
             <QuestionText>
-              <En>Enter links to other metadata records, publications or works that are
-                related to the primary resources this metadata record describes.
+              <En>
+                Enter links to other metadata records, publications or works
+                that are related to the primary resources this metadata record
+                describes.
               </En>
               <Fr>
-                Entrez des liens vers d'autres enregistrements de métadonnées, publications ou ouvrages qui sont
-                liés aux ressources principales décrites par cet enregistrement de métadonnées.
+                Entrez des liens vers d'autres enregistrements de métadonnées,
+                publications ou ouvrages qui sont liés aux ressources
+                principales décrites par cet enregistrement de métadonnées.
               </Fr>
-              <RequiredMark passes={validateField(record, "associated_resources")} />
+              <RequiredMark
+                passes={validateField(record, "associated_resources")}
+              />
               <SupplementalText>
                 <I18n>
                   <En>
                     Related works may be:
                     <ul>
-                      <li>Other datasets that are part of the same collection, project, or sampling protocol</li>
-                      <li>Metadata records on other catalogues such as OBIS or FRDR that describe the same dataset</li>
-                      <li>Any work that adds context to or describes the primary resource for which you are creating this metadata record for</li>
+                      <li>
+                        Other datasets that are part of the same collection,
+                        project, or sampling protocol
+                      </li>
+                      <li>
+                        Metadata records on other catalogues such as OBIS or
+                        FRDR that describe the same dataset
+                      </li>
+                      <li>
+                        Any work that adds context to or describes the primary
+                        resource for which you are creating this metadata record
+                        for
+                      </li>
                     </ul>
                   </En>
                   <Fr>
                     Les œuvres connexes peuvent être :
                     <ul>
-                      <li>Autres ensembles de données faisant partie de la même collection, du même projet ou du même protocole d'échantillonnage</li>
-                      <li>Enregistrements de métadonnées sur d'autres catalogues tels que OBIS ou FRDR qui décrivent le même ensemble de données</li>
-                      <li>Tout travail qui ajoute du contexte ou décrit la ressource principale pour laquelle vous créez cet enregistrement de métadonnées</li>
+                      <li>
+                        Autres ensembles de données faisant partie de la même
+                        collection, du même projet ou du même protocole
+                        d'échantillonnage
+                      </li>
+                      <li>
+                        Enregistrements de métadonnées sur d'autres catalogues
+                        tels que OBIS ou FRDR qui décrivent le même ensemble de
+                        données
+                      </li>
+                      <li>
+                        Tout travail qui ajoute du contexte ou décrit la
+                        ressource principale pour laquelle vous créez cet
+                        enregistrement de métadonnées
+                      </li>
                     </ul>
                   </Fr>
                 </I18n>
@@ -175,40 +223,46 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion defaultExpanded={AccordionDefaultExpanded[2]} style={{ width: '90%', margin: 20 }}>
+      <Accordion
+        defaultExpanded={AccordionDefaultExpanded[2]}
+        style={{ width: "90%", margin: 20 }}
+      >
         <AccordionSummary
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel3a-content"
           id="panel3a-header"
-          style={{ backgroundColor: '#00000015' }}
+          style={{ backgroundColor: "#00000015" }}
         >
-          
-          <HeadingText>            
+          <HeadingText>
             <I18n>
               <En>Lineage</En>
               <Fr>Généalogie des données</Fr>
             </I18n>
-            {record.history && record.history.length > 0 && (<Chip style={{ marginLeft: 10 }} label={record.history.length} variant="outlined" />)}            
+            {record.history && record.history.length > 0 && (
+              <Chip
+                style={{ marginLeft: 10 }}
+                label={record.history.length}
+                variant="outlined"
+              />
+            )}
           </HeadingText>
-
         </AccordionSummary>
         <AccordionDetails>
           <Grid>
             <QuestionText>
-              <En>
-                Data processing history (provenance) for the resource.
-              </En>
-              <Fr>
-                Provenance et traitement des données.
-              </Fr>
+              <En>Data processing history (provenance) for the resource.</En>
+              <Fr>Provenance et traitement des données.</Fr>
               <RequiredMark passes={validateField(record, "history")} />
               <SupplementalText>
                 <I18n>
                   <En>
-                    Enter Information about the events or source data used in constructing the data specified by the scope.
+                    Enter Information about the events or source data used in
+                    constructing the data specified by the scope.
                   </En>
                   <Fr>
-                    Pour chaque ressource, fournissez des informations supplémentaires sur le traitement des données, et/ou spécifiez la source des données utilisées.
+                    Pour chaque ressource, fournissez des informations
+                    supplémentaires sur le traitement des données, et/ou
+                    spécifiez la source des données utilisées.
                   </Fr>
                 </I18n>
               </SupplementalText>

@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import React, { useRef, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -17,7 +16,7 @@ import { I18n, En, Fr } from "../I18n";
 import { resourceTypeIncludes } from "../../utils/normalizeResourceType";
 import GeomanControl from "./GeomanControl";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
-import { validateField } from "../../utils/validate";
+import { validateField, bboxProblems } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
@@ -28,7 +27,7 @@ const bboxCoordTest = /-?\d+\.?\d+/;
 function parsePolyString(polygonList) {
   const polyPattern = /-?\d+\.?\d+,\s*-?\d+\.?\d+\s*?/g;
   return [...polygonList.matchAll(polyPattern)].map((match) =>
-    match[0].split(",").map(Number)
+    match[0].split(",").map(Number),
   );
 }
 
@@ -49,7 +48,10 @@ const BboxLayer = ({ mapData, drawnLayerRef, handleLayerEditRef }) => {
     )
       return;
 
-    const rect = L.rectangle([[north, east], [south, west]]);
+    const rect = L.rectangle([
+      [north, east],
+      [south, west],
+    ]);
     rect.addTo(map);
     // pm:markerdragend fires only on the layer (not the map), so attach directly
     rect.on("pm:markerdragend", () => handleLayerEditRef.current(rect));
@@ -107,7 +109,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current.remove();
         drawnLayerRef.current = null;
       }
-      const newData = { ...withoutSelectedLocation(mapData), [key]: e.target.value };
+      const newData = {
+        ...withoutSelectedLocation(mapData),
+        [key]: e.target.value,
+      };
       updateMap(newData);
     };
   }
@@ -132,7 +137,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         drawnLayerRef.current = null;
       }
 
-      const newData = { ...withoutSelectedLocation(mapData), polygon: e.target.value, north: '', south: '', east: '', west: '' };
+      const newData = {
+        ...withoutSelectedLocation(mapData),
+        polygon: e.target.value,
+        north: "",
+        south: "",
+        east: "",
+        west: "",
+      };
       try {
         const bounds = L.latLngBounds(parsePolyString(e.target.value));
         const { lat: north, lng: east } = bounds.getNorthEast();
@@ -154,7 +166,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
     testN = mapData.north,
     testS = mapData.south,
     testE = mapData.east,
-    testW = mapData.west
+    testW = mapData.west,
   ) => {
     const test =
       coordTest.test(testN) &&
@@ -181,7 +193,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         case "Polygon": {
           const points = layer.getLatLngs()[0];
           const polygonStrings = points.map(
-            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+            ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`,
           );
           const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
 
@@ -211,7 +223,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           east = limitDecimals(east);
           west = limitDecimals(west);
 
-          updateMap({ ...currentMapData, north, south, east, west, polygon: "" });
+          updateMap({
+            ...currentMapData,
+            north,
+            south,
+            east,
+            west,
+            polygon: "",
+          });
           break;
         }
       }
@@ -222,7 +241,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       // Enable corner/vertex handles immediately after drawing
       layer.pm.enable({ preventMarkerRemoval: true });
     },
-    [updateMap]
+    [updateMap],
   );
 
   const onRemove = useCallback(() => {
@@ -258,13 +277,13 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       } else {
         const points = layer.getLatLngs()[0];
         const polygonStrings = points.map(
-          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`
+          ({ lat, lng }) => `${limitDecimals(lat)},${limitDecimals(lng)}`,
         );
         const polygon = polygonStrings.concat(polygonStrings[0]).join(" ");
         updateMap({ ...currentMapData, polygon, north, south, east, west });
       }
     },
-    [updateMap]
+    [updateMap],
   );
   // Ref so BboxLayer's listener always calls the latest closure
   const handleLayerEditRef = useRef(handleLayerEdit);
@@ -279,11 +298,11 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
       }
       updateMap(newMapData);
     },
-    [updateMap]
+    [updateMap],
   );
 
   const bboxIsDrawn = Boolean(
-    mapData.north || mapData.south || mapData.east || mapData.west
+    mapData.north || mapData.south || mapData.east || mapData.west,
   );
 
   const polyIsDrawn = Boolean(mapData.polygon);
@@ -404,6 +423,12 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
         </Grid>
       </Grid>
 
+      {bboxProblems(mapData).map((problem) => (
+        <Typography key={problem.en} color="error" variant="body2">
+          <I18n en={problem.en} fr={problem.fr} />
+        </Typography>
+      ))}
+
       <Typography variant="h6" style={{ margin: "20px", marginLeft: "20%" }}>
         <I18n>
           <En>OR</En>
@@ -426,7 +451,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
               with the same point. Eg,
             </En>
             <Fr>
-              La suite de coordonnées doit commencer et se terminer par le même point. Par exemple,
+              La suite de coordonnées doit commencer et se terminer par le même
+              point. Par exemple,
             </Fr>
           </I18n>{" "}
           48,-128 56,-133 56,-147 48,-128
@@ -468,8 +494,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
 
       <QuestionText>
         <I18n>
-          <En>Describe the Geographic Extent of the dataset. Required for Biota (biological) datasets</En>
-          <Fr>Décrivez l'étendue géographique du jeu de données. Obligatoire pour les jeux de données Biote (biologiques)</Fr>
+          <En>
+            Describe the Geographic Extent of the dataset. Required for Biota
+            (biological) datasets
+          </En>
+          <Fr>
+            Décrivez l'étendue géographique du jeu de données. Obligatoire pour
+            les jeux de données Biote (biologiques)
+          </Fr>
         </I18n>
         {resourceTypeIncludes(record.resourceType, "biota") && (
           <RequiredMark passes={Boolean(mapData.description)} />
@@ -486,8 +518,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             </En>
             <Fr>
               <p>
-                Vous pouvez éventuellement inclure une description textuelle
-                de la zone géographique. Ce champ est obligatoire lorsque la
+                Vous pouvez éventuellement inclure une description textuelle de
+                la zone géographique. Ce champ est obligatoire lorsque la
                 catégorie thématique Biote (biologique) est sélectionnée, mais
                 est facultatif pour toutes les autres catégories thématiques.
               </p>

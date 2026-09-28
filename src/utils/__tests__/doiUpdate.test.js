@@ -48,7 +48,7 @@ describe("performUpdateDraftDoi", () => {
       "en",
       "pacific",
       "10.1234",
-      { forUpdate: true }
+      { forUpdate: true },
     );
   });
 
@@ -61,7 +61,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -78,7 +78,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -95,7 +95,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -112,7 +112,7 @@ describe("performUpdateDraftDoi", () => {
     expect(mockUpdateDraftDoi).toHaveBeenCalledWith(
       expect.objectContaining({
         doi: "10.1234/test-doi",
-      })
+      }),
     );
   });
 
@@ -140,30 +140,66 @@ describe("performUpdateDraftDoi", () => {
       mockRecord,
       "pacific",
       "en",
-      "10.1234"
+      "10.1234",
     );
 
     expect(result).toBe(200);
   });
 
   it("should propagate errors from recordToDataCiteFromPython", async () => {
-    mockRecordToDataCite.mockRejectedValue(
-      new Error("Conversion failed")
-    );
+    mockRecordToDataCite.mockRejectedValue(new Error("Conversion failed"));
 
     await expect(
-      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234")
+      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234"),
     ).rejects.toThrow("Conversion failed");
   });
 
   it("should propagate errors from updateDraftDoi", async () => {
     mockRecordToDataCite.mockResolvedValue({ data: { attributes: {} } });
-    mockUpdateDraftDoi.mockRejectedValue(
-      new Error("DOI not found")
-    );
+    mockUpdateDraftDoi.mockRejectedValue(new Error("DOI not found"));
 
     await expect(
-      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234")
+      performUpdateDraftDoi(mockRecord, "pacific", "en", "10.1234"),
     ).rejects.toThrow("DOI not found");
+  });
+});
+
+const { isManagedDoi, canPushFormToDoi } = await import("../doiUpdate");
+
+describe("DOI update guards", () => {
+  const prefix = "10.1234";
+  const doi = "https://doi.org/10.1234/abc";
+  const rec = (doiCreationStatus, datasetIdentifier = doi) => ({
+    datasetIdentifier,
+    doiCreationStatus,
+  });
+
+  it.each(["draft", "registered", "findable"])(
+    "treats a %s DOI on our prefix as managed",
+    (status) => {
+      expect(isManagedDoi(rec(status), prefix)).toBe(true);
+    },
+  );
+
+  it.each(["", "not found", "unknown"])(
+    "does not treat status '%s' as managed",
+    (status) => {
+      expect(isManagedDoi(rec(status), prefix)).toBe(false);
+    },
+  );
+
+  it("ignores DOIs from another prefix or without a prefix configured", () => {
+    expect(
+      isManagedDoi(rec("draft", "https://doi.org/10.9999/x"), prefix),
+    ).toBe(false);
+    expect(isManagedDoi(rec("draft"), "")).toBe(false);
+    expect(isManagedDoi({ doiCreationStatus: "draft" }, prefix)).toBe(false);
+  });
+
+  it("allows pushing form edits to draft DOIs only", () => {
+    expect(canPushFormToDoi(rec("draft"), prefix)).toBe(true);
+    expect(canPushFormToDoi(rec("registered"), prefix)).toBe(false);
+    expect(canPushFormToDoi(rec("findable"), prefix)).toBe(false);
+    expect(canPushFormToDoi(rec(""), prefix)).toBe(false);
   });
 });

@@ -9,7 +9,10 @@ import prettier from "eslint-config-prettier";
 export default [
   js.configs.recommended,
   {
+    // Browser React app (src/, scripts/, etc.). Firebase functions are Node
+    // CommonJS and are handled by their own block below.
     files: ["**/*.{js,jsx}"],
+    ignores: ["firebase-functions/**"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -54,7 +57,16 @@ export default [
       // General rules
       "no-console": "off",
       "comma-dangle": ["error", "always-multiline"],
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^React$" }],
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^React$",
+          // `const { role, ...rest } = x` is how we strip a field; keep it legal.
+          ignoreRestSiblings: true,
+          caughtErrors: "none",
+        },
+      ],
 
       // Import rules
       "import/no-unresolved": "off", // Vite handles resolution
@@ -71,11 +83,40 @@ export default [
     },
   },
   {
+    // Firebase Cloud Functions: Node CommonJS, no React.
+    files: ["firebase-functions/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", ignoreRestSiblings: true, caughtErrors: "none" },
+      ],
+    },
+  },
+  {
+    // Jest test files within firebase-functions.
+    files: [
+      "firebase-functions/**/*.test.js",
+      "firebase-functions/**/test/**/*.js",
+    ],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+  {
     ignores: [
       "build/**",
       "dist/**",
       "node_modules/**",
-      "firebase-functions/**",
+      "**/node_modules/**",
       "cioos-records-update/**",
       ".venv/**",
       "**/.venv/**",

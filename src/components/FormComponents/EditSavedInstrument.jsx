@@ -2,7 +2,14 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button } from "@mui/material";
 import { Save } from "@mui/icons-material";
-import {child, getDatabase, onValue, ref, update, push} from "firebase/database";
+import {
+  child,
+  getDatabase,
+  onValue,
+  ref,
+  update,
+  push,
+} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -24,8 +31,11 @@ class EditInstrumentClass extends FormClassTemplate {
     };
     const { region } = props;
 
-    const database = getDatabase(firebase)
-    this.instrumentsRef = ref(database, `${region}/users/${auth.currentUser.uid}/instruments`)
+    const database = getDatabase(firebase);
+    this.instrumentsRef = ref(
+      database,
+      `${region}/users/${auth.currentUser.uid}/instruments`,
+    );
   }
 
   async componentDidMount() {
@@ -34,7 +44,9 @@ class EditInstrumentClass extends FormClassTemplate {
     if (auth.currentUser && instrumentID) {
       this.setState({ instrumentID });
       const instrumentRef = child(this.instrumentsRef, instrumentID);
-      onValue(instrumentRef, (instrument) => this.setState(instrument.toJSON()));
+      onValue(instrumentRef, (instrument) =>
+        this.setState(instrument.toJSON()),
+      );
       this.listenerRefs.push(instrumentRef);
     }
   }
@@ -59,7 +71,8 @@ class EditInstrumentClass extends FormClassTemplate {
     const { region, language, instrumentID, navigate } = this.props;
 
     // update
-    if (instrumentID) update(child(this.instrumentsRef, instrumentID), this.state);
+    if (instrumentID)
+      update(child(this.instrumentsRef, instrumentID), this.state);
     // create
     else push(this.instrumentsRef, this.state);
 
@@ -69,7 +82,7 @@ class EditInstrumentClass extends FormClassTemplate {
   render() {
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid >
+        <Grid>
           <InstrumentEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -78,7 +91,7 @@ class EditInstrumentClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button
             startIcon={<Save />}
             variant="contained"

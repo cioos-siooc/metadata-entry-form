@@ -19,7 +19,7 @@ describe("<CheckBoxList />", () => {
         options={checkboxInputs}
         optionLabels={checkboxInputs}
         onChange={mockOnChange}
-      />
+      />,
     );
 
     // Find all checkboxes

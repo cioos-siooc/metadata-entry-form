@@ -5,6 +5,7 @@ The CIOOS Metadata Entry Form supports multiple authentication providers: Google
 ## Overview
 
 The login system provides:
+
 - **Multi-provider support**: Users can sign in with Google, Microsoft, or ORCID accounts
 - **Bilingual interface**: Login UI supports English and French
 - **Modern UI**: Card-based design with provider-specific icons
@@ -14,12 +15,14 @@ The login system provides:
 ## Project Structure
 
 ### Authentication Files
+
 - `src/auth.js` - Core authentication logic and provider configurations
 - `src/components/Pages/Login.jsx` - Main login UI component
 - `src/components/Icons.jsx` - Custom SVG icons for each provider
 - `src/firebase.js` - Firebase configuration for production and development environments
 
 ### Key Features
+
 - **Provider Configuration**: Each authentication provider has custom parameters (e.g., `prompt: "select_account"`)
 - **Error Management**: Handles popup cancellation and authentication errors gracefully
 - **Internationalization**: Full bilingual support for all UI text
@@ -30,6 +33,7 @@ The login system provides:
 ### Firebase Project Setup
 
 The application uses two Firebase projects:
+
 - **Production**: `cioos-metadata-form-8d942.firebaseapp.com`
 - **Development**: `cioos-metadata-form-dev-258dc.firebaseapp.com`
 
@@ -54,8 +58,9 @@ Microsoft authentication uses Azure Active Directory through Firebase's Microsof
    - Verify the redirect URI matches your Azure configuration
 
 **Code Implementation**:
+
 ```javascript
-const microsoftProvider = new OAuthProvider('microsoft.com');
+const microsoftProvider = new OAuthProvider("microsoft.com");
 microsoftProvider.setCustomParameters({
   prompt: "select_account", // Forces account selection dialog
 });
@@ -80,14 +85,15 @@ ORCID authentication is implemented as an OpenID Connect (OIDC) provider through
    - Go to Authentication → Sign-in method → Add new provider → OpenID Connect
    - **Provider ID**: `oidc.orcid` (must match the code configuration)
    - **Client ID**: Your ORCID Client ID
-   - **Issuer URL**: 
+   - **Issuer URL**:
      - Production: `https://orcid.org`
      - Sandbox: `https://sandbox.orcid.org`
    - **Client Secret**: Your ORCID Client Secret
 
 **Code Implementation**:
+
 ```javascript
-const orcidProvider = new OAuthProvider('oidc.orcid');
+const orcidProvider = new OAuthProvider("oidc.orcid");
 orcidProvider.setCustomParameters({
   prompt: "login", // Forces login dialog
 });
@@ -106,10 +112,11 @@ Google authentication is Firebase's native provider and requires minimal additio
    - Configure authorized domains if needed
 
 **Code Implementation**:
+
 ```javascript
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ 
-  prompt: "select_account" // Forces account selection
+provider.setCustomParameters({
+  prompt: "select_account", // Forces account selection
 });
 ```
 
@@ -133,6 +140,7 @@ REACT_APP_FIREBASE_LOCAL_DATABASE=true/false
 ### Local Development
 
 For local development with Firebase emulators:
+
 1. Set `REACT_APP_FIREBASE_LOCAL_FUNCTIONS=true` to use local Functions emulator
 2. Set `REACT_APP_FIREBASE_LOCAL_DATABASE=true` to use local Database emulator
 3. Emulators run on:

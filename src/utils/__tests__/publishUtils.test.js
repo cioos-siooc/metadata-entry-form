@@ -50,7 +50,7 @@ describe("publishUtils", () => {
             record_data: mockRecord,
             output_format: "iso19115-3_xml",
           },
-        }
+        },
       );
       expect(result).toBe("<xml>content</xml>");
     });
@@ -69,7 +69,7 @@ describe("publishUtils", () => {
 
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("http://localhost:5001"),
-        expect.any(Object)
+        expect.any(Object),
       );
 
       // Cleanup
@@ -80,7 +80,7 @@ describe("publishUtils", () => {
       axios.post.mockResolvedValue({ data: {} });
 
       await expect(convertRecord(mockRecord, "yaml")).rejects.toThrow(
-        "Invalid response from conversion service"
+        "Invalid response from conversion service",
       );
     });
 
@@ -88,7 +88,7 @@ describe("publishUtils", () => {
       axios.post.mockRejectedValue(new Error("Network error"));
 
       await expect(convertRecord(mockRecord, "yaml")).rejects.toThrow(
-        "Failed to convert record to yaml: Network error"
+        "Failed to convert record to yaml: Network error",
       );
     });
   });
@@ -101,7 +101,7 @@ describe("publishUtils", () => {
       // Mock convertRecord responses (since it calls axios)
       axios.post
         .mockResolvedValueOnce({ data: { data: "<xml>content</xml>" } }) // First call (xml)
-        .mockResolvedValueOnce({ data: { data: "yaml: content" } });     // Second call (yaml)
+        .mockResolvedValueOnce({ data: { data: "yaml: content" } }); // Second call (yaml)
 
       const environments = ["prod", "dev"];
       const commitMessage = "feat: update record";
@@ -112,7 +112,7 @@ describe("publishUtils", () => {
         environments,
         commitMessage,
         mockConfig,
-        region
+        region,
       );
 
       // Verify filename generation logic
@@ -138,14 +138,24 @@ describe("publishUtils", () => {
         content: "<xml>content</xml>",
       });
       // JSON per env
-      expect(payload.files).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: `forms/${region}/prod/${expectedFilenameBase}.json` }),
-        expect.objectContaining({ path: `forms/${region}/dev/${expectedFilenameBase}.json` }),
-      ]));
+      expect(payload.files).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: `forms/${region}/prod/${expectedFilenameBase}.json`,
+          }),
+          expect.objectContaining({
+            path: `forms/${region}/dev/${expectedFilenameBase}.json`,
+          }),
+        ]),
+      );
       // Top-level records JSON
-      expect(payload.files).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: `records/${expectedFilenameBase}.json` }),
-      ]));
+      expect(payload.files).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: `records/${expectedFilenameBase}.json`,
+          }),
+        ]),
+      );
     });
 
     it("should handle default commit message", async () => {
@@ -157,10 +167,12 @@ describe("publishUtils", () => {
         ["prod"],
         null, // No commit message
         mockConfig,
-        "hakai"
+        "hakai",
       );
 
-      expect(payload.commitMessage).toBe("Publish metadata record: Test Record");
+      expect(payload.commitMessage).toBe(
+        "Publish metadata record: Test Record",
+      );
     });
 
     it("should handle filename generation replacements", async () => {
@@ -168,7 +180,7 @@ describe("publishUtils", () => {
 
       // Config with specific placeholders
       const customConfig = {
-        fileTemplate: "records/{uuid}/{title}"
+        fileTemplate: "records/{uuid}/{title}",
       };
 
       axios.post.mockResolvedValue({ data: { data: "content" } });
@@ -178,11 +190,13 @@ describe("publishUtils", () => {
         ["prod"],
         "msg",
         customConfig,
-        "hakai"
+        "hakai",
       );
 
       // Expected path: forms/hakai/prod/records/test-uuid/Test-Record.xml
-      expect(payload.files[0].path).toBe("forms/hakai/prod/records/test-uuid/Test-Record.xml");
+      expect(payload.files[0].path).toBe(
+        "forms/hakai/prod/records/test-uuid/Test-Record.xml",
+      );
     });
   });
 });

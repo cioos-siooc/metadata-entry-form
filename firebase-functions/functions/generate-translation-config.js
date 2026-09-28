@@ -119,7 +119,11 @@ function fetchUrl(url) {
   return new Promise((resolve, reject) => {
     https
       .get(url, { headers: getHeaders() }, (res) => {
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (
+          res.statusCode >= 300 &&
+          res.statusCode < 400 &&
+          res.headers.location
+        ) {
           return fetchUrl(res.headers.location).then(resolve, reject);
         }
         const chunks = [];
@@ -141,7 +145,9 @@ function fetchUrl(url) {
               }
             }
 
-            return reject(new Error(`HTTP ${res.statusCode} for ${url}${details}`));
+            return reject(
+              new Error(`HTTP ${res.statusCode} for ${url}${details}`),
+            );
           }
 
           resolve(body);
@@ -200,7 +206,9 @@ async function main() {
     commitInfo = await getCommitInfo(ref);
   } catch (err) {
     if (!GITHUB_TOKEN) {
-      console.error("Hint: set GITHUB_TOKEN or GH_TOKEN when fetching from a private GitHub repository.");
+      console.error(
+        "Hint: set GITHUB_TOKEN or GH_TOKEN when fetching from a private GitHub repository.",
+      );
     }
     console.error(`Error resolving ref '${ref}': ${err.message}`);
     process.exit(1);
@@ -234,7 +242,7 @@ async function main() {
 
   fs.writeFileSync(META_DEST, JSON.stringify(meta, null, 2) + "\n");
   console.log(
-    `Generated translation-meta.json (cioos-commons@${commitInfo.short})`
+    `Generated translation-meta.json (cioos-commons@${commitInfo.short})`,
   );
 }
 

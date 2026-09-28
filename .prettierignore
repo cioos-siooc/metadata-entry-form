@@ -1,0 +1,23 @@
+# Build & dependency output
+build/
+dist/
+coverage/
+node_modules/
+**/node_modules/
+
+# Lockfiles & generated data
+package-lock.json
+src/data/githubReleases.json
+*.min.js
+*.min.css
+
+# Python virtualenvs
+.venv/
+**/.venv/
+
+# WAF HTML template fragments (partials, not valid standalone HTML)
+cioos-records-update/waf/*.html
+
+# Bundled data resources & test fixtures (data, not source)
+firebase_to_xml/firebase_to_xml/resources/*.json
+cioos-records-update/tests/data/*.json

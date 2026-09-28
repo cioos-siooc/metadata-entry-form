@@ -1,11 +1,8 @@
 import React from "react";
 
-import {
-  Grid, Paper,
-  TextField, Tooltip,
-} from "@mui/material";
-import {OpenInNew} from "@mui/icons-material";
-import {useParams} from "react-router-dom";
+import { Grid, Paper, TextField, Tooltip } from "@mui/material";
+import { OpenInNew } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
 import { getBlankPlatform } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";
@@ -13,10 +10,9 @@ import { En, Fr, I18n } from "../I18n";
 import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
-import {QuestionText, SupplementalText} from "./QuestionStyles";
+import { QuestionText, SupplementalText } from "./QuestionStyles";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
-
 
 const PlatformEditor = ({
   value,
@@ -24,23 +20,22 @@ const PlatformEditor = ({
   paperClass,
   updatePlatformEvent,
 }) => {
-
   const { language = "en" } = useParams();
 
   const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
-    a[`label_${language}`].localeCompare(b[`label_${language}`], language)
+    a[`label_${language}`].localeCompare(b[`label_${language}`], language),
   );
 
   const platform = { ...getBlankPlatform(), ...value };
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid >
+      <Grid>
         <Grid container direction="column">
           {platform && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>What type of platform is it?</En>
@@ -57,8 +52,13 @@ const PlatformEditor = ({
                         rel="noopener noreferrer"
                       >
                         <I18n>
-                          <En>SeaVoX Platform Categories (NERC L06 Vocabulary)</En>
-                          <Fr>SeaVoX Platform Categories (liste Vocabulaire NERC L06)</Fr>
+                          <En>
+                            SeaVoX Platform Categories (NERC L06 Vocabulary)
+                          </En>
+                          <Fr>
+                            SeaVoX Platform Categories (liste Vocabulaire NERC
+                            L06)
+                          </Fr>
                         </I18n>
                         <Tooltip
                           title={
@@ -78,9 +78,11 @@ const PlatformEditor = ({
                   <SelectInput
                     value={platform.type}
                     onChange={updatePlatformEvent("type")}
-                    optionLabels={sortedPlatformTypes.map((e) => `${e[`label_${language}`]}`)}
+                    optionLabels={sortedPlatformTypes.map(
+                      (e) => `${e[`label_${language}`]}`,
+                    )}
                     optionTooltips={sortedPlatformTypes.map(
-                      (e) => `${e[`definition_${language}`]}`
+                      (e) => `${e[`definition_${language}`]}`,
                     )}
                     options={sortedPlatformTypes.map((e) => e.label_en)}
                     disabled={disabled}
@@ -88,7 +90,7 @@ const PlatformEditor = ({
                     fullWidth={false}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>What is the platform ID or code?</En>
@@ -97,8 +99,8 @@ const PlatformEditor = ({
                     <SupplementalText>
                       <I18n>
                         <En>
-                          This is a unique identification of the platform. If the platform
-                          is registered with{" "}
+                          This is a unique identification of the platform. If
+                          the platform is registered with{" "}
                           <a
                             href="https://vocab.seadatanet.org/v_bodc_vocab_v2/search.asp?lib=C17"
                             target="_blank"
@@ -109,8 +111,8 @@ const PlatformEditor = ({
                           , use that identifier
                         </En>
                         <Fr>
-                          Il s'agit d'une identification unique de la plateforme. Si la
-                          plateforme est enregistrée auprès du{" "}
+                          Il s'agit d'une identification unique de la
+                          plateforme. Si la plateforme est enregistrée auprès du{" "}
                           <a
                             href="https://vocab.seadatanet.org/v_bodc_vocab_v2/search.asp?lib=C17"
                             target="_blank"
@@ -132,7 +134,7 @@ const PlatformEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <QuestionText>
                     <I18n>
                       <En>More information about the platform</En>
@@ -141,11 +143,12 @@ const PlatformEditor = ({
                     <SupplementalText>
                       <I18n>
                         <En>
-                          You can also add aditional information about the platform.
+                          You can also add aditional information about the
+                          platform.
                         </En>
                         <Fr>
-                          Vous pouvez également ajouter des informations supplémentaires
-                          sur la plateforme.
+                          Vous pouvez également ajouter des informations
+                          supplémentaires sur la plateforme.
                         </Fr>
                       </I18n>
                     </SupplementalText>

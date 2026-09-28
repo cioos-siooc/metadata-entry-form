@@ -136,7 +136,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
         requestInProgress.current = false;
       })
       .catch((error) => {
-         
         console.error(error);
         requestInProgress.current = false;
       });
@@ -231,7 +230,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               fullWidth
               renderInput={(params) => (
                 <TextField
-                   
                   {...params}
                   label={
                     <I18n>
