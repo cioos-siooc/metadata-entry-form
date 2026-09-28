@@ -30,4 +30,24 @@ async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
   return response.data.status;
 }
 
+// True when the record's DOI lives on our DataCite prefix and DataCite knows it,
+// i.e. we are able to push metadata updates to it.
+export function isManagedDoi(record, datacitePrefix) {
+  return Boolean(
+    datacitePrefix &&
+    record.datasetIdentifier?.includes(datacitePrefix) &&
+    ["draft", "registered", "findable"].includes(record.doiCreationStatus),
+  );
+}
+
+// Unreviewed form edits may reach DataCite only while the DOI is not findable.
+// Once findable, the DataCite record is updated only when the record is
+// published (see Reviewer).
+export function canPushFormToDoi(record, datacitePrefix) {
+  return (
+    isManagedDoi(record, datacitePrefix) &&
+    record.doiCreationStatus !== "findable"
+  );
+}
+
 export default performUpdateDraftDoi;

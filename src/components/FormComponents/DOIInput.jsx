@@ -35,7 +35,7 @@ import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
 
 import { UserContext } from "../../providers/UserProvider";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
-import performUpdateDraftDoi from "../../utils/doiUpdate";
+import performUpdateDraftDoi, { canPushFormToDoi } from "../../utils/doiUpdate";
 import regions from "../../regions";
 
 const DOIInput = ({
@@ -779,8 +779,16 @@ const DOIInput = ({
               <Tooltip
                 title={
                   <I18n
-                    en="Push the latest metadata to DataCite. Enabled only when the record is submitted or published."
-                    fr="Envoie les métadonnées les plus récentes à DataCite. Activé uniquement lorsque le formulaire est soumis ou publié."
+                    en={
+                      record.doiCreationStatus === "findable"
+                        ? "This DOI is findable. DataCite is updated with the form's metadata only when the record is published."
+                        : "Push the latest metadata to DataCite so the conversion can be reviewed."
+                    }
+                    fr={
+                      record.doiCreationStatus === "findable"
+                        ? "Ce DOI est trouvable. DataCite est mis à jour avec les métadonnées du formulaire uniquement lors de la publication."
+                        : "Envoie les métadonnées les plus récentes à DataCite afin de vérifier la conversion."
+                    }
                   />
                 }
                 arrow
@@ -790,10 +798,8 @@ const DOIInput = ({
                   <Button
                     onClick={() => handleUpdateDraftDOI()}
                     disabled={
-                      ["not found", "unknown"].includes(
-                        record.doiCreationStatus,
-                      ) ||
-                      !["submitted", "published"].includes(record.status) ||
+                      !canPushFormToDoi(record, datacitePrefix) ||
+                      !canManageDoi ||
                       loadingDoi ||
                       loadingDoiUpdate
                     }
