@@ -52,7 +52,7 @@ import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
-import performUpdateDraftDoi from "../../utils/doiUpdate";
+import performUpdateDraftDoi, { canPushFormToDoi } from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -311,14 +311,11 @@ class MetadataForm extends FormClassTemplate {
     const { record } = this.state;
     const { datacitePrefix, isReviewer, isAdmin } = this.context;
 
-    // updateDraftDoi is reviewer/admin-only server-side; owners submitting
-    // a record with a DOI must not hit it or the submit fails.
+    // Keep a reviewer's draft DOI in sync on submit. updateDraftDoi is
+    // reviewer/admin-only server-side, registered/findable DOIs are only
+    // updated on publish, and a DataCite failure must not block the submit.
     try {
-      if (
-        (isReviewer || isAdmin) &&
-        datacitePrefix &&
-        record.datasetIdentifier
-      ) {
+      if ((isReviewer || isAdmin) && canPushFormToDoi(record, datacitePrefix)) {
         const statusCode = await performUpdateDraftDoi(
           record,
           region,
