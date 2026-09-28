@@ -11,6 +11,9 @@ src/data/githubReleases.json
 *.min.js
 *.min.css
 
+# Generated schema documentation (published as-is)
+public/schema/
+
 # Python virtualenvs
 .venv/
 **/.venv/

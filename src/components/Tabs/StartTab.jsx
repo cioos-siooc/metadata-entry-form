@@ -1,15 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
+import FormSection from "../FormShell/FormSection";
 
 import { Save, ExpandMore } from "@mui/icons-material";
 import {
   Typography,
-  Paper,
-  Grid,
   FormControl,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
@@ -22,7 +22,6 @@ import DOIInput from "../FormComponents/DOIInput";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import {
-  paperClass,
   QuestionText,
   SupplementalText,
 } from "../FormComponents/QuestionStyles";
@@ -128,8 +127,8 @@ const StartTab = ({
   }, [userID, record.userID, record.recordID]);
 
   return (
-    <Grid>
-      <Paper style={paperClass}>
+    <Stack spacing={2}>
+      <FormSection>
         {disabled && (
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
@@ -236,9 +235,9 @@ const StartTab = ({
             </I18n>
           </li>
         </ul>
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the dataset title? Required in English and French.</En>
@@ -280,9 +279,9 @@ const StartTab = ({
           onChange={handleUpdateRecord("title")}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the resource type?</En>
@@ -304,9 +303,9 @@ const StartTab = ({
           fullWidth={false}
           style={{ width: "200px" }}
         />
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
@@ -384,9 +383,9 @@ const StartTab = ({
             </AccordionDetails>
           </Accordion>
         </FormControl>
-      </Paper>
+      </FormSection>
 
-      <Paper style={paperClass}>
+      <FormSection>
         <QuestionText>
           <I18n>
             <En>What is the primary language of the dataset?</En>
@@ -401,7 +400,7 @@ const StartTab = ({
           optionLabels={["English", "Français"]}
           disabled={disabled}
         />
-      </Paper>
+      </FormSection>
 
       <DOIInput
         record={record}
@@ -411,7 +410,7 @@ const StartTab = ({
       />
 
       {showShareRecord && <SharedUsersList region={region} record={record} />}
-    </Grid>
+    </Stack>
   );
 };
 

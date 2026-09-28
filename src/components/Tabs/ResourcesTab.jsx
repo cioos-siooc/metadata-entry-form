@@ -53,7 +53,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
@@ -138,7 +138,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel2a-content"
           id="panel2a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
@@ -231,7 +231,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel3a-content"
           id="panel3a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
