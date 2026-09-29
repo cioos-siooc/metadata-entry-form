@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import {
   Card,
   CardContent,
@@ -160,12 +161,16 @@ const Login = () => {
   const [error, setError] = useState(null);
   const regionEmail = regions[region]?.email;
 
-  const handleLogin = async (loginMethod) => {
+  const handleLogin = async (loginMethod, provider) => {
     try {
       await loginMethod();
     } catch (err) {
       console.error("Login Error:", err.code, err.customData, err);
       if (err.code !== "auth/cancelled-popup-request") {
+        Sentry.captureException(err, {
+          tags: { auth_code: err.code, auth_provider: provider },
+          extra: { customData: err.customData },
+        });
         setError(`${err.message} (${err.code})`);
       }
     }
@@ -207,7 +212,7 @@ const Login = () => {
               fullWidth
               className={classes.button}
               startIcon={<GoogleIcon />}
-              onClick={() => handleLogin(signInWithGoogle)}
+              onClick={() => handleLogin(signInWithGoogle, "google")}
             >
               <I18n>
                 <En>Google</En>
@@ -220,7 +225,7 @@ const Login = () => {
                 fullWidth
                 className={classes.button}
                 startIcon={<MicrosoftIcon />}
-                onClick={() => handleLogin(signInWithMicrosoft)}
+                onClick={() => handleLogin(signInWithMicrosoft, "microsoft")}
               >
                 <I18n>
                   <En>Microsoft</En>
@@ -234,7 +239,7 @@ const Login = () => {
                 fullWidth
                 className={classes.button}
                 startIcon={<OrcidIcon />}
-                onClick={() => handleLogin(signInWithOrcid)}
+                onClick={() => handleLogin(signInWithOrcid, "orcid")}
               >
                 <I18n>
                   <En>ORCID</En>
