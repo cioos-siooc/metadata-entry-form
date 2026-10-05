@@ -1,6 +1,5 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
-const https = require("https");
 const axios = require("axios");
 
 const urlBaseDefault = "https://api.forms.cioos.ca/";
@@ -17,10 +16,9 @@ function getRecordFilename(record) {
 
 exports.getRecordFilename = getRecordFilename;
 
-// creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = functions.https.onCall(async (data, _context) => {
-  const { record, fileType, region } = data || {};
-
+// recordGeneratorURL is configured per region in the DB, with or without a
+// trailing slash, so normalize it before resolving the endpoint against it.
+async function getGeneratorUrl(region, endpoint) {
   let urlBase = urlBaseDefault;
   try {
     urlBase =
@@ -38,40 +36,35 @@ exports.downloadRecord = functions.https.onCall(async (data, _context) => {
       error,
     );
   }
+  return new URL(endpoint, urlBase.endsWith("/") ? urlBase : `${urlBase}/`);
+}
 
-  const url = `${urlBase}recordTo${String(fileType || "").toUpperCase()}`;
-  const response = await axios.post(url, record);
+exports.getGeneratorUrl = getGeneratorUrl;
+
+async function callGenerator(region, endpoint, params) {
+  const url = await getGeneratorUrl(region, endpoint);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  try {
+    return await axios.get(url.toString());
+  } catch (error) {
+    functions.logger.error(`Record generator request failed: ${url}`, error);
+    throw error;
+  }
+}
+
+// creates xml for a completed record. returns a URL to the generated XML
+exports.downloadRecord = functions.https.onCall(async (data, _context) => {
+  const { record, fileType, region } = data || {};
+  const url = await getGeneratorUrl(
+    region,
+    `recordTo${String(fileType || "").toUpperCase()}`,
+  );
+  const response = await axios.post(url.toString(), record);
   return response.data;
 });
 
-async function updateXML(path, region, status = "", filename = "") {
-  let urlBase = urlBaseDefault;
-  try {
-    urlBase =
-      (
-        await admin
-          .database()
-          .ref("admin")
-          .child(region)
-          .child("recordGeneratorURL")
-          .once("value")
-      ).val() ?? urlBaseDefault;
-  } catch (error) {
-    console.error(
-      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
-      error,
-    );
-  }
-
-  const url = `${urlBase}record`;
-  const urlParams = new URLSearchParams({
-    path,
-    status,
-    filename,
-  }).toString();
-  const urlFull = `${url}?${urlParams}`;
-
-  return https.get(urlFull);
+function updateXML(path, region, status = "", filename = "") {
+  return callGenerator(region, "record", { path, status, filename });
 }
 
 // when user clicks "Save", if the record is submitted or published, update the XML
@@ -81,7 +74,8 @@ exports.regenerateXMLforRecord = functions.https.onCall(
       throw new functions.https.HttpsError("unauthenticated");
 
     const { path, status, region } = data;
-    if (["submitted", "published"].includes(status)) updateXML(path, region);
+    if (["submitted", "published"].includes(status))
+      await updateXML(path, region);
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
   },
@@ -132,32 +126,8 @@ exports.updatesRecordUpdate = functions.database
     return null;
   });
 
-async function deleteXML(filename, region) {
-  let urlBase = urlBaseDefault;
-  try {
-    urlBase =
-      (
-        await admin
-          .database()
-          .ref("admin")
-          .child(region)
-          .child("recordGeneratorURL")
-          .once("value")
-      ).val() ?? urlBaseDefault;
-  } catch (error) {
-    console.error(
-      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
-      error,
-    );
-  }
-
-  const url = `${urlBase}recordDelete`;
-  const urlParams = new URLSearchParams({
-    filename,
-  }).toString();
-  const urlFull = `${url}?${urlParams}`;
-
-  return https.get(urlFull);
+function deleteXML(filename, region) {
+  return callGenerator(region, "recordDelete", { filename });
 }
 
 // also trigger update when record is deleted
