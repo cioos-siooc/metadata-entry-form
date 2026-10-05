@@ -18,6 +18,21 @@ exports.findCustodianOrgName = (record) => {
   return custodian && custodian.orgName;
 };
 
+// reviewers are stored as a comma-separated string, possibly missing or empty
+const parseReviewers = (value) =>
+  (value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+async function sendMail(mailOptions) {
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (e) {
+    functions.logger.error("Failed to send email", e);
+  }
+}
+
 /*
 Email the reviewers for the region when a form is submitted for review
 */
@@ -32,7 +47,7 @@ exports.notifyReviewer = functions.database
         .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
 
-      const reviewers = reviewersFirebase.val().split(",");
+      const reviewers = parseReviewers(reviewersFirebase.val());
 
       const authorUserInfoFB = await db
         .ref(`/${region}/users/${userID}/userinfo`)
@@ -66,19 +81,13 @@ exports.notifyReviewer = functions.database
       }
 
       console.log("Emailing submission confirmation to author", authorEmail);
-      transporter.sendMail(
+      await sendMail(
         mailOptionsAuthorSubmissionConfirmation(
           authorEmail,
           titleEn,
           titleFr,
           region,
         ),
-        (e, info) => {
-          console.log(info);
-          if (e) {
-            console.log(e);
-          }
-        },
       );
 
       if (reviewers.includes(authorEmail)) {
@@ -94,7 +103,7 @@ exports.notifyReviewer = functions.database
       const orgName = exports.findCustodianOrgName(record);
 
       console.log("Emailing ", reviewers);
-      transporter.sendMail(
+      await sendMail(
         mailOptionsReviewer(
           reviewers,
           titleEn,
@@ -107,12 +116,6 @@ exports.notifyReviewer = functions.database
           recordID,
           language,
         ),
-        (e, info) => {
-          console.log(info);
-          if (e) {
-            console.log(e);
-          }
-        },
       );
     }
   });
@@ -131,7 +134,7 @@ exports.notifyUser = functions.database
         .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
 
-      const reviewers = reviewersFirebase.val().split(",");
+      const reviewers = parseReviewers(reviewersFirebase.val());
 
       if (!reviewers.length) {
         console.log("No reviewers for region", region);
@@ -164,14 +167,6 @@ exports.notifyUser = functions.database
         return;
       }
 
-      transporter.sendMail(
-        mailOptionsAuthor(authorEmail, titleEn, titleFr, region),
-        (e, info) => {
-          console.log(info);
-          if (e) {
-            console.log(e);
-          }
-        },
-      );
+      await sendMail(mailOptionsAuthor(authorEmail, titleEn, titleFr, region));
     }
   });
