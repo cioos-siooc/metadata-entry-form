@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 
 import {
   Paper,
@@ -28,6 +28,7 @@ import {
   validateFieldWarning,
 } from "../../utils/validate";
 import tabs from "../../utils/tabs";
+import { UserContext } from "../../providers/UserProvider";
 
 import GetRegionInfo from "../FormComponents/Regions";
 
@@ -35,7 +36,6 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const mounted = useRef(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [validationWarnings, setValidationWarnings] = useState(false);
-  const [showSubmitButton, setShowSubmitButton] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
@@ -44,13 +44,12 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   const validationErrors = getErrorsByTab(record);
   const submitted = record.status === "submitted";
   const regionInfo = GetRegionInfo();
+  const { isReviewer } = useContext(UserContext);
+  // reviewers may submit on the owner's behalf; submitRecord writes to the owner's path
+  const showSubmitButton = userID === record.userID || isReviewer;
 
   useEffect(() => {
     mounted.current = true;
-
-    if (userID === record.userID) {
-      setShowSubmitButton(true);
-    }
 
     const getUrlWarningsByTab = async (recordObj) => {
       const fields = Object.keys(warnings);

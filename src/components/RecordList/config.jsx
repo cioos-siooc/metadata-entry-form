@@ -89,7 +89,7 @@ export const reviewerConfig = {
     showEditAction: true,
     showDeleteAction: true,
     showCloneAction: true,
-    showSubmitAction: false,
+    showSubmitAction: true,
     showPublishAction: true,
     showUnPublishAction: true,
     showUnSubmitAction: true,
