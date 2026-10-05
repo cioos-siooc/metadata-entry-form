@@ -5,13 +5,18 @@ import {
   validateDOI,
   validateField,
   getErrorsByTab,
+  warnings,
 } from "../validate";
+
+const { mockCheckURLActive } = vi.hoisted(() => ({
+  mockCheckURLActive: vi.fn(async () => ({ data: true })),
+}));
 
 // Mock Firebase dependencies to avoid "ReadableStream" errors and side effects
 // (Note: Global mocks in setupTests.js might handle this, but explicit mocking here is safe)
 vi.mock("firebase/functions", () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => vi.fn()),
+  httpsCallable: vi.fn(() => mockCheckURLActive),
 }));
 
 vi.mock("../../firebase", () => ({ default: {} }));
@@ -202,5 +207,18 @@ describe("Utility: validate.js", () => {
       ];
       expect(validateField({ contacts: badEmail }, "contacts")).toBeFalsy();
     });
+  });
+});
+
+describe("warnings.distribution", () => {
+  test("skips resources without a URL", async () => {
+    mockCheckURLActive.mockClear();
+    const count = await warnings.distribution.validation([
+      { url: "" },
+      { url: "https://example.com" },
+    ]);
+    expect(mockCheckURLActive).toHaveBeenCalledTimes(1);
+    expect(mockCheckURLActive).toHaveBeenCalledWith("https://example.com");
+    expect(count).toBe(0);
   });
 });
