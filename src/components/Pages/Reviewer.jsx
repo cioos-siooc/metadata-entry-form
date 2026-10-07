@@ -16,6 +16,7 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
+import { ReviewRegion } from "../FormComponents/ReviewFindings";
 import {
   loadRegionRecords,
   deleteRecord,
@@ -29,7 +30,7 @@ import { markFormNavigation } from "../RecordList/hooks";
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord, reviewRecord } = useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -258,6 +259,17 @@ const Reviewer = () => {
   );
 
   // GitHub publish handler
+  // Results land in the record's qa node; the region listener refreshes the Review column.
+  const handleReviewRecord = useCallback(
+    (recordID, userID) => {
+      showToast(language === "fr" ? "Révision lancée…" : "Review started…");
+      reviewRecord({ region, userID, recordID })
+        .then(() => showToast(language === "fr" ? "Révision terminée" : "Review finished", "success"))
+        .catch((e) => showToast(e.message, "error"));
+    },
+    [region, language, reviewRecord, showToast]
+  );
+
   const handleGithubPublishClick = useCallback((recordID, userID) => {
     setModalKey(recordID);
     setModalUserID(userID);
@@ -444,6 +456,14 @@ const Reviewer = () => {
               </Fr>
             </I18n>
           </Typography>
+          <div style={{ marginTop: "12px" }}>
+            <ReviewRegion
+              onFinished={() =>
+                showToast(language === "fr" ? "Révision terminée" : "Review finished", "success")
+              }
+              onError={(message) => showToast(message, "error")}
+            />
+          </div>
         </Grid>
 
         {/* Record List */}
@@ -458,6 +478,7 @@ const Reviewer = () => {
             onSubmitRecord={handleSubmitRecord}
             onTransferRecord={handleTransferRecord}
             onGithubPublishClick={handleGithubPublishClick}
+            onReviewRecord={handleReviewRecord}
             githubPublishEnabled={githubPublishEnabled}
           />
         </Grid>

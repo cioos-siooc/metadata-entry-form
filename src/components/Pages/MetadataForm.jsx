@@ -37,6 +37,7 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import ReviewFindings, { mergeSuggested } from "../FormComponents/ReviewFindings";
 import TaxaTab from "../Tabs/TaxaTab";
 
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -443,10 +444,12 @@ class MetadataForm extends FormClassTemplate {
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
+      // qa is written by the review functions only; the rules reject it from clients.
+      const { qa, ...recordWithoutQa } = record;
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record }
+        { ...getBlankRecord(), ...recordWithoutQa }
       );
     } else {
       // new record
@@ -482,7 +485,7 @@ class MetadataForm extends FormClassTemplate {
   render() {
     const { match } = this.props;
     const { language } = match.params;
-    const { isReviewer } = this.context;
+    const { isReviewer, isAdmin } = this.context;
 
     const {
       userContacts,
@@ -656,6 +659,20 @@ class MetadataForm extends FormClassTemplate {
               </Typography>
             </div>
           </Grid>
+          {(isReviewer || isAdmin) && (
+            <Grid size={12}>
+              <ReviewFindings
+                record={record}
+                unsaved={!saveDisabled}
+                onApplySuggested={(suggested) =>
+                  this.setState(({ record: current }) => ({
+                    record: mergeSuggested(current, suggested),
+                    saveDisabled: false,
+                  }))
+                }
+              />
+            </Grid>
+          )}
         </Grid>
         <TabPanel value={tabIndex} index="start">
           <StartTab {...tabProps} />

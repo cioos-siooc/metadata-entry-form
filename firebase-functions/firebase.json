@@ -12,6 +12,11 @@
       "source": "python-functions", 
       "runtime": "python311",
       "codebase": "py-functions"
+    },
+    {
+      "source": "reviewer-functions",
+      "runtime": "python311",
+      "codebase": "reviewer-functions"
     }
   ],
   "emulators": {

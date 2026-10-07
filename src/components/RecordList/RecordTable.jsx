@@ -31,6 +31,7 @@ const RecordTable = ({
   onSubmitRecord,
   onTransferRecord,
   onGithubPublishClick,
+  onReviewRecord,
   githubPublishEnabled,
 }) => {
   const { language, region } = useParams();
@@ -54,6 +55,7 @@ const RecordTable = ({
       unsubmit: (recordID, userID) => onSubmitRecord?.(recordID, userID, ""),
       transfer: onTransferRecord,
       githubPublish: onGithubPublishClick,
+      review: onReviewRecord,
     }),
     [
       onEditRecord,
@@ -62,6 +64,7 @@ const RecordTable = ({
       onSubmitRecord,
       onTransferRecord,
       onGithubPublishClick,
+      onReviewRecord,
     ],
   );
 

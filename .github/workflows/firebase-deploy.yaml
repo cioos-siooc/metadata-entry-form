@@ -57,6 +57,11 @@ jobs:
         working-directory: firebase-functions/functions
       - name: Install UV 
         uses: astral-sh/setup-uv@v6
+      # cioos-metadata-reviewer is a private repo: read-only deploy key on that repo.
+      - name: SSH key for private Python dependencies
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.METADATA_REVIEWER_DEPLOY_KEY }}
       - name: Install Python environment in venv
         working-directory: firebase-functions/python-functions
         run: |
@@ -69,6 +74,21 @@ jobs:
           # ResolutionImpossible. Drop the commit so both references match exactly.
           sed -i -E 's|^(metadata-xml @ git\+https://github\.com/cioos-siooc/metadata-xml\.git)@[0-9a-f]+$|\1|' requirements.txt
           grep -q '^metadata-xml @ git+https://github\.com/cioos-siooc/metadata-xml\.git$' requirements.txt
+          source venv/bin/activate
+          uv pip install -r requirements.txt
+      # Own codebase: the reviewer's jsonschema>=4.20 (via mcp) conflicts with
+      # cioos-metadata-conversion's cffconvert (jsonschema<4).
+      - name: Install reviewer Python environment in venv
+        working-directory: firebase-functions/reviewer-functions
+        run: |
+          uv venv venv --clear
+          uv export --format requirements-txt --no-dev --no-hashes --output-file requirements.txt
+          # Cloud Build has no SSH key for the private reviewer repo: build its wheel here
+          # (deploy uploads this folder) and point requirements.txt at the local file.
+          REVIEWER=$(grep '^cioos-metadata-reviewer @ git+ssh' requirements.txt)
+          uv tool run --from pip pip wheel --no-deps -w wheels "$REVIEWER"
+          sed -i -E "s|^cioos-metadata-reviewer @ git\+ssh.*$|./$(ls wheels/cioos_metadata_reviewer-*.whl)|" requirements.txt
+          grep -q '^\./wheels/cioos_metadata_reviewer-.*\.whl$' requirements.txt
           source venv/bin/activate
           uv pip install -r requirements.txt
       - name: Authenticate Firebase and Deploy
@@ -93,7 +113,7 @@ jobs:
           fi
           cp .env ../python-functions/.env
           echo "Deploying to Firebase..."
-          firebase deploy --only functions:js-functions,functions:py-functions --token ${{ secrets.FIREBASE_TOKEN }} --force
+          firebase deploy --only functions:js-functions,functions:py-functions,functions:reviewer-functions --token ${{ secrets.FIREBASE_TOKEN }} --force
         working-directory: firebase-functions/functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

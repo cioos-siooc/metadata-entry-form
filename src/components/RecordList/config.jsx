@@ -35,6 +35,20 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
+const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
+const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
+
+// {count, worst} of a record's open findings; null if never reviewed
+export const qaSummary = (qa) => {
+  if (!qa?.generated) return null;
+  const statuses = qa.statuses || {};
+  const open = Object.values(qa.findings || {}).filter(
+    (f) => statuses[f.id]?.status !== "rejected"
+  );
+  const worst = QA_SEVERITY_ORDER.find((sev) => open.some((f) => f.severity === sev));
+  return { count: open.length, worst };
+};
+
 // ============================================================================
 // Page Configurations
 // ============================================================================
@@ -50,6 +64,7 @@ export const reviewerConfig = {
     "identifier",
     "doi",
     "doiStatus",
+    "qa",
     "abstract",
     "license",
     "boundingBox",
@@ -70,6 +85,7 @@ export const reviewerConfig = {
     created: true,
     doi: true,
     doiStatus: true,
+    qa: true,
     identifier: false,
     abstract: false,
     license: false,
@@ -96,6 +112,7 @@ export const reviewerConfig = {
     showTransferButton: true,
     showDownloadButton: true,
     showGithubPublishAction: true,
+    showReviewAction: true,
   },
 
   table: {
@@ -513,6 +530,28 @@ export const createColumns = (language, region, callbacks = {}) => ({
     filterOperators: getStatusFilterOperators(language),
   },
 
+  // Automated review: open (not rejected) findings, coloured by the worst severity
+  qa: {
+    field: "qa",
+    headerName: language === "en" ? "Review" : "Révision",
+    maxWidth: 100,
+    headerAlign: "center",
+    align: "center",
+    type: "number",
+    valueGetter: (value) => value?.count ?? null,
+    renderCell: (params) => {
+      const qa = params.row.qa;
+      if (!qa) return <span style={{ color: "#bdbdbd" }}>—</span>;
+      return (
+        <Chip
+          label={qa.count}
+          size="small"
+          color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+        />
+      );
+    },
+  },
+
   boundingBox: {
     field: "boundingBox",
     headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
@@ -660,5 +699,6 @@ export const recordToRow = (record, language, index) => ({
   doiStatus: ["draft", "registered", "findable"].includes(record.doiCreationStatus)
     ? record.doiCreationStatus
     : "",
+  qa: qaSummary(record.qa),
   fullRecord: record,
 });
