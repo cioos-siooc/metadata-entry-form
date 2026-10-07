@@ -23,7 +23,7 @@ import { ApaPreview } from "../FormComponents/ApaPreview";
 import regions from "../../regions";
 import LeftList from "../FormComponents/LeftList";
 import ContactTitle from "../FormComponents/ContactTitle";
-import {getBlankContact} from "../../utils/blankRecord";
+import { getBlankContact } from "../../utils/blankRecord";
 
 const ContactTab = ({
   disabled,
@@ -60,10 +60,14 @@ const ContactTab = ({
   function updateOrgFromRor(payload) {
     const newContacts = [...contacts];
     newContacts[activeContact].orgRor = payload.id;
-    newContacts[activeContact].orgName = payload.names.find((n) => n.lang === language)?.value || "";
-    newContacts[activeContact].orgURL = payload.links.find((l) => l.type ==="website")?.value || "";
-    newContacts[activeContact].orgCity = payload.locations.find(() => true)?.geonames_details?.name || "";
-    newContacts[activeContact].orgCountry = payload.locations.find(() => true)?.geonames_details?.country_name || ""
+    newContacts[activeContact].orgName =
+      payload.names.find((n) => n.lang === language)?.value || "";
+    newContacts[activeContact].orgURL =
+      payload.links.find((l) => l.type === "website")?.value || "";
+    newContacts[activeContact].orgCity =
+      payload.locations.find(() => true)?.geonames_details?.name || "";
+    newContacts[activeContact].orgCountry =
+      payload.locations.find(() => true)?.geonames_details?.country_name || "";
     updateContacts(newContacts);
   }
 
@@ -90,7 +94,7 @@ const ContactTab = ({
   return (
     <Grid container spacing={3}>
       <Paper style={paperClass}>
-        <Grid >
+        <Grid>
           <QuestionText>
             <I18n>
               <En>
@@ -101,12 +105,13 @@ const ContactTab = ({
                 appear in the citation. One contact can occupy multiple roles.
               </En>
               <Fr>
-                Veuillez saisir au moins un dépositaire des métadonnées <b>et</b> un
-                propriétaire des données. Ces personnes pourraient
+                Veuillez saisir au moins un dépositaire des métadonnées{" "}
+                <b>et</b> un propriétaire des données. Ces personnes pourraient
                 être appelées à collaborer avec le personnel{" "}
                 {regions[region].titleFrPossessive} pour finaliser la saisie des
                 informations. Vous devez également sélectionner au moins un
-                contact qui apparaîtra dans la citation. Un contact peut occuper plusieurs rôles.
+                contact qui apparaîtra dans la citation. Un contact peut occuper
+                plusieurs rôles.
               </Fr>
             </I18n>
             <RequiredMark passes={validateField(record, "contacts")} />
@@ -133,10 +138,15 @@ const ContactTab = ({
             <Alert severity="info" sx={{ mt: 2 }}>
               <I18n>
                 <En>
-                  No contact has the <strong>publisher</strong> role. The region default (<strong>{regions[region]?.title?.[language]}</strong>) will be used as publisher for DOI records.
+                  No contact has the <strong>publisher</strong> role. The region
+                  default (<strong>{regions[region]?.title?.[language]}</strong>
+                  ) will be used as publisher for DOI records.
                 </En>
                 <Fr>
-                  Aucun contact n'a le rôle d'<strong>éditeur</strong>. La valeur par défaut de la région (<strong>{regions[region]?.title?.[language]}</strong>) sera utilisée comme éditeur pour les enregistrements DOI.
+                  Aucun contact n'a le rôle d'<strong>éditeur</strong>. La
+                  valeur par défaut de la région (
+                  <strong>{regions[region]?.title?.[language]}</strong>) sera
+                  utilisée comme éditeur pour les enregistrements DOI.
                 </Fr>
               </I18n>
             </Alert>
@@ -155,8 +165,9 @@ const ContactTab = ({
                 </En>
                 <Fr>
                   Voici à quoi ressemblera votre citation dans le catalogue.
-                  Seuls les contacts identifiés comme faisant partie de la citation
-                  (en cochant la case appropriée) y figurent. Pour changer l'ordre, faites glisser le{" "}
+                  Seuls les contacts identifiés comme faisant partie de la
+                  citation (en cochant la case appropriée) y figurent. Pour
+                  changer l'ordre, faites glisser le{" "}
                   <DragHandleIcon style={{ verticalAlign: "middle" }} />.
                 </Fr>
               </I18n>
@@ -180,13 +191,17 @@ const ContactTab = ({
             saveItem={saveToContacts}
             itemTitle={ContactTitle}
             getBlankItem={getBlankContact}
-            addSavedItemLabel={<I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />}
+            addSavedItemLabel={
+              <I18n en="ADD SAVED CONTACT" fr="AJOUTER UN CONTACT ENREGISTRÉ" />
+            }
             uidFields={["lastName", "orgName"]}
-            itemValidator={(currentContact) => !(
-                                  currentContact.orgName?.length ||
-                                  currentContact.givenNames?.length ||
-                                  currentContact.lastName?.length
-                                )}
+            itemValidator={(currentContact) =>
+              !(
+                currentContact.orgName?.length ||
+                currentContact.givenNames?.length ||
+                currentContact.lastName?.length
+              )
+            }
           />
         </Grid>
         {contact && (
@@ -194,15 +209,19 @@ const ContactTab = ({
             <Grid container direction="column">
               <Paper style={paperClass}>
                 <Grid container direction="column" spacing={3}>
-                  <Grid >
+                  <Grid>
                     <EditContact
                       showRolePicker
                       value={contact}
                       handleClear={(key) => updateContact(key)("")}
                       updateContactEvent={(key) => updateContactEvent(key)}
                       updateContact={(key) => updateContact(key)}
-                      updateContactRor={(payload) => updateOrgFromRor(payload, language)}
-                      updateContactOrcid={(payload) => updateIndFromOrcid(payload)}
+                      updateContactRor={(payload) =>
+                        updateOrgFromRor(payload, language)
+                      }
+                      updateContactOrcid={(payload) =>
+                        updateIndFromOrcid(payload)
+                      }
                       disabled={disabled}
                       language={language}
                     />

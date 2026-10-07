@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import {
   Card,
   CardContent,
@@ -12,7 +13,11 @@ import {
 import Alert from "@mui/material/Alert";
 import { makeStyles } from "../../tss-cache";
 import { En, Fr, I18n } from "../I18n";
-import { signInWithGoogle, signInWithMicrosoft, signInWithOrcid } from "../../auth";
+import {
+  signInWithGoogle,
+  signInWithMicrosoft,
+  signInWithOrcid,
+} from "../../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "../Icons";
 import regions from "../../regions";
 
@@ -156,12 +161,16 @@ const Login = () => {
   const [error, setError] = useState(null);
   const regionEmail = regions[region]?.email;
 
-  const handleLogin = async (loginMethod) => {
+  const handleLogin = async (loginMethod, provider) => {
     try {
       await loginMethod();
     } catch (err) {
       console.error("Login Error:", err.code, err.customData, err);
       if (err.code !== "auth/cancelled-popup-request") {
+        Sentry.captureException(err, {
+          tags: { auth_code: err.code, auth_provider: provider },
+          extra: { customData: err.customData },
+        });
         setError(`${err.message} (${err.code})`);
       }
     }
@@ -171,7 +180,12 @@ const Login = () => {
     <Box className={classes.root}>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <Typography variant="h4" component="h1" className={classes.title} align="center">
+          <Typography
+            variant="h4"
+            component="h1"
+            className={classes.title}
+            align="center"
+          >
             <I18n>
               <En>Welcome</En>
               <Fr>Bienvenue</Fr>
@@ -184,9 +198,7 @@ const Login = () => {
             align="center"
           >
             <I18n>
-              <En>
-                Please sign in to access your metadata records.
-              </En>
+              <En>Please sign in to access your metadata records.</En>
               <Fr>
                 Veuillez vous connecter pour accéder à vos enregistrements de
                 métadonnées.
@@ -200,7 +212,7 @@ const Login = () => {
               fullWidth
               className={classes.button}
               startIcon={<GoogleIcon />}
-              onClick={() => handleLogin(signInWithGoogle)}
+              onClick={() => handleLogin(signInWithGoogle, "google")}
             >
               <I18n>
                 <En>Google</En>
@@ -213,7 +225,7 @@ const Login = () => {
                 fullWidth
                 className={classes.button}
                 startIcon={<MicrosoftIcon />}
-                onClick={() => handleLogin(signInWithMicrosoft)}
+                onClick={() => handleLogin(signInWithMicrosoft, "microsoft")}
               >
                 <I18n>
                   <En>Microsoft</En>
@@ -227,7 +239,7 @@ const Login = () => {
                 fullWidth
                 className={classes.button}
                 startIcon={<OrcidIcon />}
-                onClick={() => handleLogin(signInWithOrcid)}
+                onClick={() => handleLogin(signInWithOrcid, "orcid")}
               >
                 <I18n>
                   <En>ORCID</En>
@@ -244,7 +256,10 @@ const Login = () => {
                   <En>For any issues, contact </En>
                   <Fr>En cas de problème, contactez </Fr>
                 </I18n>
-                <a href={`mailto:${regionEmail}`} className={classes.supportEmail}>
+                <a
+                  href={`mailto:${regionEmail}`}
+                  className={classes.supportEmail}
+                >
                   {regionEmail}
                 </a>
               </Typography>
@@ -253,7 +268,12 @@ const Login = () => {
 
           <Box className={classes.footer}>
             <img
-              src={new URL("../../static/cioos-national_EN_FR_min.svg", import.meta.url).href}
+              src={
+                new URL(
+                  "../../static/cioos-national_EN_FR_min.svg",
+                  import.meta.url,
+                ).href
+              }
               alt="CIOOS"
               className={classes.footerLogo}
             />

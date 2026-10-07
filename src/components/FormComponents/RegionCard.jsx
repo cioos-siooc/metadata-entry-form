@@ -143,14 +143,18 @@ export default function MediaCard({ region, regionSummary, showMap = true }) {
                 }}
               />
             ) : (
-              <div style={{
-                margin: '10px auto',
-                maxWidth: 300,
-                maxHeight: 80,
-                display: 'block',
-                fontSize: '1.4rem',
-                fontWeight: 600,
-              }}>{regionInfo.title[language] || region}</div>
+              <div
+                style={{
+                  margin: "10px auto",
+                  maxWidth: 300,
+                  maxHeight: 80,
+                  display: "block",
+                  fontSize: "1.4rem",
+                  fontWeight: 600,
+                }}
+              >
+                {regionInfo.title[language] || region}
+              </div>
             )}
           </div>
           <Typography

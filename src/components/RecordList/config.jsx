@@ -158,7 +158,15 @@ export const publishedConfig = {
 
 export const submissionsConfig = {
   pageId: "submissions",
-  columns: ["status", "progress", "created", "title", "author", "identifier", "doiStatus"],
+  columns: [
+    "status",
+    "progress",
+    "created",
+    "title",
+    "author",
+    "identifier",
+    "doiStatus",
+  ],
 
   defaultColumnVisibility: {
     title: true,
@@ -425,9 +433,7 @@ export const createColumns = (language, region, callbacks = {}) => ({
     renderCell: (params) => {
       const licenseData = licenses[params.value];
       const display = licenseData
-        ? licenseData.title?.[language] ||
-          licenseData.title?.en ||
-          params.value
+        ? licenseData.title?.[language] || licenseData.title?.en || params.value
         : params.value || "";
       return (
         <CopyableCell
@@ -696,7 +702,9 @@ export const recordToRow = (record, language, index) => ({
   contacts: record.contacts || [],
   formLanguage: record.language || "",
   doi: !!(record.datasetIdentifier && record.datasetIdentifier !== ""),
-  doiStatus: ["draft", "registered", "findable"].includes(record.doiCreationStatus)
+  doiStatus: ["draft", "registered", "findable"].includes(
+    record.doiCreationStatus,
+  )
     ? record.doiCreationStatus
     : "",
   qa: qaSummary(record.qa),

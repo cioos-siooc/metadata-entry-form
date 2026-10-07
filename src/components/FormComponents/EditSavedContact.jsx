@@ -2,7 +2,14 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button } from "@mui/material";
 import { Save } from "@mui/icons-material";
-import { getDatabase, ref, onValue, push, child, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  push,
+  child,
+  update,
+} from "firebase/database";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
@@ -32,7 +39,10 @@ class EditContactClass extends FormClassTemplate {
     const { region } = props;
 
     const database = getDatabase(firebase);
-    this.contactsRef = ref(database, `${region}/users/${auth.currentUser.uid}/contacts`);
+    this.contactsRef = ref(
+      database,
+      `${region}/users/${auth.currentUser.uid}/contacts`,
+    );
   }
 
   async componentDidMount() {
@@ -61,9 +71,13 @@ class EditContactClass extends FormClassTemplate {
       this.setState({
         orgRor: payload.id,
         orgName: payload.names.find((n) => n.lang === language)?.value || "",
-        orgURL: payload.links.find((l) => l.type ==="website")?.value || "",
-        orgCity: payload.locations.find((g) => g.geonames_details.name)?.geonames_details.name || "",
-        orgCountry: payload.locations.find((g) => g.geonames_details.country_name)?.geonames_details.country_name || "",
+        orgURL: payload.links.find((l) => l.type === "website")?.value || "",
+        orgCity:
+          payload.locations.find((g) => g.geonames_details.name)
+            ?.geonames_details.name || "",
+        orgCountry:
+          payload.locations.find((g) => g.geonames_details.country_name)
+            ?.geonames_details.country_name || "",
       });
     };
   }
@@ -106,7 +120,7 @@ class EditContactClass extends FormClassTemplate {
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
       <Grid container direction="column" spacing={2}>
-        <Grid >
+        <Grid>
           <ContactEditor
             value={this.state}
             handleClear={(key) => this.handleClear(key)}
@@ -117,7 +131,7 @@ class EditContactClass extends FormClassTemplate {
           />
         </Grid>
 
-        <Grid >
+        <Grid>
           <Button
             startIcon={<Save />}
             variant="contained"

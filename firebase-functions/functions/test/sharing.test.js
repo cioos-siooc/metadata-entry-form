@@ -90,7 +90,7 @@ beforeEach(() => {
 describe("shareRecord", () => {
   test("rejects unauthenticated callers", async () => {
     await expect(
-      shareRecord({ region: REGION, recordID: RECORD, email: "a@b.ca" }, {})
+      shareRecord({ region: REGION, recordID: RECORD, email: "a@b.ca" }, {}),
     ).rejects.toMatchObject({ code: "unauthenticated" });
   });
 
@@ -98,8 +98,8 @@ describe("shareRecord", () => {
     await expect(
       shareRecord(
         { region: "nowhere", recordID: RECORD, email: "a@b.ca" },
-        ownerContext
-      )
+        ownerContext,
+      ),
     ).rejects.toMatchObject({ code: "invalid-argument" });
   });
 
@@ -107,17 +107,17 @@ describe("shareRecord", () => {
     "rejects invalid email %p",
     async (email) => {
       await expect(
-        shareRecord({ region: REGION, recordID: RECORD, email }, ownerContext)
+        shareRecord({ region: REGION, recordID: RECORD, email }, ownerContext),
       ).rejects.toMatchObject({ code: "invalid-argument" });
-    }
+    },
   );
 
   test("rejects sharing with yourself", async () => {
     await expect(
       shareRecord(
         { region: REGION, recordID: RECORD, email: "Owner@cioos.ca" },
-        ownerContext
-      )
+        ownerContext,
+      ),
     ).rejects.toMatchObject({ code: "invalid-argument" });
   });
 
@@ -126,14 +126,17 @@ describe("shareRecord", () => {
     await expect(
       shareRecord(
         { region: REGION, recordID: RECORD, email: "a@b.ca" },
-        ownerContext
-      )
+        ownerContext,
+      ),
     ).rejects.toMatchObject({ code: "not-found" });
   });
 
   test("rejects an unsaved record", async () => {
     await expect(
-      shareRecord({ region: REGION, recordID: "", email: "a@b.ca" }, ownerContext)
+      shareRecord(
+        { region: REGION, recordID: "", email: "a@b.ca" },
+        ownerContext,
+      ),
     ).rejects.toMatchObject({ code: "invalid-argument" });
   });
 
@@ -142,7 +145,7 @@ describe("shareRecord", () => {
 
     const result = await shareRecord(
       { region: REGION, recordID: RECORD, email: " Editor@CIOOS.ca " },
-      ownerContext
+      ownerContext,
     );
 
     expect(result).toEqual({
@@ -155,14 +158,14 @@ describe("shareRecord", () => {
       [`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`]: { shared: true },
     });
     expect(transporter.sendMail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "editor@cioos.ca" })
+      expect.objectContaining({ to: "editor@cioos.ca" }),
     );
   });
 
   test("records an invitation and emails an address with no account", async () => {
     const result = await shareRecord(
       { region: REGION, recordID: RECORD, email: "newcomer@example.org" },
-      ownerContext
+      ownerContext,
     );
 
     const key = emailKey("newcomer@example.org");
@@ -171,13 +174,15 @@ describe("shareRecord", () => {
       email: "newcomer@example.org",
       emailSent: true,
     });
-    expect(db[`${RECORD_PATH}/pendingShares/${key}`]).toBe("newcomer@example.org");
+    expect(db[`${RECORD_PATH}/pendingShares/${key}`]).toBe(
+      "newcomer@example.org",
+    );
     expect(db[`invites/${key}/${REGION}/${OWNER}/${RECORD}`]).toMatchObject({
       email: "newcomer@example.org",
       invitedBy: "owner@cioos.ca",
     });
     expect(transporter.sendMail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "newcomer@example.org" })
+      expect.objectContaining({ to: "newcomer@example.org" }),
     );
   });
 
@@ -187,10 +192,13 @@ describe("shareRecord", () => {
 
     const result = await shareRecord(
       { region: REGION, recordID: RECORD, email: "editor@cioos.ca" },
-      ownerContext
+      ownerContext,
     );
 
-    expect(result).toEqual({ status: "already-shared", email: "editor@cioos.ca" });
+    expect(result).toEqual({
+      status: "already-shared",
+      email: "editor@cioos.ca",
+    });
     expect(updates).toHaveLength(0);
     expect(transporter.sendMail).not.toHaveBeenCalled();
   });
@@ -201,7 +209,7 @@ describe("shareRecord", () => {
 
     const result = await shareRecord(
       { region: REGION, recordID: RECORD, email: "newcomer@example.org" },
-      ownerContext
+      ownerContext,
     );
 
     expect(result).toEqual({
@@ -214,14 +222,15 @@ describe("shareRecord", () => {
 
   test("enforces the per-record cap", async () => {
     const sharedWith = {};
-    for (let i = 0; i < 20; i += 1) sharedWith[`uid-${i}`] = `user${i}@cioos.ca`;
+    for (let i = 0; i < 20; i += 1)
+      sharedWith[`uid-${i}`] = `user${i}@cioos.ca`;
     setRecord({ sharedWith });
 
     await expect(
       shareRecord(
         { region: REGION, recordID: RECORD, email: "one-too-many@cioos.ca" },
-        ownerContext
-      )
+        ownerContext,
+      ),
     ).rejects.toMatchObject({ code: "resource-exhausted" });
   });
 
@@ -231,7 +240,7 @@ describe("shareRecord", () => {
 
     const result = await shareRecord(
       { region: REGION, recordID: RECORD, email: "editor@cioos.ca" },
-      ownerContext
+      ownerContext,
     );
 
     expect(result).toMatchObject({ status: "shared", emailSent: false });
@@ -246,22 +255,26 @@ describe("unshareRecord", () => {
 
     const result = await unshareRecord(
       { region: REGION, recordID: RECORD, uid: "editor-uid" },
-      ownerContext
+      ownerContext,
     );
 
     expect(result).toEqual({ status: "unshared" });
     expect(db[`${RECORD_PATH}/sharedWith/editor-uid`]).toBeUndefined();
-    expect(db[`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`]).toBeUndefined();
+    expect(
+      db[`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`],
+    ).toBeUndefined();
   });
 
   test("withdraws a pending invitation", async () => {
     const key = emailKey("newcomer@example.org");
     setRecord({ pendingShares: { [key]: "newcomer@example.org" } });
-    db[`invites/${key}/${REGION}/${OWNER}/${RECORD}`] = { email: "newcomer@example.org" };
+    db[`invites/${key}/${REGION}/${OWNER}/${RECORD}`] = {
+      email: "newcomer@example.org",
+    };
 
     const result = await unshareRecord(
       { region: REGION, recordID: RECORD, inviteKey: key },
-      ownerContext
+      ownerContext,
     );
 
     expect(result).toEqual({ status: "invite-withdrawn" });
@@ -271,7 +284,7 @@ describe("unshareRecord", () => {
 
   test("requires either uid or inviteKey", async () => {
     await expect(
-      unshareRecord({ region: REGION, recordID: RECORD }, ownerContext)
+      unshareRecord({ region: REGION, recordID: RECORD }, ownerContext),
     ).rejects.toMatchObject({ code: "invalid-argument" });
   });
 });
@@ -281,12 +294,14 @@ describe("claimInvites", () => {
 
   test("grants access to invited records and clears the invitation", async () => {
     setRecord({ pendingShares: { [key]: "newcomer@example.org" } });
-    db[`invites/${key}`] = { [REGION]: { [OWNER]: { [RECORD]: { email: "x" } } } };
+    db[`invites/${key}`] = {
+      [REGION]: { [OWNER]: { [RECORD]: { email: "x" } } },
+    };
 
     await claimInvites({ uid: "newcomer-uid", email: "Newcomer@example.org" });
 
     expect(db[`${RECORD_PATH}/sharedWith/newcomer-uid`]).toBe(
-      "Newcomer@example.org"
+      "Newcomer@example.org",
     );
     expect(db[`${REGION}/shares/newcomer-uid/${OWNER}/${RECORD}`]).toEqual({
       shared: true,
@@ -297,7 +312,9 @@ describe("claimInvites", () => {
 
   test("skips records that were deleted after the invitation was sent", async () => {
     delete db[RECORD_PATH];
-    db[`invites/${key}`] = { [REGION]: { [OWNER]: { [RECORD]: { email: "x" } } } };
+    db[`invites/${key}`] = {
+      [REGION]: { [OWNER]: { [RECORD]: { email: "x" } } },
+    };
 
     await claimInvites({ uid: "newcomer-uid", email: "newcomer@example.org" });
 
@@ -317,21 +334,23 @@ describe("transferRecord", () => {
   };
 
   beforeEach(() => {
-    db[`admin/${REGION}/permissions`] = { reviewers: "reviewer@cioos.ca, other@cioos.ca" };
+    db[`admin/${REGION}/permissions`] = {
+      reviewers: "reviewer@cioos.ca, other@cioos.ca",
+    };
     authUsers["newowner@cioos.ca"] = { uid: "newowner-uid" };
   });
 
   const transfer = (email = "newowner@cioos.ca", context = reviewerContext) =>
     transferRecord(
       { region: REGION, recordID: RECORD, sourceUserID: OWNER, email },
-      context
+      context,
     );
 
   test("rejects callers who are not reviewers or admins", async () => {
     await expect(
       transfer("newowner@cioos.ca", {
         auth: { uid: "x", token: { email: "random@cioos.ca" } },
-      })
+      }),
     ).rejects.toMatchObject({ code: "permission-denied" });
   });
 
@@ -355,12 +374,14 @@ describe("transferRecord", () => {
     });
     expect(db[RECORD_PATH]).toBeUndefined();
     expect(
-      db[`${REGION}/users/newowner-uid/records/newRecordID`]
+      db[`${REGION}/users/newowner-uid/records/newRecordID`],
     ).toMatchObject({ recordID: "newRecordID", userID: "newowner-uid" });
-    expect(db[`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`]).toBeUndefined();
     expect(
-      db[`${REGION}/shares/editor-uid/newowner-uid/newRecordID`]
-    ).toEqual({ shared: true });
+      db[`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`],
+    ).toBeUndefined();
+    expect(db[`${REGION}/shares/editor-uid/newowner-uid/newRecordID`]).toEqual({
+      shared: true,
+    });
   });
 
   test("drops the new owner from the record's own shared list", async () => {
@@ -369,10 +390,10 @@ describe("transferRecord", () => {
     await transfer();
 
     expect(
-      db[`${REGION}/users/newowner-uid/records/newRecordID`].sharedWith
+      db[`${REGION}/users/newowner-uid/records/newRecordID`].sharedWith,
     ).toEqual({});
     expect(
-      db[`${REGION}/shares/newowner-uid/newowner-uid/newRecordID`]
+      db[`${REGION}/shares/newowner-uid/newowner-uid/newRecordID`],
     ).toBeUndefined();
   });
 });

@@ -54,7 +54,8 @@ const signInWithProvider = async (provider) => {
   try {
     return await signInWithPopup(auth, provider);
   } catch (err) {
-    if (err?.code !== "auth/account-exists-with-different-credential") throw err;
+    if (err?.code !== "auth/account-exists-with-different-credential")
+      throw err;
 
     const email = err.customData?.email;
     const pendingCred = credentialFromError(err);
@@ -68,14 +69,17 @@ const signInWithProvider = async (provider) => {
       const friendly = new Error(
         `An account already exists for ${email} using ${
           methods.join(", ") || "another sign-in method"
-        }. Please sign in with that method first, then link this provider from your account.`
+        }. Please sign in with that method first, then link this provider from your account.`,
       );
       friendly.code = err.code;
       throw friendly;
     }
 
     if (existingProvider.setCustomParameters) {
-      existingProvider.setCustomParameters({ login_hint: email, prompt: "select_account" });
+      existingProvider.setCustomParameters({
+        login_hint: email,
+        prompt: "select_account",
+      });
     }
 
     const result = await signInWithPopup(auth, existingProvider);

@@ -26,7 +26,7 @@ describe("<BilingualTextInput />", () => {
     render(
       <MemoryRouter>
         <BilingualTextInput onChange={mockOnChange} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Find the English text input field

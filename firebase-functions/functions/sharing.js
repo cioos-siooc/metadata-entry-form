@@ -12,7 +12,11 @@ const {
 const transporter = require("./mailer");
 
 // Firebase keys can't contain . # $ / [ ]
-const emailKey = (email) => email.toLowerCase().trim().replace(/[.#$/[\]]/g, ",");
+const emailKey = (email) =>
+  email
+    .toLowerCase()
+    .trim()
+    .replace(/[.#$/[\]]/g, ",");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,11 +25,13 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_SHARES_PER_RECORD = 20;
 
 function normalizeEmail(email) {
-  const normalized = String(email || "").trim().toLowerCase();
+  const normalized = String(email || "")
+    .trim()
+    .toLowerCase();
   if (normalized.length > 254 || !EMAIL_RE.test(normalized)) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "A valid email address is required."
+      "A valid email address is required.",
     );
   }
   return normalized;
@@ -41,7 +47,7 @@ function requireAuth(context) {
   if (!context.auth) {
     throw new functions.https.HttpsError(
       "unauthenticated",
-      "The function must be called while authenticated."
+      "The function must be called while authenticated.",
     );
   }
   return context.auth;
@@ -61,7 +67,7 @@ async function getOwnedRecord(region, ownerID, recordID) {
   if (!recordID) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "The record must be saved before it can be shared."
+      "The record must be saved before it can be shared.",
     );
   }
   const snapshot = await admin
@@ -101,7 +107,7 @@ exports.shareRecord = functions.https.onCall(async (data, context) => {
   if (email === String(token.email || "").toLowerCase()) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "You cannot share a record with yourself."
+      "You cannot share a record with yourself.",
     );
   }
 
@@ -115,7 +121,7 @@ exports.shareRecord = functions.https.onCall(async (data, context) => {
   ) {
     throw new functions.https.HttpsError(
       "resource-exhausted",
-      `A record can be shared with at most ${MAX_SHARES_PER_RECORD} people.`
+      `A record can be shared with at most ${MAX_SHARES_PER_RECORD} people.`,
     );
   }
 
@@ -179,24 +185,30 @@ exports.unshareRecord = functions.https.onCall(async (data, context) => {
   const recordPath = `${region}/users/${ownerID}/records/${recordID}`;
 
   if (uid) {
-    await admin.database().ref().update({
-      [`${recordPath}/sharedWith/${uid}`]: null,
-      [`${region}/shares/${uid}/${ownerID}/${recordID}`]: null,
-    });
+    await admin
+      .database()
+      .ref()
+      .update({
+        [`${recordPath}/sharedWith/${uid}`]: null,
+        [`${region}/shares/${uid}/${ownerID}/${recordID}`]: null,
+      });
     return { status: "unshared" };
   }
 
   if (inviteKey) {
-    await admin.database().ref().update({
-      [`${recordPath}/pendingShares/${inviteKey}`]: null,
-      [`invites/${inviteKey}/${region}/${ownerID}/${recordID}`]: null,
-    });
+    await admin
+      .database()
+      .ref()
+      .update({
+        [`${recordPath}/pendingShares/${inviteKey}`]: null,
+        [`invites/${inviteKey}/${region}/${ownerID}/${recordID}`]: null,
+      });
     return { status: "invite-withdrawn" };
   }
 
   throw new functions.https.HttpsError(
     "invalid-argument",
-    "Either uid or inviteKey is required."
+    "Either uid or inviteKey is required.",
   );
 });
 
@@ -230,9 +242,9 @@ exports.claimInvites = functions.auth.user().onCreate(async (user) => {
           updates[`${region}/shares/${user.uid}/${authorID}/${recordID}`] = {
             shared: true,
           };
-        })
-      )
-    )
+        }),
+      ),
+    ),
   );
 
   updates[`invites/${key}`] = null;
@@ -251,7 +263,9 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   const email = normalizeEmail(data && data.email);
 
   const permissions =
-    (await admin.database().ref(`admin/${region}/permissions`).once("value")).val() || {};
+    (
+      await admin.database().ref(`admin/${region}/permissions`).once("value")
+    ).val() || {};
   const allowed = [permissions.admins, permissions.reviewers]
     .filter(Boolean)
     .flatMap((list) => list.split(",").map((e) => e.trim().toLowerCase()));
@@ -259,7 +273,7 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   if (!allowed.includes(String(token.email || "").toLowerCase())) {
     throw new functions.https.HttpsError(
       "permission-denied",
-      "User must be an admin or reviewer."
+      "User must be an admin or reviewer.",
     );
   }
 
@@ -295,7 +309,9 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   Object.keys(record.sharedWith || {}).forEach((sharedUID) => {
     updates[`${region}/shares/${sharedUID}/${sourceUserID}/${recordID}`] = null;
     if (sharedUID !== destination.uid) {
-      updates[`${region}/shares/${sharedUID}/${destination.uid}/${newRecordID}`] = {
+      updates[
+        `${region}/shares/${sharedUID}/${destination.uid}/${newRecordID}`
+      ] = {
         shared: true,
       };
     }

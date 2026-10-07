@@ -24,7 +24,10 @@ async function recordToEML(record) {
 
   let templateXML = await fetch(templatePath).then((t) => t.text());
   const emlCoverageXML = await fetch(emlCoveragePath).then((t) => t.text());
-  templateXML = templateXML.replace("{% include 'emlCoverage.j2' %}", emlCoverageXML)
+  templateXML = templateXML.replace(
+    "{% include 'emlCoverage.j2' %}",
+    emlCoverageXML,
+  );
   return nunjucks.renderString(templateXML, {
     record,
     translateRole,

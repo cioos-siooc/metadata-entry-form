@@ -40,7 +40,9 @@ describe("recordToDataCiteFromPython", () => {
     publisher: "Test Publisher",
     publicationYear: 2024,
     subjects: [{ subject: "oceanography" }],
-    descriptions: [{ description: "A test dataset", descriptionType: "Abstract" }],
+    descriptions: [
+      { description: "A test dataset", descriptionType: "Abstract" },
+    ],
   };
 
   // Factory function to create fresh mock responses for each test
@@ -51,7 +53,9 @@ describe("recordToDataCiteFromPython", () => {
     publisher: "Test Publisher",
     publicationYear: 2024,
     subjects: [{ subject: "oceanography" }],
-    descriptions: [{ description: "A test dataset", descriptionType: "Abstract" }],
+    descriptions: [
+      { description: "A test dataset", descriptionType: "Abstract" },
+    ],
     types: { resourceTypeGeneral: "Dataset" },
   });
 
@@ -78,7 +82,7 @@ describe("recordToDataCiteFromPython", () => {
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: false }
+        { forUpdate: false },
       );
 
       // Verify API call
@@ -89,7 +93,7 @@ describe("recordToDataCiteFromPython", () => {
             record_data: mockRecord,
             output_format: "datacite_json",
           },
-        }
+        },
       );
 
       // Verify structure includes type and prefix
@@ -99,7 +103,7 @@ describe("recordToDataCiteFromPython", () => {
       // Verify URL is added
       expect(result).toHaveProperty(
         "data.attributes.url",
-        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123"
+        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123",
       );
 
       // Verify all original fields are present
@@ -117,12 +121,36 @@ describe("recordToDataCiteFromPython", () => {
       axios.post.mockResolvedValue(mockResponse);
 
       const testCases = [
-        { region: "pacific", language: "en", expectedUrl: "https://catalogue.cioospacific.ca/" },
-        { region: "pacific", language: "fr", expectedUrl: "https://catalogue.cioospacific.ca/fr/" },
-        { region: "atlantic", language: "en", expectedUrl: "https://cioosatlantic.ca/ckan/" },
-        { region: "atlantic", language: "fr", expectedUrl: "https://cioosatlantic.ca/ckan/fr/" },
-        { region: "stlaurent", language: "en", expectedUrl: "https://catalogue.ogsl.ca/en/" },
-        { region: "stlaurent", language: "fr", expectedUrl: "https://catalogue.ogsl.ca/" },
+        {
+          region: "pacific",
+          language: "en",
+          expectedUrl: "https://catalogue.cioospacific.ca/",
+        },
+        {
+          region: "pacific",
+          language: "fr",
+          expectedUrl: "https://catalogue.cioospacific.ca/fr/",
+        },
+        {
+          region: "atlantic",
+          language: "en",
+          expectedUrl: "https://cioosatlantic.ca/ckan/",
+        },
+        {
+          region: "atlantic",
+          language: "fr",
+          expectedUrl: "https://cioosatlantic.ca/ckan/fr/",
+        },
+        {
+          region: "stlaurent",
+          language: "en",
+          expectedUrl: "https://catalogue.ogsl.ca/en/",
+        },
+        {
+          region: "stlaurent",
+          language: "fr",
+          expectedUrl: "https://catalogue.ogsl.ca/",
+        },
       ];
 
       for (const testCase of testCases) {
@@ -135,7 +163,7 @@ describe("recordToDataCiteFromPython", () => {
           testCase.language,
           testCase.region,
           "10.14284",
-          { forUpdate: false }
+          { forUpdate: false },
         );
 
         const expectedUrl = `${testCase.expectedUrl}dataset/ca-cioos_test-123`;
@@ -158,7 +186,7 @@ describe("recordToDataCiteFromPython", () => {
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: true }
+        { forUpdate: true },
       );
 
       // Verify type and prefix are NOT included
@@ -168,7 +196,7 @@ describe("recordToDataCiteFromPython", () => {
       // Verify URL is still added
       expect(result).toHaveProperty(
         "data.attributes.url",
-        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123"
+        "https://catalogue.cioospacific.ca/dataset/ca-cioos_test-123",
       );
 
       // Verify attributes still has the DataCite fields
@@ -183,7 +211,7 @@ describe("recordToDataCiteFromPython", () => {
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Invalid response structure");
     });
 
@@ -195,7 +223,7 @@ describe("recordToDataCiteFromPython", () => {
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Invalid response structure");
     });
 
@@ -207,7 +235,7 @@ describe("recordToDataCiteFromPython", () => {
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("not a valid object");
     });
 
@@ -219,7 +247,7 @@ describe("recordToDataCiteFromPython", () => {
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("not a valid object");
     });
 
@@ -232,7 +260,12 @@ describe("recordToDataCiteFromPython", () => {
       axios.post.mockResolvedValue(mockResponse);
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "invalid-region", "10.14284")
+        recordToDataCiteFromPython(
+          mockRecord,
+          "en",
+          "invalid-region",
+          "10.14284",
+        ),
       ).rejects.toThrow("Invalid region/language combination");
     });
 
@@ -245,7 +278,7 @@ describe("recordToDataCiteFromPython", () => {
       });
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("DataCite conversion failed (400)");
     });
 
@@ -253,7 +286,7 @@ describe("recordToDataCiteFromPython", () => {
       axios.post.mockRejectedValue(new Error("Network timeout"));
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Failed to convert record to DataCite format");
     });
   });
@@ -277,7 +310,7 @@ describe("recordToDataCiteFromPython", () => {
 
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("http://localhost:5001"),
-        expect.any(Object)
+        expect.any(Object),
       );
 
       // Cleanup
@@ -299,7 +332,7 @@ describe("recordToDataCiteFromPython", () => {
         mockRecord,
         "en",
         "pacific",
-        "10.14284"
+        "10.14284",
         // No options parameter
       );
 
@@ -324,7 +357,7 @@ describe("recordToDataCiteFromPython", () => {
         "en",
         "pacific",
         "10.14284",
-        { forUpdate: false }
+        { forUpdate: false },
       );
 
       // Verify structure is correctly formatted despite receiving a string
@@ -343,7 +376,7 @@ describe("recordToDataCiteFromPython", () => {
       axios.post.mockResolvedValue(mockResponse);
 
       await expect(
-        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284")
+        recordToDataCiteFromPython(mockRecord, "en", "pacific", "10.14284"),
       ).rejects.toThrow("Failed to parse DataCite response as JSON");
     });
   });

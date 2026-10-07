@@ -24,13 +24,15 @@ import {
   cloneRecord,
 } from "../../utils/firebaseRecordFunctions";
 import { preparePublishPayload } from "../../utils/publishUtils";
+import performUpdateDraftDoi, { isManagedDoi } from "../../utils/doiUpdate";
 import RecordList, { reviewerConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
 
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord, reviewRecord } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord, datacitePrefix, reviewRecord } =
+    useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -230,7 +232,10 @@ const Reviewer = () => {
     (recordID, userID, newStatus) => {
       const record = records.find((r) => r.recordID === recordID);
 
-      if (newStatus === "submitted") {
+      if (newStatus === "submitted" && record?.status === "published") {
+        // Published -> Submitted (unpublish)
+        toggleModal(setUnPublishModalOpen, true, recordID, userID);
+      } else if (newStatus === "submitted") {
         // Draft -> Submitted
         toggleModal(setSubmitModalOpen, true, recordID, userID);
       } else if (newStatus === "published") {
@@ -239,23 +244,43 @@ const Reviewer = () => {
       } else if (newStatus === "" && record?.status === "submitted") {
         // Submitted -> Draft (unsubmit)
         toggleModal(setUnSubmitModalOpen, true, recordID, userID);
-      } else if (newStatus === "submitted" && record?.status === "published") {
-        // Published -> Submitted (unpublish)
-        toggleModal(setUnPublishModalOpen, true, recordID, userID);
       }
     },
     [records, toggleModal],
+  );
+
+  // Publishing is when reviewed metadata reaches DataCite: the form cannot
+  // push to a findable DOI, so this keeps the DOI in sync with what is
+  // published. A DataCite failure is reported but does not block publishing.
+  const updateDoiOnPublish = useCallback(
+    async (record) => {
+      if (!record || !isManagedDoi(record, datacitePrefix)) return;
+      try {
+        await performUpdateDraftDoi(record, region, language, datacitePrefix);
+      } catch (err) {
+        console.error("Error updating DOI on publish: ", err);
+        showToast(
+          `Record published, but updating the DOI on DataCite failed: ${err.message}`,
+          "warning",
+        );
+      }
+    },
+    [datacitePrefix, region, language, showToast],
   );
 
   const confirmSubmitRecord = useCallback(
     async (status) => {
       if (modalKey && modalUserID) {
         setLoading(true);
+        if (status === "published")
+          await updateDoiOnPublish(
+            records.find((r) => r.recordID === modalKey),
+          );
         await submitRecord(region, modalUserID, modalKey, status);
         setLoading(false);
       }
     },
-    [region, modalKey, modalUserID],
+    [region, modalKey, modalUserID, records, updateDoiOnPublish],
   );
 
   // GitHub publish handler
@@ -317,6 +342,8 @@ const Reviewer = () => {
           region,
         });
 
+        await updateDoiOnPublish(record);
+
         addPublishLog(getLogMessage("markingPublished"));
         await submitRecord(region, modalUserID, modalKey, "published");
 
@@ -338,6 +365,7 @@ const Reviewer = () => {
       modalUserID,
       region,
       publishRecordToGitHub,
+      updateDoiOnPublish,
       showToast,
       getLogMessage,
       addPublishLog,
@@ -446,13 +474,13 @@ const Reviewer = () => {
           >
             <I18n>
               <En>
-                Review, manage, and publish metadata records. Use filters to find
-                specific submissions by status, author, or title.
+                Review, manage, and publish metadata records. Use filters to
+                find specific submissions by status, author, or title.
               </En>
               <Fr>
                 Examinez, gérez et publiez les enregistrements de métadonnées.
-                Utilisez les filtres pour trouver des soumissions spécifiques par
-                statut, auteur ou titre.
+                Utilisez les filtres pour trouver des soumissions spécifiques
+                par statut, auteur ou titre.
               </Fr>
             </I18n>
           </Typography>

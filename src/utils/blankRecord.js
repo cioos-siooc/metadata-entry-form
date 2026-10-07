@@ -90,4 +90,9 @@ function getBlankPlatform() {
   return deepCopy(blankPlatform);
 }
 
-export { getBlankRecord, getBlankContact, getBlankInstrument, getBlankPlatform};
+export {
+  getBlankRecord,
+  getBlankContact,
+  getBlankInstrument,
+  getBlankPlatform,
+};
