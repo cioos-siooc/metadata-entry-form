@@ -185,7 +185,7 @@ const ReviewFindings = ({ record, unsaved, onApplySuggested }) => {
                   </Stack>
                 ) : (
                   <Stack direction="row" spacing={1}>
-                    {f.suggested && status !== "applied" && (
+                    {f.suggested && (
                       <Button
                         size="small"
                         variant="outlined"

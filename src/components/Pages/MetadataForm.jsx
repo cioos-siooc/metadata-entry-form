@@ -246,10 +246,19 @@ class MetadataForm extends FormClassTemplate {
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
-            this.setState({
-              record: standardizeRecord(record, null, null, recordID),
+            // When only qa changed (review results, or an Apply/Ignore/Reject status), keep
+            // unsaved edits and take just qa; otherwise Apply's edit is wiped by its own write.
+            const { qa, ...withoutQa } = record;
+            const onlyQaChanged =
+              this.lastLoadedRecord === JSON.stringify(withoutQa);
+            this.lastLoadedRecord = JSON.stringify(withoutQa);
+            this.setState(({ record: current }) => ({
+              record:
+                onlyQaChanged && current?.recordID === recordID
+                  ? { ...current, qa }
+                  : standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
-            });
+            }));
 
             this.setState({ loading: false });
           });
