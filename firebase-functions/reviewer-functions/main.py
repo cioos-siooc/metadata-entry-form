@@ -45,12 +45,15 @@ def review_record(req: https_fn.CallableRequest):
 
 @https_fn.on_call(timeout_sec=3600, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY])
 def review_region(req: https_fn.CallableRequest):
-    """Review all submitted/published records of a region. data: {region, force?}.
+    """Review all submitted/published records of a region. data: {region, force?, dryRun?}.
 
-    Progress: {region}/qaRuns/active.runId -> {region}/qaRuns/{runId}.
+    dryRun returns {total, toReview} for the confirm dialog without reviewing anything.
+    Progress: {region}/qaRuns/active.runId -> {region}/qaRuns/{runId}; afterwards qaRuns/last.
     ponytail: one long call; move to a task queue if a region outgrows 1h.
     """
     region = _region_arg(req)
     force = bool(req.data.get("force"))
     email = review.require_role(region, req.auth, admin_only=force)
+    if req.data.get("dryRun"):
+        return review.count_region(region, force)
     return {"runId": review.review_region(region, email, force)}

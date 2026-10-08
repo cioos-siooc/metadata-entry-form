@@ -14,7 +14,7 @@ const RelatedWorksTab = ({ disabled, record, updateRecord }) => {
   const updateResources = updateRecord("associated_resources");
   return (
     <div>
-      <Paper style={paperClass}>
+      <Paper id="field-associated_resources" style={paperClass}>
         <QuestionText>
           <En>
             Enter links to other metadata records, publications or works that

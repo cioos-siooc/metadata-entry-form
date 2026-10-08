@@ -1,6 +1,7 @@
 import React from "react";
-import { Chip } from "@mui/material";
-import { Check, Close } from "@mui/icons-material";
+import { Chip, Tooltip } from "@mui/material";
+import { Check, Close, Update } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
@@ -38,15 +39,25 @@ const bilingualQuickFilter = (field) => (value) => {
 const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
 const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
-// {count, worst} of a record's open findings; null if never reviewed
-export const qaSummary = (qa) => {
+// A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
+// (worst first), outdated, generated}; null if never reviewed. `lastSaved` is record.created,
+// which is really "last updated". ponytail: misses reviewer-version bumps; inputHash catches those.
+export const qaSummary = (qa, lastSaved) => {
   if (!qa?.generated) return null;
   const statuses = qa.statuses || {};
-  const open = Object.values(qa.findings || {}).filter(
-    (f) => statuses[f.id]?.status !== "rejected"
-  );
-  const worst = QA_SEVERITY_ORDER.find((sev) => open.some((f) => f.severity === sev));
-  return { count: open.length, worst };
+  const open = Object.values(qa.findings || {}).filter((f) => !statuses[f.id]?.status);
+  const bySeverity = {};
+  QA_SEVERITY_ORDER.forEach((sev) => {
+    const n = open.filter((f) => f.severity === sev).length;
+    if (n) bySeverity[sev] = n;
+  });
+  return {
+    count: open.length,
+    worst: Object.keys(bySeverity)[0],
+    bySeverity,
+    outdated: Boolean(lastSaved && new Date(lastSaved) > new Date(qa.generated)),
+    generated: qa.generated,
+  };
 };
 
 // ============================================================================
@@ -548,12 +559,28 @@ export const createColumns = (language, region, callbacks = {}) => ({
     renderCell: (params) => {
       const qa = params.row.qa;
       if (!qa) return <span style={{ color: "#bdbdbd" }}>—</span>;
+      const breakdown = Object.entries(qa.bySeverity)
+        .map(([sev, n]) => `${n} ${sev}`)
+        .join(", ");
       return (
-        <Chip
-          label={qa.count}
-          size="small"
-          color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
-        />
+        <Tooltip
+          title={`${breakdown || (language === "en" ? "No open issues" : "Aucun problème ouvert")} · ${
+            language === "en" ? "reviewed" : "révisée le"
+          } ${new Date(qa.generated).toLocaleString()}${
+            qa.outdated ? (language === "en" ? " (outdated)" : " (périmée)") : ""
+          }`}
+        >
+          <Chip
+            label={qa.count}
+            size="small"
+            icon={qa.outdated ? <Update /> : undefined}
+            variant={qa.outdated ? "outlined" : "filled"}
+            color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+            clickable
+            component={RouterLink}
+            to={`/${language}/${params.row.region || region}/${params.row.userID}/${params.row.recordID}?review=1`}
+          />
+        </Tooltip>
       );
     },
   },
@@ -707,6 +734,6 @@ export const recordToRow = (record, language, index) => ({
   )
     ? record.doiCreationStatus
     : "",
-  qa: qaSummary(record.qa),
+  qa: qaSummary(record.qa, record.created),
   fullRecord: record,
 });

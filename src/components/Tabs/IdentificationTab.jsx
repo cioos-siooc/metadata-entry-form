@@ -83,7 +83,7 @@ const IdentificationTab = ({
         <div />
       )}
 
-      <Paper style={paperClass}>
+      <Paper id="field-abstract" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>
@@ -184,7 +184,7 @@ const IdentificationTab = ({
         />
       </Paper>
       {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
-        <Paper style={paperClass}>
+        <Paper id="field-eov" style={paperClass}>
           <QuestionText>
             <I18n>
               <En>
@@ -325,7 +325,7 @@ const IdentificationTab = ({
         </Paper>
       )}
 
-      <Paper style={paperClass}>
+      <Paper id="field-keywords" style={paperClass}>
         <Grid container spacing={3} direction="column">
           <Grid>
             <QuestionText>
@@ -391,7 +391,7 @@ const IdentificationTab = ({
         </Grid>
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-progress" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the status of this dataset?</En>
@@ -420,7 +420,7 @@ const IdentificationTab = ({
         />
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-dateStart" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the start date when data was first collected?</En>
@@ -474,7 +474,7 @@ const IdentificationTab = ({
         />
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-edition" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>The version number of this dataset. For example, 1.1</En>
@@ -534,7 +534,7 @@ const IdentificationTab = ({
         />
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-license" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>

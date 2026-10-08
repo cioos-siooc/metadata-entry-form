@@ -73,12 +73,17 @@ def input_hash(rec):
     return hashlib.sha256((content + _reviewer_version()).encode()).hexdigest()
 
 
+def needs_review(rec, force=False):
+    """False if the record (and reviewer version) is unchanged since its last review."""
+    return force or (rec.get("qa") or {}).get("inputHash") != input_hash(rec)
+
+
 def review_one(region, uid, rid, rec, force=False):
     """Review one record and write its qa node; returns the qa node (cached one if skipped)."""
     qa = rec.get("qa") or {}
-    h = input_hash(rec)
-    if qa.get("inputHash") == h and not force:
+    if not needs_review(rec, force):
         return qa
+    h = input_hash(rec)
     raw = asyncio.run(review_record(region, uid, rid, rec))
     data = {region: {"users": {uid: {"records": {rid: rec}}}}}
     patched = (
@@ -115,7 +120,25 @@ def _claim_run(region, run_id):
     return (result or {}).get("runId") == run_id
 
 
+def _region_records(region):
+    users = db.reference(f"{region}/users").get() or {}
+    return [
+        (uid, rid, rec)
+        for uid, u in users.items()
+        for rid, rec in ((u or {}).get("records") or {}).items()
+        if (rec or {}).get("status") in REVIEWED_STATUSES
+    ]
+
+
+def count_region(region, force=False):
+    """What review_region would do, without doing it: {total, toReview}."""
+    todo = _region_records(region)
+    return {"total": len(todo), "toReview": sum(needs_review(rec, force) for _, _, rec in todo)}
+
+
 def review_region(region, email, force=False):
+    """Progress, failures and the outcome go to {region}/qaRuns/{runId}; `last` points at it.
+    A reviewer stops a run by setting its `cancel` (checked between records)."""
     run_id = uuid.uuid4().hex
     if not _claim_run(region, run_id):
         raise https_fn.HttpsError(
@@ -124,30 +147,42 @@ def review_region(region, email, force=False):
         )
     run = db.reference(f"{region}/qaRuns/{run_id}")
     try:
-        users = db.reference(f"{region}/users").get() or {}
-        todo = [
-            (uid, rid, rec)
-            for uid, u in users.items()
-            for rid, rec in ((u or {}).get("records") or {}).items()
-            if (rec or {}).get("status") in REVIEWED_STATUSES
-        ]
+        todo = _region_records(region)
         run.set({
             "status": "running", "total": len(todo), "done": 0, "failed": 0,
+            "reviewed": 0, "skipped": 0,
             "startedBy": email, "started": datetime.now(timezone.utc).isoformat(),
         })
-        done = failed = 0
+        done = failed = reviewed = skipped = 0
+        status = "done"
         for uid, rid, rec in todo:
-            try:
-                review_one(region, uid, rid, rec, force)
-            except Exception:  # pylint: disable=broad-except
-                logging.exception("review_region: %s/%s/%s failed", region, uid, rid)
-                failed += 1  # one bad record shouldn't stop the region
+            # ponytail: one RTDB read per record; fine at region scale
+            if run.child("cancel").get():
+                status = "cancelled"
+                break
+            if not needs_review(rec, force):
+                skipped += 1
+            else:
+                run.update({"current": {"uid": uid, "rid": rid, "title": rec.get("title")}})
+                try:
+                    review_one(region, uid, rid, rec, force)
+                    reviewed += 1
+                except Exception as e:  # pylint: disable=broad-except
+                    logging.exception("review_region: %s/%s/%s failed", region, uid, rid)
+                    failed += 1  # one bad record shouldn't stop the region
+                    run.child(f"failedRecords/{uid}_{rid}").set({
+                        "uid": uid, "rid": rid, "title": rec.get("title"), "error": str(e)[:200],
+                    })
             done += 1
-            run.update({"done": done, "failed": failed})
-        run.update({"status": "done"})
+            run.update({"done": done, "failed": failed, "reviewed": reviewed, "skipped": skipped})
+        run.update({
+            "status": status, "current": None,
+            "finished": datetime.now(timezone.utc).isoformat(),
+        })
     except Exception:
-        run.update({"status": "error"})
+        run.update({"status": "error", "current": None})
         raise
     finally:
+        db.reference(f"{region}/qaRuns/last").set(run_id)
         db.reference(f"{region}/qaRuns/active").delete()
     return run_id

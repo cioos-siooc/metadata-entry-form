@@ -15,6 +15,15 @@
           ".write": false
         }
       },
+      // Automated review runs, written by review_region (admin SDK). Clients may only stop one.
+      "qaRuns": {
+        "$runid": {
+          "cancel": {
+            ".write": "root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($region).child('permissions').child('admins').val().contains(auth.email)",
+            ".validate": "newData.val() === true"
+          }
+        }
+      },
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.

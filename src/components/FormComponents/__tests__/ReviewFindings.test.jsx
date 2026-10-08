@@ -1,8 +1,13 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { vi, describe, it, expect } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
-import ReviewFindings, { mergeSuggested } from "../ReviewFindings";
+import ReviewFindings, {
+  findingTab,
+  flattenPatch,
+  mergeSuggested,
+  scrollToField,
+} from "../ReviewFindings";
 import { qaSummary } from "../../RecordList/config";
 import { UserContext } from "../../../providers/UserProvider";
 
@@ -30,43 +35,92 @@ const qa = {
     1: {
       id: "b",
       severity: "high",
-      field: "https://x.test",
+      field: "distribution",
       description: "URL unreachable.",
       suggested: { distribution: { 1: { url: "https://new.test" } } },
     },
     2: { id: "c", severity: "critical", field: "title", description: "Rejected earlier." },
   },
-  statuses: { c: { status: "rejected" } },
+  statuses: { c: { status: "rejected", note: "intentional" } },
+};
+const record = {
+  qa,
+  created: "2026-10-06T00:00:00Z",
+  distribution: [{ url: "a" }, { url: "https://old.test" }],
 };
 
 const renderWith = (props = {}, reviewRecord = vi.fn().mockResolvedValue({})) => {
   render(
     <UserContext.Provider value={{ reviewRecord }}>
-      <ReviewFindings record={{ qa }} unsaved={false} onApplySuggested={() => {}} {...props} />
+      <ReviewFindings
+        record={record}
+        unsaved={false}
+        onApplySuggested={() => {}}
+        open
+        onOpenChange={() => {}}
+        {...props}
+      />
     </UserContext.Provider>
   );
   return reviewRecord;
 };
 
-describe("<ReviewFindings />", () => {
-  it("lists findings worst first and hides rejected ones", () => {
-    renderWith();
-    const items = screen.getAllByRole("listitem").map((li) => li.textContent);
-    expect(items[0]).toMatch("URL unreachable.");
-    expect(items[1]).toMatch("Dataset has no license.");
-    expect(screen.queryByText("Rejected earlier.")).toBeNull();
+describe("<ReviewFindings /> summary bar", () => {
+  beforeEach(() => set.mockClear());
+
+  it("counts open findings by severity, excluding resolved ones", () => {
+    renderWith({ open: false });
+    expect(screen.getByText(/1 high/)).toBeTruthy();
+    expect(screen.getByText(/1 medium/)).toBeTruthy();
+    expect(screen.queryByText(/critical/)).toBeNull();
+    expect(screen.queryByText("Outdated")).toBeNull();
+  });
+
+  it("flags results older than the last save", () => {
+    renderWith({ open: false, record: { ...record, created: "2026-10-08T00:00:00Z" } });
+    expect(screen.getByText("Outdated")).toBeTruthy();
   });
 
   it("runs the review by path, only once the record is saved", async () => {
-    const reviewRecord = renderWith();
-    fireEvent.click(screen.getByRole("button", { name: /run review/i }));
-    await screen.findByRole("button", { name: /run review/i }); // spinner gone
+    const reviewRecord = renderWith({ open: false });
+    fireEvent.click(screen.getByRole("button", { name: /re-run review/i }));
+    await screen.findByRole("button", { name: /re-run review/i }); // spinner gone
     expect(reviewRecord).toHaveBeenCalledWith({ region: "pacific", userID: "u1", recordID: "r1" });
   });
 
   it("disables the review while there are unsaved changes", () => {
-    renderWith({ unsaved: true });
-    expect(screen.getByRole("button", { name: /run review/i }).disabled).toBe(true);
+    renderWith({ open: false, unsaved: true });
+    expect(screen.getByRole("button", { name: /re-run review/i }).disabled).toBe(true);
+  });
+});
+
+describe("<ReviewFindings /> drawer", () => {
+  beforeEach(() => set.mockClear());
+
+  it("groups open findings by the tab their field is on", () => {
+    renderWith();
+    const headings = screen
+      .getAllByText(/\(\d\)$/)
+      .map((el) => el.textContent)
+      .filter((t) => !/resolved/i.test(t));
+    expect(headings).toEqual(["Resource Identification (1)", "Data and Documentation (1)"]);
+    expect(screen.queryByText("Rejected earlier.")).toBeNull(); // under "Show resolved"
+  });
+
+  it("goes to the field's tab", () => {
+    const onGoToTab = vi.fn();
+    renderWith({ onGoToTab });
+    fireEvent.click(screen.getAllByRole("button", { name: /go to field/i })[0]);
+    expect(onGoToTab).toHaveBeenCalledWith("identification", "license");
+  });
+
+  it("scrolls to a field's section, or its shared anchor", () => {
+    document.body.innerHTML = '<div id="field-dateStart"></div>';
+    const el = document.getElementById("field-dateStart");
+    el.scrollIntoView = vi.fn();
+    scrollToField("dateEnd");
+    expect(el.scrollIntoView).toHaveBeenCalled();
+    expect(() => scrollToField("nowhere")).not.toThrow();
   });
 
   it("writes a rejection with its note", () => {
@@ -74,24 +128,52 @@ describe("<ReviewFindings />", () => {
     fireEvent.click(screen.getAllByRole("button", { name: /reject/i })[0]);
     fireEvent.change(screen.getByLabelText(/note/i), { target: { value: "fine as is" } });
     fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
-    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/b", {
+    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/a", {
       status: "rejected",
       note: "fine as is",
     });
   });
-});
 
-describe("<ReviewFindings /> Apply", () => {
-  it("applies only that finding's fix and marks it applied", () => {
+  it("restores a resolved finding", () => {
+    renderWith();
+    fireEvent.click(screen.getByRole("button", { name: /show resolved/i }));
+    expect(screen.getByText(/intentional/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /restore/i }));
+    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/c", null);
+  });
+
+  it("previews a fix, then applies it without writing a status (that happens on save)", () => {
     const onApplySuggested = vi.fn();
     renderWith({ onApplySuggested });
-    const apply = screen.getAllByRole("button", { name: /^apply$/i });
-    expect(apply).toHaveLength(1); // only "b" has a fix
-    fireEvent.click(apply[0]);
-    expect(onApplySuggested).toHaveBeenCalledWith(qa.findings[1].suggested);
-    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/b", {
-      status: "applied",
-    });
+    const preview = screen.getAllByRole("button", { name: /preview fix/i });
+    expect(preview).toHaveLength(1); // only "b" has a fix
+    fireEvent.click(preview[0]);
+    expect(screen.getByText("https://old.test")).toBeTruthy(); // current
+    expect(screen.getByText("https://new.test")).toBeTruthy(); // suggested
+    fireEvent.click(screen.getByRole("button", { name: /^apply$/i }));
+    expect(onApplySuggested).toHaveBeenCalledWith(qa.findings[1]);
+    expect(set).not.toHaveBeenCalled();
+  });
+
+  it("marks fixes applied in the form but not saved", () => {
+    renderWith({ pendingApplied: ["b"] });
+    expect(screen.getByText("Applied, unsaved")).toBeTruthy();
+    expect(screen.queryAllByRole("button", { name: /preview fix/i })).toHaveLength(0);
+  });
+});
+
+describe("findingTab / flattenPatch", () => {
+  it("maps a field path's first segment to its tab", () => {
+    expect(findingTab({ field: "contacts.0.email" })).toBe("contact");
+    expect(findingTab({ field: "https://x.test" })).toBe("other");
+  });
+
+  it("lists the leaves a patch changes, skipping holes", () => {
+    // eslint-disable-next-line no-sparse-arrays
+    expect(flattenPatch({ title: { en: "T" }, distribution: [, { url: "u" }] })).toEqual([
+      [["title", "en"], "T"],
+      [["distribution", "1", "url"], "u"],
+    ]);
   });
 });
 
@@ -120,8 +202,22 @@ describe("mergeSuggested", () => {
 });
 
 describe("qaSummary", () => {
-  it("counts open findings and their worst severity", () => {
-    expect(qaSummary(qa)).toEqual({ count: 2, worst: "high" });
+  it("counts open findings by severity, worst first", () => {
+    expect(qaSummary(qa)).toEqual({
+      count: 2,
+      worst: "high",
+      bySeverity: { high: 1, medium: 1 },
+      outdated: false,
+      generated: qa.generated,
+    });
     expect(qaSummary(undefined)).toBeNull();
+  });
+
+  it("treats ignored and applied findings as resolved, and flags outdated results", () => {
+    const summary = qaSummary(
+      { ...qa, statuses: { ...qa.statuses, a: { status: "deferred" } } },
+      "2026-10-08T00:00:00Z"
+    );
+    expect(summary).toMatchObject({ count: 1, worst: "high", outdated: true });
   });
 });

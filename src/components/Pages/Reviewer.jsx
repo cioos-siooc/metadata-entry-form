@@ -283,17 +283,25 @@ const Reviewer = () => {
     [region, modalKey, modalUserID, records, updateDoiOnPublish],
   );
 
-  // GitHub publish handler
   // Results land in the record's qa node; the region listener refreshes the Review column.
   const handleReviewRecord = useCallback(
     (recordID, userID) => {
-      showToast(language === "fr" ? "Révision lancée…" : "Review started…");
+      const r = records.find((rec) => rec.recordID === recordID);
+      const title = `« ${r?.title?.[language] || r?.title?.en || r?.title?.fr || recordID} »`;
+      showToast(language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`);
       reviewRecord({ region, userID, recordID })
-        .then(() => showToast(language === "fr" ? "Révision terminée" : "Review finished", "success"))
+        .then(() =>
+          showToast(
+            language === "fr" ? `Révision de ${title} terminée` : `Finished reviewing ${title}`,
+            "success",
+          ),
+        )
         .catch((e) => showToast(e.message, "error"));
     },
-    [region, language, reviewRecord, showToast]
+    [region, language, records, reviewRecord, showToast],
   );
+
+  // GitHub publish handler
 
   const handleGithubPublishClick = useCallback((recordID, userID) => {
     setModalKey(recordID);
@@ -485,12 +493,7 @@ const Reviewer = () => {
             </I18n>
           </Typography>
           <div style={{ marginTop: "12px" }}>
-            <ReviewRegion
-              onFinished={() =>
-                showToast(language === "fr" ? "Révision terminée" : "Review finished", "success")
-              }
-              onError={(message) => showToast(message, "error")}
-            />
+            <ReviewRegion onError={(message) => showToast(message, "error")} />
           </div>
         </Grid>
 
