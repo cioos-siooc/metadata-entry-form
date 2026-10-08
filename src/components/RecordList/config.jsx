@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Chip } from "@mui/material";
-import { Check, Close } from "@mui/icons-material";
+import { Box, Chip, Tooltip } from "@mui/material";
+import { Check, Close, Update } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
@@ -37,6 +38,30 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
+const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
+const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
+
+// A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
+// (worst first), outdated, generated}; null if never reviewed. `lastSaved` is record.created,
+// which is really "last updated". ponytail: misses reviewer-version bumps; inputHash catches those.
+export const qaSummary = (qa, lastSaved) => {
+  if (!qa?.generated) return null;
+  const statuses = qa.statuses || {};
+  const open = Object.values(qa.findings || {}).filter((f) => !statuses[f.id]?.status);
+  const bySeverity = {};
+  QA_SEVERITY_ORDER.forEach((sev) => {
+    const n = open.filter((f) => f.severity === sev).length;
+    if (n) bySeverity[sev] = n;
+  });
+  return {
+    count: open.length,
+    worst: Object.keys(bySeverity)[0],
+    bySeverity,
+    outdated: Boolean(lastSaved && new Date(lastSaved) > new Date(qa.generated)),
+    generated: qa.generated,
+  };
+};
+
 // ============================================================================
 // Page Configurations
 // ============================================================================
@@ -52,6 +77,7 @@ export const reviewerConfig = {
     "identifier",
     "doi",
     "doiStatus",
+    "qa",
     "abstract",
     "license",
     "boundingBox",
@@ -72,6 +98,7 @@ export const reviewerConfig = {
     created: true,
     doi: true,
     doiStatus: true,
+    qa: true,
     identifier: false,
     abstract: false,
     license: false,
@@ -98,6 +125,7 @@ export const reviewerConfig = {
     showTransferButton: true,
     showDownloadButton: true,
     showGithubPublishAction: true,
+    showReviewAction: true,
   },
 
   table: {
@@ -528,6 +556,49 @@ export const createColumns = (language, region, callbacks = {}) => ({
     filterOperators: getStatusFilterOperators(language),
   },
 
+  // Automated review: open (not rejected) findings, coloured by the worst severity
+  qa: {
+    field: "qa",
+    headerName: language === "en" ? "Review" : "Révision",
+    maxWidth: 100,
+    headerAlign: "center",
+    align: "center",
+    type: "number",
+    valueGetter: (value) => value?.count ?? null,
+    renderCell: (params) => {
+      const qa = params.row.qa;
+      if (!qa)
+        return (
+          <Box component="span" sx={{ color: "text.disabled" }}>
+            —
+          </Box>
+        );
+      const breakdown = Object.entries(qa.bySeverity)
+        .map(([sev, n]) => `${n} ${sev}`)
+        .join(", ");
+      return (
+        <Tooltip
+          title={`${breakdown || (language === "en" ? "No open issues" : "Aucun problème ouvert")} · ${
+            language === "en" ? "reviewed" : "révisée le"
+          } ${new Date(qa.generated).toLocaleString()}${
+            qa.outdated ? (language === "en" ? " (outdated)" : " (périmée)") : ""
+          }`}
+        >
+          <Chip
+            label={qa.count}
+            size="small"
+            icon={qa.outdated ? <Update /> : undefined}
+            variant={qa.outdated ? "outlined" : "filled"}
+            color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+            clickable
+            component={RouterLink}
+            to={`/${language}/${params.row.region || region}/${params.row.userID}/${params.row.recordID}?review=1`}
+          />
+        </Tooltip>
+      );
+    },
+  },
+
   boundingBox: {
     field: "boundingBox",
     headerName: language === "en" ? "Bounding Box" : "Boîte englobante",
@@ -677,5 +748,6 @@ export const recordToRow = (record, language, index) => ({
   )
     ? record.doiCreationStatus
     : "",
+  qa: qaSummary(record.qa, record.created),
   fullRecord: record,
 });

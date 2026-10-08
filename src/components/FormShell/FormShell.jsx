@@ -7,12 +7,15 @@ import ActionBar from "./ActionBar";
 // Top-level layout for the metadata form. Owns rail collapse state and
 // scroll-reset-on-section-change. All save/submit logic is passed in via
 // props so the class-component MetadataForm stays the source of truth.
+// `aside` is an optional right-hand column (e.g. the automated review panel),
+// sticky like the rail; md+ only, so callers handle small screens themselves.
 export default function FormShell({
   sections,
   activeSection,
   onSectionChange,
   headerProps,
   actionBarProps,
+  aside,
   children,
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -71,6 +74,25 @@ export default function FormShell({
             <Box>{children}</Box>
           </Fade>
         </Box>
+        {aside && (
+          <Box
+            component="aside"
+            sx={(theme) => ({
+              position: "sticky",
+              top: 0,
+              alignSelf: "flex-start",
+              width: 400,
+              flexShrink: 0,
+              borderLeft: `1px solid ${theme.vars.palette.divider}`,
+              bgcolor: "background.paper",
+              display: { xs: "none", md: "block" },
+              maxHeight: "calc(100vh - 64px)",
+              overflowY: "auto",
+            })}
+          >
+            {aside}
+          </Box>
+        )}
       </Box>
       <ActionBar {...actionBarProps} />
     </Box>

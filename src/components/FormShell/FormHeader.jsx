@@ -41,6 +41,7 @@ export default function FormHeader({
   activeSection,
   onSectionChange,
   overflowActions,
+  extraActions,
   language,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -175,6 +176,7 @@ export default function FormHeader({
           alignItems="center"
           sx={{ flexShrink: 0 }}
         >
+          {extraActions}
           <Button
             variant="contained"
             size="medium"

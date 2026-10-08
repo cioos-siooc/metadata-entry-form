@@ -16,6 +16,7 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
+import { ReviewRegion } from "../FormComponents/ReviewFindings";
 import {
   loadRegionRecords,
   deleteRecord,
@@ -65,7 +66,7 @@ const CONFIRMATIONS = [
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord, datacitePrefix } =
+  const { publishRecordToGitHub, transferRecord, datacitePrefix, reviewRecord } =
     useContext(UserContext);
 
   // Records state
@@ -313,7 +314,26 @@ const Reviewer = () => {
     [region, modalKey, modalUserID, records, updateDoiOnPublish],
   );
 
+  // Results land in the record's qa node; the region listener refreshes the Review column.
+  const handleReviewRecord = useCallback(
+    (recordID, userID) => {
+      const r = records.find((rec) => rec.recordID === recordID);
+      const title = `« ${r?.title?.[language] || r?.title?.en || r?.title?.fr || recordID} »`;
+      showToast(language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`);
+      reviewRecord({ region, userID, recordID })
+        .then(() =>
+          showToast(
+            language === "fr" ? `Révision de ${title} terminée` : `Finished reviewing ${title}`,
+            "success",
+          ),
+        )
+        .catch((e) => showToast(e.message, "error"));
+    },
+    [region, language, records, reviewRecord, showToast],
+  );
+
   // GitHub publish handler
+
   const handleGithubPublishClick = useCallback((recordID, userID) => {
     setModalKey(recordID);
     setModalUserID(userID);
@@ -479,6 +499,9 @@ const Reviewer = () => {
               </Fr>
             </I18n>
           </Typography>
+          <div style={{ marginTop: "12px" }}>
+            <ReviewRegion onError={(message) => showToast(message, "error")} />
+          </div>
         </Grid>
 
         {/* Record List */}
@@ -493,6 +516,7 @@ const Reviewer = () => {
             onSubmitRecord={handleSubmitRecord}
             onTransferRecord={handleTransferRecord}
             onGithubPublishClick={handleGithubPublishClick}
+            onReviewRecord={handleReviewRecord}
             githubPublishEnabled={githubPublishEnabled}
           />
         </Grid>

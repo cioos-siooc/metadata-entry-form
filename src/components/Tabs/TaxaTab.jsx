@@ -158,7 +158,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
 
   return (
     <Stack spacing={2}>
-      <FormSection>
+      <FormSection id="field-taxa">
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>

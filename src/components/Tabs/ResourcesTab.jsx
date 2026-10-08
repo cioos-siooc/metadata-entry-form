@@ -45,7 +45,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
 
   return (
     <div>
-      <Accordion
+      <Accordion id="field-distribution"
         defaultExpanded={AccordionDefaultExpanded[0]}
         style={{ width: "90%", margin: 20 }}
       >
@@ -130,7 +130,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+      <Accordion id="field-associated_resources"
         defaultExpanded={AccordionDefaultExpanded[1]}
         style={{ width: "90%", margin: 20 }}
       >
@@ -223,7 +223,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+      <Accordion id="field-history"
         defaultExpanded={AccordionDefaultExpanded[2]}
         style={{ width: "90%", margin: 20 }}
       >

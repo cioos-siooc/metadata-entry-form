@@ -107,7 +107,7 @@ const ContactTab = ({
   const contact = contacts[activeContact];
   return (
     <Stack spacing={2}>
-      <FormSection>
+      <FormSection id="field-contacts">
         <Grid>
           <QuestionText>
             <I18n>

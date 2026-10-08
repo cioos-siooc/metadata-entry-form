@@ -83,7 +83,7 @@ const IdentificationTab = ({
         <div />
       )}
 
-      <FormSection>
+      <FormSection id="field-abstract">
         <QuestionText>
           <I18n>
             <En>
@@ -184,7 +184,7 @@ const IdentificationTab = ({
         />
       </FormSection>
       {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
-        <FormSection>
+        <FormSection id="field-eov">
           <QuestionText>
             <I18n>
               <En>
@@ -325,7 +325,7 @@ const IdentificationTab = ({
         </FormSection>
       )}
 
-      <FormSection>
+      <FormSection id="field-keywords">
         <Grid container spacing={3} direction="column">
           <Grid>
             <QuestionText>
@@ -391,7 +391,7 @@ const IdentificationTab = ({
         </Grid>
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-progress">
         <QuestionText>
           <I18n>
             <En>What is the status of this dataset?</En>
@@ -420,7 +420,7 @@ const IdentificationTab = ({
         />
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-dateStart">
         <QuestionText>
           <I18n>
             <En>What is the start date when data was first collected?</En>
@@ -474,7 +474,7 @@ const IdentificationTab = ({
         />
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-edition">
         <QuestionText>
           <I18n>
             <En>The version number of this dataset. For example, 1.1</En>
@@ -534,7 +534,7 @@ const IdentificationTab = ({
         />
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-license">
         <QuestionText>
           <I18n>
             <En>How is the dataset licensed?</En>

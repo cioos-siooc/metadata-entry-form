@@ -237,7 +237,7 @@ const StartTab = ({
         </ul>
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-title">
         <QuestionText>
           <I18n>
             <En>What is the dataset title? Required in English and French.</En>
@@ -281,7 +281,7 @@ const StartTab = ({
         />
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-metadataScope">
         <QuestionText>
           <I18n>
             <En>What is the resource type?</En>
@@ -305,7 +305,7 @@ const StartTab = ({
         />
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-resourceType">
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
@@ -385,7 +385,7 @@ const StartTab = ({
         </FormControl>
       </FormSection>
 
-      <FormSection>
+      <FormSection id="field-language">
         <QuestionText>
           <I18n>
             <En>What is the primary language of the dataset?</En>
@@ -402,12 +402,14 @@ const StartTab = ({
         />
       </FormSection>
 
-      <DOIInput
-        record={record}
-        handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
-        handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
-        disabled={disabled}
-      />
+      <div id="field-datasetIdentifier">
+        <DOIInput
+          record={record}
+          handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
+          handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
+          disabled={disabled}
+        />
+      </div>
 
       {showShareRecord && <SharedUsersList region={region} record={record} />}
     </Stack>

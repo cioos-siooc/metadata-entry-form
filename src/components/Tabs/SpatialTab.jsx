@@ -185,7 +185,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
 
   return (
     <Stack spacing={2}>
-      <FormSection>
+      <FormSection id="field-map">
         <QuestionText sx={{ pb: 1 }}>
           <I18n>
             <En>What is the spatial extent of the dataset?</En>
@@ -215,7 +215,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           record={record}
         />
       </FormSection>
-      <FormSection>
+      <FormSection id="field-verticalExtentMin">
         <QuestionText>
           <I18n>
             <En>What is the vertical extent of the dataset in meters?</En>
