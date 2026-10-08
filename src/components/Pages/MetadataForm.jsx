@@ -41,7 +41,7 @@ import { percentValid } from "../../utils/validate";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
-import performUpdateDraftDoi from "../../utils/doiUpdate";
+import performUpdateDraftDoi, { canPushFormToDoi } from "../../utils/doiUpdate";
 
 function SectionSwitcher({ sections, activeSection, render }) {
   return (
@@ -267,10 +267,13 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record } = this.state;
-    const { datacitePrefix } = this.context;
+    const { datacitePrefix, isReviewer, isAdmin } = this.context;
 
+    // Keep a reviewer's draft DOI in sync on submit. updateDraftDoi is
+    // reviewer/admin-only server-side, registered/findable DOIs are only
+    // updated on publish, and a DataCite failure must not block the submit.
     try {
-      if (datacitePrefix && record.datasetIdentifier) {
+      if ((isReviewer || isAdmin) && canPushFormToDoi(record, datacitePrefix)) {
         const statusCode = await performUpdateDraftDoi(
           record,
           region,
@@ -288,7 +291,6 @@ class MetadataForm extends FormClassTemplate {
       // eslint-disable-next-line no-console
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
-      throw err;
     }
   }
 

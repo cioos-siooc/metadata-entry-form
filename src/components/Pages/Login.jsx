@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import {
   Box,
   Card,
@@ -35,6 +36,10 @@ const Login = () => {
     } catch (err) {
       console.error("Login Error:", err.code, err.customData, err);
       if (err.code !== "auth/cancelled-popup-request") {
+        Sentry.captureException(err, {
+          tags: { auth_code: err.code, auth_provider: key },
+          extra: { customData: err.customData },
+        });
         setError(`${err.message} (${err.code})`);
       }
     } finally {
