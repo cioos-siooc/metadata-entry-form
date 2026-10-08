@@ -1,0 +1,2237 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.cioos.ca/metadata-entry-form/v1/record.submission.schema.json",
+  "title": "CIOOS Metadata Record (submission)",
+  "description": "A CIOOS metadata record that is complete enough to submit. Equivalent to recordIsValid() in src/utils/validate.js. Existing drafts are expected to fail this.",
+  "x-i18n": {
+    "fr": {
+      "title": "Enregistrement de métadonnées du SIOOC (soumission)",
+      "description": "Un enregistrement de métadonnées du SIOOC suffisamment complet pour être soumis. Équivalent à recordIsValid() dans src/utils/validate.js. Les brouillons existants ne le satisferont pas."
+    }
+  },
+  "x-cioos-schema-version": "1.0.0",
+  "type": "object",
+  "additionalProperties": true,
+  "definitions": {
+    "numericString": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "pattern": "^(-?\\d+(\\.\\d+)?)?$",
+      "description": "A number stored as a string, or \"\" when unset. Bbox and vertical extent values are strings in the database.",
+      "x-i18n": {
+        "fr": {
+          "description": "Un nombre stocké sous forme de chaîne, ou « » si non défini. Les valeurs de cadre de délimitation et d'étendue verticale sont des chaînes dans la base de données."
+        }
+      }
+    },
+    "numericStringRequired": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "pattern": "^-?\\d+(\\.\\d+)?$",
+      "description": "A number stored as a string.",
+      "x-i18n": {
+        "fr": {
+          "description": "Un nombre stocké sous forme de chaîne."
+        }
+      }
+    },
+    "isoDateTime": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Full ISO-8601 datetime with milliseconds, e.g. 2023-10-01T19:00:00.000Z.",
+      "x-i18n": {
+        "fr": {
+          "description": "Date-heure ISO-8601 complète avec millisecondes, p. ex. 2023-10-01T19:00:00.000Z."
+        }
+      }
+    },
+    "translationProvenance": {
+      "type": "object",
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "verified"
+      ]
+    },
+    "translations": {
+      "type": "object",
+      "properties": {
+        "en": {
+          "$ref": "#/definitions/translationProvenance"
+        },
+        "fr": {
+          "$ref": "#/definitions/translationProvenance"
+        }
+      },
+      "additionalProperties": false
+    },
+    "bilingualText": {
+      "type": "object",
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "fr": {
+          "type": "string"
+        },
+        "translations": {
+          "$ref": "#/definitions/translations"
+        }
+      },
+      "description": "Free text in English and French, with translation provenance.",
+      "x-i18n": {
+        "fr": {
+          "description": "Texte libre en anglais et en français, avec la provenance de la traduction."
+        }
+      }
+    },
+    "bilingualTextRequired": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/bilingualText"
+        },
+        {
+          "required": [
+            "en",
+            "fr"
+          ],
+          "properties": {
+            "en": {
+              "minLength": 1
+            },
+            "fr": {
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "bilingualTextAtLeastOne": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/bilingualText"
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "en"
+              ],
+              "properties": {
+                "en": {
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "fr"
+              ],
+              "properties": {
+                "fr": {
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "bilingualKeywords": {
+      "type": "object",
+      "properties": {
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fr": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "emailOrEmpty": {
+      "type": "string",
+      "anyOf": [
+        {
+          "const": ""
+        },
+        {
+          "format": "email"
+        }
+      ]
+    },
+    "uriOrEmpty": {
+      "type": "string",
+      "anyOf": [
+        {
+          "const": ""
+        },
+        {
+          "format": "uri"
+        }
+      ]
+    },
+    "mapExtent": {
+      "type": "object",
+      "properties": {
+        "north": {
+          "$ref": "#/definitions/numericString"
+        },
+        "south": {
+          "$ref": "#/definitions/numericString"
+        },
+        "east": {
+          "$ref": "#/definitions/numericString"
+        },
+        "west": {
+          "$ref": "#/definitions/numericString"
+        },
+        "polygon": {
+          "type": "string",
+          "description": "Space-separated \"lat,lon\" pairs; at least two points, and the first pair must equal the last.",
+          "x-i18n": {
+            "fr": {
+              "description": "Paires « lat,lon » séparées par des espaces ; au moins deux points, et la première paire doit être identique à la dernière."
+            }
+          }
+        },
+        "description": {
+          "$ref": "#/definitions/bilingualText"
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "custodian",
+              "owner",
+              "distributor",
+              "author",
+              "coAuthor",
+              "collaborator",
+              "contributor",
+              "editor",
+              "funder",
+              "mediator",
+              "originator",
+              "pointOfContact",
+              "principalInvestigator",
+              "processor",
+              "publisher",
+              "resourceProvider",
+              "rightsHolder",
+              "sponsor",
+              "stakeholder"
+            ]
+          },
+          "description": "ISO 19115 CI_RoleCode values.",
+          "x-i18n": {
+            "fr": {
+              "description": "Valeurs ISO 19115 CI_RoleCode."
+            }
+          }
+        },
+        "orgName": {
+          "type": "string"
+        },
+        "orgEmail": {
+          "$ref": "#/definitions/emailOrEmpty"
+        },
+        "orgURL": {
+          "$ref": "#/definitions/uriOrEmpty"
+        },
+        "orgAdress": {
+          "type": "string"
+        },
+        "orgCity": {
+          "type": "string"
+        },
+        "orgCountry": {
+          "type": "string"
+        },
+        "orgRor": {
+          "type": "string"
+        },
+        "indPosition": {
+          "type": "string"
+        },
+        "indEmail": {
+          "$ref": "#/definitions/emailOrEmpty"
+        },
+        "indOrcid": {
+          "type": "string"
+        },
+        "givenNames": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "inCitation": {
+          "type": "boolean"
+        },
+        "contactID": {
+          "type": "string"
+        }
+      }
+    },
+    "contactFilled": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/contact"
+        },
+        {
+          "required": [
+            "role"
+          ],
+          "properties": {
+            "role": {
+              "minItems": 1
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "orgName"
+              ],
+              "properties": {
+                "orgName": {
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "givenNames"
+              ],
+              "properties": {
+                "givenNames": {
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "lastName"
+              ],
+              "properties": {
+                "lastName": {
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "instrument": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/bilingualText"
+        },
+        "description": {
+          "$ref": "#/definitions/bilingualText"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "instrumentID": {
+          "type": "string"
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "",
+            "ice island",
+            "parachute",
+            "glider",
+            "DUKW",
+            "man-powered boat",
+            "land/onshore vehicle",
+            "beach/intertidal zone structure",
+            "mesocosm bag",
+            "vessel at fixed position",
+            "coastal structure",
+            "fishing vessel",
+            "ship",
+            "fish",
+            "tethered balloon",
+            "unknown",
+            "seabird and duck",
+            "vessel of opportunity",
+            "diver",
+            "amphibious vehicle",
+            "fixed benthic node",
+            "organism",
+            "pack ice",
+            "free-rising balloon",
+            "drillship",
+            "autonomous surface water vehicle",
+            "surface ice buoy",
+            "surface vessel",
+            "drifting manned submersible",
+            "fixed subsurface vertical profiler",
+            "satellite",
+            "lowered unmanned submersible",
+            "float",
+            "submersible",
+            "manned spacecraft",
+            "moored surface buoy",
+            "geostationary orbiting satellite",
+            "propelled unmanned submersible",
+            "subsurface mooring",
+            "aeroplane",
+            "non-buoyant aircraft",
+            "cryosphere",
+            "Ice-tethered subsurface profiling float",
+            "unmanned aerial vehicle",
+            "kite",
+            "naval vessel",
+            "land/onshore structure",
+            "sea bed vehicle",
+            "spacecraft",
+            "river station",
+            "vessel of opportunity on fixed route",
+            "offshore structure",
+            "self-propelled boat",
+            "free-floating balloon",
+            "research vessel",
+            "land-sea mammals",
+            "amphibious crawler",
+            "airship",
+            "cetacean",
+            "self-propelled small boat",
+            "drift ice",
+            "land or seafloor",
+            "flightless bird",
+            "ice shelf",
+            "buoyant aircraft",
+            "human",
+            "man-powered small boat",
+            "surface gliders",
+            "hovercraft",
+            "sub-surface gliders",
+            "drifting subsurface profiling float",
+            "towed unmanned submersible",
+            "autogyro",
+            "mooring",
+            "helicopter",
+            "autonomous underwater vehicle",
+            "drifting surface float",
+            "orbiting satellite",
+            "drifting subsurface float",
+            "rocket",
+            "propelled manned submersible",
+            "research aeroplane"
+          ],
+          "description": "SeaVoX Platform Category (NERC L06). Stored as the English label.",
+          "x-i18n": {
+            "fr": {
+              "description": "Catégorie de plateforme SeaVoX (NERC L06). Stockée sous forme d'étiquette anglaise."
+            }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/definitions/bilingualText"
+        },
+        "platformID": {
+          "type": "string"
+        }
+      }
+    },
+    "distributionResource": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/definitions/uriOrEmpty"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/definitions/bilingualText"
+        }
+      }
+    },
+    "relatedWork": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/bilingualText"
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "ARK",
+            "arXiv",
+            "bibcode",
+            "ca.cioos",
+            "DOI",
+            "EAN13",
+            "EISSN",
+            "Handle",
+            "IGSN",
+            "ISBN",
+            "ISSN",
+            "ISTC",
+            "LISSN",
+            "LSID",
+            "PMID",
+            "PURL",
+            "UPC",
+            "URL",
+            "URN",
+            "w3id"
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "association_type": {
+          "type": "string",
+          "enum": [
+            "IsCitedBy",
+            "Cites",
+            "IsSupplementTo",
+            "IsSupplementedBy",
+            "IsContinuedBy",
+            "Continues",
+            "IsDescribedBy",
+            "Describes",
+            "HasMetadata",
+            "IsMetadataFor",
+            "HasVersion",
+            "IsVersionOf",
+            "IsNewVersionOf",
+            "PreviousVersionOf",
+            "IsPartOf",
+            "HasPart",
+            "IsPublishedIn",
+            "IsReferencedBy",
+            "References",
+            "IsDocumentedBy",
+            "Documents",
+            "IsCompiledBy",
+            "Compiles",
+            "IsVariantFormOf",
+            "IsOriginalFormOf",
+            "IsIdenticalTo",
+            "IsReviewedBy",
+            "Reviews",
+            "IsDerivedFrom",
+            "IsSourceOf",
+            "Requires",
+            "IsRequiredBy",
+            "IsObsoletedBy",
+            "Obsoletes"
+          ]
+        },
+        "association_type_iso": {
+          "type": "string"
+        }
+      }
+    },
+    "lineageCitation": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "authority": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      }
+    },
+    "lineageDocumentation": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "authority": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      }
+    },
+    "lineageStep": {
+      "type": "object",
+      "properties": {
+        "statement": {
+          "$ref": "#/definitions/bilingualText"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "",
+            "Book",
+            "Collection",
+            "DataCollectionSampling",
+            "Dataset",
+            "Model",
+            "Preprint",
+            "Report",
+            "Software",
+            "Text",
+            "Other"
+          ],
+          "description": "A metadataScopeCodes KEY (e.g. DataCollectionSampling), not an ISO value.",
+          "x-i18n": {
+            "fr": {
+              "description": "Une CLÉ de metadataScopeCodes (p. ex. DataCollectionSampling), et non une valeur ISO."
+            }
+          }
+        },
+        "scopeIso": {
+          "type": "string",
+          "enum": [
+            "",
+            "document",
+            "collection",
+            "collectionSession",
+            "dataset",
+            "model",
+            "software"
+          ],
+          "description": "The ISO value corresponding to `scope`.",
+          "x-i18n": {
+            "fr": {
+              "description": "La valeur ISO correspondant à « scope »."
+            }
+          }
+        },
+        "additionalDocumentation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/lineageDocumentation"
+          }
+        },
+        "source": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/lineageCitation"
+          }
+        },
+        "processingStep": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/lineageCitation"
+          }
+        }
+      }
+    },
+    "taxon": {
+      "type": "object",
+      "properties": {
+        "scientificName": {
+          "type": "string"
+        },
+        "canonicalName": {
+          "type": "string"
+        },
+        "rank": {
+          "type": "string"
+        },
+        "kingdom": {
+          "type": "string"
+        },
+        "phylum": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        },
+        "order": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string"
+        },
+        "genus": {
+          "type": "string"
+        },
+        "species": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "string"
+        }
+      }
+    },
+    "lastEditedBy": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "email": {
+          "$ref": "#/definitions/emailOrEmpty"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
+    },
+    "userinfo": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "email": {
+          "$ref": "#/definitions/emailOrEmpty"
+        }
+      }
+    }
+  },
+  "properties": {
+    "title": {
+      "$ref": "#/definitions/bilingualText",
+      "title": "Title",
+      "description": "Dataset title, in both languages.",
+      "x-i18n": {
+        "fr": {
+          "title": "Titre",
+          "description": "Titre du jeu de données, dans les deux langues."
+        }
+      },
+      "x-cioos-tab": "start",
+      "x-cioos-error": {
+        "en": "Missing title in French or English",
+        "fr": "Titre manquant en français ou en anglais"
+      }
+    },
+    "resourceType": {
+      "type": [
+        "array",
+        "string"
+      ],
+      "items": {
+        "enum": [
+          "oceans",
+          "biota",
+          "climatologyMeteorologyAtmosphere",
+          "environment",
+          "society",
+          "farming",
+          "boundaries",
+          "economy",
+          "elevation",
+          "geoscientificInformation",
+          "health",
+          "imageryBaseMapsEarthCover",
+          "intelligenceMilitary",
+          "inlandWaters",
+          "location",
+          "planningCadastre",
+          "structure",
+          "transportation",
+          "utilitiesCommunication",
+          "extraTerrestrial",
+          "disaster",
+          "other",
+          "oceanographic",
+          "biological"
+        ]
+      },
+      "title": "Topic category",
+      "description": "ISO 19115 MD_TopicCategoryCode values. Legacy records may store the pre-ISO names 'oceanographic' and 'biological', or a bare string instead of an array.",
+      "x-i18n": {
+        "fr": {
+          "title": "Catégorie thématique",
+          "description": "Valeurs ISO 19115 MD_TopicCategoryCode. Les enregistrements existants peuvent contenir les anciens noms « oceanographic » et « biological »."
+        }
+      },
+      "x-cioos-tab": "start",
+      "x-cioos-error": {
+        "en": "Please select a theme for this record",
+        "fr": "Veuillez sélectionner une discipline scientifique pour cet enregistrement"
+      }
+    },
+    "metadataScope": {
+      "type": "string",
+      "enum": [
+        "",
+        "Book",
+        "Collection",
+        "DataCollectionSampling",
+        "Dataset",
+        "Model",
+        "Preprint",
+        "Report",
+        "Software",
+        "Text",
+        "Other"
+      ],
+      "title": "Resource type",
+      "description": "The kind of resource being described, e.g. Dataset or Book.",
+      "x-i18n": {
+        "fr": {
+          "title": "Type de ressource",
+          "description": "Le type de ressource décrite, par exemple Jeu de données ou Livre."
+        }
+      },
+      "x-cioos-tab": "start",
+      "x-cioos-error": {
+        "en": "Please select a resource type",
+        "fr": "Veuillez sélectionner un type de ressources"
+      }
+    },
+    "metadataScopeIso": {
+      "type": "string",
+      "enum": [
+        "",
+        "document",
+        "collection",
+        "collectionSession",
+        "dataset",
+        "model",
+        "software"
+      ],
+      "title": "Resource type (ISO)",
+      "description": "The ISO scope code corresponding to metadataScope.",
+      "x-i18n": {
+        "fr": {
+          "title": "Type de ressource (ISO)",
+          "description": "Le code ISO correspondant à metadataScope."
+        }
+      },
+      "x-cioos-tab": "start"
+    },
+    "datasetIdentifier": {
+      "type": "string",
+      "anyOf": [
+        {
+          "const": ""
+        },
+        {
+          "pattern": "^https://doi\\.org/10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$"
+        }
+      ],
+      "title": "DOI",
+      "description": "Digital Object Identifier as a full https://doi.org/ URL. Bare DOIs are rejected — see schema README §11.",
+      "x-i18n": {
+        "fr": {
+          "title": "DOI",
+          "description": "Identifiant d'objet numérique sous forme d'URL https://doi.org/ complète."
+        }
+      },
+      "x-cioos-tab": "start",
+      "x-cioos-error": {
+        "en": "Invalid DOI",
+        "fr": "DOI non valide"
+      }
+    },
+    "doiCreationStatus": {
+      "type": "string",
+      "enum": [
+        "",
+        "draft",
+        "registered",
+        "findable"
+      ],
+      "title": "DOI state",
+      "description": "DataCite lifecycle state. Empty when no DOI has been minted.",
+      "x-i18n": {
+        "fr": {
+          "title": "État du DOI",
+          "description": "État du cycle de vie DataCite. Vide si aucun DOI n'a été créé."
+        }
+      },
+      "x-cioos-tab": "start"
+    },
+    "sharedWith": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "title": "Shared with",
+      "description": "Map of user IDs this record has been shared with.",
+      "x-i18n": {
+        "fr": {
+          "title": "Partagé avec",
+          "description": "Liste des identifiants d'utilisateurs avec qui l'enregistrement est partagé."
+        }
+      },
+      "x-cioos-tab": "start"
+    },
+    "abstract": {
+      "$ref": "#/definitions/bilingualText",
+      "title": "Abstract",
+      "description": "Dataset abstract, in both languages.",
+      "x-i18n": {
+        "fr": {
+          "title": "Résumé",
+          "description": "Résumé du jeu de données, dans les deux langues."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "Missing abstract in French or English",
+        "fr": "Résumé manquant en français ou en anglais"
+      }
+    },
+    "keywords": {
+      "$ref": "#/definitions/bilingualKeywords",
+      "title": "Keywords",
+      "description": "Free-text keywords, per language.",
+      "x-i18n": {
+        "fr": {
+          "title": "Mots-clés",
+          "description": "Mots-clés libres, par langue."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "At least one keyword is required",
+        "fr": "Au moins un mot clé est requis"
+      }
+    },
+    "eov": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "oxygen",
+          "nutrients",
+          "inorganicCarbon",
+          "dissolvedOrganicCarbon",
+          "seaSurfaceHeight",
+          "seaIce",
+          "seaState",
+          "seaSurfaceSalinity",
+          "seaSurfaceTemperature",
+          "subSurfaceSalinity",
+          "subSurfaceTemperature",
+          "surfaceCurrents",
+          "subSurfaceCurrents",
+          "other",
+          "transientTracers",
+          "particulateMatter",
+          "nitrousOxide",
+          "stableCarbonIsotopes",
+          "phytoplanktonBiomassAndDiversity",
+          "zooplanktonBiomassAndDiversity",
+          "fishAbundanceAndDistribution",
+          "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+          "seaTurtlesAbundanceAndDistribution",
+          "seabirdsAbundanceAndDistribution",
+          "marineMammalsAbundanceAndDistribution",
+          "hardCoralCoverAndComposition",
+          "seagrassCoverAndComposition",
+          "macroalgalCanopyCoverAndComposition",
+          "invertebrateAbundanceAndDistribution",
+          "microbeBiomassAndDiversity",
+          "oceanColour",
+          "oceanSound",
+          "marineDebris",
+          "oceanSurfaceHeatFlux",
+          "oceanSurfaceStress",
+          "oceanBottomPressure"
+        ]
+      },
+      "title": "Essential Ocean Variables",
+      "description": "GOOS Essential Ocean Variables present in the dataset. Deprecated values remain valid structurally but block submission.",
+      "x-i18n": {
+        "fr": {
+          "title": "Variables océaniques essentielles",
+          "description": "Variables océaniques essentielles du GOOS présentes dans le jeu de données."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "At least one EOV is required",
+        "fr": "Au moins une variable océanique essentielle est requise"
+      }
+    },
+    "progress": {
+      "type": "string",
+      "enum": [
+        "",
+        "onGoing",
+        "historicalArchive",
+        "completed"
+      ],
+      "title": "Dataset status",
+      "description": "ISO 19115 MD_ProgressCode.",
+      "x-i18n": {
+        "fr": {
+          "title": "Statut du jeu de données",
+          "description": "Code ISO 19115 MD_ProgressCode."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "Please select a dataset status",
+        "fr": "Veuillez définir le statut du jeu de données"
+      }
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "",
+        "en",
+        "fr"
+      ],
+      "title": "Primary language",
+      "description": "The dataset's primary language.",
+      "x-i18n": {
+        "fr": {
+          "title": "Langue principale",
+          "description": "La langue principale du jeu de données."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "Language field is missing",
+        "fr": "Le champ de langue est vide"
+      }
+    },
+    "license": {
+      "type": "string",
+      "enum": [
+        "",
+        "CC-BY-4.0",
+        "CC-BY-SA-4.0",
+        "CC-BY-ND-4.0",
+        "CC-BY-NC-4.0",
+        "CC-BY-NC-SA-4.0",
+        "CC-BY-NC-ND-4.0",
+        "CC0",
+        "government-open-license-canada",
+        "government-open-license-nova-scotia",
+        "OGL-NB",
+        "OGL-BC",
+        "government-open-license-newfoundland",
+        "Apache-2.0",
+        "No License",
+        "ca-eccc-odl"
+      ],
+      "title": "Licence",
+      "description": "Licence under which the dataset is released.",
+      "x-i18n": {
+        "fr": {
+          "title": "Licence",
+          "description": "Licence sous laquelle le jeu de données est publié."
+        }
+      },
+      "x-cioos-tab": "dataID",
+      "x-cioos-error": {
+        "en": "Please select a license for the dataset",
+        "fr": "Veuillez sélectionner une licence pour le jeu de données"
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Projects",
+      "description": "Project names, from the region's admin-managed list.",
+      "x-i18n": {
+        "fr": {
+          "title": "Projets",
+          "description": "Noms de projets, issus de la liste gérée par la région."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "dateStart": {
+      "$ref": "#/definitions/isoDateTime",
+      "title": "Start date",
+      "description": "Start of the dataset's temporal extent.",
+      "x-i18n": {
+        "fr": {
+          "title": "Date de début",
+          "description": "Début de l'étendue temporelle du jeu de données."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "dateEnd": {
+      "$ref": "#/definitions/isoDateTime",
+      "title": "End date",
+      "description": "End of the dataset's temporal extent.",
+      "x-i18n": {
+        "fr": {
+          "title": "Date de fin",
+          "description": "Fin de l'étendue temporelle du jeu de données."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "datePublished": {
+      "$ref": "#/definitions/isoDateTime",
+      "title": "Date published",
+      "description": "Publication date.",
+      "x-i18n": {
+        "fr": {
+          "title": "Date de publication",
+          "description": "Date de publication."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "dateRevised": {
+      "$ref": "#/definitions/isoDateTime",
+      "title": "Date revised",
+      "description": "Most recent revision date.",
+      "x-i18n": {
+        "fr": {
+          "title": "Date de révision",
+          "description": "Date de la révision la plus récente."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "edition": {
+      "type": "string",
+      "title": "Edition",
+      "description": "Dataset edition or version label.",
+      "x-i18n": {
+        "fr": {
+          "title": "Édition",
+          "description": "Édition ou version du jeu de données."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "limitations": {
+      "type": "string",
+      "title": "Limitations",
+      "description": "Limitations on use, beyond the licence.",
+      "x-i18n": {
+        "fr": {
+          "title": "Limitations",
+          "description": "Limitations d'utilisation, au-delà de la licence."
+        }
+      },
+      "x-cioos-tab": "dataID"
+    },
+    "map": {
+      "$ref": "#/definitions/mapExtent",
+      "title": "Geographic extent",
+      "description": "A bounding box, a polygon, or a text description. Which of those is sufficient depends on the topic category — see the conditional requirements page.",
+      "x-i18n": {
+        "fr": {
+          "title": "Étendue géographique",
+          "description": "Un cadre de délimitation, un polygone, ou une description textuelle."
+        }
+      },
+      "x-cioos-tab": "spatial",
+      "x-cioos-error": {
+        "en": "Spatial information is missing",
+        "fr": "L'état du jeu de données n'est pas spécifié"
+      }
+    },
+    "verticalExtentMin": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "title": "Vertical extent minimum",
+      "description": "Shallowest depth or lowest height.",
+      "x-i18n": {
+        "fr": {
+          "title": "Étendue verticale minimale",
+          "description": "Profondeur la plus faible ou hauteur la plus basse."
+        }
+      },
+      "x-cioos-tab": "spatial",
+      "x-cioos-error": {
+        "en": "Missing Vertical Extent Min",
+        "fr": "Étendue verticale manquante Min"
+      }
+    },
+    "verticalExtentMax": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "title": "Vertical extent maximum",
+      "description": "Deepest depth or greatest height.",
+      "x-i18n": {
+        "fr": {
+          "title": "Étendue verticale maximale",
+          "description": "Profondeur la plus grande ou hauteur la plus élevée."
+        }
+      },
+      "x-cioos-tab": "spatial",
+      "x-cioos-error": {
+        "en": "Missing Vertical Extent Max",
+        "fr": "Étendue verticale manquante Max"
+      }
+    },
+    "verticalExtentDirection": {
+      "type": "string",
+      "enum": [
+        "",
+        "heightPositive",
+        "depthPositive"
+      ],
+      "title": "Vertical extent direction",
+      "description": "Whether the values are positive downward (depth) or upward (height).",
+      "x-i18n": {
+        "fr": {
+          "title": "Direction de l'étendue verticale",
+          "description": "Indique si les valeurs sont positives vers le bas (profondeur) ou vers le haut (hauteur)."
+        }
+      },
+      "x-cioos-tab": "spatial",
+      "x-cioos-error": {
+        "en": "Missing Vertical Extent Direction",
+        "fr": "Direction de l'étendue verticale manquante"
+      }
+    },
+    "verticalExtentEPSG": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "title": "Vertical CRS",
+      "description": "EPSG code for the vertical coordinate reference system.",
+      "x-i18n": {
+        "fr": {
+          "title": "SRC vertical",
+          "description": "Code EPSG du système de référence de coordonnées vertical."
+        }
+      },
+      "x-cioos-tab": "spatial"
+    },
+    "noVerticalExtent": {
+      "type": "boolean",
+      "title": "No vertical extent",
+      "description": "Set when the dataset has no meaningful vertical extent; waives the three fields above.",
+      "x-i18n": {
+        "fr": {
+          "title": "Aucune étendue verticale",
+          "description": "Coché lorsque le jeu de données n'a pas d'étendue verticale pertinente."
+        }
+      },
+      "x-cioos-tab": "spatial"
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/contact"
+      },
+      "title": "Contacts",
+      "description": "People and organizations associated with the dataset. Every contact needs a role and a name; at least one must be a Metadata Custodian, at least one a Data Owner, and at least one must appear in the citation.",
+      "x-i18n": {
+        "fr": {
+          "title": "Contacts",
+          "description": "Personnes et organismes associés au jeu de données. Chaque contact doit avoir un rôle et un nom."
+        }
+      },
+      "x-cioos-tab": "contacts",
+      "x-cioos-error": {
+        "en": "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
+        "fr": "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation."
+      }
+    },
+    "distribution": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/distributionResource"
+      },
+      "title": "Resources",
+      "description": "Links to the data itself and to supporting material. At least one resource with a name and a valid URL is required to submit.",
+      "x-i18n": {
+        "fr": {
+          "title": "Ressources",
+          "description": "Liens vers les données et vers la documentation associée."
+        }
+      },
+      "x-cioos-tab": "resources",
+      "x-cioos-error": {
+        "en": "Must have at least one resource. If a URL is included it must be valid.",
+        "fr": "Doit avoir au moins une ressource. Vérifiez si votre URL est valide."
+      }
+    },
+    "associated_resources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/relatedWork"
+      },
+      "title": "Related works",
+      "description": "Other works related to this dataset. Each needs a bilingual title, an identifier, an identifier type, and a relation type.",
+      "x-i18n": {
+        "fr": {
+          "title": "Ressources connexes",
+          "description": "Autres travaux liés à ce jeu de données."
+        }
+      },
+      "x-cioos-tab": "relatedworks",
+      "x-cioos-error": {
+        "en": "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
+        "fr": "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides."
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/lineageStep"
+      },
+      "title": "Lineage",
+      "description": "How the data came to be. Each processing step and source needs a title and description; a step scoped to data collection also needs a bilingual statement.",
+      "x-i18n": {
+        "fr": {
+          "title": "Généalogie des données",
+          "description": "Comment les données ont été produites."
+        }
+      },
+      "x-cioos-tab": "lineage",
+      "x-cioos-error": {
+        "en": "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
+        "fr": "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise"
+      }
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/platform"
+      },
+      "title": "Platforms",
+      "description": "Platforms the data was collected from. Each needs a type and an ID, unless the dataset has no platform or is a model.",
+      "x-i18n": {
+        "fr": {
+          "title": "Plateformes",
+          "description": "Plateformes à partir desquelles les données ont été recueillies."
+        }
+      },
+      "x-cioos-tab": "platform",
+      "x-cioos-error": {
+        "en": "Missing platform type or ID",
+        "fr": "Type ou ID de plateforme manquant."
+      }
+    },
+    "instruments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/instrument"
+      },
+      "title": "Instruments",
+      "description": "Instruments used to collect the data. Each needs an ID; when two or more platforms are defined, each instrument must also name its platform.",
+      "x-i18n": {
+        "fr": {
+          "title": "Instruments",
+          "description": "Instruments utilisés pour recueillir les données."
+        }
+      },
+      "x-cioos-tab": "platformInstruments",
+      "x-cioos-error": {
+        "en": "Instrument ID is required. When multiple platforms are defined, each instrument must be associated to a platform.",
+        "fr": "L'identifiant de l'instrument est requis. Lorsque plusieurs plates-formes sont définies, chaque instrument doit être associé à une plate-forme."
+      }
+    },
+    "noPlatform": {
+      "type": "boolean",
+      "title": "No platform",
+      "description": "Set when the dataset was not collected from a platform.",
+      "x-i18n": {
+        "fr": {
+          "title": "Aucune plateforme",
+          "description": "Coché lorsque les données ne proviennent pas d'une plateforme."
+        }
+      },
+      "x-cioos-tab": "platform"
+    },
+    "taxa": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/taxon"
+      },
+      "title": "Taxonomic coverage",
+      "description": "Taxa present in the dataset, resolved against WoRMS. Required unless noTaxa is set.",
+      "x-i18n": {
+        "fr": {
+          "title": "Couverture taxonomique",
+          "description": "Taxons présents dans le jeu de données, résolus via WoRMS."
+        }
+      },
+      "x-cioos-tab": "taxa",
+      "x-cioos-error": {
+        "en": "Missing Taxonomic Coverage",
+        "fr": "Couverture taxonomique manquante."
+      }
+    },
+    "noTaxa": {
+      "type": "boolean",
+      "title": "No taxonomic coverage",
+      "description": "Set when the dataset has no taxonomic coverage; waives the field above.",
+      "x-i18n": {
+        "fr": {
+          "title": "Aucune couverture taxonomique",
+          "description": "Coché lorsque le jeu de données n'a pas de couverture taxonomique."
+        }
+      },
+      "x-cioos-tab": "taxa"
+    },
+    "identifier": {
+      "type": "string",
+      "title": "Identifier",
+      "description": "UUID v4 assigned when the record is created.",
+      "x-i18n": {
+        "fr": {
+          "title": "Identifiant",
+          "description": "UUID v4 attribué à la création de l'enregistrement."
+        }
+      }
+    },
+    "recordID": {
+      "type": "string",
+      "title": "Record ID",
+      "description": "Realtime Database key for this record.",
+      "x-i18n": {
+        "fr": {
+          "title": "ID d'enregistrement",
+          "description": "Clé de la base de données pour cet enregistrement."
+        }
+      }
+    },
+    "userID": {
+      "type": "string",
+      "title": "User ID",
+      "description": "Owning user's Firebase auth UID.",
+      "x-i18n": {
+        "fr": {
+          "title": "ID utilisateur",
+          "description": "UID Firebase du propriétaire."
+        }
+      }
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "",
+        "pacific",
+        "stlaurent",
+        "atlantic",
+        "amundsen",
+        "canwin",
+        "test"
+      ],
+      "title": "Region",
+      "description": "CIOOS region the record belongs to.",
+      "x-i18n": {
+        "fr": {
+          "title": "Région",
+          "description": "Région du SIOOC à laquelle appartient l'enregistrement."
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "",
+        "submitted",
+        "published"
+      ],
+      "title": "Status",
+      "description": "Record lifecycle. An empty string means draft.",
+      "x-i18n": {
+        "fr": {
+          "title": "Statut",
+          "description": "Cycle de vie de l'enregistrement. Une chaîne vide signifie brouillon."
+        }
+      }
+    },
+    "created": {
+      "type": "string",
+      "title": "Created",
+      "description": "ISO-8601 timestamp of record creation.",
+      "x-i18n": {
+        "fr": {
+          "title": "Créé le",
+          "description": "Horodatage ISO-8601 de la création."
+        }
+      }
+    },
+    "timeFirstPublished": {
+      "type": "string",
+      "title": "First published",
+      "description": "ISO-8601 timestamp of first publication.",
+      "x-i18n": {
+        "fr": {
+          "title": "Première publication",
+          "description": "Horodatage ISO-8601 de la première publication."
+        }
+      }
+    },
+    "lastEditedBy": {
+      "$ref": "#/definitions/lastEditedBy",
+      "title": "Last edited by",
+      "description": "The user who last saved the record.",
+      "x-i18n": {
+        "fr": {
+          "title": "Dernière modification par",
+          "description": "Le dernier utilisateur ayant enregistré."
+        }
+      }
+    },
+    "userinfo": {
+      "$ref": "#/definitions/userinfo",
+      "title": "User info",
+      "description": "Denormalized owner display name and email.",
+      "x-i18n": {
+        "fr": {
+          "title": "Infos utilisateur",
+          "description": "Nom et courriel du propriétaire, dénormalisés."
+        }
+      }
+    },
+    "filename": {
+      "type": "string",
+      "title": "Filename",
+      "description": "Generated filename used when publishing.",
+      "x-i18n": {
+        "fr": {
+          "title": "Nom de fichier",
+          "description": "Nom de fichier généré lors de la publication."
+        }
+      }
+    },
+    "organization": {
+      "type": "string",
+      "title": "Organization",
+      "description": "Publishing organization.",
+      "x-i18n": {
+        "fr": {
+          "title": "Organisme",
+          "description": "Organisme de publication."
+        }
+      }
+    },
+    "comment": {
+      "type": "string",
+      "title": "Comment",
+      "description": "Reviewer comment attached to the record.",
+      "x-i18n": {
+        "fr": {
+          "title": "Commentaire",
+          "description": "Commentaire d'un réviseur."
+        }
+      }
+    },
+    "category": {
+      "type": "string",
+      "title": "Category (deprecated)",
+      "description": "Superseded by resourceType. Still read as a fallback by the Python converter.",
+      "x-i18n": {
+        "fr": {
+          "title": "Catégorie (obsolète)",
+          "description": "Remplacé par resourceType."
+        }
+      }
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Schema version",
+      "description": "Version of this schema the record was written against. Absent on records predating the schema.",
+      "x-i18n": {
+        "fr": {
+          "title": "Version du schéma",
+          "description": "Version du schéma utilisée lors de l'écriture de l'enregistrement."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "required": [
+        "title",
+        "abstract"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/bilingualTextRequired"
+        },
+        "abstract": {
+          "$ref": "#/definitions/bilingualTextRequired"
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "resourceType": {
+              "type": "array",
+              "minItems": 1
+            }
+          },
+          "required": [
+            "resourceType"
+          ]
+        },
+        {
+          "properties": {
+            "resourceType": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "resourceType"
+          ]
+        }
+      ]
+    },
+    {
+      "required": [
+        "metadataScope",
+        "progress",
+        "language",
+        "license"
+      ],
+      "properties": {
+        "metadataScope": {
+          "minLength": 1
+        },
+        "progress": {
+          "minLength": 1
+        },
+        "language": {
+          "minLength": 1
+        },
+        "license": {
+          "minLength": 1
+        }
+      }
+    },
+    {
+      "required": [
+        "keywords"
+      ],
+      "properties": {
+        "keywords": {
+          "anyOf": [
+            {
+              "required": [
+                "en"
+              ],
+              "properties": {
+                "en": {
+                  "minItems": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "fr"
+              ],
+              "properties": {
+                "fr": {
+                  "minItems": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "required": [
+        "eov"
+      ],
+      "properties": {
+        "eov": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "not": {
+              "enum": [
+                "marineTurtlesBirdsMammalsAbundanceAndDistribution"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "properties": {
+                  "resourceType": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "resourceType"
+                ]
+              },
+              {
+                "properties": {
+                  "resourceType": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "resourceType"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "resourceType"
+                ],
+                "properties": {
+                  "resourceType": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "contains": {
+                          "enum": [
+                            "biota",
+                            "biological"
+                          ]
+                        }
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "biota",
+                          "biological"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "map"
+                ],
+                "properties": {
+                  "map": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "north",
+                          "south",
+                          "east",
+                          "west"
+                        ],
+                        "properties": {
+                          "north": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "south": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "east": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "west": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          }
+                        },
+                        "x-cioos-bbox-ordered": true,
+                        "x-cioos-coordinate-ranges": true
+                      },
+                      {
+                        "required": [
+                          "polygon"
+                        ],
+                        "properties": {
+                          "polygon": {
+                            "type": "string",
+                            "pattern": "^-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?( -?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?)+$",
+                            "x-cioos-polygon-closed": true
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "description"
+                        ],
+                        "properties": {
+                          "description": {
+                            "$ref": "#/definitions/bilingualTextAtLeastOne"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "required": [
+                  "map"
+                ],
+                "properties": {
+                  "map": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "north",
+                          "south",
+                          "east",
+                          "west"
+                        ],
+                        "properties": {
+                          "north": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "south": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "east": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          },
+                          "west": {
+                            "$ref": "#/definitions/numericStringRequired"
+                          }
+                        },
+                        "x-cioos-bbox-ordered": true,
+                        "x-cioos-coordinate-ranges": true
+                      },
+                      {
+                        "required": [
+                          "polygon"
+                        ],
+                        "properties": {
+                          "polygon": {
+                            "type": "string",
+                            "pattern": "^-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?( -?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?)+$",
+                            "x-cioos-polygon-closed": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "if": {
+        "required": [
+          "noVerticalExtent"
+        ],
+        "properties": {
+          "noVerticalExtent": {
+            "const": true
+          }
+        }
+      },
+      "then": true,
+      "else": {
+        "required": [
+          "verticalExtentMin",
+          "verticalExtentMax",
+          "verticalExtentDirection"
+        ],
+        "properties": {
+          "verticalExtentMin": {
+            "minLength": 1
+          },
+          "verticalExtentMax": {
+            "minLength": 1
+          },
+          "verticalExtentDirection": {
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "noTaxa"
+        ],
+        "properties": {
+          "noTaxa": {
+            "const": true
+          }
+        }
+      },
+      "then": true,
+      "else": {
+        "required": [
+          "taxa"
+        ],
+        "properties": {
+          "taxa": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "allOf": [
+        {
+          "required": [
+            "contacts"
+          ],
+          "properties": {
+            "contacts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/contactFilled"
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "contacts": {
+              "contains": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/contactFilled"
+                  },
+                  {
+                    "properties": {
+                      "role": {
+                        "contains": {
+                          "const": "custodian"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "contacts": {
+              "contains": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/contactFilled"
+                  },
+                  {
+                    "properties": {
+                      "role": {
+                        "contains": {
+                          "const": "owner"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "contacts": {
+              "contains": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/contactFilled"
+                  },
+                  {
+                    "properties": {
+                      "inCitation": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "inCitation"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "required": [
+        "distribution"
+      ],
+      "properties": {
+        "distribution": {
+          "type": "array",
+          "contains": {
+            "required": [
+              "name",
+              "url"
+            ],
+            "properties": {
+              "name": {
+                "minLength": 1
+              },
+              "url": {
+                "minLength": 1,
+                "format": "uri"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "associated_resources": {
+          "items": {
+            "required": [
+              "title",
+              "authority",
+              "code",
+              "association_type"
+            ],
+            "properties": {
+              "title": {
+                "$ref": "#/definitions/bilingualTextRequired"
+              },
+              "authority": {
+                "minLength": 1
+              },
+              "code": {
+                "minLength": 1
+              },
+              "association_type": {
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "history": {
+          "items": {
+            "allOf": [
+              {
+                "properties": {
+                  "processingStep": {
+                    "items": {
+                      "required": [
+                        "title",
+                        "description"
+                      ],
+                      "properties": {
+                        "title": {
+                          "minLength": 1
+                        },
+                        "description": {
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "source": {
+                    "items": {
+                      "required": [
+                        "title",
+                        "description"
+                      ],
+                      "properties": {
+                        "title": {
+                          "minLength": 1
+                        },
+                        "description": {
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "required": [
+                    "scopeIso"
+                  ],
+                  "properties": {
+                    "scopeIso": {
+                      "const": "collectionSession"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "statement"
+                  ],
+                  "properties": {
+                    "statement": {
+                      "$ref": "#/definitions/bilingualTextRequired"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "required": [
+            "noPlatform"
+          ],
+          "properties": {
+            "noPlatform": {
+              "const": true
+            }
+          }
+        },
+        {
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "items": {
+                "required": [
+                  "type",
+                  "id"
+                ],
+                "properties": {
+                  "type": {
+                    "minLength": 1
+                  },
+                  "id": {
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "metadataScope": {
+              "const": ""
+            }
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "metadataScope"
+            ]
+          }
+        },
+        {
+          "required": [
+            "metadataScopeIso"
+          ],
+          "properties": {
+            "metadataScopeIso": {
+              "const": "model"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "properties": {
+            "instruments": {
+              "items": {
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "platforms"
+            ],
+            "properties": {
+              "platforms": {
+                "type": "array",
+                "minItems": 2
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "instruments": {
+                "items": {
+                  "required": [
+                    "platform"
+                  ],
+                  "properties": {
+                    "platform": {
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

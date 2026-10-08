@@ -10,7 +10,11 @@ import {
   gridFilteredSortedRowIdsSelector,
 } from "@mui/x-data-grid";
 
-import { useColumnVisibility, useRecordTableFilters } from "./hooks";
+import {
+  useColumnVisibility,
+  useRecordTableFilters,
+  markFormNavigation,
+} from "./hooks";
 import { createColumns, recordToRow } from "./config";
 import RecordActions from "./RecordActions";
 import MobileRecordRow from "./MobileRecordRow";
@@ -27,6 +31,7 @@ const RecordTable = ({
   onSubmitRecord,
   onTransferRecord,
   onGithubPublishClick,
+  onReviewRecord,
   githubPublishEnabled,
 }) => {
   const { language, region } = useParams();
@@ -50,6 +55,7 @@ const RecordTable = ({
       unsubmit: (recordID, userID) => onSubmitRecord?.(recordID, userID, ""),
       transfer: onTransferRecord,
       githubPublish: onGithubPublishClick,
+      review: onReviewRecord,
     }),
     [
       onEditRecord,
@@ -58,6 +64,7 @@ const RecordTable = ({
       onSubmitRecord,
       onTransferRecord,
       onGithubPublishClick,
+      onReviewRecord,
     ],
   );
 
@@ -112,10 +119,13 @@ const RecordTable = ({
     (row) => {
       const { userID, recordID, region: rowRegion } = row;
       if (userID && recordID) {
+        // Same marker the Actions > Edit path sets, so returning from the form
+        // keeps the table's filters either way you opened the record.
+        markFormNavigation(config.pageId);
         navigate(`/${language}/${rowRegion || region}/${userID}/${recordID}`);
       }
     },
-    [navigate, language, region],
+    [navigate, language, region, config.pageId],
   );
 
   const handleRowClick = useCallback(

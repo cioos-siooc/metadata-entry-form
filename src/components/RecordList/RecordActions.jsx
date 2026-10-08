@@ -22,6 +22,7 @@ import {
   CloudDownload,
   OpenInNew,
   ChevronRight,
+  FactCheck,
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -338,7 +339,7 @@ const RecordActions = ({
           <FileCopy fontSize="small" />
         </ListItemIcon>
         <ListItemText>
-          <I18n en="Clone" fr="Dupliquer" />
+          <I18n en="Duplicate" fr="Dupliquer" />
         </ListItemText>
       </MenuItem>,
     );
@@ -409,6 +410,25 @@ const RecordActions = ({
   }
 
   // Catalogue Link
+  if (actions.showReviewAction) {
+    menuItems.push(
+      <MenuItem
+        key="review"
+        onClick={() => {
+          handlers.review?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <FactCheck fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Run automated review" fr="Lancer la révision automatisée" />
+        </ListItemText>
+      </MenuItem>
+    );
+  }
+
   if (showCatalogueDivider) {
     menuItems.push(<Divider key="divider-catalogue" />);
     menuItems.push(

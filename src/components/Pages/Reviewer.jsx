@@ -16,6 +16,7 @@ import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
+import { ReviewRegion } from "../FormComponents/ReviewFindings";
 import {
   loadRegionRecords,
   deleteRecord,
@@ -27,10 +28,45 @@ import performUpdateDraftDoi, { isManagedDoi } from "../../utils/doiUpdate";
 import RecordList, { reviewerConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
 
+// SimpleModal takes a question; without one every confirmation here read the
+// same, so a reviewer could not tell a delete from an unpublish.
+const CONFIRMATIONS = [
+  {
+    name: "delete",
+    status: null,
+    en: "Delete this record? This cannot be undone.",
+    fr: "Supprimer cet enregistrement ? Cette action est irréversible.",
+  },
+  {
+    name: "submit",
+    status: "submitted",
+    en: "Submit this record for review?",
+    fr: "Soumettre cet enregistrement pour révision ?",
+  },
+  {
+    name: "publish",
+    status: "published",
+    en: "Publish this record?",
+    fr: "Publier cet enregistrement ?",
+  },
+  {
+    name: "unpublish",
+    status: "submitted",
+    en: "Unpublish this record and return it to submitted?",
+    fr: "Retirer la publication de cet enregistrement et le remettre en soumis ?",
+  },
+  {
+    name: "unsubmit",
+    status: "",
+    en: "Return this record to draft?",
+    fr: "Remettre cet enregistrement en brouillon ?",
+  },
+];
+
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord, datacitePrefix } =
+  const { publishRecordToGitHub, transferRecord, datacitePrefix, reviewRecord } =
     useContext(UserContext);
 
   // Records state
@@ -40,16 +76,12 @@ const Reviewer = () => {
   const unsubscribeRef = useRef(null);
 
   // Modal state
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [unPublishModalOpen, setUnPublishModalOpen] = useState(false);
-  const [unSubmitModalOpen, setUnSubmitModalOpen] = useState(false);
-  const [submitModalOpen, setSubmitModalOpen] = useState(false);
-  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  // Exactly one confirmation is ever open, so this is a single name rather
+  // than a boolean per dialog.
+  const [activeModal, setActiveModal] = useState(null);
   const [modalKey, setModalKey] = useState("");
   const [modalUserID, setModalUserID] = useState("");
   const [transferEmail, setTransferEmail] = useState("");
-  const [transferUserNotFound] = useState(false);
 
   // GitHub publish state
   const [githubPublishModalOpen, setGithubPublishModalOpen] = useState(false);
@@ -164,15 +196,13 @@ const Reviewer = () => {
     [language],
   );
 
-  // Toggle modal helper
-  const toggleModal = useCallback(
-    (modalSetter, state, key = "", userID = "") => {
-      setModalKey(key);
-      setModalUserID(userID);
-      modalSetter(state);
-    },
-    [],
-  );
+  const openModal = useCallback((name, key = "", userID = "") => {
+    setModalKey(key);
+    setModalUserID(userID);
+    setActiveModal(name);
+  }, []);
+
+  const closeModal = useCallback(() => setActiveModal(null), []);
 
   // Action handlers
   const handleEditRecord = useCallback(
@@ -194,9 +224,9 @@ const Reviewer = () => {
 
   const handleDeleteRecord = useCallback(
     (recordID, userID) => {
-      toggleModal(setDeleteModalOpen, true, recordID, userID);
+      openModal("delete", recordID, userID);
     },
-    [toggleModal],
+    [openModal],
   );
 
   const confirmDelete = useCallback(async () => {
@@ -209,9 +239,9 @@ const Reviewer = () => {
 
   const handleTransferRecord = useCallback(
     (recordID, userID) => {
-      toggleModal(setTransferModalOpen, true, recordID, userID);
+      openModal("transfer", recordID, userID);
     },
-    [toggleModal],
+    [openModal],
   );
 
   const confirmTransfer = useCallback(async () => {
@@ -231,21 +261,23 @@ const Reviewer = () => {
     (recordID, userID, newStatus) => {
       const record = records.find((r) => r.recordID === recordID);
 
+      // Unpublish is checked first: it shares newStatus "submitted" with the
+      // draft -> submitted case, so the general branch would swallow it.
       if (newStatus === "submitted" && record?.status === "published") {
         // Published -> Submitted (unpublish)
-        toggleModal(setUnPublishModalOpen, true, recordID, userID);
+        openModal("unpublish", recordID, userID);
       } else if (newStatus === "submitted") {
         // Draft -> Submitted
-        toggleModal(setSubmitModalOpen, true, recordID, userID);
+        openModal("submit", recordID, userID);
       } else if (newStatus === "published") {
         // Submitted -> Published
-        toggleModal(setPublishModalOpen, true, recordID, userID);
+        openModal("publish", recordID, userID);
       } else if (newStatus === "" && record?.status === "submitted") {
         // Submitted -> Draft (unsubmit)
-        toggleModal(setUnSubmitModalOpen, true, recordID, userID);
+        openModal("unsubmit", recordID, userID);
       }
     },
-    [records, toggleModal],
+    [records, openModal],
   );
 
   // Publishing is when reviewed metadata reaches DataCite: the form cannot
@@ -282,7 +314,26 @@ const Reviewer = () => {
     [region, modalKey, modalUserID, records, updateDoiOnPublish],
   );
 
+  // Results land in the record's qa node; the region listener refreshes the Review column.
+  const handleReviewRecord = useCallback(
+    (recordID, userID) => {
+      const r = records.find((rec) => rec.recordID === recordID);
+      const title = `« ${r?.title?.[language] || r?.title?.en || r?.title?.fr || recordID} »`;
+      showToast(language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`);
+      reviewRecord({ region, userID, recordID })
+        .then(() =>
+          showToast(
+            language === "fr" ? `Révision de ${title} terminée` : `Finished reviewing ${title}`,
+            "success",
+          ),
+        )
+        .catch((e) => showToast(e.message, "error"));
+    },
+    [region, language, records, reviewRecord, showToast],
+  );
+
   // GitHub publish handler
+
   const handleGithubPublishClick = useCallback((recordID, userID) => {
     setModalKey(recordID);
     setModalUserID(userID);
@@ -364,52 +415,28 @@ const Reviewer = () => {
     <>
       {/* Modals (render in portal; avoid wrapper divs in Grid) */}
       <TransferModal
-        open={transferModalOpen}
+        open={activeModal === "transfer"}
         onClose={() => {
-          setTransferModalOpen(false);
+          closeModal();
           setTransferEmail("");
         }}
         onAccept={confirmTransfer}
-        transferUserNotFound={transferUserNotFound}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
         email={transferEmail}
         setEmail={setTransferEmail}
       />
-      <SimpleModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onAccept={confirmDelete}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      />
-      <SimpleModal
-        open={submitModalOpen}
-        onClose={() => setSubmitModalOpen(false)}
-        onAccept={() => confirmSubmitRecord("submitted")}
-        aria-labelledby="simple-modal-title"
-      />
-      <SimpleModal
-        open={publishModalOpen}
-        onClose={() => setPublishModalOpen(false)}
-        onAccept={() => confirmSubmitRecord("published")}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      />
-      <SimpleModal
-        open={unPublishModalOpen}
-        onClose={() => setUnPublishModalOpen(false)}
-        onAccept={() => confirmSubmitRecord("submitted")}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      />
-      <SimpleModal
-        open={unSubmitModalOpen}
-        onClose={() => setUnSubmitModalOpen(false)}
-        onAccept={() => confirmSubmitRecord("")}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      />
+      {CONFIRMATIONS.map(({ name, status, en, fr }) => (
+        <SimpleModal
+          key={name}
+          open={activeModal === name}
+          onClose={closeModal}
+          onAccept={
+            name === "delete"
+              ? confirmDelete
+              : () => confirmSubmitRecord(status)
+          }
+          modalQuestion={<I18n en={en} fr={fr} />}
+        />
+      ))}
       <GitHubPublishDialog
         open={githubPublishModalOpen}
         onClose={() => setGithubPublishModalOpen(false)}
@@ -472,6 +499,9 @@ const Reviewer = () => {
               </Fr>
             </I18n>
           </Typography>
+          <div style={{ marginTop: "12px" }}>
+            <ReviewRegion onError={(message) => showToast(message, "error")} />
+          </div>
         </Grid>
 
         {/* Record List */}
@@ -486,6 +516,7 @@ const Reviewer = () => {
             onSubmitRecord={handleSubmitRecord}
             onTransferRecord={handleTransferRecord}
             onGithubPublishClick={handleGithubPublishClick}
+            onReviewRecord={handleReviewRecord}
             githubPublishEnabled={githubPublishEnabled}
           />
         </Grid>

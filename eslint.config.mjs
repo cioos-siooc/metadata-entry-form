@@ -95,7 +95,11 @@ export default [
     rules: {
       "no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_", ignoreRestSiblings: true, caughtErrors: "none" },
+        {
+          argsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+          caughtErrors: "none",
+        },
       ],
     },
   },
@@ -121,6 +125,7 @@ export default [
       ".venv/**",
       "**/.venv/**",
       "src/serviceWorker.js",
+      "**/*.min.js",
       "src/**/__tests__/*.test*",
     ],
   },

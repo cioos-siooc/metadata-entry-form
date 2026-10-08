@@ -45,7 +45,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
 
   return (
     <div>
-      <Accordion
+      <Accordion id="field-distribution"
         defaultExpanded={AccordionDefaultExpanded[0]}
         style={{ width: "90%", margin: 20 }}
       >
@@ -53,7 +53,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
@@ -130,7 +130,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+      <Accordion id="field-associated_resources"
         defaultExpanded={AccordionDefaultExpanded[1]}
         style={{ width: "90%", margin: 20 }}
       >
@@ -138,7 +138,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel2a-content"
           id="panel2a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
@@ -223,7 +223,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+      <Accordion id="field-history"
         defaultExpanded={AccordionDefaultExpanded[2]}
         style={{ width: "90%", margin: 20 }}
       >
@@ -231,7 +231,7 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
           expandIcon={<ArrowDownwardIcon />}
           aria-controls="panel3a-content"
           id="panel3a-header"
-          style={{ backgroundColor: "#00000015" }}
+          sx={{ bgcolor: "action.hover" }}
         >
           <HeadingText>
             <I18n>
