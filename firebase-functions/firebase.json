@@ -9,7 +9,7 @@
       "codebase": "js-functions"
     },
     {
-      "source": "python-functions", 
+      "source": "python-functions",
       "runtime": "python311",
       "codebase": "py-functions"
     }
@@ -46,6 +46,35 @@
     {
       "target": "dev",
       "rules": "database.rules.json"
+    }
+  ],
+  "hosting": [
+    {
+      "target": "forms",
+      "public": "forms-hosting",
+      "redirects": [
+        {
+          "source": "/",
+          "destination": "https://cioos-siooc.github.io/metadata-entry-form/",
+          "type": 302
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/api",
+          "function": {
+            "functionId": "forms",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/api/**",
+          "function": {
+            "functionId": "forms",
+            "region": "us-central1"
+          }
+        }
+      ]
     }
   ]
 }

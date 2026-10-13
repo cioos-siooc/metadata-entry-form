@@ -12,6 +12,11 @@
         "dev": [
           "cioos-metadata-form-dev-258dc"
         ]
+      },
+      "hosting": {
+        "forms": [
+          "cioos-metadata-forms-api"
+        ]
       }
     },
     "cioos-metadata-form-dev-258dc": {
@@ -21,6 +26,11 @@
         ],
         "dev": [
           "cioos-metadata-form-dev-258dc"
+        ]
+      },
+      "hosting": {
+        "forms": [
+          "cioos-metadata-forms-api-dev"
         ]
       }
     }

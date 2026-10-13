@@ -1,5 +1,11 @@
 # CIOOS Records Update
 
+> **Deprecated.** Records are now served on request by the `forms` Firebase function
+> at `https://forms.cioos.ca/api/` (see `firebase-functions/python-functions/README.md`),
+> with per-region tokens managed on the form's Admin page. This service is kept running
+> only until the catalogue harvest sources are moved to the new URLs, then it will be removed
+> along with `firebase_to_xml` and the record update triggers in `firebase-functions/functions/updates.js`.
+
 Section contains all the different compontents used to synchronized the cioos catalogues with the metadata-entry-form.
 
 Both services share the same volume of data where one generates and maintains the different forms and the second provides access to the forms. 

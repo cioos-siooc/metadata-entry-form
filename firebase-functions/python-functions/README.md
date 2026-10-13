@@ -70,3 +70,27 @@ DataCite REST API.
 This function requests a 180s timeout: OBIS makes up to three follow-up API calls
 (taxonomy facets, plus occurrence samples used to infer EOVs and platforms) and PDC
 probes doi.org to resolve a CCIN's DOI.
+
+---
+### `forms`: records served like a WAF
+
+`forms` (`forms_api.py`) serves the submitted and published records of each region as files rendered on request, laid out like the former WAF of `cioos-records-update`. It is reached through the `forms` Hosting target of `firebase-functions/firebase.json` at `https://forms.cioos.ca/api/`:
+
+| Path | Content |
+|---|---|
+| `/api/<region>/[<owner>/]` | Listing of the published records (nginx autoindex HTML; `?format=json` for nginx JSON) |
+| `/api/unpublished/<region>/[<owner>/]` | Same for submitted records |
+| `/api/<region>/[<owner>/]<name>.xml` | A record rendered in a format (`.xml` ISO 19115-3, `.yaml`, `.json`, `_erddap.xml`, `_dataCite.json`, `_dataCite.xml`, `_citation.cff`) |
+| `/api/<region>/?format=records` | Every record of the region with its files, for the form's WAF page |
+
+Formats and owner folders follow `admin/<region>/waf` (Admin page). Access needs either a WAF token of the region (Admin page), as `Authorization: Bearer waf_...` or as the Basic auth password, e.g. `https://harvester:waf_...@forms.cioos.ca/api/<region>/`, or the Firebase ID token of an admin or reviewer of the region. Permissions, tokens and records are cached 60 seconds per instance, and files carry `Last-Modified` (the record's last save) and answer `If-Modified-Since`.
+
+One-time setup per Firebase project, before the first deploy of the `forms` Hosting target:
+
+```bash
+cd firebase-functions
+firebase hosting:sites:create cioos-metadata-forms-api --project default      # dev: cioos-metadata-forms-api-dev --project dev
+# then add the custom domain forms.cioos.ca to that site in the Firebase console (Hosting)
+```
+
+Tests: `uv run pytest tests`

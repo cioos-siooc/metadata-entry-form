@@ -93,7 +93,7 @@ jobs:
           fi
           cp .env ../python-functions/.env
           echo "Deploying to Firebase..."
-          firebase deploy --only functions:js-functions,functions:py-functions --token ${{ secrets.FIREBASE_TOKEN }} --force
+          firebase deploy --only functions:js-functions,functions:py-functions,hosting:forms --token ${{ secrets.FIREBASE_TOKEN }} --force
         working-directory: firebase-functions/functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

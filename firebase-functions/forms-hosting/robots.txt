@@ -1,0 +1,3 @@
+# Metadata records are served to harvesters under /api/ with a token, not to crawlers.
+User-agent: *
+Disallow: /

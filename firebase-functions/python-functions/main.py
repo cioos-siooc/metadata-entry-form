@@ -10,7 +10,7 @@ import logging
 import requests
 from firebase_functions import https_fn, options
 from firebase_functions.params import BoolParam
-from firebase_admin import initialize_app
+from firebase_admin import auth as firebase_auth, db, initialize_app
 
 from cioos_metadata_conversion.record import Record
 from cioos_metadata_conversion.load_from.datacite import (
@@ -18,6 +18,7 @@ from cioos_metadata_conversion.load_from.datacite import (
     retrieve_doi_as_firebase_record,
 )
 from cioos_metadata_conversion.load_from.obis import retrieve_obis_metadata
+from forms_api import FormsApi
 from cioos_metadata_conversion.load_from.pdc import (
     PDCRetrievalError,
     retrieve_pdc_as_firebase_record,
@@ -267,4 +268,55 @@ def create_record_from_source(req: https_fn.Request):  # type: ignore
         status=200,
         headers=headers,
         content_type="application/json",
+    )
+
+
+def _load_region_records(region):
+    users = db.reference(f"{region}/users").get() or {}
+    return [
+        record
+        for user in users.values()
+        if isinstance(user, dict)
+        for record in (user.get("records") or {}).values()
+        if isinstance(record, dict)
+    ]
+
+
+def _verify_id_token(id_token):
+    try:
+        return firebase_auth.verify_id_token(id_token).get("email")
+    except (ValueError, firebase_auth.InvalidIdTokenError, firebase_auth.ExpiredIdTokenError,
+            firebase_auth.RevokedIdTokenError, firebase_auth.CertificateFetchError):
+        return None
+
+
+_forms_api = FormsApi(
+    load_region_admin=lambda region: db.reference(f"admin/{region}").get(),
+    load_region_records=_load_region_records,
+    verify_id_token=_verify_id_token,
+)
+
+
+@https_fn.on_request(memory=options.MemoryOption.MB_512)
+def forms(req: https_fn.Request):  # type: ignore
+    """Records served like a WAF below /api/ (Hosting rewrite), see forms_api.py.
+
+    Harvesters send no Origin; the form's WAF page calls it cross-origin with
+    the user's ID token, so allowed origins get CORS headers for GET.
+    """
+    origin = req.headers.get("origin")
+    cors = {}
+    if origin and _origin_allowed(origin):
+        cors = {
+            **_cors_headers(origin, True),
+            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+        }
+    if req.method == "OPTIONS":
+        return https_fn.Response("", status=204 if cors else 403, headers=cors)
+
+    status, headers, body = _forms_api.handle(req.method, req.path, req.args, req.headers)
+    return https_fn.Response(
+        "" if req.method == "HEAD" else body,
+        status=status,
+        headers={**headers, **cors},
     )
