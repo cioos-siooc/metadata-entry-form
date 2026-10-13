@@ -45,6 +45,7 @@ import {
   getWafSettings,
   harvestURL,
   hashWafToken,
+  isTrustedWafURL,
 } from "../../utils/waf";
 
 const CopyField = ({ label, value }) => (
@@ -74,7 +75,7 @@ const CopyField = ({ label, value }) => (
 // harvesters use to read it. Only the sha256 of a token is stored.
 const WafSettings = ({ region }) => {
   const { isAdmin, user } = useContext(UserContext);
-  const [settings, setSettings] = useState(getWafSettings(null));
+  const [settings, setSettings] = useState(null);
   const [form, setForm] = useState(null);
   const [tokenName, setTokenName] = useState("");
   const [newToken, setNewToken] = useState(null);
@@ -83,29 +84,45 @@ const WafSettings = ({ region }) => {
 
   useEffect(
     () =>
-      onValue(ref(getDatabase(firebase), `admin/${region}/waf`), (snapshot) =>
-        setSettings(getWafSettings({ waf: snapshot.val() })),
+      onValue(
+        ref(getDatabase(firebase), `admin/${region}/waf`),
+        (snapshot) => setSettings(getWafSettings(snapshot.val())),
+        // without the saved settings, the form must not offer to overwrite them
+        (error) => {
+          setSettings(null);
+          setStatus({ severity: "error", message: error.message });
+        },
       ),
     [region],
   );
 
   // edited values, reset to the saved ones whenever they change (by content,
   // a token change must not discard unsaved edits)
-  const saved = JSON.stringify({
-    formats: settings.formats,
-    splitByOwner: settings.splitByOwner,
-    url: settings.url,
-  });
-  useEffect(() => setForm(JSON.parse(saved)), [saved]);
+  const saved =
+    settings &&
+    JSON.stringify({
+      formats: settings.formats,
+      splitByOwner: settings.splitByOwner,
+      url: settings.url,
+    });
+  useEffect(() => setForm(saved && JSON.parse(saved)), [saved]);
 
   const regionRef = () => ref(getDatabase(firebase), `admin/${region}`);
 
   const handleSave = async () => {
+    const url = form.url.trim() || DEFAULT_WAF_URL;
+    if (!isTrustedWafURL(url)) {
+      setStatus({
+        severity: "error",
+        message: `The WAF URL must be on ${new URL(DEFAULT_WAF_URL).host}, this site or localhost`,
+      });
+      return;
+    }
     try {
       await update(regionRef(), {
         "waf/formats": form.formats,
         "waf/splitByOwner": form.splitByOwner,
-        "waf/url": form.url.trim() || DEFAULT_WAF_URL,
+        "waf/url": url,
       });
       setStatus({ severity: "success", message: "saved" });
     } catch (error) {
@@ -140,7 +157,17 @@ const WafSettings = ({ region }) => {
     setRevokeId(null);
   };
 
-  if (!form) return null;
+  if (!form) {
+    return status?.severity === "error" ? (
+      <Alert severity="error">
+        <I18n
+          en="Could not load the WAF settings:"
+          fr="Impossible de charger les paramètres du WAF :"
+        />{" "}
+        {status.message}
+      </Alert>
+    ) : null;
+  }
 
   const tokens = Object.entries(settings.tokens).sort(
     ([, a], [, b]) => (b.createdAt || 0) - (a.createdAt || 0),

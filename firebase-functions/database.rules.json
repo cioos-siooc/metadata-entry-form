@@ -65,6 +65,10 @@
           // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
         },
+        "waf": {
+          // Allow read access to the WAF settings and token hashes if the authenticated user's email is listed as a reviewer OR admin in the permissions for the region.
+          ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
+        },
         "githubCredentials": {
           ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
           ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"

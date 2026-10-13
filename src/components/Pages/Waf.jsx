@@ -24,7 +24,12 @@ import FileSaver from "file-saver";
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
-import { WAF_FORMATS, getWafSettings, wafFormatLabel } from "../../utils/waf";
+import {
+  WAF_FORMATS,
+  getWafSettings,
+  isTrustedWafURL,
+  wafFormatLabel,
+} from "../../utils/waf";
 
 const formatOrder = WAF_FORMATS.map((format) => format.key);
 
@@ -51,9 +56,10 @@ const groupByOwner = (records, filter, language) => {
     .sort(([a], [b]) => (a === "") - (b === "") || a.localeCompare(b));
 };
 
-const authHeaders = async () => ({
-  Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
-});
+const authHeaders = async (url) => {
+  if (!isTrustedWafURL(url)) throw new Error(`untrusted WAF URL ${url}`);
+  return { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` };
+};
 
 // Files of the region WAF, for its admins and reviewers
 const Waf = () => {
@@ -67,8 +73,10 @@ const Waf = () => {
 
   useEffect(
     () =>
-      onValue(ref(getDatabase(firebase), `admin/${region}`), (snapshot) =>
-        setSettings(getWafSettings(snapshot.val())),
+      onValue(
+        ref(getDatabase(firebase), `admin/${region}/waf`),
+        (snapshot) => setSettings(getWafSettings(snapshot.val())),
+        (e) => setError(e.message),
       ),
     [region],
   );
@@ -80,9 +88,8 @@ const Waf = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${wafURL}${region}/?format=records`, {
-        headers: await authHeaders(),
-      });
+      const url = `${wafURL}${region}/?format=records`;
+      const response = await fetch(url, { headers: await authHeaders(url) });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       setFiles(await response.json());
     } catch (e) {
@@ -98,9 +105,8 @@ const Waf = () => {
 
   const download = async (path) => {
     try {
-      const response = await fetch(`${wafURL}${path}`, {
-        headers: await authHeaders(),
-      });
+      const url = `${wafURL}${path}`;
+      const response = await fetch(url, { headers: await authHeaders(url) });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       FileSaver.saveAs(await response.blob(), path.split("/").pop());
     } catch (e) {

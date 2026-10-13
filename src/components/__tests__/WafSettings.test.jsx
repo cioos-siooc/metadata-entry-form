@@ -75,4 +75,26 @@ describe("WafSettings", () => {
     expect(screen.getByRole("button", { name: /Save WAF settings/ })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /Create token/ })).not.toBeInTheDocument();
   });
+
+  it("refuses a WAF URL on another host", async () => {
+    renderSettings();
+    fireEvent.change(screen.getByLabelText(/WAF URL/), {
+      target: { value: "https://attacker.example/" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Save WAF settings/ }));
+
+    expect(await screen.findByText(/must be on forms\.cioos\.ca/)).toBeInTheDocument();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("shows no form when the settings cannot be read", () => {
+    onValue.mockImplementation((path, callback, onError) => {
+      onError(new Error("permission_denied"));
+      return () => {};
+    });
+    renderSettings();
+
+    expect(screen.getByText(/permission_denied/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Save WAF settings/ })).not.toBeInTheDocument();
+  });
 });

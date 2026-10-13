@@ -5,6 +5,7 @@ import {
   getWafSettings,
   harvestURL,
   hashWafToken,
+  isTrustedWafURL,
 } from "../utils/waf";
 
 describe("WAF tokens", () => {
@@ -14,7 +15,7 @@ describe("WAF tokens", () => {
     expect(generateWafToken()).not.toEqual(token);
   });
 
-  it("hashes like cioos-records-update waf_auth.hash_token", async () => {
+  it("hashes like forms_api.hash_token", async () => {
     // hashlib.sha256(b"waf_secret-token").hexdigest()
     expect(await hashWafToken("waf_secret-token")).toEqual(
       "f24dff75a22a73ac62becfae31d19128de922a874347698d113cfa9b766a3212",
@@ -38,12 +39,25 @@ describe("getWafSettings", () => {
 
   it("reads the region settings", () => {
     const settings = getWafSettings({
-      waf: { formats: ["erddap"], splitByOwner: true, url: "http://localhost:5000/api" },
+      formats: ["erddap"],
+      splitByOwner: true,
+      url: "http://localhost:5000/api",
     });
     expect(settings).toMatchObject({
       formats: ["erddap"],
       splitByOwner: true,
       url: "http://localhost:5000/api/",
     });
+  });
+});
+
+describe("isTrustedWafURL", () => {
+  it("trusts the default WAF, this site and localhost only", () => {
+    expect(isTrustedWafURL("https://forms.cioos.ca/api/pacific/")).toBe(true);
+    expect(isTrustedWafURL(`${window.location.origin}/api/`)).toBe(true);
+    expect(isTrustedWafURL("http://127.0.0.1:5001/api/")).toBe(true);
+    expect(isTrustedWafURL("https://attacker.example/api/")).toBe(false);
+    expect(isTrustedWafURL("https://forms.cioos.ca.attacker.example/")).toBe(false);
+    expect(isTrustedWafURL("not a url")).toBe(false);
   });
 });

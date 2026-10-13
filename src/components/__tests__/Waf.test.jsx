@@ -2,7 +2,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { onValue } from "firebase/database";
+import { onValue, ref } from "firebase/database";
 import FileSaver from "file-saver";
 
 import Waf from "../Pages/Waf";
@@ -37,7 +37,7 @@ describe("Waf page", () => {
     vi.clearAllMocks();
     onValue.mockImplementation((ref, callback) => {
       callback({
-        val: () => ({ waf: { url: "http://forms.test/api/" } }),
+        val: () => ({ url: "http://localhost:5001/api/" }),
       });
       return () => {};
     });
@@ -53,15 +53,15 @@ describe("Waf page", () => {
     renderPage();
 
     expect(await screen.findByText("Zeta survey")).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledWith("http://forms.test/api/pacific/?format=records", {
+    expect(global.fetch).toHaveBeenCalledWith("http://localhost:5001/api/pacific/?format=records", {
       headers: { Authorization: "Bearer id-token" },
     });
     // owner folders sorted, region folder last
-    const folders = screen.getAllByText(/http:\/\/forms\.test\/api\/pacific\//);
+    const folders = screen.getAllByText(/http:\/\/localhost:5001\/api\/pacific\//);
     expect(folders.map((f) => f.textContent)).toEqual([
-      "http://forms.test/api/pacific/org-a/",
-      "http://forms.test/api/pacific/org-b/",
-      "http://forms.test/api/pacific/",
+      "http://localhost:5001/api/pacific/org-a/",
+      "http://localhost:5001/api/pacific/org-b/",
+      "http://localhost:5001/api/pacific/",
     ]);
     expect(screen.queryByText("draft")).not.toBeInTheDocument();
 
@@ -77,7 +77,7 @@ describe("Waf page", () => {
       expect(FileSaver.saveAs).toHaveBeenCalledWith(expect.any(Blob), "alpha_erddap.xml"),
     );
     expect(global.fetch).toHaveBeenCalledWith(
-      "http://forms.test/api/pacific/org-a/alpha_erddap.xml",
+      "http://localhost:5001/api/pacific/org-a/alpha_erddap.xml",
       { headers: { Authorization: "Bearer id-token" } },
     );
   });
@@ -90,5 +90,21 @@ describe("Waf page", () => {
     });
     expect(screen.getByText("alpha")).toBeInTheDocument();
     expect(screen.queryByText("Zeta survey")).not.toBeInTheDocument();
+  });
+
+  it("does not send the user's token to an untrusted WAF URL", async () => {
+    onValue.mockImplementation((ref, callback) => {
+      callback({ val: () => ({ url: "https://attacker.example/" }) });
+      return () => {};
+    });
+    renderPage();
+
+    expect(await screen.findByText(/untrusted WAF URL/)).toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("reads only the WAF settings of the region", () => {
+    renderPage();
+    expect(ref).toHaveBeenCalledWith(undefined, "admin/pacific/waf");
   });
 });

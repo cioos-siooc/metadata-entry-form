@@ -21,15 +21,33 @@ export const wafFormatLabel = (key) =>
 
 const withTrailingSlash = (url) => (url.endsWith("/") ? url : `${url}/`);
 
-// Normalized WAF settings of a region from its admin/{region} node
-export const getWafSettings = (regionAdmin) => {
-  const waf = regionAdmin?.waf || {};
+// Normalized WAF settings of a region from its admin/{region}/waf node
+export const getWafSettings = (waf) => {
+  waf = waf || {};
   return {
     formats: waf.formats?.length ? waf.formats : DEFAULT_WAF_FORMATS,
     splitByOwner: Boolean(waf.splitByOwner),
     url: withTrailingSlash(waf.url || DEFAULT_WAF_URL),
     tokens: waf.tokens || {},
   };
+};
+
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
+
+// Whether the user's Firebase ID token may be sent to this WAF URL. Region
+// admins set the URL, so it must not leak reviewers' tokens to another host.
+export const isTrustedWafURL = (url) => {
+  let origin;
+  try {
+    origin = new URL(url);
+  } catch {
+    return false;
+  }
+  return (
+    origin.origin === new URL(DEFAULT_WAF_URL).origin ||
+    origin.origin === window.location.origin ||
+    LOCAL_HOSTS.includes(origin.hostname)
+  );
 };
 
 export const WAF_TOKEN_PREFIX = "waf_";
@@ -44,7 +62,7 @@ const toBase64Url = (bytes) =>
 export const generateWafToken = () =>
   WAF_TOKEN_PREFIX + toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
 
-// sha256 hex, as compared by cioos-records-update/waf_auth.py
+// sha256 hex, as compared by firebase-functions/python-functions/forms_api.py
 export const hashWafToken = async (token) => {
   const digest = await crypto.subtle.digest(
     "SHA-256",
