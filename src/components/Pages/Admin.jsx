@@ -36,6 +36,7 @@ import withRouter from "../../utils/withRouter";
 import { unique } from "../../utils/misc";
 
 import { paperClass } from "../FormComponents/QuestionStyles";
+import WafSettings from "../Waf/WafSettings";
 
 const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
@@ -985,6 +986,7 @@ class Admin extends FormClassTemplate {
                 )}
               </Grid>
             </Paper>
+            <WafSettings region={this.props.match.params.region} />
             <Paper style={paperClass}>
               <Grid container spacing={2}>
                 <Grid size={12}>

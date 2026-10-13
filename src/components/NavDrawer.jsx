@@ -14,6 +14,7 @@ import {
   ChevronRight,
   FeedbackRounded,
   RateReview,
+  FolderOpen,
   Menu as MenuIcon,
   AssignmentTurnedIn,
   StraightenSharp,
@@ -329,6 +330,7 @@ export default function MiniDrawer({ children }) {
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
+    waf: <I18n en="WAF files" fr="Fichiers WAF" />,
     signInGoogle: <I18n en="Sign in with Google" fr="Se connecter avec Google" />,
     signInMicrosoft: <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />,
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
@@ -600,6 +602,22 @@ export default function MiniDrawer({ children }) {
                         <RateReview />
                       </ListItemIcon>
                       <ListItemText primary={translations.review} />
+                    </ListItemButton>
+                  </Tooltip>
+                )}
+                {(userIsReviewer || userIsAdmin) && (
+                  <Tooltip
+                    placement="right-start"
+                    title={open ? "" : translations.waf}
+                  >
+                    <ListItemButton
+                      key="Waf"
+                      onClick={() => navigateAndClose(`${baseURL}/waf`)}
+                    >
+                      <ListItemIcon>
+                        <FolderOpen />
+                      </ListItemIcon>
+                      <ListItemText primary={translations.waf} />
                     </ListItemButton>
                   </Tooltip>
                 )}
