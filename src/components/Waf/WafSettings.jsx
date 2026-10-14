@@ -46,6 +46,7 @@ import {
   harvestURL,
   hashWafToken,
   isTrustedWafURL,
+  isValidCkanURL,
 } from "../../utils/waf";
 
 const CopyField = ({ label, value }) => (
@@ -71,8 +72,9 @@ const CopyField = ({ label, value }) => (
   />
 );
 
-// Admin page section: formats and folders of the region WAF, and the tokens
-// harvesters use to read it. Only the sha256 of a token is stored.
+// Admin page section: formats and folders of the region WAF, the tokens
+// harvesters use to read it, and the CKAN harvest started from the WAF page.
+// Only the sha256 of a WAF token is stored, the CKAN token is write-only.
 const WafSettings = ({ region }) => {
   const { isAdmin, user } = useContext(UserContext);
   const [settings, setSettings] = useState(null);
@@ -104,10 +106,26 @@ const WafSettings = ({ region }) => {
       formats: settings.formats,
       splitByOwner: settings.splitByOwner,
       url: settings.url,
+      ckanUrl: settings.ckan.url,
+      ckanHarvestSource: settings.ckan.harvestSource,
     });
-  useEffect(() => setForm(saved && JSON.parse(saved)), [saved]);
+  useEffect(
+    () => setForm(saved && { ...JSON.parse(saved), ckanToken: "" }),
+    [saved],
+  );
 
-  const regionRef = () => ref(getDatabase(firebase), `admin/${region}`);
+  const ckanError = (ckanUrl, ckanHarvestSource, ckanToken) => {
+    if (!ckanUrl) return null;
+    if (!isValidCkanURL(ckanUrl)) return "The CKAN URL must start with https://";
+    if (!ckanHarvestSource) return "Enter the CKAN harvest source";
+    // the saved token must not be sent to another catalogue
+    const sameCkan =
+      settings.ckan.tokenUpdatedAt &&
+      isValidCkanURL(settings.ckan.url) &&
+      new URL(settings.ckan.url).origin === new URL(ckanUrl).origin;
+    if (!ckanToken && !sameCkan) return "Enter the CKAN API token";
+    return null;
+  };
 
   const handleSave = async () => {
     const url = form.url.trim() || DEFAULT_WAF_URL;
@@ -118,12 +136,31 @@ const WafSettings = ({ region }) => {
       });
       return;
     }
+    const ckanUrl = form.ckanUrl.trim();
+    const ckanHarvestSource = form.ckanHarvestSource.trim();
+    const ckanToken = form.ckanToken.trim();
+    const error = ckanError(ckanUrl, ckanHarvestSource, ckanToken);
+    if (error) {
+      setStatus({ severity: "error", message: error });
+      return;
+    }
+
+    const waf = `admin/${region}/waf`;
+    const changes = {
+      [`${waf}/formats`]: form.formats,
+      [`${waf}/splitByOwner`]: form.splitByOwner,
+      [`${waf}/url`]: url,
+      [`${waf}/ckan/url`]: ckanUrl || null,
+      [`${waf}/ckan/harvestSource`]: ckanHarvestSource || null,
+    };
+    if (!ckanUrl || ckanToken) {
+      changes[`wafSecrets/${region}/ckanToken`] = ckanToken || null;
+      changes[`${waf}/ckan/tokenUpdatedAt`] = ckanToken ? serverTimestamp() : null;
+    }
     try {
-      await update(regionRef(), {
-        "waf/formats": form.formats,
-        "waf/splitByOwner": form.splitByOwner,
-        "waf/url": url,
-      });
+      // one atomic write across admin/ and wafSecrets/
+      await update(ref(getDatabase(firebase)), changes);
+      setForm({ ...form, ckanToken: "" });
       setStatus({ severity: "success", message: "saved" });
     } catch (error) {
       setStatus({ severity: "error", message: error.message });
@@ -244,6 +281,71 @@ const WafSettings = ({ region }) => {
             disabled={!isAdmin}
             fullWidth
             helperText={`Default: ${DEFAULT_WAF_URL}`}
+          />
+        </Grid>
+
+        <Grid size={12}>
+          <Typography variant="subtitle1">
+            <I18n en="CKAN harvest" fr="Moissonnage CKAN" />
+          </Typography>
+          <Typography variant="body2">
+            <I18n>
+              <En>
+                Admins and reviewers can start a harvest of this CKAN harvest
+                source from the WAF page. Changes saved in the last minute may
+                not be harvested yet. The token needs the right to run that
+                source (admin of its organization). Leave the URL empty to
+                remove it.
+              </En>
+              <Fr>
+                Les administrateurs et réviseurs peuvent lancer un moissonnage
+                de cette source CKAN depuis la page WAF. Les changements
+                enregistrés depuis moins d&apos;une minute peuvent ne pas être
+                encore moissonnés. Le jeton doit permettre de lancer cette
+                source (administrateur de son organisation). Laissez
+                l&apos;URL vide pour le retirer.
+              </Fr>
+            </I18n>
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            label={<I18n en="CKAN URL" fr="URL CKAN" />}
+            placeholder="https://catalogue.cioos.ca"
+            value={form.ckanUrl}
+            onChange={(e) => setForm({ ...form, ckanUrl: e.target.value })}
+            disabled={!isAdmin}
+            fullWidth
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            label={<I18n en="Harvest source (name or ID)" fr="Source de moissonnage (nom ou ID)" />}
+            value={form.ckanHarvestSource}
+            onChange={(e) =>
+              setForm({ ...form, ckanHarvestSource: e.target.value })
+            }
+            disabled={!isAdmin}
+            fullWidth
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            label={<I18n en="CKAN API token" fr="Jeton d'API CKAN" />}
+            type="password"
+            autoComplete="new-password"
+            value={form.ckanToken}
+            onChange={(e) => setForm({ ...form, ckanToken: e.target.value })}
+            disabled={!isAdmin}
+            fullWidth
+            helperText={
+              settings.ckan.tokenUpdatedAt ? (
+                <I18n
+                  en={`Saved ${new Date(settings.ckan.tokenUpdatedAt).toLocaleDateString()}, leave empty to keep it`}
+                  fr={`Enregistré le ${new Date(settings.ckan.tokenUpdatedAt).toLocaleDateString()}, laissez vide pour le conserver`}
+                />
+              ) : null
+            }
           />
         </Grid>
         <Grid size={12}>

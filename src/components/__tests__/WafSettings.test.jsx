@@ -62,12 +62,74 @@ describe("WafSettings", () => {
     fireEvent.click(screen.getByRole("button", { name: /Save WAF settings/ }));
 
     await waitFor(() =>
-      expect(update).toHaveBeenCalledWith("admin/pacific", {
-        "waf/formats": ["xml", "erddap"],
-        "waf/splitByOwner": true,
-        "waf/url": "https://forms.cioos.ca/api/",
+      expect(update).toHaveBeenCalledWith(undefined, {
+        "admin/pacific/waf/formats": ["xml", "erddap"],
+        "admin/pacific/waf/splitByOwner": true,
+        "admin/pacific/waf/url": "https://forms.cioos.ca/api/",
+        "admin/pacific/waf/ckan/url": null,
+        "admin/pacific/waf/ckan/harvestSource": null,
+        "wafSecrets/pacific/ckanToken": null,
+        "admin/pacific/waf/ckan/tokenUpdatedAt": null,
       }),
     );
+  });
+
+  const fillCkan = ({ url, source, token }) => {
+    if (url !== undefined)
+      fireEvent.change(screen.getByLabelText(/^CKAN URL/), { target: { value: url } });
+    if (source !== undefined)
+      fireEvent.change(screen.getByLabelText(/Harvest source/), { target: { value: source } });
+    if (token !== undefined)
+      fireEvent.change(screen.getByLabelText(/CKAN API token/), { target: { value: token } });
+    fireEvent.click(screen.getByRole("button", { name: /Save WAF settings/ }));
+  };
+
+  it("stores the CKAN token apart from the settings reviewers can read", async () => {
+    renderSettings();
+    fillCkan({ url: "https://catalogue.example", source: "forms-waf", token: "ckan-secret" });
+
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    const changes = update.mock.calls[0][1];
+    expect(changes).toMatchObject({
+      "admin/pacific/waf/ckan/url": "https://catalogue.example",
+      "admin/pacific/waf/ckan/harvestSource": "forms-waf",
+      "admin/pacific/waf/ckan/tokenUpdatedAt": "SERVER_TIMESTAMP",
+      "wafSecrets/pacific/ckanToken": "ckan-secret",
+    });
+    const visible = Object.entries(changes).filter(([path]) => path.startsWith("admin/"));
+    expect(JSON.stringify(visible)).not.toContain("ckan-secret");
+  });
+
+  it("keeps the saved CKAN token for the same catalogue only", async () => {
+    onValue.mockImplementation((path, callback) => {
+      callback({
+        val: () => ({
+          ckan: {
+            url: "https://catalogue.example",
+            harvestSource: "forms-waf",
+            tokenUpdatedAt: 1,
+          },
+        }),
+      });
+      return () => {};
+    });
+    renderSettings();
+
+    fillCkan({ source: "other-source" });
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    expect(update.mock.calls[0][1]).not.toHaveProperty("wafSecrets/pacific/ckanToken");
+
+    update.mockClear();
+    fillCkan({ url: "https://elsewhere.example" });
+    expect(await screen.findByText(/Enter the CKAN API token/)).toBeInTheDocument();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("refuses a CKAN URL without https", async () => {
+    renderSettings();
+    fillCkan({ url: "http://catalogue.example", source: "waf", token: "t" });
+    expect(await screen.findByText(/must start with https/)).toBeInTheDocument();
+    expect(update).not.toHaveBeenCalled();
   });
 
   it("is read-only for reviewers", () => {

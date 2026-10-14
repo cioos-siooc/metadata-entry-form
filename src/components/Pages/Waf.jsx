@@ -16,9 +16,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { CloudDownload, Folder, Refresh } from "@mui/icons-material";
+import { CloudDownload, CloudSync, Folder, Refresh } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { getDatabase, onValue, ref } from "firebase/database";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import FileSaver from "file-saver";
 
 import firebase from "../../firebase";
@@ -70,6 +71,7 @@ const Waf = () => {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("published");
   const [filter, setFilter] = useState("");
+  const [harvesting, setHarvesting] = useState(false);
 
   useEffect(
     () =>
@@ -111,6 +113,19 @@ const Waf = () => {
       FileSaver.saveAs(await response.blob(), path.split("/").pop());
     } catch (e) {
       setError(e.message);
+    }
+  };
+
+  // the function records the result in admin/{region}/waf/ckan/lastHarvest
+  const harvestNow = async () => {
+    setHarvesting(true);
+    setError(null);
+    try {
+      await httpsCallable(getFunctions(), "harvest_now")({ region });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setHarvesting(false);
     }
   };
 
@@ -157,7 +172,27 @@ const Waf = () => {
         <Button startIcon={<Refresh />} onClick={loadFiles} disabled={loading}>
           <I18n en="Refresh" fr="Actualiser" />
         </Button>
+        {settings?.ckan.url && (
+          <Button
+            startIcon={<CloudSync />}
+            variant="outlined"
+            onClick={harvestNow}
+            disabled={harvesting}
+          >
+            <I18n en="Harvest now in CKAN" fr="Moissonner maintenant dans CKAN" />
+          </Button>
+        )}
       </Stack>
+
+      {settings?.ckan.lastHarvest && (
+        <Alert severity={settings.ckan.lastHarvest.ok ? "info" : "warning"}>
+          <I18n en="Last harvest request" fr="Dernière demande de moissonnage" />
+          {settings.ckan.lastHarvest.at
+            ? ` (${new Date(settings.ckan.lastHarvest.at).toLocaleString()})`
+            : ""}
+          : {settings.ckan.lastHarvest.message}
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" onClose={() => setError(null)}>

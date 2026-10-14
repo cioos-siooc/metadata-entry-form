@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { onValue, ref } from "firebase/database";
+import { httpsCallable } from "firebase/functions";
 import FileSaver from "file-saver";
 
 import Waf from "../Pages/Waf";
@@ -106,5 +107,35 @@ describe("Waf page", () => {
   it("reads only the WAF settings of the region", () => {
     renderPage();
     expect(ref).toHaveBeenCalledWith(undefined, "admin/pacific/waf");
+  });
+
+  it("offers a CKAN harvest only once it is set up", async () => {
+    renderPage();
+    await screen.findByText("Zeta survey");
+    expect(screen.queryByRole("button", { name: /Harvest now/ })).not.toBeInTheDocument();
+  });
+
+  it("starts a CKAN harvest and shows the last result", async () => {
+    const harvestNow = vi.fn(async () => ({ data: { ok: true } }));
+    httpsCallable.mockReturnValue(harvestNow);
+    onValue.mockImplementation((ref, callback) => {
+      callback({
+        val: () => ({
+          url: "http://localhost:5001/api/",
+          ckan: {
+            url: "https://catalogue.example",
+            harvestSource: "forms-waf",
+            lastHarvest: { ok: false, message: "harvest_job_create: HTTP 403" },
+          },
+        }),
+      });
+      return () => {};
+    });
+    renderPage();
+
+    expect(screen.getByText(/HTTP 403/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Harvest now/ }));
+    await waitFor(() => expect(harvestNow).toHaveBeenCalledWith({ region: "pacific" }));
+    expect(httpsCallable).toHaveBeenCalledWith(undefined, "harvest_now");
   });
 });

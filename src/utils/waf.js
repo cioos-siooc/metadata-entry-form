@@ -29,7 +29,24 @@ export const getWafSettings = (waf) => {
     splitByOwner: Boolean(waf.splitByOwner),
     url: withTrailingSlash(waf.url || DEFAULT_WAF_URL),
     tokens: waf.tokens || {},
+    // CKAN harvest started from the WAF page, its token is in wafSecrets/{region}
+    ckan: {
+      url: waf.ckan?.url || "",
+      harvestSource: waf.ckan?.harvestSource || "",
+      tokenUpdatedAt: waf.ckan?.tokenUpdatedAt || null,
+      lastHarvest: waf.ckan?.lastHarvest || null,
+    },
   };
+};
+
+// The CKAN API token is sent there, so only https (as ckan_harvest.py requires)
+export const isValidCkanURL = (url) => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && Boolean(parsed.hostname);
+  } catch {
+    return false;
+  }
 };
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
