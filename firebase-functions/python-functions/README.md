@@ -94,3 +94,11 @@ firebase hosting:sites:create cioos-metadata-forms-api --project default      # 
 ```
 
 Tests: `uv run pytest tests`
+
+#### CKAN harvest from the WAF page
+
+`harvest_now` (callable, in `ckan_harvest.py`) asks a CKAN catalogue to harvest the region WAF again. Admins and reviewers of the region start it with the "Harvest now in CKAN" button of the WAF page. Set up on the Admin page: the CKAN URL (https), the harvest source (name or id) and a CKAN API token allowed to run that source. The token is stored in `wafSecrets/<region>/ckanToken`, which only functions read (reviewers can read all of `admin/<region>`).
+
+It calls `harvest_source_show` then `harvest_job_create` (ckanext-harvest). CKAN refuses a new job while one of the source is new or running. The WAF keeps a region for up to 60 seconds, so changes saved in the last minute may not be harvested yet. The result of the last request is in `admin/<region>/waf/ckan/lastHarvest`, shown on the WAF page.
+
+The ckanext-spatial WAF harvester sends no headers, so its harvest source URL carries the WAF token as Basic auth (`https://harvester:waf_...@forms.cioos.ca/api/<region>/`). Make that harvest source private in CKAN, and do not use `{harvest_source_url}` in its `default_extras`, or the token ends up visible in the catalogue.

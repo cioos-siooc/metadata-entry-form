@@ -18,7 +18,8 @@ from cioos_metadata_conversion.load_from.datacite import (
     retrieve_doi_as_firebase_record,
 )
 from cioos_metadata_conversion.load_from.obis import retrieve_obis_metadata
-from forms_api import FormsApi
+import ckan_harvest
+from forms_api import REGION_PATTERN, FormsApi, user_allowed
 from cioos_metadata_conversion.load_from.pdc import (
     PDCRetrievalError,
     retrieve_pdc_as_firebase_record,
@@ -320,3 +321,37 @@ def forms(req: https_fn.Request):  # type: ignore
         status=status,
         headers={**headers, **cors},
     )
+
+
+@https_fn.on_call()
+def harvest_now(req: https_fn.CallableRequest) -> dict:
+    """Starts a harvest of the region WAF by its CKAN catalogue, see ckan_harvest.py.
+
+    For the admins and reviewers of the region, from the form's WAF page.
+    """
+    region = (req.data or {}).get("region")
+    if not isinstance(region, str) or not REGION_PATTERN.match(region):
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Unknown region")
+    email = req.auth.token.get("email") if req.auth else None
+    if not user_allowed(email, db.reference(f"admin/{region}").get() or {}):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Only the admins and reviewers of the region can start a harvest",
+        )
+    settings = ckan_harvest.ckan_settings(db.reference(f"admin/{region}/waf/ckan").get())
+    token = db.reference(f"wafSecrets/{region}/ckanToken").get()
+    if not settings or not token:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "The CKAN harvest is not set up on the Admin page",
+        )
+    try:
+        job_id = ckan_harvest.start_harvest(settings, token)
+        result = {"ok": True, "message": f"Harvest job {job_id} started"}
+    except ckan_harvest.HarvestError as error:
+        logging.warning("CKAN harvest of %s failed: %s", region, error)
+        result = {"ok": False, "message": str(error)}
+    db.reference(f"admin/{region}/waf/ckan/lastHarvest").set(
+        {**result, "at": {".sv": "timestamp"}, "by": email}
+    )
+    return result

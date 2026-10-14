@@ -74,6 +74,19 @@
           ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
         }
       }
+    },
+    "wafSecrets": { // Secrets of the region WAF, outside of admin which reviewers can read. Only functions read them.
+      "$regionSecret": {
+        // Allow write access if the authenticated user's email is listed as an admin in the permissions for the region.
+        ".write": "root.child('admin').child($regionSecret).child('permissions').child('admins').val().contains(auth.email)",
+        "ckanToken": {
+          // CKAN API token used to start harvests of the WAF
+          ".validate": "newData.isString() && newData.val().length < 1000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }
