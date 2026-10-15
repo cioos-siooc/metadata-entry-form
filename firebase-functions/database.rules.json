@@ -14,6 +14,11 @@
           ".write": "auth.uid != null",
         }
       },
+      // Records of other regions that also publish to this one, written only by the
+      // updatesRecordPublishRegions function (the admin SDK bypasses these rules).
+      "publishedFrom": {
+        ".write": false
+      },
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.

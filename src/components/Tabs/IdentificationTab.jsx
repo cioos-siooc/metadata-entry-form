@@ -39,6 +39,9 @@ const IdentificationTab = ({
 }) => {
   const { language, region } = useParams();
   const regionInfo = regions[region];
+  const otherRegions = Object.keys(regions).filter(
+    (code) => code !== region && regions[code].showInRegionSelector
+  );
 
   const languageUpperCase = language.toUpperCase();
 
@@ -88,6 +91,32 @@ const IdentificationTab = ({
       ) : (
         <div />
       )}
+
+      <Paper style={paperClass}>
+        <QuestionText>
+          <I18n>
+            <En>
+              Should this record also be published in the catalogue of other
+              regions? {regionInfo.title.en} still reviews and publishes it.
+            </En>
+            <Fr>
+              Cet enregistrement doit-il aussi être publié dans le catalogue
+              d'autres régions? Il reste révisé et publié par{" "}
+              {regionInfo.title.fr}.
+            </Fr>
+          </I18n>
+        </QuestionText>
+        <CheckBoxList
+          value={record.alsoPublishTo || []}
+          labelSize={6}
+          onChange={updateRecord("alsoPublishTo")}
+          options={otherRegions}
+          optionLabels={otherRegions.map(
+            (code) => regions[code].title[language] || regions[code].title.en
+          )}
+          disabled={disabled}
+        />
+      </Paper>
 
       <Paper style={paperClass}>
         <QuestionText>
