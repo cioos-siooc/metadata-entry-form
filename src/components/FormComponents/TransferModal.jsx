@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "../../tss-cache";
-import { Modal, TextField } from "@mui/material";
+import { MenuItem, Modal, TextField } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
 
 import { En, Fr, I18n } from "../I18n";
@@ -37,9 +37,13 @@ export default function TransferModal({
   onAccept,
   email,
   setEmail,
+  region,
+  regionOptions = [],
+  destinationRegion = region,
+  setDestinationRegion,
 }) {
-  // result of the transger
-  const [transferResult, setTransferResult] = useState(true);
+  // why the last transfer failed: "user-not-found", "has-doi" or an error message
+  const [failure, setFailure] = useState("");
   const [isTransferring, setIsTransferring] = useState(false);
   const { classes } = useStyles();
 
@@ -47,6 +51,7 @@ export default function TransferModal({
   const [modalStyle] = React.useState(getModalStyle);
 
   const emailIsValid = validateEmail(email);
+  const changesRegion = destinationRegion !== region;
 
   return (
     <div>
@@ -72,7 +77,7 @@ export default function TransferModal({
             </h3>
           ) : (
             <div>
-              {!transferResult && (
+              {failure === "user-not-found" && (
                 <h3>
                   <I18n>
                     <En>User {email} not found</En>
@@ -80,19 +85,53 @@ export default function TransferModal({
                   </I18n>
                 </h3>
               )}
+              {failure === "has-doi" && (
+                <h3>
+                  <I18n>
+                    <En>
+                      This record has a DOI from this region's DataCite account.
+                      Ask the DataCite consortium to move the DOI to the other
+                      region's repository before moving the record.
+                    </En>
+                    <Fr>
+                      Cet enregistrement a un DOI du compte DataCite de cette
+                      région. Demandez au consortium DataCite de déplacer le DOI
+                      vers le dépôt de l'autre région avant de déplacer
+                      l'enregistrement.
+                    </Fr>
+                  </I18n>
+                </h3>
+              )}
+              {failure && !["user-not-found", "has-doi"].includes(failure) && (
+                <h3>{failure}</h3>
+              )}
 
               <div>
-                <I18n>
-                  <En>
-                    Enter the email address of the user to transfer this record
-                    to. The user must already have an account:
-                  </En>
-                  <Fr>
-                    Entrez l'adresse e-mail de l'utilisateur vers lequel
-                    transférer cet enregistrement. L'utilisateur doit déjà avoir
-                    un compte :
-                  </Fr>
-                </I18n>
+                {changesRegion ? (
+                  <I18n>
+                    <En>
+                      To also change the owner, enter the email address of the
+                      new owner. Leave it empty to keep the current owner:
+                    </En>
+                    <Fr>
+                      Pour changer aussi de propriétaire, entrez l'adresse
+                      e-mail du nouveau propriétaire. Laissez-la vide pour
+                      garder le propriétaire actuel :
+                    </Fr>
+                  </I18n>
+                ) : (
+                  <I18n>
+                    <En>
+                      Enter the email address of the user to transfer this
+                      record to. The user must already have an account:
+                    </En>
+                    <Fr>
+                      Entrez l'adresse e-mail de l'utilisateur vers lequel
+                      transférer cet enregistrement. L'utilisateur doit déjà
+                      avoir un compte :
+                    </Fr>
+                  </I18n>
+                )}
               </div>
 
               {/* naterosenstock@gmail.com */}
@@ -106,23 +145,58 @@ export default function TransferModal({
                   error={!emailIsValid}
                   value={email}
                   onChange={(e) => {
-                    setTransferResult(true);
+                    setFailure("");
                     setEmail(e.target.value);
                   }}
                   fullWidth
                 />
               </div>
 
+              {regionOptions.length > 1 && (
+                <div>
+                  <TextField
+                    select
+                    label={<I18n en="Region" fr="Région" />}
+                    helperText={
+                      changesRegion && (
+                        <I18n
+                          en="If you review that region too, the record keeps its status. Otherwise it is sent to that region's reviewers as submitted, and leaves this region's catalogue."
+                          fr="Si vous révisez aussi cette région, l'enregistrement garde son statut. Sinon, il est envoyé aux réviseurs de cette région comme soumis et quitte le catalogue de cette région."
+                        />
+                      )
+                    }
+                    value={destinationRegion}
+                    onChange={(e) => {
+                      setFailure("");
+                      setDestinationRegion(e.target.value);
+                    }}
+                    fullWidth
+                    margin="normal"
+                  >
+                    {regionOptions.map(({ value, label }) => (
+                      <MenuItem key={value} value={value}>
+                        {label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              )}
+
               <button
                 type="button"
-                disabled={!email || !emailIsValid || isTransferring}
+                disabled={
+                  (!email && !changesRegion) || !emailIsValid || isTransferring
+                }
                 onClick={async () => {
                   setIsTransferring(true);
-                  const res = await onAccept();
-
-                  setTransferResult(res);
+                  try {
+                    const { success, reason } = await onAccept();
+                    setFailure(success ? "" : reason);
+                    if (success) onClose();
+                  } catch (error) {
+                    setFailure(error.message);
+                  }
                   setIsTransferring(false);
-                  if (res) onClose();
                 }}
               >
                 <I18n>
@@ -133,7 +207,7 @@ export default function TransferModal({
               <button
                 type="button"
                 onClick={() => {
-                  setTransferResult(true);
+                  setFailure("");
                   onClose();
                 }}
               >
