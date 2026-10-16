@@ -8,8 +8,10 @@ const {
   regionNames,
   mailOptionsRecordShared,
   mailOptionsShareInvitation,
+  mailOptionsReviewer,
 } = require("./mailoutText");
 const transporter = require("./mailer");
+const { findCustodianOrgName } = require("./notify");
 
 // Firebase keys can't contain . # $ / [ ]
 const emailKey = (email) =>
@@ -251,33 +253,64 @@ exports.claimInvites = functions.auth.user().onCreate(async (user) => {
   await db.ref().update(updates);
 });
 
-/*
-Transfer ownership of a record to another user, by email address.
-Reviewers and admins only.
-*/
-exports.transferRecord = functions.https.onCall(async (data, context) => {
-  const { token } = requireAuth(context);
-  const { region, recordID, sourceUserID } = data || {};
-
-  checkRegion(region);
-  const email = normalizeEmail(data && data.email);
-
+async function getPermissions(region) {
   const permissions =
     (
       await admin.database().ref(`admin/${region}/permissions`).once("value")
     ).val() || {};
-  const allowed = [permissions.admins, permissions.reviewers]
-    .filter(Boolean)
-    .flatMap((list) => list.split(",").map((e) => e.trim().toLowerCase()));
+  const emails = (list) =>
+    (list || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+  return {
+    admins: emails(permissions.admins),
+    reviewers: emails(permissions.reviewers),
+  };
+}
 
-  if (!allowed.includes(String(token.email || "").toLowerCase())) {
+const isReviewerOrAdmin = ({ admins, reviewers }, email) =>
+  [...admins, ...reviewers].includes(String(email || "").toLowerCase());
+
+// DOIs minted from the form use the DataCite credentials of the record's region
+const MANAGED_DOI_STATES = ["draft", "registered", "findable"];
+
+/*
+Transfer ownership of a record to another user, by email address, optionally
+moving it to another region. Reviewers and admins of the region only.
+
+A reviewer of both regions moves the record as is. Otherwise it is sent to the
+destination region's review: it arrives as submitted and its reviewers are
+emailed, so a region never ends up with a published record it didn't approve.
+*/
+exports.transferRecord = functions.https.onCall(async (data, context) => {
+  const { token } = requireAuth(context);
+  const { region, recordID, sourceUserID } = data || {};
+  const destinationRegion = (data && data.destinationRegion) || region;
+
+  checkRegion(region);
+  checkRegion(destinationRegion);
+  // Without an email the record changes region and keeps its owner.
+  const keepOwner = !(data && data.email) && destinationRegion !== region;
+  const email = keepOwner ? null : normalizeEmail(data && data.email);
+
+  if (!isReviewerOrAdmin(await getPermissions(region), token.email)) {
     throw new functions.https.HttpsError(
       "permission-denied",
       "User must be an admin or reviewer.",
     );
   }
+  const destinationPermissions =
+    destinationRegion === region
+      ? null
+      : await getPermissions(destinationRegion);
+  const sentForReview =
+    destinationPermissions &&
+    !isReviewerOrAdmin(destinationPermissions, token.email);
 
-  const destination = await getUserByEmail(email);
+  const destination = keepOwner
+    ? await admin.auth().getUser(sourceUserID)
+    : await getUserByEmail(email);
   if (!destination) return { success: false, reason: "user-not-found" };
 
   const db = admin.database();
@@ -287,7 +320,18 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("not-found", "Record not found.");
   }
 
-  const newRef = db.ref(`${region}/users/${destination.uid}/records`).push();
+  // The destination region's DataCite account couldn't update the DOI. It has
+  // to be moved between DataCite repositories first.
+  if (
+    destinationRegion !== region &&
+    MANAGED_DOI_STATES.includes(record.doiCreationStatus)
+  ) {
+    return { success: false, reason: "has-doi" };
+  }
+
+  const newRef = db
+    .ref(`${destinationRegion}/users/${destination.uid}/records`)
+    .push();
   const newRecordID = newRef.key;
 
   // The new owner doesn't need to also be in their own sharedWith list.
@@ -295,11 +339,12 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   delete sharedWith[destination.uid];
 
   const updates = {
-    [`${region}/users/${destination.uid}/records/${newRecordID}`]: {
+    [`${destinationRegion}/users/${destination.uid}/records/${newRecordID}`]: {
       ...record,
       recordID: newRecordID,
       userID: destination.uid,
       sharedWith,
+      ...(sentForReview && { status: "submitted" }),
     },
     [sourcePath]: null,
   };
@@ -310,7 +355,7 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
     updates[`${region}/shares/${sharedUID}/${sourceUserID}/${recordID}`] = null;
     if (sharedUID !== destination.uid) {
       updates[
-        `${region}/shares/${sharedUID}/${destination.uid}/${newRecordID}`
+        `${destinationRegion}/shares/${sharedUID}/${destination.uid}/${newRecordID}`
       ] = {
         shared: true,
       };
@@ -320,7 +365,9 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   // Same for invitations that haven't been claimed yet.
   Object.entries(record.pendingShares || {}).forEach(([key, pendingEmail]) => {
     updates[`invites/${key}/${region}/${sourceUserID}/${recordID}`] = null;
-    updates[`invites/${key}/${region}/${destination.uid}/${newRecordID}`] = {
+    updates[
+      `invites/${key}/${destinationRegion}/${destination.uid}/${newRecordID}`
+    ] = {
       email: pendingEmail,
       invitedBy: token.email || "",
       invitedAt: new Date().toISOString(),
@@ -328,7 +375,31 @@ exports.transferRecord = functions.https.onCall(async (data, context) => {
   });
 
   await db.ref().update(updates);
-  return { success: true, recordID: newRecordID, userID: destination.uid };
+
+  if (sentForReview && destinationPermissions.reviewers.length) {
+    await send(
+      mailOptionsReviewer(
+        destinationPermissions.reviewers,
+        record.title && record.title.en,
+        record.title && record.title.fr,
+        destinationRegion,
+        destination.displayName || "",
+        destination.email || email,
+        findCustodianOrgName(record),
+        destination.uid,
+        newRecordID,
+        record.language,
+      ),
+    );
+  }
+
+  return {
+    success: true,
+    sentForReview: Boolean(sentForReview),
+    recordID: newRecordID,
+    userID: destination.uid,
+    region: destinationRegion,
+  };
 });
 
 exports.emailKey = emailKey;
