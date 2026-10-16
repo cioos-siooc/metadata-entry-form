@@ -11,6 +11,7 @@ const {
   regenerateXMLforRecord,
 } = require("./updates");
 const { githubPublishRecord } = require("./githubPublish");
+const { updatesRecordPublishRegions } = require("./publishRegions");
 
 admin.initializeApp();
 
@@ -20,6 +21,7 @@ exports.notifyUser = notifyUser;
 exports.updatesRecordUpdate = updatesRecordUpdate;
 exports.updatesRecordDelete = updatesRecordDelete;
 exports.updatesRecordCreate = updatesRecordCreate;
+exports.updatesRecordPublishRegions = updatesRecordPublishRegions;
 exports.downloadRecord = downloadRecord;
 exports.regenerateXMLforRecord = regenerateXMLforRecord;
 exports.createDraftDoi = createDraftDoi;

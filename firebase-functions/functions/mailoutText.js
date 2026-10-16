@@ -134,6 +134,7 @@ ${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
 }
 
 module.exports = {
+  regionNames,
   mailOptionsReviewer,
   mailOptionsAuthor,
   mailOptionsAuthorSubmissionConfirmation,

@@ -19,7 +19,7 @@ from cioos_metadata_conversion.load_from.datacite import (
 )
 from cioos_metadata_conversion.load_from.obis import retrieve_obis_metadata
 import ckan_harvest
-from forms_api import REGION_PATTERN, FormsApi, user_allowed
+from forms_api import REGION_PATTERN, FormsApi, records_published_to, user_allowed
 from cioos_metadata_conversion.load_from.pdc import (
     PDCRetrievalError,
     retrieve_pdc_as_firebase_record,
@@ -280,7 +280,11 @@ def _load_region_records(region):
         if isinstance(user, dict)
         for record in (user.get("records") or {}).values()
         if isinstance(record, dict)
-    ]
+    ] + records_published_to(
+        region,
+        db.reference(f"{region}/publishedFrom").get(),
+        lambda path: db.reference(path).get(),
+    )
 
 
 def _verify_id_token(id_token):

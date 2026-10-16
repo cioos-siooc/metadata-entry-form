@@ -7,6 +7,9 @@ available right away and nothing has to be rebuilt. Below /api/:
     <region>/[<owner>/]<name><suffix>               published records
     unpublished/<region>/[<owner>/]<name><suffix>   submitted records
 
+A region also lists the records of other regions whose `alsoPublishTo` names
+it; their home region still reviews and publishes them.
+
 Directories are listed like an nginx autoindex (HTML, or nginx's JSON with
 ?format=json), which is what catalogue WAF harvesters crawl. The region root
 also answers ?format=records with every record and its files, for the form's
@@ -179,6 +182,32 @@ def record_modified(record: dict) -> datetime:
     if modified.tzinfo is None:
         modified = modified.replace(tzinfo=UTC)
     return modified.replace(microsecond=0)
+
+
+def records_published_to(region: str, index: dict, load_record) -> list:
+    """Records of other regions that also publish to `region`.
+
+    `index` is {region}/publishedFrom ({home: {user: {record: true}}}), kept by
+    the updatesRecordPublishRegions function. A record is only included while
+    its `alsoPublishTo` still names the region.
+    """
+    records = []
+    for home, users in (index or {}).items():
+        if home == region or not REGION_PATTERN.match(home) or not isinstance(users, dict):
+            continue
+        for user_id, record_ids in users.items():
+            if not isinstance(record_ids, dict):
+                continue
+            for record_id in record_ids:
+                record = load_record(f"{home}/users/{user_id}/records/{record_id}")
+                if not isinstance(record, dict):
+                    continue
+                targets = record.get("alsoPublishTo") or []
+                if isinstance(targets, dict):
+                    targets = targets.values()
+                if region in targets:
+                    records.append(record)
+    return records
 
 
 def region_files(region: str, records: list, settings: dict) -> dict:

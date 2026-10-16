@@ -185,3 +185,22 @@ def test_ttl_cache_reuses_value():
     cache = forms_api.TTLCache(lambda key: calls.append(key) or key.upper(), ttl=60)
     assert cache.get("a") == "A" and cache.get("a") == "A"
     assert calls == ["a"]
+
+
+def test_records_published_to_follows_index_and_record():
+    stored = {
+        "atlantic/users/u1/records/a1": {**make_record("a1", "published", "shared"), "alsoPublishTo": ["pacific"]},
+        # index is stale: the record no longer publishes to pacific
+        "atlantic/users/u1/records/a2": {**make_record("a2", "published", "dropped"), "alsoPublishTo": ["stlaurent"]},
+        # Firebase can return arrays as objects
+        "hakai/users/u2/records/h1": {**make_record("h1", "submitted", "hk"), "alsoPublishTo": {"0": "pacific"}},
+    }
+    index = {
+        "atlantic": {"u1": {"a1": True, "a2": True, "gone": True}},
+        "hakai": {"u2": {"h1": True}},
+        "pacific": {"u3": {"p1": True}},
+        "../admin": {"u4": {"x": True}},
+    }
+    records = forms_api.records_published_to("pacific", index, stored.get)
+    assert [r["recordID"] for r in records] == ["a1", "h1"]
+    assert forms_api.records_published_to("pacific", None, stored.get) == []
