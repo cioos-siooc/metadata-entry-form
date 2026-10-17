@@ -1,0 +1,19 @@
+[project]
+name = "reviewer-functions"
+version = "0.1.0"
+description = "Automated metadata review callables (review_record, review_region)"
+requires-python = ">=3.11"
+dependencies = [
+    "cioos-metadata-reviewer",
+    "firebase-admin",
+    "firebase-functions>=0.4.3",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv.sources]
+# Private repo: needs an SSH deploy key in CI (see firebase-deploy.yaml).
+# TEMPORARY: tracks feat/review-lib (cioos-metadata-reviewer#22) until it merges; then switch
+# back to branch = "main" and re-run `uv lock`.
+cioos-metadata-reviewer = { git = "ssh://git@github.com/cioos-siooc/cioos-metadata-reviewer.git", branch = "feat/review-lib" }

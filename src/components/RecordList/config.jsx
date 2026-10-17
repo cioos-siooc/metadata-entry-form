@@ -1,12 +1,15 @@
 import React from "react";
-import { Chip } from "@mui/material";
-import { Check, Close } from "@mui/icons-material";
+import { Box, Chip, Tooltip } from "@mui/material";
+import { Check, Close, Update } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
 import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
 import CopyableCell from "./CopyableCell";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
+import { FALLBACK_PRIMARY, semantic, neutrals } from "../../theme/tokens";
+import { pickContrastText } from "../../theme/createAppTheme";
 
 // DataCite DOI lifecycle states mapped to MUI chip colors (matches the chip
 // used in the DOI form section so the status reads the same everywhere).
@@ -35,6 +38,30 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
+const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
+const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
+
+// A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
+// (worst first), outdated, generated}; null if never reviewed. `lastSaved` is record.created,
+// which is really "last updated". ponytail: misses reviewer-version bumps; inputHash catches those.
+export const qaSummary = (qa, lastSaved) => {
+  if (!qa?.generated) return null;
+  const statuses = qa.statuses || {};
+  const open = Object.values(qa.findings || {}).filter((f) => !statuses[f.id]?.status);
+  const bySeverity = {};
+  QA_SEVERITY_ORDER.forEach((sev) => {
+    const n = open.filter((f) => f.severity === sev).length;
+    if (n) bySeverity[sev] = n;
+  });
+  return {
+    count: open.length,
+    worst: Object.keys(bySeverity)[0],
+    bySeverity,
+    outdated: Boolean(lastSaved && new Date(lastSaved) > new Date(qa.generated)),
+    generated: qa.generated,
+  };
+};
+
 // ============================================================================
 // Page Configurations
 // ============================================================================
@@ -50,6 +77,7 @@ export const reviewerConfig = {
     "identifier",
     "doi",
     "doiStatus",
+    "qa",
     "abstract",
     "license",
     "boundingBox",
@@ -70,6 +98,7 @@ export const reviewerConfig = {
     created: true,
     doi: true,
     doiStatus: true,
+    qa: true,
     identifier: false,
     abstract: false,
     license: false,
@@ -96,6 +125,7 @@ export const reviewerConfig = {
     showTransferButton: true,
     showDownloadButton: true,
     showGithubPublishAction: true,
+    showReviewAction: true,
   },
 
   table: {
@@ -219,15 +249,17 @@ export const sharedConfig = {
 // Column Helpers
 // ============================================================================
 
+// Always a concrete colour: the chip sits on an arbitrary region colour for
+// published records, so the label colour has to be derived from it rather than
+// assumed. Semantic + neutral values are scheme-independent by design.
 export const getStatusColor = (status, region) => {
-  const regionColor = regions[region]?.colors?.primary || "#006e90";
   switch (status) {
     case "published":
-      return regionColor;
+      return regions[region]?.colors?.primary || FALLBACK_PRIMARY;
     case "submitted":
-      return "#f57c00";
+      return semantic.warning.main;
     default:
-      return "#757575";
+      return neutrals[500];
   }
 };
 
@@ -301,9 +333,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
         <Chip
           label={label}
           size="small"
-          style={{
-            backgroundColor: bgColor,
-            color: "#ffffff",
+          sx={{
+            bgcolor: bgColor,
+            color: pickContrastText(bgColor),
             fontWeight: 500,
           }}
         />
@@ -485,9 +517,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
     type: "boolean",
     renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: "#4caf50" }} fontSize="small" />
+        <Check sx={{ color: "success.main" }} fontSize="small" />
       ) : (
-        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+        <Close sx={{ color: "text.disabled" }} fontSize="small" />
       ),
   },
 
@@ -507,7 +539,12 @@ export const createColumns = (language, region, callbacks = {}) => ({
     ],
     renderCell: (params) => {
       const label = DOI_STATE_LABELS[params.value];
-      if (!label) return <span style={{ color: "#bdbdbd" }}>—</span>;
+      if (!label)
+        return (
+          <Box component="span" sx={{ color: "text.disabled" }}>
+            —
+          </Box>
+        );
       return (
         <Chip
           label={label[language]}
@@ -517,6 +554,49 @@ export const createColumns = (language, region, callbacks = {}) => ({
       );
     },
     filterOperators: getStatusFilterOperators(language),
+  },
+
+  // Automated review: open (not rejected) findings, coloured by the worst severity
+  qa: {
+    field: "qa",
+    headerName: language === "en" ? "Review" : "Révision",
+    maxWidth: 100,
+    headerAlign: "center",
+    align: "center",
+    type: "number",
+    valueGetter: (value) => value?.count ?? null,
+    renderCell: (params) => {
+      const qa = params.row.qa;
+      if (!qa)
+        return (
+          <Box component="span" sx={{ color: "text.disabled" }}>
+            —
+          </Box>
+        );
+      const breakdown = Object.entries(qa.bySeverity)
+        .map(([sev, n]) => `${n} ${sev}`)
+        .join(", ");
+      return (
+        <Tooltip
+          title={`${breakdown || (language === "en" ? "No open issues" : "Aucun problème ouvert")} · ${
+            language === "en" ? "reviewed" : "révisée le"
+          } ${new Date(qa.generated).toLocaleString()}${
+            qa.outdated ? (language === "en" ? " (outdated)" : " (périmée)") : ""
+          }`}
+        >
+          <Chip
+            label={qa.count}
+            size="small"
+            icon={qa.outdated ? <Update /> : undefined}
+            variant={qa.outdated ? "outlined" : "filled"}
+            color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+            clickable
+            component={RouterLink}
+            to={`/${language}/${params.row.region || region}/${params.row.userID}/${params.row.recordID}?review=1`}
+          />
+        </Tooltip>
+      );
+    },
   },
 
   boundingBox: {
@@ -548,9 +628,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
     type: "boolean",
     renderCell: (params) =>
       params.value ? (
-        <Check style={{ color: "#4caf50" }} fontSize="small" />
+        <Check sx={{ color: "success.main" }} fontSize="small" />
       ) : (
-        <Close style={{ color: "#bdbdbd" }} fontSize="small" />
+        <Close sx={{ color: "text.disabled" }} fontSize="small" />
       ),
   },
 
@@ -668,5 +748,6 @@ export const recordToRow = (record, language, index) => ({
   )
     ? record.doiCreationStatus
     : "",
+  qa: qaSummary(record.qa, record.created),
   fullRecord: record,
 });

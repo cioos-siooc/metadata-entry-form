@@ -1,17 +1,14 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
 import {
   Box,
   CircularProgress,
-  Grid,
-  Tab,
-  Tabs,
-  Fab,
-  Tooltip,
-  Typography,
-  LinearProgress,
+  Snackbar,
+  Alert,
+  Drawer,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { withStyles } from "../../tss-cache";
-import { Save } from "@mui/icons-material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getDatabase,
@@ -23,9 +20,7 @@ import {
 } from "firebase/database";
 
 import FormClassTemplate from "./FormClassTemplate";
-import { I18n, En, Fr } from "../I18n";
-import StatusChip from "../FormComponents/StatusChip";
-import LastEdited from "../FormComponents/LastEdited";
+import { I18n } from "../I18n";
 import NotFound from "./NotFound";
 
 import SimpleModal from "../FormComponents/SimpleModal";
@@ -36,7 +31,18 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import {
+  ReviewButton,
+  ReviewPanel,
+  mergeSuggested,
+  scrollToField,
+  setFindingStatus,
+  useRunReview,
+} from "../FormComponents/ReviewFindings";
 import TaxaTab from "../Tabs/TaxaTab";
+
+import FormShell from "../FormShell/FormShell";
+import FormShellSections from "../FormShell/useFormSections";
 
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import firebase from "../../firebase";
@@ -48,65 +54,30 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
-import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
 import performUpdateDraftDoi, { canPushFormToDoi } from "../../utils/doiUpdate";
 
-const LinearProgressWithLabel = ({ value }) => (
-  <Tooltip
-    title={
-      <I18n
-        en="Percentage of required fields filled in"
-        fr="Pourcentage de champs obligatoires remplis"
-      />
-    }
-  >
-    <Box display="flex" width="90%" style={{ margin: "auto" }}>
-      <Box width="100%" mr={1}>
-        <LinearProgress
-          variant="determinate"
-          value={value}
-          style={{ marginLeft: "-30px" }}
-        />
-      </Box>
-      <Box minWidth={35}>
-        <Typography variant="body2" color="textSecondary">{`${Math.round(
-          value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  </Tooltip>
-);
-
-function TabPanel({ children, value, index, ...other }) {
+function SectionSwitcher({ sections, activeSection, render }) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
+    <Box>
+      {sections.map((section) =>
+        section.id === activeSection ? (
+          <Box
+            key={section.id}
+            role="tabpanel"
+            id={`section-panel-${section.id}`}
+          >
+            {render(section.id)}
+          </Box>
+        ) : null,
+      )}
+    </Box>
   );
 }
 
-const useStyles = (theme) => ({
-  tabRoot: {
-    minWidth: "115px",
-  },
-  fab: {
-    position: "fixed",
-    bottom: theme.spacing(2),
-    right: theme.spacing(2),
-    zIndex: 5,
-  },
-});
-
-class MetadataForm extends FormClassTemplate {
+export class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
@@ -132,6 +103,11 @@ class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen: false,
       doiUpdated: false,
       doiError: false,
+
+      // automated review: drawer open (?review=1 deep-links it), and findings whose fix was
+      // applied in the form but not saved yet (their status is written on save)
+      reviewOpen: new URLSearchParams(props.search).get("review") === "1",
+      pendingApplied: [],
     };
   }
 
@@ -177,6 +153,7 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorContactsRef, (contactsFB) => {
           const userContacts = contactsFB.toJSON();
           Object.entries(userContacts || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
             v.contactID = k;
           });
           this.setState({ userContacts });
@@ -189,6 +166,7 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorInstrumentsRef, (instrumentsFB) => {
           const userInstruments = instrumentsFB.toJSON();
           Object.entries(userInstruments || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
             v.instrumentID = k;
           });
           this.setState({ userInstruments });
@@ -201,6 +179,7 @@ class MetadataForm extends FormClassTemplate {
         onValue(editorPlatformsRef, (platformsFB) => {
           const userPlatforms = platformsFB.toJSON();
           Object.entries(userPlatforms || {}).forEach(([k, v]) => {
+            // eslint-disable-next-line no-param-reassign
             v.instrumentID = k;
           });
           this.setState({ userPlatforms });
@@ -245,10 +224,19 @@ class MetadataForm extends FormClassTemplate {
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
-            this.setState({
-              record: standardizeRecord(record, null, null, recordID),
+            // When only qa changed (review results, or an Apply/Ignore/Reject status), keep
+            // unsaved edits and take just qa; otherwise Apply's edit is wiped by its own write.
+            const { qa, ...withoutQa } = record;
+            const onlyQaChanged =
+              this.lastLoadedRecord === JSON.stringify(withoutQa);
+            this.lastLoadedRecord = JSON.stringify(withoutQa);
+            this.setState(({ record: current }) => ({
+              record:
+                onlyQaChanged && current?.recordID === recordID
+                  ? { ...current, qa }
+                  : standardizeRecord(record, null, null, recordID),
               loggedInUserCanEditRecord,
-            });
+            }));
 
             this.setState({ loading: false });
           });
@@ -264,24 +252,19 @@ class MetadataForm extends FormClassTemplate {
 
   // genereric handler for updating state, used by most form components
   // generic event handler
-  handleUpdateRecord = (key) => (event) => {
-    const { value } = event.target;
-    const changes = { [key]: value };
-
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
-  };
+  handleUpdateRecord = (key) => (event) => this.updateRecord(key)(event.target.value);
 
   // a second genereric handler components that dont use onChange
   // generic state updater creator
+  // Setting a field to its current value is a no-op: some tabs re-sync fields from effects on
+  // every render (e.g. DOIInput's status check), which would otherwise mark a just-saved
+  // record unsaved again (and re-render in a loop).
   updateRecord = (key) => (value) => {
-    const changes = { [key]: value };
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
+    this.setState(({ record }) =>
+      record[key] === value
+        ? null
+        : { record: { ...record, [key]: value }, saveDisabled: false },
+    );
   };
 
   saveUpdateContact(contact) {
@@ -330,6 +313,7 @@ class MetadataForm extends FormClassTemplate {
         }
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
     }
@@ -440,10 +424,12 @@ class MetadataForm extends FormClassTemplate {
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
+      // qa is written by the review functions only; the rules reject it from clients.
+      const { qa, ...recordWithoutQa } = record;
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record },
+        { ...getBlankRecord(), ...recordWithoutQa },
       );
     } else {
       // new record
@@ -458,6 +444,16 @@ class MetadataForm extends FormClassTemplate {
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
 
+    const { pendingApplied } = this.state;
+    if (pendingApplied.length) {
+      await Promise.all(
+        pendingApplied.map((id) =>
+          setFindingStatus(region, userID, recordID, id, { status: "applied" }),
+        ),
+      );
+      this.setState({ pendingApplied: [] });
+    }
+
     // regnerate XML on save
     if (["submitted", "published"].includes(record.status)) {
       const { regenerateXMLforRecord } = this.context;
@@ -468,18 +464,18 @@ class MetadataForm extends FormClassTemplate {
       regenerateXMLforRecord({ path, status, filename, region });
     }
 
-    this.setState({ saveDisabled: true });
+    this.setState({ saveDisabled: true, savedSnackbarOpen: true });
     // if (match.url.endsWith("new")) {
     // set the URL so its shareable
     // }
-
+    // eslint-disable-next-line consistent-return
     return recordID;
   }
 
   render() {
     const { match } = this.props;
     const { language } = match.params;
-    const { isReviewer } = this.context;
+    const { isReviewer, isAdmin } = this.context;
 
     const {
       userContacts,
@@ -494,12 +490,13 @@ class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen,
       projects,
       loggedInUserID,
+      reviewOpen,
+      pendingApplied,
     } = this.state;
 
     if (!record) {
       return <NotFound />;
     }
-    const { classes } = this.props;
 
     const disabled = !loggedInUserCanEditRecord;
 
@@ -511,197 +508,234 @@ class MetadataForm extends FormClassTemplate {
       updateRecord: this.updateRecord,
       userID: loggedInUserID,
     };
-    const percentValidInt = Math.round(percentValid(record) * 100);
 
-    return loading ? (
-      <CircularProgress />
-    ) : (
-      <Grid
-        container
-        direction="column"
-        justifyContent="space-between"
-        alignItems="stretch"
-        spacing={3}
-      >
-        <SimpleModal
-          open={saveIncompleteRecordModalOpen}
-          modalQuestion={
-            <I18n
-              en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
-              fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+    if (loading) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    const activeSection = tabIndex || "start";
+    const saveButtonDisabled =
+      saveDisabled || !(record.title?.en || record.title?.fr) || disabled;
+
+    const renderSection = (sectionId) => {
+      switch (sectionId) {
+        case "start":
+          return <StartTab {...tabProps} />;
+        case "identification":
+          return <IdentificationTab {...tabProps} projects={projects} />;
+        case "taxa":
+          return <TaxaTab {...tabProps} />;
+        case "spatial":
+          return <SpatialTab {...tabProps} />;
+        case "contact":
+          return (
+            <ContactTab
+              userContacts={userContacts}
+              saveToContacts={(c) => this.saveUpdateContact(c)}
+              {...tabProps}
             />
-          }
-          onClose={() => {
-            this.toggleModal("saveIncompleteRecordModalOpen", false);
-          }}
-          onAccept={() => {
-            this.handleSaveClick(true);
-            this.toggleModal("saveIncompleteRecordModalOpen", false);
-          }}
-        />
+          );
+        case "distribution":
+          return <ResourcesTab {...tabProps} />;
+        case "platform":
+          return (
+            <PlatformTab
+              userInstruments={userInstruments}
+              saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
+              userPlatforms={userPlatforms}
+              saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
+              {...tabProps}
+            />
+          );
+        case "submit":
+          return (
+            <SubmitTab
+              {...tabProps}
+              doiUpdated={this.state.doiUpdated}
+              doiError={this.state.doiError}
+              submitRecord={() => this.handleSubmitRecord()}
+            />
+          );
+        default:
+          return null;
+      }
+    };
 
-        <Fab
-          color="primary"
-          aria-label="add"
-          className={classes.fab}
-          disabled={
-            saveDisabled || !(record.title.en || record.title.fr) || disabled
+    return (
+      <FormShellWrapper
+        record={record}
+        language={language}
+        loggedInUserCanEditRecord={loggedInUserCanEditRecord}
+        activeSection={activeSection}
+        onSectionChange={(id) => this.setState({ tabIndex: id })}
+        dirty={!saveDisabled}
+        saving={false}
+        saveDisabled={saveButtonDisabled}
+        onSave={() => this.handleSaveClick()}
+        isReviewer={isReviewer}
+        overflowActions={[]}
+        renderSection={renderSection}
+        review={
+          (isReviewer || isAdmin) && {
+            unsaved: !saveDisabled,
+            open: reviewOpen,
+            onOpenChange: (open) => this.setState({ reviewOpen: open }),
+            pendingApplied,
+            onApplySuggested: (finding) =>
+              this.setState(({ record: current, pendingApplied: pending }) => ({
+                record: mergeSuggested(current, finding.suggested),
+                pendingApplied: [...pending, finding.id],
+                saveDisabled: false,
+              })),
+            onGoToTab: (tab, key) =>
+              this.setState({ tabIndex: tab }, () => scrollToField(key)),
           }
-          onClick={() => this.handleSaveClick()}
-        >
-          <Tooltip
-            placement="right-start"
-            title={
-              saveDisabled
-                ? "Dataset needs a title before it can be saved"
-                : "Save record."
+        }
+        modal={
+          <SimpleModal
+            open={saveIncompleteRecordModalOpen}
+            modalQuestion={
+              <I18n
+                en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
+                fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+              />
             }
-          >
-            <span>
-              <Save />
-            </span>
-          </Tooltip>
-        </Fab>
-        <Grid container spacing={2} direction="row" alignItems="center">
-          <Grid size="grow">
-            <Tabs
-              scrollButtons="auto"
-              variant="fullWidth"
-              value={tabIndex}
-              onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
-              aria-label="simple tabs example"
-            >
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.start[language]}
-                value="start"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.dataID[language]}
-                value="identification"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.taxa[language]}
-                value="taxa"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.spatial[language]}
-                value="spatial"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label="Contact"
-                value="contact"
-              />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.resources[language]}
-                value="distribution"
-              />
-              {!["model"].includes(record.metadataScopeIso) && (
-                <Tab
-                  fullWidth
-                  classes={{ root: classes.tabRoot }}
-                  label={tabs.platform[language]}
-                  value="platform"
-                />
-              )}
-              {loggedInUserCanEditRecord && (
-                <Tab
-                  fullWidth
-                  classes={{ root: classes.tabRoot }}
-                  label={<I18n en="Submit" fr="Soumettre" />}
-                  value="submit"
-                  disabled={
-                    record.status === "submitted" ||
-                    record.status === "published"
-                  }
-                />
-              )}
-            </Tabs>
-            <div style={{ marginTop: "10px", textAlign: "center" }}>
-              <Typography variant="h5">
-                {(language && record.title?.[language]) || (
-                  <I18n en="New Record" fr="Nouvel enregistrement" />
-                )}{" "}
-                <StatusChip status={record.status} />
-              </Typography>
-              <Typography component="div">
-                <i>
-                  <LastEdited dateStr={record.created} />
-                  {record.lastEditedBy?.displayName && (
-                    <>
-                      <I18n>
-                        <En>by </En>
-                        <Fr>Par </Fr>
-                      </I18n>
-                      {record.lastEditedBy.displayName}{" "}
-                      {isReviewer && record.lastEditedBy.email}
-                    </>
-                  )}
-                </i>
-                <LinearProgressWithLabel value={percentValidInt} />
-              </Typography>
-            </div>
-          </Grid>
-        </Grid>
-        <TabPanel value={tabIndex} index="start">
-          <StartTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="identification">
-          <IdentificationTab {...tabProps} projects={projects} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="taxa">
-          <TaxaTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="spatial">
-          <SpatialTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="platform">
-          <PlatformTab
-            userInstruments={userInstruments}
-            saveUpdateInstrument={(c) => this.handleSaveUpdateInstrument(c)}
-            userPlatforms={userPlatforms}
-            saveUpdatePlatform={(c) => this.handleSaveUpdatePlatform(c)}
-            {...tabProps}
+            onClose={() => {
+              this.toggleModal("saveIncompleteRecordModalOpen", false);
+            }}
+            onAccept={() => {
+              this.handleSaveClick(true);
+              this.toggleModal("saveIncompleteRecordModalOpen", false);
+            }}
           />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="distribution">
-          <ResourcesTab {...tabProps} />
-        </TabPanel>
-        <TabPanel value={tabIndex} index="submit">
-          <SubmitTab
-            {...tabProps}
-            doiUpdated={this.state.doiUpdated}
-            doiError={this.state.doiError}
-            submitRecord={() => this.handleSubmitRecord()}
-          />
-        </TabPanel>
-
-        <TabPanel value={tabIndex} index="contact">
-          {/* userContacts are the ones the user has saved, not necessarily part of the record */}
-          <ContactTab
-            userContacts={userContacts}
-            saveToContacts={(c) => this.saveUpdateContact(c)}
-            {...tabProps}
-          />
-        </TabPanel>
-      </Grid>
+        }
+        savedSnackbarOpen={this.state.savedSnackbarOpen}
+        onCloseSavedSnackbar={() => this.setState({ savedSnackbarOpen: false })}
+      />
     );
   }
 }
 MetadataForm.contextType = UserContext;
 
-const StyledMetadataForm = withStyles(MetadataForm, useStyles);
+// Bridge between the class component and the FormShell hook-based UI.
+function FormShellWrapper({
+  record,
+  language,
+  loggedInUserCanEditRecord,
+  activeSection,
+  onSectionChange,
+  dirty,
+  saving,
+  saveDisabled,
+  onSave,
+  isReviewer,
+  overflowActions,
+  renderSection,
+  modal,
+  savedSnackbarOpen,
+  onCloseSavedSnackbar,
+  review,
+}) {
+  const sections = FormShellSections({
+    record,
+    language,
+    loggedInUserCanEditRecord,
+  });
+  const wide = useMediaQuery(useTheme().breakpoints.up("md"));
+  const runReview = useRunReview();
+  const reviewPanel = review && (
+    <ReviewPanel
+      record={record}
+      unsaved={review.unsaved}
+      loading={runReview.loading}
+      error={runReview.error}
+      onRun={runReview.run}
+      canRun={runReview.canRun}
+      pendingApplied={review.pendingApplied}
+      onApplySuggested={review.onApplySuggested}
+      onGoToTab={(tab, key) => {
+        if (!wide) review.onOpenChange(false); // the drawer covers the form on small screens
+        review.onGoToTab(tab, key);
+      }}
+      onClose={() => review.onOpenChange(false)}
+    />
+  );
+
+  const title = (language && record.title?.[language]) || "";
+
+  return (
+    <>
+      {modal}
+      <FormShell
+        sections={sections}
+        activeSection={activeSection}
+        onSectionChange={onSectionChange}
+        headerProps={{
+          title,
+          status: record.status,
+          lastEditedDate: record.created,
+          lastEditedBy: record.lastEditedBy,
+          isReviewer,
+          dirty,
+          saving,
+          saveDisabled,
+          onSave,
+          overflowActions,
+          language,
+          extraActions: review && (
+            <ReviewButton
+              record={record}
+              open={review.open}
+              loading={runReview.loading}
+              onToggle={() => review.onOpenChange(!review.open)}
+            />
+          ),
+        }}
+        aside={wide && review?.open ? reviewPanel : null}
+        actionBarProps={{
+          dirty,
+          saving,
+          saveDisabled,
+          onSave,
+        }}
+      >
+        <SectionSwitcher
+          sections={sections}
+          activeSection={activeSection}
+          render={renderSection}
+        />
+      </FormShell>
+      {review && !wide && (
+        <Drawer
+          anchor="right"
+          open={review.open}
+          onClose={() => review.onOpenChange(false)}
+          PaperProps={{ sx: { width: "100%" } }}
+        >
+          {reviewPanel}
+        </Drawer>
+      )}
+      <Snackbar
+        open={Boolean(savedSnackbarOpen)}
+        autoHideDuration={2500}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        onClose={onCloseSavedSnackbar}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={onCloseSavedSnackbar}
+        >
+          <I18n en="Saved" fr="Enregistré" />
+        </Alert>
+      </Snackbar>
+    </>
+  );
+}
 
 // Wrapper component to provide router params and navigate to the class component
 const MetadataFormWrapper = (props) => {
@@ -716,11 +750,12 @@ const MetadataFormWrapper = (props) => {
   };
 
   return (
-    <StyledMetadataForm
+    <MetadataForm
       {...props}
       match={match}
       history={{ push: navigate }}
       locationState={location.state}
+      search={location.search}
     />
   );
 };
