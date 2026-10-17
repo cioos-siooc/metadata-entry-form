@@ -142,7 +142,8 @@ const ContactEditor = ({
               }}
               disabled={disabled}
               onChange={(e, organization) => {
-                if (organization !== null) {
+                // freeSolo: Enter on free text passes a string, not an organization
+                if (organization?.id) {
                   fetch(`https://api.ror.org/organizations/${organization.id}`)
                     .then((response) => response.json())
                     .then((response) => {
@@ -157,6 +158,7 @@ const ContactEditor = ({
               freeSolo
               filterOptions={(x) => x}
               getOptionLabel={(e) => {
+                if (typeof e === "string") return e;
                 const match = e.names.find((n) => n.lang === language);
                 return match ? match.value : e.names[0]?.value || "";
               }}
