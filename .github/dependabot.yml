@@ -1,6 +1,7 @@
 version: 2
 updates:
   # Everything (majors included) is grouped into one PR per ecosystem per month to keep noise down.
+  # Security updates are disabled in repo settings: they always target main and bypass development.
   - package-ecosystem: npm
     directories: ["/", "/firebase-functions/functions"]
     target-branch: development
@@ -8,9 +9,6 @@ updates:
       interval: monthly
     groups:
       npm:
-        patterns: ["*"]
-      npm-security:
-        applies-to: security-updates
         patterns: ["*"]
 
   - package-ecosystem: uv
@@ -23,9 +21,6 @@ updates:
       interval: monthly
     groups:
       python:
-        patterns: ["*"]
-      python-security:
-        applies-to: security-updates
         patterns: ["*"]
 
   - package-ecosystem: github-actions
