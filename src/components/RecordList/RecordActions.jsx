@@ -28,6 +28,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDatabase, ref, child, update } from "firebase/database";
 import firebase from "../../firebase";
 import recordToEML from "../../utils/recordToEML";
+import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
@@ -148,6 +149,31 @@ const RecordActions = ({
         blob = new Blob([JSON.stringify(record, null, 2)], {
           type: `${mimeTypes[fileType]};charset=utf-8`,
         });
+      } else if (fileType === "datacite_json") {
+        // Same attributes the DOI API path sends (real catalogue URL + publisher fallback)
+        const { data } = await recordToDataCiteFromPython(
+          record,
+          language,
+          region,
+          null,
+          { forUpdate: true },
+        );
+        // Fabrica file uploads are format-detected by bolognese's
+        // find_from_format_by_string, which only recognises DataCite JSON
+        // by a "schema-version" key (#564).
+        blob = new Blob(
+          [
+            JSON.stringify(
+              {
+                ...data.attributes,
+                "schema-version": data.attributes.schemaVersion,
+              },
+              null,
+              2,
+            ),
+          ],
+          { type: `${mimeTypes[fileType]};charset=utf-8` },
+        );
       } else {
         // Server-side conversion
         const functions = getFunctions();
