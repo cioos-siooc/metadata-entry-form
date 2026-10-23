@@ -23,7 +23,7 @@
     "@mui/x-date-pickers": "^8.29.5",
     "@react-leaflet/core": "^3.0.0",
     "@sentry/react": "^10.76.2",
-    "@testing-library/jest-dom": "^6.10.0",
+    "@testing-library/jest-dom": "~6.9.1",
     "@testing-library/user-event": "^14.6.8",
     "axios": "^1.20.0",
     "buffer": "^6.0.3",
