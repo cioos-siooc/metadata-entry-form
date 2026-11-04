@@ -20,6 +20,58 @@ import TranslationInfoDialog from "./TranslationInfoDialog";
 // Cohere translate size limit is 5KB
 const MAX_TRANSLATE_SIZE = 5000;
 
+// Generic messages earlier versions of this form stamped on bilingual fields
+// regardless of whether the translation service was actually used.
+const STAMPED_MESSAGES = [
+  "text translated using Cohere / texte traduit à l'aide de Cohere",
+  "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+];
+
+// Ends up in the XML as the textGroup xlink:title. Per #551: the service is the
+// "translator" when its output was kept as is, a "helper" once a person edited it.
+export function composeTranslationMessage({ base, modified, verified }) {
+  const role = modified ? "helper / assistant" : "translator / traducteur";
+  const check = verified
+    ? "human verified: yes / vérifié par un humain : oui"
+    : "human verified: no / vérifié par un humain : non";
+  return `${base} (${role}); ${check}`;
+}
+
+function withMessage(info) {
+  return { ...info, message: composeTranslationMessage(info) };
+}
+
+// The language the translation service wrote into, independent of the UI
+// language — so the verified checkbox reads the same entry in both languages.
+// Entries saved before `method` existed carry only the service's message.
+export function translationTarget(translations, alternateLanguage) {
+  const entry = Object.entries(translations || {}).find(
+    ([, info]) => info?.method === "cohere" || info?.message,
+  );
+  if (!entry) return { targetLang: alternateLanguage, aiInfo: undefined };
+  const [targetLang, info] = entry;
+  const aiInfo = info.method
+    ? info
+    : { method: "cohere", base: info.message, modified: false, ...info };
+  return { targetLang, aiInfo };
+}
+
+// Returns the same object when nothing changed so callers can skip updates.
+export function stripStampedTranslations(translations) {
+  if (!translations) return translations;
+  let changed = false;
+  const cleaned = Object.fromEntries(
+    Object.entries(translations).map(([lang, info]) => {
+      if (!info?.method && STAMPED_MESSAGES.includes(info?.message)) {
+        changed = true;
+        return [lang, { verified: true }];
+      }
+      return [lang, info];
+    }),
+  );
+  return changed ? cleaned : translations;
+}
+
 const BilingualTextInput = ({
   onChange,
   value,
@@ -42,66 +94,43 @@ const BilingualTextInput = ({
   if (language === "en") languages = ["en", "fr"];
   else languages = ["fr", "en"];
   const alternateLanguage = languages[1];
-  const translateChecked =
-    value?.translations?.[alternateLanguage]?.verified || false;
+  const { targetLang, aiInfo } = translationTarget(
+    value?.translations,
+    alternateLanguage,
+  );
+  const translateChecked = !aiInfo || Boolean(aiInfo.verified);
 
-  function setTranslationData(translations, checked, translationMessage) {
-    return {
-      ...translations,
-      [alternateLanguage]: {
-        verified: checked,
-        ...(!checked && {
-          message:
-            translationMessage ||
-            "text translated using Cohere / texte traduit à l'aide de Cohere",
-        }),
-      },
-    };
+  function emit(newValue) {
+    onChange({ target: { name, value: newValue } });
   }
 
   function handleEvent(e) {
-    const { translations, ...rest } = { ...value };
-    const newData = {
-      ...rest,
-      [e.target.name]: e.target.value,
-      ...(e.target.name === alternateLanguage &&
-        e.target.value && {
-          translations: translations || setTranslationData({}, false),
-        }),
-    };
-    const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
+    const { name: lang, value: text } = e.target;
+    const newData = { ...value, [lang]: text };
+    if (lang === targetLang && text) {
+      newData.translations = aiInfo
+        ? { [targetLang]: withMessage({ ...aiInfo, modified: true }) }
+        : { [targetLang]: { verified: true } };
+    }
+    emit(newData);
   }
 
   function handleTranslateCheckEvent(e) {
-    const { checked } = e.target;
-    const newData = {
+    emit({
       ...value,
-      translations: setTranslationData(value.translations, checked),
-    };
-    const newDataEvent = { target: { name, value: newData } };
-    onChange(newDataEvent);
+      translations: {
+        [targetLang]: withMessage({ ...aiInfo, verified: e.target.checked }),
+      },
+    });
   }
 
-  // Ensure translations field exists on component mount/load
+  // Older versions stamped a generic translation message on every bilingual
+  // field, whether or not the translation service was used — drop those.
   useEffect(() => {
-    if (value && !value.translations) {
-      const hasTranslations = value.en && value.fr;
-      if (hasTranslations) {
-        const updatedValue = {
-          ...value,
-          translations: {
-            [alternateLanguage]: {
-              verified: false,
-              message:
-                "text translated using Cohere / texte traduit à l'aide de Cohere",
-            },
-          },
-        };
-        onChange({ target: { name, value: updatedValue } });
-      }
-    }
-  }, [name, onChange, value, alternateLanguage]);
+    const cleaned = stripStampedTranslations(value?.translations);
+    if (cleaned !== value?.translations)
+      onChange({ target: { name, value: { ...value, translations: cleaned } } });
+  }, [name, onChange, value]);
 
   return (
     <div>
@@ -165,27 +194,22 @@ const BilingualTextInput = ({
                             typeof data === "object"
                               ? data.translatedText
                               : data;
-                          const translationMsg =
-                            typeof data === "object"
-                              ? data.translationMessage
-                              : undefined;
-                          handleEvent({
-                            target: {
-                              name: alternateLanguage,
-                              value: translation,
-                            },
-                          });
-                          // Update translation metadata with provenance info
-                          const newData = {
+                          const base =
+                            (typeof data === "object" &&
+                              data.translationMessage) ||
+                            "Cohere";
+                          emit({
                             ...value,
                             [alternateLanguage]: translation,
-                            translations: setTranslationData(
-                              value.translations,
-                              false,
-                              translationMsg,
-                            ),
-                          };
-                          onChange({ target: { name, value: newData } });
+                            translations: {
+                              [alternateLanguage]: withMessage({
+                                method: "cohere",
+                                base,
+                                modified: false,
+                                verified: false,
+                              }),
+                            },
+                          });
                         },
                       );
                     }}
@@ -197,12 +221,13 @@ const BilingualTextInput = ({
                   </Button>
                 </span>
               </Tooltip>
-              {value?.[alternateLanguage] && (
+              {value?.[targetLang] && (
                 <FormControlLabel
                   style={{ margin: "10px" }}
                   control={
                     <Checkbox
                       checked={translateChecked}
+                      disabled={disabled || !aiInfo}
                       onChange={(e) => handleTranslateCheckEvent(e)}
                       color="primary"
                     />
