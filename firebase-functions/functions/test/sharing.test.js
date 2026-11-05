@@ -25,6 +25,7 @@ jest.mock("firebase-admin", () => ({
     }),
   }),
   auth: () => ({
+    getUser: jest.fn(async (uid) => ({ uid, email: `${uid}@cioos.ca` })),
     getUserByEmail: jest.fn(async (email) => {
       if (authUsers[email]) return authUsers[email];
       const e = new Error("no user");
@@ -36,6 +37,7 @@ jest.mock("firebase-admin", () => ({
 
 jest.mock("firebase-functions", () => ({
   auth: { user: () => ({ onCreate: (fn) => fn }) },
+  database: { ref: () => ({ onUpdate: (fn) => fn }) },
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
   https: {
     onCall: (handler) => handler,
@@ -55,6 +57,8 @@ jest.mock("firebase-functions/params", () => ({
 jest.mock("nodemailer", () => ({
   createTransport: () => ({ sendMail: jest.fn() }),
 }));
+
+jest.mock("../issue", () => jest.fn());
 
 const transporter = require("../mailer");
 const {
@@ -371,6 +375,8 @@ describe("transferRecord", () => {
       success: true,
       recordID: "newRecordID",
       userID: "newowner-uid",
+      region: REGION,
+      sentForReview: false,
     });
     expect(db[RECORD_PATH]).toBeUndefined();
     expect(
@@ -395,5 +401,137 @@ describe("transferRecord", () => {
     expect(
       db[`${REGION}/shares/newowner-uid/newowner-uid/newRecordID`],
     ).toBeUndefined();
+  });
+
+  describe("to another region", () => {
+    const moveTo = (
+      destinationRegion,
+      context = reviewerContext,
+      email = "newowner@cioos.ca",
+    ) =>
+      transferRecord(
+        {
+          region: REGION,
+          recordID: RECORD,
+          sourceUserID: OWNER,
+          email,
+          destinationRegion,
+        },
+        context,
+      );
+
+    beforeEach(() => {
+      db["admin/atlantic/permissions"] = { admins: "reviewer@cioos.ca" };
+    });
+
+    test("rejects an unknown destination region", async () => {
+      await expect(moveTo("nowhere")).rejects.toMatchObject({
+        code: "invalid-argument",
+      });
+    });
+
+    test("sends it to the review of a region the caller doesn't review", async () => {
+      db["admin/stlaurent/permissions"] = {
+        admins: "boss@ogsl.ca",
+        reviewers: "r1@ogsl.ca, r2@ogsl.ca",
+      };
+      setRecord({ status: "published", language: "fr" });
+
+      await expect(moveTo("stlaurent")).resolves.toMatchObject({
+        success: true,
+        sentForReview: true,
+        region: "stlaurent",
+      });
+      expect(
+        db["stlaurent/users/newowner-uid/records/newRecordID"],
+      ).toMatchObject({ status: "submitted" });
+      expect(transporter.sendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: ["r1@ogsl.ca", "r2@ogsl.ca"],
+          subject: "New CIOOS Metadata record to be reviewed",
+        }),
+      );
+    });
+
+    test("still requires being a reviewer of the record's region", async () => {
+      db[`admin/${REGION}/permissions`] = {};
+      await expect(moveTo("atlantic")).rejects.toMatchObject({
+        code: "permission-denied",
+      });
+      expect(db[RECORD_PATH]).toBeDefined();
+    });
+
+    test("moves the record, its status, shares and invites", async () => {
+      setRecord({
+        status: "published",
+        sharedWith: { "editor-uid": "editor@cioos.ca" },
+        pendingShares: { "new,cioos,ca": "new@cioos.ca" },
+      });
+
+      await expect(moveTo("atlantic")).resolves.toEqual({
+        success: true,
+        sentForReview: false,
+        recordID: "newRecordID",
+        userID: "newowner-uid",
+        region: "atlantic",
+      });
+      expect(db[RECORD_PATH]).toBeUndefined();
+      expect(
+        db["atlantic/users/newowner-uid/records/newRecordID"],
+      ).toMatchObject({ status: "published", userID: "newowner-uid" });
+      expect(
+        db[`${REGION}/shares/editor-uid/${OWNER}/${RECORD}`],
+      ).toBeUndefined();
+      expect(
+        db["atlantic/shares/editor-uid/newowner-uid/newRecordID"],
+      ).toEqual({ shared: true });
+      expect(
+        db[`invites/new,cioos,ca/${REGION}/${OWNER}/${RECORD}`],
+      ).toBeUndefined();
+      expect(
+        db["invites/new,cioos,ca/atlantic/newowner-uid/newRecordID"],
+      ).toMatchObject({ email: "new@cioos.ca" });
+    });
+
+    test("keeps the owner when no email is given", async () => {
+      setRecord({ status: "published", userID: OWNER });
+
+      await expect(moveTo("atlantic", reviewerContext, "")).resolves.toEqual({
+        success: true,
+        sentForReview: false,
+        recordID: "newRecordID",
+        userID: OWNER,
+        region: "atlantic",
+      });
+      expect(db[RECORD_PATH]).toBeUndefined();
+      expect(db[`atlantic/users/${OWNER}/records/newRecordID`]).toMatchObject({
+        status: "published",
+        userID: OWNER,
+      });
+    });
+
+    test("requires an email to transfer within the region", async () => {
+      setRecord({});
+      await expect(moveTo(REGION, reviewerContext, "")).rejects.toMatchObject({
+        code: "invalid-argument",
+      });
+    });
+
+    test.each(["draft", "registered", "findable"])(
+      "refuses a record with a %s DOI from the form",
+      async (doiCreationStatus) => {
+        setRecord({ doiCreationStatus });
+        await expect(moveTo("atlantic")).resolves.toEqual({
+          success: false,
+          reason: "has-doi",
+        });
+        expect(db[RECORD_PATH]).toBeDefined();
+      },
+    );
+
+    test("keeps a managed DOI when staying in the region", async () => {
+      setRecord({ doiCreationStatus: "findable" });
+      await expect(moveTo(REGION)).resolves.toMatchObject({ success: true });
+    });
   });
 });

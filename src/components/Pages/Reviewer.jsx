@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useRef,
+  useMemo,
 } from "react";
 import { Typography, Grid, Snackbar, Alert } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
@@ -25,6 +26,7 @@ import {
 import { preparePublishPayload } from "../../utils/publishUtils";
 import performUpdateDraftDoi, { isManagedDoi } from "../../utils/doiUpdate";
 import RecordList, { reviewerConfig } from "../RecordList";
+import regions from "../../regions";
 import { markFormNavigation } from "../RecordList/hooks";
 
 const Reviewer = () => {
@@ -49,6 +51,17 @@ const Reviewer = () => {
   const [modalKey, setModalKey] = useState("");
   const [modalUserID, setModalUserID] = useState("");
   const [transferEmail, setTransferEmail] = useState("");
+  const [transferRegion, setTransferRegion] = useState("");
+  const transferRegionOptions = useMemo(
+    () =>
+      Object.entries(regions)
+        .filter(([code, info]) => code === region || info.showInRegionSelector)
+        .map(([code, info]) => ({
+          value: code,
+          label: info.title[language] || info.title.en,
+        })),
+    [region, language],
+  );
   const [transferUserNotFound] = useState(false);
 
   // GitHub publish state
@@ -221,11 +234,19 @@ const Reviewer = () => {
         recordID: modalKey,
         sourceUserID: modalUserID,
         email: transferEmail,
+        destinationRegion: transferRegion || region,
       });
-      return data.success;
+      return data;
     }
-    return false;
-  }, [transferRecord, transferEmail, modalKey, modalUserID, region]);
+    return { success: false };
+  }, [
+    transferRecord,
+    transferEmail,
+    transferRegion,
+    modalKey,
+    modalUserID,
+    region,
+  ]);
 
   const handleSubmitRecord = useCallback(
     (recordID, userID, newStatus) => {
@@ -368,6 +389,7 @@ const Reviewer = () => {
         onClose={() => {
           setTransferModalOpen(false);
           setTransferEmail("");
+          setTransferRegion("");
         }}
         onAccept={confirmTransfer}
         transferUserNotFound={transferUserNotFound}
@@ -375,6 +397,10 @@ const Reviewer = () => {
         aria-describedby="simple-modal-description"
         email={transferEmail}
         setEmail={setTransferEmail}
+        region={region}
+        regionOptions={transferRegionOptions}
+        destinationRegion={transferRegion || region}
+        setDestinationRegion={setTransferRegion}
       />
       <SimpleModal
         open={deleteModalOpen}
