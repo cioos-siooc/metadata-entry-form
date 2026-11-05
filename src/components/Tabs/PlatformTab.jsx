@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
+import FormSection from "../FormShell/FormSection";
 
-import { Paper, Grid, FormControlLabel, Checkbox } from "@mui/material";
+import { Grid, FormControlLabel, Checkbox, Stack } from "@mui/material";
 import Instruments from "../FormComponents/Instruments";
 
 import { QuestionText, paperClass } from "../FormComponents/QuestionStyles";
@@ -35,8 +36,8 @@ const PlatformTab = ({
   }, [record.platformID, record.platform, record.platformDescription]);
 
   return (
-    <div>
-      <Paper style={paperClass}>
+    <Stack spacing={2}>
+      <FormSection>
         <Grid container direction="column" spacing={0}>
           <Grid style={paperClass}>
             <QuestionText>
@@ -99,7 +100,7 @@ const PlatformTab = ({
             />
           </Grid>
 
-          <Grid style={paperClass}>
+          <Grid id="field-platforms" style={paperClass}>
             {!noPlatform ? (
               <>
                 <Platform
@@ -136,8 +137,8 @@ const PlatformTab = ({
             />
           </Grid>
         </Grid>
-      </Paper>
-    </div>
+      </FormSection>
+    </Stack>
   );
 };
 export default PlatformTab;

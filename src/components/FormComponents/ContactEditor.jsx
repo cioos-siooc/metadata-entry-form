@@ -44,6 +44,7 @@ const ContactEditor = ({
   updateContactEvent,
   updateContactRor,
   updateContactOrcid,
+  updateContactFromAccount,
   language,
 }) => {
   const mounted = useRef(false);
@@ -286,6 +287,15 @@ const ContactEditor = ({
             </I18n>
             <OpenInNew style={{ verticalAlign: "middle" }} />
           </Button>
+          {updateContactFromAccount && (
+            <Button
+              onClick={updateContactFromAccount}
+              disabled={disabled}
+              style={{ margin: "10px" }}
+            >
+              <I18n en="Use my details" fr="Utiliser mes informations" />
+            </Button>
+          )}
         </Typography>
         <Grid style={{ marginleft: "10px" }}>
           <TextField

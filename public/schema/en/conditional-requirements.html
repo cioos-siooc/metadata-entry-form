@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditional requirements</title>
+<style>
+:root { color-scheme: light dark; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6; max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem;
+  color: #1b1b1b; background: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #e6e6e6; background: #16191c; }
+  a { color: #6db3f2; }
+  code { background: #23272b; }
+  table { border-color: #3a4046; }
+  th, td { border-color: #3a4046; }
+  thead th { background: #23272b; }
+  .card { border-color: #3a4046; }
+  .muted { color: #9aa4ad; }
+}
+h1 { font-size: 1.9rem; margin-bottom: .25rem; }
+h2 { margin-top: 2.5rem; font-size: 1.3rem; }
+h3 { margin-top: 2rem; font-size: 1.05rem; }
+a { color: #006e90; }
+code {
+  background: #f2f4f6; padding: .12em .35em; border-radius: 3px;
+  font-size: .9em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+pre { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid #d6dbe0; padding: .5rem .7rem; text-align: left; vertical-align: top; }
+thead th { background: #f2f4f6; }
+blockquote {
+  margin: 1.2rem 0; padding: .6rem 1rem; border-left: 4px solid #ffc857;
+  background: rgba(255, 200, 87, .09);
+}
+.card { border: 1px solid #d6dbe0; border-radius: 8px; padding: 1rem 1.2rem; margin: .9rem 0; }
+.card h3 { margin-top: 0; }
+.muted { color: #5c666f; font-size: .92rem; }
+.topbar { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<p><a href="../index.html">&larr; Back to index</a></p><h1 id="conditional-requirements">Conditional requirements</h1>
+
+<p>The generated field reference describes <strong>what each field is</strong>. This page
+describes <strong>the rules that span more than one field</strong> — the cases where whether
+a field is required depends on the value of another.</p>
+
+<p>These are expressed in <code>record.submission.schema.json</code>, which a record must
+satisfy to be submitted. They are deliberately <em>not</em> in
+<code>record.schema.json</code>: an incomplete draft is still structurally a record.</p>
+
+<hr />
+
+<h2 id="spatial-extent">Spatial extent</h2>
+
+<p>A record must describe where the data comes from, in one of three ways:</p>
+
+<table>
+<thead>
+<tr>
+  <th>Topic category</th>
+  <th>Accepted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Biota (<code>biota</code>, or legacy <code>biological</code>)</td>
+  <td>A bounding box, <strong>or</strong> a polygon, <strong>or</strong> a text description</td>
+</tr>
+<tr>
+  <td>Anything else</td>
+  <td>A bounding box <strong>or</strong> a polygon. A description alone is not enough.</td>
+</tr>
+</tbody>
+</table>
+
+<p>A bounding box counts only when all four edges are present and numeric.
+Additional constraints that JSON Schema cannot express, checked separately:</p>
+
+<ul>
+<li><code>north</code> must be greater than or equal to <code>south</code>, and <code>east</code> greater than or
+equal to <code>west</code></li>
+<li>latitudes must fall between -90 and 90; longitudes between -360 and 360</li>
+<li>a polygon must have at least two points, and its first point must equal its
+last (it must be closed)</li>
+</ul>
+
+<h2 id="fields-that-can-be-waived">Fields that can be waived</h2>
+
+<p>Three checkboxes turn off an otherwise-required section. Each is a real boolean
+stored on the record.</p>
+
+<table>
+<thead>
+<tr>
+  <th>Set this</th>
+  <th>…and these stop being required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>noVerticalExtent</code></td>
+  <td><code>verticalExtentMin</code>, <code>verticalExtentMax</code>, <code>verticalExtentDirection</code></td>
+</tr>
+<tr>
+  <td><code>noTaxa</code></td>
+  <td><code>taxa</code></td>
+</tr>
+<tr>
+  <td><code>noPlatform</code></td>
+  <td><code>platforms</code></td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="platforms-and-instruments">Platforms and instruments</h2>
+
+<p>A record satisfies the platform requirement if <strong>any</strong> of the following holds:</p>
+
+<ul>
+<li><code>noPlatform</code> is set, <strong>or</strong></li>
+<li>every entry in <code>platforms</code> has both a <code>type</code> and an <code>id</code>, <strong>or</strong></li>
+<li>the record has no <code>metadataScope</code>, <strong>or</strong> its <code>metadataScopeIso</code> is <code>model</code>
+(a model has no collection platform)</li>
+</ul>
+
+<p>Instruments have their own rule, and it is conditional on how many platforms
+exist:</p>
+
+<ul>
+<li>every instrument always needs an <code>id</code></li>
+<li>once <strong>two or more</strong> platforms are defined, every instrument must also name
+the <code>platform</code> it belongs to — with a single platform the association is
+unambiguous, so it is not required</li>
+</ul>
+
+<h2 id="contacts">Contacts</h2>
+
+<p>Each contact individually must have at least one <code>role</code>, and at least one of
+<code>orgName</code>, <code>givenNames</code>, or <code>lastName</code>.</p>
+
+<p>The contact list <em>as a whole</em> must additionally contain:</p>
+
+<ul>
+<li>at least one contact with the <strong>Metadata Custodian</strong> (<code>custodian</code>) role</li>
+<li>at least one contact with the <strong>Data Owner</strong> (<code>owner</code>) role</li>
+<li>at least one contact with <code>inCitation</code> set</li>
+</ul>
+
+<p>One contact can satisfy several of these at once.</p>
+
+<h2 id="lineage">Lineage</h2>
+
+<p>For each lineage step:</p>
+
+<ul>
+<li>every entry in <code>processingStep</code> needs a <code>title</code> and a <code>description</code></li>
+<li>every entry in <code>source</code> needs a <code>title</code> and a <code>description</code></li>
+<li>a step whose <code>scopeIso</code> is <code>collectionSession</code> also needs a <code>statement</code> in
+both English and French</li>
+</ul>
+
+<blockquote>
+  <p><strong>Known discrepancy.</strong> The form's own validator checks <code>scope</code> rather than
+  <code>scopeIso</code> for this last rule. Because <code>scope</code> stores a scope <em>key</em>
+  (<code>DataCollectionSampling</code>) while <code>collectionSession</code> is that key's ISO value,
+  the two never match and the rule has never actually blocked a submission. The
+  schema encodes the intended rule. See README §11.</p>
+</blockquote>
+
+<h2 id="related-works">Related works</h2>
+
+<p>Every entry in <code>associated_resources</code> needs all four of: a <code>title</code> in both
+languages, an <code>authority</code>, a <code>code</code>, and an <code>association_type</code>.</p>
+
+<h2 id="resources">Resources</h2>
+
+<p>At least one entry in <code>distribution</code> must have both a <code>name</code> and a valid <code>url</code>.
+Other entries may be incomplete.</p>
+
+<h2 id="essential-ocean-variables">Essential Ocean Variables</h2>
+
+<p>At least one EOV is required. EOVs that have been <strong>deprecated</strong> upstream in
+<code>cioos-commons</code> remain structurally valid — existing records still carry them —
+but block submission until they are replaced.</p>
+
+<h2 id="bilingual-text">Bilingual text</h2>
+
+<p><code>title</code> and <code>abstract</code> require <strong>both</strong> English and French.</p>
+
+<p><code>keywords</code> requires at least one keyword in <strong>either</strong> language.</p>
+
+<p>Geographic descriptions require at least one language.</p>
+
+</body>
+</html>
