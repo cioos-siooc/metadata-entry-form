@@ -43,9 +43,7 @@ The project is configured with multiple codebases in `firebase.json`:
 - **Payload**:
   ```json
   {
-    "record_data": {
-      /* Firebase record data */
-    },
+    "record_data": {/* Firebase record data */},
     "output_format": "iso19115-3",
     "api_url": "http://localhost:8000"
   }
