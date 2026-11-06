@@ -202,6 +202,14 @@ const validators = {
       fr: "Veuillez définir le statut du jeu de données",
     },
   },
+  maintenanceFrequency: {
+    tab: "dataID",
+    validation: (val, record) => !isCollection(record) || Boolean(val),
+    error: {
+      en: "Please select how often the Collection's membership is updated",
+      fr: "Veuillez indiquer à quelle fréquence la composition de la collection est mise à jour",
+    },
+  },
   language: {
     tab: "dataID",
     validation: (val) => val,

@@ -13,6 +13,7 @@ import DateInput from "../FormComponents/DateInput";
 import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
+import CollectionMaintenance from "../FormComponents/CollectionMaintenance";
 import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
 import {
@@ -200,6 +201,60 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
+      {recordIsCollection && (
+        <Paper style={paperClass}>
+          <QuestionText>
+            <I18n>
+              <En>What is the purpose of this Collection?</En>
+              <Fr>Quel est l&apos;objectif de cette collection?</Fr>
+            </I18n>
+            <SupplementalText>
+              <I18n>
+                <En>
+                  Optional. A short summary of why the Collection was assembled.
+                </En>
+                <Fr>
+                  Facultatif. Un bref résumé des raisons pour lesquelles la
+                  collection a été constituée.
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+          <BilingualTextInput
+            name="purpose"
+            value={record.purpose}
+            onChange={handleUpdateRecord("purpose")}
+            disabled={disabled}
+            multiline
+          />
+
+          <QuestionText style={{ paddingTop: "25px" }}>
+            <I18n>
+              <En>Who should be credited for this Collection?</En>
+              <Fr>Qui doit être reconnu pour cette collection?</Fr>
+            </I18n>
+            <SupplementalText>
+              <I18n>
+                <En>
+                  Optional. Acknowledge contributors, funders or programs that
+                  supported the Collection.
+                </En>
+                <Fr>
+                  Facultatif. Remerciez les contributeurs, les bailleurs de
+                  fonds ou les programmes qui ont soutenu la collection.
+                </Fr>
+              </I18n>
+            </SupplementalText>
+          </QuestionText>
+          <BilingualTextInput
+            name="credit"
+            value={record.credit}
+            onChange={handleUpdateRecord("credit")}
+            disabled={disabled}
+            multiline
+          />
+        </Paper>
+      )}
       {!recordIsCollection &&
         (!record.resourceType || !isOnlyOther(record.resourceType)) && (
           <Paper style={paperClass}>
@@ -447,6 +502,15 @@ const IdentificationTab = ({
           style={{ width: "200px" }}
         />
       </Paper>
+
+      {recordIsCollection && (
+        <CollectionMaintenance
+          record={record}
+          handleUpdateRecord={handleUpdateRecord}
+          updateRecord={updateRecord}
+          disabled={disabled}
+        />
+      )}
 
       <Paper style={paperClass}>
         <QuestionText>

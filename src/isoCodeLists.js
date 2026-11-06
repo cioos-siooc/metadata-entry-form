@@ -192,6 +192,25 @@ export const progressCodes = {
   },
 };
 
+// ISO 19115 MD_MaintenanceFrequencyCode
+export const maintenanceFrequencyCodes = {
+  continual: { title: { en: "Continual", fr: "Continue" } },
+  daily: { title: { en: "Daily", fr: "Quotidienne" } },
+  weekly: { title: { en: "Weekly", fr: "Hebdomadaire" } },
+  fortnightly: { title: { en: "Fortnightly", fr: "Aux deux semaines" } },
+  semimonthly: { title: { en: "Twice a month", fr: "Bimensuelle" } },
+  monthly: { title: { en: "Monthly", fr: "Mensuelle" } },
+  quarterly: { title: { en: "Quarterly", fr: "Trimestrielle" } },
+  biannually: { title: { en: "Twice a year", fr: "Semestrielle" } },
+  annually: { title: { en: "Annually", fr: "Annuelle" } },
+  biennially: { title: { en: "Every two years", fr: "Biennale" } },
+  periodic: { title: { en: "Periodic", fr: "Périodique" } },
+  irregular: { title: { en: "Irregular", fr: "Irrégulière" } },
+  asNeeded: { title: { en: "As needed", fr: "Au besoin" } },
+  notPlanned: { title: { en: "Not planned", fr: "Non planifiée" } },
+  unknown: { title: { en: "Unknown", fr: "Inconnue" } },
+};
+
 export const depthDirections = {
   heightPositive: { en: "Height Positive", fr: "Hauteur positive" },
   depthPositive: { en: "Depth Positive", fr: "Profondeur positive" },
