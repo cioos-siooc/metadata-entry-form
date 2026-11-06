@@ -33,7 +33,14 @@ for name, attrs in {
     "cioos_metadata_reviewer": {},
     "cioos_metadata_reviewer.agents": {},
     "cioos_metadata_reviewer.agents.cache": {"_default": None},
-    "cioos_metadata_reviewer.firebase": {"to_patch": _fake_to_patch},
+    "cioos_metadata_reviewer.firebase": {
+        "to_patch": _fake_to_patch,
+        # like the real one: only content the specialists read, no bookkeeping
+        "to_package": lambda region, uid, rid, rec: {
+            "title": rec.get("title"),
+            "status": rec.get("status"),
+        },
+    },
     "cioos_metadata_reviewer.review": {"review_record": _fake_review_record},
 }.items():
     sys.modules[name] = types.SimpleNamespace(**attrs)
@@ -139,8 +146,11 @@ def test_review_one_skips_unchanged_keeps_statuses_drops_rejected(store):
         "b": {"status": "rejected"}
     }  # update, not set
 
-    review.review_one("pacific", "u1", "r1", ref.get())
+    qa = review.review_one("pacific", "u1", "r1", ref.get())
     assert calls == ["r1"]  # unchanged hash: skipped
+    assert (
+        qa["checked"] == ref.get()["qa"]["checked"]
+    )  # ...but stamped as still current
     review.review_one("pacific", "u1", "r1", ref.get(), force=True)
     assert calls == ["r1", "r1"]
 
@@ -212,3 +222,64 @@ def test_review_region_cancel(store, monkeypatch):
     run = store["pacific"]["qaRuns"][run_id]
     assert (run["status"], run["done"], calls) == ("cancelled", 0, [])
     assert "active" not in store["pacific"]["qaRuns"]
+
+
+def test_hash_ignores_bookkeeping_but_not_content(store):
+    rec = {"title": "t", "status": "submitted", "created": "2026-01-01"}
+    h = review.input_hash("pacific", "u1", "r1", rec)
+    saved_again = {**rec, "created": "2026-02-02", "lastEditedBy": {"email": "x"}}
+    assert review.input_hash("pacific", "u1", "r1", saved_again) == h
+    assert review.input_hash("pacific", "u1", "r1", {**rec, "title": "new"}) != h
+
+
+def test_fingerprint_hashes_review_code_only(monkeypatch):
+    class F(str):
+        def read_binary(self):
+            return contents[self].encode()
+
+    contents = {
+        "cioos_metadata_reviewer/rules/base.py": "rule v1",
+        "cioos_metadata_reviewer/prompts/coherence.md": "prompt v1",
+        "cioos_metadata_reviewer/report.py": "report v1",
+        "cioos_metadata_reviewer-0.1.0.dist-info/direct_url.json": "commit abc",
+    }
+    dist = types.SimpleNamespace(files=None)
+    monkeypatch.setattr(review, "distribution", lambda name: dist)
+
+    def fingerprint():
+        dist.files = [F(k) for k in contents]
+        review._reviewer_fingerprint.cache_clear()
+        return review._reviewer_fingerprint()
+
+    base = fingerprint()
+    contents["cioos_metadata_reviewer/report.py"] = "report v2"
+    contents["cioos_metadata_reviewer-0.1.0.dist-info/direct_url.json"] = "commit def"
+    assert fingerprint() == base  # report and commit-only changes: no re-review
+    contents["cioos_metadata_reviewer/prompts/coherence.md"] = "prompt v2"
+    assert fingerprint() != base
+    review._reviewer_fingerprint.cache_clear()
+
+
+def test_review_on_submit(store, monkeypatch):
+    on_submit = review.review_on_submit
+    assert not on_submit("pacific", "u1", "r1", "", "published")  # not a submit
+    assert not on_submit("pacific", "u1", "r1", "submitted", "submitted")
+    assert calls == []
+
+    assert on_submit("pacific", "u1", "r1", "", "submitted")
+    assert calls == ["r1"]
+    assert not on_submit("pacific", "u1", "r1", "", "submitted")  # unchanged: skipped
+    assert calls == ["r1"]
+
+    # status moved on before the trigger ran: don't review a record that isn't submitted
+    FakeRef(store, f"{REC_PATH}/title").set("edited")
+    FakeRef(store, f"{REC_PATH}/status").set("")
+    assert not on_submit("pacific", "u1", "r1", "", "submitted")
+    assert calls == ["r1"]
+
+    def boom(*a, **k):
+        raise RuntimeError("cohere down")
+
+    FakeRef(store, f"{REC_PATH}/status").set("submitted")
+    monkeypatch.setattr(review, "review_one", boom)
+    assert not on_submit("pacific", "u1", "r1", "", "submitted")  # logged, not raised

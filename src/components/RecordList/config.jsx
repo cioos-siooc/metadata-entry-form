@@ -62,8 +62,11 @@ export const qaSummary = (qa, lastSaved) => {
     count: open.length,
     worst: Object.keys(bySeverity)[0],
     bySeverity,
+    // `checked`: a later review found the content unchanged, so these results still hold
     outdated: Boolean(
-      lastSaved && new Date(lastSaved) > new Date(qa.generated),
+      lastSaved &&
+      new Date(lastSaved) >
+        new Date(Math.max(new Date(qa.generated), new Date(qa.checked || 0))),
     ),
     generated: qa.generated,
   };

@@ -6,7 +6,7 @@ cioos-metadata-conversion's cffconvert pins jsonschema<4, so they can't share an
 This also keeps the reviewer's LLM deps off convert_metadata's cold starts.
 """
 
-from firebase_functions import https_fn, options
+from firebase_functions import db_fn, https_fn, options
 from firebase_functions.params import SecretParam
 from firebase_admin import db, initialize_app
 
@@ -66,3 +66,17 @@ def review_region(req: https_fn.CallableRequest):
     if req.data.get("dryRun"):
         return review.count_region(region, force)
     return {"runId": review.review_region(region, email, force)}
+
+
+@db_fn.on_value_written(
+    reference="/{region}/users/{uid}/records/{rid}/status",
+    timeout_sec=540,
+    memory=options.MemoryOption.GB_1,
+    secrets=[COHERE_API_KEY],
+)
+def review_on_submit(event: db_fn.Event[db_fn.Change[object]]) -> None:
+    """Auto-review a record when it's submitted (no retries; see review.review_on_submit)."""
+    p = event.params
+    review.review_on_submit(
+        p["region"], p["uid"], p["rid"], event.data.before, event.data.after
+    )

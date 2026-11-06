@@ -41,6 +41,7 @@
                 "suggested": { ".validate": false }, // legacy record-wide merge; cleared on review
                 "inputHash": { ".validate": false },
                 "generated": { ".validate": false },
+                "checked": { ".validate": false },
                 // A reviewer's decision on a finding: {status: applied|deferred|rejected, note?}
                 "statuses": {
                   ".write": "root.child('admin').child($region).child('permissions').child('admins').val().contains(auth.email)",

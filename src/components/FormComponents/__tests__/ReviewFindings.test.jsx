@@ -276,4 +276,14 @@ describe("qaSummary", () => {
     );
     expect(summary).toMatchObject({ count: 1, worst: "high", outdated: true });
   });
+
+  it("is not outdated when a later check found the content unchanged", () => {
+    const saved = "2026-10-08T00:00:00Z";
+    expect(
+      qaSummary({ ...qa, checked: "2026-10-09T00:00:00Z" }, saved).outdated,
+    ).toBe(false);
+    expect(
+      qaSummary({ ...qa, checked: "2026-10-07T12:00:00Z" }, saved).outdated,
+    ).toBe(true);
+  });
 });
