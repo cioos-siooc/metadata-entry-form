@@ -12,6 +12,7 @@ import Resources from "../FormComponents/Resources";
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import Lineage from "../FormComponents/Lineage";
 import CollectionLineage from "../FormComponents/CollectionLineage";
+import CollectionLinkSearch from "../FormComponents/CollectionLinkSearch";
 import { isCollection } from "../../utils/collectionMode";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
@@ -216,6 +217,11 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
                 </I18n>
               </SupplementalText>
             </QuestionText>
+            <CollectionLinkSearch
+              record={record}
+              updateRecord={updateRecord}
+              disabled={disabled}
+            />
             <RelatedWorks
               resources={record.associated_resources || []}
               updateResources={updateRecord("associated_resources")}
