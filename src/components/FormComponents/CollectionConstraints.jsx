@@ -15,7 +15,7 @@ const accessConstraintOptions = {
   otherRestrictions: { en: "Other restrictions", fr: "Autres restrictions" },
 };
 const useConstraintOptions = {
-  license: { en: "Licence", fr: "Licence" },
+  licence: { en: "Licence", fr: "Licence" },
   otherRestrictions: { en: "Other restrictions", fr: "Autres restrictions" },
 };
 
@@ -33,7 +33,7 @@ const CollectionConstraints = ({
     if (disabled) return;
     if (!record.accessConstraint)
       updateRecord("accessConstraint")("unrestricted");
-    if (!record.useConstraint) updateRecord("useConstraint")("license");
+    if (!record.useConstraint) updateRecord("useConstraint")("licence");
     // Only set the defaults once, when the section first appears
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
