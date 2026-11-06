@@ -156,24 +156,11 @@ const RecordActions = ({
           language,
           region,
           null,
-          { forUpdate: true },
+          { forUpdate: true, forUpload: true },
         );
-        // Fabrica file uploads are format-detected by bolognese's
-        // find_from_format_by_string, which only recognises DataCite JSON
-        // by a "schema-version" key (#564).
-        blob = new Blob(
-          [
-            JSON.stringify(
-              {
-                ...data.attributes,
-                "schema-version": data.attributes.schemaVersion,
-              },
-              null,
-              2,
-            ),
-          ],
-          { type: `${mimeTypes[fileType]};charset=utf-8` },
-        );
+        blob = new Blob([JSON.stringify(data.attributes, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
       } else {
         // Server-side conversion
         const functions = getFunctions();
