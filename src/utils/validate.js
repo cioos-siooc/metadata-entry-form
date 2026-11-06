@@ -4,7 +4,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import firebase from "../firebase"; // this is needed to make the test pass.
 import { hasResourceType, resourceTypeIncludes } from "./normalizeResourceType";
 import { eovs } from "../eovs";
-import { isCollection } from "./collectionMode";
+import { isCollection, collectionProgressCodes } from "./collectionMode";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -153,7 +153,7 @@ const validators = {
     },
   },
   eov: {
-    validation: (val) => val && val.length,
+    validation: (val, record) => isCollection(record) || (val && val.length),
     tab: "dataID",
     error: {
       en: "At least one EOV is required",
@@ -162,6 +162,8 @@ const validators = {
   },
   eovDeprecated: {
     validation: (_, record) => {
+      // EOVs are hidden for Collections, so hidden values must not block submission
+      if (isCollection(record)) return true;
       const deprecatedValues = new Set(
         eovs.filter((e) => e.deprecated).map((e) => e.value),
       );
@@ -193,7 +195,8 @@ const validators = {
   },
   progress: {
     tab: "dataID",
-    validation: (val) => val,
+    validation: (val, record) =>
+      isCollection(record) ? collectionProgressCodes.includes(val) : val,
     error: {
       en: "Please select a dataset status",
       fr: "Veuillez définir le statut du jeu de données",

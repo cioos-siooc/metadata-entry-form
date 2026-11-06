@@ -6,3 +6,6 @@ export const isCollection = (record) =>
 
 // Tabs that are not part of the Collections profile.
 export const tabsHiddenForCollections = ["taxa", "platform"];
+
+// MD_ProgressCode values the Collections profile allows for status.
+export const collectionProgressCodes = ["onGoing", "completed"];

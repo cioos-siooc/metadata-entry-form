@@ -15,6 +15,10 @@ import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
+import {
+  isCollection,
+  collectionProgressCodes,
+} from "../../utils/collectionMode";
 
 import {
   QuestionText,
@@ -45,6 +49,19 @@ const IdentificationTab = ({
       {regionInfo.catalogueURL[lang]}
     </a>
   );
+
+  const recordIsCollection = isCollection(record);
+  // Collections only allow a subset of status values
+  const availableProgressCodes = Object.fromEntries(
+    Object.entries(progressCodes).filter(
+      ([key]) => !recordIsCollection || collectionProgressCodes.includes(key),
+    ),
+  );
+  // A status not offered for this type shows as empty (the stored value is kept)
+  const progressValue =
+    record.progress && availableProgressCodes[record.progress]
+      ? record.progress
+      : "";
 
   // sort into array of objects sorted by name?
   const licensesSorted = Object.values(licenses).sort((a, b) =>
@@ -183,147 +200,151 @@ const IdentificationTab = ({
           multiline
         />
       </Paper>
-      {(!record.resourceType || !isOnlyOther(record.resourceType)) && (
-        <Paper style={paperClass}>
-          <QuestionText>
-            <I18n>
-              <En>
-                Please select all the essential ocean variables that are
-                contained in this dataset. Hover over a variable to see its
-                definition.
-              </En>
-              <Fr>
-                Veuillez sélectionner toutes les variables océaniques
-                essentielles contenues dans ce jeu de données. Survolez une
-                variable pour afficher sa définition ou cliquez sur l’icône{" "}
-                <OpenInNew /> pour accéder à la définition complète issue du The
-                Global Ocean observing System (GOOS).
-              </Fr>
-            </I18n>
-            <RequiredMark passes={validateField(record, "eov")} />
-            <SupplementalText>
+      {!recordIsCollection &&
+        (!record.resourceType || !isOnlyOther(record.resourceType)) && (
+          <Paper style={paperClass}>
+            <QuestionText>
               <I18n>
-                <En>If none of these apply you can select Other.</En>
+                <En>
+                  Please select all the essential ocean variables that are
+                  contained in this dataset. Hover over a variable to see its
+                  definition.
+                </En>
                 <Fr>
-                  Si aucune de ces variables ne vous semble pertinente, vous
-                  pouvez sélectionner « Autre ».
+                  Veuillez sélectionner toutes les variables océaniques
+                  essentielles contenues dans ce jeu de données. Survolez une
+                  variable pour afficher sa définition ou cliquez sur l’icône{" "}
+                  <OpenInNew /> pour accéder à la définition complète issue du
+                  The Global Ocean observing System (GOOS).
                 </Fr>
               </I18n>
-            </SupplementalText>
-          </QuestionText>
-          {Object.entries(eovCategories).map(([categoryKey, categoryText]) => {
-            const eovsFiltered = eovs
-              .filter((e) => e.category === categoryKey)
-              .filter(
-                (e) => !e.deprecated || (record.eov || []).includes(e.value),
-              )
-              .sort((a, b) =>
-                a[`label ${languageUpperCase}`].localeCompare(
-                  b[`label ${languageUpperCase}`],
-                  language,
-                ),
-              );
+              <RequiredMark passes={validateField(record, "eov")} />
+              <SupplementalText>
+                <I18n>
+                  <En>If none of these apply you can select Other.</En>
+                  <Fr>
+                    Si aucune de ces variables ne vous semble pertinente, vous
+                    pouvez sélectionner « Autre ».
+                  </Fr>
+                </I18n>
+              </SupplementalText>
+            </QuestionText>
+            {Object.entries(eovCategories).map(
+              ([categoryKey, categoryText]) => {
+                const eovsFiltered = eovs
+                  .filter((e) => e.category === categoryKey)
+                  .filter(
+                    (e) =>
+                      !e.deprecated || (record.eov || []).includes(e.value),
+                  )
+                  .sort((a, b) =>
+                    a[`label ${languageUpperCase}`].localeCompare(
+                      b[`label ${languageUpperCase}`],
+                      language,
+                    ),
+                  );
 
-            return (
-              <div key={categoryText[language]}>
-                <h4>{categoryText[language]}</h4>
-                <CheckBoxList
-                  value={record.eov || []}
-                  labelSize={6}
-                  onChange={updateRecord("eov")}
-                  options={eovsFiltered.map((e) => e.value)}
-                  optionLabels={eovsFiltered.map((e) => (
-                    <>
-                      <Tooltip title={e[`definition ${languageUpperCase}`]}>
-                        <span
-                          style={
-                            e.deprecated
-                              ? {
-                                  textDecoration: "line-through",
-                                  color: "rgba(0,0,0,0.4)",
+                return (
+                  <div key={categoryText[language]}>
+                    <h4>{categoryText[language]}</h4>
+                    <CheckBoxList
+                      value={record.eov || []}
+                      labelSize={6}
+                      onChange={updateRecord("eov")}
+                      options={eovsFiltered.map((e) => e.value)}
+                      optionLabels={eovsFiltered.map((e) => (
+                        <>
+                          <Tooltip title={e[`definition ${languageUpperCase}`]}>
+                            <span
+                              style={
+                                e.deprecated
+                                  ? {
+                                      textDecoration: "line-through",
+                                      color: "rgba(0,0,0,0.4)",
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {e[`label ${languageUpperCase}`]}
+                            </span>
+                          </Tooltip>
+                          {e.url && (
+                            <IconButton
+                              onClick={() => {
+                                const win = window.open(e.url, "_blank");
+                                win.focus();
+                              }}
+                            >
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="Open GOOS definition in new window"
+                                    fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
+                                  />
                                 }
-                              : undefined
-                          }
-                        >
-                          {e[`label ${languageUpperCase}`]}
-                        </span>
-                      </Tooltip>
-                      {e.url && (
-                        <IconButton
-                          onClick={() => {
-                            const win = window.open(e.url, "_blank");
-                            win.focus();
-                          }}
-                        >
-                          <Tooltip
-                            title={
-                              <I18n
-                                en="Open GOOS definition in new window"
-                                fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
-                              />
-                            }
-                          >
-                            <OpenInNew />
-                          </Tooltip>
-                        </IconButton>
-                      )}
-                      {e.emerging && (
-                        <IconButton onClick={() => {}}>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en="GOOS emerging EOV"
-                                fr="EOV émergent GOOS"
-                              />
-                            }
-                          >
-                            <Update />
-                          </Tooltip>
-                        </IconButton>
-                      )}
-                      {e.deprecated &&
-                        (() => {
-                          const replacements = (e.replacedBy || [])
-                            .map((v) => eovs.find((x) => x.value === v))
-                            .filter(Boolean);
-                          const replacementLabelsEn = replacements
-                            .map((r) => r["label EN"])
-                            .join(", ");
-                          const replacementLabelsFr = replacements
-                            .map((r) => r["label FR"])
-                            .join(", ");
-                          return (
+                              >
+                                <OpenInNew />
+                              </Tooltip>
+                            </IconButton>
+                          )}
+                          {e.emerging && (
                             <IconButton onClick={() => {}}>
                               <Tooltip
                                 title={
                                   <I18n
-                                    en={`This EOV is deprecated and cannot be submitted. Please unselect it${
-                                      replacementLabelsEn
-                                        ? ` and use ${replacementLabelsEn} instead`
-                                        : ""
-                                    }.`}
-                                    fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
-                                      replacementLabelsFr
-                                        ? ` et utiliser ${replacementLabelsFr} à la place`
-                                        : ""
-                                    }.`}
+                                    en="GOOS emerging EOV"
+                                    fr="EOV émergent GOOS"
                                   />
                                 }
                               >
-                                <Warning color="warning" />
+                                <Update />
                               </Tooltip>
                             </IconButton>
-                          );
-                        })()}
-                    </>
-                  ))}
-                  disabled={disabled}
-                />
-              </div>
-            );
-          })}
-        </Paper>
-      )}
+                          )}
+                          {e.deprecated &&
+                            (() => {
+                              const replacements = (e.replacedBy || [])
+                                .map((v) => eovs.find((x) => x.value === v))
+                                .filter(Boolean);
+                              const replacementLabelsEn = replacements
+                                .map((r) => r["label EN"])
+                                .join(", ");
+                              const replacementLabelsFr = replacements
+                                .map((r) => r["label FR"])
+                                .join(", ");
+                              return (
+                                <IconButton onClick={() => {}}>
+                                  <Tooltip
+                                    title={
+                                      <I18n
+                                        en={`This EOV is deprecated and cannot be submitted. Please unselect it${
+                                          replacementLabelsEn
+                                            ? ` and use ${replacementLabelsEn} instead`
+                                            : ""
+                                        }.`}
+                                        fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
+                                          replacementLabelsFr
+                                            ? ` et utiliser ${replacementLabelsFr} à la place`
+                                            : ""
+                                        }.`}
+                                      />
+                                    }
+                                  >
+                                    <Warning color="warning" />
+                                  </Tooltip>
+                                </IconButton>
+                              );
+                            })()}
+                        </>
+                      ))}
+                      disabled={disabled}
+                    />
+                  </div>
+                );
+              },
+            )}
+          </Paper>
+        )}
 
       <Paper style={paperClass}>
         <Grid container spacing={3} direction="column">
@@ -393,14 +414,21 @@ const IdentificationTab = ({
 
       <Paper style={paperClass}>
         <QuestionText>
-          <I18n>
-            <En>What is the status of this dataset?</En>
-            <Fr>Quel est l'état de ce jeu de données?</Fr>
-          </I18n>
+          {recordIsCollection ? (
+            <I18n>
+              <En>What is the status of this collection?</En>
+              <Fr>Quel est l'état de cette collection?</Fr>
+            </I18n>
+          ) : (
+            <I18n>
+              <En>What is the status of this dataset?</En>
+              <Fr>Quel est l'état de ce jeu de données?</Fr>
+            </I18n>
+          )}
           <RequiredMark passes={validateField(record, "progress")} />
 
           <SupplementalText>
-            {Object.values(progressCodes).map(({ title, text }) => (
+            {Object.values(availableProgressCodes).map(({ title, text }) => (
               <div style={{ margin: "10px" }} key={title[language]}>
                 {`${title[language]}: ${text[language]}`}
               </div>
@@ -408,10 +436,10 @@ const IdentificationTab = ({
           </SupplementalText>
         </QuestionText>
         <SelectInput
-          value={record.progress || ""}
+          value={progressValue}
           onChange={handleUpdateRecord("progress")}
-          options={Object.keys(progressCodes)}
-          optionLabels={Object.values(progressCodes).map(
+          options={Object.keys(availableProgressCodes)}
+          optionLabels={Object.values(availableProgressCodes).map(
             ({ title }) => title[language],
           )}
           disabled={disabled}
