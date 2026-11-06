@@ -48,6 +48,10 @@ import {
 } from "../../utils/firebaseRecordFunctions";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
+import {
+  isCollection,
+  tabsHiddenForCollections,
+} from "../../utils/collectionMode";
 import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
@@ -485,7 +489,7 @@ class MetadataForm extends FormClassTemplate {
       userContacts,
       userInstruments,
       userPlatforms,
-      tabIndex,
+      tabIndex: selectedTab,
       record,
       saveDisabled,
       loading,
@@ -500,6 +504,13 @@ class MetadataForm extends FormClassTemplate {
       return <NotFound />;
     }
     const { classes } = this.props;
+
+    const recordIsCollection = isCollection(record);
+    // If the selected tab is hidden for Collections, fall back to Start
+    const tabIndex =
+      recordIsCollection && tabsHiddenForCollections.includes(selectedTab)
+        ? "start"
+        : selectedTab;
 
     const disabled = !loggedInUserCanEditRecord;
 
@@ -583,12 +594,14 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.dataID[language]}
                 value="identification"
               />
-              <Tab
-                fullWidth
-                classes={{ root: classes.tabRoot }}
-                label={tabs.taxa[language]}
-                value="taxa"
-              />
+              {!recordIsCollection && (
+                <Tab
+                  fullWidth
+                  classes={{ root: classes.tabRoot }}
+                  label={tabs.taxa[language]}
+                  value="taxa"
+                />
+              )}
               <Tab
                 fullWidth
                 classes={{ root: classes.tabRoot }}
@@ -607,7 +620,7 @@ class MetadataForm extends FormClassTemplate {
                 label={tabs.resources[language]}
                 value="distribution"
               />
-              {!["model"].includes(record.metadataScopeIso) && (
+              {!["model", "collection"].includes(record.metadataScopeIso) && (
                 <Tab
                   fullWidth
                   classes={{ root: classes.tabRoot }}

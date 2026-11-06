@@ -4,6 +4,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import firebase from "../firebase"; // this is needed to make the test pass.
 import { hasResourceType, resourceTypeIncludes } from "./normalizeResourceType";
 import { eovs } from "../eovs";
+import { isCollection } from "./collectionMode";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -384,7 +385,8 @@ const validators = {
       record.noPlatform ||
       val.every((platform) => platform.type && platform.id) ||
       !record.metadataScope ||
-      record.metadataScopeIso === "model",
+      record.metadataScopeIso === "model" ||
+      isCollection(record),
     error: {
       en: "Missing platform type or ID",
       fr: "Type ou ID de plateforme manquant.",
@@ -393,6 +395,7 @@ const validators = {
   instruments: {
     tab: "platformInstruments",
     validation: (val, record) => {
+      if (isCollection(record)) return true;
       const platforms = record.platforms || [];
       return val.every(
         (instrument) =>
@@ -406,7 +409,7 @@ const validators = {
   },
   taxa: {
     tab: "taxa",
-    validation: (val, record) => record.noTaxa || val,
+    validation: (val, record) => isCollection(record) || record.noTaxa || val,
     error: {
       en: "Missing Taxonomic Coverage",
       fr: "Couverture taxonomique manquante.",
