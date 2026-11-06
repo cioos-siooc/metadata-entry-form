@@ -93,7 +93,7 @@ const ContactTab = ({
   const contact = contacts[activeContact];
   return (
     <Grid container spacing={3}>
-      <Paper style={paperClass}>
+      <Paper id="field-contacts" style={paperClass}>
         <Grid>
           <QuestionText>
             <I18n>
