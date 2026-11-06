@@ -14,6 +14,7 @@ import KeywordsInput from "../FormComponents/KeywordsInput";
 import RequiredMark from "../FormComponents/RequiredMark";
 import SelectInput from "../FormComponents/SelectInput";
 import CollectionMaintenance from "../FormComponents/CollectionMaintenance";
+import CollectionConstraints from "../FormComponents/CollectionConstraints";
 import licenses from "../../utils/licenses";
 import { validateField } from "../../utils/validate";
 import {
@@ -742,6 +743,14 @@ const IdentificationTab = ({
           disabled={disabled}
         />
       </Paper>
+      {recordIsCollection && (
+        <CollectionConstraints
+          record={record}
+          handleUpdateRecord={handleUpdateRecord}
+          updateRecord={updateRecord}
+          disabled={disabled}
+        />
+      )}
       <Paper style={paperClass}>
         <QuestionText>
           <I18n>

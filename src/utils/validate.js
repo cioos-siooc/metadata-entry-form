@@ -210,6 +210,19 @@ const validators = {
       fr: "Veuillez indiquer à quelle fréquence la composition de la collection est mise à jour",
     },
   },
+  otherConstraints: {
+    tab: "dataID",
+    validation: (val, record) =>
+      !isCollection(record) ||
+      ![record.accessConstraint, record.useConstraint].includes(
+        "otherRestrictions",
+      ) ||
+      Boolean(val && val.en && val.fr),
+    error: {
+      en: "Other constraints are required in both languages when a constraint is set to Other restrictions",
+      fr: "Les autres contraintes sont requises dans les deux langues lorsqu'une contrainte est « Autres restrictions »",
+    },
+  },
   language: {
     tab: "dataID",
     validation: (val) => val,
