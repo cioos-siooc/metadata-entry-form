@@ -24,7 +24,9 @@ from cioos_metadata_reviewer.firebase import to_patch
 from cioos_metadata_reviewer.review import review_record
 
 REVIEWED_STATUSES = ("submitted", "published")
-STALE_RUN_SECONDS = 3600  # a run older than the function timeout crashed; let a new one start
+STALE_RUN_SECONDS = (
+    3600  # a run older than the function timeout crashed; let a new one start
+)
 
 
 class RtdbLLMCache:
@@ -43,7 +45,9 @@ llm_cache._default = RtdbLLMCache()
 def _reviewer_version():
     # The git commit of the installed reviewer: prompts and model config live in its code.
     try:
-        return distribution("cioos-metadata-reviewer").read_text("direct_url.json") or ""
+        return (
+            distribution("cioos-metadata-reviewer").read_text("direct_url.json") or ""
+        )
     except PackageNotFoundError:
         return ""
 
@@ -62,7 +66,8 @@ def require_role(region, auth, admin_only=False):
     if not email or email not in allowed:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.PERMISSION_DENIED,
-            "Only region admins can do this." if admin_only
+            "Only region admins can do this."
+            if admin_only
             else "Only region reviewers and admins can run the review.",
         )
     return email
@@ -87,11 +92,17 @@ def review_one(region, uid, rid, rec, force=False):
     raw = asyncio.run(review_record(region, uid, rid, rec))
     data = {region: {"users": {uid: {"records": {rid: rec}}}}}
     patched = (
-        to_patch(raw, data).get(region, {}).get("users", {}).get(uid, {})
-        .get("records", {}).get(rid, {}).get("qa", {})
+        to_patch(raw, data)
+        .get(region, {})
+        .get("users", {})
+        .get(uid, {})
+        .get("records", {})
+        .get(rid, {})
+        .get("qa", {})
     )
     rejected = {
-        fid for fid, s in (qa.get("statuses") or {}).items()
+        fid
+        for fid, s in (qa.get("statuses") or {}).items()
         if (s or {}).get("status") == "rejected"
     }
     update = {
@@ -133,7 +144,10 @@ def _region_records(region):
 def count_region(region, force=False):
     """What review_region would do, without doing it: {total, toReview}."""
     todo = _region_records(region)
-    return {"total": len(todo), "toReview": sum(needs_review(rec, force) for _, _, rec in todo)}
+    return {
+        "total": len(todo),
+        "toReview": sum(needs_review(rec, force) for _, _, rec in todo),
+    }
 
 
 def review_region(region, email, force=False):
@@ -148,11 +162,18 @@ def review_region(region, email, force=False):
     run = db.reference(f"{region}/qaRuns/{run_id}")
     try:
         todo = _region_records(region)
-        run.set({
-            "status": "running", "total": len(todo), "done": 0, "failed": 0,
-            "reviewed": 0, "skipped": 0,
-            "startedBy": email, "started": datetime.now(timezone.utc).isoformat(),
-        })
+        run.set(
+            {
+                "status": "running",
+                "total": len(todo),
+                "done": 0,
+                "failed": 0,
+                "reviewed": 0,
+                "skipped": 0,
+                "startedBy": email,
+                "started": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         done = failed = reviewed = skipped = 0
         status = "done"
         for uid, rid, rec in todo:
@@ -163,22 +184,41 @@ def review_region(region, email, force=False):
             if not needs_review(rec, force):
                 skipped += 1
             else:
-                run.update({"current": {"uid": uid, "rid": rid, "title": rec.get("title")}})
+                run.update(
+                    {"current": {"uid": uid, "rid": rid, "title": rec.get("title")}}
+                )
                 try:
                     review_one(region, uid, rid, rec, force)
                     reviewed += 1
                 except Exception as e:  # pylint: disable=broad-except
-                    logging.exception("review_region: %s/%s/%s failed", region, uid, rid)
+                    logging.exception(
+                        "review_region: %s/%s/%s failed", region, uid, rid
+                    )
                     failed += 1  # one bad record shouldn't stop the region
-                    run.child(f"failedRecords/{uid}_{rid}").set({
-                        "uid": uid, "rid": rid, "title": rec.get("title"), "error": str(e)[:200],
-                    })
+                    run.child(f"failedRecords/{uid}_{rid}").set(
+                        {
+                            "uid": uid,
+                            "rid": rid,
+                            "title": rec.get("title"),
+                            "error": str(e)[:200],
+                        }
+                    )
             done += 1
-            run.update({"done": done, "failed": failed, "reviewed": reviewed, "skipped": skipped})
-        run.update({
-            "status": status, "current": None,
-            "finished": datetime.now(timezone.utc).isoformat(),
-        })
+            run.update(
+                {
+                    "done": done,
+                    "failed": failed,
+                    "reviewed": reviewed,
+                    "skipped": skipped,
+                }
+            )
+        run.update(
+            {
+                "status": status,
+                "current": None,
+                "finished": datetime.now(timezone.utc).isoformat(),
+            }
+        )
     except Exception:
         run.update({"status": "error", "current": None})
         raise

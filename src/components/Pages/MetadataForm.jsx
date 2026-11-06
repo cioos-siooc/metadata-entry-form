@@ -112,7 +112,9 @@ const useStyles = (theme) => ({
   },
   // keep Save clear of the open review drawer (it's full-width, temporary, below md)
   fabBesideDrawer: {
-    [theme.breakpoints.up("md")]: { right: `calc(${DRAWER_WIDTH}px + ${theme.spacing(2)})` },
+    [theme.breakpoints.up("md")]: {
+      right: `calc(${DRAWER_WIDTH}px + ${theme.spacing(2)})`,
+    },
   },
 });
 
@@ -288,7 +290,8 @@ export class MetadataForm extends FormClassTemplate {
 
   // genereric handler for updating state, used by most form components
   // generic event handler
-  handleUpdateRecord = (key) => (event) => this.updateRecord(key)(event.target.value);
+  handleUpdateRecord = (key) => (event) =>
+    this.updateRecord(key)(event.target.value);
 
   // a second genereric handler components that dont use onChange
   // generic state updater creator
@@ -693,11 +696,13 @@ export class MetadataForm extends FormClassTemplate {
                 record={record}
                 unsaved={!saveDisabled}
                 onApplySuggested={(finding) =>
-                  this.setState(({ record: current, pendingApplied: pending }) => ({
-                    record: mergeSuggested(current, finding.suggested),
-                    pendingApplied: [...pending, finding.id],
-                    saveDisabled: false,
-                  }))
+                  this.setState(
+                    ({ record: current, pendingApplied: pending }) => ({
+                      record: mergeSuggested(current, finding.suggested),
+                      pendingApplied: [...pending, finding.id],
+                      saveDisabled: false,
+                    }),
+                  )
                 }
                 pendingApplied={pendingApplied}
                 onGoToTab={(tab, key) =>

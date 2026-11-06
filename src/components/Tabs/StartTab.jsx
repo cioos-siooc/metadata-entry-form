@@ -406,8 +406,12 @@ const StartTab = ({
       <div id="field-datasetIdentifier">
         <DOIInput
           record={record}
-          handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
-          handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
+          handleUpdateDatasetIdentifier={handleUpdateRecord(
+            "datasetIdentifier",
+          )}
+          handleUpdateDoiCreationStatus={handleUpdateRecord(
+            "doiCreationStatus",
+          )}
           disabled={disabled}
         />
       </div>

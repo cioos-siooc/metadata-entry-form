@@ -15,7 +15,12 @@ vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
-    useParams: () => ({ language: "en", region: "pacific", userID: "u1", recordID: "r1" }),
+    useParams: () => ({
+      language: "en",
+      region: "pacific",
+      userID: "u1",
+      recordID: "r1",
+    }),
   };
 });
 
@@ -31,7 +36,12 @@ vi.mock("../../../firebase", () => ({ default: {} }));
 const qa = {
   generated: "2026-10-07T00:00:00Z",
   findings: {
-    0: { id: "a", severity: "medium", field: "license", description: "Dataset has no license." },
+    0: {
+      id: "a",
+      severity: "medium",
+      field: "license",
+      description: "Dataset has no license.",
+    },
     1: {
       id: "b",
       severity: "high",
@@ -39,7 +49,12 @@ const qa = {
       description: "URL unreachable.",
       suggested: { distribution: { 1: { url: "https://new.test" } } },
     },
-    2: { id: "c", severity: "critical", field: "title", description: "Rejected earlier." },
+    2: {
+      id: "c",
+      severity: "critical",
+      field: "title",
+      description: "Rejected earlier.",
+    },
   },
   statuses: { c: { status: "rejected", note: "intentional" } },
 };
@@ -49,7 +64,10 @@ const record = {
   distribution: [{ url: "a" }, { url: "https://old.test" }],
 };
 
-const renderWith = (props = {}, reviewRecord = vi.fn().mockResolvedValue({})) => {
+const renderWith = (
+  props = {},
+  reviewRecord = vi.fn().mockResolvedValue({}),
+) => {
   render(
     <UserContext.Provider value={{ reviewRecord }}>
       <ReviewFindings
@@ -60,7 +78,7 @@ const renderWith = (props = {}, reviewRecord = vi.fn().mockResolvedValue({})) =>
         onOpenChange={() => {}}
         {...props}
       />
-    </UserContext.Provider>
+    </UserContext.Provider>,
   );
   return reviewRecord;
 };
@@ -77,7 +95,10 @@ describe("<ReviewFindings /> summary bar", () => {
   });
 
   it("flags results older than the last save", () => {
-    renderWith({ open: false, record: { ...record, created: "2026-10-08T00:00:00Z" } });
+    renderWith({
+      open: false,
+      record: { ...record, created: "2026-10-08T00:00:00Z" },
+    });
     expect(screen.getByText("Outdated")).toBeTruthy();
   });
 
@@ -85,12 +106,18 @@ describe("<ReviewFindings /> summary bar", () => {
     const reviewRecord = renderWith({ open: false });
     fireEvent.click(screen.getByRole("button", { name: /re-run review/i }));
     await screen.findByRole("button", { name: /re-run review/i }); // spinner gone
-    expect(reviewRecord).toHaveBeenCalledWith({ region: "pacific", userID: "u1", recordID: "r1" });
+    expect(reviewRecord).toHaveBeenCalledWith({
+      region: "pacific",
+      userID: "u1",
+      recordID: "r1",
+    });
   });
 
   it("disables the review while there are unsaved changes", () => {
     renderWith({ open: false, unsaved: true });
-    expect(screen.getByRole("button", { name: /re-run review/i }).disabled).toBe(true);
+    expect(
+      screen.getByRole("button", { name: /re-run review/i }).disabled,
+    ).toBe(true);
   });
 });
 
@@ -103,7 +130,10 @@ describe("<ReviewFindings /> drawer", () => {
       .getAllByText(/\(\d\)$/)
       .map((el) => el.textContent)
       .filter((t) => !/resolved/i.test(t));
-    expect(headings).toEqual(["Resource Identification (1)", "Data and Documentation (1)"]);
+    expect(headings).toEqual([
+      "Resource Identification (1)",
+      "Data and Documentation (1)",
+    ]);
     expect(screen.queryByText("Rejected earlier.")).toBeNull(); // under "Show resolved"
   });
 
@@ -126,12 +156,17 @@ describe("<ReviewFindings /> drawer", () => {
   it("writes a rejection with its note", () => {
     renderWith();
     fireEvent.click(screen.getAllByRole("button", { name: /reject/i })[0]);
-    fireEvent.change(screen.getByLabelText(/note/i), { target: { value: "fine as is" } });
-    fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
-    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/a", {
-      status: "rejected",
-      note: "fine as is",
+    fireEvent.change(screen.getByLabelText(/note/i), {
+      target: { value: "fine as is" },
     });
+    fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
+    expect(set).toHaveBeenCalledWith(
+      "pacific/users/u1/records/r1/qa/statuses/a",
+      {
+        status: "rejected",
+        note: "fine as is",
+      },
+    );
   });
 
   it("restores a resolved finding", () => {
@@ -139,7 +174,10 @@ describe("<ReviewFindings /> drawer", () => {
     fireEvent.click(screen.getByRole("button", { name: /show resolved/i }));
     expect(screen.getByText(/intentional/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /restore/i }));
-    expect(set).toHaveBeenCalledWith("pacific/users/u1/records/r1/qa/statuses/c", null);
+    expect(set).toHaveBeenCalledWith(
+      "pacific/users/u1/records/r1/qa/statuses/c",
+      null,
+    );
   });
 
   it("previews a fix, then applies it without writing a status (that happens on save)", () => {
@@ -158,7 +196,9 @@ describe("<ReviewFindings /> drawer", () => {
   it("marks fixes applied in the form but not saved", () => {
     renderWith({ pendingApplied: ["b"] });
     expect(screen.getByText("Applied, unsaved")).toBeTruthy();
-    expect(screen.queryAllByRole("button", { name: /preview fix/i })).toHaveLength(0);
+    expect(
+      screen.queryAllByRole("button", { name: /preview fix/i }),
+    ).toHaveLength(0);
   });
 });
 
@@ -170,7 +210,9 @@ describe("findingTab / flattenPatch", () => {
 
   it("lists the leaves a patch changes, skipping holes", () => {
     // eslint-disable-next-line no-sparse-arrays
-    expect(flattenPatch({ title: { en: "T" }, distribution: [, { url: "u" }] })).toEqual([
+    expect(
+      flattenPatch({ title: { en: "T" }, distribution: [, { url: "u" }] }),
+    ).toEqual([
       [["title", "en"], "T"],
       [["distribution", "1", "url"], "u"],
     ]);
@@ -179,7 +221,10 @@ describe("findingTab / flattenPatch", () => {
 
 describe("mergeSuggested", () => {
   it("keeps sibling languages when patching one", () => {
-    const out = mergeSuggested({ title: { en: "Old", fr: "Ancien" } }, { title: { en: "New" } });
+    const out = mergeSuggested(
+      { title: { en: "Old", fr: "Ancien" } },
+      { title: { en: "New" } },
+    );
     expect(out.title).toEqual({ en: "New", fr: "Ancien" });
   });
 
@@ -188,14 +233,25 @@ describe("mergeSuggested", () => {
     // eslint-disable-next-line no-sparse-arrays
     const out = mergeSuggested(record, { distribution: [, { url: "new" }] });
     expect(out.distribution).toEqual([{ url: "a" }, { url: "new", name: "B" }]);
-    expect(mergeSuggested(record, { distribution: [null, { url: "new" }] }).distribution[0]).toEqual({ url: "a" });
+    expect(
+      mergeSuggested(record, { distribution: [null, { url: "new" }] })
+        .distribution[0],
+    ).toEqual({ url: "a" });
   });
 
-
   it("patches array entries addressed by RTDB index keys", () => {
-    const record = { title: "t", distribution: [{ url: "a", name: "A" }, { url: "b", name: "B" }] };
+    const record = {
+      title: "t",
+      distribution: [
+        { url: "a", name: "A" },
+        { url: "b", name: "B" },
+      ],
+    };
     const out = mergeSuggested(record, qa.findings[1].suggested);
-    expect(out.distribution).toEqual([{ url: "a", name: "A" }, { url: "https://new.test", name: "B" }]);
+    expect(out.distribution).toEqual([
+      { url: "a", name: "A" },
+      { url: "https://new.test", name: "B" },
+    ]);
     expect(Array.isArray(out.distribution)).toBe(true);
     expect(record.distribution[1].url).toBe("b"); // not mutated
   });
@@ -216,7 +272,7 @@ describe("qaSummary", () => {
   it("treats ignored and applied findings as resolved, and flags outdated results", () => {
     const summary = qaSummary(
       { ...qa, statuses: { ...qa.statuses, a: { status: "deferred" } } },
-      "2026-10-08T00:00:00Z"
+      "2026-10-08T00:00:00Z",
     );
     expect(summary).toMatchObject({ count: 1, worst: "high", outdated: true });
   });

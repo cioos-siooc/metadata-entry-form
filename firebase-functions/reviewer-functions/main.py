@@ -12,7 +12,7 @@ from firebase_admin import db, initialize_app
 
 initialize_app()
 
-import review  # pylint: disable=wrong-import-position  # needs the initialized app
+import review  # noqa: E402  # needs the initialized app
 
 COHERE_API_KEY = SecretParam("COHERE_API_KEY")
 
@@ -20,11 +20,15 @@ COHERE_API_KEY = SecretParam("COHERE_API_KEY")
 def _region_arg(req: https_fn.CallableRequest) -> str:
     region = (req.data or {}).get("region")
     if not isinstance(region, str) or not region or "/" in region:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "region is required")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "region is required"
+        )
     return region
 
 
-@https_fn.on_call(timeout_sec=540, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY])
+@https_fn.on_call(
+    timeout_sec=540, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY]
+)
 def review_record(req: https_fn.CallableRequest):
     """Review one form record. data: {region, userID, recordID, force?}. Returns its qa node."""
     region = _region_arg(req)
@@ -32,18 +36,23 @@ def review_record(req: https_fn.CallableRequest):
     uid, rid = req.data.get("userID"), req.data.get("recordID")
     if not all(isinstance(x, str) and x and "/" not in x for x in (uid, rid)):
         raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "userID and recordID are required"
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "userID and recordID are required",
         )
     rec = db.reference(f"{region}/users/{uid}/records/{rid}").get()
     if not rec:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.NOT_FOUND, "record not found")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND, "record not found"
+        )
     force = bool(req.data.get("force"))
     if force:
         review.require_role(region, req.auth, admin_only=True)
     return review.review_one(region, uid, rid, rec, force)
 
 
-@https_fn.on_call(timeout_sec=3600, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY])
+@https_fn.on_call(
+    timeout_sec=3600, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY]
+)
 def review_region(req: https_fn.CallableRequest):
     """Review all submitted/published records of a region. data: {region, force?, dryRun?}.
 

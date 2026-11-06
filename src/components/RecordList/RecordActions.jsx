@@ -425,7 +425,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Run automated review" fr="Lancer la révision automatisée" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 

@@ -4,7 +4,9 @@ import { vi, describe, it, expect } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-import MetadataForm, { MetadataForm as MetadataFormClass } from "../Pages/MetadataForm";
+import MetadataForm, {
+  MetadataForm as MetadataFormClass,
+} from "../Pages/MetadataForm";
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
@@ -41,7 +43,9 @@ describe("MetadataForm.updateRecord", () => {
     };
     form.updateRecord("doiCreationStatus")("");
     expect(updater({ record: { doiCreationStatus: "" } })).toBeNull();
-    form.handleUpdateRecord("doiCreationStatus")({ target: { value: "draft" } });
+    form.handleUpdateRecord("doiCreationStatus")({
+      target: { value: "draft" },
+    });
     expect(updater({ record: { doiCreationStatus: "" } })).toEqual({
       record: { doiCreationStatus: "draft" },
       saveDisabled: false,

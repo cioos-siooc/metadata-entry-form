@@ -31,8 +31,12 @@ import { markFormNavigation } from "../RecordList/hooks";
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord, datacitePrefix, reviewRecord } =
-    useContext(UserContext);
+  const {
+    publishRecordToGitHub,
+    transferRecord,
+    datacitePrefix,
+    reviewRecord,
+  } = useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -288,11 +292,15 @@ const Reviewer = () => {
     (recordID, userID) => {
       const r = records.find((rec) => rec.recordID === recordID);
       const title = `« ${r?.title?.[language] || r?.title?.en || r?.title?.fr || recordID} »`;
-      showToast(language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`);
+      showToast(
+        language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`,
+      );
       reviewRecord({ region, userID, recordID })
         .then(() =>
           showToast(
-            language === "fr" ? `Révision de ${title} terminée` : `Finished reviewing ${title}`,
+            language === "fr"
+              ? `Révision de ${title} terminée`
+              : `Finished reviewing ${title}`,
             "success",
           ),
         )

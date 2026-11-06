@@ -16,13 +16,15 @@ async def _fake_review_record(region, uid, rid, rec):
 
 
 def _fake_to_patch(raw, data):
-    (region, tree), = data.items()
-    (uid, u), = tree["users"].items()
-    (rid, _), = u["records"].items()
+    ((region, tree),) = data.items()
+    ((uid, u),) = tree["users"].items()
+    ((rid, _),) = u["records"].items()
     qa = {
         "generated": "now",
         "findings": [{"id": f["id"], "suggested": {"title": f["id"]}} for f in raw],
-        "suggested": {"title": "b"},  # record-wide merge, includes the rejected finding's fix
+        "suggested": {
+            "title": "b"
+        },  # record-wide merge, includes the rejected finding's fix
     }
     return {region: {"users": {uid: {"records": {rid: {"qa": qa}}}}}}
 
@@ -35,7 +37,9 @@ for name, attrs in {
     "cioos_metadata_reviewer.review": {"review_record": _fake_review_record},
 }.items():
     sys.modules[name] = types.SimpleNamespace(**attrs)
-sys.modules["cioos_metadata_reviewer.agents"].cache = sys.modules["cioos_metadata_reviewer.agents.cache"]
+sys.modules["cioos_metadata_reviewer.agents"].cache = sys.modules[
+    "cioos_metadata_reviewer.agents.cache"
+]
 
 
 # --- in-memory RTDB ------------------------------------------------------------------------
@@ -83,11 +87,24 @@ REC_PATH = "pacific/users/u1/records/r1"
 @pytest.fixture
 def store(monkeypatch):
     data = {
-        "admin": {"pacific": {"permissions": {"admins": "boss@x.ca", "reviewers": "Rev@x.ca, other@x.ca"}}},
-        "pacific": {"users": {"u1": {"records": {
-            "r1": {"title": "t", "status": "submitted"},
-            "r2": {"title": "d", "status": ""},
-        }}}},
+        "admin": {
+            "pacific": {
+                "permissions": {
+                    "admins": "boss@x.ca",
+                    "reviewers": "Rev@x.ca, other@x.ca",
+                }
+            }
+        },
+        "pacific": {
+            "users": {
+                "u1": {
+                    "records": {
+                        "r1": {"title": "t", "status": "submitted"},
+                        "r2": {"title": "d", "status": ""},
+                    }
+                }
+            }
+        },
     }
     monkeypatch.setattr(review.db, "reference", lambda path: FakeRef(data, path))
     calls.clear()
@@ -115,8 +132,12 @@ def test_review_one_skips_unchanged_keeps_statuses_drops_rejected(store):
     qa = review.review_one("pacific", "u1", "r1", ref.get())
     assert [f["id"] for f in qa["findings"]] == ["a"]
     assert qa["findings"][0]["suggested"] == {"title": "a"}
-    assert ref.get()["qa"]["suggested"] is None  # rejected "b"'s fix isn't offered record-wide
-    assert ref.get()["qa"]["statuses"] == {"b": {"status": "rejected"}}  # update, not set
+    assert (
+        ref.get()["qa"]["suggested"] is None
+    )  # rejected "b"'s fix isn't offered record-wide
+    assert ref.get()["qa"]["statuses"] == {
+        "b": {"status": "rejected"}
+    }  # update, not set
 
     review.review_one("pacific", "u1", "r1", ref.get())
     assert calls == ["r1"]  # unchanged hash: skipped
@@ -137,11 +158,16 @@ def test_review_region_one_run_at_a_time(store):
     assert store["pacific"]["qaRuns"]["last"] == run_id
     assert "active" not in store["pacific"]["qaRuns"]
 
-    run_id = review.review_region("pacific", "rev@x.ca")  # unchanged: skipped, not reviewed
+    run_id = review.review_region(
+        "pacific", "rev@x.ca"
+    )  # unchanged: skipped, not reviewed
     run = store["pacific"]["qaRuns"][run_id]
     assert (run["reviewed"], run["skipped"], calls) == (0, 1, ["r1"])
 
-    store["pacific"]["qaRuns"]["active"] = {"runId": "other", "started": review.time.time()}
+    store["pacific"]["qaRuns"]["active"] = {
+        "runId": "other",
+        "started": review.time.time(),
+    }
     with pytest.raises(https_fn.HttpsError):
         review.review_region("pacific", "rev@x.ca")
 
@@ -163,7 +189,10 @@ def test_review_region_records_failures(store, monkeypatch):
     run = store["pacific"]["qaRuns"][run_id]
     assert (run["status"], run["failed"], run["done"]) == ("done", 1, 1)
     assert run["failedRecords"]["u1_r1"] == {
-        "uid": "u1", "rid": "r1", "title": "t", "error": "bad record",
+        "uid": "u1",
+        "rid": "r1",
+        "title": "t",
+        "error": "bad record",
     }
 
 
@@ -171,9 +200,13 @@ def test_review_region_cancel(store, monkeypatch):
     # Cancel arrives before the first record: nothing is reviewed.
     real_child = FakeRef.child
     monkeypatch.setattr(
-        FakeRef, "child",
-        lambda self, path: types.SimpleNamespace(get=lambda: True) if path == "cancel"
-        else real_child(self, path),
+        FakeRef,
+        "child",
+        lambda self, path: (
+            types.SimpleNamespace(get=lambda: True)
+            if path == "cancel"
+            else real_child(self, path)
+        ),
     )
     run_id = review.review_region("pacific", "rev@x.ca")
     run = store["pacific"]["qaRuns"][run_id]

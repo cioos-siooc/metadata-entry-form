@@ -36,7 +36,12 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
-const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
+const QA_SEVERITY_COLOR = {
+  critical: "error",
+  high: "error",
+  medium: "warning",
+  low: "info",
+};
 const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
 // A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
@@ -45,7 +50,9 @@ const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 export const qaSummary = (qa, lastSaved) => {
   if (!qa?.generated) return null;
   const statuses = qa.statuses || {};
-  const open = Object.values(qa.findings || {}).filter((f) => !statuses[f.id]?.status);
+  const open = Object.values(qa.findings || {}).filter(
+    (f) => !statuses[f.id]?.status,
+  );
   const bySeverity = {};
   QA_SEVERITY_ORDER.forEach((sev) => {
     const n = open.filter((f) => f.severity === sev).length;
@@ -55,7 +62,9 @@ export const qaSummary = (qa, lastSaved) => {
     count: open.length,
     worst: Object.keys(bySeverity)[0],
     bySeverity,
-    outdated: Boolean(lastSaved && new Date(lastSaved) > new Date(qa.generated)),
+    outdated: Boolean(
+      lastSaved && new Date(lastSaved) > new Date(qa.generated),
+    ),
     generated: qa.generated,
   };
 };
@@ -567,7 +576,11 @@ export const createColumns = (language, region, callbacks = {}) => ({
           title={`${breakdown || (language === "en" ? "No open issues" : "Aucun problème ouvert")} · ${
             language === "en" ? "reviewed" : "révisée le"
           } ${new Date(qa.generated).toLocaleString()}${
-            qa.outdated ? (language === "en" ? " (outdated)" : " (périmée)") : ""
+            qa.outdated
+              ? language === "en"
+                ? " (outdated)"
+                : " (périmée)"
+              : ""
           }`}
         >
           <Chip
@@ -575,7 +588,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
             size="small"
             icon={qa.outdated ? <Update /> : undefined}
             variant={qa.outdated ? "outlined" : "filled"}
-            color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+            color={
+              qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"
+            }
             clickable
             component={RouterLink}
             to={`/${language}/${params.row.region || region}/${params.row.userID}/${params.row.recordID}?review=1`}
