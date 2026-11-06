@@ -18,6 +18,7 @@ import GeomanControl from "./GeomanControl";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { validateField, bboxProblems } from "../../utils/validate";
 import RequiredMark from "./RequiredMark";
+import { isCollection } from "../../utils/collectionMode";
 import BilingualTextInput from "./BilingualTextInput";
 import GeographicLocationSearch from "./GeographicLocationSearch";
 
@@ -308,6 +309,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
   const polyIsDrawn = Boolean(mapData.polygon);
 
   const fieldsAreEmpty = !bboxIsDrawn && !mapData.polygon;
+  // Map is optional for Collections: only show a mark when entered geometry is invalid
+  const hideOptionalMapMark =
+    isCollection(record) && validateField(record, "map");
 
   return (
     <div>
@@ -365,9 +369,10 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Bounding Box Coordinates</En>
           <Fr>Coordonnées de délimitation - Est, Ouest, Nord, Sud</Fr>
         </I18n>
-        {((bboxIsDrawn && !polyIsDrawn) || fieldsAreEmpty) && (
-          <RequiredMark passes={validateField(record, "map")} />
-        )}
+        {((bboxIsDrawn && !polyIsDrawn) || fieldsAreEmpty) &&
+          !hideOptionalMapMark && (
+            <RequiredMark passes={validateField(record, "map")} />
+          )}
 
         <SupplementalText>
           <I18n>
@@ -441,7 +446,7 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           <En>Polygon coordinates</En>
           <Fr>Coordonnées du/des polygone(s)</Fr>
         </I18n>
-        {(polyIsDrawn || fieldsAreEmpty) && (
+        {(polyIsDrawn || fieldsAreEmpty) && !hideOptionalMapMark && (
           <RequiredMark passes={validateField(record, "map")} />
         )}
         <SupplementalText>

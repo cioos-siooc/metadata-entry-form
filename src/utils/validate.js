@@ -49,6 +49,13 @@ const polygonIsValid = (polygon) => {
   );
 };
 
+// True when a bounding box coordinate or polygon has been entered
+const mapHasGeometry = (map) =>
+  Boolean(map) &&
+  ["north", "south", "east", "west", "polygon"].some(
+    (key) => map[key] !== undefined && map[key] !== null && map[key] !== "",
+  );
+
 const bboxLabels = {
   north: { en: "North", fr: "Nord" },
   south: { en: "South", fr: "Sud" },
@@ -260,6 +267,8 @@ const validators = {
     },
     tab: "spatial",
     validation: (val, record) => {
+      // Spatial extent is optional for Collections, but entered geometry must still be valid
+      if (isCollection(record) && !mapHasGeometry(val)) return true;
       if (!val) return false;
       const north = parseFloat(val.north);
       const south = parseFloat(val.south);
@@ -288,7 +297,8 @@ const validators = {
   verticalExtentMin: {
     tab: "spatial",
 
-    validation: (val, record) => val || record.noVerticalExtent,
+    validation: (val, record) =>
+      val || record.noVerticalExtent || isCollection(record),
     error: {
       en: "Missing Vertical Extent Min",
       fr: "Étendue verticale manquante Min",
@@ -296,7 +306,8 @@ const validators = {
   },
   verticalExtentMax: {
     tab: "spatial",
-    validation: (val, record) => val || record.noVerticalExtent,
+    validation: (val, record) =>
+      val || record.noVerticalExtent || isCollection(record),
     error: {
       en: "Missing Vertical Extent Max",
       fr: "Étendue verticale manquante Max",
@@ -304,7 +315,8 @@ const validators = {
   },
   verticalExtentDirection: {
     tab: "spatial",
-    validation: (val, record) => val || record.noVerticalExtent,
+    validation: (val, record) =>
+      val || record.noVerticalExtent || isCollection(record),
     error: {
       en: "Missing Vertical Extent Direction",
       fr: "Direction de l'étendue verticale manquante",

@@ -16,6 +16,7 @@ import {
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import { validateField } from "../../utils/validate";
+import { isCollection } from "../../utils/collectionMode";
 
 import Alert from "@mui/material/Alert";
 import { ApaPreview } from "../FormComponents/ApaPreview";
@@ -147,6 +148,55 @@ const ContactTab = ({
                   valeur par défaut de la région (
                   <strong>{regions[region]?.title?.[language]}</strong>) sera
                   utilisée comme éditeur pour les enregistrements DOI.
+                </Fr>
+              </I18n>
+            </Alert>
+          )}
+          {isCollection(record) && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <I18n>
+                <En>
+                  <strong>How contact roles are used for Collections:</strong>
+                  <ul style={{ margin: "5px 0" }}>
+                    <li>
+                      Contacts with the <strong>Metadata Custodian</strong> or{" "}
+                      <strong>Point Of Contact</strong> role become the
+                      Collection&apos;s maintenance contacts.
+                    </li>
+                    <li>
+                      Contacts with the <strong>Rights Holder</strong> role are
+                      listed as responsible for the Collection&apos;s
+                      constraints.
+                    </li>
+                    <li>
+                      The metadata contact should have the{" "}
+                      <strong>Point Of Contact</strong> or{" "}
+                      <strong>Metadata Custodian</strong> role.
+                    </li>
+                  </ul>
+                </En>
+                <Fr>
+                  <strong>
+                    Utilisation des rôles des contacts pour les collections :
+                  </strong>
+                  <ul style={{ margin: "5px 0" }}>
+                    <li>
+                      Les contacts ayant le rôle de{" "}
+                      <strong>Dépositaire des métadonnées</strong> ou de{" "}
+                      <strong>Point de contact</strong> deviennent les contacts
+                      de maintenance de la collection.
+                    </li>
+                    <li>
+                      Les contacts ayant le rôle de <strong>Ayant droit</strong>{" "}
+                      sont indiqués comme responsables des contraintes de la
+                      collection.
+                    </li>
+                    <li>
+                      Le contact des métadonnées doit avoir le rôle de{" "}
+                      <strong>Point de contact</strong> ou de{" "}
+                      <strong>Dépositaire des métadonnées</strong>.
+                    </li>
+                  </ul>
                 </Fr>
               </I18n>
             </Alert>

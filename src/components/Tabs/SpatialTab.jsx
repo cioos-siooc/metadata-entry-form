@@ -25,6 +25,7 @@ import {
   paperClass,
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
+import { isCollection } from "../../utils/collectionMode";
 
 const OpenEPSGDefn = ({ url }) => {
   return (
@@ -54,6 +55,23 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
 
   return (
     <Grid>
+      {isCollection(record) && (
+        <Paper style={paperClass}>
+          <SupplementalText>
+            <I18n>
+              <En>
+                All spatial information is optional for Collections. If you
+                enter a bounding box or polygon, it must still be valid.
+              </En>
+              <Fr>
+                Toutes les informations spatiales sont facultatives pour les
+                collections. Si vous saisissez un rectangle englobant ou un
+                polygone, il doit tout de même être valide.
+              </Fr>
+            </I18n>
+          </SupplementalText>
+        </Paper>
+      )}
       <Paper style={paperClass}>
         <QuestionText style={{ paddingBottom: "15px" }}>
           <I18n>
@@ -173,13 +191,16 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
             <En>What is the vertical extent of the dataset in meters?</En>
             <Fr>Quelle est l'étendue verticale du jeu de données en mètres?</Fr>
           </I18n>
-          <RequiredMark
-            passes={
-              validateField(record, "verticalExtentDirection") &&
-              validateField(record, "verticalExtentMin") &&
-              validateField(record, "verticalExtentMax")
-            }
-          />
+          {/* Vertical extent is optional for Collections, so no required mark */}
+          {!isCollection(record) && (
+            <RequiredMark
+              passes={
+                validateField(record, "verticalExtentDirection") &&
+                validateField(record, "verticalExtentMin") &&
+                validateField(record, "verticalExtentMax")
+              }
+            />
+          )}
 
           <SupplementalText>
             <div>
