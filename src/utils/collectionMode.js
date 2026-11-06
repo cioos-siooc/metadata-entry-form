@@ -46,3 +46,101 @@ export const collectionLineagePrompts = [
     },
   },
 ];
+
+// Fields hidden when a record is a Collection. `default` values set automatically
+// by the form are not counted as user data.
+export const datasetOnlyFields = [
+  {
+    key: "eov",
+    label: {
+      en: "Essential Ocean Variables",
+      fr: "Variables océaniques essentielles",
+    },
+  },
+  {
+    key: "taxa",
+    label: { en: "Taxonomic coverage", fr: "Couverture taxonomique" },
+  },
+  { key: "platforms", label: { en: "Platforms", fr: "Plateformes" } },
+  { key: "instruments", label: { en: "Instruments", fr: "Instruments" } },
+  {
+    key: "history",
+    label: {
+      en: "Lineage sources and processing steps",
+      fr: "Sources et étapes de traitement de la généalogie",
+    },
+  },
+];
+
+// Fields hidden when a record is not a Collection.
+export const collectionOnlyFields = [
+  { key: "purpose", label: { en: "Purpose", fr: "Objectif" } },
+  { key: "credit", label: { en: "Credit", fr: "Reconnaissance" } },
+  {
+    key: "maintenanceFrequency",
+    default: "asNeeded",
+    label: {
+      en: "Membership update frequency",
+      fr: "Fréquence de mise à jour de la composition",
+    },
+  },
+  {
+    key: "maintenanceText",
+    label: {
+      en: "Membership-update policy",
+      fr: "Politique de mise à jour de la composition",
+    },
+  },
+  {
+    key: "maintenanceDate",
+    label: {
+      en: "Last membership change",
+      fr: "Dernière modification de la composition",
+    },
+  },
+  {
+    key: "accessConstraint",
+    default: "unrestricted",
+    label: { en: "Access constraint", fr: "Contrainte d'accès" },
+  },
+  {
+    key: "useConstraint",
+    default: "licence",
+    label: { en: "Use constraint", fr: "Contrainte d'utilisation" },
+  },
+  {
+    key: "otherConstraints",
+    label: { en: "Other constraints", fr: "Autres contraintes" },
+  },
+  {
+    key: "collectionLineage",
+    label: {
+      en: "Collection lineage questions",
+      fr: "Questions de généalogie de la collection",
+    },
+  },
+];
+
+// True when a value holds user-entered content: a non-empty string or array,
+// or an object (e.g. bilingual {en, fr}) with any filled value.
+const hasContent = (value) => {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object")
+    return Object.entries(value).some(
+      ([k, v]) => k !== "translations" && hasContent(v),
+    );
+  return Boolean(value);
+};
+
+// Fields that hold data and would become hidden by switching to newScopeIso
+export const filledFieldsHiddenBy = (record, newScopeIso) => {
+  const toCollection = newScopeIso === "collection";
+  if (toCollection === isCollection(record)) return [];
+  const fields = toCollection ? datasetOnlyFields : collectionOnlyFields;
+  return fields.filter(
+    (field) =>
+      hasContent(record[field.key]) && record[field.key] !== field.default,
+  );
+};

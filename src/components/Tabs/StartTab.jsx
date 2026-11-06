@@ -10,6 +10,12 @@ import {
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
@@ -27,6 +33,7 @@ import {
   SupplementalText,
 } from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
+import { filledFieldsHiddenBy } from "../../utils/collectionMode";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
 import SharedUsersList from "../FormComponents/SharedUsersList";
@@ -82,13 +89,28 @@ const StartTab = ({
     updateRecord("resourceType")(value);
   };
 
+  // Resource type waiting for confirmation because the switch would hide filled fields
+  const [pendingScope, setPendingScope] = useState(null);
+
+  const applyMetadataScope = (scope) => {
+    handleUpdateRecord("metadataScopeIso")({
+      target: { value: metadataScopeCodes[scope]?.isoValue },
+    });
+    handleUpdateRecord("metadataScope")({ target: { value: scope } });
+  };
+
   const handleMetadataScopeChange = () => {
     return (e) => {
-      const newEvent = {
-        target: { value: metadataScopeCodes[e.target.value]?.isoValue },
-      };
-      handleUpdateRecord("metadataScopeIso")(newEvent);
-      handleUpdateRecord("metadataScope")(e);
+      const scope = e.target.value;
+      const hiddenFields = filledFieldsHiddenBy(
+        record,
+        metadataScopeCodes[scope]?.isoValue,
+      );
+      if (hiddenFields.length) {
+        setPendingScope({ scope, hiddenFields });
+      } else {
+        applyMetadataScope(scope);
+      }
     };
   };
 
@@ -411,6 +433,63 @@ const StartTab = ({
       />
 
       {showShareRecord && <SharedUsersList region={region} record={record} />}
+
+      <Dialog
+        open={Boolean(pendingScope)}
+        onClose={() => setPendingScope(null)}
+      >
+        <DialogTitle>
+          <I18n
+            en="Some fields will be hidden"
+            fr="Certains champs seront masqués"
+          />
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText component="div">
+            <I18n>
+              <En>
+                Changing the resource type to{" "}
+                <strong>
+                  {pendingScope &&
+                    metadataScopeCodes[pendingScope.scope]?.title.en}
+                </strong>{" "}
+                hides these fields, which already contain information:
+              </En>
+              <Fr>
+                Changer le type de ressource pour{" "}
+                <strong>
+                  {pendingScope &&
+                    metadataScopeCodes[pendingScope.scope]?.title.fr}
+                </strong>{" "}
+                masque ces champs, qui contiennent déjà de l&apos;information :
+              </Fr>
+            </I18n>
+            <ul>
+              {pendingScope?.hiddenFields.map(({ key, label }) => (
+                <li key={key}>{label[language]}</li>
+              ))}
+            </ul>
+            <I18n
+              en="The information is kept. Switching back shows it again."
+              fr="L'information est conservée. Revenir au type précédent l'affiche de nouveau."
+            />
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPendingScope(null)}>
+            <I18n en="Cancel" fr="Annuler" />
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              applyMetadataScope(pendingScope.scope);
+              setPendingScope(null);
+            }}
+          >
+            <I18n en="Continue" fr="Continuer" />
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 };
