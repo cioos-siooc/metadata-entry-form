@@ -1,4 +1,4 @@
-const { Octokit, RequestError } = require("octokit");
+const { Octokit } = require("octokit");
 const fs = require("fs");
 const { defineString } = require('firebase-functions/params');
 const { logger } = require("firebase-functions/v2");
@@ -39,15 +39,15 @@ async function createIssue(title, url, filename, region) {
   try {
     await octokit.request("POST /repos/{owner}/{repo}/issues", input);
   } catch (error) {
-    // Octokit errors are instances of RequestError, so they always have an `error.status` property containing the HTTP response code.
-    if (error instanceof RequestError) {
-      // eslint-disable-next-line no-console
-      logger.log(error);
-      // handle Octokit error
-      // error.message; // Oops
-      // error.status; // 500
-      // error.request; // { method, url, headers, body }
-      // error.response; // { url, status, headers, data }
+    // Octokit request errors always have an `error.status` property containing the HTTP
+    // response code. Don't use `instanceof RequestError` here: the `octokit` package does
+    // not re-export RequestError, so the check would throw a TypeError and mask this error.
+    if (error.status) {
+      logger.error("Failed to create github issue", {
+        status: error.status,
+        message: error.message,
+        response: error.response && error.response.data,
+      });
     } else {
       // handle all other errors
       throw error;
