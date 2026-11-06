@@ -4,7 +4,11 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import firebase from "../firebase"; // this is needed to make the test pass.
 import { hasResourceType, resourceTypeIncludes } from "./normalizeResourceType";
 import { eovs } from "../eovs";
-import { isCollection, collectionProgressCodes } from "./collectionMode";
+import {
+  isCollection,
+  collectionProgressCodes,
+  collectionLineagePrompts,
+} from "./collectionMode";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
 export const validateURL = (url) => !url || validator.isURL(url);
@@ -382,9 +386,23 @@ const validators = {
 
   // if lineageStep.scope == 'collectionSession' then statment is required
   // if lineageStep.processingStep length > 0 then title and description are required
+  // Collections use three guided prompts instead of the lineage editor
+  collectionLineage: {
+    tab: "lineage",
+    validation: (val, record) =>
+      !isCollection(record) ||
+      collectionLineagePrompts.every(
+        ({ key }) => val && val[key] && val[key].en && val[key].fr,
+      ),
+    error: {
+      en: "Answer all three lineage questions in both languages",
+      fr: "Répondez aux trois questions de généalogie dans les deux langues",
+    },
+  },
   history: {
     tab: "lineage",
-    validation: (val) =>
+    validation: (val, record) =>
+      isCollection(record) ||
       !val ||
       (Array.isArray(val) &&
         val.every(

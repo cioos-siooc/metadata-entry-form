@@ -11,6 +11,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Resources from "../FormComponents/Resources";
 import RelatedWorks from "../FormComponents/RelatedWorks";
 import Lineage from "../FormComponents/Lineage";
+import CollectionLineage from "../FormComponents/CollectionLineage";
+import { isCollection } from "../../utils/collectionMode";
 import { En, Fr, I18n } from "../I18n";
 import RequiredMark from "../FormComponents/RequiredMark";
 import {
@@ -238,44 +240,54 @@ const ResourcesTab = ({ disabled, record, updateRecord }) => {
               <En>Lineage</En>
               <Fr>Généalogie des données</Fr>
             </I18n>
-            {record.history && record.history.length > 0 && (
-              <Chip
-                style={{ marginLeft: 10 }}
-                label={record.history.length}
-                variant="outlined"
-              />
-            )}
+            {!isCollection(record) &&
+              record.history &&
+              record.history.length > 0 && (
+                <Chip
+                  style={{ marginLeft: 10 }}
+                  label={record.history.length}
+                  variant="outlined"
+                />
+              )}
           </HeadingText>
         </AccordionSummary>
         <AccordionDetails>
-          <Grid>
-            <QuestionText>
-              <En>Data processing history (provenance) for the resource.</En>
-              <Fr>Provenance et traitement des données.</Fr>
-              <RequiredMark passes={validateField(record, "history")} />
-              <SupplementalText>
-                <I18n>
-                  <En>
-                    Enter Information about the events or source data used in
-                    constructing the data specified by the scope.
-                  </En>
-                  <Fr>
-                    Pour chaque ressource, fournissez des informations
-                    supplémentaires sur le traitement des données, et/ou
-                    spécifiez la source des données utilisées.
-                  </Fr>
-                </I18n>
-              </SupplementalText>
-            </QuestionText>
-            <Lineage
-              history={record.history}
-              updateLineage={updateRecord("history")}
+          {isCollection(record) ? (
+            <CollectionLineage
+              record={record}
+              updateRecord={updateRecord}
               disabled={disabled}
-              paperClass={paperClass}
-              language={language}
-              metadataScope={record.metadataScope}
             />
-          </Grid>
+          ) : (
+            <Grid>
+              <QuestionText>
+                <En>Data processing history (provenance) for the resource.</En>
+                <Fr>Provenance et traitement des données.</Fr>
+                <RequiredMark passes={validateField(record, "history")} />
+                <SupplementalText>
+                  <I18n>
+                    <En>
+                      Enter Information about the events or source data used in
+                      constructing the data specified by the scope.
+                    </En>
+                    <Fr>
+                      Pour chaque ressource, fournissez des informations
+                      supplémentaires sur le traitement des données, et/ou
+                      spécifiez la source des données utilisées.
+                    </Fr>
+                  </I18n>
+                </SupplementalText>
+              </QuestionText>
+              <Lineage
+                history={record.history}
+                updateLineage={updateRecord("history")}
+                disabled={disabled}
+                paperClass={paperClass}
+                language={language}
+                metadataScope={record.metadataScope}
+              />
+            </Grid>
+          )}
         </AccordionDetails>
       </Accordion>
     </div>
