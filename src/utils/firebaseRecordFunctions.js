@@ -176,19 +176,10 @@ export const multipleFirebaseToJSObject = (multiple) => {
   }, {});
 };
 
-// fetches a region's users
-export async function loadRegionUsers(region) {
-  const database = getDatabase(firebase);
-  try {
-    const regionUsersRef = ref(database, `${region}/users`);
-    const regionUsers = (await get(regionUsersRef, "value")).val();
-
-    return regionUsers
-    
-  } catch (error) {
-    throw new Error(`Error fetching user emails for region ${region}: ${error}`);
-  }
-}
+// Reading the whole region/users subtree from the client is no longer permitted by the
+// database rules - it exposed every user's records. Callers that need the region's user
+// directory use the lookupRegionUsers callable instead; reviewer-only flows such as
+// transferRecord still read the subtree directly, which their role allows.
 
 /**
  * Asynchronously shares or unshares a record with a single user by updating the 'shares' node in Firebase.

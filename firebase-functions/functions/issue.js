@@ -16,9 +16,24 @@ function readTextFromFile(filename) {
   }
 }
 
+// Record fields are written by the record's author and are interpolated into the issue
+// body below. Strip newlines and angle brackets so a value cannot close the <...> wrapper
+// and inject its own markdown - a forged "Record URL" line, a pre-ticked review checklist,
+// or an @mention - into an issue that is auto-assigned to real reviewers.
+function sanitizeForIssue(value) {
+  return String(value ?? "")
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[<>]/g, "")
+    .trim();
+}
+
 // Create an issue in the github repo when a metadata form record is submitted for review
 // this function is called from other firebase functions so is not an http request, just a regular function
-async function createIssue(title, url, filename, region) {
+async function createIssue(rawTitle, rawUrl, rawFilename, rawRegion) {
+  const title = sanitizeForIssue(rawTitle);
+  const url = sanitizeForIssue(rawUrl);
+  const filename = sanitizeForIssue(rawFilename);
+  const region = sanitizeForIssue(rawRegion);
   if (!title || !url) {
     throw new Error("Title or URL not provided");
   }

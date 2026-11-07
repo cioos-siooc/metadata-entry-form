@@ -3,6 +3,7 @@ const { translate } = require("./translate");
 const { checkURLActive } = require("./serverUtils");
 const { createDraftDoi, updateDraftDoi, deleteDraftDoi, getDoiStatus, getDoi, getCredentialsStored, getDatacitePrefix } = require("./datacite");
 const { notifyReviewer, notifyUser } = require("./notify");
+const { lookupRegionUsers } = require("./users");
 const {
   updatesRecordCreate,
   updatesRecordUpdate,
@@ -29,3 +30,4 @@ exports.getDoi = getDoi;
 exports.checkURLActive = checkURLActive;
 exports.getCredentialsStored = getCredentialsStored;
 exports.getDatacitePrefix = getDatacitePrefix;
+exports.lookupRegionUsers = lookupRegionUsers;

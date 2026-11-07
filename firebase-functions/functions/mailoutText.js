@@ -1,6 +1,21 @@
 // send emails to reviwers when a metadata form record is submitted for review
 // this is the text that is sent in the emails
-function mailOptionsReviewer(reviewers, title, region) {
+
+// The record title is written by the record's author and lands in an HTML mail body, so
+// it has to be escaped. Unescaped, an author could inject a lookalike "approve the record"
+// link into a message that reviewers receive from a trusted, SPF/DKIM-valid sender.
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function mailOptionsReviewer(reviewers, titleRaw, regionRaw) {
+  const title = escapeHtml(titleRaw);
+  const region = escapeHtml(regionRaw);
   return {
     from:
       "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
@@ -25,7 +40,9 @@ function mailOptionsReviewer(reviewers, title, region) {
   };
 }
 
-function mailOptionsAuthor(authorEmail, title, region) {
+function mailOptionsAuthor(authorEmail, titleRaw, regionRaw) {
+  const title = escapeHtml(titleRaw);
+  const region = escapeHtml(regionRaw);
   return {
     from:
       "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",

@@ -7,6 +7,40 @@ const axios = require("axios");
 
 const urlBaseDefault = "https://pac-dev1.cioos.org/cioos-xml/" // overwritten by setting in the firebase database
 
+// Firebase .child() accepts a multi-segment relative path, so an unvalidated region can
+// redirect the recordGeneratorURL lookup into a different subtree - including
+// admin/<region>/projects, which reviewers can write. Keep region to a single segment.
+const regionPattern = /^[A-Za-z0-9_-]+$/;
+
+// Map rather than a plain object so inherited keys like "constructor" cannot resolve.
+const fileTypes = new Map([
+  ["xml", "XML"],
+  ["yaml", "YAML"],
+  ["cff", "CFF"],
+  ["erddap", "ERDDAP"],
+]);
+
+async function getRecordGeneratorURL(region) {
+  if (!regionPattern.test(String(region ?? ""))) {
+    logger.error(`Invalid region ${region}, using the default record generator URL`);
+    return urlBaseDefault;
+  }
+  try {
+    return (
+      (
+        await admin
+          .database()
+          .ref("admin")
+          .child(region)
+          .child("recordGeneratorURL")
+          .once("value")
+      ).val() ?? urlBaseDefault
+    );
+  } catch (error) {
+    logger.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
+    return urlBaseDefault;
+  }
+}
 
 function getRecordFilename(record) {
   return `${record.title[record.language].slice(
@@ -21,28 +55,26 @@ function getRecordFilename(record) {
 // creates xml for a completed record. returns a URL to the generated XML
 exports.downloadRecord = onCall(
   async (request) => {
+    if (!request.auth || !request.auth.token)
+      throw new HttpsError("unauthenticated");
+
     const { record, fileType, region } = request.data
-    let urlBase = urlBaseDefault;
-    try {
-      urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
-    } catch (error) {
-      logger.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
+    // allowlist rather than interpolating the caller's string into the URL path
+    const resolvedType = fileTypes.get(String(fileType ?? "").toLowerCase());
+    if (!resolvedType) {
+      throw new HttpsError("invalid-argument", "Unsupported fileType.");
     }
 
-    const url = `${urlBase}recordTo${fileType.toUpperCase()}`;
+    const urlBase = await getRecordGeneratorURL(region);
+
+    const url = `${urlBase}recordTo${resolvedType}`;
     const response = await axios.post(url, record);
     return response.data;
   }
 );
 
 async function updateXML(path, region, status = "", filename = "") {
-
-  let urlBase = urlBaseDefault;
-  try {
-    urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
-  } catch (error) {
-    logger.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
-  }
+  const urlBase = await getRecordGeneratorURL(region);
 
   const url = `${urlBase}record`;
   const urlParams = new URLSearchParams({
@@ -161,12 +193,7 @@ exports.updatesRecordUpdate = onValueUpdated(
 
 
 async function deleteXML(filename, region) {
-  let urlBase = urlBaseDefault;
-  try {
-    urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
-  } catch (error) {
-    logger.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
-  }
+  const urlBase = await getRecordGeneratorURL(region);
 
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({

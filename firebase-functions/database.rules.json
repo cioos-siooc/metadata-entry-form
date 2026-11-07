@@ -10,17 +10,26 @@
     // A bare .contains(email) matches on any substring, which would let smith@example.org
     // satisfy a rule naming jsmith@example.org.
     "$region": {
-        // Allow read access to any authenticated user.
-      ".read": "auth.uid != null",
+      // No blanket read here on purpose. A read grant at this level cascades over every
+      // user's records in every region, which made all unpublished records and the contact
+      // details inside them readable by anyone holding a Google account. Read is granted
+      // below to the owner, to reviewers, and per-record to users it is shared with. The
+      // region's user directory is served by the lookupRegionUsers callable instead.
       "shares": {
         "$userid": {
+          // Allow users to see which records have been shared with them.
+          ".read": "auth.uid == $userid",
           // Allow write access to any authenticated user.
           // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
           ".write": "auth.uid != null",
         }
       },
       "users": {
+        // Reviewers need every record in the region to populate the review queue.
+        ".read": "(',' + root.child('admin').child($region).child('permissions').child('reviewers').val() + ',').contains(',' + auth.token.email + ',')",
         "$userid": {
+          // Allow users to read their own records, contacts, platforms and instruments.
+          ".read": "auth.uid == $userid",
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
           ".write": "(auth.uid == $userid) || (',' + root.child('admin').child($region).child('permissions').child('reviewers').val() + ',').contains(',' + auth.token.email + ',')",
           "records": {

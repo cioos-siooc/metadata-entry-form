@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Add, Delete } from "@material-ui/icons";
 import {
   Typography,
@@ -17,12 +17,11 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
-import {
-  loadRegionUsers,
-  updateSharedRecord,
-} from "../../utils/firebaseRecordFunctions";
+import { updateSharedRecord } from "../../utils/firebaseRecordFunctions";
+import { UserContext } from "../../providers/UserProvider";
 
 const SharedUsersList = ({ record, updateRecord, region }) => {
+  const { lookupRegionUsers } = useContext(UserContext);
   const [users, setUsers] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [sharedWithUsers, setSharedWithUsers] = useState({});
@@ -39,10 +38,12 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
 
     const fetchRegionUsers = async () => {
       try {
-        const regionUsers = await loadRegionUsers(region);
+        // server-side lookup: the database no longer exposes the whole
+        // region/users subtree to every authenticated user
+        const response = await lookupRegionUsers({ region });
 
         if (isMounted) {
-          setUsers(regionUsers);
+          setUsers(response.data || {});
         }
       } catch (error) {
         throw new Error(`Error loading region users: ${error}`);
@@ -54,7 +55,7 @@ const SharedUsersList = ({ record, updateRecord, region }) => {
     return () => {
       isMounted = false;
     };
-  }, [region, record.recordID]);
+  }, [region, record.recordID, lookupRegionUsers]);
 
   // Updates state with user emails for each userID in record.sharedWith, to track which users a record is shared with.
   useEffect(() => {
