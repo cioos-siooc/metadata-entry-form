@@ -25,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
         working-directory: firebase-functions/functions
-        
+
       # see https://github.com/google-github-actions/auth for details
       - name: Authenticate to Google Cloud
         uses: 'google-github-actions/auth@v2'
@@ -44,6 +44,9 @@ jobs:
           REACT_APP_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
+          # RECORD_DELETE_TOKEN is the former name, kept as a fallback so the rename
+          # can land before the new secret exists.
+          RECORD_API_TOKEN: ${{ secrets.RECORD_API_TOKEN || secrets.RECORD_DELETE_TOKEN }}
         run: |
           echo "Creating .env file..."
           echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
@@ -55,6 +58,7 @@ jobs:
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
           echo "REACT_APP_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
           echo "REACT_APP_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env
+          echo "RECORD_API_TOKEN=${{ secrets.RECORD_API_TOKEN || secrets.RECORD_DELETE_TOKEN }}" >> .env
           echo "Deploying to Firebase..."
           firebase deploy --only functions --project cioos-metadata-form --non-interactive --debug
         working-directory: firebase-functions/functions

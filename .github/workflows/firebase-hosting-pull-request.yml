@@ -38,3 +38,6 @@ jobs:
           REACT_APP_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
           REACT_APP_DEV_DEPLOYMENT: true
+          # RECORD_DELETE_TOKEN is the former name, kept as a fallback so the rename
+          # can land before the new secret exists.
+          RECORD_API_TOKEN: ${{ secrets.RECORD_API_TOKEN || secrets.RECORD_DELETE_TOKEN }}

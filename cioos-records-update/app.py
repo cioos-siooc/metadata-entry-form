@@ -1,5 +1,6 @@
 import glob
 import os
+import time
 import traceback
 from pathlib import Path
 import json
@@ -19,35 +20,49 @@ from git import Repo
 # make sure .git folder is properly configured
 PATH_OF_GIT_REPO = r'xml/.git'
 COMMIT_MESSAGE = 'comment from python script'
+_repo = Repo(PATH_OF_GIT_REPO)
+
+GIT_LOCK_MAX_RETRIES = 10
+GIT_LOCK_RETRY_DELAY_SECONDS = 1
+
+
+def _run_with_lock_retry(operation, description):
+    # GitPython (and the underlying git binary) refuse to run when a stale
+    # .lock file is left behind by a previous/concurrent operation. Back off
+    # and retry instead of failing the whole request outright.
+    for attempt in range(1, GIT_LOCK_MAX_RETRIES + 1):
+        try:
+            return operation()
+        except Exception as err:
+            if attempt == GIT_LOCK_MAX_RETRIES or "lock" not in str(err).lower():
+                raise
+            delay = GIT_LOCK_RETRY_DELAY_SECONDS * attempt
+            print(
+                f"{description} failed due to a git lock file (attempt {attempt}/{GIT_LOCK_MAX_RETRIES}),"
+                f" retrying in {delay}s: {err}"
+            )
+            time.sleep(delay)
+
 
 def git_pull():
-    try:
-        repo = Repo(PATH_OF_GIT_REPO)
-        origin = repo.remote(name='origin')
-        origin.pull()
-    except Exception as e:
-        print('Some error occurred while pulling the code')
-        print(e)
+    _run_with_lock_retry(lambda: _repo.remote(name='origin').pull(), "git pull")
 
 
-def git_push(files):
-    try:
-        repo = Repo(PATH_OF_GIT_REPO)                
-        repo.git.add([files])
-        repo.index.commit(COMMIT_MESSAGE)
-        origin = repo.remote(name='origin')
-        origin.push()
-    except Exception as e:
-        print('Some error occurred while pushing the code')
-        print(e)
+def git_push(files=None):
+    if files:
+        _run_with_lock_retry(
+            lambda: _repo.git.add([str(Path(f).relative_to(xml_folder)) for f in files]),
+            "git add",
+        )
+    _run_with_lock_retry(lambda: _repo.index.commit(COMMIT_MESSAGE), "git commit")
+    origin = _repo.remote(name='origin')
+    _run_with_lock_retry(lambda: origin.pull(rebase=True), "git pull (rebase)")
+    _run_with_lock_retry(lambda: origin.push(), "git push")
 
 sentry_sdk.init(
-    dsn="https://8fd4b6885cc447c0b11aa0cb3009b0e3@o56764.ingest.us.sentry.io/5493983",
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
+    dsn="https://e0623f41d68caf57dc1563203f482daf@o4505071053766656.ingest.us.sentry.io/4508490893426688",
     traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
 )
 
 # on the server its run inside docker, the values of xml, key.json work for the server
@@ -58,47 +73,59 @@ xml_folder = "xml"
 
 waf_url = "https://pac-dev1.cioos.org/dev/metadata/"
 
+# RECORD_DELETE_TOKEN is the former name, kept as a fallback so the rename can land
+# before the deployment environment is updated.
+RECORD_API_TOKEN = os.environ.get("RECORD_API_TOKEN") or os.environ.get(
+    "RECORD_DELETE_TOKEN", ""
+)
+
 app = Flask(__name__)
 
-def delete_record(basename):
+
+def sanitize_basename(value):
+    # basename reaches glob.glob() below and is used to build output paths. It comes from
+    # record data, so without this a value like "*" would match - and delete - every
+    # record in the region.
+    return "".join(c if c.isalnum() else "_" for c in (value or "").strip().lower())
+
+
+def token_is_valid():
+    return bool(RECORD_API_TOKEN) and request.args.get("token") == RECORD_API_TOKEN
+
+
+def delete_record(basename, region=None):
     # before writing/update a file, delete the old one
     # this way if the status changes (and so the folder changes), we dont end up with multiple copies
-    # sanitize filename. just for security, the names should already be safe
-    basename = "".join(
-        [
-            character if character.isalnum() else "_"
-            for character in basename.strip().lower()
-        ]
-    )
-    types = ('.xml','.yaml') # the tuple of file types
-    
+    types = ('.xml', '.yaml', '.cff', '.erddap')
+
     existing_record_path = []
-    
-    for files in types:
-        existing_record_path.extend(glob.glob(f"{xml_folder}/**/{basename}{files}", recursive=True))
 
+    for ext in types:
+        if region:
+            existing_record_path.extend(glob.glob(f"{xml_folder}/**/{region}/{basename}{ext}", recursive=True))
+            existing_record_path.extend(glob.glob(f"{xml_folder}/{region}/{basename}{ext}"))
+        else:
+            existing_record_path.extend(glob.glob(f"{xml_folder}/**/{basename}{ext}", recursive=True))
 
-    for file_path in existing_record_path:
-        print("Deleting", file_path)
-        os.remove(file_path)
+    if existing_record_path:
+        _repo.index.remove(existing_record_path, working_tree=True)
+        print("Deleted", existing_record_path)
 
-
-def get_complete_path(status, region, basename,file_suffix):
-    submitted_dir_addon = ""
+def get_complete_path(status, region, basename, file_suffix):
+    parts = [xml_folder, region, basename + file_suffix]
     if status == "submitted":
-        submitted_dir_addon = "unpublished"
-
-    filename = "/".join([xml_folder, submitted_dir_addon, region, basename + file_suffix])
-    return filename
-
+        parts.insert(1, "unpublished")
+    return "/".join(parts)
 
 @app.route("/recordDelete")
 def recordDelete():
-    filenameToDelete = request.args.get("filename")
-    # so anyone can delete any xml file hmm
+    if not token_is_valid():
+        return make_response(jsonify(error="Unauthorized"), 401)
+    filenameToDelete = sanitize_basename(request.args.get("filename", ""))
+    region = request.args.get("region", "").strip() or None
     git_pull()
-    delete_record(filenameToDelete)
-    git_push([filenameToDelete])
+    delete_record(filenameToDelete, region)
+    git_push()
     return jsonify(message="record deleted")
 
 
@@ -106,11 +133,19 @@ def recordDelete():
 # create XML,YAML snippet, and write them to the WAF
 @app.route("/record")
 def recordUpdate():
+    # This route deletes the record's existing files and reads from Firebase with the
+    # service account, so it must not be callable by anything that can reach the host.
+    if not token_is_valid():
+        return make_response(jsonify(error="Unauthorized"), 401)
+
     path = request.args.get("path")
     if not path:
          return make_response(jsonify(error="Missing path"), 500)
- 
-    [region, userID, recordID] = path.split("/")
+
+    parts = path.split("/")
+    if len(parts) != 3 or not all(parts):
+        return make_response(jsonify(error="Invalid path"), 400)
+    [region, userID, recordID] = parts
     pathComplete = region + "/users/" + userID + "/records/" + recordID
 
     recordFromFB = get_records_from_firebase(
@@ -120,8 +155,8 @@ def recordUpdate():
         return jsonify(message="not found")
 
     status = recordFromFB.get("status", "")
-    basename = recordFromFB.get('filename') or get_filename(recordFromFB)
-    
+    basename = sanitize_basename(recordFromFB.get('filename') or get_filename(recordFromFB))
+
     xml_filename = get_complete_path(status, region, basename,'.xml')
     yaml_filename = get_complete_path(status, region, basename,'.yaml')
     cff_filename = get_complete_path(status, region, basename, '.cff')
@@ -131,7 +166,7 @@ def recordUpdate():
 
     # delete file if exists already
     print(basename)
-    delete_record(basename)
+    delete_record(basename, region)
 
     # ah just let it run, if its a complete file it should work
     if status not in ["submitted", "published"]:
@@ -167,14 +202,13 @@ def recordUpdate():
             g.write(cff_yaml)
             print("wrote", cff_filename)
 
+
         with open(erddap_filename, "w") as g:
             g.write(erddap_xml)
             print("wrote", erddap_filename)
 
-        git_push([xml_filename.replace('//','/').replace('xml/', ''),
-                 yaml_filename.replace('//', '/').replace('xml/', ''),
-                 cff_filename.replace('//', '/').replace('xml/', ''),
-                 erddap_filename.replace('//', '/').replace('xml/', ''),])
+        git_push([xml_filename, yaml_filename, cff_filename, erddap_filename])
+
         url = waf_url + basename
         
         # returned value doesn't do anything

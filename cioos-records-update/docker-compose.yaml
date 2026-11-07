@@ -13,6 +13,7 @@ services:
       SENTRY_ENVIRONMENT: localhost
       GH_USERNAME: ${GH_USERNAME}
       GH_PAT: ${GH_PAT}
+      RECORD_API_TOKEN: ${RECORD_API_TOKEN:-${RECORD_DELETE_TOKEN}}
     restart: always
 
   proxy:

@@ -49,10 +49,52 @@ async function updateXML(path, region, status = "", filename = "") {
     path,
     status,
     filename,
+    token: process.env.RECORD_API_TOKEN,
   }).toString();
   const urlFull = `${url}?${urlParams}`;
 
   return https.get(urlFull);
+}
+
+// The reviewer/admin lists are stored as one comma-joined string. Match whole entries
+// only - a bare substring test would let smith@example.org match jsmith@example.org.
+function isListed(list, email) {
+  if (typeof list !== "string" || !list || !email) return false;
+  return `,${list},`.includes(`,${email},`);
+}
+
+// Regenerating a record deletes its existing files before rewriting them, so the caller
+// has to be entitled to the record named by `path`. Authentication alone is not enough:
+// any signed-in user could otherwise pass someone else's path and destroy their published
+// files. Allowed for the record's owner and for reviewers of the record's own region.
+async function assertCanRegenerate(auth, path) {
+  if (typeof path !== "string") {
+    throw new HttpsError("invalid-argument", "path is required");
+  }
+  const segments = path.split("/");
+  if (segments.length !== 3 || segments.some((segment) => !segment)) {
+    throw new HttpsError("invalid-argument", "path must be region/userID/recordID");
+  }
+  const [pathRegion, userID] = segments;
+
+  if (auth.uid === userID) return;
+
+  const reviewers = (
+    await admin
+      .database()
+      .ref("admin")
+      .child(pathRegion)
+      .child("permissions")
+      .child("reviewers")
+      .once("value")
+  ).val();
+
+  if (!isListed(reviewers, auth.token.email)) {
+    throw new HttpsError(
+      "permission-denied",
+      "Not allowed to regenerate this record."
+    );
+  }
 }
 
 // when user clicks "Save", if the record is submitted or published, update the XML
@@ -62,6 +104,8 @@ exports.regenerateXMLforRecord = onCall(
       throw new HttpsError("unauthenticated");
 
     const { path, status, region } = request.data;
+    await assertCanRegenerate(request.auth, path);
+
     if (["submitted", "published"].includes(status)) {
       updateXML(path, region);
     }
@@ -127,6 +171,8 @@ async function deleteXML(filename, region) {
   const url = `${urlBase}recordDelete`;
   const urlParams = new URLSearchParams({
     filename,
+    region,
+    token: process.env.RECORD_API_TOKEN,
   }).toString();
   const urlFull = `${url}?${urlParams}`;
 

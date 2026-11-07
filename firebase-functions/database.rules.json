@@ -1,15 +1,20 @@
 {
   "rules": {
-    // Firebase security rules cascade, meaning that if a user is granted read or write permissions 
-    // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level. 
-    // This design requires careful structuring of rules (and data) to ensure appropriate access control 
+    // Firebase security rules cascade, meaning that if a user is granted read or write permissions
+    // at a higher (parent) level, those permissions cannot be revoked at a lower (child) level.
+    // This design requires careful structuring of rules (and data) to ensure appropriate access control
     // throughout the database hierarchy.
+    //
+    // The admins/reviewers lists are stored as a single comma-joined string, so membership is
+    // tested by wrapping both the list and the email in commas before the substring check.
+    // A bare .contains(email) matches on any substring, which would let smith@example.org
+    // satisfy a rule naming jsmith@example.org.
     "$region": {
         // Allow read access to any authenticated user.
       ".read": "auth.uid != null",
       "shares": {
         "$userid": {
-          // Allow write access to any authenticated user. 
+          // Allow write access to any authenticated user.
           // This rule permits user A to share a record with user B by writing to user B's 'shares' node.
           ".write": "auth.uid != null",
         }
@@ -17,7 +22,7 @@
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
-          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",    
+          ".write": "(auth.uid == $userid) || (',' + root.child('admin').child($region).child('permissions').child('reviewers').val() + ',').contains(',' + auth.token.email + ',')",
           "records": {
             "$recordid": {
               // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
@@ -31,11 +36,14 @@
     },
     "admin": { // Section of the database dedicated to admin configurations.
       "$regionAdmin": {
-        // Allow read access if the authenticated user's email is listed as a reviewer in the permissions for the region.
-        ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+        // No read rule at this level on purpose. A read grant here would cascade onto
+        // dataciteCredentials below and could not be revoked by a child rule, handing the
+        // DataCite account password to every reviewer. 'projects' and 'permissions' carry
+        // their own read rules, and the credentials are only ever read server-side by the
+        // DataCite callables via the Admin SDK, which bypasses these rules.
         "projects": {
           // Allow write access to projects if the authenticated user's email is listed as a reviewer in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+          ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val() + ',').contains(',' + auth.token.email + ',')",
           // Allow read access to any authenticated user.
           ".read": "auth.uid != null"
           },
@@ -44,24 +52,22 @@
           ".read": "auth.uid != null",
           "admins": {
             // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val() + ',').contains(',' + auth.token.email + ',')",
             // Allow read access to any authenticated user.
             ".read": "auth.uid != null",
           },
           "reviewers": {
             // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+            ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val() + ',').contains(',' + auth.token.email + ',')",
             // Allow read access to any authenticated user.
             ".read": "auth.uid != null",
-          },
-          "dataciteCredentials": {
-            // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
           }
         },
         "dataciteCredentials": {
           // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+          // Deliberately no read rule: the client only ever writes or clears this node,
+          // and reads the derived values through the getCredentialsStored/getDatacitePrefix callables.
+          ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val() + ',').contains(',' + auth.token.email + ',')",
         }
       }
     }

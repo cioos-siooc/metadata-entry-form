@@ -1,0 +1,22 @@
+[project]
+name = "cioos-records-update"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "flask==3.0.3",
+    "werkzeug==3.0.3",
+    "gunicorn",
+    "sentry-sdk",
+    "gitpython",
+    "metadata-xml",
+    "firebase-to-xml",
+    "hakai-metadata-conversion",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv.sources]
+metadata-xml = { git = "https://github.com/hakaiinstitute/metadata-xml.git" }
+firebase-to-xml = { git = "https://github.com/hakaiinstitute/hakai-metadata-entry-form.git", subdirectory = "firebase_to_xml" }
+hakai-metadata-conversion = { git = "https://github.com/hakaiinstitute/hakai-metadata-conversion.git" }

@@ -62,8 +62,14 @@ class UserProvider extends FormClassTemplate {
           const admins = permissions?.admins || "";
           const reviewers = permissions?.reviewers || "";
 
-          const isAdmin = admins.includes(email);
-          const isReviewer = reviewers.includes(email);
+          // Match whole entries only, mirroring database.rules.json. A plain
+          // includes() also matches substrings, so smith@example.org would be
+          // treated as jsmith@example.org.
+          const isListed = (list, address) =>
+            Boolean(address) && `,${list},`.includes(`,${address},`);
+
+          const isAdmin = isListed(admins, email);
+          const isReviewer = isListed(reviewers, email);
 
           this.setState({
             admins,
