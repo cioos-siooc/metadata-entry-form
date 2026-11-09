@@ -186,11 +186,37 @@ describe("<ReviewFindings /> drawer", () => {
     const preview = screen.getAllByRole("button", { name: /preview fix/i });
     expect(preview).toHaveLength(1); // only "b" has a fix
     fireEvent.click(preview[0]);
-    expect(screen.getByText("https://old.test")).toBeTruthy(); // current
-    expect(screen.getByText("https://new.test")).toBeTruthy(); // suggested
+    const cells = screen.getAllByRole("cell").map((c) => c.textContent);
+    expect(cells).toContain("https://old.test"); // current
+    expect(cells).toContain("https://new.test"); // suggested
     fireEvent.click(screen.getByRole("button", { name: /^apply$/i }));
     expect(onApplySuggested).toHaveBeenCalledWith(qa.findings[1]);
     expect(set).not.toHaveBeenCalled();
+  });
+
+  it("highlights the letters a text fix changes", () => {
+    const withTitle = {
+      ...record,
+      title: { en: "Ocean temprature at Line P" },
+      qa: {
+        generated: qa.generated,
+        findings: {
+          0: {
+            id: "t",
+            severity: "low",
+            field: "title.en",
+            description: "Typo in title.",
+            suggested: { title: { en: "Ocean temperature at Line P" } },
+          },
+        },
+      },
+    };
+    renderWith({ record: withTitle });
+    fireEvent.click(screen.getByRole("button", { name: /preview fix/i }));
+    expect(document.querySelector("del")).toBeNull(); // nothing removed
+    const added = document.querySelector("ins");
+    expect(added.textContent).toBe("e"); // temp[e]rature
+    expect(added.parentElement.textContent).toBe("Ocean temperature at Line P");
   });
 
   it("marks fixes applied in the form but not saved", () => {

@@ -33,6 +33,7 @@ import {
 } from "@mui/material";
 import { ChevronRight, Close, FactCheck, Update } from "@mui/icons-material";
 import { Link as RouterLink, useParams } from "react-router-dom";
+import { diffChars } from "diff";
 import { getDatabase, onValue, ref, set } from "firebase/database";
 
 import firebase from "../../firebase";
@@ -173,6 +174,32 @@ const show = (v) =>
       ? JSON.stringify(v)
       : String(v);
 
+// One side of a letter diff: the letters removed from `from` (in Current) or added in `to`
+// (in Suggested) are highlighted
+const DiffText = ({ from, to, side }) =>
+  diffChars(from, to)
+    .filter((p) => !(side === "removed" ? p.added : p.removed))
+    .map((p, k) =>
+      p.added || p.removed ? (
+        <Box
+          key={k}
+          component={p.removed ? "del" : "ins"}
+          sx={{
+            bgcolor: p.removed ? "error.light" : "success.light",
+            color: p.removed ? "error.contrastText" : "success.contrastText",
+            textDecoration: p.removed ? "line-through" : "none",
+            borderRadius: 0.5,
+          }}
+        >
+          {p.value}
+        </Box>
+      ) : (
+        <React.Fragment key={k}>{p.value}</React.Fragment>
+      ),
+    );
+
+const isText = (v) => typeof v === "string" && v !== "";
+
 // A reviewer's decision on a finding ({status, note?}); null clears it (Restore)
 export const setFindingStatus = (region, userID, recordID, id, status) =>
   set(
@@ -196,7 +223,7 @@ const statusChip = {
 };
 
 const PreviewFix = ({ finding, record, onClose, onApply }) => (
-  <Dialog open={Boolean(finding)} onClose={onClose} maxWidth="md" fullWidth>
+  <Dialog open={Boolean(finding)} onClose={onClose} maxWidth="lg" fullWidth>
     <DialogTitle>
       <I18n en="Suggested fix" fr="Correction suggérée" />
     </DialogTitle>
@@ -204,37 +231,59 @@ const PreviewFix = ({ finding, record, onClose, onApply }) => (
       <Typography variant="body2" sx={{ mb: 1 }}>
         {finding?.description}
       </Typography>
-      <Table size="small">
+      {/* Fixed layout: Current and Suggested get equal halves so long text lines up */}
+      <Table
+        size="small"
+        sx={{
+          tableLayout: "fixed",
+          "& td": { verticalAlign: "top", overflowWrap: "anywhere" },
+        }}
+      >
         <TableHead>
           <TableRow>
-            <TableCell>
+            <TableCell sx={{ width: "16%" }}>
               <I18n en="Field" fr="Champ" />
             </TableCell>
-            <TableCell>
+            <TableCell sx={{ width: "42%" }}>
               <I18n en="Current" fr="Actuel" />
             </TableCell>
-            <TableCell>
+            <TableCell sx={{ width: "42%" }}>
               <I18n en="Suggested" fr="Suggéré" />
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {finding &&
-            flattenPatch(finding.suggested).map(([path, value]) => (
-              <TableRow key={path.join(".")}>
-                <TableCell sx={{ wordBreak: "break-all" }}>
-                  {path.join(" › ")}
-                </TableCell>
-                <TableCell
-                  sx={{ wordBreak: "break-word", color: "text.secondary" }}
-                >
-                  {show(getPath(record, path))}
-                </TableCell>
-                <TableCell sx={{ wordBreak: "break-word" }}>
-                  {show(value)}
-                </TableCell>
-              </TableRow>
-            ))}
+            flattenPatch(finding.suggested).map(([path, value]) => {
+              const current = getPath(record, path);
+              // Text edits (titles, abstracts…) highlight what changed; other values as-is
+              const diff = isText(current) && isText(value);
+              return (
+                <TableRow key={path.join(".")}>
+                  <TableCell
+                    sx={{ fontFamily: "monospace", color: "text.secondary" }}
+                  >
+                    {path.join(" › ")}
+                  </TableCell>
+                  <TableCell
+                    sx={{ whiteSpace: "pre-wrap", color: "text.secondary" }}
+                  >
+                    {diff ? (
+                      <DiffText from={current} to={value} side="removed" />
+                    ) : (
+                      show(current)
+                    )}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: "pre-wrap" }}>
+                    {diff ? (
+                      <DiffText from={current} to={value} side="added" />
+                    ) : (
+                      show(value)
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
         </TableBody>
       </Table>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
