@@ -409,7 +409,7 @@ const RecordActions = ({
     );
   }
 
-  // Catalogue Link
+  // Automated review
   if (actions.showReviewAction) {
     menuItems.push(
       <MenuItem
@@ -429,6 +429,7 @@ const RecordActions = ({
     );
   }
 
+  // Catalogue Link
   if (showCatalogueDivider) {
     menuItems.push(<Divider key="divider-catalogue" />);
     menuItems.push(

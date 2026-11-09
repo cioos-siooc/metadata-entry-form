@@ -268,13 +268,17 @@ export class MetadataForm extends FormClassTemplate {
             const onlyQaChanged =
               this.lastLoadedRecord === JSON.stringify(withoutQa);
             this.lastLoadedRecord = JSON.stringify(withoutQa);
-            this.setState(({ record: current }) => ({
-              record:
-                onlyQaChanged && current?.recordID === recordID
+            this.setState(({ record: current, pendingApplied }) => {
+              const keepEdits = onlyQaChanged && current?.recordID === recordID;
+              return {
+                record: keepEdits
                   ? { ...current, qa }
                   : standardizeRecord(record, null, null, recordID),
-              loggedInUserCanEditRecord,
-            }));
+                // a reset discards unsaved Applies, so they mustn't be marked applied on save
+                pendingApplied: keepEdits ? pendingApplied : [],
+                loggedInUserCanEditRecord,
+              };
+            });
 
             this.setState({ loading: false });
           });
@@ -459,6 +463,8 @@ export class MetadataForm extends FormClassTemplate {
     record.region = region;
 
     record.lastEditedBy = editorInfo;
+    // Taken before writing: the record listener drops pendingApplied when the save echoes back.
+    const { pendingApplied } = this.state;
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
@@ -482,14 +488,15 @@ export class MetadataForm extends FormClassTemplate {
       history.push(`/${language}/${region}/${userID}/${recordID}`);
     }
 
-    const { pendingApplied } = this.state;
     if (pendingApplied.length) {
       await Promise.all(
         pendingApplied.map((id) =>
           setFindingStatus(region, userID, recordID, id, { status: "applied" }),
         ),
       );
-      this.setState({ pendingApplied: [] });
+      this.setState(({ pendingApplied: current }) => ({
+        pendingApplied: current.filter((id) => !pendingApplied.includes(id)),
+      }));
     }
 
     // regnerate XML on save

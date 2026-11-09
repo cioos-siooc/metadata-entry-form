@@ -148,7 +148,7 @@ class UserProviderClass extends FormClassTemplate {
     const shareRecord = httpsCallable(functions, "shareRecord");
     const unshareRecord = httpsCallable(functions, "unshareRecord");
     const transferRecord = httpsCallable(functions, "transferRecord");
-    // Automated review (python-functions/review.py); URL + LLM checks take a while.
+    // Automated review (reviewer-functions/review.py); URL + LLM checks take a while.
     const reviewRecord = httpsCallable(functions, "review_record", {
       timeout: 540000,
     });

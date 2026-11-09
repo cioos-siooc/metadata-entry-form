@@ -19,7 +19,8 @@
       "qaRuns": {
         "$runid": {
           "cancel": {
-            ".write": "root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($region).child('permissions').child('admins').val().contains(auth.email)",
+            // Only an existing run: 'active' and 'last' are pointers, not runs.
+            ".write": "root.child($region).child('qaRuns').child($runid).child('status').exists() && (root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($region).child('permissions').child('admins').val().contains(auth.email))",
             ".validate": "newData.val() === true"
           }
         }
