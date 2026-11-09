@@ -159,6 +159,35 @@ def test_review_one_skips_unchanged_keeps_statuses_drops_rejected(store):
     assert calls == ["r1", "r1", "r1"]
 
 
+def test_review_one_doesnt_recreate_a_deleted_record(store, monkeypatch):
+    # e.g. a region run's snapshot: the record was deleted while it was being reviewed
+    stale = FakeRef(store, REC_PATH).get()
+
+    async def delete_then_review(region, uid, rid, rec):
+        FakeRef(store, REC_PATH).delete()
+        return [{"id": "a"}]
+
+    monkeypatch.setattr(review, "review_record", delete_then_review)
+    review.review_one("pacific", "u1", "r1", stale)
+    assert "r1" not in store["pacific"]["users"]["u1"]["records"]
+
+    review.review_one("pacific", "u1", "r1", stale)  # unchanged hash: mark_checked path
+    assert "r1" not in store["pacific"]["users"]["u1"]["records"]
+
+
+def test_review_one_drops_findings_rejected_during_the_review(store, monkeypatch):
+    stale = FakeRef(store, REC_PATH).get()
+
+    async def reject_then_review(region, uid, rid, rec):
+        FakeRef(store, REC_PATH + "/qa/statuses/b").set({"status": "rejected"})
+        return [{"id": "a"}, {"id": "b"}]
+
+    monkeypatch.setattr(review, "review_record", reject_then_review)
+    qa = review.review_one("pacific", "u1", "r1", stale)
+    assert [f["id"] for f in qa["findings"]] == ["a"]
+    assert qa["statuses"] == {"b": {"status": "rejected"}}
+
+
 def test_review_region_one_run_at_a_time(store):
     run_id = review.review_region("pacific", "rev@x.ca")
     assert calls == ["r1"]  # drafts skipped
@@ -180,6 +209,34 @@ def test_review_region_one_run_at_a_time(store):
     }
     with pytest.raises(https_fn.HttpsError):
         review.review_region("pacific", "rev@x.ca")
+
+
+def test_review_region_reviews_records_concurrently(store, monkeypatch):
+    records = store["pacific"]["users"]["u1"]["records"]
+    for i in range(review.REGION_CONCURRENCY * 2):
+        records[f"c{i}"] = {"title": f"c{i}", "status": "published"}
+
+    async def slow_review(region, uid, rid, rec):
+        await review.asyncio.sleep(0.2)
+        calls.append(rid)
+        return [{"id": "a"}]
+
+    monkeypatch.setattr(review, "review_record", slow_review)
+    started = review.time.time()
+    run_id = review.review_region("pacific", "rev@x.ca")
+    elapsed = review.time.time() - started
+
+    n = review.REGION_CONCURRENCY * 2 + 1  # + r1
+    run = store["pacific"]["qaRuns"][run_id]
+    assert (run["status"], run["done"], run["reviewed"], run["failed"]) == (
+        "done",
+        n,
+        n,
+        0,
+    )
+    assert run.get("current") is None
+    assert sorted(calls) == sorted(["r1", *(f"c{i}" for i in range(n - 1))])
+    assert elapsed < 0.2 * n / 2  # one at a time would take 0.2 * n
 
 
 def test_count_region(store):

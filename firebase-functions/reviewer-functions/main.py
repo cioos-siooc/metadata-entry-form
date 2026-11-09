@@ -51,7 +51,10 @@ def review_record(req: https_fn.CallableRequest):
 
 
 @https_fn.on_call(
-    timeout_sec=3600, memory=options.MemoryOption.GB_1, secrets=[COHERE_API_KEY]
+    timeout_sec=3600,
+    memory=options.MemoryOption.GB_1,
+    cpu=1,  # review.REGION_CONCURRENCY records at once; the 1 GB default is a fraction of a core
+    secrets=[COHERE_API_KEY],
 )
 def review_region(req: https_fn.CallableRequest):
     """Review all submitted/published records of a region. data: {region, force?, dryRun?}.

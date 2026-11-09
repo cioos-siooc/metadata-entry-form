@@ -14,8 +14,10 @@ import functools
 import logging
 import hashlib
 import json
+import threading
 import time
 import uuid
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, distribution
 
@@ -27,6 +29,9 @@ from cioos_metadata_reviewer.firebase import to_package, to_patch
 from cioos_metadata_reviewer.review import review_record
 
 REVIEWED_STATUSES = ("submitted", "published")
+# Records reviewed at once by review_region. Each is mostly waiting on the network; 8 keeps
+# the LLM rate well under Cohere's production limits while making a region run ~8x faster.
+REGION_CONCURRENCY = 8
 STALE_RUN_SECONDS = (
     3600  # a run older than the function timeout crashed; let a new one start
 )
@@ -122,10 +127,19 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _record_exists(region, uid, rid):
+    """Writes go under the record's own path, so writing to a record deleted since it was read
+    (a region run's snapshot can be an hour old) would recreate it as a bare `{qa: …}` node."""
+    return db.reference(f"{region}/users/{uid}/records/{rid}/status").get() is not None
+
+
 def mark_checked(region, uid, rid):
     """The record was found unchanged: its findings are current as of now. The UI flags results
     as outdated against the later of `generated` and `checked`, so saves that changed no content
-    don't leave a stale flag that a re-run (which skips) could never clear."""
+    don't leave a stale flag that a re-run (which skips) could never clear. None if the record
+    is gone."""
+    if not _record_exists(region, uid, rid):
+        return None
     checked = _now()
     db.reference(f"{region}/users/{uid}/records/{rid}/qa/checked").set(checked)
     return checked
@@ -148,9 +162,14 @@ def review_one(region, uid, rid, rec, force=False):
         .get(rid, {})
         .get("qa", {})
     )
+    if not _record_exists(region, uid, rid):
+        logging.info("review_one: %s/%s/%s deleted during review", region, uid, rid)
+        return qa
+    # fresh: a reviewer may have rejected a finding while this review (or region run) was going
+    qa_ref = db.reference(f"{region}/users/{uid}/records/{rid}/qa")
     rejected = {
         fid
-        for fid, s in (qa.get("statuses") or {}).items()
+        for fid, s in (qa_ref.child("statuses").get() or {}).items()
         if (s or {}).get("status") == "rejected"
     }
     update = {
@@ -162,8 +181,8 @@ def review_one(region, uid, rid, rec, force=False):
         "generated": patched.get("generated") or _now(),
     }
     # update, not set: qa/statuses (the reviewers' decisions) must survive a re-run
-    db.reference(f"{region}/users/{uid}/records/{rid}/qa").update(update)
-    return {**qa, **update}
+    qa_ref.update(update)
+    return {**(qa_ref.get() or {}), **update}
 
 
 def review_on_submit(region, uid, rid, before, after):
@@ -221,9 +240,62 @@ def count_region(region, force=False):
     }
 
 
+def _review_concurrently(region, run, todo, force):
+    """Review `todo` REGION_CONCURRENCY records at a time, updating the run's progress as each
+    finishes. Each record is network-bound (LLM, URL and ERDDAP calls), so threads overlap the
+    waits; each thread runs its own event loop in review_one. True if the run was cancelled."""
+    lock = threading.Lock()
+    counts = {"done": 0, "failed": 0, "reviewed": 0, "skipped": 0}
+    in_flight = {}  # uid_rid -> {uid, rid, title}; `current` shows one of them
+
+    def review(uid, rid, rec):
+        key = f"{uid}_{rid}"
+        try:
+            if not needs_review(region, uid, rid, rec, force):
+                mark_checked(region, uid, rid)
+                outcome = "skipped"
+            else:
+                with lock:
+                    in_flight[key] = {"uid": uid, "rid": rid, "title": rec.get("title")}
+                    run.update({"current": in_flight[key]})
+                review_one(region, uid, rid, rec, force)
+                outcome = "reviewed"
+        except Exception as e:  # pylint: disable=broad-except
+            logging.exception("review_region: %s/%s/%s failed", region, uid, rid)
+            outcome = "failed"  # one bad record shouldn't stop the region
+            run.child(f"failedRecords/{key}").set(
+                {
+                    "uid": uid,
+                    "rid": rid,
+                    "title": rec.get("title"),
+                    "error": str(e)[:200],
+                }
+            )
+        with lock:
+            in_flight.pop(key, None)
+            counts[outcome] += 1
+            counts["done"] += 1
+            run.update({**counts, "current": next(iter(in_flight.values()), None)})
+
+    cancelled = False
+    with ThreadPoolExecutor(max_workers=REGION_CONCURRENCY) as pool:
+        pending = set()
+        for item in todo:
+            if len(pending) >= REGION_CONCURRENCY:
+                _, pending = wait(pending, return_when=FIRST_COMPLETED)
+            # ponytail: one RTDB read per record; fine at region scale
+            if run.child("cancel").get():
+                cancelled = True
+                break
+            pending.add(pool.submit(review, *item))
+        wait(pending)
+    return cancelled
+
+
 def review_region(region, email, force=False):
     """Progress, failures and the outcome go to {region}/qaRuns/{runId}; `last` points at it.
-    A reviewer stops a run by setting its `cancel` (checked between records)."""
+    A reviewer stops a run by setting its `cancel` (checked before each record starts; the
+    records already in flight finish)."""
     run_id = uuid.uuid4().hex
     if not _claim_run(region, run_id):
         raise https_fn.HttpsError(
@@ -245,45 +317,9 @@ def review_region(region, email, force=False):
                 "started": datetime.now(timezone.utc).isoformat(),
             }
         )
-        done = failed = reviewed = skipped = 0
-        status = "done"
-        for uid, rid, rec in todo:
-            # ponytail: one RTDB read per record; fine at region scale
-            if run.child("cancel").get():
-                status = "cancelled"
-                break
-            if not needs_review(region, uid, rid, rec, force):
-                mark_checked(region, uid, rid)
-                skipped += 1
-            else:
-                run.update(
-                    {"current": {"uid": uid, "rid": rid, "title": rec.get("title")}}
-                )
-                try:
-                    review_one(region, uid, rid, rec, force)
-                    reviewed += 1
-                except Exception as e:  # pylint: disable=broad-except
-                    logging.exception(
-                        "review_region: %s/%s/%s failed", region, uid, rid
-                    )
-                    failed += 1  # one bad record shouldn't stop the region
-                    run.child(f"failedRecords/{uid}_{rid}").set(
-                        {
-                            "uid": uid,
-                            "rid": rid,
-                            "title": rec.get("title"),
-                            "error": str(e)[:200],
-                        }
-                    )
-            done += 1
-            run.update(
-                {
-                    "done": done,
-                    "failed": failed,
-                    "reviewed": reviewed,
-                    "skipped": skipped,
-                }
-            )
+        status = (
+            "cancelled" if _review_concurrently(region, run, todo, force) else "done"
+        )
         run.update(
             {
                 "status": status,
