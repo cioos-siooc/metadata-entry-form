@@ -5,9 +5,9 @@
 
 CIOOS Metadata entry form
 
-Production: <https://form.cioos.ca>
+Production: <https://forms.cioos.ca>
 
-Development: <https://cioos-metadata-form-dev-258dc--development-tc36g7it.web.app/>
+Development: <https://dev.forms.cioos.ca>
 
 ## Project Goal
 
@@ -158,8 +158,8 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 
 ### Frontend Deployment
 
-- **Development**: Firebase Hosting preview sites are created for all pull requests and commits to the `development` branch. Check the pull request comments on GitHub for preview links. Handled by the `firebase-hosting-pull-request.yml` GitHub action. Preview sites are deleted after 30 days of inactivity.
-- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
+- **Development**: Commits to the `development` branch deploy to the live channel of the dev Firebase project, served at <https://dev.forms.cioos.ca> (also <https://cioos-metadata-form-dev-258dc.web.app>). Pull requests get Firebase Hosting preview sites; check the pull request comments on GitHub for preview links. Preview sites are deleted after 30 days of inactivity. Both are handled by the `firebase-hosting-pull-request.yml` GitHub action.
+- **Production**: Deploys to GitHub Pages at the custom domain <https://forms.cioos.ca/> only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
 
 ### Firebase Functions Deployment
 
