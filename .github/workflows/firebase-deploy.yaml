@@ -8,6 +8,8 @@ on:
     tags:
       - "v*"
   pull_request:
+    # 'labeled' lets adding the deploy-db-rules label deploy the PR's rules to dev.
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
@@ -25,6 +27,12 @@ on:
 jobs:
   deploy:
     name: Deploy
+    # PRs deploy to dev only once they're ready for review, and adding a label only
+    # triggers a deploy when it's the deploy-db-rules label.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (!github.event.pull_request.draft &&
+       (github.event.action != 'labeled' || github.event.label.name == 'deploy-db-rules'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -92,9 +100,15 @@ jobs:
             firebase use dev
           fi
           cp .env ../python-functions/.env
+          # 'database' deploys database.rules.json to the project's default RTDB instance:
+          # always on development pushes and releases, on PRs only with the deploy-db-rules label.
+          TARGETS="functions:js-functions,functions:py-functions"
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ] || [ "${DEPLOY_DB_RULES}" = "true" ]; then
+            echo "Including the database rules"
+            TARGETS="${TARGETS},database"
+          fi
           echo "Deploying to Firebase..."
-          # 'database' deploys database.rules.json to the project's default RTDB instance.
-          firebase deploy --only functions:js-functions,functions:py-functions,database --token ${{ secrets.FIREBASE_TOKEN }} --force
+          firebase deploy --only "${TARGETS}" --token ${{ secrets.FIREBASE_TOKEN }} --force
         working-directory: firebase-functions/functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -106,6 +120,7 @@ jobs:
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
+          DEPLOY_DB_RULES: ${{ contains(github.event.pull_request.labels.*.name, 'deploy-db-rules') }}
       - name: Trigger GitHub Pages deployment
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
         run: |

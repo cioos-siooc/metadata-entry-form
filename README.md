@@ -285,7 +285,15 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 
 `firebase-functions/firebase.json` maps `database.rules.json` to the default Realtime Database instance of the selected project (`cioos-metadata-form-8d942-default-rtdb` in production, `cioos-metadata-form-dev-258dc-default-rtdb` in dev).
 
-The `Deploy firebase functions` GitHub workflow deploys the rules together with the functions: to dev on pushes to `development` and on pull requests touching `firebase-functions/`, and to production on version tags. To deploy them by hand from `firebase-functions/`:
+The `Deploy firebase functions` GitHub workflow deploys the rules together with the functions:
+
+- **Pushes to `development`:** always deployed to dev.
+- **Version tags and manual production deploys:** always deployed to production.
+- **Pull requests touching `firebase-functions/`:** draft PRs don't deploy anything. Ready PRs deploy their functions to dev, but their rules only when the PR has the `deploy-db-rules` label. Adding the label triggers the deploy.
+
+PRs that change `database.rules.json` are labelled `database-rules` automatically, so rule changes stand out in review.
+
+To deploy the rules by hand from `firebase-functions/`:
 
 ```bash
 firebase deploy --only database --project dev      # For development
