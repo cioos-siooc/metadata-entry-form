@@ -31,7 +31,18 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ChevronRight, Close, FactCheck, Update } from "@mui/icons-material";
+import { alpha } from "@mui/material/styles";
+import {
+  ChevronRight,
+  Close,
+  ErrorOutline,
+  ExpandMore,
+  FactCheck,
+  InfoOutlined,
+  Report,
+  Update,
+  WarningAmber,
+} from "@mui/icons-material";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { diffChars } from "diff";
 import { getDatabase, onValue, ref, set } from "firebase/database";
@@ -39,28 +50,38 @@ import { getDatabase, onValue, ref, set } from "firebase/database";
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
 import { I18n } from "../I18n";
-import { qaSummary } from "../RecordList/config";
+import {
+  QA_SEVERITY_COLOR,
+  QA_SEVERITY_ORDER,
+  qaSummary,
+} from "../RecordList/config";
 import tabs from "../../utils/tabs";
 
 export const DRAWER_WIDTH = 400;
 
-const severityColor = {
-  critical: "error",
-  high: "error",
-  medium: "warning",
-  low: "info",
+const severityRank = (s) => {
+  const i = QA_SEVERITY_ORDER.indexOf(s);
+  return i < 0 ? QA_SEVERITY_ORDER.length : i;
 };
-const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
 const severityLabel = {
   critical: { en: "critical", fr: "critique" },
   high: { en: "high", fr: "élevée" },
   medium: { en: "medium", fr: "moyenne" },
   low: { en: "low", fr: "faible" },
 };
+// Critical and high share a colour; the icon tells them apart (and doesn't rely on colour)
+const severityIcon = {
+  critical: <Report />,
+  high: <ErrorOutline />,
+  medium: <WarningAmber />,
+  low: <InfoOutlined />,
+};
 const SeverityChip = ({ severity, count }) => (
   <Chip
     size="small"
-    color={severityColor[severity] || "default"}
+    color={QA_SEVERITY_COLOR[severity] || "default"}
+    variant={severity === "critical" ? "filled" : "outlined"}
+    icon={severityIcon[severity]}
     label={
       <>
         {count != null && `${count} `}
@@ -174,8 +195,15 @@ const show = (v) =>
       ? JSON.stringify(v)
       : String(v);
 
+// "Nov 10, 2026, 3:04 p.m." in the form's language (not the browser's)
+const formatWhen = (iso, language) =>
+  new Date(iso).toLocaleString(language === "fr" ? "fr-CA" : "en-CA", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+
 // One side of a letter diff: the letters removed from `from` (in Current) or added in `to`
-// (in Suggested) are highlighted
+// (in Suggested) are highlighted. Tinted backgrounds keep the text at body contrast.
 const DiffText = ({ from, to, side }) =>
   diffChars(from, to)
     .filter((p) => !(side === "removed" ? p.added : p.removed))
@@ -185,10 +213,13 @@ const DiffText = ({ from, to, side }) =>
           key={k}
           component={p.removed ? "del" : "ins"}
           sx={{
-            bgcolor: p.removed ? "error.light" : "success.light",
-            color: p.removed ? "error.contrastText" : "success.contrastText",
+            bgcolor: (t) =>
+              alpha(t.palette[p.removed ? "error" : "success"].main, 0.18),
+            color: "text.primary",
             textDecoration: p.removed ? "line-through" : "none",
+            textDecorationColor: (t) => t.palette.error.main,
             borderRadius: 0.5,
+            px: "1px",
           }}
         >
           {p.value}
@@ -222,87 +253,127 @@ const statusChip = {
   rejected: <Chip size="small" label={<I18n en="Rejected" fr="Rejeté" />} />,
 };
 
-const PreviewFix = ({ finding, record, onClose, onApply }) => (
-  <Dialog open={Boolean(finding)} onClose={onClose} maxWidth="lg" fullWidth>
-    <DialogTitle>
-      <I18n en="Suggested fix" fr="Correction suggérée" />
-    </DialogTitle>
-    <DialogContent>
-      <Typography variant="body2" sx={{ mb: 1 }}>
-        {finding?.description}
-      </Typography>
-      {/* Fixed layout: Current and Suggested get equal halves so long text lines up */}
-      <Table
-        size="small"
-        sx={{
-          tableLayout: "fixed",
-          "& td": { verticalAlign: "top", overflowWrap: "anywhere" },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ width: "16%" }}>
-              <I18n en="Field" fr="Champ" />
-            </TableCell>
-            <TableCell sx={{ width: "42%" }}>
-              <I18n en="Current" fr="Actuel" />
-            </TableCell>
-            <TableCell sx={{ width: "42%" }}>
-              <I18n en="Suggested" fr="Suggéré" />
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {finding &&
-            flattenPatch(finding.suggested).map(([path, value]) => {
-              const current = getPath(record, path);
-              // Text edits (titles, abstracts…) highlight what changed; other values as-is
-              const diff = isText(current) && isText(value);
-              return (
-                <TableRow key={path.join(".")}>
-                  <TableCell
-                    sx={{ fontFamily: "monospace", color: "text.secondary" }}
-                  >
-                    {path.join(" › ")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ whiteSpace: "pre-wrap", color: "text.secondary" }}
-                  >
-                    {diff ? (
-                      <DiffText from={current} to={value} side="removed" />
-                    ) : (
-                      show(current)
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ whiteSpace: "pre-wrap" }}>
-                    {diff ? (
-                      <DiffText from={current} to={value} side="added" />
-                    ) : (
-                      show(value)
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-        </TableBody>
-      </Table>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        <I18n
-          en="The change is made in the form; save the record to keep it."
-          fr="La modification est faite dans le formulaire; enregistrez la fiche pour la conserver."
-        />
-      </Typography>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose}>
-        <I18n en="Cancel" fr="Annuler" />
-      </Button>
-      <Button variant="contained" onClick={onApply}>
-        <I18n en="Apply" fr="Appliquer" />
-      </Button>
-    </DialogActions>
-  </Dialog>
+// A record path in a finding or a fix (data, so monospace)
+const FieldPath = ({ children, ...props }) => (
+  <Typography
+    variant="caption"
+    color="text.secondary"
+    {...props}
+    sx={{ fontFamily: "monospace", overflowWrap: "anywhere", ...props.sx }}
+  >
+    {children}
+  </Typography>
 );
+
+const PreviewFix = ({ finding, record, onClose, onApply }) => {
+  const fullScreen = useMediaQuery(useTheme().breakpoints.down("sm"));
+  return (
+    <Dialog
+      open={Boolean(finding)}
+      onClose={onClose}
+      maxWidth="lg"
+      fullWidth
+      fullScreen={fullScreen}
+      aria-labelledby="preview-fix-title"
+    >
+      <DialogTitle id="preview-fix-title" sx={{ pb: 1 }}>
+        <I18n en="Suggested fix" fr="Correction suggérée" />
+      </DialogTitle>
+      <DialogContent>
+        {finding && (
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
+            sx={{ mb: 1 }}
+          >
+            <SeverityChip severity={finding.severity} />
+            <FieldPath>{finding.field}</FieldPath>
+          </Stack>
+        )}
+        <Typography sx={{ fontWeight: 500 }}>{finding?.description}</Typography>
+        {finding?.recommendation && (
+          <Typography variant="body2" color="text.secondary">
+            {finding.recommendation}
+          </Typography>
+        )}
+        {/* Fixed layout: Current and Suggested get equal halves so long text lines up */}
+        <Table
+          size="small"
+          sx={{
+            mt: 2,
+            tableLayout: "fixed",
+            "& td": { verticalAlign: "top", overflowWrap: "anywhere" },
+            "& th": { fontWeight: 600 },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ width: { xs: "24%", sm: "16%" } }}>
+                <I18n en="Field" fr="Champ" />
+              </TableCell>
+              <TableCell sx={{ width: { xs: "38%", sm: "42%" } }}>
+                <I18n en="Current" fr="Actuel" />
+              </TableCell>
+              <TableCell sx={{ width: { xs: "38%", sm: "42%" } }}>
+                <I18n en="Suggested" fr="Suggéré" />
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {finding &&
+              flattenPatch(finding.suggested).map(([path, value]) => {
+                const current = getPath(record, path);
+                // Text edits (titles, abstracts…) highlight what changed; other values as-is
+                const diff = isText(current) && isText(value);
+                return (
+                  <TableRow key={path.join(".")}>
+                    <TableCell
+                      sx={{ fontFamily: "monospace", color: "text.secondary" }}
+                    >
+                      {path.join(" › ")}
+                    </TableCell>
+                    <TableCell
+                      sx={{ whiteSpace: "pre-wrap", color: "text.secondary" }}
+                    >
+                      {diff ? (
+                        <DiffText from={current} to={value} side="removed" />
+                      ) : (
+                        show(current)
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ whiteSpace: "pre-wrap" }}>
+                      {diff ? (
+                        <DiffText from={current} to={value} side="added" />
+                      ) : (
+                        show(value)
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          <I18n
+            en="Applying changes the form only; save the record to keep it."
+            fr="L'application modifie seulement le formulaire; enregistrez la fiche pour la conserver."
+          />
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>
+          <I18n en="Cancel" fr="Annuler" />
+        </Button>
+        <Button variant="contained" onClick={onApply}>
+          <I18n en="Apply" fr="Appliquer" />
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 const FindingCard = ({
   f,
@@ -316,11 +387,20 @@ const FindingCard = ({
   const [note, setNote] = useState("");
   const [showEvidence, setShowEvidence] = useState(false);
   const tab = findingTab(f);
+  const decided = Boolean(status || pending);
+  const reject = () => {
+    onSetStatus({ status: "rejected", note });
+    setRejecting(false);
+  };
 
   return (
     <Box
       component="li"
-      sx={{ py: 1, listStyle: "none", opacity: status ? 0.7 : 1 }}
+      sx={{
+        py: 1.5,
+        listStyle: "none",
+        "& + li": { borderTop: 1, borderColor: "divider" },
+      }}
     >
       <Stack
         direction="row"
@@ -340,89 +420,125 @@ const FindingCard = ({
         ) : (
           statusChip[status]
         )}
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ wordBreak: "break-all" }}
-        >
-          {f.field}
-        </Typography>
+        <FieldPath>{f.field}</FieldPath>
       </Stack>
-      <Typography sx={{ fontWeight: 500, mt: 0.5 }}>{f.description}</Typography>
+      <Typography
+        sx={{ fontWeight: decided ? 400 : 500, mt: 0.75 }}
+        color={decided ? "text.secondary" : "text.primary"}
+      >
+        {f.description}
+      </Typography>
       {f.recommendation && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
           {f.recommendation}
         </Typography>
       )}
       {f.note && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          <I18n en="Note:" fr="Note :" /> {f.note}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          component="div"
+          sx={{ mt: 0.5 }}
+        >
+          <I18n en="Reviewer note:" fr="Note du réviseur :" /> {f.note}
         </Typography>
       )}
-      {f.evidence && (
-        <>
-          <Link
-            component="button"
-            variant="caption"
-            onClick={() => setShowEvidence(!showEvidence)}
-          >
-            {showEvidence ? (
-              <I18n en="Hide evidence" fr="Masquer les preuves" />
-            ) : (
-              <I18n en="Show evidence" fr="Voir les preuves" />
-            )}
-          </Link>
-          <Collapse in={showEvidence}>
-            <Typography
-              variant="body2"
-              sx={{ fontStyle: "italic", wordBreak: "break-word" }}
-            >
-              {f.evidence}
-            </Typography>
-          </Collapse>
-        </>
-      )}
-      {(f.confidence > 0 || f.source === "ckan") && (
-        <Typography variant="caption" color="text.secondary" component="div">
+      {(f.confidence > 0 || f.source === "ckan" || f.evidence) && (
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="baseline"
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mt: 0.5 }}
+        >
           {f.confidence > 0 && (
-            <>
+            <Typography variant="caption" color="text.secondary">
               <I18n en="Confidence" fr="Confiance" />{" "}
               {Math.round(f.confidence * 100)}%
-            </>
+            </Typography>
           )}
           {f.source === "ckan" && (
-            <>
-              {f.confidence > 0 && " · "}
+            <Typography variant="caption" color="text.secondary">
               <I18n
                 en="Found in the catalogue (CKAN)"
                 fr="Trouvé dans le catalogue (CKAN)"
               />
-            </>
+            </Typography>
           )}
-        </Typography>
+          {f.evidence && (
+            <Link
+              component="button"
+              variant="caption"
+              aria-expanded={showEvidence}
+              onClick={() => setShowEvidence(!showEvidence)}
+            >
+              {showEvidence ? (
+                <I18n en="Hide evidence" fr="Masquer les preuves" />
+              ) : (
+                <I18n en="Show evidence" fr="Voir les preuves" />
+              )}
+            </Link>
+          )}
+        </Stack>
+      )}
+      {f.evidence && (
+        <Collapse in={showEvidence}>
+          <Typography
+            variant="body2"
+            component="blockquote"
+            sx={{
+              m: 0,
+              mt: 0.5,
+              px: 1.5,
+              py: 1,
+              bgcolor: "action.hover",
+              borderRadius: 1,
+              color: "text.secondary",
+              overflowWrap: "anywhere",
+            }}
+          >
+            {f.evidence}
+          </Typography>
+        </Collapse>
       )}
 
       {rejecting ? (
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+        <Box
+          component="form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            reject();
+          }}
+          sx={{ mt: 1.5 }}
+        >
           <TextField
             size="small"
+            fullWidth
+            autoFocus
             label={<I18n en="Note (optional)" fr="Note (facultative)" />}
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && setRejecting(false)}
           />
-          <Button
-            size="small"
-            onClick={() => {
-              onSetStatus({ status: "rejected", note });
-              setRejecting(false);
-            }}
-          >
-            <I18n en="Confirm" fr="Confirmer" />
-          </Button>
-          <Button size="small" onClick={() => setRejecting(false)}>
-            <I18n en="Cancel" fr="Annuler" />
-          </Button>
-        </Stack>
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+            <Button
+              size="small"
+              type="submit"
+              variant="contained"
+              color="error"
+            >
+              <I18n en="Confirm reject" fr="Confirmer le rejet" />
+            </Button>
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => setRejecting(false)}
+            >
+              <I18n en="Cancel" fr="Annuler" />
+            </Button>
+          </Stack>
+        </Box>
       ) : (
         <Stack
           direction="row"
@@ -431,32 +547,42 @@ const FindingCard = ({
           useFlexGap
           sx={{ mt: 1 }}
         >
+          {!decided && f.suggested && (
+            <Button size="small" variant="contained" onClick={onPreview}>
+              <I18n en="Preview fix" fr="Voir la correction" />
+            </Button>
+          )}
           {tab !== "other" && (
-            <Button size="small" onClick={() => onGoToTab?.(tab, fieldKey(f))}>
+            <Button
+              size="small"
+              variant={!decided && f.suggested ? "text" : "outlined"}
+              onClick={() => onGoToTab?.(tab, fieldKey(f))}
+            >
               <I18n en="Go to field" fr="Aller au champ" />
             </Button>
           )}
-          {status || pending ? (
-            !pending && (
-              <Button size="small" onClick={() => onSetStatus(null)}>
-                <I18n en="Restore" fr="Restaurer" />
-              </Button>
-            )
-          ) : (
+          {status && !pending && (
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => onSetStatus(null)}
+            >
+              <I18n en="Restore" fr="Restaurer" />
+            </Button>
+          )}
+          {!decided && (
             <>
-              {f.suggested && (
-                <Button size="small" variant="outlined" onClick={onPreview}>
-                  <I18n en="Preview fix" fr="Voir la correction" />
-                </Button>
-              )}
               <Button
                 size="small"
+                variant="text"
+                color="inherit"
                 onClick={() => onSetStatus({ status: "deferred" })}
               >
                 <I18n en="Ignore" fr="Ignorer" />
               </Button>
               <Button
                 size="small"
+                variant="text"
                 color="error"
                 onClick={() => setRejecting(true)}
               >
@@ -483,7 +609,7 @@ const ReviewFindings = ({
   onOpenChange,
 }) => {
   const { reviewRecord } = useContext(UserContext);
-  const { region, userID, recordID } = useParams();
+  const { region, userID, recordID, language } = useParams();
   const wide = useMediaQuery(useTheme().breakpoints.up("md"));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -494,8 +620,7 @@ const ReviewFindings = ({
   const statuses = qa.statuses || {};
   const summary = qaSummary(qa, record.created);
   const all = Object.values(qa.findings || {}).sort(
-    (a, b) =>
-      (severityOrder[a.severity] ?? 9) - (severityOrder[b.severity] ?? 9),
+    (a, b) => severityRank(a.severity) - severityRank(b.severity),
   );
   const isOpen = (f) => !statuses[f.id]?.status;
   const active = all.filter(isOpen);
@@ -533,6 +658,9 @@ const ReviewFindings = ({
     />
   );
 
+  // The next thing to do gets the filled button: run a first review, otherwise open the
+  // findings while some are open. Re-running is secondary.
+  const hasOpen = summary?.count > 0;
   const runButton = (
     <Tooltip
       title={
@@ -549,10 +677,12 @@ const ReviewFindings = ({
       <span>
         <Button
           size="small"
-          variant="outlined"
+          variant={qa.generated ? "outlined" : "contained"}
           onClick={runReview}
           disabled={unsaved || !recordID || loading}
-          startIcon={loading ? <CircularProgress size={16} /> : null}
+          startIcon={
+            loading ? <CircularProgress size={16} color="inherit" /> : null
+          }
         >
           {loading ? (
             <I18n en="Reviewing…" fr="Révision…" />
@@ -565,10 +695,22 @@ const ReviewFindings = ({
       </span>
     </Tooltip>
   );
+  const reviewedAt = qa.generated && (
+    <Typography variant="caption" color="text.secondary">
+      <I18n en="Reviewed" fr="Révisée le" />{" "}
+      <time dateTime={qa.generated}>{formatWhen(qa.generated, language)}</time>
+    </Typography>
+  );
+  const sectionLabel = {
+    variant: "overline",
+    component: "h3",
+    color: "text.secondary",
+    sx: { display: "block", lineHeight: 2, mt: 2, fontWeight: 600 },
+  };
 
   return (
     <>
-      <Paper variant="outlined" sx={{ px: 2, py: 1 }}>
+      <Paper variant="outlined" sx={{ px: 2, py: 1.25 }}>
         <Stack
           direction="row"
           spacing={1}
@@ -577,7 +719,7 @@ const ReviewFindings = ({
           useFlexGap
         >
           <FactCheck fontSize="small" color="action" />
-          <Typography sx={{ fontWeight: 500 }}>
+          <Typography sx={{ fontWeight: 500, mr: 0.5 }}>
             <I18n en="Automated review" fr="Révision automatisée" />
           </Typography>
           {!summary && (
@@ -589,6 +731,7 @@ const ReviewFindings = ({
             <Chip
               size="small"
               color="success"
+              variant="outlined"
               label={<I18n en="No open issues" fr="Aucun problème ouvert" />}
             />
           )}
@@ -615,16 +758,21 @@ const ReviewFindings = ({
             </Tooltip>
           )}
           <Box sx={{ flexGrow: 1 }} />
-          {qa.generated && (
-            <Typography variant="caption" color="text.secondary">
-              {new Date(qa.generated).toLocaleString()}
-            </Typography>
-          )}
+          {reviewedAt}
           {runButton}
           {qa.generated && (
             <Button
               size="small"
-              endIcon={<ChevronRight />}
+              variant={hasOpen && !open ? "contained" : "text"}
+              endIcon={
+                <ChevronRight
+                  sx={{
+                    transition: "transform 150ms ease-out",
+                    transform: open ? "rotate(180deg)" : "none",
+                  }}
+                />
+              }
+              aria-expanded={open}
               onClick={() => onOpenChange(!open)}
             >
               {open ? (
@@ -636,7 +784,13 @@ const ReviewFindings = ({
           )}
         </Stack>
         {loading && (
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            component="p"
+            role="status"
+            sx={{ mt: 0.5 }}
+          >
             <I18n
               en="This can take a few minutes. You can keep working; results appear when it's done."
               fr="Cela peut prendre quelques minutes. Vous pouvez continuer; les résultats s'afficheront à la fin."
@@ -644,10 +798,24 @@ const ReviewFindings = ({
           </Typography>
         )}
         {error && (
-          <Alert severity="error" sx={{ mt: 1 }}>
+          <Alert
+            severity="error"
+            sx={{ mt: 1 }}
+            action={
+              <Button
+                size="small"
+                variant="text"
+                color="inherit"
+                onClick={runReview}
+                disabled={unsaved}
+              >
+                <I18n en="Try again" fr="Réessayer" />
+              </Button>
+            }
+          >
             <I18n
-              en="The automated review could not be completed. Please try again later."
-              fr="La révision automatisée n'a pas pu être effectuée. Veuillez réessayer plus tard."
+              en="The automated review could not be completed."
+              fr="La révision automatisée n'a pas pu être effectuée."
             />
           </Alert>
         )}
@@ -658,37 +826,88 @@ const ReviewFindings = ({
         variant={wide ? "persistent" : "temporary"}
         open={open}
         onClose={() => onOpenChange(false)}
+        PaperProps={{ "aria-labelledby": "review-drawer-title" }}
         sx={{
           "& .MuiDrawer-paper": { width: { xs: "100%", md: DRAWER_WIDTH } },
         }}
       >
         {wide && <Toolbar /> /* the app bar sits above drawers */}
-        <Stack direction="row" alignItems="center" sx={{ px: 2, pt: 1 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            <I18n en="Automated review" fr="Révision automatisée" />
-          </Typography>
-          <IconButton aria-label="close" onClick={() => onOpenChange(false)}>
-            <Close />
-          </IconButton>
-        </Stack>
+        <Box
+          sx={{
+            px: 2,
+            pt: 1.5,
+            pb: 1.5,
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Stack direction="row" alignItems="center">
+            <Typography
+              id="review-drawer-title"
+              variant="h6"
+              component="h2"
+              sx={{ flexGrow: 1 }}
+            >
+              <I18n en="Automated review" fr="Révision automatisée" />
+            </Typography>
+            <IconButton
+              edge="end"
+              aria-label={language === "fr" ? "Fermer" : "Close"}
+              onClick={() => onOpenChange(false)}
+            >
+              <Close />
+            </IconButton>
+          </Stack>
+          {qa.generated && (
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              flexWrap="wrap"
+              useFlexGap
+            >
+              {summary &&
+                Object.entries(summary.bySeverity).map(([sev, n]) => (
+                  <SeverityChip key={sev} severity={sev} count={n} />
+                ))}
+              {reviewedAt}
+            </Stack>
+          )}
+        </Box>
         {loading && <LinearProgress />}
-        <Box sx={{ px: 2, pb: 2, overflowY: "auto" }}>
+        <Box sx={{ px: 2, pb: 3, overflowY: "auto" }}>
           {summary?.outdated && (
-            <Alert severity="warning" sx={{ mb: 1 }}>
+            <Alert
+              severity="warning"
+              icon={<Update fontSize="inherit" />}
+              sx={{ mt: 2 }}
+            >
               <I18n
-                en="The record changed since this review."
-                fr="La fiche a changé depuis cette révision."
+                en="The record changed since this review. Re-run it to check the latest version."
+                fr="La fiche a changé depuis cette révision. Relancez-la pour vérifier la dernière version."
               />
             </Alert>
           )}
-          {active.length === 0 && (
-            <Alert severity="success">
-              <I18n en="No open issues." fr="Aucun problème ouvert." />
-            </Alert>
+          {!qa.generated ? (
+            <Box sx={{ mt: 2 }}>
+              <Typography color="text.secondary" sx={{ mb: 1.5 }}>
+                <I18n
+                  en="This record hasn't been reviewed yet."
+                  fr="Cette fiche n'a pas encore été révisée."
+                />
+              </Typography>
+              {runButton}
+            </Box>
+          ) : (
+            active.length === 0 && (
+              <Alert severity="success" sx={{ mt: 2 }}>
+                <I18n en="No open issues." fr="Aucun problème ouvert." />
+              </Alert>
+            )
           )}
           {groups.map(([tab, list]) => (
-            <Box key={tab} sx={{ mt: 1 }}>
-              <Typography variant="overline" color="text.secondary">
+            <Box component="section" key={tab}>
+              <Typography {...sectionLabel}>
                 <I18n en={TAB_LABEL[tab].en} fr={TAB_LABEL[tab].fr} /> (
                 {list.length})
               </Typography>
@@ -702,6 +921,17 @@ const ReviewFindings = ({
             <Box sx={{ mt: 2 }}>
               <Button
                 size="small"
+                variant="text"
+                color="inherit"
+                aria-expanded={showResolved}
+                endIcon={
+                  <ExpandMore
+                    sx={{
+                      transition: "transform 150ms ease-out",
+                      transform: showResolved ? "rotate(180deg)" : "none",
+                    }}
+                  />
+                }
                 onClick={() => setShowResolved(!showResolved)}
               >
                 {showResolved ? (
@@ -822,9 +1052,9 @@ export const ReviewRegion = ({ onError }) => {
   const percent = run?.total ? (100 * (run.done || 0)) / run.total : 0;
   const failed = Object.values(last?.failedRecords || {});
   const lastStatus = {
-    done: { en: "finished", fr: "terminée" },
-    cancelled: { en: "stopped", fr: "arrêtée" },
-    error: { en: "failed", fr: "échouée" },
+    done: { en: "finished", fr: "terminée", color: "text.secondary" },
+    cancelled: { en: "stopped", fr: "arrêtée", color: "warning.dark" },
+    error: { en: "failed", fr: "échouée", color: "error.main" },
   }[last?.status];
 
   return (
@@ -845,26 +1075,44 @@ export const ReviewRegion = ({ onError }) => {
           <I18n en="Review all" fr="Tout réviser" />
         </Button>
         {run && (
-          <>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
+            role="status"
+            sx={{ minWidth: 0, flex: 1 }}
+          >
             <LinearProgress
               variant={run.total ? "determinate" : "indeterminate"}
               value={percent}
-              sx={{ width: 200 }}
+              aria-label={language === "fr" ? "Progression" : "Progress"}
+              sx={{ width: 200, maxWidth: "100%", height: 6, borderRadius: 3 }}
             />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ fontVariantNumeric: "tabular-nums" }}
+            >
               {run.done || 0} / {run.total ?? "…"}
-              {run.current && (
-                <>
-                  {" · "}
-                  <I18n en="reviewing" fr="révision de" /> «{" "}
-                  {localTitle(run.current.title, language)} »
-                </>
-              )}
             </Typography>
+            {run.current && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                noWrap
+                sx={{ minWidth: 0, maxWidth: 360, whiteSpace: "nowrap" }}
+                title={localTitle(run.current.title, language)}
+              >
+                <I18n en="Reviewing" fr="Révision de" /> «{" "}
+                {localTitle(run.current.title, language)} »
+              </Typography>
+            )}
             {run.failed > 0 && (
               <Chip
                 size="small"
                 color="error"
+                variant="outlined"
                 label={
                   <>
                     {run.failed} <I18n en="failed" fr="échouées" />
@@ -875,6 +1123,7 @@ export const ReviewRegion = ({ onError }) => {
             {runId && (
               <Button
                 size="small"
+                variant="text"
                 color="error"
                 onClick={stop}
                 disabled={Boolean(run.cancel)}
@@ -886,68 +1135,94 @@ export const ReviewRegion = ({ onError }) => {
                 )}
               </Button>
             )}
-          </>
+          </Stack>
         )}
       </Stack>
 
       {!run && last?.started && (
-        <Typography variant="body2" color="text.secondary" component="div">
-          <I18n en="Last run" fr="Dernière révision" />{" "}
-          {new Date(last.started).toLocaleString()}
-          {last.startedBy && ` · ${last.startedBy}`}
-          {lastStatus && (
-            <>
-              {" · "}
-              <I18n en={lastStatus.en} fr={lastStatus.fr} />
-            </>
-          )}
-          {" · "}
-          {last.reviewed ?? last.done ?? 0} <I18n en="reviewed" fr="révisées" />
-          {last.skipped > 0 && (
-            <>
-              , {last.skipped} <I18n en="unchanged" fr="inchangées" />
-            </>
-          )}
-          {failed.length > 0 && (
-            <>
-              ,{" "}
-              <Link
-                component="button"
-                variant="body2"
-                color="error"
-                onClick={() => setShowFailed(!showFailed)}
-              >
-                {failed.length} <I18n en="failed" fr="échouées" />
-              </Link>
-            </>
-          )}
+        <Box>
+          <Typography variant="body2" color="text.secondary">
+            <I18n en="Last run" fr="Dernière révision" />{" "}
+            <time dateTime={last.started}>
+              {formatWhen(last.started, language)}
+            </time>
+            {last.startedBy && ` · ${last.startedBy}`}
+            {lastStatus && (
+              <>
+                {" · "}
+                <Box component="span" sx={{ color: lastStatus.color }}>
+                  <I18n en={lastStatus.en} fr={lastStatus.fr} />
+                </Box>
+              </>
+            )}
+            {" · "}
+            {last.reviewed ?? last.done ?? 0}{" "}
+            <I18n en="reviewed" fr="révisées" />
+            {last.skipped > 0 && (
+              <>
+                , {last.skipped} <I18n en="unchanged" fr="inchangées" />
+              </>
+            )}
+            {failed.length > 0 && (
+              <>
+                ,{" "}
+                <Link
+                  component="button"
+                  variant="body2"
+                  color="error"
+                  aria-expanded={showFailed}
+                  onClick={() => setShowFailed(!showFailed)}
+                  sx={{ verticalAlign: "baseline" }}
+                >
+                  {failed.length} <I18n en="failed" fr="échouées" />
+                </Link>
+              </>
+            )}
+          </Typography>
           <Collapse in={showFailed}>
-            <Box component="ul" sx={{ my: 0.5 }}>
+            <Box component="ul" sx={{ my: 0.5, pl: 3 }}>
               {failed.map((r) => (
-                <li key={`${r.uid}_${r.rid}`}>
+                <Typography
+                  component="li"
+                  variant="body2"
+                  key={`${r.uid}_${r.rid}`}
+                  sx={{ py: 0.25 }}
+                >
                   <Link
                     component={RouterLink}
                     to={`/${language}/${region}/${r.uid}/${r.rid}`}
                   >
                     {localTitle(r.title, language)}
-                  </Link>{" "}
-                  <Typography component="span" variant="caption">
-                    {r.error}
-                  </Typography>
-                </li>
+                  </Link>
+                  {r.error && (
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {" — "}
+                      {r.error}
+                    </Typography>
+                  )}
+                </Typography>
               ))}
             </Box>
           </Collapse>
-        </Typography>
+        </Box>
       )}
 
-      <Dialog open={Boolean(confirm)} onClose={() => setConfirm(null)}>
+      <Dialog
+        open={Boolean(confirm)}
+        onClose={() => setConfirm(null)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>
           <I18n en="Review all records" fr="Réviser toutes les fiches" />
         </DialogTitle>
         <DialogContent>
           {confirm && (
-            <Typography>
+            <Typography aria-live="polite">
               {confirm.toReview > 0 ? (
                 <I18n
                   en={`${confirm.toReview} of ${confirm.total} submitted and published records will be reviewed (the rest haven't changed since their last review). This can take a while; you can leave this page and come back.`}
@@ -963,9 +1238,11 @@ export const ReviewRegion = ({ onError }) => {
           )}
           {isAdmin && (
             <FormControlLabel
+              sx={{ mt: 1 }}
               control={
                 <Checkbox
                   checked={force}
+                  disabled={counting}
                   onChange={(e) => {
                     setForce(e.target.checked);
                     askToStart(e.target.checked); // recount
@@ -982,13 +1259,17 @@ export const ReviewRegion = ({ onError }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirm(null)}>
+          <Button variant="text" onClick={() => setConfirm(null)}>
             <I18n en="Cancel" fr="Annuler" />
           </Button>
           <Button
             variant="contained"
             onClick={start}
-            disabled={!confirm?.toReview}
+            // a recount after toggling "re-review everything" makes the shown count stale
+            disabled={counting || !confirm?.toReview}
+            startIcon={
+              counting ? <CircularProgress size={16} color="inherit" /> : null
+            }
           >
             <I18n en="Start" fr="Lancer" />
           </Button>

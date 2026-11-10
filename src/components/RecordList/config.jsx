@@ -36,13 +36,13 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
-const QA_SEVERITY_COLOR = {
+export const QA_SEVERITY_COLOR = {
   critical: "error",
   high: "error",
   medium: "warning",
   low: "info",
 };
-const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
+export const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
 // A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
 // (worst first), outdated, generated}; null if never reviewed. `lastSaved` is record.created,

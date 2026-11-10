@@ -137,6 +137,12 @@ describe("<ReviewFindings /> drawer", () => {
     expect(screen.queryByText("Rejected earlier.")).toBeNull(); // under "Show resolved"
   });
 
+  it("offers a first run instead of claiming no issues when never reviewed", () => {
+    renderWith({ record: { created: record.created } });
+    expect(screen.queryByText("No open issues.")).toBeNull();
+    expect(screen.getByText(/hasn't been reviewed yet/)).toBeTruthy();
+  });
+
   it("goes to the field's tab", () => {
     const onGoToTab = vi.fn();
     renderWith({ onGoToTab });
