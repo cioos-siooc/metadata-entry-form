@@ -81,7 +81,10 @@ export const topicCategories = {
     prominent: false,
   },
   geoscientificInformation: {
-    title: { en: "Geoscientific Information", fr: "Information géoscientifique" },
+    title: {
+      en: "Geoscientific Information",
+      fr: "Information géoscientifique",
+    },
     definition: {
       en: "Information pertaining to earth sciences. Examples: geophysical features and processes, geology, minerals, sciences dealing with the composition, structure and origin of the earth's rocks, risks of earthquakes, volcanic activity, landslides, gravity information, soils, permafrost, hydrogeology, erosion.",
       fr: "Information relative aux sciences de la Terre. Exemples : caractéristiques et processus géophysiques, géologie, minéraux, sciences traitant de la composition, structure et origine des roches, risques de tremblements de terre, activité volcanique, glissements de terrain, information gravitationnelle, sols, pergélisol, hydrogéologie, érosion.",
@@ -97,7 +100,10 @@ export const topicCategories = {
     prominent: false,
   },
   imageryBaseMapsEarthCover: {
-    title: { en: "Imagery / Base Maps / Earth Cover", fr: "Imagerie / Cartes de base / Couverture terrestre" },
+    title: {
+      en: "Imagery / Base Maps / Earth Cover",
+      fr: "Imagerie / Cartes de base / Couverture terrestre",
+    },
     definition: {
       en: "Base maps. Examples: land cover, topographic maps, imagery, unclassified images, annotations.",
       fr: "Cartes de base. Exemples : couverture du sol, cartes topographiques, imagerie, images non classifiées, annotations.",
@@ -153,7 +159,10 @@ export const topicCategories = {
     prominent: false,
   },
   utilitiesCommunication: {
-    title: { en: "Utilities / Communication", fr: "Services publics / Communication" },
+    title: {
+      en: "Utilities / Communication",
+      fr: "Services publics / Communication",
+    },
     definition: {
       en: "Energy, water and waste systems and communications infrastructure and services. Examples: hydroelectricity, geothermal, solar and nuclear sources of energy, water purification and distribution, sewage collection and disposal, electricity and gas distribution, data communication, telecommunication, radio, communication networks.",
       fr: "Systèmes d'énergie, d'eau et de déchets et infrastructure et services de communication. Exemples : hydroélectricité, sources d'énergie géothermique, solaire et nucléaire, purification et distribution de l'eau, collecte et élimination des eaux usées, distribution d'électricité et de gaz, communication de données, télécommunication, radio, réseaux de communication.",

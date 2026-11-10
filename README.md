@@ -127,6 +127,29 @@ npm install
 npm start
 ```
 
+## Linting & Pre-commit Hooks
+
+The repo is linted with **ruff** (Python), **eslint** + **prettier** (JavaScript/JSX),
+and **prettier** for Markdown/JSON/CSS/YAML. These run automatically before each
+commit via [pre-commit](https://pre-commit.com/), and again on every pull request
+through [super-linter](https://github.com/super-linter/super-linter).
+
+Set up the local hooks once after cloning:
+
+```shell
+pip install pre-commit   # or: uv tool install pre-commit / brew install pre-commit
+pre-commit install
+```
+
+Useful commands:
+
+```shell
+pre-commit run --all-files   # lint/format the whole repo
+npm run lint                 # eslint check (JS/JSX)
+npm run format               # prettier write (JS/JSON/CSS/MD/YAML/HTML)
+ruff check . && ruff format  # run inside a Python package directory
+```
+
 ## Monitoring
 
 Monitoring of production site availability is done via the [cioos-upptime](https://github.com/cioos-siooc/cwatch-upptime) and notices are posted to the CIOOS cwatch-upptime slack channel. Error collection is performed by sentry and reported in the [cioos-metadata-entry-form](https://cioos.sentry.io/projects/cioos-metadata-entry-form/) project.
@@ -258,44 +281,26 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 - **Edit Rules**: Modify the Realtime Database security rules directly in the `database.rules.json` file.
 - **Version Control**: Ensure the rules file is tracked in git to maintain a history of changes.
 
-### Define targets
-
-This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev).
-Use Firebase CLI targets to manage rules deployment:
-
-```bash
-firebase target:apply database prod cioos-metadata-form-8d942
-firebase target:apply database dev cioos-metadata-form-dev-258dc
-```
-
-### Configure firebase.json
-
-Update your `firebase.json` to map `.rules` files to your targets.
-
-```json
-{
-  "database": [
-    {
-      "target": "prod",
-      "rules": "database.rules.json"
-    },
-    {
-      "target": "dev",
-      "rules": "database.rules.json"
-    }
-  ]
-}
-```
-
 ### Deployment
 
-Deploy your database rules using the Firebase CLI:
+`firebase-functions/firebase.json` maps `database.rules.json` to the default Realtime Database instance of the selected project (`cioos-metadata-form-8d942-default-rtdb` in production, `cioos-metadata-form-dev-258dc-default-rtdb` in dev).
+
+The `Deploy firebase functions` GitHub workflow deploys the rules together with the functions:
+
+- **Pushes to `development`:** always deployed to dev.
+- **Version tags and manual production deploys:** always deployed to production.
+- **Pull requests touching `firebase-functions/`:** draft PRs don't deploy anything. Ready PRs deploy their functions to dev, but their rules only when the PR has the `deploy-db-rules` label. Adding the label triggers the deploy.
+
+PRs that change `database.rules.json` are labelled `database-rules` automatically, so rule changes stand out in review.
+
+To deploy the rules by hand from `firebase-functions/`:
 
 ```bash
-# Deploy to a specific environment
-firebase deploy --only database:dev  # For development
-firebase deploy --only database:prod # For production
+firebase deploy --only database --project dev      # For development
+firebase deploy --only database --project default  # For production
 ```
+
+A region with no `permissions/admins` list can't be configured from the app: add its first admin in the Firebase console.
 
 #### Important Considerations
 

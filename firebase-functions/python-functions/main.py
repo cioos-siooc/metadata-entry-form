@@ -2,17 +2,11 @@
 Python Firebase Functions for CIOOS Metadata Entry Form
 """
 
-import os
-import re
 import json
 import logging
+import re
 
 import requests
-from firebase_functions import https_fn, options
-from firebase_functions.params import BoolParam
-from firebase_admin import initialize_app
-
-from cioos_metadata_conversion.record import Record
 from cioos_metadata_conversion.load_from.datacite import (
     DOIRetrievalError,
     retrieve_doi_as_firebase_record,
@@ -22,6 +16,10 @@ from cioos_metadata_conversion.load_from.pdc import (
     PDCRetrievalError,
     retrieve_pdc_as_firebase_record,
 )
+from cioos_metadata_conversion.record import Record
+from firebase_admin import initialize_app
+from firebase_functions import https_fn, options
+from firebase_functions.params import BoolParam
 
 # Determine if this is the dev project
 is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
@@ -248,7 +246,13 @@ def create_record_from_source(req: https_fn.Request):  # type: ignore
     except NOT_FOUND_ERRORS as e:
         logging.warning("No %s record for '%s': %s", source_type, identifier, e)
         return https_fn.Response(
-            json.dumps({"error": f"Could not retrieve {source_type} record '{identifier}': {e}"}),
+            json.dumps(
+                {
+                    "error": (
+                        f"Could not retrieve {source_type} record '{identifier}': {e}"
+                    )
+                }
+            ),
             status=404,
             headers=headers,
             content_type="application/json",

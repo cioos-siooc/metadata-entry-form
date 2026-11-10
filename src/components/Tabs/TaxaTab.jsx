@@ -136,7 +136,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
         requestInProgress.current = false;
       })
       .catch((error) => {
-         
         console.error(error);
         requestInProgress.current = false;
       });
@@ -158,7 +157,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
 
   return (
     <Grid>
-      <Paper style={paperClass}>
+      <Paper id="field-taxa" style={paperClass}>
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>
@@ -231,7 +230,6 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               fullWidth
               renderInput={(params) => (
                 <TextField
-                   
                   {...params}
                   label={
                     <I18n>

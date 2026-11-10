@@ -20,6 +20,13 @@ dev-dependencies = [
     "ruff>=0.8.2",
 ]
 
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
 [tool.uv.sources]
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 

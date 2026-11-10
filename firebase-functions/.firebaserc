@@ -3,27 +3,6 @@
     "default": "cioos-metadata-form-8d942",
     "dev": "cioos-metadata-form-dev-258dc"
   },
-  "targets": {
-    "cioos-metadata-form-8d942": {
-      "database": {
-        "prod": [
-          "cioos-metadata-form-8d942"
-        ],
-        "dev": [
-          "cioos-metadata-form-dev-258dc"
-        ]
-      }
-    },
-    "cioos-metadata-form-dev-258dc": {
-      "database": {
-        "prod": [
-          "cioos-metadata-form-258dc"
-        ],
-        "dev": [
-          "cioos-metadata-form-dev-258dc"
-        ]
-      }
-    }
-  },
+  "targets": {},
   "etags": {}
 }

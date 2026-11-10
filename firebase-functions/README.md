@@ -29,32 +29,37 @@ The project is configured with multiple codebases in `firebase.json`:
 ## Available Python Functions
 
 ### 1. `hello_python` (HTTP Function)
+
 - **URL**: `https://your-project.cloudfunctions.net/hello_python`
 - **Method**: GET/POST
 - **Description**: Example function to test Python deployment
 - **Response**: JSON with greeting message and metadata
 
 ### 2. `convert_metadata` (HTTP Function)
+
 - **URL**: `https://your-project.cloudfunctions.net/convert_metadata`
 - **Method**: POST
 - **Description**: Converts Firebase records to different metadata formats using cioos-metadata-conversion API
 - **Payload**:
   ```json
   {
-    "record_data": { /* Firebase record data */ },
+    "record_data": {
+      /* Firebase record data */
+    },
     "output_format": "iso19115-3",
     "api_url": "http://localhost:8000"
   }
   ```
 
 ### 3. `get_conversion_formats` (Callable Function)
+
 - **Type**: Firebase Callable Function
 - **Description**: Retrieves available conversion formats from the API
 - **Usage**:
   ```javascript
   const functions = getFunctions();
-  const getFormats = httpsCallable(functions, 'get_conversion_formats');
-  const result = await getFormats({ api_url: 'http://localhost:8000' });
+  const getFormats = httpsCallable(functions, "get_conversion_formats");
+  const result = await getFormats({ api_url: "http://localhost:8000" });
   ```
 
 ## Development
@@ -68,6 +73,7 @@ The project is configured with multiple codebases in `firebase.json`:
 ### Setup
 
 1. **Install JavaScript dependencies**:
+
    ```bash
    cd functions
    npm install
@@ -82,18 +88,21 @@ The project is configured with multiple codebases in `firebase.json`:
 ### Local Development
 
 **Start Emulators** (both JS and Python):
+
 ```bash
 ./emulate-functions.sh
 # Or: firebase emulators:start
 ```
 
 **Access Points**:
+
 - Functions Emulator: http://localhost:5002
 - Firebase UI: http://localhost:4000
 
 ### Testing Python Functions
 
 1. **Test hello_python**:
+
    ```bash
    curl http://localhost:5002/your-project/us-central1/hello_python
    ```
@@ -112,20 +121,23 @@ The project is configured with multiple codebases in `firebase.json`:
 ## Deployment
 
 ### Deploy All Functions
+
 ```bash
 ./deploy-functions.sh
 ```
 
 ### Deploy Specific Codebase
+
 ```bash
 # Deploy only JavaScript functions
 firebase deploy --only functions:js-functions
 
-# Deploy only Python functions  
+# Deploy only Python functions
 firebase deploy --only functions:py-functions
 ```
 
 ### Deploy Individual Functions
+
 ```bash
 # Deploy specific Python function
 firebase deploy --only functions:py-functions:hello_python
@@ -137,12 +149,15 @@ firebase deploy --only functions:js-functions:translate
 ## Adding New Functions
 
 ### JavaScript Functions
+
 Add new functions to `/functions/` directory and export them in `index.js`:
+
 ```javascript
 exports.myNewFunction = myNewFunction;
 ```
 
 ### Python Functions
+
 Add new functions to `/python-functions/main.py`:
 
 ```python
@@ -197,11 +212,12 @@ firebase functions:config:set api.conversion_url="https://api.example.com"
 ### Logs
 
 View logs for specific codebases:
+
 ```bash
 # JavaScript function logs
 firebase functions:log --only functions:js-functions
 
-# Python function logs  
+# Python function logs
 firebase functions:log --only functions:py-functions
 ```
 

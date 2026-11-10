@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  Grid, Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Grid, Paper, TextField, Typography } from "@mui/material";
 import { getBlankInstrument } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";
@@ -13,14 +9,12 @@ import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
 
-
 const InstrumentEditor = ({
   value,
   disabled,
   paperClass,
   updateInstrumentEvent,
 }) => {
-
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
   const versionLabel = <I18n en="Version" fr="Version" />;
   const typeLabel = <I18n en="Type" fr="Type" />;
@@ -30,12 +24,12 @@ const InstrumentEditor = ({
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid >
+      <Grid>
         <Grid container direction="column">
           {instrument && (
             <Paper style={paperClass}>
               <Grid container direction="column" spacing={2}>
-                <Grid >
+                <Grid>
                   <I18n>
                     <En>Instrument ID</En>
                     <Fr>L'ID de l'instrument</Fr>
@@ -49,7 +43,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <TextField
                     label={manufacturerLabel}
                     name="manufacturer"
@@ -59,7 +53,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />{" "}
                 </Grid>
-                <Grid >
+                <Grid>
                   <TextField
                     label={versionLabel}
                     value={instrument.version}
@@ -68,7 +62,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>
-                <Grid >
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>Instrument Type</En>
@@ -82,7 +76,7 @@ const InstrumentEditor = ({
                     disabled={disabled}
                   />
                 </Grid>{" "}
-                <Grid >
+                <Grid>
                   <Typography>Description</Typography>
                   <BilingualTextInput
                     label={descriptionLabel}

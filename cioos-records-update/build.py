@@ -1,9 +1,9 @@
-from firebase_to_xml.dump_all import main as retrieve_records
-import click
-
-from loguru import logger
-import shutil
 import os
+import shutil
+
+import click
+from firebase_to_xml.dump_all import main as retrieve_records
+from loguru import logger
 
 FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv("FIREBASE_KEY_PATH") or os.getenv(
     "FIREBASE_SERVICE_ACCOUNT_KEY"

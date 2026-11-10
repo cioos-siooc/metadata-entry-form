@@ -3,12 +3,17 @@ import firebase from "../firebase";
 import { getRecordFilename } from "./misc";
 
 const getConvertMetadataUrl = () => {
-  const { options: { projectId } } = firebase;
+  const {
+    options: { projectId },
+  } = firebase;
   const functionRegion = import.meta.env.VITE_FUNCTION_REGION || "us-central1";
 
   // Check if we should use the emulator
-  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const useLocalFunctions = import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
+  const isLocal =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+  const useLocalFunctions =
+    import.meta.env.VITE_FIREBASE_LOCAL_FUNCTIONS === "true";
 
   if (isLocal && useLocalFunctions) {
     // Port 5001 is standard for Firebase functions and matches root firebase.json
@@ -44,7 +49,13 @@ export const convertRecord = async (record, format) => {
 /**
  * Prepares the payload for GitHub publishing by converting the record and generating paths.
  */
-export const preparePublishPayload = async (record, environments, commitMessage, config, region) => {
+export const preparePublishPayload = async (
+  record,
+  environments,
+  commitMessage,
+  config,
+  region,
+) => {
   const { fileTemplate } = config;
 
   // Logic to generate filename matches the backend helper
@@ -56,7 +67,9 @@ export const preparePublishPayload = async (record, environments, commitMessage,
   const { id, identifier, title: recordTitle } = record;
   const uuid = id || identifier;
   filenameBase = filenameBase.replace("{uuid}", uuid);
-  const title = recordTitle ? (recordTitle.en || recordTitle.fr || "untitled") : "untitled";
+  const title = recordTitle
+    ? recordTitle.en || recordTitle.fr || "untitled"
+    : "untitled";
   const sanitizedTitle = title.replace(/[^a-zA-Z0-9-_]/g, "-");
   filenameBase = filenameBase.replace("{title}", sanitizedTitle);
 

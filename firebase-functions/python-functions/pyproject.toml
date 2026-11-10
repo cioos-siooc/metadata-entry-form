@@ -10,6 +10,18 @@ dependencies = [
     "setuptools<81",
 ]
 
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.8.2",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
 [tool.uv.sources]
 # TODO: re-pin to main once feat/load-from-obis is merged. That branch carries the
 # load_from/ loaders (datacite, obis, pdc) used by create_record_from_source.

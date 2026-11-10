@@ -18,7 +18,11 @@ export const DOI_STATE_LABELS = {
 };
 
 export function DoiStateChip({ state }) {
-  const colorMap = { draft: "default", registered: "warning", findable: "success" };
+  const colorMap = {
+    draft: "default",
+    registered: "warning",
+    findable: "success",
+  };
   const label = DOI_STATE_LABELS[state];
   if (!label) return null;
   return (
@@ -53,7 +57,13 @@ export default function DataciteStatusDialog({
   const isPublish = mode === "publish";
 
   return (
-    <Dialog open={open} onClose={loading ? undefined : onClose} aria-labelledby="datacite-status-title" fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={loading ? undefined : onClose}
+      aria-labelledby="datacite-status-title"
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle id="datacite-status-title">
         <I18n>
           <En>Set DOI Status</En>
@@ -63,9 +73,20 @@ export default function DataciteStatusDialog({
 
       <DialogContent>
         {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 20 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: 20,
+            }}
+          >
             <CircularProgress />
-            <Typography variant="body2" color="textSecondary" style={{ marginTop: 12 }}>
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              style={{ marginTop: 12 }}
+            >
               <I18n>
                 <En>Updating DOI status in DataCite…</En>
                 <Fr>Mise à jour du statut du DOI dans DataCite…</Fr>
@@ -85,11 +106,10 @@ export default function DataciteStatusDialog({
             {isPublish ? (
               <Typography variant="body1" style={{ marginTop: 8 }}>
                 <I18n>
-                  <En>
-                    Would you like to update the DOI status in DataCite?
-                  </En>
+                  <En>Would you like to update the DOI status in DataCite?</En>
                   <Fr>
-                    Souhaitez-vous mettre à jour le statut du DOI dans DataCite ?
+                    Souhaitez-vous mettre à jour le statut du DOI dans DataCite
+                    ?
                   </Fr>
                 </I18n>
               </Typography>
@@ -97,10 +117,15 @@ export default function DataciteStatusDialog({
               <Typography variant="body1" style={{ marginTop: 8 }}>
                 <I18n>
                   <En>
-                    This DOI is currently <strong>findable</strong> (publicly discoverable). Would you like to demote it to <strong>registered</strong> (hidden from public discovery)?
+                    This DOI is currently <strong>findable</strong> (publicly
+                    discoverable). Would you like to demote it to{" "}
+                    <strong>registered</strong> (hidden from public discovery)?
                   </En>
                   <Fr>
-                    Ce DOI est actuellement <strong>trouvable</strong> (accessible publiquement). Souhaitez-vous le rétrograder à <strong>enregistré</strong> (masqué de la découverte publique) ?
+                    Ce DOI est actuellement <strong>trouvable</strong>{" "}
+                    (accessible publiquement). Souhaitez-vous le rétrograder à{" "}
+                    <strong>enregistré</strong> (masqué de la découverte
+                    publique) ?
                   </Fr>
                 </I18n>
               </Typography>

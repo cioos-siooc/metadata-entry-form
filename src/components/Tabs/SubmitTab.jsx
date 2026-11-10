@@ -56,7 +56,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
       const fields = Object.keys(warnings);
 
       const validationPromises = fields.map((field) =>
-        validateFieldWarning(recordObj, field)
+        validateFieldWarning(recordObj, field),
       );
 
       const validationResults = await Promise.all(validationPromises);
@@ -80,7 +80,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           acc[tab].push(error);
           return acc;
         },
-        {}
+        {},
       );
       if (mounted.current) setValidationWarnings(fieldWarningInfoReduced);
     };
@@ -95,7 +95,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
   return (
     <Paper style={paperClass}>
       <Grid container direction="column" spacing={3}>
-        <Grid >
+        <Grid>
           <Typography>
             <I18n>
               <En>
@@ -125,7 +125,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           </Typography>
         </Grid>
         {submitted ? (
-          <Grid >
+          <Grid>
             <Typography>
               <I18n>
                 <En>
@@ -175,7 +175,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           <>
             {recordIsValid(record) ? (
               <>
-                <Grid >
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>
@@ -189,7 +189,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                     </I18n>
                   </Typography>
                 </Grid>
-                <Grid >
+                <Grid>
                   {isSubmitting && <CircularProgress />}
                   {!isSubmitting && showSubmitButton && (
                     <Button
@@ -218,7 +218,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
             ) : (
               <>
                 {/* Errors Section */}
-                <Grid >
+                <Grid>
                   <Typography variant="h5">
                     <I18n>
                       <En>Errors</En>
@@ -227,7 +227,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid >
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>
@@ -243,7 +243,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid >
+                <Grid>
                   {Object.keys(validationErrors).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
@@ -255,7 +255,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                             <ListItem key={i}>
                               <ListItemText primary={error} />
                             </ListItem>
-                          )
+                          ),
                         )}
                       </List>
                     </div>
@@ -268,7 +268,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
             Object.keys(validationWarnings).length > 0 ? (
               <>
                 {/* Warnings Section Heading */}
-                <Grid >
+                <Grid>
                   <Typography variant="h5">
                     <I18n>
                       <En>Warnings</En>
@@ -277,7 +277,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid >
+                <Grid>
                   <Typography>
                     <I18n>
                       <En>
@@ -295,7 +295,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                   </Typography>
                 </Grid>
 
-                <Grid >
+                <Grid>
                   {Object.keys(validationWarnings).map((tab) => (
                     <div key={tab}>
                       <Typography variant="h6">
@@ -307,7 +307,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
                             <ListItem key={i}>
                               <ListItemText primary={error} />
                             </ListItem>
-                          )
+                          ),
                         )}
                       </List>
                     </div>
@@ -350,10 +350,7 @@ const SubmitTab = ({ record, submitRecord, userID, doiUpdated, doiError }) => {
           <Button onClick={() => setSuccessDialogOpen(false)}>OK</Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={errorDialogOpen}
-        onClose={() => setErrorDialogOpen(false)}
-      >
+      <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
         <DialogTitle>
           <I18n>
             <En>Submission failed</En>

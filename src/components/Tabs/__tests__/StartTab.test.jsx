@@ -14,8 +14,8 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-// SharedUsersList fetches region users from Firebase, which is unavailable in
-// jsdom. Stub it out so the test focuses on the resource-scope defaulting logic.
+// SharedUsersList needs the sharing cloud functions from UserContext. Stub it
+// out so the test focuses on the resource-scope defaulting logic.
 vi.mock("../../FormComponents/SharedUsersList", () => ({
   default: () => null,
 }));
@@ -35,7 +35,7 @@ const renderStartTab = (record) => {
           userID="user1"
         />
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
   return handleUpdateRecord;
 };
@@ -52,7 +52,7 @@ describe("<StartTab /> metadata scope defaults", () => {
 
     expect(valuesFor(handleUpdateRecord, "metadataScope")).toContain("Dataset");
     expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain(
-      "dataset"
+      "dataset",
     );
   });
 
@@ -63,7 +63,9 @@ describe("<StartTab /> metadata scope defaults", () => {
       map: {},
     });
 
-    expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain("model");
+    expect(valuesFor(handleUpdateRecord, "metadataScopeIso")).toContain(
+      "model",
+    );
   });
 
   it("does not overwrite an existing metadataScopeIso", () => {

@@ -32,7 +32,7 @@ const LastEdited = ({ dateStr }) => {
     const options = { year: "numeric", month: "short", day: "2-digit" };
     displayStr = dateObj.toLocaleDateString(
       language === "fr" ? "fr-CA" : "en-CA",
-      options
+      options,
     );
   } else {
     displayStr = timeAgo.format(dateObj);

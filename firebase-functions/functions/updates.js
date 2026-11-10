@@ -3,12 +3,12 @@ const functions = require("firebase-functions");
 const https = require("https");
 const axios = require("axios");
 
-const urlBaseDefault = "https://api.forms.cioos.ca/"
+const urlBaseDefault = "https://api.forms.cioos.ca/";
 
 function getRecordFilename(record) {
   return `${record.title[record.language].slice(
     0,
-    30
+    30,
   )}_${record.identifier.slice(0, 5)}`
     .trim()
     .toLowerCase()
@@ -18,22 +18,24 @@ function getRecordFilename(record) {
 exports.getRecordFilename = getRecordFilename;
 
 // creates xml for a completed record. returns a URL to the generated XML
-exports.downloadRecord = functions.https.onCall(async (data, context) => {
+exports.downloadRecord = functions.https.onCall(async (data, _context) => {
   const { record, fileType, region } = data || {};
 
   let urlBase = urlBaseDefault;
   try {
     urlBase =
-      (await admin
-        .database()
-        .ref("admin")
-        .child(region)
-        .child("recordGeneratorURL")
-        .once("value"))?.val() ?? urlBaseDefault;
+      (
+        await admin
+          .database()
+          .ref("admin")
+          .child(region)
+          .child("recordGeneratorURL")
+          .once("value")
+      )?.val() ?? urlBaseDefault;
   } catch (error) {
     console.error(
       `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
-      error
+      error,
     );
   }
 
@@ -43,12 +45,22 @@ exports.downloadRecord = functions.https.onCall(async (data, context) => {
 });
 
 async function updateXML(path, region, status = "", filename = "") {
-
   let urlBase = urlBaseDefault;
   try {
-    urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
+    urlBase =
+      (
+        await admin
+          .database()
+          .ref("admin")
+          .child(region)
+          .child("recordGeneratorURL")
+          .once("value")
+      ).val() ?? urlBaseDefault;
   } catch (error) {
-    console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
+    console.error(
+      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
+      error,
+    );
   }
 
   const url = `${urlBase}record`;
@@ -72,7 +84,7 @@ exports.regenerateXMLforRecord = functions.https.onCall(
     if (["submitted", "published"].includes(status)) updateXML(path, region);
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
-  }
+  },
 );
 
 // if a record with status=submitted/published is created
@@ -111,7 +123,7 @@ exports.updatesRecordUpdate = functions.database
     if (
       // if this record was or is published or submitted
       [afterStatus, beforeStatus].some(
-        (status) => status === "published" || status === "submitted"
+        (status) => status === "published" || status === "submitted",
       )
     ) {
       return updateXML(path, region, afterStatus);
@@ -120,13 +132,23 @@ exports.updatesRecordUpdate = functions.database
     return null;
   });
 
-
 async function deleteXML(filename, region) {
   let urlBase = urlBaseDefault;
   try {
-    urlBase = (await admin.database().ref('admin').child(region).child("recordGeneratorURL").once("value")).val() ?? urlBaseDefault;
+    urlBase =
+      (
+        await admin
+          .database()
+          .ref("admin")
+          .child(region)
+          .child("recordGeneratorURL")
+          .once("value")
+      ).val() ?? urlBaseDefault;
   } catch (error) {
-    console.error(`Error fetching recordGeneratorURL for region ${region}, using the default value:`, error);
+    console.error(
+      `Error fetching recordGeneratorURL for region ${region}, using the default value:`,
+      error,
+    );
   }
 
   const url = `${urlBase}recordDelete`;
@@ -145,6 +167,6 @@ exports.updatesRecordDelete = functions.database
     const record = snpashot.val();
     const filename = getRecordFilename(record);
     const { region } = context.params;
-    
+
     return deleteXML(filename, region);
   });

@@ -13,11 +13,14 @@ const PROMPT_PATH = path.join(FUNCTIONS_DIR, "translation-prompt-template.txt");
  */
 function tryRunScript(args = "") {
   try {
-    const output = execSync(`node generate-translation-config.js ${args}`.trim(), {
-      cwd: FUNCTIONS_DIR,
-      encoding: "utf8",
-      timeout: 30000,
-    });
+    const output = execSync(
+      `node generate-translation-config.js ${args}`.trim(),
+      {
+        cwd: FUNCTIONS_DIR,
+        encoding: "utf8",
+        timeout: 30000,
+      },
+    );
     return { output, success: true };
   } catch (err) {
     return { output: err.stderr || err.message, success: false };

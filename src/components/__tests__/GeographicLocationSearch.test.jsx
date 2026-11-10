@@ -37,7 +37,7 @@ describe("<GeographicLocationSearch />", () => {
         updateMap={updateMap}
         mapData={mapData}
         disabled={false}
-      />
+      />,
     );
     const input = screen.getByRole("combobox");
     await userEvent.type(input, "British Colum");
@@ -69,7 +69,9 @@ describe("<GeographicLocationSearch />", () => {
     });
 
     const newMapData = updateMap.mock.calls.at(-1)[0];
-    expect(newMapData.description.en).toBe("Coastal waters off Vancouver Island");
+    expect(newMapData.description.en).toBe(
+      "Coastal waters off Vancouver Island",
+    );
   });
 
   it("replaces a description left over from a previous selection", async () => {
@@ -93,12 +95,12 @@ describe("<GeographicLocationSearch />", () => {
         updateMap={updateMap}
         mapData={{ selectedLocation: britishColumbia }}
         disabled={false}
-      />
+      />,
     );
 
     expect(screen.getByRole("combobox")).toHaveValue("British Columbia");
     expect(
-      screen.getByRole("button", { name: "Provinces and Territories" })
+      screen.getByRole("button", { name: "Provinces and Territories" }),
     ).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -108,7 +110,7 @@ describe("<GeographicLocationSearch />", () => {
         updateMap={updateMap}
         mapData={{ selectedLocation: britishColumbia, north: 60, south: 48 }}
         disabled={false}
-      />
+      />,
     );
 
     await userEvent.click(screen.getByTitle("Clear"));
