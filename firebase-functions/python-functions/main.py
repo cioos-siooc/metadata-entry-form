@@ -42,6 +42,10 @@ if is_dev_project:
         {
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            # Stable development site (live channel of the dev project)
+            "https://dev.forms.cioos.ca",
+            "https://cioos-metadata-form-dev-258dc.web.app",
+            "https://cioos-metadata-form-dev-258dc.firebaseapp.com",
         }
     )
 

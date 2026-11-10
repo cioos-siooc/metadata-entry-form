@@ -45,7 +45,7 @@ jobs:
           expires: 30d
           entryPoint: "."
           projectId: cioos-metadata-form-dev-258dc
-          channelId: ${{ github.ref_name == 'development' && 'development' || '' }}
+          channelId: ${{ github.ref_name == 'development' && 'live' || '' }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
