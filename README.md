@@ -281,44 +281,18 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 - **Edit Rules**: Modify the Realtime Database security rules directly in the `database.rules.json` file.
 - **Version Control**: Ensure the rules file is tracked in git to maintain a history of changes.
 
-### Define targets
-
-This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev).
-Use Firebase CLI targets to manage rules deployment:
-
-```bash
-firebase target:apply database prod cioos-metadata-form-8d942
-firebase target:apply database dev cioos-metadata-form-dev-258dc
-```
-
-### Configure firebase.json
-
-Update your `firebase.json` to map `.rules` files to your targets.
-
-```json
-{
-  "database": [
-    {
-      "target": "prod",
-      "rules": "database.rules.json"
-    },
-    {
-      "target": "dev",
-      "rules": "database.rules.json"
-    }
-  ]
-}
-```
-
 ### Deployment
 
-Deploy your database rules using the Firebase CLI:
+`firebase-functions/firebase.json` maps `database.rules.json` to the default Realtime Database instance of the selected project (`cioos-metadata-form-8d942-default-rtdb` in production, `cioos-metadata-form-dev-258dc-default-rtdb` in dev).
+
+The `Deploy firebase functions` GitHub workflow deploys the rules together with the functions: to dev on pushes to `development` and on pull requests touching `firebase-functions/`, and to production on version tags. To deploy them by hand from `firebase-functions/`:
 
 ```bash
-# Deploy to a specific environment
-firebase deploy --only database:dev  # For development
-firebase deploy --only database:prod # For production
+firebase deploy --only database --project dev      # For development
+firebase deploy --only database --project default  # For production
 ```
+
+A region with no `permissions/admins` list can't be configured from the app: add its first admin in the Firebase console.
 
 #### Important Considerations
 
