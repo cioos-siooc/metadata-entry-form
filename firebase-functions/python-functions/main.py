@@ -26,6 +26,8 @@ is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
+    "https://form.cioos.ca",
+    # Old production URL; GitHub Pages redirects it to form.cioos.ca
     "https://cioos-siooc.github.io",
 }
 ALLOWED_ORIGIN_PATTERNS = []
