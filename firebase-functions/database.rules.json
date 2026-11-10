@@ -18,7 +18,7 @@
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
-          ".write": "(auth.uid == $userid) || root.child('admin').child($region).child('permissions').child('reviewers').val().contains(auth.email)",
+          ".write": "(auth.uid == $userid) || (',' + root.child('admin').child($region).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
           "records": {
             "$recordid": {
               // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
@@ -39,46 +39,33 @@
       ".read": false,
       ".write": false
     },
+    // LLM call cache for the automated review functions. Server-only, and top-level for the
+    // same reason as 'invites'.
+    "reviewerCache": {
+      ".read": false,
+      ".write": false
+    },
     "admin": {
       // Section of the database dedicated to admin configurations.
+      //
+      // admins and reviewers are comma-separated email lists. Membership is an exact,
+      // case-insensitive match on a whole entry (spaces stripped), so "booth@cioos.ca" does
+      // not match "colton.booth@cioos.ca".
       "$regionAdmin": {
-        // Allow write access if admins list does not exist (bootstrapping) OR if the authenticated user's email is listed as an admin.
-        ".write": "!root.child('admin').child($regionAdmin).child('permissions').child('admins').exists() || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-        // Allow read access if the authenticated user's email is listed as a reviewer in the permissions for the region.
-        ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email)",
+        // Only the region's admins can change its configuration (permissions, credentials,
+        // ...). A region with no admins list is bootstrapped from the Firebase console.
+        ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
+        // Reviewers and admins can read the region's configuration.
+        ".read": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',') || (',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
         "projects": {
-          // Allow write access to projects if the authenticated user's email is listed as a reviewer OR admin in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
+          // Reviewers can also manage the region's projects.
+          ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
           // Allow read access to any authenticated user.
           ".read": "auth.uid != null"
         },
         "permissions": {
-          // Allow read access to any authenticated user.
-          ".read": "auth.uid != null",
-          "admins": {
-            // Allow write access for admins if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-            // Allow read access to any authenticated user.
-            ".read": "auth.uid != null"
-          },
-          "reviewers": {
-            // Allow write access for reviewers if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-            // Allow read access to any authenticated user.
-            ".read": "auth.uid != null"
-          },
-          "dataciteCredentials": {
-            // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-            ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
-          }
-        },
-        "dataciteCredentials": {
-          // Allow write access to DataCite credentials if the authenticated user's email is listed as an admin in the permissions for the region.
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
-        },
-        "githubCredentials": {
-          ".write": "root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)",
-          ".read": "root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().contains(auth.email) || root.child('admin').child($regionAdmin).child('permissions').child('admins').val().contains(auth.email)"
+          // Any authenticated user can see who the region's admins and reviewers are.
+          ".read": "auth.uid != null"
         }
       }
     }
