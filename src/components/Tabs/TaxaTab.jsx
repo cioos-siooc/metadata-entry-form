@@ -157,7 +157,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
 
   return (
     <Grid>
-      <Paper style={paperClass}>
+      <Paper id="field-taxa" style={paperClass}>
         <QuestionText>
           <En>Taxonomic Coverage</En>
           <Fr>Couverture taxonomique</Fr>

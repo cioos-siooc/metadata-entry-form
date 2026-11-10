@@ -44,6 +44,11 @@ yarn.lock
 *.log
 firebase-functions/python-functions/venv
 firebase-functions/python-functions/requirements.txt
+firebase-functions/reviewer-functions/venv
+firebase-functions/reviewer-functions/requirements.txt
+firebase-functions/reviewer-functions/wheels
+firebase-functions/reviewer-functions/data
+.secret.local
 xml
 cioos-metadata-form-dev-258dc-default-rtdb-export*.json
 translation-comparison/results-*

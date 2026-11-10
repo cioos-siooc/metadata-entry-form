@@ -22,6 +22,7 @@ import {
   CloudDownload,
   OpenInNew,
   ChevronRight,
+  FactCheck,
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -417,6 +418,26 @@ const RecordActions = ({
           <I18n en="Download" fr="Télécharger" />
         </ListItemText>
         <ChevronRight fontSize="small" sx={{ ml: 1 }} />
+      </MenuItem>,
+    );
+  }
+
+  // Automated review
+  if (actions.showReviewAction) {
+    menuItems.push(
+      <MenuItem
+        key="review"
+        onClick={() => {
+          handlers.review?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <FactCheck fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Run automated review" fr="Lancer la révision automatisée" />
+        </ListItemText>
       </MenuItem>,
     );
   }
