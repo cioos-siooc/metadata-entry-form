@@ -38,14 +38,7 @@
     },
     "singleProjectMode": true
   },
-  "database": [
-    {
-      "target": "prod",
-      "rules": "database.rules.json"
-    },
-    {
-      "target": "dev",
-      "rules": "database.rules.json"
-    }
-  ]
+  "database": {
+    "rules": "database.rules.json"
+  }
 }
