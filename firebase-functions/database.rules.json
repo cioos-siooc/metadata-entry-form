@@ -18,7 +18,7 @@
       "users": {
         "$userid": {
           // Allow write access if the authenticated user is the user specified by $userid or if the authenticated user's email is listed as a reviewer in the admin permissions for the region.
-          ".write": "(auth.uid == $userid) || (',' + root.child('admin').child($region).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
+          ".write": "(auth.uid == $userid) || (root.child('admin').child($region).child('permissions').child('reviewers').isString() && (',' + root.child('admin').child($region).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ','))",
           "records": {
             "$recordid": {
               // Allow read access if the authenticated users's uid exists in the 'shared with' object for the record
@@ -54,12 +54,12 @@
       "$regionAdmin": {
         // Only the region's admins can change its configuration (permissions, credentials,
         // ...). A region with no admins list is bootstrapped from the Firebase console.
-        ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
+        ".write": "(root.child('admin').child($regionAdmin).child('permissions').child('admins').isString() && (',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ','))",
         // Reviewers and admins can read the region's configuration.
-        ".read": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',') || (',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
+        ".read": "(root.child('admin').child($regionAdmin).child('permissions').child('reviewers').isString() && (',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')) || (root.child('admin').child($regionAdmin).child('permissions').child('admins').isString() && (',' + root.child('admin').child($regionAdmin).child('permissions').child('admins').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ','))",
         "projects": {
           // Reviewers can also manage the region's projects.
-          ".write": "(',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ',')",
+          ".write": "(root.child('admin').child($regionAdmin).child('permissions').child('reviewers').isString() && (',' + root.child('admin').child($regionAdmin).child('permissions').child('reviewers').val().replace(' ', '').toLowerCase() + ',').contains(',' + auth.token.email.toLowerCase() + ','))",
           // Allow read access to any authenticated user.
           ".read": "auth.uid != null"
         },
