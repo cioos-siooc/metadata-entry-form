@@ -36,6 +36,12 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
+import ReviewFindings, {
+  DRAWER_WIDTH,
+  mergeSuggested,
+  scrollToField,
+  setFindingStatus,
+} from "../FormComponents/ReviewFindings";
 import TaxaTab from "../Tabs/TaxaTab";
 
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
@@ -104,9 +110,15 @@ const useStyles = (theme) => ({
     right: theme.spacing(2),
     zIndex: 5,
   },
+  // keep Save clear of the open review drawer (it's full-width, temporary, below md)
+  fabBesideDrawer: {
+    [theme.breakpoints.up("md")]: {
+      right: `calc(${DRAWER_WIDTH}px + ${theme.spacing(2)})`,
+    },
+  },
 });
 
-class MetadataForm extends FormClassTemplate {
+export class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
@@ -132,6 +144,11 @@ class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen: false,
       doiUpdated: false,
       doiError: false,
+
+      // automated review: drawer open (?review=1 deep-links it), and findings whose fix was
+      // applied in the form but not saved yet (their status is written on save)
+      reviewOpen: new URLSearchParams(props.search).get("review") === "1",
+      pendingApplied: [],
     };
   }
 
@@ -245,9 +262,22 @@ class MetadataForm extends FormClassTemplate {
             const loggedInUserCanEditRecord =
               isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
 
-            this.setState({
-              record: standardizeRecord(record, null, null, recordID),
-              loggedInUserCanEditRecord,
+            // When only qa changed (review results, or an Apply/Ignore/Reject status), keep
+            // unsaved edits and take just qa; otherwise Apply's edit is wiped by its own write.
+            const { qa, ...withoutQa } = record;
+            const onlyQaChanged =
+              this.lastLoadedRecord === JSON.stringify(withoutQa);
+            this.lastLoadedRecord = JSON.stringify(withoutQa);
+            this.setState(({ record: current, pendingApplied }) => {
+              const keepEdits = onlyQaChanged && current?.recordID === recordID;
+              return {
+                record: keepEdits
+                  ? { ...current, qa }
+                  : standardizeRecord(record, null, null, recordID),
+                // a reset discards unsaved Applies, so they mustn't be marked applied on save
+                pendingApplied: keepEdits ? pendingApplied : [],
+                loggedInUserCanEditRecord,
+              };
             });
 
             this.setState({ loading: false });
@@ -264,24 +294,20 @@ class MetadataForm extends FormClassTemplate {
 
   // genereric handler for updating state, used by most form components
   // generic event handler
-  handleUpdateRecord = (key) => (event) => {
-    const { value } = event.target;
-    const changes = { [key]: value };
-
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
-  };
+  handleUpdateRecord = (key) => (event) =>
+    this.updateRecord(key)(event.target.value);
 
   // a second genereric handler components that dont use onChange
   // generic state updater creator
+  // Setting a field to its current value is a no-op: some tabs re-sync fields from effects on
+  // every render (e.g. DOIInput's status check), which would otherwise mark a just-saved
+  // record unsaved again (and re-render in a loop).
   updateRecord = (key) => (value) => {
-    const changes = { [key]: value };
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
+    this.setState(({ record }) =>
+      record[key] === value
+        ? null
+        : { record: { ...record, [key]: value }, saveDisabled: false },
+    );
   };
 
   saveUpdateContact(contact) {
@@ -437,13 +463,17 @@ class MetadataForm extends FormClassTemplate {
     record.region = region;
 
     record.lastEditedBy = editorInfo;
+    // Taken before writing: the record listener drops pendingApplied when the save echoes back.
+    const { pendingApplied } = this.state;
     let recordID;
     if (record.recordID) {
       recordID = record.recordID;
+      // qa is written by the review functions only; the rules reject it from clients.
+      const { qa, ...recordWithoutQa } = record;
       await update(
         child(recordsRef, record.recordID),
         // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...record },
+        { ...getBlankRecord(), ...recordWithoutQa },
       );
     } else {
       // new record
@@ -456,6 +486,17 @@ class MetadataForm extends FormClassTemplate {
         record: { ...record, recordID },
       });
       history.push(`/${language}/${region}/${userID}/${recordID}`);
+    }
+
+    if (pendingApplied.length) {
+      await Promise.all(
+        pendingApplied.map((id) =>
+          setFindingStatus(region, userID, recordID, id, { status: "applied" }),
+        ),
+      );
+      this.setState(({ pendingApplied: current }) => ({
+        pendingApplied: current.filter((id) => !pendingApplied.includes(id)),
+      }));
     }
 
     // regnerate XML on save
@@ -479,7 +520,7 @@ class MetadataForm extends FormClassTemplate {
   render() {
     const { match } = this.props;
     const { language } = match.params;
-    const { isReviewer } = this.context;
+    const { isReviewer, isAdmin } = this.context;
 
     const {
       userContacts,
@@ -494,6 +535,8 @@ class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen,
       projects,
       loggedInUserID,
+      reviewOpen,
+      pendingApplied,
     } = this.state;
 
     if (!record) {
@@ -522,6 +565,7 @@ class MetadataForm extends FormClassTemplate {
         justifyContent="space-between"
         alignItems="stretch"
         spacing={3}
+        sx={{ pr: { md: reviewOpen ? `${DRAWER_WIDTH}px` : 0 } }}
       >
         <SimpleModal
           open={saveIncompleteRecordModalOpen}
@@ -543,7 +587,7 @@ class MetadataForm extends FormClassTemplate {
         <Fab
           color="primary"
           aria-label="add"
-          className={classes.fab}
+          className={`${classes.fab} ${reviewOpen ? classes.fabBesideDrawer : ""}`}
           disabled={
             saveDisabled || !(record.title.en || record.title.fr) || disabled
           }
@@ -653,6 +697,29 @@ class MetadataForm extends FormClassTemplate {
               </Typography>
             </div>
           </Grid>
+          {(isReviewer || isAdmin) && (
+            <Grid size={12}>
+              <ReviewFindings
+                record={record}
+                unsaved={!saveDisabled}
+                onApplySuggested={(finding) =>
+                  this.setState(
+                    ({ record: current, pendingApplied: pending }) => ({
+                      record: mergeSuggested(current, finding.suggested),
+                      pendingApplied: [...pending, finding.id],
+                      saveDisabled: false,
+                    }),
+                  )
+                }
+                pendingApplied={pendingApplied}
+                onGoToTab={(tab, key) =>
+                  this.setState({ tabIndex: tab }, () => scrollToField(key))
+                }
+                open={reviewOpen}
+                onOpenChange={(open) => this.setState({ reviewOpen: open })}
+              />
+            </Grid>
+          )}
         </Grid>
         <TabPanel value={tabIndex} index="start">
           <StartTab {...tabProps} />
@@ -721,6 +788,7 @@ const MetadataFormWrapper = (props) => {
       match={match}
       history={{ push: navigate }}
       locationState={location.state}
+      search={location.search}
     />
   );
 };
