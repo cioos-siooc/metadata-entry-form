@@ -10,6 +10,15 @@ import FormClassTemplate from "../components/Pages/FormClassTemplate";
 
 export const UserContext = createContext({ user: null, authIsLoading: false });
 
+// admins/reviewers are comma-separated email lists. Match a whole entry, ignoring case and
+// spaces, the same way database.rules.json does.
+export const isListedEmail = (list, email) =>
+  Boolean(email) &&
+  String(list ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .includes(email.toLowerCase());
+
 class UserProviderClass extends FormClassTemplate {
   constructor(props) {
     super(props);
@@ -83,8 +92,8 @@ class UserProviderClass extends FormClassTemplate {
           const admins = permissions?.admins || "";
           const reviewers = permissions?.reviewers || "";
 
-          const isAdmin = admins.includes(email);
-          const isReviewer = reviewers.includes(email);
+          const isAdmin = isListedEmail(admins, email);
+          const isReviewer = isListedEmail(reviewers, email);
 
           this.setState({
             admins,
