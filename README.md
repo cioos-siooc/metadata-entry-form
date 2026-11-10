@@ -159,7 +159,7 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 ### Frontend Deployment
 
 - **Development**: Firebase Hosting preview sites are created for all pull requests and commits to the `development` branch. Check the pull request comments on GitHub for preview links. Handled by the `firebase-hosting-pull-request.yml` GitHub action. Preview sites are deleted after 30 days of inactivity.
-- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
+- **Production**: Deploys to GitHub Pages at the custom domain <https://form.cioos.ca/> only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
 
 ### Firebase Functions Deployment
 

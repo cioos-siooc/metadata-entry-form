@@ -1,6 +1,6 @@
 {
   "name": "cioos-metadata-entry-form",
-  "homepage": "https://cioos-siooc.github.io/metadata-entry-form/",
+  "homepage": "https://form.cioos.ca/",
   "version": "1.1.0",
   "private": true,
   "engines": {
