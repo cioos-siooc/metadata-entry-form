@@ -8,6 +8,8 @@ on:
     tags:
       - "v*"
   pull_request:
+    # 'labeled' lets adding the deploy-db-rules label deploy the PR's rules to dev.
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
     paths:
       - "firebase-functions/**"
   workflow_dispatch:
@@ -25,6 +27,12 @@ on:
 jobs:
   deploy:
     name: Deploy
+    # PRs deploy to dev only once they're ready for review, and adding a label only
+    # triggers a deploy when it's the deploy-db-rules label.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (!github.event.pull_request.draft &&
+       (github.event.action != 'labeled' || github.event.label.name == 'deploy-db-rules'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -57,6 +65,11 @@ jobs:
         working-directory: firebase-functions/functions
       - name: Install UV
         uses: astral-sh/setup-uv@v10.3.2
+      # cioos-metadata-reviewer is a private repo: read-only deploy key on that repo.
+      - name: SSH key for private Python dependencies
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.METADATA_REVIEWER_DEPLOY_KEY }}
       - name: Install Python environment in venv
         working-directory: firebase-functions/python-functions
         run: |
@@ -69,6 +82,21 @@ jobs:
           # ResolutionImpossible. Drop the commit so both references match exactly.
           sed -i -E 's|^(metadata-xml @ git\+https://github\.com/cioos-siooc/metadata-xml\.git)@[0-9a-f]+$|\1|' requirements.txt
           grep -q '^metadata-xml @ git+https://github\.com/cioos-siooc/metadata-xml\.git$' requirements.txt
+          source venv/bin/activate
+          uv pip install -r requirements.txt
+      # Own codebase: the reviewer's jsonschema>=4.20 (via mcp) conflicts with
+      # cioos-metadata-conversion's cffconvert (jsonschema<4).
+      - name: Install reviewer Python environment in venv
+        working-directory: firebase-functions/reviewer-functions
+        run: |
+          uv venv venv --clear
+          uv export --format requirements-txt --no-dev --no-hashes --output-file requirements.txt
+          # Cloud Build has no SSH key for the private reviewer repo: build its wheel here
+          # (deploy uploads this folder) and point requirements.txt at the local file.
+          REVIEWER=$(grep '^cioos-metadata-reviewer @ git+ssh' requirements.txt)
+          uv tool run --from pip pip wheel --no-deps -w wheels "$REVIEWER"
+          sed -i -E "s|^cioos-metadata-reviewer @ git\+ssh.*$|./$(ls wheels/cioos_metadata_reviewer-*.whl)|" requirements.txt
+          grep -q '^\./wheels/cioos_metadata_reviewer-.*\.whl$' requirements.txt
           source venv/bin/activate
           uv pip install -r requirements.txt
       - name: Authenticate Firebase and Deploy
@@ -92,8 +120,15 @@ jobs:
             firebase use dev
           fi
           cp .env ../python-functions/.env
+          # 'database' deploys database.rules.json to the project's default RTDB instance:
+          # always on development pushes and releases, on PRs only with the deploy-db-rules label.
+          TARGETS="functions:js-functions,functions:py-functions,functions:reviewer-functions"
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ] || [ "${DEPLOY_DB_RULES}" = "true" ]; then
+            echo "Including the database rules"
+            TARGETS="${TARGETS},database"
+          fi
           echo "Deploying to Firebase..."
-          firebase deploy --only functions:js-functions,functions:py-functions --token ${{ secrets.FIREBASE_TOKEN }} --force
+          firebase deploy --only "${TARGETS}" --token ${{ secrets.FIREBASE_TOKEN }} --force
         working-directory: firebase-functions/functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -105,6 +140,7 @@ jobs:
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           PROJECT_PATH: ./firebase-functions
+          DEPLOY_DB_RULES: ${{ contains(github.event.pull_request.labels.*.name, 'deploy-db-rules') }}
       - name: Trigger GitHub Pages deployment
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.skip_cross_trigger != 'true'
         run: |

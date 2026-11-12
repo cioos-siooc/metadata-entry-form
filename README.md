@@ -5,9 +5,9 @@
 
 CIOOS Metadata entry form
 
-Production: <https://form.cioos.ca>
+Production: <https://forms.cioos.ca>
 
-Development: <https://cioos-metadata-form-dev-258dc--development-tc36g7it.web.app/>
+Development: <https://dev.forms.cioos.ca>
 
 ## Project Goal
 
@@ -158,8 +158,8 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 
 ### Frontend Deployment
 
-- **Development**: Firebase Hosting preview sites are created for all pull requests and commits to the `development` branch. Check the pull request comments on GitHub for preview links. Handled by the `firebase-hosting-pull-request.yml` GitHub action. Preview sites are deleted after 30 days of inactivity.
-- **Production**: Deploys to GitHub Pages (<https://cioos-siooc.github.io/metadata-entry-form/>) only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
+- **Development**: Commits to the `development` branch deploy to the live channel of the dev Firebase project, served at <https://dev.forms.cioos.ca> (also <https://cioos-metadata-form-dev-258dc.web.app>). Pull requests get Firebase Hosting preview sites; check the pull request comments on GitHub for preview links. Preview sites are deleted after 30 days of inactivity. Both are handled by the `firebase-hosting-pull-request.yml` GitHub action.
+- **Production**: Deploys to GitHub Pages at the custom domain <https://forms.cioos.ca/> only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
 
 ### Firebase Functions Deployment
 
@@ -281,44 +281,26 @@ Deploying Firebase Realtime Database security rules via the Firebase CLI is reco
 - **Edit Rules**: Modify the Realtime Database security rules directly in the `database.rules.json` file.
 - **Version Control**: Ensure the rules file is tracked in git to maintain a history of changes.
 
-### Define targets
-
-This project has two databases: `cioos-metadata-form-8d942` (this is the default/main db for production) and `cioos-metadata-form-dev-258dc` (dev).
-Use Firebase CLI targets to manage rules deployment:
-
-```bash
-firebase target:apply database prod cioos-metadata-form-8d942
-firebase target:apply database dev cioos-metadata-form-dev-258dc
-```
-
-### Configure firebase.json
-
-Update your `firebase.json` to map `.rules` files to your targets.
-
-```json
-{
-  "database": [
-    {
-      "target": "prod",
-      "rules": "database.rules.json"
-    },
-    {
-      "target": "dev",
-      "rules": "database.rules.json"
-    }
-  ]
-}
-```
-
 ### Deployment
 
-Deploy your database rules using the Firebase CLI:
+`firebase-functions/firebase.json` maps `database.rules.json` to the default Realtime Database instance of the selected project (`cioos-metadata-form-8d942-default-rtdb` in production, `cioos-metadata-form-dev-258dc-default-rtdb` in dev).
+
+The `Deploy firebase functions` GitHub workflow deploys the rules together with the functions:
+
+- **Pushes to `development`:** always deployed to dev.
+- **Version tags and manual production deploys:** always deployed to production.
+- **Pull requests touching `firebase-functions/`:** draft PRs don't deploy anything. Ready PRs deploy their functions to dev, but their rules only when the PR has the `deploy-db-rules` label. Adding the label triggers the deploy.
+
+PRs that change `database.rules.json` are labelled `database-rules` automatically, so rule changes stand out in review.
+
+To deploy the rules by hand from `firebase-functions/`:
 
 ```bash
-# Deploy to a specific environment
-firebase deploy --only database:dev  # For development
-firebase deploy --only database:prod # For production
+firebase deploy --only database --project dev      # For development
+firebase deploy --only database --project default  # For production
 ```
+
+A region with no `permissions/admins` list can't be configured from the app: add its first admin in the Firebase console.
 
 #### Important Considerations
 

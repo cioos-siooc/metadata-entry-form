@@ -31,7 +31,6 @@ jobs:
       - name: Install and Build 🔧
         env:
           VITE_DEV_DEPLOYMENT: true
-          VITE_BASE_PATH: /
           VITE_GOOGLE_CLOUD_API_KEY: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}
           VITE_GOOGLE_CLOUD_API_KEY_DEV: ${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}
           VITE_AUTH_MICROSOFT: true
@@ -45,7 +44,7 @@ jobs:
           expires: 30d
           entryPoint: "."
           projectId: cioos-metadata-form-dev-258dc
-          channelId: ${{ github.ref_name == 'development' && 'development' || '' }}
+          channelId: ${{ github.ref_name == 'development' && 'live' || '' }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
