@@ -14,14 +14,11 @@ permissions:
 
 jobs:
   build_and_preview:
-    # Run on pushes, or on PRs from the main repo. Dependabot PRs are skipped:
-    # GitHub withholds Actions secrets from them, so the deploy has no credentials.
+    # UPDATED: Allow the job to run on pushes OR PRs from the main repo
     if: |
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository &&
-       github.event.pull_request.user.login != 'dependabot[bot]')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
 
     runs-on: ubuntu-latest
     steps:
