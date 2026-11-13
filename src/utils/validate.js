@@ -446,10 +446,13 @@ export const warnings = {
     tab: "resources",
     validation: async (val) => {
       const processedVal = await Promise.all(
-        val.map(async (dist) => {
-          const res = await checkURLActive(dist.url);
-          return { ...dist, status: res.data };
-        }),
+        // empty URLs are reported by the required-field validation instead
+        val
+          .filter((dist) => dist.url)
+          .map(async (dist) => {
+            const res = await checkURLActive(dist.url);
+            return { ...dist, status: res.data };
+          }),
       );
       const filterVal = processedVal.filter((dist) => !dist.status);
       return filterVal.length;
