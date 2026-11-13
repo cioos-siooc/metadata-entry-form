@@ -106,6 +106,7 @@ jobs:
           echo "GMAIL_PASS=${{ secrets.GMAIL_PASS }}" >> .env
           echo "DATACITE_AUTH_HASH=${{ secrets.DATACITE_AUTH_HASH }}" >> .env
           echo "COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" >> .env
+          echo "COHERE_TRANSLATE_MODEL=${{ vars.COHERE_TRANSLATE_MODEL }}" >> .env
           echo "GITHUB_AUTH=${{ secrets.ISSUE_CREATOR_PAT }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY }}" >> .env
           echo "VITE_GOOGLE_CLOUD_API_KEY_DEV=${{ secrets.REACT_APP_GOOGLE_CLOUD_API_KEY_DEV }}" >> .env

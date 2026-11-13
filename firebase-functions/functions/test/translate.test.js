@@ -80,9 +80,7 @@ describe("translate.js", () => {
 
       expect(result.translatedText).toBe("Bonjour le monde");
       expect(result.translationMessage).toContain("Cohere");
-      expect(result.translationMessage).toContain(
-        "command-a-translate-08-2025",
-      );
+      expect(result.translationMessage).toContain("command-a-03-2025");
       expect(result.translationMessage).toContain("cioos-commons@abc1234");
     });
 
@@ -141,6 +139,41 @@ describe("translate.js", () => {
       await expect(
         translate({ text: "hello", fromLang: "en" }, authContext),
       ).rejects.toThrow("API rate limit");
+    });
+
+    it("maps Cohere HTTP errors to a callable error with model and status", async () => {
+      const err = new Error("Too many requests");
+      err.statusCode = 429;
+      mockChat.mockRejectedValue(err);
+
+      await expect(
+        translate({ text: "hello", fromLang: "en" }, authContext),
+      ).rejects.toMatchObject({
+        code: "resource-exhausted",
+        message: expect.stringContaining("model command-a-03-2025, HTTP 429"),
+      });
+    });
+
+    it("uses COHERE_TRANSLATE_MODEL when set", async () => {
+      process.env.COHERE_TRANSLATE_MODEL = "command-a-translate-08-2025";
+      mockChat.mockResolvedValue({
+        message: { content: [{ text: "Bonjour" }] },
+      });
+
+      try {
+        const result = await translate(
+          { text: "Hello", fromLang: "en" },
+          authContext,
+        );
+        expect(mockChat.mock.calls[0][0].model).toBe(
+          "command-a-translate-08-2025",
+        );
+        expect(result.translationMessage).toContain(
+          "command-a-translate-08-2025",
+        );
+      } finally {
+        delete process.env.COHERE_TRANSLATE_MODEL;
+      }
     });
   });
 });

@@ -21,7 +21,7 @@ import regions from "../../regions";
 import promptTemplate from "../../../firebase-functions/functions/translation-prompt-template.txt?raw";
 
 const TRANSLATION_SERVICE = "Cohere";
-const TRANSLATION_MODEL = "command-a-translate-08-2025";
+const TRANSLATION_MODEL = "command-a-03-2025";
 
 // Parse lines like:  - "English term" → "French term"
 function parseGlossary(template) {

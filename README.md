@@ -73,7 +73,7 @@ node generate-translation-config.js v1.2.0   # pin a specific tag
 
 This fetches `glossary.json` and `prompt-template.txt` from the GitHub repo and writes them locally along with a `translation-meta.json` containing the resolved commit hash. The updated files should be committed to this repo so that deployed functions always have the correct versions.
 
-Each translation stores a provenance string (e.g. `Cohere command-a-translate-08-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
+Each translation stores a provenance string (e.g. `Cohere command-a-03-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
 
 ### Data Model & Validation
 
@@ -231,6 +231,8 @@ GMAIL_PASS=
 
 # Cohere API key for translations
 COHERE_API_KEY=
+# Optional Cohere model override (default: command-a-03-2025)
+COHERE_TRANSLATE_MODEL=
 
 # GitHub token (repo + pages scopes) for issue generation
 GITHUB_AUTH=
