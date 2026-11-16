@@ -43,6 +43,7 @@ export default function RegionSelect() {
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", px: { xs: 0, md: 2 } }}>
       <Helmet>
+        <html lang={language} />
         <title>{title[language]}</title>
       </Helmet>
 

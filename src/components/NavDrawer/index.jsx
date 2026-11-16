@@ -231,7 +231,6 @@ export default function MiniDrawer({ children }) {
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              color: "white",
             }}
           >
             <I18n>

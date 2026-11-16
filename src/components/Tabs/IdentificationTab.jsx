@@ -240,7 +240,7 @@ const IdentificationTab = ({
                             e.deprecated
                               ? {
                                   textDecoration: "line-through",
-                                  color: "rgba(0,0,0,0.4)",
+                                  color: "var(--mui-palette-text-secondary)",
                                 }
                               : undefined
                           }
@@ -250,6 +250,11 @@ const IdentificationTab = ({
                       </Tooltip>
                       {e.url && (
                         <IconButton
+                          aria-label={
+                            language === "fr"
+                              ? "Ouvrir la définition GOOS dans une nouvelle fenêtre"
+                              : "Open GOOS definition in new window"
+                          }
                           onClick={() => {
                             const win = window.open(e.url, "_blank");
                             win.focus();
@@ -268,7 +273,13 @@ const IdentificationTab = ({
                         </IconButton>
                       )}
                       {e.emerging && (
-                        <IconButton onClick={() => {}}>
+                        <IconButton
+                          aria-label={
+                            language === "fr"
+                              ? "EOV émergent GOOS"
+                              : "GOOS emerging EOV"
+                          }
+                        >
                           <Tooltip
                             title={
                               <I18n
@@ -293,7 +304,13 @@ const IdentificationTab = ({
                             .map((r) => r["label FR"])
                             .join(", ");
                           return (
-                            <IconButton onClick={() => {}}>
+                            <IconButton
+                              aria-label={
+                                language === "fr"
+                                  ? "EOV déprécié"
+                                  : "Deprecated EOV"
+                              }
+                            >
                               <Tooltip
                                 title={
                                   <I18n
@@ -636,6 +653,11 @@ const IdentificationTab = ({
                 }
               >
                 <IconButton
+                  aria-label={
+                    language === "fr"
+                      ? "Ouvrir la définition de licence dans une nouvelle fenêtre"
+                      : "Open license definition in new window"
+                  }
                   onClick={() => {
                     const win = window.open(l.url, "_blank");
                     win.focus();

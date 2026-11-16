@@ -52,7 +52,7 @@ const MobileRecordRow = ({
         margin: "4px 0",
         border: 1,
         borderColor: "divider",
-        borderRadius: "14px",
+        borderRadius: "12px",
         backgroundColor: selected ? "action.selected" : "background.paper",
         overflow: "hidden",
         cursor: "pointer",

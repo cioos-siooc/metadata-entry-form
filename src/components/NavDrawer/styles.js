@@ -140,7 +140,7 @@ const styles = {
   },
 
   sectionLabel: {
-    fontSize: "0.7rem",
+    fontSize: "0.75rem",
     fontWeight: 700,
     letterSpacing: "0.08em",
     textTransform: "uppercase",

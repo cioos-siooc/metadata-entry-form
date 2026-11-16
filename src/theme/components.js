@@ -1,4 +1,4 @@
-import { radii, motion } from "./tokens";
+import { radii, motion, semantic } from "./tokens";
 
 // Build MUI component overrides that reference the already-constructed theme.
 // Colours go through theme.vars (CSS variables) so every override follows the
@@ -353,26 +353,23 @@ export default function buildComponents(theme) {
           padding: "10px 14px",
           alignItems: "center",
         },
-        standardSuccess: {
-          backgroundColor: "#f0fdf4",
-          color: "#15803d",
-          border: "1px solid #bbf7d0",
-        },
-        standardError: {
-          backgroundColor: "#fef2f2",
-          color: "#b91c1c",
-          border: "1px solid #fecaca",
-        },
-        standardWarning: {
-          backgroundColor: "#fffbeb",
-          color: "#b45309",
-          border: "1px solid #fde68a",
-        },
-        standardInfo: {
-          backgroundColor: "#eff6ff",
-          color: "#1d4ed8",
-          border: "1px solid #bfdbfe",
-        },
+        // Light: the semantic pastel set. Dark: a tint of the semantic hue on
+        // the dark paper, with light text, so alerts don't glare.
+        ...Object.fromEntries(
+          ["success", "error", "warning", "info"].map((key) => [
+            `standard${key[0].toUpperCase()}${key.slice(1)}`,
+            {
+              backgroundColor: semantic[key].surface,
+              color: semantic[key].dark,
+              border: `1px solid ${semantic[key].border}`,
+              ...theme.applyStyles("dark", {
+                backgroundColor: `rgba(${theme.vars.palette[key].mainChannel} / 0.12)`,
+                color: semantic[key].border,
+                borderColor: `rgba(${theme.vars.palette[key].mainChannel} / 0.4)`,
+              }),
+            },
+          ]),
+        ),
       },
     },
 

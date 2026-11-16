@@ -85,6 +85,9 @@ export default function FormHeader({
         >
           <IconButton
             size="small"
+            aria-label={
+              language === "fr" ? "Afficher les sections" : "Show sections"
+            }
             sx={{ display: { xs: "inline-flex", md: "none" } }}
             onClick={() => setMobileRailOpen(true)}
           >

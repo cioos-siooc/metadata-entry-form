@@ -112,6 +112,7 @@ class Platforms extends FormClassTemplate {
   }
 
   render() {
+    const { language } = this.props.match.params;
     const { modalOpen, modalKey, loading, platforms } = this.state;
     const platformsSorted = Object.entries(platforms || {}).sort(
       ([, a], [, b]) =>
@@ -184,6 +185,9 @@ class Platforms extends FormClassTemplate {
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Éditer" : "Edit"
+                                  }
                                   onClick={() => this.editPlatform(key)}
                                 >
                                   <Edit />
@@ -195,6 +199,11 @@ class Platforms extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr"
+                                      ? "Dupliquer"
+                                      : "Duplicate"
+                                  }
                                   onClick={() => this.handleClonePlatform(key)}
                                 >
                                   <FileCopy />
@@ -206,6 +215,9 @@ class Platforms extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Supprimer" : "Delete"
+                                  }
                                   onClick={() => this.toggleModal(true, key)}
                                 >
                                   <Delete />

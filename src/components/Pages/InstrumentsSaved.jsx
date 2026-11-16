@@ -112,6 +112,7 @@ class Instruments extends FormClassTemplate {
   }
 
   render() {
+    const { language } = this.props.match.params;
     const { modalOpen, modalKey, loading, instruments } = this.state;
     const instrumentsSorted = Object.entries(instruments || {}).sort(
       ([, a], [, b]) =>
@@ -184,6 +185,9 @@ class Instruments extends FormClassTemplate {
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Éditer" : "Edit"
+                                  }
                                   onClick={() => this.editInstrument(key)}
                                 >
                                   <Edit />
@@ -195,6 +199,11 @@ class Instruments extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr"
+                                      ? "Dupliquer"
+                                      : "Duplicate"
+                                  }
                                   onClick={() =>
                                     this.handleCloneInstrument(key)
                                   }
@@ -208,6 +217,9 @@ class Instruments extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Supprimer" : "Delete"
+                                  }
                                   onClick={() => this.toggleModal(true, key)}
                                 >
                                   <Delete />

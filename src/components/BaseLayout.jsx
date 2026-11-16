@@ -96,6 +96,7 @@ const BaseLayout = () => {
   return (
     <>
       <Helmet>
+        <html lang={language} />
         <title>{title[language]}</title>
         <link
           rel="icon"

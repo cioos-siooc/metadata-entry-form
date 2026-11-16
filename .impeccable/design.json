@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T14:33:22.413984+00:00",
+  "title": "Design System: CIOOS Metadata Entry Form",
+  "extensions": {
+    "colorMeta": {
+      "region-primary": {
+        "role": "primary",
+        "displayName": "Region Primary (CIOOS teal fallback)",
+        "tonalRamp": [
+          "#1d3d38",
+          "#2a5a53",
+          "#38776e",
+          "#459489",
+          "#52a79b",
+          "#7dbdb4",
+          "#a9d3cd",
+          "#d4e9e6"
+        ]
+      },
+      "region-secondary": {
+        "role": "secondary",
+        "displayName": "Region Secondary"
+      },
+      "slate-900": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "tonalRamp": [
+          "#020617",
+          "#0f172a",
+          "#1e293b",
+          "#334155",
+          "#64748b",
+          "#94a3b8",
+          "#e2e8f0",
+          "#f8fafc"
+        ]
+      },
+      "slate-50": {
+        "role": "neutral",
+        "displayName": "Slate Page",
+        "tonalRamp": [
+          "#020617",
+          "#0f172a",
+          "#1e293b",
+          "#334155",
+          "#64748b",
+          "#94a3b8",
+          "#e2e8f0",
+          "#f8fafc"
+        ]
+      }
+    },
+    "shadows": [
+      {
+        "name": "xs",
+        "value": "0 1px 2px rgba(16,24,40,0.06), 0 1px 3px rgba(16,24,40,0.08)",
+        "purpose": "Pressed button."
+      },
+      {
+        "name": "sm",
+        "value": "0 1px 3px rgba(16,24,40,0.08), 0 2px 6px rgba(16,24,40,0.08)",
+        "purpose": "Button hover, tooltips."
+      },
+      {
+        "name": "md",
+        "value": "0 8px 16px -4px rgba(16,24,40,0.10), 0 4px 8px -4px rgba(16,24,40,0.06)",
+        "purpose": "Raised interactive card on hover."
+      },
+      {
+        "name": "overlay",
+        "value": "0 12px 24px -6px rgba(16,24,40,0.12), 0 6px 12px -6px rgba(16,24,40,0.08)",
+        "purpose": "Menus, popovers, dialogs."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fast",
+        "value": "120ms",
+        "purpose": "Hover/focus state changes."
+      },
+      {
+        "name": "base",
+        "value": "200ms",
+        "purpose": "Standard transitions."
+      },
+      {
+        "name": "slow",
+        "value": "320ms",
+        "purpose": "Larger layout changes."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Default easing."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "600px"
+      },
+      {
+        "name": "md",
+        "value": "900px"
+      },
+      {
+        "name": "lg",
+        "value": "1200px"
+      },
+      {
+        "name": "xl",
+        "value": "1536px"
+      }
+    ],
+    "typographyMeta": {
+      "section-title": {
+        "displayName": "Section title",
+        "purpose": "FormSection and question headings."
+      },
+      "body-sm": {
+        "displayName": "Small body",
+        "purpose": "Tooltips, header metadata, help menu, dense inputs."
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Contained region-colour action.",
+      "html": "<button class=\"ds-btn-primary\">Save draft</button>",
+      "css": ".ds-btn-primary{background:#52a79b;color:#0f172a;font:600 14px/1.4 Inter,sans-serif;min-height:40px;padding:8px 16px;border:0;border-radius:8px;cursor:pointer;transition:box-shadow 120ms cubic-bezier(0.2,0,0,1)}.ds-btn-primary:hover{box-shadow:0 1px 3px rgba(16,24,40,0.08),0 2px 6px rgba(16,24,40,0.08)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(82,167,155,0.18)}"
+    },
+    {
+      "name": "Outlined Button",
+      "kind": "button",
+      "refersTo": "button-small",
+      "description": "Secondary action.",
+      "html": "<button class=\"ds-btn-outlined\">Cancel</button>",
+      "css": ".ds-btn-outlined{background:transparent;color:#52a79b;border:1px solid rgba(82,167,155,0.5);font:600 14px/1.4 Inter,sans-serif;min-height:40px;padding:8px 16px;border-radius:8px}.ds-btn-outlined:hover{background:rgba(82,167,155,0.06)}.ds-btn-outlined:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(82,167,155,0.18)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-outlined",
+      "description": "Outlined field with label above.",
+      "html": "<label class=\"ds-field\"><span>Title</span><input placeholder=\"Dataset title\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;font:500 14px Inter,sans-serif;color:#0f172a}.ds-field input{font:400 16px Inter,sans-serif;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}.ds-field input:focus-visible{outline:none;border-color:#52a79b;box-shadow:0 0 0 3px rgba(82,167,155,0.18)}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Filled region-tint chip.",
+      "html": "<span class=\"ds-chip\">Sea temperature</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;background:rgba(82,167,155,0.1);color:#38776e;font:500 13px Inter,sans-serif}"
+    },
+    {
+      "name": "Form Section",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Bordered card grouping fields.",
+      "html": "<section class=\"ds-section\"><h6>Identification</h6><p>Describe the dataset.</p></section>",
+      "css": ".ds-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;font-family:Inter,sans-serif}.ds-section h6{margin:0 0 4px;font:600 18px/1.4 Inter,sans-serif;color:#0f172a}.ds-section p{margin:0;font:400 14px/1.55 Inter,sans-serif;color:#475569}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Chart Room",
+    "keyCharacteristics": [
+      "One styling system: MUI v7 theme + `sx`, with CSS-variable colour schemes (light/dark via class).",
+      "Region colour is the only accent; neutrals, semantics, type and spacing are region-independent.",
+      "Inter throughout, sentence-case buttons, tight negative tracking on headings.",
+      "Mostly flat surfaces separated by 1px borders; soft shadows on floating layers.",
+      "Equal treatment of English and French, including French string lengths."
+    ],
+    "rules": [
+      {
+        "name": "The Region Owns the Hue, the System Owns Legibility Rule",
+        "body": "Region colours range from near-black (`#19222b`) to saturated yellow (`#fcba03`). Never place region colour where contrast isn't computed or adapted; any new use of the primary as a fill must take text from `primary.contrastText`."
+      },
+      {
+        "name": "The Read-From-Vars Rule",
+        "body": "Component code reads colours from `theme.vars.palette.*` (CSS variables), never from `theme.palette.*`. `theme.palette` is frozen to one scheme and silently breaks dark mode. Use `rgba(${theme.vars.palette.X.mainChannel} / α)` for tints."
+      },
+      {
+        "name": "The Red Is Always Red Rule",
+        "body": "Errors, warnings and success use the fixed semantic set and never the region palette."
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Buttons and tabs are never uppercase (`textTransform: none`). Overline is the only uppercase style."
+      }
+    ],
+    "dos": [
+      "**Do** style with `sx` and theme tokens; add new tokens to `src/theme/tokens.js`, and component-wide defaults to `src/theme/components.js`.",
+      "**Do** read colours from `theme.vars.palette` and build tints from `mainChannel`.",
+      "**Do** check every UI change in light and dark, and with an extreme region (`atlantic` near-black `#19222b`, `test` yellow `#fcba03`).",
+      "**Do** check in French and at ~375px width.",
+      "**Do** use `FormSection` for any new group of fields, and `FormShell` for full-page record editing.",
+      "**Do** keep a visible focus indicator on every interactive element."
+    ],
+    "donts": [
+      "**Don't** use `tss-react`, `makeStyles`, `styled()` one-offs or inline `style={}` for themed values.",
+      "**Don't** read `theme.palette.*` in components or hard-code hex values outside `src/theme/`.",
+      "**Don't** convey state with region colour alone; pair it with an icon or text.",
+      "**Don't** use uppercase button or tab labels.",
+      "**Don't** truncate labels to fit English widths."
+    ]
+  }
+}
