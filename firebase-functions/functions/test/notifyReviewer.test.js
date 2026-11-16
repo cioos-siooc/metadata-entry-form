@@ -32,10 +32,10 @@ const transporter = require("../mailer");
 const functions = require("firebase-functions");
 const { notifyReviewer } = require("../notify");
 
-const submit = () =>
+const submit = (auth) =>
   notifyReviewer(
     { before: { val: () => "" }, after: { val: () => "submitted" } },
-    { params: { region: "pacific", userID: "u1", recordID: "r1" } },
+    { params: { region: "pacific", userID: "u1", recordID: "r1" }, auth },
   );
 
 beforeEach(() => jest.clearAllMocks());
@@ -60,4 +60,18 @@ test("mail failures are logged as errors, not thrown", async () => {
   transporter.sendMail.mockRejectedValue(new Error("SMTP down"));
   await expect(submit()).resolves.toBeUndefined();
   expect(functions.logger.error).toHaveBeenCalled();
+});
+
+test("a reviewer submitting on the owner's behalf is not emailed", async () => {
+  mockDb["/admin/pacific/permissions/reviewers"] = "a@x.ca, b@x.ca";
+  await submit({ uid: "rev", token: { email: "A@x.ca" } });
+  expect(
+    require("../mailoutText").mailOptionsReviewer.mock.calls[0][0],
+  ).toEqual(["b@x.ca"]);
+});
+
+test("the only reviewer submitting sends no reviewer email", async () => {
+  mockDb["/admin/pacific/permissions/reviewers"] = "a@x.ca";
+  await submit({ uid: "rev", token: { email: "a@x.ca" } });
+  expect(transporter.sendMail.mock.calls).toEqual([["confirmation-mail"]]);
 });

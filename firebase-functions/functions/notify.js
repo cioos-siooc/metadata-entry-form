@@ -47,7 +47,12 @@ exports.notifyReviewer = functions.database
         .ref(`/admin/${region}/permissions/reviewers`)
         .once("value");
 
-      const reviewers = parseReviewers(reviewersFirebase.val());
+      // A reviewer may submit on the owner's behalf; don't email them about
+      // their own submission. context.auth is the user who wrote the status.
+      const submitterEmail = (context.auth?.token?.email || "").toLowerCase();
+      const reviewers = parseReviewers(reviewersFirebase.val()).filter(
+        (r) => r.toLowerCase() !== submitterEmail,
+      );
 
       const authorUserInfoFB = await db
         .ref(`/${region}/users/${userID}/userinfo`)
