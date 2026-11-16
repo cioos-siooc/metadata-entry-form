@@ -441,6 +441,7 @@ class Admin extends FormClassTemplate {
 
   render() {
     const { loading, reviewers, admins, projects } = this.state;
+    const { language } = this.props.match.params;
 
     return (
       <Grid container direction="column" spacing={3}>
@@ -608,6 +609,11 @@ class Admin extends FormClassTemplate {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
+                            aria-label={
+                              language === "fr"
+                                ? "Afficher ou masquer le jeton"
+                                : "Show or hide token"
+                            }
                             onClick={this.handleClickShowGithubToken}
                             onMouseDown={this.handleMouseDownPassword}
                             edge="end"

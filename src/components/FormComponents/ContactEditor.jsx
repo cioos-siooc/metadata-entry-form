@@ -188,6 +188,7 @@ const ContactEditor = ({
                 endAdornment: value.orgRor && (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label={language === "fr" ? "Effacer" : "Clear"}
                       onClick={() => {
                         handleClear("orgRor");
                       }}
@@ -345,6 +346,7 @@ const ContactEditor = ({
                 endAdornment: value.indOrcid && (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label={language === "fr" ? "Effacer" : "Clear"}
                       onClick={() => {
                         handleClear("indOrcid");
                       }}

@@ -599,7 +599,7 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
                   label={meta[language] || meta.en}
                   size="small"
                   variant="outlined"
-                  sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
+                  sx={{ fontSize: "0.75rem", height: 20, flexShrink: 0 }}
                 />
               )}
             </Box>

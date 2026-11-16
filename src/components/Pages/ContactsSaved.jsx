@@ -112,6 +112,7 @@ class Contacts extends FormClassTemplate {
   }
 
   render() {
+    const { language } = this.props.match.params;
     const { modalOpen, modalKey, loading, contacts } = this.state;
     const contactsSorted = Object.entries(contacts || {}).sort(([, a], [, b]) =>
       getContactTitleFromNames(a).localeCompare(getContactTitleFromNames(b)),
@@ -181,6 +182,9 @@ class Contacts extends FormClassTemplate {
                             <Tooltip title={<I18n en="Edit" fr="Éditer" />}>
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Éditer" : "Edit"
+                                  }
                                   onClick={() => this.editContact(key)}
                                 >
                                   <Edit />
@@ -192,6 +196,11 @@ class Contacts extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr"
+                                      ? "Dupliquer"
+                                      : "Duplicate"
+                                  }
                                   onClick={() => this.handleCloneContact(key)}
                                 >
                                   <FileCopy />
@@ -203,6 +212,9 @@ class Contacts extends FormClassTemplate {
                             >
                               <span>
                                 <IconButton
+                                  aria-label={
+                                    language === "fr" ? "Supprimer" : "Delete"
+                                  }
                                   onClick={() => this.toggleModal(true, key)}
                                 >
                                   <Delete />

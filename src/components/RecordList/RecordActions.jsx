@@ -425,7 +425,7 @@ const RecordActions = ({
         <ListItemText>
           <I18n en="Run automated review" fr="Lancer la révision automatisée" />
         </ListItemText>
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -627,6 +627,7 @@ const RecordActions = ({
           <IconButton
             {...buttonProps}
             onClick={handleMenuOpen}
+            aria-label="Actions"
             aria-controls={menuOpen ? "actions-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={menuOpen ? "true" : undefined}

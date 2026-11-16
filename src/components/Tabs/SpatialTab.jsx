@@ -31,8 +31,14 @@ import {
 import { validateField } from "../../utils/validate";
 
 const OpenEPSGDefn = ({ url }) => {
+  const { language } = useParams();
   return (
     <IconButton
+      aria-label={
+        language === "fr"
+          ? "Ouvrir la définition EPSG dans une nouvelle fenêtre"
+          : "Open EPSG definition in new window"
+      }
       onClick={() => {
         const win = window.open(url, "_blank");
         win.focus();

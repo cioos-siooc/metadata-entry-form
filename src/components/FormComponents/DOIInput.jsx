@@ -18,6 +18,7 @@ import {
   MenuItem,
   InputLabel,
   Link,
+  Box,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -867,12 +868,13 @@ const DOIInput = ({
       )}
 
       {showDoiInfo && (
-        <ul
-          style={{
-            margin: "8px 0 0",
-            paddingLeft: "1.4em",
-            fontSize: "0.8rem",
-            color: "rgba(0,0,0,0.6)",
+        <Box
+          component="ul"
+          sx={{
+            m: "8px 0 0",
+            pl: "1.4em",
+            typography: "caption",
+            color: "text.secondary",
           }}
         >
           {showPublisherInfo && (
@@ -913,7 +915,7 @@ const DOIInput = ({
               />
             </li>
           )}
-        </ul>
+        </Box>
       )}
 
       {doiErrorFlag && (
