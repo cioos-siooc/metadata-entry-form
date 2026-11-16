@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-16T14:22:21.744057+00:00",
+  "generatedAt": "2026-11-16T14:33:22.413984+00:00",
   "title": "Design System: CIOOS Metadata Entry Form",
   "extensions": {
     "colorMeta": {
@@ -112,7 +112,17 @@
         "name": "xl",
         "value": "1536px"
       }
-    ]
+    ],
+    "typographyMeta": {
+      "section-title": {
+        "displayName": "Section title",
+        "purpose": "FormSection and question headings."
+      },
+      "body-sm": {
+        "displayName": "Small body",
+        "purpose": "Tooltips, header metadata, help menu, dense inputs."
+      }
+    }
   },
   "components": [
     {
