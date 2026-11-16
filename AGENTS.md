@@ -100,6 +100,11 @@ Follow existing patterns and avoid introducing new conventions without cause.
 - Use Testing Library patterns; see `src/setupTests.js` for global mocks.
 - When adding tests, keep them colocated with existing test suites.
 
+## UI and design system
+
+- `DESIGN.md` is the source of truth for theme tokens, typography, spacing, component patterns and dark-mode rules; `PRODUCT.md` covers users and constraints. Read both before UI changes.
+- Run the [Impeccable](https://impeccable.style) `audit` / `critique` commands on UI changes (see `CLAUDE.md` for setup).
+
 ## Files to avoid touching
 
 - `src/serviceWorker.js` is ignored by eslint.
