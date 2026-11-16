@@ -1,5 +1,14 @@
+// path -> value, read by notifyReviewer via db.ref(path).once("value")
+const mockDb = {};
 jest.mock("firebase-admin", () => ({
-  database: () => ({ ref: () => ({ once: jest.fn() }) }),
+  database: () => ({
+    ref: (path) => ({
+      once: async () => ({
+        val: () => mockDb[path],
+        toJSON: () => mockDb[path],
+      }),
+    }),
+  }),
 }));
 
 jest.mock("firebase-functions", () => ({
@@ -28,9 +37,14 @@ jest.mock("../issue", () => jest.fn());
 jest.mock("../mailoutText", () => ({
   mailOptionsReviewer: jest.fn(),
   mailOptionsAuthor: jest.fn(),
+  mailOptionsAuthorSubmissionConfirmation: jest.fn(),
 }));
 
-const { findCustodianOrgName } = require("../notify");
+const { findCustodianOrgName, notifyReviewer } = require("../notify");
+const {
+  mailOptionsReviewer,
+  mailOptionsAuthorSubmissionConfirmation,
+} = require("../mailoutText");
 
 describe("findCustodianOrgName", () => {
   test("finds custodian when contacts is an array (happy path)", () => {
@@ -83,5 +97,34 @@ describe("findCustodianOrgName", () => {
       },
     };
     expect(findCustodianOrgName(record)).toBe("Custodian Org");
+  });
+});
+
+describe("notifyReviewer (#578)", () => {
+  const params = { region: "pacific", userID: "owner1", recordID: "rec1" };
+  const change = {
+    before: { val: () => "" },
+    after: { val: () => "submitted" },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    Object.assign(mockDb, {
+      "/admin/pacific/permissions/reviewers": "reviewer@x.ca",
+      "/pacific/users/owner1/userinfo": { email: "owner@x.ca" },
+      "/pacific/users/owner1/records/rec1": { title: { en: "T" } },
+    });
+  });
+
+  test("owner submitting emails the owner and the reviewers", async () => {
+    await notifyReviewer(change, { params, auth: { uid: "owner1" } });
+    expect(mailOptionsAuthorSubmissionConfirmation).toHaveBeenCalled();
+    expect(mailOptionsReviewer).toHaveBeenCalled();
+  });
+
+  test("reviewer submitting for the owner emails only the owner", async () => {
+    await notifyReviewer(change, { params, auth: { uid: "reviewer1" } });
+    expect(mailOptionsAuthorSubmissionConfirmation).toHaveBeenCalled();
+    expect(mailOptionsReviewer).not.toHaveBeenCalled();
   });
 });

@@ -269,6 +269,7 @@ const RecordActions = ({
     (isSubmitted && actions.showUnSubmitAction) ||
     ((isSubmitted || isPublished) && actions.showGithubPublishAction) ||
     (isDraft && actions.showSubmitAction) ||
+    (isDraft && actions.showReviewerSubmitAction) ||
     (!isDraft && actions.showSubmitAction);
 
   // Check if we need dividers
@@ -481,7 +482,10 @@ const RecordActions = ({
   const publishMenuItems = [];
 
   // Submit (Draft -> Submitted)
-  if (isDraft && actions.showSubmitAction) {
+  if (
+    isDraft &&
+    (actions.showSubmitAction || actions.showReviewerSubmitAction)
+  ) {
     publishMenuItems.push(
       <MenuItem
         key="submit"
