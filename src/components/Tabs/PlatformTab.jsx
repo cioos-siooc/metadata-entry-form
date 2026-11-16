@@ -99,7 +99,7 @@ const PlatformTab = ({
             />
           </Grid>
 
-          <Grid style={paperClass}>
+          <Grid id="field-platforms" style={paperClass}>
             {!noPlatform ? (
               <>
                 <Platform

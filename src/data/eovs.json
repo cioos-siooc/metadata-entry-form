@@ -217,7 +217,7 @@
     "label FR": "Abondance et distribution de tortues marines, oiseaux et mammifères",
     "definition EN": "Abundance refers to the number of individuals (turtles, birds or marine mammals) within a population while distribution refers to\nthe geographic or spatial extent of habitats used by individuals in the population.",
     "definition FR": "L'abondance se réfère au nombre d'individus (tortues, oiseaux ou mammifères marins) au sein d'une population tandis que la distribution se réfère à\nl'étendue géographique ou spatiale des habitats utilisés par les individus de la population.",
-    "icon": "birds-mammals.svg",
+    "icon": "marine-mammals-birds-turtles.svg",
     "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17511",
     "deprecated": true,
     "replacedBy": [
@@ -263,7 +263,7 @@
     "label FR": "Composition et couverture des coraux durs",
     "definition EN": "Live hard coral cover and the areal extent of a reef are the most important indicators of whether a reef is in a coral-dominated state or not; the composition and diversity of coral taxa is an important index of reef health; coral condition (e.g. bleaching, disease) gives fundamental information on the health of a reef; the size class structure (and recruitment) of hard corals gives fundamental information on the resilience, disturbance history and recovery potential of a reef.",
     "definition FR": "La couverture de coraux durs vivants et l'étendue spatiale des récifs sont les indicateurs les plus importants pour savoir si le récif est ou non dominé par les coraux.  La composition et la diversité des taxons coralliens sont un indice important de la santé du récif ; l'état des coraux (par exemple le blanchissement, les maladies) donne des informations fondamentales sur la santé du récif ; la structure des classes de taille (et le recrutement) des coraux durs donne des informations fondamentales sur la résilience, l'historique des perturbations et le potentiel de récupération du récif.",
-    "icon": "birds-mammals.svg",
+    "icon": "hard-coral.svg",
     "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=17512"
   },
   {
@@ -313,7 +313,7 @@
     "label FR": "Couleur des océans",
     "definition EN": "The term \"ocean colour\" refers to the result of absorption and scattering of spectral radiation emanating from the sun. Light interacts with water and suspended or dissolved matter and encompasses a multitude of biological, biogeochemical and ecological factors that form the colour of water.",
     "definition FR": "Le terme «couleur de l'océan» se réfère au résultat de l'absorption et de la diffusion du rayonnement spectral émanant du soleil. La lumière interagit avec l'eau et les matières en suspension ou dissoutes et englobe une multitude de facteurs biologiques, biogéochimiques et écologiques qui forment la couleur de l'eau.",
-    "icon": "ocean-color.svg",
+    "icon": "ocean-colour.svg",
     "url": "https://www.goosocean.org/index.php?option=com_oe&task=viewDocumentRecord&docID=19959"
   },
   {

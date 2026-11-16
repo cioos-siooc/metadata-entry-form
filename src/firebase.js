@@ -14,7 +14,7 @@ const prodConfig = {
   // don't need to restrict api keys for firebase but might in some situations.
   // To prevent the future foot gun, we are restricting the key now.
   apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY,
-  authDomain: "cioos-metadata-form-8d942.firebaseapp.com",
+  authDomain: "cioos-metadata-form-8d942.web.app",
   databaseURL: "https://cioos-metadata-form-8d942-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-8d942",
   storageBucket: "cioos-metadata-form-8d942.firebasestorage.app",
@@ -25,7 +25,7 @@ const prodConfig = {
 
 const devConfig = {
   apiKey: import.meta.env.VITE_GOOGLE_CLOUD_API_KEY_DEV,
-  authDomain: "cioos-metadata-form-dev-258dc.firebaseapp.com",
+  authDomain: "cioos-metadata-form-dev-258dc.web.app",
   databaseURL:
     "https://cioos-metadata-form-dev-258dc-default-rtdb.firebaseio.com",
   projectId: "cioos-metadata-form-dev-258dc",
@@ -44,7 +44,9 @@ if (
   window.location.hostname === "localhost" &&
   localFirebaseDatabase === "true"
 ) {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form";
+  // Same namespace as the project's database, which the functions emulator's admin SDK uses.
+  const namespace = new URL(config.databaseURL).hostname.split(".")[0];
+  config.databaseURL = `http://localhost:9001?ns=${namespace}`;
 }
 
 const App = initializeApp(config);

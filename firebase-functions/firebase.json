@@ -12,6 +12,11 @@
       "source": "python-functions",
       "runtime": "python311",
       "codebase": "py-functions"
+    },
+    {
+      "source": "reviewer-functions",
+      "runtime": "python311",
+      "codebase": "reviewer-functions"
     }
   ],
   "emulators": {
@@ -38,14 +43,7 @@
     },
     "singleProjectMode": true
   },
-  "database": [
-    {
-      "target": "prod",
-      "rules": "database.rules.json"
-    },
-    {
-      "target": "dev",
-      "rules": "database.rules.json"
-    }
-  ]
+  "database": {
+    "rules": "database.rules.json"
+  }
 }

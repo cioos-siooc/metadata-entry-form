@@ -40,6 +40,8 @@ export async function cloneRecord(
   // A copy starts private: don't carry the original's editors and invitations over.
   record.sharedWith = {};
   record.pendingShares = {};
+  // Review results belong to the original (and the rules reject client writes to them).
+  delete record.qa;
 
   if (record.title.en) record.title.en = `${record.title.en} (Copy)`;
   if (record.title.fr) record.title.fr = `${record.title.fr} (Copte)`;
