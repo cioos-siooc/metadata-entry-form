@@ -61,7 +61,7 @@ exports.notifyReviewer = functions.database
         console.log("Creating github issue");
         await createIssue(
           title,
-          `https://cioos-siooc.github.io/metadata-entry-form/#/${language}/${region}/${userID}/${recordID}`,
+          `https://forms.cioos.ca/#/${language}/${region}/${userID}/${recordID}`,
         );
       }
 

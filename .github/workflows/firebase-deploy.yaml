@@ -64,7 +64,7 @@ jobs:
         run: npm ci
         working-directory: firebase-functions/functions
       - name: Install UV
-        uses: astral-sh/setup-uv@v10.2.0
+        uses: astral-sh/setup-uv@v10.3.2
       # cioos-metadata-reviewer is a private repo: read-only deploy key on that repo.
       - name: SSH key for private Python dependencies
         uses: webfactory/ssh-agent@v0.9.1

@@ -14,20 +14,20 @@
   },
   "main": "index.js",
   "dependencies": {
-    "cohere-ai": "^7.9.0",
-    "axios": "^1.13.4",
-    "firebase": "^12.8.0",
+    "cohere-ai": "^7.21.0",
+    "axios": "^1.20.0",
+    "firebase": "^12.19.0",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^4.9.0",
     "nodemailer": "^7.0.13",
     "octokit": "^4.1.4"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2",
-    "acorn": "^8.15.0",
-    "firebase-functions-test": "^3.4.1",
-    "jest": "^30.2.0",
-    "protobufjs": "^8.0.0"
+    "@types/markdown-it": "^14.2.0",
+    "acorn": "^8.19.0",
+    "firebase-functions-test": "^3.5.0",
+    "jest": "^30.5.2",
+    "protobufjs": "^8.8.1"
   },
   "private": true
 }
