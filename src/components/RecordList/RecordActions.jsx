@@ -268,8 +268,8 @@ const RecordActions = ({
     (isPublished && actions.showUnPublishAction) ||
     (isSubmitted && actions.showUnSubmitAction) ||
     ((isSubmitted || isPublished) && actions.showGithubPublishAction) ||
-    (isDraft && actions.showReviewerSubmitAction) ||
-    actions.showSubmitAction;
+    (isDraft && actions.showSubmitAction) ||
+    (!isDraft && actions.showSubmitAction);
 
   // Check if we need dividers
   const hasBasicActions =
@@ -480,12 +480,8 @@ const RecordActions = ({
   // Build publish submenu items
   const publishMenuItems = [];
 
-  // Submit (Draft -> Submitted). Reviewers get only this, not the owner's
-  // "Return to draft" below, since they have their own unsubmit action.
-  if (
-    isDraft &&
-    (actions.showSubmitAction || actions.showReviewerSubmitAction)
-  ) {
+  // Submit (Draft -> Submitted)
+  if (isDraft && actions.showSubmitAction) {
     publishMenuItems.push(
       <MenuItem
         key="submit"
