@@ -84,14 +84,17 @@ export async function submitRecord(region, userID, key, status, record) {
   const database = getDatabase(firebase);
   const recordRef = ref(database, `${region}/users/${userID}/records/${key}`)
 
-  await set(child(recordRef,"status"), status);
-  if (status === "published")
-    await set(child(recordRef, "timeFirstPublished"), new Date().toISOString());
-
+  // Write the filename before the status. Setting the status fires notifyReviewer, which
+  // reads the record back to build the review issue - if the filename isn't stored yet,
+  // the issue is created with an empty "Record Filename".
   if (record && !record.filename) {
     const filename = getRecordFilename(record);
     await set(child(recordRef, "filename"), filename);
   }
+
+  await set(child(recordRef,"status"), status);
+  if (status === "published")
+    await set(child(recordRef, "timeFirstPublished"), new Date().toISOString());
 
 }
 
