@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { maintenanceFrequencyCodes } from "../../isoCodeLists";
 import { validateField } from "../../utils/validate";
+import { membershipPolicies } from "../../utils/collectionMode";
 import BilingualTextInput from "./BilingualTextInput";
 import DateInput from "./DateInput";
 import RequiredMark from "./RequiredMark";
@@ -53,6 +54,42 @@ const CollectionMaintenance = ({
       </QuestionText>
 
       <QuestionText style={{ paddingTop: "15px" }}>
+        <I18n>
+          <En>Who can add datasets to this Collection?</En>
+          <Fr>Qui peut ajouter des jeux de données à cette collection?</Fr>
+        </I18n>
+        <RequiredMark passes={validateField(record, "membershipPolicy")} />
+        <SupplementalText>
+          <I18n>
+            <En>
+              Open: anyone can add datasets. Needs approval: the custodian
+              approves each new dataset. Closed: no new datasets. This is shown
+              at the start of the membership-update policy in the published
+              metadata.
+            </En>
+            <Fr>
+              Ouverte : tout le monde peut ajouter des jeux de données.
+              Approbation requise : le dépositaire approuve chaque nouveau jeu
+              de données. Fermée : aucun nouveau jeu de données. Cette
+              information figure au début de la politique de mise à jour de la
+              composition dans les métadonnées publiées.
+            </Fr>
+          </I18n>
+        </SupplementalText>
+      </QuestionText>
+      <SelectInput
+        value={record.membershipPolicy || ""}
+        onChange={handleUpdateRecord("membershipPolicy")}
+        options={Object.keys(membershipPolicies)}
+        optionLabels={Object.values(membershipPolicies).map(
+          (policy) => policy[language],
+        )}
+        disabled={disabled}
+        fullWidth={false}
+        style={{ width: "250px" }}
+      />
+
+      <QuestionText style={{ paddingTop: "25px" }}>
         <I18n>
           <En>How often is the Collection's membership updated?</En>
           <Fr>

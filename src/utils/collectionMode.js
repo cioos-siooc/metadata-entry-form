@@ -10,6 +10,35 @@ export const tabsHiddenForCollections = ["taxa", "platform"];
 // MD_ProgressCode values the Collections profile allows for status.
 export const collectionProgressCodes = ["onGoing", "completed"];
 
+// Who can add datasets to a Collection, stored in record.membershipPolicy.
+// No ISO element: the converter would write the sentence at the start of maintenanceText.
+export const membershipPolicies = {
+  open: {
+    en: "Open",
+    fr: "Ouverte",
+    sentence: {
+      en: "This Collection is open to new datasets.",
+      fr: "Cette collection est ouverte aux nouveaux jeux de données.",
+    },
+  },
+  byRequest: {
+    en: "Needs approval",
+    fr: "Approbation requise",
+    sentence: {
+      en: "New datasets are added to this Collection with the custodian's approval.",
+      fr: "Les nouveaux jeux de données sont ajoutés à cette collection avec l'approbation du dépositaire.",
+    },
+  },
+  closed: {
+    en: "Closed",
+    fr: "Fermée",
+    sentence: {
+      en: "This Collection is closed to new datasets.",
+      fr: "Cette collection est fermée aux nouveaux jeux de données.",
+    },
+  },
+};
+
 // The three guided lineage prompts for Collections, stored in record.collectionLineage
 export const collectionLineagePrompts = [
   {
@@ -63,6 +92,7 @@ export const datasetOnlyFields = [
   },
   { key: "platforms", label: { en: "Platforms", fr: "Plateformes" } },
   { key: "instruments", label: { en: "Instruments", fr: "Instruments" } },
+  { key: "distribution", label: { en: "Resources", fr: "Ressources" } },
   {
     key: "history",
     label: {
@@ -75,7 +105,13 @@ export const datasetOnlyFields = [
 // Fields hidden when a record is not a Collection.
 export const collectionOnlyFields = [
   { key: "purpose", label: { en: "Purpose", fr: "Objectif" } },
-  { key: "credit", label: { en: "Credit", fr: "Reconnaissance" } },
+  {
+    key: "membershipPolicy",
+    label: {
+      en: "Who can add datasets",
+      fr: "Qui peut ajouter des jeux de données",
+    },
+  },
   {
     key: "maintenanceFrequency",
     default: "asNeeded",
@@ -98,15 +134,14 @@ export const collectionOnlyFields = [
       fr: "Dernière modification de la composition",
     },
   },
+  // One checkbox sets both accessConstraint and useConstraint, so only one is listed
   {
     key: "accessConstraint",
     default: "unrestricted",
-    label: { en: "Access constraint", fr: "Contrainte d'accès" },
-  },
-  {
-    key: "useConstraint",
-    default: "licence",
-    label: { en: "Use constraint", fr: "Contrainte d'utilisation" },
+    label: {
+      en: "Restrictions beyond the licence",
+      fr: "Restrictions qui s'ajoutent à la licence",
+    },
   },
   {
     key: "otherConstraints",

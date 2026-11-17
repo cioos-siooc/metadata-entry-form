@@ -8,6 +8,7 @@ import {
   isCollection,
   collectionProgressCodes,
   collectionLineagePrompts,
+  membershipPolicies,
 } from "./collectionMode";
 
 export const validateEmail = (email) => !email || validator.isEmail(email);
@@ -213,6 +214,15 @@ const validators = {
       fr: "Veuillez définir le statut du jeu de données",
     },
   },
+  membershipPolicy: {
+    tab: "dataID",
+    validation: (val, record) =>
+      !isCollection(record) || Object.keys(membershipPolicies).includes(val),
+    error: {
+      en: "Please select who can add datasets to the Collection",
+      fr: "Veuillez indiquer qui peut ajouter des jeux de données à la collection",
+    },
+  },
   maintenanceFrequency: {
     tab: "dataID",
     validation: (val, record) => !isCollection(record) || Boolean(val),
@@ -230,8 +240,8 @@ const validators = {
       ) ||
       Boolean(val && val.en && val.fr),
     error: {
-      en: "Other constraints are required in both languages when a constraint is set to Other restrictions",
-      fr: "Les autres contraintes sont requises dans les deux langues lorsqu'une contrainte est « Autres restrictions »",
+      en: "Describe the restrictions in both languages, or untick “Are there restrictions beyond the licence?”",
+      fr: "Décrivez les restrictions dans les deux langues, ou décochez « Y a-t-il des restrictions qui s'ajoutent à la licence? »",
     },
   },
   language: {
@@ -354,10 +364,12 @@ const validators = {
   },
   distribution: {
     tab: "resources",
-    validation: (val) =>
-      Array.isArray(val) &&
-      val.filter((dist) => dist.name && dist.url && validator.isURL(dist.url))
-        .length,
+    // The Resource section is hidden for Collections
+    validation: (val, record) =>
+      isCollection(record) ||
+      (Array.isArray(val) &&
+        val.filter((dist) => dist.name && dist.url && validator.isURL(dist.url))
+          .length),
 
     error: {
       en: "Must have at least one resource. If a URL is included it must be valid.",
@@ -501,7 +513,9 @@ export const getErrorsByTab = (record) => {
 export const warnings = {
   distribution: {
     tab: "resources",
-    validation: async (val) => {
+    validation: async (val, record) => {
+      // No URL warnings for the hidden Resource section on Collections
+      if (isCollection(record)) return 0;
       const processedVal = await Promise.all(
         val.map(async (dist) => {
           const res = await checkURLActive(dist.url);

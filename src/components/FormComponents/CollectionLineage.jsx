@@ -1,5 +1,4 @@
 import React from "react";
-import { TextField } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import { En, Fr, I18n } from "../I18n";
@@ -9,7 +8,8 @@ import BilingualTextInput from "./BilingualTextInput";
 import RequiredMark from "./RequiredMark";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 
-// Collections profile: resourceLineage > LI_Lineage (statement + scope "collection")
+// Collections profile: resourceLineage > LI_Lineage statement.
+// The scope level is always "collection" and is set by the converter, not shown.
 const CollectionLineage = ({ record, updateRecord, disabled }) => {
   const { language } = useParams();
   const lineage = record.collectionLineage || {};
@@ -40,13 +40,6 @@ const CollectionLineage = ({ record, updateRecord, disabled }) => {
           </I18n>
         </SupplementalText>
       </QuestionText>
-
-      <TextField
-        label={language === "fr" ? "Portée" : "Scope"}
-        value="collection"
-        disabled
-        style={{ marginTop: "15px", width: "200px" }}
-      />
 
       {collectionLineagePrompts.map(({ key, question, hint }) => (
         <div key={key} style={{ marginTop: "25px" }}>

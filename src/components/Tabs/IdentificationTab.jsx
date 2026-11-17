@@ -228,32 +228,6 @@ const IdentificationTab = ({
             disabled={disabled}
             multiline
           />
-
-          <QuestionText style={{ paddingTop: "25px" }}>
-            <I18n>
-              <En>Who should be credited for this Collection?</En>
-              <Fr>Qui doit être reconnu pour cette collection?</Fr>
-            </I18n>
-            <SupplementalText>
-              <I18n>
-                <En>
-                  Optional. Acknowledge contributors, funders or programs that
-                  supported the Collection.
-                </En>
-                <Fr>
-                  Facultatif. Remerciez les contributeurs, les bailleurs de
-                  fonds ou les programmes qui ont soutenu la collection.
-                </Fr>
-              </I18n>
-            </SupplementalText>
-          </QuestionText>
-          <BilingualTextInput
-            name="credit"
-            value={record.credit}
-            onChange={handleUpdateRecord("credit")}
-            disabled={disabled}
-            multiline
-          />
         </Paper>
       )}
       {!recordIsCollection &&
