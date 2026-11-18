@@ -15,11 +15,10 @@ ENV UV_COMPILE_BYTECODE=1 \
     VIRTUAL_ENV=/usr/src/app/.venv \
     PATH="/usr/src/app/.venv/bin:$PATH"
 
-# Only the lock file is needed to resolve dependencies, so this layer is cached until
-# the lock changes rather than being rebuilt on every app.py edit. --frozen fails the
-# build if uv.lock is out of date with pyproject.toml instead of silently re-resolving.
+# Cache dependency installation separately from application source changes.
+# --locked fails if uv.lock is out of date with pyproject.toml.
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --locked --no-dev --no-install-project
 
 EXPOSE 8000
 
