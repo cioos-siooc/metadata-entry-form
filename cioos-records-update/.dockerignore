@@ -1,0 +1,21 @@
+# The Dockerfile ends with `COPY . .`, so anything left here is baked into the image.
+
+# uv sync builds .venv inside the image at this same path - copying the host's over it
+# replaces Linux wheels with whatever the developer's machine built.
+.venv
+venv
+
+# A service account key. It is gitignored, but a local copy would otherwise end up in
+# every published layer. The app reads FIREBASE_SERVICE_ACCOUNT_KEY in the container.
+key.json
+
+# The Dockerfile does `mkdir ./xml` before cloning the records repo, which fails if a
+# local checkout has already been copied in.
+xml
+
+__pycache__
+*.pyc
+.pytest_cache
+
+deploy.sh
+record.json

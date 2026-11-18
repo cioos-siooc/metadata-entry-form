@@ -1,8 +1,0 @@
-Flask == 3.0.3
-Werkzeug == 3.0.3
-gunicorn
-sentry-sdk
-GitPython
-git+https://github.com/hakaiinstitute/metadata-xml.git
-git+https://github.com/hakaiinstitute/hakai-metadata-entry-form.git#egg=firebase_to_xml&subdirectory=firebase_to_xml
-git+https://github.com/hakaiinstitute/hakai-metadata-conversion.git
