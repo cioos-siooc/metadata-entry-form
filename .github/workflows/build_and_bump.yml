@@ -1,0 +1,117 @@
+name: Build and Bump
+on:
+  push:
+    branches: [main]      # 'master' for hakai-ctd-map
+    # Same paths as build-and-deplot-metadata-generator.yaml. firebase_to_xml is not in
+    # the build context — it's installed from git — but a change there still changes the
+    # image, so it has to trigger a rebuild.
+    paths:
+      - "cioos-records-update/**"
+      - "firebase_to_xml/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, packages: write }
+    outputs:
+      # Both images are tagged from the same commit, so one tag covers both.
+      tag: ${{ steps.meta-web.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/hakaiinstitute/metadata-generator-web
+          tags: type=sha,prefix=sha-,format=short
+      - id: meta-proxy
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/hakaiinstitute/metadata-generator-proxy
+          tags: type=sha,prefix=sha-,format=short
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: hakai-it
+          password: ${{ secrets.CI_TOKEN }}
+      - name: Build and push web image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./cioos-records-update/
+          file: ./cioos-records-update/Dockerfile
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          # Separate scopes — two images sharing one gha cache scope evict each other.
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+      - name: Build and push proxy image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./cioos-records-update/
+          file: ./cioos-records-update/Dockerfile_nginx
+          push: true
+          tags: ${{ steps.meta-proxy.outputs.tags }}
+          cache-from: type=gha,scope=proxy
+          cache-to: type=gha,mode=max,scope=proxy
+
+  bump:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: HakaiInstitute/hakai-webapps-stacks-uvic1_server_hakai_app
+          token: ${{ secrets.CI_TOKEN }}
+      - name: Bump image tags
+        env:
+          WEB_IMAGE: ghcr.io/hakaiinstitute/metadata-generator-web
+          PROXY_IMAGE: ghcr.io/hakaiinstitute/metadata-generator-proxy
+          TAG: ${{ needs.build.outputs.tag }}
+          STACK_DIR: metadata-generator
+        run: |
+          set -euo pipefail
+          cd "$STACK_DIR"
+
+          # Assert the lines exist BEFORE editing. A sed that matches nothing
+          # exits 0 and changes nothing — the deploy then silently no-ops while
+          # the workflow reports success. This is exactly how the first
+          # hakai-data bump failed: the compose file still said
+          # `img-captain-hakai-data`, so the pattern never matched.
+          #
+          # Check both images up front so a missing proxy line can't leave the
+          # web service already rewritten.
+          missing=0
+          for IMAGE in "$WEB_IMAGE" "$PROXY_IMAGE"; do
+            if ! grep -q "image: ${IMAGE}:" docker-compose.yml; then
+              echo "::error::No 'image: ${IMAGE}:' line in ${STACK_DIR}/docker-compose.yml"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            grep -n 'image:' docker-compose.yml || true
+            exit 1
+          fi
+
+          for IMAGE in "$WEB_IMAGE" "$PROXY_IMAGE"; do
+            sed -i "s|image: ${IMAGE}:.*|image: ${IMAGE}:${TAG}|" docker-compose.yml
+          done
+
+          # Re-running the same commit (re-run, retag, no-op push) is not a failure.
+          if git diff --quiet; then
+            echo "Already at ${TAG} — nothing to commit."
+            exit 0
+          fi
+
+          git config user.name  'hakai-ci'
+          git config user.email 'hakai-it@hakai.org'
+          git commit -am "deploy ${STACK_DIR} ${TAG}"
+
+          # Five app repos push to this one repo; two merging at once will race.
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt ${attempt}) — rebasing"
+            git pull --rebase
+          done
+          echo "::error::push failed after 3 attempts"
+          exit 1
