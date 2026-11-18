@@ -33,6 +33,12 @@ jobs:
       github.event_name != 'pull_request' ||
       (!github.event.pull_request.draft &&
        (github.event.action != 'labeled' || github.event.label.name == 'deploy-db-rules'))
+    # Every PR and development push deploys to the same dev project; overlapping
+    # deploys fail with 409s ("unable to queue the operation"). Queue them per
+    # target project, and never cancel a deploy mid-flight.
+    concurrency:
+      group: firebase-functions-deploy-${{ (github.event_name == 'workflow_dispatch' || github.ref_type == 'tag') && 'prod' || 'dev' }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
