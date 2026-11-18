@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
 
 # Pinned rather than :latest - an unpinned tag is neither reproducible nor something
 # you can audit after the fact. Matches the uv_build floor in the root pyproject.toml.
-COPY --from=ghcr.io/astral-sh/uv:0.13.6 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.13.9 /uv /uvx /bin/
 
 WORKDIR /usr/src/app
 
