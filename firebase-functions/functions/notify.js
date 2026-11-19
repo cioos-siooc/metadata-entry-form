@@ -90,6 +90,11 @@ exports.notifyReviewer = functions.database
         ),
       );
 
+      // A reviewer/admin submitting on the owner's behalf doesn't need to be told about it
+      if (context.auth && context.auth.uid !== userID) {
+        console.log("Submitted on the owner's behalf, don't notify reviewers");
+        return;
+      }
       if (reviewers.includes(authorEmail)) {
         console.log("Author is a reviewer, don't notifiy other reviewers");
         return;
