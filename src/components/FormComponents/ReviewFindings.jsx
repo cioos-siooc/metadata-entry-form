@@ -11,11 +11,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   FormControlLabel,
   IconButton,
   LinearProgress,
   Link,
+  ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   Table,
   TableBody,
@@ -26,7 +28,19 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Close, FactCheck, Update } from "@mui/icons-material";
+import {
+  ArrowForward,
+  AutoFixHigh,
+  Check,
+  Close,
+  ExpandLess,
+  ExpandMore,
+  FactCheck,
+  PlayArrow,
+  Refresh,
+  Undo,
+  Update,
+} from "@mui/icons-material";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { getDatabase, onValue, ref, set } from "firebase/database";
 
@@ -35,6 +49,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { I18n } from "../I18n";
 import { qaSummary } from "../RecordList/config";
 import tabs from "../../utils/tabs";
+import { typographyTokens } from "../../theme/tokens";
 
 const severityColor = {
   critical: "error",
@@ -165,7 +180,7 @@ const show = (v) =>
       ? JSON.stringify(v)
       : String(v);
 
-// A reviewer's decision on a finding ({status, note?}); null clears it (Restore)
+// A reviewer's decision on a finding ({status, note?}); null clears it (Reopen)
 export const setFindingStatus = (region, userID, recordID, id, status) =>
   set(
     ref(
@@ -175,22 +190,50 @@ export const setFindingStatus = (region, userID, recordID, id, status) =>
     status,
   );
 
-const statusChip = {
-  applied: (
+// The two ways to dismiss a finding without changing the record, and what each one means
+const DISMISS = {
+  deferred: {
+    action: { en: "Leave as is", fr: "Laisser tel quel" },
+    done: { en: "Left as is", fr: "Laissé tel quel" },
+    hint: {
+      en: "It's a real issue, but the record stays as it is.",
+      fr: "Le problème est réel, mais la fiche reste telle quelle.",
+    },
+  },
+  rejected: {
+    action: { en: "Not an issue", fr: "Pas un problème" },
+    done: { en: "Not an issue", fr: "Pas un problème" },
+    hint: {
+      en: "The review got this wrong. Future reviews won't raise it again.",
+      fr: "La révision s'est trompée. Les prochaines révisions ne le signaleront plus.",
+    },
+  },
+};
+
+const statusChip = (status) =>
+  status === "applied" ? (
     <Chip
       size="small"
       color="success"
+      icon={<Check />}
       label={<I18n en="Applied" fr="Appliqué" />}
     />
-  ),
-  deferred: <Chip size="small" label={<I18n en="Ignored" fr="Ignoré" />} />,
-  rejected: <Chip size="small" label={<I18n en="Rejected" fr="Rejeté" />} />,
-};
+  ) : (
+    DISMISS[status] && (
+      <Chip
+        size="small"
+        variant="outlined"
+        label={
+          <I18n en={DISMISS[status].done.en} fr={DISMISS[status].done.fr} />
+        }
+      />
+    )
+  );
 
 const PreviewFix = ({ finding, record, onClose, onApply }) => (
   <Dialog open={Boolean(finding)} onClose={onClose} maxWidth="md" fullWidth>
     <DialogTitle>
-      <I18n en="Suggested fix" fr="Correction suggérée" />
+      <I18n en="Apply this fix?" fr="Appliquer cette correction ?" />
     </DialogTitle>
     <DialogContent>
       <Typography variant="body2" sx={{ mb: 1 }}>
@@ -214,7 +257,13 @@ const PreviewFix = ({ finding, record, onClose, onApply }) => (
           {finding &&
             flattenPatch(finding.suggested).map(([path, value]) => (
               <TableRow key={path.join(".")}>
-                <TableCell sx={{ wordBreak: "break-all" }}>
+                <TableCell
+                  sx={{
+                    wordBreak: "break-all",
+                    fontFamily: typographyTokens.monoFontFamily,
+                    fontSize: "0.75rem",
+                  }}
+                >
                   {path.join(" › ")}
                 </TableCell>
                 <TableCell
@@ -240,13 +289,16 @@ const PreviewFix = ({ finding, record, onClose, onApply }) => (
       <Button onClick={onClose}>
         <I18n en="Cancel" fr="Annuler" />
       </Button>
-      <Button variant="contained" onClick={onApply}>
-        <I18n en="Apply" fr="Appliquer" />
+      <Button variant="contained" startIcon={<AutoFixHigh />} onClick={onApply}>
+        <I18n en="Apply fix" fr="Appliquer la correction" />
       </Button>
     </DialogActions>
   </Dialog>
 );
 
+// One finding: what's wrong, then one row of actions. Fixing comes first (apply the
+// suggestion, or go to the field); the two ways to dismiss it sit in a menu that says
+// what each one means.
 const FindingCard = ({
   f,
   status,
@@ -255,15 +307,202 @@ const FindingCard = ({
   onPreview,
   onSetStatus,
 }) => {
+  const [menuAnchor, setMenuAnchor] = useState(null);
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState("");
   const [showEvidence, setShowEvidence] = useState(false);
   const tab = findingTab(f);
+  const resolved = Boolean(status || pending);
+  const hasFix = Boolean(f.suggested) && !resolved;
+
+  const goToField = tab !== "other" && (
+    <Button
+      size="small"
+      variant={hasFix ? "text" : "outlined"}
+      endIcon={<ArrowForward />}
+      onClick={() => onGoToTab?.(tab, fieldKey(f))}
+    >
+      <I18n en="Go to field" fr="Aller au champ" />
+    </Button>
+  );
+
+  const dismissItem = (kind, onClick) => (
+    <MenuItem
+      onClick={() => {
+        setMenuAnchor(null);
+        onClick();
+      }}
+      sx={{ whiteSpace: "normal", alignItems: "flex-start" }}
+    >
+      <ListItemText
+        primary={
+          <I18n en={DISMISS[kind].action.en} fr={DISMISS[kind].action.fr} />
+        }
+        secondary={
+          <I18n en={DISMISS[kind].hint.en} fr={DISMISS[kind].hint.fr} />
+        }
+      />
+    </MenuItem>
+  );
+
+  let actions;
+  if (rejecting) {
+    actions = (
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="caption" color="text.secondary" component="p">
+          <I18n en={DISMISS.rejected.hint.en} fr={DISMISS.rejected.hint.fr} />
+        </Typography>
+        <TextField
+          size="small"
+          fullWidth
+          autoFocus
+          label={<I18n en="Why? (optional)" fr="Pourquoi ? (facultatif)" />}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          sx={{ mt: 1 }}
+        />
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => {
+              onSetStatus({ status: "rejected", note });
+              setRejecting(false);
+            }}
+          >
+            <I18n
+              en="Mark as not an issue"
+              fr="Marquer comme pas un problème"
+            />
+          </Button>
+          <Button size="small" onClick={() => setRejecting(false)}>
+            <I18n en="Cancel" fr="Annuler" />
+          </Button>
+        </Stack>
+      </Box>
+    );
+  } else {
+    actions = (
+      <Stack
+        direction="row"
+        spacing={0.5}
+        alignItems="center"
+        flexWrap="wrap"
+        useFlexGap
+        sx={{ mt: 1 }}
+      >
+        {hasFix && (
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<AutoFixHigh />}
+            onClick={onPreview}
+          >
+            <I18n en="Apply fix…" fr="Appliquer la correction…" />
+          </Button>
+        )}
+        {goToField}
+        <Box sx={{ flexGrow: 1 }} />
+        {resolved ? (
+          !pending && (
+            <Button
+              size="small"
+              color="inherit"
+              sx={{ color: "text.secondary" }}
+              startIcon={<Undo />}
+              onClick={() => onSetStatus(null)}
+            >
+              <I18n en="Reopen" fr="Rouvrir" />
+            </Button>
+          )
+        ) : (
+          <>
+            <Button
+              size="small"
+              color="inherit"
+              sx={{ color: "text.secondary" }}
+              endIcon={<ExpandMore />}
+              aria-haspopup="menu"
+              aria-expanded={Boolean(menuAnchor)}
+              onClick={(e) => setMenuAnchor(e.currentTarget)}
+            >
+              <I18n en="Dismiss" fr="Écarter" />
+            </Button>
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={() => setMenuAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              slotProps={{ paper: { sx: { maxWidth: 300 } } }}
+            >
+              {dismissItem("deferred", () =>
+                onSetStatus({ status: "deferred" }),
+              )}
+              {dismissItem("rejected", () => setRejecting(true))}
+            </Menu>
+          </>
+        )}
+      </Stack>
+    );
+  }
+
+  const meta = !resolved &&
+    (f.evidence || f.confidence > 0 || f.source === "ckan") && (
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        component="div"
+        sx={{ mt: 0.5 }}
+      >
+        {[
+          f.confidence > 0 && (
+            <React.Fragment key="confidence">
+              <I18n en="Confidence" fr="Confiance" />{" "}
+              {Math.round(f.confidence * 100)}%
+            </React.Fragment>
+          ),
+          f.source === "ckan" && (
+            <I18n
+              key="ckan"
+              en="Found in the catalogue (CKAN)"
+              fr="Trouvé dans le catalogue (CKAN)"
+            />
+          ),
+          f.evidence && (
+            <Link
+              key="evidence"
+              component="button"
+              variant="caption"
+              aria-expanded={showEvidence}
+              onClick={() => setShowEvidence(!showEvidence)}
+              sx={{ verticalAlign: "baseline" }}
+            >
+              {showEvidence ? (
+                <I18n en="Hide evidence" fr="Masquer les preuves" />
+              ) : (
+                <I18n en="Show evidence" fr="Voir les preuves" />
+              )}
+            </Link>
+          ),
+        ]
+          .filter(Boolean)
+          .flatMap((el, i) => (i ? [" · ", el] : [el]))}
+      </Typography>
+    );
 
   return (
     <Box
       component="li"
-      sx={{ py: 1, listStyle: "none", opacity: status ? 0.7 : 1 }}
+      sx={{
+        listStyle: "none",
+        px: 1.5,
+        py: 1.25,
+        border: 1,
+        borderColor: "divider",
+        borderRadius: 1.5,
+        bgcolor: resolved ? "background.subtle" : "background.paper",
+      }}
     >
       <Stack
         direction="row"
@@ -281,134 +520,44 @@ const FindingCard = ({
             label={<I18n en="Applied, unsaved" fr="Appliqué, non enregistré" />}
           />
         ) : (
-          statusChip[status]
+          statusChip(status)
         )}
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ wordBreak: "break-all" }}
+          sx={{
+            wordBreak: "break-all",
+            fontFamily: typographyTokens.monoFontFamily,
+          }}
         >
           {f.field}
         </Typography>
       </Stack>
-      <Typography sx={{ fontWeight: 500, mt: 0.5 }}>{f.description}</Typography>
-      {f.recommendation && (
-        <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.75 }}>
+        {f.description}
+      </Typography>
+      {f.recommendation && !resolved && (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
           {f.recommendation}
         </Typography>
       )}
       {f.note && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          <I18n en="Note:" fr="Note :" /> {f.note}
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+          <I18n en="Why:" fr="Pourquoi :" /> {f.note}
         </Typography>
       )}
-      {f.evidence && (
-        <>
-          <Link
-            component="button"
-            variant="caption"
-            onClick={() => setShowEvidence(!showEvidence)}
+      {meta}
+      {f.evidence && !resolved && (
+        <Collapse in={showEvidence}>
+          <Typography
+            variant="body2"
+            sx={{ fontStyle: "italic", wordBreak: "break-word", mt: 0.5 }}
           >
-            {showEvidence ? (
-              <I18n en="Hide evidence" fr="Masquer les preuves" />
-            ) : (
-              <I18n en="Show evidence" fr="Voir les preuves" />
-            )}
-          </Link>
-          <Collapse in={showEvidence}>
-            <Typography
-              variant="body2"
-              sx={{ fontStyle: "italic", wordBreak: "break-word" }}
-            >
-              {f.evidence}
-            </Typography>
-          </Collapse>
-        </>
+            {f.evidence}
+          </Typography>
+        </Collapse>
       )}
-      {(f.confidence > 0 || f.source === "ckan") && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          {f.confidence > 0 && (
-            <>
-              <I18n en="Confidence" fr="Confiance" />{" "}
-              {Math.round(f.confidence * 100)}%
-            </>
-          )}
-          {f.source === "ckan" && (
-            <>
-              {f.confidence > 0 && " · "}
-              <I18n
-                en="Found in the catalogue (CKAN)"
-                fr="Trouvé dans le catalogue (CKAN)"
-              />
-            </>
-          )}
-        </Typography>
-      )}
-
-      {rejecting ? (
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-          <TextField
-            size="small"
-            label={<I18n en="Note (optional)" fr="Note (facultative)" />}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <Button
-            size="small"
-            onClick={() => {
-              onSetStatus({ status: "rejected", note });
-              setRejecting(false);
-            }}
-          >
-            <I18n en="Confirm" fr="Confirmer" />
-          </Button>
-          <Button size="small" onClick={() => setRejecting(false)}>
-            <I18n en="Cancel" fr="Annuler" />
-          </Button>
-        </Stack>
-      ) : (
-        <Stack
-          direction="row"
-          spacing={1}
-          flexWrap="wrap"
-          useFlexGap
-          sx={{ mt: 1 }}
-        >
-          {tab !== "other" && (
-            <Button size="small" onClick={() => onGoToTab?.(tab, fieldKey(f))}>
-              <I18n en="Go to field" fr="Aller au champ" />
-            </Button>
-          )}
-          {status || pending ? (
-            !pending && (
-              <Button size="small" onClick={() => onSetStatus(null)}>
-                <I18n en="Restore" fr="Restaurer" />
-              </Button>
-            )
-          ) : (
-            <>
-              {f.suggested && (
-                <Button size="small" variant="outlined" onClick={onPreview}>
-                  <I18n en="Preview fix" fr="Voir la correction" />
-                </Button>
-              )}
-              <Button
-                size="small"
-                onClick={() => onSetStatus({ status: "deferred" })}
-              >
-                <I18n en="Ignore" fr="Ignorer" />
-              </Button>
-              <Button
-                size="small"
-                color="error"
-                onClick={() => setRejecting(true)}
-              >
-                <I18n en="Reject" fr="Rejeter" />
-              </Button>
-            </>
-          )}
-        </Stack>
-      )}
+      {actions}
     </Box>
   );
 };
@@ -571,55 +720,46 @@ export const ReviewPanel = ({
           useFlexGap
           sx={{ mt: 1 }}
         >
-          {summary &&
-            Object.entries(summary.bySeverity).map(([sev, n]) => (
-              <SeverityChip key={sev} severity={sev} count={n} />
-            ))}
-          {summary?.outdated && (
-            <Chip
-              size="small"
-              variant="outlined"
-              color="warning"
-              icon={<Update />}
-              label={<I18n en="Outdated" fr="Périmée" />}
-            />
-          )}
+          <Tooltip
+            title={
+              unsaved ? (
+                <I18n
+                  en="Save the record before running the review."
+                  fr="Enregistrez la fiche avant de lancer la révision."
+                />
+              ) : (
+                ""
+              )
+            }
+          >
+            <span>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={qa.generated ? <Refresh /> : <PlayArrow />}
+                onClick={onRun}
+                disabled={unsaved || !canRun || loading}
+              >
+                {loading ? (
+                  <I18n en="Reviewing…" fr="Révision…" />
+                ) : qa.generated ? (
+                  <I18n en="Re-run review" fr="Relancer la révision" />
+                ) : (
+                  <I18n en="Run review" fr="Lancer la révision" />
+                )}
+              </Button>
+            </span>
+          </Tooltip>
           {qa.generated && (
             <Typography variant="caption" color="text.secondary">
-              {new Date(qa.generated).toLocaleString()}
+              <I18n en="Last run" fr="Dernière révision" />{" "}
+              {new Date(qa.generated).toLocaleString(
+                language === "fr" ? "fr-CA" : "en-CA",
+                { dateStyle: "medium", timeStyle: "short" },
+              )}
             </Typography>
           )}
         </Stack>
-        <Tooltip
-          title={
-            unsaved ? (
-              <I18n
-                en="Save the record before running the review."
-                fr="Enregistrez la fiche avant de lancer la révision."
-              />
-            ) : (
-              ""
-            )
-          }
-        >
-          <span>
-            <Button
-              size="small"
-              variant="outlined"
-              sx={{ mt: 1 }}
-              onClick={onRun}
-              disabled={unsaved || !canRun || loading}
-            >
-              {loading ? (
-                <I18n en="Reviewing…" fr="Révision…" />
-              ) : qa.generated ? (
-                <I18n en="Re-run review" fr="Relancer la révision" />
-              ) : (
-                <I18n en="Run review" fr="Lancer la révision" />
-              )}
-            </Button>
-          </span>
-        </Tooltip>
         {loading && (
           <Typography
             variant="caption"
@@ -633,8 +773,31 @@ export const ReviewPanel = ({
             />
           </Typography>
         )}
+        {summary && (summary.count > 0 || summary.outdated) && (
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
+            sx={{ mt: 1.5 }}
+          >
+            {Object.entries(summary.bySeverity).map(([sev, n]) => (
+              <SeverityChip key={sev} severity={sev} count={n} />
+            ))}
+            {summary.outdated && (
+              <Chip
+                size="small"
+                variant="outlined"
+                color="warning"
+                icon={<Update />}
+                label={<I18n en="Outdated" fr="Périmée" />}
+              />
+            )}
+          </Stack>
+        )}
         {error && (
-          <Alert severity="error" sx={{ mt: 1 }}>
+          <Alert severity="error" sx={{ mt: 1.5 }}>
             <I18n
               en="The automated review could not be completed. Please try again later."
               fr="La révision automatisée n'a pas pu être effectuée. Veuillez réessayer plus tard."
@@ -642,7 +805,7 @@ export const ReviewPanel = ({
           </Alert>
         )}
         {summary?.outdated && (
-          <Alert severity="warning" sx={{ mt: 1 }}>
+          <Alert severity="warning" sx={{ mt: 1.5 }}>
             <I18n
               en="The record changed since this review."
               fr="La fiche a changé depuis cette révision."
@@ -650,41 +813,49 @@ export const ReviewPanel = ({
           </Alert>
         )}
         {!qa.generated && !loading && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            <I18n en="Not reviewed yet." fr="Pas encore révisée." />
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+            <I18n
+              en="Not reviewed yet. The review checks the saved record and lists issues by section."
+              fr="Pas encore révisée. La révision vérifie la fiche enregistrée et liste les problèmes par section."
+            />
           </Typography>
         )}
         {qa.generated && active.length === 0 && (
-          <Alert severity="success" sx={{ mt: 1 }}>
+          <Alert severity="success" sx={{ mt: 1.5 }}>
             <I18n en="No open issues." fr="Aucun problème ouvert." />
           </Alert>
         )}
         {groups.map(([tab, list]) => (
-          <Box key={tab} sx={{ mt: 1 }}>
-            <Typography variant="overline" color="text.secondary">
+          <Box key={tab} component="section" sx={{ mt: 2 }}>
+            <Typography
+              variant="overline"
+              component="h3"
+              color="text.secondary"
+              sx={{ display: "block", mb: 0.5, lineHeight: 1.6 }}
+            >
               <I18n en={TAB_LABEL[tab].en} fr={TAB_LABEL[tab].fr} /> (
               {list.length})
             </Typography>
-            <Box component="ul" sx={{ m: 0, p: 0 }}>
+            <Stack component="ul" spacing={1} sx={{ m: 0, p: 0 }}>
               {list.map(card)}
-            </Box>
-            <Divider />
+            </Stack>
           </Box>
         ))}
         {resolved.length > 0 && (
-          <Box sx={{ mt: 2 }}>
-            <Button size="small" onClick={() => setShowResolved(!showResolved)}>
-              {showResolved ? (
-                <I18n en="Hide resolved" fr="Masquer les résolus" />
-              ) : (
-                <I18n en="Show resolved" fr="Voir les résolus" />
-              )}{" "}
-              ({resolved.length})
+          <Box sx={{ mt: 2, pt: 1, borderTop: 1, borderColor: "divider" }}>
+            <Button
+              size="small"
+              color="inherit"
+              aria-expanded={showResolved}
+              endIcon={showResolved ? <ExpandLess /> : <ExpandMore />}
+              onClick={() => setShowResolved(!showResolved)}
+            >
+              <I18n en="Resolved" fr="Résolus" /> ({resolved.length})
             </Button>
             <Collapse in={showResolved} unmountOnExit>
-              <Box component="ul" sx={{ m: 0, p: 0 }}>
+              <Stack component="ul" spacing={1} sx={{ m: 0, mt: 1, p: 0 }}>
                 {resolved.map(card)}
-              </Box>
+              </Stack>
             </Collapse>
           </Box>
         )}

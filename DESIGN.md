@@ -240,6 +240,7 @@ In `sx`, a bare `borderRadius` number multiplies the 8px base: `1` = 8px, `1.5` 
 - **Border:** 1px `divider`.
 - **Internal Padding:** header 16px 20px, content 20px.
 - **FormSection** (`src/components/FormShell/FormSection.jsx`): the standard card for a titled group of related fields ("Status and dates", "Licence and use"), with optional description, error-count badge, completion check and collapse. Never one card per question, and never a card inside a card.
+- **Review findings** (`src/components/FormComponents/ReviewFindings.jsx`, in the form's 400px aside): one compact bordered 12px card per finding, grouped by form section, with one action row. The ways to fix sit on the left: **Apply fix…** (contained, only when the review suggests one; opens a current-vs-suggested comparison to confirm) and **Go to field**. A quiet **Dismiss ▾** sits on the right; its menu items explain themselves: **Leave as is** (a real issue, kept as is) and **Not an issue** (a false finding; asks for an optional reason, and future reviews won't raise it again). Resolved findings sit on `background.subtle` under a collapsed "Resolved (n)", trimmed to the description, with **Reopen**.
 
 ### Pages (`src/components/Layout/`)
 - **Page / PageHeader:** every list or settings page. Left-aligned against the nav (never centred), max 1200px (960–1040 for settings, library and editors). Header = h4 title, one-line `text.secondary` description (≤70ch), primary action top-right; tabs or toggles sit in the header under the title.

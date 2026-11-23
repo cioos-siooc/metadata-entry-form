@@ -187,11 +187,14 @@ describe("<ReviewPanel /> findings", () => {
 
   it("writes a rejection with its note", () => {
     renderWith();
-    fireEvent.click(screen.getAllByRole("button", { name: /reject/i })[0]);
-    fireEvent.change(screen.getByLabelText(/note/i), {
+    fireEvent.click(screen.getAllByRole("button", { name: /^dismiss$/i })[0]);
+    fireEvent.click(screen.getByRole("menuitem", { name: /^not an issue/i }));
+    fireEvent.change(screen.getByLabelText(/why/i), {
       target: { value: "fine as is" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /mark as not an issue/i }),
+    );
     expect(set).toHaveBeenCalledWith(
       "pacific/users/u1/records/r1/qa/statuses/a",
       {
@@ -201,11 +204,21 @@ describe("<ReviewPanel /> findings", () => {
     );
   });
 
-  it("restores a resolved finding", () => {
+  it("leaves a finding as is", () => {
     renderWith();
-    fireEvent.click(screen.getByRole("button", { name: /show resolved/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /^dismiss$/i })[0]);
+    fireEvent.click(screen.getByRole("menuitem", { name: /^leave as is/i }));
+    expect(set).toHaveBeenCalledWith(
+      "pacific/users/u1/records/r1/qa/statuses/a",
+      { status: "deferred" },
+    );
+  });
+
+  it("reopens a resolved finding", () => {
+    renderWith();
+    fireEvent.click(screen.getByRole("button", { name: /resolved \(1\)/i }));
     expect(screen.getByText(/intentional/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /restore/i }));
+    fireEvent.click(screen.getByRole("button", { name: /reopen/i }));
     expect(set).toHaveBeenCalledWith(
       "pacific/users/u1/records/r1/qa/statuses/c",
       null,
@@ -215,12 +228,12 @@ describe("<ReviewPanel /> findings", () => {
   it("previews a fix, then applies it without writing a status (that happens on save)", () => {
     const onApplySuggested = vi.fn();
     renderWith({ onApplySuggested });
-    const preview = screen.getAllByRole("button", { name: /preview fix/i });
-    expect(preview).toHaveLength(1); // only "b" has a fix
-    fireEvent.click(preview[0]);
+    const applyFix = screen.getAllByRole("button", { name: /^apply fix…$/i });
+    expect(applyFix).toHaveLength(1); // only "b" has a fix
+    fireEvent.click(applyFix[0]);
     expect(screen.getByText("https://old.test")).toBeTruthy(); // current
     expect(screen.getByText("https://new.test")).toBeTruthy(); // suggested
-    fireEvent.click(screen.getByRole("button", { name: /^apply$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^apply fix$/i }));
     expect(onApplySuggested).toHaveBeenCalledWith(qa.findings[1]);
     expect(set).not.toHaveBeenCalled();
   });
@@ -229,7 +242,7 @@ describe("<ReviewPanel /> findings", () => {
     renderWith({ pendingApplied: ["b"] });
     expect(screen.getByText("Applied, unsaved")).toBeTruthy();
     expect(
-      screen.queryAllByRole("button", { name: /preview fix/i }),
+      screen.queryAllByRole("button", { name: /^apply fix…$/i }),
     ).toHaveLength(0);
   });
 });
