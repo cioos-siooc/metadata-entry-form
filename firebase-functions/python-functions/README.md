@@ -75,3 +75,27 @@ DataCite REST API.
 This function requests a 180s timeout: OBIS makes up to three follow-up API calls
 (taxonomy facets, plus occurrence samples used to infer EOVs and platforms) and PDC
 probes doi.org to resolve a CCIN's DOI.
+
+---
+
+### 6c. `health`
+
+Public `GET` endpoint for uptime monitors:
+`https://us-central1-<projectId>.cloudfunctions.net/health`. It runs these checks in parallel, each with a 5s timeout:
+
+| Check      | Critical | What it does                                                                  |
+| ---------- | -------- | ----------------------------------------------------------------------------- |
+| `database` | yes      | Shallow read of the Realtime Database root                                    |
+| `frontend` | yes      | Fetches `forms.cioos.ca` (prod) or `dev.forms.cioos.ca` (dev) and looks for the app root |
+| `datacite` | no       | DataCite API heartbeat                                                        |
+
+| Status | `status`   | Meaning                                  |
+| ------ | ---------- | ---------------------------------------- |
+| 200    | `ok`       | Every check passed                       |
+| 200    | `degraded` | Only a non-critical check failed         |
+| 503    | `down`     | A critical check failed                  |
+
+Failures report only the error type; full details are in the function logs.
+Each instance caches its last report for 30s (`CACHE_TTL_S`); `checkedAt` says when it was taken.
+
+Tests: `uv run pytest tests`

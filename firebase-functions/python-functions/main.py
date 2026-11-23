@@ -21,6 +21,8 @@ from firebase_admin import initialize_app
 from firebase_functions import https_fn, options
 from firebase_functions.params import BoolParam
 
+from health import cached_checks
+
 # Determine if this is the dev project
 is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
 
@@ -276,5 +278,31 @@ def create_record_from_source(req: https_fn.Request):  # type: ignore
         json.dumps({"data": record}),
         status=200,
         headers=headers,
+        content_type="application/json",
+    )
+
+
+# Public and unauthenticated so uptime monitors can poll it; max_instances caps
+# what a flood of requests can cost.
+@https_fn.on_request(max_instances=2)
+def health(req: https_fn.Request):  # type: ignore
+    """GET: checks the database, the frontend and DataCite.
+
+    200 {"status": "ok"|"degraded", "checks": {...}} when every critical check
+    passes ("degraded": a non-critical one failed), 503 {"status": "down", ...}
+    otherwise. Results are cached per instance for health.CACHE_TTL_S; see
+    "checkedAt" for when they were taken.
+    """
+    if req.method not in ("GET", "HEAD"):
+        return https_fn.Response(
+            json.dumps({"error": "Method not allowed"}),
+            status=405,
+            content_type="application/json",
+        )
+    code, report = cached_checks()
+    return https_fn.Response(
+        json.dumps(report),
+        status=code,
+        headers={"Cache-Control": "no-store", "Access-Control-Allow-Origin": "*"},
         content_type="application/json",
     )
