@@ -75,7 +75,10 @@ const Login = () => {
         minHeight: `calc(100dvh - ${HEADER_HEIGHT + 8}px)`,
         px: { xs: 1, sm: 2, md: 3 },
         pt: { xs: 3, md: 4 },
-        pb: { xs: 4, md: 6 },
+        // Optical centring: the deeper bottom padding lifts the card a little
+        // above the true middle, more on taller screens, so it doesn't read
+        // as sitting low.
+        pb: { xs: 4, md: "max(48px, 12vh)" },
       }}
     >
       {/* Flat bordered card, as EditorPage frames its editor. */}
