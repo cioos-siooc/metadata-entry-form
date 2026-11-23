@@ -11,7 +11,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import TranslateIcon from "@mui/icons-material/Translate";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
