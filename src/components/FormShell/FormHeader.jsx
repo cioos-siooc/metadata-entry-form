@@ -81,38 +81,28 @@ export default function FormHeader({
         }}
       >
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{ minWidth: 0 }}
+          <Typography
+            variant="h5"
+            component="h1"
+            title={titleText}
+            sx={{
+              fontSize: { xs: "1rem", md: "1.25rem" },
+              fontWeight: 600,
+              lineHeight: 1.3,
+              minWidth: 0,
+              // Long dataset titles wrap to two lines, then clamp; the full
+              // title is on the Start section and in the tooltip.
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              overflowWrap: "anywhere",
+            }}
           >
-            <Typography
-              variant="h5"
-              component="h1"
-              title={titleText}
-              sx={{
-                fontSize: { xs: "1rem", md: "1.25rem" },
-                fontWeight: 600,
-                lineHeight: 1.3,
-                minWidth: 0,
-                // Long dataset titles wrap to two lines, then clamp; the full
-                // title is on the Start section and in the tooltip.
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                overflowWrap: "anywhere",
-              }}
-            >
-              {titleText}
-            </Typography>
-            {status && (
-              <Box sx={{ display: { xs: "none", sm: "block" }, flexShrink: 0 }}>
-                <StatusChip status={status} />
-              </Box>
-            )}
-          </Stack>
+            {titleText}
+          </Typography>
+          {/* Status leads the meta line, so the title line is only the title and
+              the controls on the right centre on the whole block. */}
           <Stack
             direction="row"
             alignItems="center"
@@ -121,9 +111,15 @@ export default function FormHeader({
               mt: 0.25,
               color: "text.secondary",
               flexWrap: "wrap",
-              rowGap: 0,
+              rowGap: 0.5,
             }}
           >
+            <Box
+              component="span"
+              sx={{ display: { xs: "none", sm: "inline-flex" }, flexShrink: 0 }}
+            >
+              <StatusChip status={status} />
+            </Box>
             <Typography
               variant="body2"
               component="span"
