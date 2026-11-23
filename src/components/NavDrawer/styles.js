@@ -59,7 +59,8 @@ const styles = {
     // width, and a row of tabs pushed the whole page wider than a phone.
     minWidth: 0,
     padding: 1,
-    paddingTop: 3,
+    // The app header is position: fixed, so the content starts below it.
+    paddingTop: `${HEADER_HEIGHT}px`,
     // Focus target for the skip link, not a control: no ring.
     "&:focus, &:focus-visible": { outline: "none" },
     transition: theme.transitions.create("margin", {

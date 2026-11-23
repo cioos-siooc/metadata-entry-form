@@ -16,7 +16,7 @@ export function Page({ children, maxWidth = 1200 }) {
         // same place on every page whatever the page's width.
         mr: "auto",
         px: { xs: 1, sm: 2, md: 3 },
-        pt: { xs: 1, md: 1.5 },
+        pt: { xs: 3, md: 4 },
         pb: { xs: 4, md: 6 },
       }}
     >

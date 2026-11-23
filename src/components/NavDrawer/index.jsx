@@ -361,7 +361,6 @@ export default function NavDrawer({ children }) {
       )}
 
       <Box component="main" id="main-content" tabIndex={-1} sx={styles.content}>
-        <Box sx={{ height: HEADER_HEIGHT }} />
         {children}
       </Box>
 

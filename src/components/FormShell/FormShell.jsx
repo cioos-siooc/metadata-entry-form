@@ -50,7 +50,6 @@ export default function FormShell({
           display: "flex",
           flexDirection: "column",
           minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
-          mt: -1,
           mx: -1,
         }}
       >

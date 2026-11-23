@@ -42,7 +42,14 @@ export default function RegionSelect() {
   const t = (en, fr) => (language === "fr" ? fr : en);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", px: { xs: 0, md: 2 } }}>
+    <Box
+      sx={{
+        maxWidth: 1200,
+        mx: "auto",
+        px: { xs: 0, md: 2 },
+        pt: { xs: 3, md: 4 },
+      }}
+    >
       <Helmet>
         <html lang={language} />
         <title>{title[language]}</title>
