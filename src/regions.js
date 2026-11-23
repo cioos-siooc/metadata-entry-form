@@ -143,4 +143,13 @@ export function getRegionLogo(regionId, language = "en") {
   return `${import.meta.env.BASE_URL}${file}`;
 }
 
+// The national CIOOS logo in the page's language.
+const nationalLogos = {
+  en: new URL("./static/cioos-national-en.png", import.meta.url).href,
+  fr: new URL("./static/cioos-national-fr.png", import.meta.url).href,
+};
+export function getNationalLogo(language = "en") {
+  return nationalLogos[language] || nationalLogos.en;
+}
+
 export default regions;

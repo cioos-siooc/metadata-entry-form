@@ -33,14 +33,9 @@ import {
 } from "@mui/icons-material";
 import { useColorScheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import regions, { getRegionLogo } from "../../regions";
+import regions, { getNationalLogo, getRegionLogo } from "../../regions";
 import { HEADER_HEIGHT, drawerWidth } from "./styles";
 import { semantic, semanticDark } from "../../theme/tokens";
-
-const nationalLogos = {
-  en: new URL("../../static/cioos-national-en.png", import.meta.url).href,
-  fr: new URL("../../static/cioos-national-fr.png", import.meta.url).href,
-};
 
 const iconButtonSx = { color: "text.secondary" };
 
@@ -96,7 +91,7 @@ export default function AppHeader({
   const regionInfo = regions[region];
   const regionTitle = regionInfo?.title?.[language];
   const logo = getRegionLogo(region, language);
-  const nationalLogo = nationalLogos[language] || nationalLogos.en;
+  const nationalLogo = getNationalLogo(language);
   const switchableRegions = Object.entries(regions)
     .filter(([, info]) => info.showInRegionSelector)
     .sort(([, a], [, b]) =>
