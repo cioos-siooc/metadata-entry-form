@@ -35,7 +35,7 @@ import WhatsNewDialog from "../Pages/WhatsNew";
 import ConnectedAccountsDialog from "../ConnectedAccountsDialog";
 import { UserContext } from "../../providers/UserProvider";
 import AppHeader from "./AppHeader";
-import styles, { HEADER_HEIGHT, drawerWidth } from "./styles";
+import styles, { HEADER_HEIGHT } from "./styles";
 import useSentryFeedback from "./useSentryFeedback";
 
 // Sections with a sidebar entry of their own. Everything else under a region
@@ -175,9 +175,6 @@ export default function NavDrawer({ children }) {
         region={region}
         user={user}
         showMenuButton={showDrawer && isMobile}
-        sidebarWidth={
-          showDrawer && !collapsed && !isMobile ? drawerWidth : null
-        }
         menuOpen={open}
         onToggleMenu={() => setOpen((o) => !o)}
         onSwitchLanguage={() =>

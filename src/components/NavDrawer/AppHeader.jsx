@@ -72,7 +72,6 @@ export default function AppHeader({
   region,
   user,
   showMenuButton,
-  sidebarWidth,
   menuOpen,
   onToggleMenu,
   onSwitchLanguage,
@@ -143,35 +142,29 @@ export default function AppHeader({
           </IconButton>
         )}
 
-        {/* The logo zone always spans the sidebar's width, so the title
-            starts where the sidebar ends and the chevron sits in the same
-            place whatever the region's logo proportions. With the sidebar
-            open, the zone is the top of its column: same tint, same right
-            border, running edge to edge and over the header's bottom border
-            so the two read as one. Below lg (sidebar is a drawer) it is
-            only as wide as the logo and shrinks beside the menu button. */}
+        {/* From lg up the logo zone always spans the sidebar's width, so the
+            title starts where the sidebar ends and the chevron sits in the
+            same place whatever the region's logo proportions. Below lg
+            (sidebar is a drawer) it is only as wide as the logo and shrinks
+            beside the menu button. */}
         <Box
-          sx={(theme) => ({
+          sx={{
             display: "flex",
             alignItems: "center",
             minWidth: 0,
             flex: { xs: "0 1 auto", lg: "0 0 auto" },
-            // From lg up the zone is always the sidebar's column, open or
-            // collapsed, so the logo and chevron never move: it runs from the
-            // bar's left edge (over the toolbar padding) to the sidebar edge.
+            // It runs from the bar's left edge (over the toolbar padding) so
+            // that, after the toolbar gap, the 1px divider lands exactly on
+            // the sidebar's right border, open or collapsed.
             alignSelf: { lg: "stretch" },
-            width: { xs: "auto", lg: drawerWidth },
+            width: (theme) => ({
+              xs: "auto",
+              lg: `calc(${drawerWidth}px - ${theme.spacing(1)} - 1px)`,
+            }),
             ml: { lg: -1.5 },
             pl: { lg: 1.5 },
             pr: { lg: 1 },
-            borderRight: { lg: "1px solid transparent" },
-            ...(sidebarWidth && {
-              mb: "-1px",
-              bgcolor: "background.default",
-              backgroundImage: `linear-gradient(${theme.vars.palette.primarySurface}, ${theme.vars.palette.primarySurface})`,
-              borderRightColor: theme.vars.palette.primaryBorder,
-            }),
-          })}
+          }}
         >
           {/* Region: the logo is the switcher, as a workspace switcher would be. */}
           {region ? (
@@ -229,8 +222,7 @@ export default function AppHeader({
           flexItem
           sx={{
             my: 1.75,
-            // With the sidebar open, the logo zone's own border divides.
-            display: { xs: "none", md: sidebarWidth ? "none" : "block" },
+            display: { xs: "none", md: "block" },
           }}
         />
         <Typography
