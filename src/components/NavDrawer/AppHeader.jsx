@@ -43,20 +43,25 @@ const nationalLogos = {
 
 const iconButtonSx = { color: "text.secondary" };
 
-// The plate fills the logo zone; the logo scales to its height and sits
-// centred, so wide and compact logos share one footprint.
+// The white plate hugs the logo: as wide as the artwork, never wider. From lg
+// up it sits centred in the fixed-width logo zone; below lg, where the
+// sidebar is a drawer, the zone itself hugs the plate. The logo shrinks, keeping its proportions, if space runs out.
 const logoPlateSx = {
-  flex: 1,
+  flex: "0 1 auto",
   minWidth: 0,
-  height: 44,
+  height: { xs: 40, sm: 44 },
+  // Auto margins centre the plate in the space beside the chevron, which
+  // stays pinned to the zone's edge.
+  mx: "auto",
+  px: 0.5,
   py: 0,
 };
 const logoImgSx = {
   display: "block",
-  width: "100%",
-  height: 36,
+  width: "auto",
+  maxWidth: "100%",
+  height: { xs: 32, sm: 36 },
   objectFit: "contain",
-  objectPosition: "center",
 };
 
 // The app's one header: a quiet paper bar under a thin line of the region's
@@ -143,30 +148,29 @@ export default function AppHeader({
             place whatever the region's logo proportions. With the sidebar
             open, the zone is the top of its column: same tint, same right
             border, running edge to edge and over the header's bottom border
-            so the two read as one. On phones it shrinks beside the menu
-            button. */}
+            so the two read as one. Below lg (sidebar is a drawer) it is
+            only as wide as the logo and shrinks beside the menu button. */}
         <Box
           sx={(theme) => ({
             display: "flex",
             alignItems: "center",
             minWidth: 0,
-            flex: { xs: "0 1 auto", sm: "0 0 auto" },
-            ...(sidebarWidth
-              ? {
-                  alignSelf: "stretch",
-                  width: sidebarWidth,
-                  ml: -1.5,
-                  mb: "-1px",
-                  pl: 1.5,
-                  pr: 1,
-                  bgcolor: "background.default",
-                  backgroundImage: `linear-gradient(${theme.vars.palette.primarySurface}, ${theme.vars.palette.primarySurface})`,
-                  borderRight: `1px solid ${theme.vars.palette.primaryBorder}`,
-                }
-              : {
-                  // Toolbar left padding and flex gap sit outside this box.
-                  width: `calc(${drawerWidth}px - ${theme.spacing(1.5)} - ${theme.spacing(1)})`,
-                }),
+            flex: { xs: "0 1 auto", lg: "0 0 auto" },
+            // From lg up the zone is always the sidebar's column, open or
+            // collapsed, so the logo and chevron never move: it runs from the
+            // bar's left edge (over the toolbar padding) to the sidebar edge.
+            alignSelf: { lg: "stretch" },
+            width: { xs: "auto", lg: drawerWidth },
+            ml: { lg: -1.5 },
+            pl: { lg: 1.5 },
+            pr: { lg: 1 },
+            borderRight: { lg: "1px solid transparent" },
+            ...(sidebarWidth && {
+              mb: "-1px",
+              bgcolor: "background.default",
+              backgroundImage: `linear-gradient(${theme.vars.palette.primarySurface}, ${theme.vars.palette.primarySurface})`,
+              borderRightColor: theme.vars.palette.primaryBorder,
+            }),
           })}
         >
           {/* Region: the logo is the switcher, as a workspace switcher would be. */}
@@ -187,10 +191,16 @@ export default function AppHeader({
                 px: 0.5,
                 py: 0.25,
                 color: "text.primary",
+                // Below lg (sidebar is a drawer) the chevron leads, by the menu button.
+                flexDirection: { xs: "row-reverse", lg: "row" },
                 "&:hover": {
                   bgcolor: theme.vars.palette.primarySurface,
                 },
-                "& .MuiButton-endIcon": { ml: 0.5, mr: 0, flexShrink: 0 },
+                "& .MuiButton-endIcon": {
+                  ml: { xs: 0, lg: 0.5 },
+                  mr: { xs: 0.5, lg: 0 },
+                  flexShrink: 0,
+                },
               })}
             >
               <LogoPlate sx={logoPlateSx}>
@@ -203,7 +213,7 @@ export default function AppHeader({
               </LogoPlate>
             </Button>
           ) : (
-            <LogoPlate sx={[logoPlateSx, { mx: 0.5 }]}>
+            <LogoPlate sx={logoPlateSx}>
               <Box
                 component="img"
                 src={nationalLogo}
@@ -220,13 +230,13 @@ export default function AppHeader({
           sx={{
             my: 1.75,
             // With the sidebar open, the logo zone's own border divides.
-            display: { xs: "none", sm: sidebarWidth ? "none" : "block" },
+            display: { xs: "none", md: sidebarWidth ? "none" : "block" },
           }}
         />
         <Typography
           component="div"
           sx={{
-            display: { xs: "none", sm: "block" },
+            display: { xs: "none", md: "block" },
             fontWeight: 600,
             fontSize: "1rem",
             letterSpacing: "-0.01em",
