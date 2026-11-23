@@ -16,20 +16,20 @@ colors:
   slate-900: "#0f172a"
   slate-950: "#020617"
   surface-paper: "#ffffff"
-  success: "#16a34a"
-  success-dark: "#15803d"
+  success: "#15803d"
+  success-dark: "#166534"
   success-surface: "#f0fdf4"
   success-border: "#bbf7d0"
-  warning: "#d97706"
-  warning-dark: "#b45309"
+  warning: "#b45309"
+  warning-dark: "#92400e"
   warning-surface: "#fffbeb"
   warning-border: "#fde68a"
-  error: "#dc2626"
-  error-dark: "#b91c1c"
+  error: "#b91c1c"
+  error-dark: "#991b1b"
   error-surface: "#fef2f2"
   error-border: "#fecaca"
-  info: "#2563eb"
-  info-dark: "#1d4ed8"
+  info: "#1d4ed8"
+  info-dark: "#1e40af"
   info-surface: "#eff6ff"
   info-border: "#bfdbfe"
 typography:
@@ -151,18 +151,20 @@ This is an Operate surface, so ambition shows as precision and restraint. Famili
 A cool slate frame with a single, swappable regional accent.
 
 ### Primary
-- **Region Primary** (default CIOOS national teal, overridden per region in `src/regions.js`): app bar, primary buttons, selected tab, section rail highlight, focus rings (18% alpha) and brand tints. In dark mode it passes through `forDarkSurface()` (`src/theme/createAppTheme.js`), which lightens or darkens it hue-preserving into a 0.18–0.45 luminance band. Button/app-bar text colour is chosen by `pickContrastText()`.
+- **Region Primary** (default CIOOS national teal, overridden per region in `src/regions.js`): app bar, primary buttons, section rail highlight and brand tints. In dark mode it passes through `forDarkSurface()` (`src/theme/createAppTheme.js`), which lightens or darkens it hue-preserving into a 0.18–0.45 luminance band. Button/app-bar text colour is chosen by `pickContrastText()` (whichever of white or ink contrasts more); dark-mode fills are nudged out of the ~0.18–0.22 luminance band where neither reaches 4.5:1.
+- **`primaryText`** (derived): the region colour as text or a control mark (links, text/outlined buttons, outlined primary chips, checked checkboxes/radios/switches, spinners and progress bars, the tab indicator, focused input borders, focus rings, the selected rail item). `forTextOn()` darkens it on light / lightens it on dark until it clears 4.5:1 on `background.paper`; regions that already pass keep their exact hue. Never use `primary.main` as text.
 - **Brand tints** (derived, not raw tokens): `primarySurface` (8% / 16% dark), `primarySurfaceHover` (14% / 24%), `primaryBorder` (28% / 40%), `background.brandSubtle` (6% / 12%).
 
 ### Secondary
 - **Region Secondary** (default MUI blue; per region): sparing accents only. Treat as optional; never required to convey meaning.
 
 ### Tertiary
-- **Semantic set** (Success, Warning, Error, Info): fixed across regions, each with `main`, `light`, `dark`, `surface` and `border` variants in `src/theme/tokens.js`. Alerts use `surface` + `border` with `dark` text in light mode; in dark mode a 12% tint of `main` with `border`-colour text.
+- **Semantic set** (Success, Warning, Error, Info): fixed across regions, with one set per colour scheme in `src/theme/tokens.js` (`semantic` for light, `semanticDark` for dark). MUI uses `main` both as text and as a fill, so `main` clears 4.5:1 on every surface it lands on: the 700 step on light with a white label, the 300/400 step on dark with an ink label. Never use `light` as text on light surfaces. Alerts use `surface` + `border` with `dark` text in light mode; in dark mode a 12% tint of `main` with `border`-colour text.
 
 ### Neutral
 - **Slate scale** (50–950): light page `slate-50`, paper white, subtle surface `slate-100`, divider `slate-200`, primary text `slate-900`, secondary text `slate-600`. Dark inverts: page `slate-950`, paper `slate-900`, subtle `slate-800`, floating `slate-700`, divider `slate-800`, text `slate-50` / `slate-400`.
 - **`subtleBorder`**: border for elements sitting on `background.subtle` (in dark mode `divider` equals `subtle` and would vanish).
+- **`inputBorder`** (slate-500 in both schemes): the outline of text fields and selects. A control's boundary needs 3:1 against its surface (WCAG 1.4.11): `divider` is about 1.2:1, while slate-500 is 4.8:1 on white and 3.6:1 on dark paper. Hover goes to `text.secondary`, focus to `primaryText`.
 - **`background.floating`**: menus and popovers; one step lighter than `subtle` in dark mode so overlays read as above, not punched in.
 
 ### Named Rules
@@ -185,7 +187,8 @@ A cool slate frame with a single, swappable regional accent.
 - **Headline** (h4–h5; 600; 1.5rem / 1.25rem; 1.3–1.35): page and section titles.
 - **Title** (h6, subtitle1/2; 600/500; 1.125rem / 1rem / 0.875rem): card headers, field-group titles.
 - **Body** (body1 1rem / body2 0.875rem; 400; 1.55): form copy and help text. Base font size is 14px; prose should be capped near 70ch.
-- **Section title** (1.0625rem 600): `FormSection` and question headings (`QuestionStyles`, review findings).
+- **Section title** (1.0625rem 600): `FormSection` card titles (`h2`) and review findings.
+- **Field label** (1rem 600): `FormField` labels (`h3`); hints and guidance are body2 `text.secondary`.
 - **Small body** (0.8125rem 500): tooltips, header metadata, help-menu items, dense inputs.
 - **Label** (button 0.875rem 600, caption 0.75rem, overline 0.75rem 600 0.08em uppercase): buttons, metadata, eyebrows.
 
@@ -195,9 +198,10 @@ A cool slate frame with a single, swappable regional accent.
 ## Layout
 
 - **Spacing scale** (4/8/16/24/32/48/64 px, `space` in `src/theme/tokens.js`); MUI `spacing(1)` is 8px.
-- **Form shell** (`src/components/FormShell/`): sticky `FormHeader` → sticky `SectionRail` (260px, collapsible to 72px, `md`+ only) beside a content column capped at 1280px → optional sticky `aside` (400px, `md`+ only, e.g. automated review findings) → sticky `ActionBar` at the bottom.
-- **Below `md`** the rail and aside are hidden; the header exposes section navigation instead. Callers own small-screen fallbacks for any `aside` content.
-- Content scroll resets on section change.
+- **Form shell** (`src/components/FormShell/`): sticky `FormHeader` → sticky `SectionRail` (260px, collapsible to 72px, `md`+ only) beside a content column capped at 1280px → optional sticky `aside` (400px, `md`+ only, e.g. automated review findings) → sticky `SectionStepper` at the bottom (previous / next section and save state; the only Save button is in the header).
+- **Below `md`** the rail and aside are hidden; the stepper's middle becomes the section picker (bottom sheet), within thumb reach. The header drops last-edited metadata and the status chip. Callers own small-screen fallbacks for any `aside` content.
+- The window scrolls to the top on section change (layout effect, so a reviewer's scroll-to-field still lands).
+- Inside a card, fields stack with 32px between them; short fields (dates, selects, version) pair in a `{ xs: 12, sm: 6 }` grid.
 - MUI default breakpoints (`sm` 600, `md` 900, `lg` 1200, `xl` 1536).
 - French strings run ~20–30% longer: layouts must wrap, never truncate labels or buttons.
 
@@ -213,18 +217,21 @@ Current practice is mostly flat with borders. `Paper`, `Card` and `AppBar` defau
 
 ## Shapes
 
-Gently rounded and consistent: 8px (`md`) for buttons, inputs and most controls (the MUI `shape.borderRadius`), 12px (`lg`) for cards and sections, 16px (`xl`) for dialogs, pill for chips and progress bars, 4px (`sm`) for tooltips and the tab indicator top. Borders are 1px.
+Gently rounded and consistent: 8px (`md`) for buttons, inputs, list rows and most controls (the MUI `shape.borderRadius`), 12px (`lg`) for cards, sections and bordered panels, 16px (`xl`) for dialogs (set by the theme, never per dialog), pill for chips and progress bars, 4px (`sm`) for tooltips and the tab indicator top. Borders are 1px.
+
+In `sx`, a bare `borderRadius` number multiplies the 8px base: `1` = 8px, `1.5` = 12px, `2` = 16px. Cards and panels take `1.5`; `MuiCard` and `MuiDialog` already carry their radius, so don't restate it.
 
 ## Components
 
 ### Buttons
 - **Shape:** gently rounded (8px).
 - **Primary:** contained by default, region primary fill, `contrastText` label, 600 weight, no elevation. Heights 32 / 40 / 48 px (small / medium / large).
-- **Hover / Focus:** hover adds `shadows[2]`; focus-visible draws a 3px region-tinted ring (18% alpha). Transitions are 120ms standard easing.
+- **Hover / Focus:** hover adds `shadows[2]` (and a 1px lift only when the user hasn't asked for reduced motion); focus-visible draws a solid 2px `primaryText` ring set off by a 2px gap in the surface colour, so it clears 3:1 for every region and reads against a filled button. Transitions are 120ms standard easing.
 - **Outlined / Text:** for secondary actions; never two contained buttons competing in one row.
 
 ### Chips
-- **Style:** pill, 26px tall, 500 weight. Filled chips use a 10% region tint with `primary.dark` text.
+- **Style:** pill, 26px tall, 500 weight. Filled *primary* chips use a 10% region tint with `primaryText`; other colours keep their semantic fill.
+- **StatusChip** (`src/components/FormComponents/StatusChip.jsx`): the only way to show a record's status. Draft = neutral, Submitted = info tint, Published = success tint (semantic, never the region colour).
 
 ### Cards / Containers
 - **Corner Style:** 12px.
@@ -232,21 +239,47 @@ Gently rounded and consistent: 8px (`md`) for buttons, inputs and most controls 
 - **Shadow Strategy:** flat; border only (see Elevation).
 - **Border:** 1px `divider`.
 - **Internal Padding:** header 16px 20px, content 20px.
-- **FormSection** (`src/components/FormShell/FormSection.jsx`): the standard card for a group of fields, with optional title, description, required mark, error-count badge, completion check and collapse.
+- **FormSection** (`src/components/FormShell/FormSection.jsx`): the standard card for a titled group of related fields ("Status and dates", "Licence and use"), with optional description, error-count badge, completion check and collapse. Never one card per question, and never a card inside a card.
+
+### Pages (`src/components/Layout/`)
+- **Page / PageHeader:** every list or settings page. Left-aligned against the nav (never centred), max 1200px (960–1040 for settings, library and editors). Header = h4 title, one-line `text.secondary` description (≤70ch), primary action top-right; tabs or toggles sit in the header under the title.
+- **Records** (`src/components/Pages/Records.jsx`): the one record page for every role. A segmented scope (Mine, Shared with me when any, Whole region for reviewers/admins or Published in region for others) over **StatusTabs**, both in the URL (`?scope=&status=`) and remembered per browser. Old `/reviewer`, `/published`, `/shared` links redirect into it. Row actions follow role and scope; the automated-review bar shows only in the region scope for reviewers.
+- **StatusTabs:** status filter over a record list with a count per tab. The counts are the page's summary: no stat cards or hero above a list.
+- **Record tables** (`RecordList`): one bordered paper surface (toolbar, rows, pager), title first, 56px rows, few default columns; row click opens the record, the ⋮ menu holds workflow actions at its top level (submit, publish, return to draft), then duplicate/transfer/review/download, then delete in red. Below `md` rows become cards (`MobileRecordRow`), which register their height with the grid (`observeRowHeight`, as DataGrid's own row does) and open from a title button, so the keyboard reaches them. On phones the scope toggle spans the width with labels wrapping inside their segments, and status tabs show scroll arrows when they overflow.
+- **EmptyState:** dashed 1px border, icon, title, one sentence on what fills it, at most one action. My records' first run instead explains the three steps (describe → submit → published).
+- **LibraryPage:** contacts, instruments and platforms share one list (search past 8 items, duplicate/delete per row); **EditorPage** frames the editor in one card titled by its `title` (the page's h1: the item's name, or "New contact" and so on), with a back link and Save / Cancel (text) beneath. Not-found and other whole-page empty states pass `headingComponent="h1"` to `EmptyState`.
+- **Admin ("Region settings"):** tabs People / Projects / DOIs / GitHub publishing (`?tab=`). Email and project lists (`ListEditor`) save on every add/remove with a toast; an admin can't remove themself. Multi-field settings keep an explicit Save.
 
 ### Inputs / Fields
-- **Style:** outlined, 8px radius, labels sit above the field (no notched outline), 10px 14px padding (8px 12px small).
-- **Focus:** region-tinted 3px ring; error state uses an error-tinted ring.
+- **FormField** (`src/components/FormShell/FormField.jsx`): one record question. A short noun **label** (what returning users scan for) with its status (a neutral "Required" pill, then a success check once valid), an optional one-line **hint** for the constraint that matters every time, the control, then the **guidance** panel (the full question and explanation, `background.subtle`, ≤75ch). Guidance sits under the control so controls line up across a row. Keeps the `field-<key>` id the reviewer and Submit links scroll to.
+- **Guidance switch** (header, `GuidanceContext`): on by default; a returning user turns it off once (remembered per browser) and every field collapses to label + hint + control, with a per-field ? to reopen one.
+- **Style:** outlined with an `inputBorder` outline, 8px radius, labels sit above the field (no notched outline), 10px 14px padding (8px 12px small), 43px tall. Autocompletes match that height (the theme removes MUI's extra 9px root padding).
+- **SelectInput** names itself: from its `FormField` label when inside one, otherwise from its `label` (or `ariaLabel`), plus the chosen value.
+- **Focus:** the same 2px ring as buttons and a `primaryText` border; error state uses an `error.main` ring.
+- **Bilingual fields outside a FormField** (sub-editors such as lineage, platforms, instruments) pass a `label`, so the inputs are read as "<label> EN" / "<label> FR" instead of a bare language code.
 - **Bilingual fields** (`BilingualTextInput`): store both EN and FR; machine translation is user-triggered and its result is marked as a translation until reviewed.
 
 ### Navigation
-- **App bar:** region primary fill, contrast-picked text, flat.
-- **Section rail:** vertical list with a 3px region-colour active indicator and completion/error status per section; collapses to icons.
-- **Tabs:** 44px min height, 3px indicator, inactive `text.secondary`, selected `primary.main` 600.
-- **Nav drawer:** 1px right border, flat.
+- **App header** (`src/components/NavDrawer/AppHeader.jsx`): 56px, `background.paper`, 1px bottom divider, the region colour only as a 3px inset line across the top. Left: the region logo (white plate, visible as a plate in dark mode) is the region switcher, then a divider and the product name. Right: dev-database chip (dev only), the other language by its own name ("Français" / "English", Canada.ca convention), theme toggle, Help menu (email the data team, report a problem, What's new), avatar account menu (connected accounts, sign out; theme toggle moves here on phones). No full-bleed region-colour bar.
+- **Skip link:** the first tab stop on every page ("Skip to main content" / "Passer au contenu"), hidden until focused. It moves focus to `<main id="main-content">` itself, because the HashRouter owns the URL fragment. Pages have exactly one `<main>` (from the layout) and one `h1`.
+- **Logos** (`LogoPlate`, `src/components/Layout/LogoPlate.jsx`): CIOOS and regional logos are dark artwork, so they always sit on a white plate. It's invisible on light paper and shows as a plate in dark mode. Applies to the header, sign-in card and region cards.
+- **Sidebar items** are router links (`component={RouterLink}`), so they open in a new tab and are announced as links.
+- **Section rail:** vertical list (`<li>` per section, `aria-current="step"` on the active one) with a 3px region-colour active indicator; labels wrap (never truncate). Status per section: a count pill of required fields still missing (text, not colour alone), a success check, or a grey ring; collapses to icons.
+- **Section stepper:** sticky bottom bar; on `md`+ "previous" text button, save state, and an outlined "Next: <section>"; below `md`, 44px chevrons around a section picker.
+- **Tabs:** 44px min height, 3px indicator, inactive `text.secondary`, selected `primaryText` 600.
+- **Sidebar:** navigation only, on `background.default` with a 1px right border; 240px, icon rail at 72px. Order: Records; "Reuse in records" (Contacts, Platforms, Instruments, in the order the form asks for them); Administration (Region settings, admins only). Selected item = paper surface with a 1px ring, `primaryText` icon. Collapses inside a record, where the section rail takes over. Help and account live in the header, not here.
+
+### List editors
+- **ItemCards** (`src/components/FormComponents/ItemCards.jsx`): every repeatable item in a record — contacts, platforms, instruments, resources, related works, lineage and its sources/steps/documentation, taxa. One bordered list, one row per item: drag handle (when there are two or more), the item's name with a one-line summary (roles and citation, URL, relation type, what a lineage step holds…), its status in words ("Complete" / "Incomplete", from the per-item rules in `utils/validate.js`), and a ⋮ menu (Duplicate, Save to my contacts/platforms/instruments, Remove from this record in red).
+- Opening a row expands its editor in place at full width, one at a time; **Done** folds it and returns focus to the row. Adding an item opens it. Removing one shows an Undo snackbar. Nothing starts open.
+- Not a modal: these forms are long, lineage nests lists inside lists, and the record should stay in view.
+- Saved library items are added from **SavedItemSelect** beside the Add button; a saved item never brings its role along.
+- Below `sm` the status moves under the summary so the name keeps the width.
 
 ### Dialogs
 - 16px radius, overlay shadow, title 600 weight with 20px 24px 12px padding.
+- The `DialogTitle` holds the title text only. A description goes after it (and is wired with `aria-describedby`); the close button is absolutely positioned outside it with a bilingual "Close" / "Fermer" label. Otherwise the dialog's accessible name swallows both.
+- **Confirmations** (`SimpleModal`): the question is the title, an optional detail line says the consequence, and the confirm button names the action ("Delete", "Publish"); destructive ones are red. Never a bare Yes / No.
 
 ## Do's and Don'ts
 
@@ -255,7 +288,8 @@ Gently rounded and consistent: 8px (`md`) for buttons, inputs and most controls 
 - **Do** read colours from `theme.vars.palette` and build tints from `mainChannel`.
 - **Do** check every UI change in light and dark, and with an extreme region (`atlantic` near-black `#19222b`, `test` yellow `#fcba03`).
 - **Do** check in French and at ~375px width.
-- **Do** use `FormSection` for any new group of fields, and `FormShell` for full-page record editing.
+- **Do** use `FormField` for every record question and `FormSection` for each group of them, and `FormShell` for full-page record editing.
+- **Do** keep record questions to a short label + hint; put explanations in `guidance`, not above the control.
 - **Do** keep a visible focus indicator on every interactive element.
 
 ### Don't:

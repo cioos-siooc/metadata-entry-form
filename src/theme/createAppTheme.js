@@ -13,15 +13,22 @@ import {
   neutrals,
   motion,
   semantic,
+  semanticDark,
   FALLBACK_PRIMARY,
   FALLBACK_SECONDARY,
 } from "./tokens";
 import typography from "./typography";
 import buildComponents from "./components";
 
+// Whichever of white or ink reads better on the fill. Mid-luminance dark-mode
+// brand fills sit close to the crossover, where a fixed threshold picked the
+// weaker of the two.
 export function pickContrastText(hex) {
   try {
-    return getContrastRatio(hex, "#ffffff") >= 4.0 ? "#ffffff" : neutrals[900];
+    return getContrastRatio(hex, "#ffffff") >=
+      getContrastRatio(hex, neutrals[900])
+      ? "#ffffff"
+      : neutrals[900];
   } catch {
     return "#ffffff";
   }
@@ -33,6 +40,10 @@ export function pickContrastText(hex) {
 // full-width app bar, so nudge both into a mid-luminance band. Steps are small
 // and hue-preserving, so the result still reads as the region's colour.
 const DARK_MIN_LUMINANCE = 0.18;
+const TEXT_MIN_CONTRAST = 4.5;
+// primaryText also sits on brand tints (selected rail item, hover), which cost
+// a few tenths of contrast, so it targets 5:1 against paper.
+const BRAND_TEXT_TARGET = 5;
 const DARK_MAX_LUMINANCE = 0.45;
 
 function forDarkSurface(hex) {
@@ -43,6 +54,36 @@ function forDarkSurface(hex) {
     }
     for (let i = 0; i < 12 && getLuminance(out) > DARK_MAX_LUMINANCE; i += 1) {
       out = darken(out, 0.08);
+    }
+    // Between roughly 0.18 and 0.22 luminance neither white nor ink reaches
+    // 4.5:1 on the fill, so step away from whichever label reads better.
+    for (let i = 0; i < 8; i += 1) {
+      const onWhite = getContrastRatio(out, "#ffffff");
+      const onInk = getContrastRatio(out, neutrals[900]);
+      if (Math.max(onWhite, onInk) >= TEXT_MIN_CONTRAST) break;
+      out = onWhite >= onInk ? darken(out, 0.04) : lighten(out, 0.04);
+    }
+    return out;
+  } catch {
+    return hex;
+  }
+}
+
+// The region colour as TEXT or a control mark (links, text/outlined buttons,
+// checkboxes, the selected rail item) on the card surface. Darkened on light,
+// lightened on dark, until it clears 5:1; regions that already pass keep
+// their exact colour. Fills keep `primary.main` and take `contrastText`.
+
+export function forTextOn(hex, surface) {
+  try {
+    const step = getLuminance(surface) > 0.5 ? darken : lighten;
+    let out = hex;
+    for (
+      let i = 0;
+      i < 20 && getContrastRatio(out, surface) < BRAND_TEXT_TARGET;
+      i += 1
+    ) {
+      out = step(out, 0.06);
     }
     return out;
   } catch {
@@ -75,10 +116,7 @@ function buildPalette(mode, primaryHex, secondaryHex) {
     mode,
     primary: { main: primary, contrastText: pickContrastText(primary) },
     secondary: { main: secondary, contrastText: pickContrastText(secondary) },
-    success: semantic.success,
-    warning: semantic.warning,
-    error: semantic.error,
-    info: semantic.info,
+    ...(dark ? semanticDark : semantic),
     grey: neutrals,
     divider: dark ? neutrals[800] : neutrals[200],
     background: {
@@ -109,6 +147,11 @@ function buildPalette(mode, primaryHex, secondaryHex) {
     // neutrals[800] — the exact value of `subtle` — so a divider-coloured
     // border vanishes against it. Light already has a gap between the two.
     subtleBorder: dark ? neutrals[700] : neutrals[200],
+    // Outline of a text field, select or other control. A control's boundary
+    // needs 3:1 against its surface (WCAG 1.4.11); `divider` is ~1.2:1.
+    // slate-500 is 4.8:1 on white and 3.6:1 on the dark paper.
+    inputBorder: neutrals[500],
+    primaryText: forTextOn(primary, paperBg),
     // Brand surface & border tokens used by FormSection / chips / rails.
     primarySurface: alpha(primary, dark ? 0.16 : 0.08),
     primarySurfaceHover: alpha(primary, dark ? 0.24 : 0.14),

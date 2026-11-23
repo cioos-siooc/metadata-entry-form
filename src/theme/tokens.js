@@ -54,36 +54,78 @@ export const neutrals = {
 
 // Semantic colors are fixed across regions — errors are always clearly red,
 // regardless of whatever unusual hue a region picked as its brand primary.
+// MUI uses `main` both as text (text/outlined buttons, labels, icons) and as a
+// fill under `contrastText`, so each scheme gets a `main` that clears 4.5:1
+// against every surface it lands on: the 700 step on light (white label), the
+// 300/400 step on dark (ink label). `surface` and `border` are the light-mode
+// alert pastels; dark alerts tint `main` instead (see MuiAlert).
 export const semantic = {
   success: {
-    main: "#16a34a",
-    light: "#22c55e",
-    dark: "#15803d",
+    main: "#15803d",
+    light: "#16a34a",
+    dark: "#166534",
     contrastText: "#ffffff",
     surface: "#f0fdf4",
     border: "#bbf7d0",
   },
   warning: {
-    main: "#d97706",
-    light: "#f59e0b",
-    dark: "#b45309",
+    main: "#b45309",
+    light: "#d97706",
+    dark: "#92400e",
     contrastText: "#ffffff",
     surface: "#fffbeb",
     border: "#fde68a",
   },
   error: {
-    main: "#dc2626",
-    light: "#ef4444",
-    dark: "#b91c1c",
+    main: "#b91c1c",
+    light: "#dc2626",
+    dark: "#991b1b",
     contrastText: "#ffffff",
     surface: "#fef2f2",
     border: "#fecaca",
   },
   info: {
-    main: "#2563eb",
-    light: "#3b82f6",
-    dark: "#1d4ed8",
+    main: "#1d4ed8",
+    light: "#2563eb",
+    dark: "#1e40af",
     contrastText: "#ffffff",
+    surface: "#eff6ff",
+    border: "#bfdbfe",
+  },
+};
+
+// `surface` and `border` repeat the light pastels: dark mode reads `border` as
+// alert and badge text on a tint of `main`.
+export const semanticDark = {
+  success: {
+    main: "#4ade80",
+    light: "#86efac",
+    dark: "#22c55e",
+    contrastText: "#0f172a",
+    surface: "#f0fdf4",
+    border: "#bbf7d0",
+  },
+  warning: {
+    main: "#fbbf24",
+    light: "#fcd34d",
+    dark: "#f59e0b",
+    contrastText: "#0f172a",
+    surface: "#fffbeb",
+    border: "#fde68a",
+  },
+  error: {
+    main: "#fca5a5",
+    light: "#fecaca",
+    dark: "#f87171",
+    contrastText: "#0f172a",
+    surface: "#fef2f2",
+    border: "#fecaca",
+  },
+  info: {
+    main: "#93c5fd",
+    light: "#bfdbfe",
+    dark: "#60a5fa",
+    contrastText: "#0f172a",
     surface: "#eff6ff",
     border: "#bfdbfe",
   },
