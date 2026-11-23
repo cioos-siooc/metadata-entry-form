@@ -14,7 +14,7 @@ import tabs from "../../utils/tabs";
 
 // Maps a section id (the value used in <Tabs>) to the validator tab keys that
 // feed into its error count. Some sections aggregate multiple validator tabs.
-const SECTION_TO_VALIDATOR_TABS = {
+export const SECTION_TO_VALIDATOR_TABS = {
   start: ["start"],
   identification: ["dataID"],
   taxa: ["taxa"],
@@ -24,6 +24,13 @@ const SECTION_TO_VALIDATOR_TABS = {
   platform: ["platform", "platformInstruments"],
   submit: [],
 };
+
+// Validator tab key -> section id, for linking an error to where it's fixed.
+export const VALIDATOR_TAB_TO_SECTION = Object.fromEntries(
+  Object.entries(SECTION_TO_VALIDATOR_TABS).flatMap(([section, keys]) =>
+    keys.map((key) => [key, section]),
+  ),
+);
 
 function label(key, language, fallback) {
   const entry = tabs[key];

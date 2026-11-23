@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import {
   Box,
   Card,
@@ -14,9 +14,10 @@ import {
   CheckCircleOutline,
   ErrorOutline,
 } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
 import RequiredMark from "../FormComponents/RequiredMark";
 
-// FormSection — replacement for the repeated <Paper style={paperClass}> pattern.
+// FormSection — the card for one titled group of record questions.
 // Stateless-by-default card with optional title/description, required marker,
 // error count badge, collapsibility, and completion indicator.
 export default function FormSection({
@@ -34,15 +35,19 @@ export default function FormSection({
   contentSx,
 }) {
   const [open, setOpen] = useState(defaultExpanded);
+  const titleId = useId();
+  const { language } = useParams();
+  const fr = language === "fr";
   const hasError = errorCount > 0;
   const hasHeader = Boolean(title || description || actions);
 
   return (
     <Card
       id={id}
+      component="section"
+      aria-labelledby={title ? titleId : undefined}
       variant="outlined"
       sx={(theme) => ({
-        borderRadius: 2,
         borderColor: hasError ? "error.main" : "divider",
         boxShadow: hasError
           ? `0 0 0 1px ${theme.vars.palette.error.main}`
@@ -61,9 +66,9 @@ export default function FormSection({
           alignItems="flex-start"
           spacing={2}
           sx={{
-            px: 3,
-            pt: 2.5,
-            pb: collapsible && !open ? 2.5 : 1.5,
+            px: { xs: 2, sm: 3 },
+            pt: { xs: 2, sm: 2.5 },
+            pb: collapsible && !open ? { xs: 2, sm: 2.5 } : 1.5,
             cursor: collapsible ? "pointer" : "default",
           }}
           onClick={collapsible ? () => setOpen((o) => !o) : undefined}
@@ -77,7 +82,9 @@ export default function FormSection({
                 flexWrap="wrap"
               >
                 <Typography
+                  id={titleId}
                   variant="h6"
+                  component="h2"
                   sx={{
                     fontSize: "1.0625rem",
                     fontWeight: 600,
@@ -133,7 +140,16 @@ export default function FormSection({
           {collapsible && (
             <IconButton
               size="small"
-              aria-label={open ? "Collapse" : "Expand"}
+              aria-label={
+                open
+                  ? fr
+                    ? "Réduire"
+                    : "Collapse"
+                  : fr
+                    ? "Développer"
+                    : "Expand"
+              }
+              aria-expanded={open}
               sx={{ mt: -0.5 }}
             >
               {open ? <ExpandLess /> : <ExpandMore />}
@@ -144,9 +160,9 @@ export default function FormSection({
       <Collapse in={!collapsible || open} timeout="auto" unmountOnExit={false}>
         <Box
           sx={{
-            px: 3,
-            pt: hasHeader ? 0.5 : 2.5,
-            pb: 2.5,
+            px: { xs: 2, sm: 3 },
+            pt: hasHeader ? 1 : { xs: 2, sm: 2.5 },
+            pb: { xs: 2.5, sm: 3 },
             ...contentSx,
           }}
         >

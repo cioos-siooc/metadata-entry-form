@@ -16,35 +16,67 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "@mui/icons-material";
-import { I18n } from "../I18n";
+import { HEADER_HEIGHT } from "../NavDrawer/styles";
+import { FORM_HEADER_HEIGHT_MD } from "./FormHeader";
+import { useParams } from "react-router-dom";
 
-// Section status: green check when complete, red ✵ (same mark as required
-// fields) when something required is missing, grey ring when untouched.
-export function StateIndicator({ state }) {
+// Section status: a count of required fields still missing (text, not just
+// colour), a green check when nothing required is missing, a grey ring when
+// the record hasn't been started.
+export function StateIndicator({ state, count = 0 }) {
+  const { language } = useParams();
+  const fr = language === "fr";
   if (state === "error") {
+    const label = fr
+      ? `${count} champ${count > 1 ? "s" : ""} obligatoire${count > 1 ? "s" : ""} à remplir`
+      : `${count} required field${count > 1 ? "s" : ""} to complete`;
     return (
-      <Tooltip
-        title={
-          <I18n
-            en="Required fields missing"
-            fr="Champs obligatoires manquants"
-          />
-        }
-      >
+      <Tooltip title={label}>
         <Box
           component="span"
-          aria-label="required fields missing"
-          sx={{ color: "error.main", fontSize: 18, lineHeight: 1 }}
+          role="img"
+          aria-label={label}
+          sx={(theme) => ({
+            minWidth: 22,
+            height: 20,
+            px: 0.75,
+            borderRadius: 999,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            fontVariantNumeric: "tabular-nums",
+            color: "error.dark",
+            bgcolor: "error.surface",
+            border: `1px solid ${theme.vars.palette.error.border}`,
+            ...theme.applyStyles("dark", {
+              color: theme.vars.palette.error.border,
+              bgcolor: `rgba(${theme.vars.palette.error.mainChannel} / 0.14)`,
+              borderColor: `rgba(${theme.vars.palette.error.mainChannel} / 0.4)`,
+            }),
+          })}
         >
-          ✵
+          {count}
         </Box>
       </Tooltip>
     );
   }
   if (state === "complete") {
-    return <CheckCircle sx={{ fontSize: 18, color: "success.main" }} />;
+    return (
+      <CheckCircle
+        titleAccess={fr ? "Section complète" : "Section complete"}
+        sx={{ fontSize: 18, color: "success.main" }}
+      />
+    );
   }
-  return <RadioButtonUnchecked sx={{ fontSize: 16, color: "text.disabled" }} />;
+  return (
+    <RadioButtonUnchecked
+      titleAccess={fr ? "Non commencée" : "Not started"}
+      // A state mark, so it needs 3:1: text.disabled was 2.6:1.
+      sx={{ fontSize: 16, color: "text.secondary" }}
+    />
+  );
 }
 
 export default function SectionRail({
@@ -56,13 +88,15 @@ export default function SectionRail({
   width = 260,
   collapsedWidth = 72,
 }) {
+  const { language } = useParams();
+  const fr = language === "fr";
   return (
     <Box
       component="nav"
-      aria-label="Form sections"
+      aria-label={fr ? "Sections du formulaire" : "Form sections"}
       sx={(theme) => ({
         position: "sticky",
-        top: 0,
+        top: HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD,
         alignSelf: "flex-start",
         width: collapsed ? collapsedWidth : width,
         flexShrink: 0,
@@ -73,7 +107,7 @@ export default function SectionRail({
         }),
         display: { xs: "none", md: "flex" },
         flexDirection: "column",
-        maxHeight: "calc(100vh - 64px)",
+        maxHeight: `calc(100vh - ${HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD}px)`,
         overflowY: "auto",
       })}
     >
@@ -104,6 +138,7 @@ export default function SectionRail({
             <ListItemButton
               key={section.id}
               selected={isActive}
+              aria-current={isActive ? "step" : undefined}
               disabled={section.disabled}
               onClick={() => onSectionChange(section.id)}
               sx={(theme) => ({
@@ -139,7 +174,7 @@ export default function SectionRail({
               <ListItemIcon
                 sx={{
                   minWidth: collapsed ? 0 : 36,
-                  color: isActive ? "primary.main" : "text.secondary",
+                  color: isActive ? "primaryText" : "text.secondary",
                   justifyContent: "center",
                 }}
               >
@@ -153,32 +188,33 @@ export default function SectionRail({
                       sx: {
                         fontSize: "0.875rem",
                         fontWeight: isActive ? 600 : 500,
-                        color: isActive ? "primary.main" : "text.primary",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        color: isActive ? "primaryText" : "text.primary",
+                        lineHeight: 1.35,
                       },
                     }}
                   />
                   <Box sx={{ ml: 1, flexShrink: 0 }}>
-                    <StateIndicator state={section.state} />
+                    <StateIndicator
+                      state={section.state}
+                      count={section.errorCount}
+                    />
                   </Box>
                 </>
               )}
             </ListItemButton>
           );
 
-          return collapsed ? (
-            <Tooltip
-              key={section.id}
-              title={section.label}
-              placement="right"
-              arrow
-            >
-              <span>{button}</span>
-            </Tooltip>
-          ) : (
-            button
+          // <List> is a <ul>, so each entry needs its own <li>.
+          return (
+            <Box component="li" key={section.id} sx={{ listStyle: "none" }}>
+              {collapsed ? (
+                <Tooltip title={section.label} placement="right" arrow>
+                  <span>{button}</span>
+                </Tooltip>
+              ) : (
+                button
+              )}
+            </Box>
           );
         })}
       </List>
@@ -192,10 +228,29 @@ export default function SectionRail({
         }}
       >
         <Tooltip
-          title={collapsed ? "Expand sections" : "Collapse sections"}
+          title={
+            collapsed
+              ? fr
+                ? "Développer les sections"
+                : "Expand sections"
+              : fr
+                ? "Réduire les sections"
+                : "Collapse sections"
+          }
           placement="right"
         >
-          <IconButton size="small" onClick={onToggleCollapsed}>
+          <IconButton
+            onClick={onToggleCollapsed}
+            aria-label={
+              collapsed
+                ? fr
+                  ? "Développer les sections"
+                  : "Expand sections"
+                : fr
+                  ? "Réduire les sections"
+                  : "Collapse sections"
+            }
+          >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </Tooltip>

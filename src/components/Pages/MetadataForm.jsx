@@ -252,7 +252,8 @@ export class MetadataForm extends FormClassTemplate {
 
   // genereric handler for updating state, used by most form components
   // generic event handler
-  handleUpdateRecord = (key) => (event) => this.updateRecord(key)(event.target.value);
+  handleUpdateRecord = (key) => (event) =>
+    this.updateRecord(key)(event.target.value);
 
   // a second genereric handler components that dont use onChange
   // generic state updater creator
@@ -558,6 +559,9 @@ export class MetadataForm extends FormClassTemplate {
               doiUpdated={this.state.doiUpdated}
               doiError={this.state.doiError}
               submitRecord={() => this.handleSubmitRecord()}
+              onGoToField={(section, key) =>
+                this.setState({ tabIndex: section }, () => scrollToField(key))
+              }
             />
           );
         default:
@@ -599,10 +603,16 @@ export class MetadataForm extends FormClassTemplate {
           <SimpleModal
             open={saveIncompleteRecordModalOpen}
             modalQuestion={
+              <I18n en="Save as a draft?" fr="Enregistrer comme brouillon ?" />
+            }
+            detail={
               <I18n
-                en="Record is missing required fields. Saving will demote it to draft. Do you want to do this?"
-                fr="Il manque des champs obligatoires dans l'enregistrement. L'enregistrement le rétrogradera en brouillon. Est-ce que tu veux le faire ?"
+                en="This record is missing required fields. Saving it now returns it to draft, and it will need to be submitted again."
+                fr="Il manque des champs obligatoires dans cet enregistrement. L'enregistrer maintenant le remet en brouillon, et il devra être soumis à nouveau."
               />
+            }
+            confirmLabel={
+              <I18n en="Save as draft" fr="Enregistrer en brouillon" />
             }
             onClose={() => {
               this.toggleModal("saveIncompleteRecordModalOpen", false);
@@ -696,12 +706,8 @@ function FormShellWrapper({
           ),
         }}
         aside={wide && review?.open ? reviewPanel : null}
-        actionBarProps={{
-          dirty,
-          saving,
-          saveDisabled,
-          onSave,
-        }}
+        dirty={dirty}
+        neverSaved={!record.recordID}
       >
         <SectionSwitcher
           sections={sections}
