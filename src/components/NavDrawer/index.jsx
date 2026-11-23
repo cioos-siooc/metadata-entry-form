@@ -37,6 +37,7 @@ import { UserContext } from "../../providers/UserProvider";
 import AppHeader from "./AppHeader";
 import styles, { HEADER_HEIGHT } from "./styles";
 import useSentryFeedback from "./useSentryFeedback";
+import recordScopes from "../Pages/recordScopes";
 
 // Sections with a sidebar entry of their own. Everything else under a region
 // (the record list, /new and the /:userID/:recordID editor) belongs to
@@ -47,7 +48,8 @@ export default function NavDrawer({ children }) {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  const { user, loggedIn, isAdmin } = useContext(UserContext);
+  const { user, loggedIn, isAdmin, isReviewer, hasSharedRecords } =
+    useContext(UserContext);
 
   let { language = "en", region = "" } = useParams();
   if (!["en", "fr"].includes(language)) language = "en";
@@ -63,6 +65,16 @@ export default function NavDrawer({ children }) {
   const inRecord =
     section === "new" ||
     (segments.length === 2 && !OWN_SECTIONS.includes(section));
+  // The record list (index or /submissions) shows one scope, which it keeps
+  // in ?scope=.
+  const onRecordList = !section || section === "submissions";
+  const listParams = new URLSearchParams(search);
+  const listScope = onRecordList && listParams.get("scope");
+  const listStatus = listParams.get("status");
+  const canReview = Boolean(isReviewer || isAdmin);
+  // Reviewers get the review queue as its own entry; the plain region view
+  // then shows every status, so the two never point at the same list.
+  const inReviewQueue = listScope === "region" && listStatus === "submitted";
 
   // Inside a record the form's own section rail takes over, so the app nav
   // starts collapsed there and open everywhere else (on wide screens).
@@ -107,6 +119,29 @@ export default function NavDrawer({ children }) {
           Icon: ViewListOutlined,
           label: <I18n en="Records" fr="Enregistrements" />,
           selected: !OWN_SECTIONS.includes(section),
+          children: [
+            ...recordScopes({ hasSharedRecords, canReview }).map((scope) =>
+              canReview && scope.value === "region"
+                ? {
+                    key: scope.value,
+                    path: `${baseURL}/submissions?scope=region&status=all`,
+                    label: <I18n en={scope.en} fr={scope.fr} />,
+                    selected: listScope === "region" && !inReviewQueue,
+                  }
+                : {
+                    key: scope.value,
+                    path: `${baseURL}/submissions?scope=${scope.value}`,
+                    label: <I18n en={scope.en} fr={scope.fr} />,
+                    selected: listScope === scope.value,
+                  },
+            ),
+            canReview && {
+              key: "review-queue",
+              path: `${baseURL}/submissions?scope=region&status=submitted`,
+              label: <I18n en="Submitted" fr="Soumis" />,
+              selected: inReviewQueue,
+            },
+          ].filter(Boolean),
         },
       ],
     },
@@ -224,29 +259,60 @@ export default function NavDrawer({ children }) {
                       {group.label}
                     </ListSubheader>
                   ))}
-                {group.items.map((item) => (
-                  <Tooltip
-                    key={item.key}
-                    placement="right"
-                    title={collapsed ? item.label : ""}
-                  >
-                    <ListItemButton
-                      component={RouterLink}
-                      to={item.path}
-                      sx={styles.navItem}
-                      selected={item.selected}
-                      aria-current={item.selected ? "page" : undefined}
-                      onClick={() => {
-                        if (isMobile) setOpen(false);
-                      }}
-                    >
-                      <ListItemIcon>
-                        <item.Icon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary={item.label} />
-                    </ListItemButton>
-                  </Tooltip>
-                ))}
+                {group.items.map((item) => {
+                  // The icon rail has no room for sub-items; the parent
+                  // stays the way in.
+                  const children = collapsed ? [] : item.children || [];
+                  const childSelected = children.some((c) => c.selected);
+                  return (
+                    <React.Fragment key={item.key}>
+                      <Tooltip
+                        placement="right"
+                        title={collapsed ? item.label : ""}
+                      >
+                        <ListItemButton
+                          component={RouterLink}
+                          to={item.path}
+                          sx={[
+                            styles.navItem,
+                            childSelected && styles.navItemOpen,
+                          ]}
+                          selected={item.selected && !childSelected}
+                          aria-current={
+                            item.selected && !childSelected ? "page" : undefined
+                          }
+                          onClick={() => {
+                            if (isMobile) setOpen(false);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <item.Icon fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText primary={item.label} />
+                        </ListItemButton>
+                      </Tooltip>
+                      {children.length > 0 && (
+                        <List disablePadding sx={styles.subList}>
+                          {children.map((child) => (
+                            <ListItemButton
+                              key={child.key}
+                              component={RouterLink}
+                              to={child.path}
+                              sx={styles.subNavItem}
+                              selected={child.selected}
+                              aria-current={child.selected ? "page" : undefined}
+                              onClick={() => {
+                                if (isMobile) setOpen(false);
+                              }}
+                            >
+                              <ListItemText primary={child.label} />
+                            </ListItemButton>
+                          ))}
+                        </List>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </Box>
             ))}
           </List>

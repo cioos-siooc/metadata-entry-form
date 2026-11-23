@@ -58,6 +58,7 @@ import { markFormNavigation } from "../RecordList/hooks";
 import GettingStarted from "../Dashboard/GettingStarted";
 import { Page, PageHeader, EmptyState } from "../Layout/Page";
 import StatusTabs, { filterByStatus } from "../Layout/StatusTabs";
+import recordScopes from "./recordScopes";
 
 // One page for every record a user can reach. What used to be four pages
 // (my records, shared with me, published, review queue) are scopes of it, so
@@ -105,7 +106,6 @@ const CONFIRMATIONS = [
   },
 ];
 
-const SCOPES = ["mine", "shared", "region"];
 const STATUS_KEYS = ["all", "draft", "submitted", "published"];
 const VIEW_KEY = "records-view";
 
@@ -246,13 +246,24 @@ const Records = () => {
   // The view lives in the URL (?scope=&status=) so links into the review
   // queue work, and falls back to where this browser last left it.
   const saved = useMemo(readSavedView, []);
+  const scopeOptions = recordScopes({ hasSharedRecords, canReview });
   const scopeParam = searchParams.get("scope") || saved.scope;
-  const scope =
-    SCOPES.includes(scopeParam) && (scopeParam !== "shared" || hasSharedRecords)
-      ? scopeParam
-      : "mine";
+  const scope = scopeOptions.some((option) => option.value === scopeParam)
+    ? scopeParam
+    : "mine";
   const statusParam = searchParams.get("status") || saved.status;
   const statusFilter = STATUS_KEYS.includes(statusParam) ? statusParam : "all";
+
+  // Write the resolved view back into the URL, so the sidebar (which reads
+  // ?scope=) highlights the scope shown even when it came from storage.
+  useEffect(() => {
+    if (
+      searchParams.get("scope") !== scope ||
+      searchParams.get("status") !== statusFilter
+    ) {
+      setSearchParams({ scope, status: statusFilter }, { replace: true });
+    }
+  }, [scope, statusFilter, searchParams, setSearchParams]);
   const showStatusTabs = scope !== "region" || canReview;
 
   const setView = useCallback(
@@ -694,22 +705,6 @@ const Records = () => {
           fr: "Les enregistrements publiés dans cette région. Dupliquez-en un pour commencer un enregistrement semblable.",
         },
   };
-
-  const scopeOptions = [
-    { value: "mine", en: "Mine", fr: "Les miens" },
-    hasSharedRecords && {
-      value: "shared",
-      en: "Shared with me",
-      fr: "Partagés avec moi",
-    },
-    canReview
-      ? { value: "region", en: "Whole region", fr: "Toute la région" }
-      : {
-          value: "region",
-          en: "Published in region",
-          fr: "Publiés dans la région",
-        },
-  ].filter(Boolean);
 
   let body;
   if (isEmpty && scope === "mine") {

@@ -144,6 +144,43 @@ const styles = {
     },
   }),
 
+  // Sub-items hang off a rule aligned under the parent's icon, so they read
+  // as part of it rather than as more top-level entries.
+  subList: (theme) => ({
+    ml: "22px",
+    pl: 1,
+    mb: 0.5,
+    borderLeft: `1px solid ${theme.vars.palette.divider}`,
+  }),
+
+  // A parent whose sub-item is the current page: the card moves down to the
+  // sub-item, so the parent marks itself as open with weight and its icon.
+  navItemOpen: (theme) => ({
+    "& .MuiListItemText-primary": { fontWeight: 600 },
+    "& .MuiListItemIcon-root": { color: theme.vars.palette.primaryText },
+  }),
+
+  // Quieter than navItem until selected, when it takes the same card, so the
+  // sidebar has one "you are here" marker whatever the depth.
+  subNavItem: (theme) => ({
+    color: theme.vars.palette.text.secondary,
+    textDecoration: "none",
+    borderRadius: `${theme.shape.borderRadius}px`,
+    minHeight: 32,
+    py: 0.25,
+    px: 1.5,
+    "& .MuiListItemText-primary": {
+      fontSize: "0.8125rem",
+      fontWeight: 500,
+    },
+    "&.Mui-selected, &.Mui-selected:hover": {
+      backgroundColor: theme.vars.palette.background.paper,
+      boxShadow: `0 0 0 1px ${theme.vars.palette.divider}`,
+      color: theme.vars.palette.text.primary,
+      "& .MuiListItemText-primary": { fontWeight: 600 },
+    },
+  }),
+
   bottomList: {
     mt: "auto",
     px: 1.5,
