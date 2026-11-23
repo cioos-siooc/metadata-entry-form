@@ -46,7 +46,7 @@ const TEXT_MIN_CONTRAST = 4.5;
 const BRAND_TEXT_TARGET = 5;
 const DARK_MAX_LUMINANCE = 0.45;
 
-function forDarkSurface(hex) {
+export function forDarkSurface(hex) {
   try {
     let out = hex;
     for (let i = 0; i < 12 && getLuminance(out) < DARK_MIN_LUMINANCE; i += 1) {

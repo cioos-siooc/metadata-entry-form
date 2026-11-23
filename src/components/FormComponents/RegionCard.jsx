@@ -9,11 +9,14 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import regions, { getRegionLogo } from "../../regions";
 import { FALLBACK_PRIMARY } from "../../theme/tokens";
+import { forDarkSurface } from "../../theme/createAppTheme";
 import LogoPlate from "../Layout/LogoPlate";
 
 // One region on the picker. The whole card is a single link into the
-// region; the region colour is decoration only (border and top accent), so
-// the focus ring uses the system's contrast-safe brand text colour.
+// region. Each card carries its region's colour (a top band, a tinted body
+// and border) so regions read apart at a glance; the colour is identity only,
+// never text, and the title and logo still name the region. The focus ring
+// uses the system's contrast-safe brand text colour.
 export default function RegionCard({ region, regionSummary, showMap = true }) {
   const { language } = useParams();
   const summaryId = useId();
@@ -22,6 +25,9 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
   const title = regionInfo?.title?.[language] || region;
   const logoSrc = getRegionLogo(region, language);
   const primaryColor = regionInfo?.colors?.primary || FALLBACK_PRIMARY;
+  // The region's colour as the app uses it in dark mode: near-black regions
+  // are lifted so the band still shows on the dark card.
+  const darkColor = forDarkSurface(primaryColor);
 
   return (
     <Card
@@ -33,7 +39,10 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
         minHeight: showMap ? 470 : 280,
         position: "relative",
         overflow: "hidden",
-        borderColor: alpha(primaryColor, 0.25),
+        borderColor: alpha(primaryColor, 0.35),
+        ...theme.applyStyles("dark", {
+          borderColor: alpha(darkColor, 0.45),
+        }),
         transition: theme.transitions.create(
           ["transform", "box-shadow", "border-color"],
           { duration: theme.transitions.duration.short },
@@ -41,13 +50,17 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
         "&:hover, &:has(:focus-visible)": {
           boxShadow: theme.shadows[3],
           borderColor: primaryColor,
+          ...theme.applyStyles("dark", { borderColor: darkColor }),
           "& .regioncard-media": {
             filter: "saturate(115%) brightness(1.03)",
+          },
+          "& .regioncard-body": {
+            bgcolor: alpha(primaryColor, 0.1),
+            ...theme.applyStyles("dark", { bgcolor: alpha(darkColor, 0.2) }),
           },
           "@media (prefers-reduced-motion: no-preference)": {
             transform: "translateY(-3px)",
             "& .regioncard-media": { transform: "scale(1.02)" },
-            "& .regioncard-accent": { transform: "translateY(0)" },
           },
         },
         "&:has(:focus-visible)": {
@@ -64,13 +77,10 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
           top: 0,
           left: 0,
           right: 0,
-          height: 4,
+          height: 6,
           bgcolor: primaryColor,
           zIndex: 2,
-          transform: "translateY(-2px)",
-          transition: theme.transitions.create("transform", {
-            duration: theme.transitions.duration.short,
-          }),
+          ...theme.applyStyles("dark", { bgcolor: darkColor }),
         })}
       />
       <CardActionArea
@@ -99,6 +109,18 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
               height: 240,
               flexShrink: 0,
               backgroundPosition: "center",
+              position: "relative",
+              // Every map shares one teal sea. A colour-blend wash recolours
+              // only that sea in the region's hue; grey land and white stay.
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                inset: 0,
+                bgcolor: primaryColor,
+                mixBlendMode: "color",
+                opacity: 0.85,
+                ...theme.applyStyles("dark", { bgcolor: darkColor }),
+              },
               transition: theme.transitions.create(["filter", "transform"], {
                 duration: theme.transitions.duration.standard,
               }),
@@ -106,7 +128,8 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
           />
         )}
         <CardContent
-          sx={{
+          className="regioncard-body"
+          sx={(theme) => ({
             flexGrow: 1,
             display: "flex",
             flexDirection: "column",
@@ -114,7 +137,14 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
             gap: 1.5,
             px: 3,
             py: 2.5,
-          }}
+            // A faint wash of the region colour; summary text stays
+            // text.secondary, which clears 4.5:1 on these tints.
+            bgcolor: alpha(primaryColor, 0.05),
+            ...theme.applyStyles("dark", { bgcolor: alpha(darkColor, 0.1) }),
+            transition: theme.transitions.create("background-color", {
+              duration: theme.transitions.duration.short,
+            }),
+          })}
         >
           {logoSrc ? (
             <LogoPlate sx={{ width: "100%", maxWidth: 276, px: 1 }}>
