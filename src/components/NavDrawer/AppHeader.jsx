@@ -34,7 +34,7 @@ import {
 import { useColorScheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import regions, { getRegionLogo } from "../../regions";
-import { HEADER_HEIGHT } from "./styles";
+import { HEADER_HEIGHT, drawerWidth } from "./styles";
 
 const nationalLogos = {
   en: new URL("../../static/cioos-national-en.png", import.meta.url).href,
@@ -42,6 +42,22 @@ const nationalLogos = {
 };
 
 const iconButtonSx = { color: "text.secondary" };
+
+// The plate fills the logo zone; the logo scales to its height and sits
+// centred, so wide and compact logos share one footprint.
+const logoPlateSx = {
+  flex: 1,
+  minWidth: 0,
+  height: 44,
+  py: 0,
+};
+const logoImgSx = {
+  display: "block",
+  width: "100%",
+  height: 36,
+  objectFit: "contain",
+  objectPosition: "center",
+};
 
 // The app's one header: a quiet paper bar under a thin line of the region's
 // colour. Left: the region you are working in (and the switch to another),
@@ -122,17 +138,18 @@ export default function AppHeader({
           </IconButton>
         )}
 
-        {/* With the sidebar expanded, the logo zone spans its width so the
-            divider and title start where the sidebar ends. */}
+        {/* The logo zone always spans the sidebar's width, so the divider and
+            title start where the sidebar ends and the chevron sits in the
+            same place whatever the region's logo proportions. On phones it
+            shrinks to fit beside the menu button. */}
         <Box
           sx={(theme) => ({
             display: "flex",
             alignItems: "center",
-            flexShrink: 0,
-            ...(sidebarWidth && {
-              // Toolbar left padding and flex gap sit outside this box.
-              width: `calc(${sidebarWidth}px - ${theme.spacing(1.5)} - ${theme.spacing(1)})`,
-            }),
+            minWidth: 0,
+            flex: { xs: "0 1 auto", sm: "0 0 auto" },
+            // Toolbar left padding and flex gap sit outside this box.
+            width: `calc(${sidebarWidth || drawerWidth}px - ${theme.spacing(1.5)} - ${theme.spacing(1)})`,
           })}
         >
           {/* Region: the logo is the switcher, as a workspace switcher would be. */}
@@ -148,34 +165,30 @@ export default function AppHeader({
               )}
               endIcon={<ExpandMore sx={{ color: "text.secondary" }} />}
               sx={{
-                px: 1,
-                py: 0.25,
+                width: "100%",
                 minWidth: 0,
+                px: 0.5,
+                py: 0.25,
                 color: "text.primary",
-                "& .MuiButton-endIcon": { ml: 0.25 },
+                "& .MuiButton-endIcon": { ml: 0.5, mr: 0, flexShrink: 0 },
               }}
             >
-              <LogoPlate sx={{ height: 44, py: 0 }}>
+              <LogoPlate sx={logoPlateSx}>
                 <Box
                   component="img"
                   src={logo || nationalLogo}
                   alt={regionTitle || "CIOOS"}
-                  sx={{
-                    height: 36,
-                    width: "auto",
-                    maxWidth: { xs: 140, sm: 190 },
-                    objectFit: "contain",
-                  }}
+                  sx={logoImgSx}
                 />
               </LogoPlate>
             </Button>
           ) : (
-            <LogoPlate sx={{ height: 44, py: 0, mx: 0.5 }}>
+            <LogoPlate sx={[logoPlateSx, { mx: 0.5 }]}>
               <Box
                 component="img"
                 src={nationalLogo}
                 alt="CIOOS / SIOOC"
-                sx={{ height: 36, width: "auto" }}
+                sx={logoImgSx}
               />
             </LogoPlate>
           )}
