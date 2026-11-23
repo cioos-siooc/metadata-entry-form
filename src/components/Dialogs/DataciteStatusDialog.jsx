@@ -8,6 +8,7 @@ import {
   Typography,
   CircularProgress,
   Chip,
+  Box,
 } from "@mui/material";
 import { I18n, En, Fr } from "../I18n";
 
@@ -30,7 +31,7 @@ export function DoiStateChip({ state }) {
       size="small"
       color={colorMap[state] || "default"}
       label={<I18n en={label.en} fr={label.fr} />}
-      style={{ marginLeft: 8 }}
+      sx={{ ml: 1 }}
     />
   );
 }
@@ -73,26 +74,23 @@ export default function DataciteStatusDialog({
 
       <DialogContent>
         {loading ? (
-          <div
-            style={{
+          <Box
+            role="status"
+            sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              padding: 20,
+              p: 2.5,
             }}
           >
             <CircularProgress />
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              style={{ marginTop: 12 }}
-            >
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1.5 }}>
               <I18n>
                 <En>Updating DOI status in DataCite…</En>
                 <Fr>Mise à jour du statut du DOI dans DataCite…</Fr>
               </I18n>
             </Typography>
-          </div>
+          </Box>
         ) : (
           <>
             <Typography variant="body2" color="textSecondary" gutterBottom>
@@ -104,7 +102,7 @@ export default function DataciteStatusDialog({
             </Typography>
 
             {isPublish ? (
-              <Typography variant="body1" style={{ marginTop: 8 }}>
+              <Typography variant="body1" sx={{ mt: 1 }}>
                 <I18n>
                   <En>Would you like to update the DOI status in DataCite?</En>
                   <Fr>
@@ -114,7 +112,7 @@ export default function DataciteStatusDialog({
                 </I18n>
               </Typography>
             ) : (
-              <Typography variant="body1" style={{ marginTop: 8 }}>
+              <Typography variant="body1" sx={{ mt: 1 }}>
                 <I18n>
                   <En>
                     This DOI is currently <strong>findable</strong> (publicly

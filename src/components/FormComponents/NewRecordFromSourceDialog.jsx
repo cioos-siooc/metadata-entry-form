@@ -10,6 +10,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  Box,
 } from "@mui/material";
 
 import { En, Fr, I18n } from "../I18n";
@@ -213,7 +214,7 @@ const NewRecordFromSourceDialog = ({
         />
 
         {value.trim() && (
-          <div style={{ marginTop: "10px" }}>
+          <Box sx={{ mt: 1.25 }}>
             {detected ? (
               <Chip
                 size="small"
@@ -239,7 +240,7 @@ const NewRecordFromSourceDialog = ({
                 }
               />
             )}
-          </div>
+          </Box>
         )}
 
         <Alert severity="info" variant="outlined" sx={{ mt: 2 }}>

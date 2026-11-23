@@ -39,13 +39,12 @@ export default function TransferModal({
       onClose={handleClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
       aria-labelledby="transfer-modal-title"
     >
       <DialogTitle id="transfer-modal-title">
         <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
           <I18n>
-            <En>Transfer Record</En>
+            <En>Transfer record</En>
             <Fr>Enregistrement de transfert</Fr>
           </I18n>
         </Typography>

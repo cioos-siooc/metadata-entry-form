@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,16 +6,23 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  Typography,
 } from "@mui/material";
-import { En, Fr, I18n } from "../I18n";
+import { I18n } from "../I18n";
 
+// Confirmation for an action that changes or removes a record. The question is
+// the title and the confirm button names the action, so "Delete" never sits
+// behind a generic "Yes".
 export default function SimpleModal({
   open,
   onClose,
   onAccept,
   modalQuestion,
+  detail,
+  confirmLabel,
+  destructive = false,
 }) {
+  const titleId = useId();
+  const descriptionId = useId();
   const handleAccept = () => {
     onClose();
     onAccept();
@@ -27,44 +34,35 @@ export default function SimpleModal({
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
-      aria-labelledby="simple-modal-title"
-      aria-describedby="simple-modal-description"
+      aria-labelledby={titleId}
+      aria-describedby={detail ? descriptionId : undefined}
       onKeyDown={(e) => {
         if (e.key === "y") {
           handleAccept();
         }
       }}
     >
-      <DialogTitle id="simple-modal-title" sx={{ pb: modalQuestion ? 1 : 2 }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
-          <I18n>
-            <En>Are you sure?</En>
-            <Fr>Vous êtes sûr ?</Fr>
-          </I18n>
-        </Typography>
+      <DialogTitle id={titleId} sx={{ fontSize: "1.125rem" }}>
+        {modalQuestion || <I18n en="Are you sure?" fr="Êtes-vous sûr ?" />}
       </DialogTitle>
 
-      {modalQuestion && (
+      {detail && (
         <DialogContent>
-          <DialogContentText id="simple-modal-description">
-            {modalQuestion}
-          </DialogContentText>
+          <DialogContentText id={descriptionId}>{detail}</DialogContentText>
         </DialogContent>
       )}
 
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="text">
-          <I18n>
-            <En>No</En>
-            <Fr>Non</Fr>
-          </I18n>
+      <DialogActions sx={{ px: 3, pb: 2.5, pt: detail ? 0 : 1 }}>
+        <Button onClick={onClose}>
+          <I18n en="Cancel" fr="Annuler" />
         </Button>
-        <Button onClick={handleAccept} variant="contained" disableElevation>
-          <I18n>
-            <En>Yes</En>
-            <Fr>Oui</Fr>
-          </I18n>
+        <Button
+          onClick={handleAccept}
+          variant="contained"
+          color={destructive ? "error" : "primary"}
+          autoFocus={!destructive}
+        >
+          {confirmLabel || <I18n en="Confirm" fr="Confirmer" />}
         </Button>
       </DialogActions>
     </Dialog>
