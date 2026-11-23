@@ -35,6 +35,7 @@ import { useColorScheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import regions, { getRegionLogo } from "../../regions";
 import { HEADER_HEIGHT, drawerWidth } from "./styles";
+import { semantic, semanticDark } from "../../theme/tokens";
 
 const nationalLogos = {
   en: new URL("../../static/cioos-national-en.png", import.meta.url).href,
@@ -250,11 +251,39 @@ export default function AppHeader({
               rel="noopener noreferrer"
               clickable
               size="small"
-              color="warning"
-              variant="outlined"
               icon={<WarningAmberOutlined />}
               label={t("Dev database", "BD de dév.")}
-              sx={{ display: { xs: "none", md: "inline-flex" }, mr: 0.5 }}
+              // A soft amber pill: light amber fill with dark amber ink
+              // (>4.5:1) in light mode, an amber tint with light amber ink in
+              // dark mode. Insets are balanced optically: 8px before the icon,
+              // 6px to the text, 10px after it.
+              sx={(theme) => ({
+                display: { xs: "none", md: "inline-flex" },
+                mr: 0.5,
+                height: 28,
+                border: 0,
+                bgcolor: semantic.warning.border,
+                color: semantic.warning.dark,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                // One amber step deeper on hover (amber-300).
+                "&:hover": { bgcolor: semanticDark.warning.light },
+                "& .MuiChip-icon": {
+                  color: "inherit",
+                  fontSize: 16,
+                  ml: 1,
+                  mr: 0,
+                },
+                "& .MuiChip-label": { pl: 0.75, pr: 1.25 },
+                ...theme.applyStyles("dark", {
+                  bgcolor: `rgba(${theme.vars.palette.warning.mainChannel} / 0.16)`,
+                  color: theme.vars.palette.warning.main,
+                  "&:hover": {
+                    bgcolor: `rgba(${theme.vars.palette.warning.mainChannel} / 0.24)`,
+                  },
+                }),
+              })}
             />
           </Tooltip>
         )}
