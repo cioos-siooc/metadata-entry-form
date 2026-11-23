@@ -53,6 +53,16 @@ const styles = {
     "& .MuiListItemText-root": { opacity: 0 },
   },
 
+  // Inside a record: the layout reserves only the icon rail (the paper is
+  // position: fixed, so it can open wider without moving the page)...
+  drawerOverlayRoot: {
+    width: collapsedDrawerWidth,
+  },
+  // ...and the opened paper reads as floating over the section rail.
+  drawerOverlayPaper: (theme) => ({
+    boxShadow: theme.shadows[8],
+  }),
+
   content: (theme) => ({
     flexGrow: 1,
     // Without this the flex item can't shrink below its content's intrinsic

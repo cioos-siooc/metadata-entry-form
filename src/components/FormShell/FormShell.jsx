@@ -11,7 +11,8 @@ import { GuidanceContext, useGuidancePreference } from "./GuidanceContext";
 // guidance preference and scroll-reset-on-section-change. All save/submit logic is passed in via
 // props so the class-component MetadataForm stays the source of truth.
 // `aside` is an optional right-hand column (e.g. the automated review panel),
-// sticky like the rail; md+ only, so callers handle small screens themselves.
+// sticky like the rail. Shown only while passed and hidden below md; callers
+// decide from which width to pass it and handle smaller screens themselves.
 export default function FormShell({
   sections,
   activeSection,
@@ -22,7 +23,22 @@ export default function FormShell({
   aside,
   children,
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  // The aside takes its room from the rail before the form: below xl, opening
+  // it collapses the rail to icons. The user's own choice for the rail is kept
+  // apart, so closing the aside restores it, and expanding the rail while the
+  // aside is open holds until the aside closes.
+  const roomy = useMediaQuery((theme) => theme.breakpoints.up("xl"));
+  const crowded = Boolean(aside) && !roomy;
+  const [railCollapsed, setRailCollapsed] = useState(false);
+  const [crowdedChoice, setCrowdedChoice] = useState(null);
+  const [wasCrowded, setWasCrowded] = useState(crowded);
+  if (crowded !== wasCrowded) {
+    setWasCrowded(crowded);
+    setCrowdedChoice(null);
+  }
+  const collapsed = crowded ? (crowdedChoice ?? true) : railCollapsed;
+  const toggleCollapsed = () =>
+    (crowded ? setCrowdedChoice : setRailCollapsed)(!collapsed);
   const contentRef = useRef(null);
   const { showGuidance, setShowGuidance } = useGuidancePreference();
   const guidance = useMemo(
@@ -67,31 +83,50 @@ export default function FormShell({
             activeSection={activeSection}
             onSectionChange={onSectionChange}
             collapsed={collapsed}
-            onToggleCollapsed={() => setCollapsed((c) => !c)}
+            onToggleCollapsed={toggleCollapsed}
           />
+          {/* The stepper belongs to the middle column, so the rail and the
+              aside run the full height beside it instead of ending above a
+              full-width bar. */}
           <Box
-            ref={contentRef}
-            // The app layout already provides <main>; landmarks don't nest.
-            component="div"
             sx={{
               flexGrow: 1,
               minWidth: 0,
-              px: { xs: 1.5, sm: 2, md: 4 },
-              py: { xs: 1.5, md: 3 },
-              pb: { xs: 4, md: 6 },
-              // Headroom so the form actually widens when the NavDrawer is
-              // collapsed; at 1080 the reclaimed space just became right margin.
-              maxWidth: 1280,
-              // Sits against the rail rather than centring in the leftover space,
-              // which opened a wide gap between the two on large screens.
-              ml: 0,
-              mr: "auto",
-              width: "100%",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <Fade in key={activeSection} timeout={reduceMotion ? 0 : 220}>
-              <Box>{children}</Box>
-            </Fade>
+            <Box
+              ref={contentRef}
+              // The app layout already provides <main>; landmarks don't nest.
+              component="div"
+              sx={{
+                flexGrow: 1,
+                px: { xs: 1.5, sm: 2, md: 4 },
+                py: { xs: 1.5, md: 3 },
+                pb: { xs: 4, md: 6 },
+                // Headroom so the form actually widens when the NavDrawer is
+                // collapsed; at 1080 the reclaimed space just became right margin.
+                maxWidth: 1280,
+                // Sits against the rail rather than centring in the leftover space,
+                // which opened a wide gap between the two on large screens.
+                ml: 0,
+                mr: "auto",
+                width: "100%",
+              }}
+            >
+              <Fade in key={activeSection} timeout={reduceMotion ? 0 : 220}>
+                <Box>{children}</Box>
+              </Fade>
+            </Box>
+            <SectionStepper
+              sections={sections}
+              activeSection={activeSection}
+              onSectionChange={onSectionChange}
+              dirty={dirty}
+              neverSaved={neverSaved}
+              status={headerProps?.status ?? ""}
+            />
           </Box>
           {aside && (
             <Box
@@ -105,7 +140,8 @@ export default function FormShell({
                 borderLeft: `1px solid ${theme.vars.palette.divider}`,
                 bgcolor: "background.paper",
                 display: { xs: "none", md: "block" },
-                maxHeight: `calc(100vh - ${HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD}px)`,
+                // Full height whatever the content, like the rail and the app nav.
+                height: `calc(100vh - ${HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD}px)`,
                 overflowY: "auto",
               })}
             >
@@ -113,14 +149,6 @@ export default function FormShell({
             </Box>
           )}
         </Box>
-        <SectionStepper
-          sections={sections}
-          activeSection={activeSection}
-          onSectionChange={onSectionChange}
-          dirty={dirty}
-          neverSaved={neverSaved}
-          status={headerProps?.status ?? ""}
-        />
       </Box>
     </GuidanceContext.Provider>
   );

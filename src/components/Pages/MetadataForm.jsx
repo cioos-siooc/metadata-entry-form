@@ -655,7 +655,9 @@ function FormShellWrapper({
     language,
     loggedInUserCanEditRecord,
   });
-  const wide = useMediaQuery(useTheme().breakpoints.up("md"));
+  // Inline beside the form only from lg: below that the app nav is already a
+  // drawer, and a 400px column left the form a ~240px sliver at md.
+  const wide = useMediaQuery(useTheme().breakpoints.up("lg"));
   const runReview = useRunReview();
   const reviewPanel = review && (
     <ReviewPanel
@@ -720,7 +722,7 @@ function FormShellWrapper({
           anchor="right"
           open={review.open}
           onClose={() => review.onOpenChange(false)}
-          PaperProps={{ sx: { width: "100%" } }}
+          PaperProps={{ sx: { width: { xs: "100%", sm: 400 } } }}
         >
           {reviewPanel}
         </Drawer>

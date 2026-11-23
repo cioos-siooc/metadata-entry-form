@@ -107,7 +107,9 @@ export default function SectionRail({
         }),
         display: { xs: "none", md: "flex" },
         flexDirection: "column",
-        maxHeight: `calc(100vh - ${HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD}px)`,
+        // Full height whatever the section holds, so its edge and the
+        // collapse toggle sit at the bottom of the window like the app nav's.
+        height: `calc(100vh - ${HEADER_HEIGHT + FORM_HEADER_HEIGHT_MD}px)`,
         overflowY: "auto",
       })}
     >

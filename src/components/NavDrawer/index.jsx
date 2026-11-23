@@ -189,6 +189,30 @@ export default function NavDrawer({ children }) {
 
   const showDrawer = Boolean(region && loggedIn);
   const collapsed = !isMobile && !open;
+  // Inside a record the section rail is the navigation that matters, so the
+  // app nav keeps only its icon rail's width in the layout and, when opened,
+  // floats over the rail instead of pushing the form aside: two expanded
+  // navigation lists never sit side by side.
+  const overlay = !isMobile && inRecord;
+  const overlayOpen = overlay && open;
+  const paperRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!overlayOpen) return undefined;
+    const close = (e) => {
+      if (
+        e.type === "keydown"
+          ? e.key === "Escape"
+          : !paperRef.current?.contains(e.target)
+      )
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [overlayOpen]);
 
   return (
     <Box sx={styles.root}>
@@ -230,10 +254,19 @@ export default function NavDrawer({ children }) {
           variant={isMobile ? "temporary" : "permanent"}
           open={open}
           onClose={() => setOpen(false)}
-          sx={[styles.drawer, collapsed && styles.drawerCollapsed]}
+          sx={[
+            styles.drawer,
+            collapsed && styles.drawerCollapsed,
+            overlay && styles.drawerOverlayRoot,
+          ]}
           slotProps={{
             paper: {
-              sx: [styles.drawerPaper, collapsed && styles.drawerCollapsed],
+              ref: paperRef,
+              sx: [
+                styles.drawerPaper,
+                collapsed && styles.drawerCollapsed,
+                overlayOpen && styles.drawerOverlayPaper,
+              ],
             },
           }}
         >
