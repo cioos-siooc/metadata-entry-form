@@ -3,13 +3,11 @@ import { Box, Chip, Tooltip } from "@mui/material";
 import { Check, Close, Update } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import { getGridSingleSelectOperators } from "@mui/x-data-grid";
-import regions from "../../regions";
 import licenses from "../../utils/licenses";
 import { percentValid } from "../../utils/validate";
 import CopyableCell from "./CopyableCell";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
-import { FALLBACK_PRIMARY, semantic, neutrals } from "../../theme/tokens";
-import { pickContrastText } from "../../theme/createAppTheme";
+import StatusChip, { statusLabel } from "../FormComponents/StatusChip";
 
 // DataCite DOI lifecycle states mapped to MUI chip colors (matches the chip
 // used in the DOI form section so the status reads the same everywhere).
@@ -38,7 +36,12 @@ const bilingualQuickFilter = (field) => (value) => {
   };
 };
 
-const QA_SEVERITY_COLOR = { critical: "error", high: "error", medium: "warning", low: "info" };
+const QA_SEVERITY_COLOR = {
+  critical: "error",
+  high: "error",
+  medium: "warning",
+  low: "info",
+};
 const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 
 // A record's open findings (no applied/ignored/rejected decision): {count, worst, bySeverity
@@ -47,7 +50,9 @@ const QA_SEVERITY_ORDER = ["critical", "high", "medium", "low"];
 export const qaSummary = (qa, lastSaved) => {
   if (!qa?.generated) return null;
   const statuses = qa.statuses || {};
-  const open = Object.values(qa.findings || {}).filter((f) => !statuses[f.id]?.status);
+  const open = Object.values(qa.findings || {}).filter(
+    (f) => !statuses[f.id]?.status,
+  );
   const bySeverity = {};
   QA_SEVERITY_ORDER.forEach((sev) => {
     const n = open.filter((f) => f.severity === sev).length;
@@ -57,7 +62,9 @@ export const qaSummary = (qa, lastSaved) => {
     count: open.length,
     worst: Object.keys(bySeverity)[0],
     bySeverity,
-    outdated: Boolean(lastSaved && new Date(lastSaved) > new Date(qa.generated)),
+    outdated: Boolean(
+      lastSaved && new Date(lastSaved) > new Date(qa.generated),
+    ),
     generated: qa.generated,
   };
 };
@@ -69,15 +76,15 @@ export const qaSummary = (qa, lastSaved) => {
 export const reviewerConfig = {
   pageId: "reviewer",
   columns: [
-    "status",
-    "progress",
-    "created",
     "title",
     "author",
+    "status",
+    "qa",
+    "progress",
+    "created",
     "identifier",
     "doi",
     "doiStatus",
-    "qa",
     "abstract",
     "license",
     "boundingBox",
@@ -96,8 +103,8 @@ export const reviewerConfig = {
     author: true,
     progress: true,
     created: true,
-    doi: true,
-    doiStatus: true,
+    doi: false,
+    doiStatus: false,
     qa: true,
     identifier: false,
     abstract: false,
@@ -131,13 +138,13 @@ export const reviewerConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: "reviewer-column-visibility",
+    columnVisibilityStorageKey: "reviewer-column-visibility-v2",
   },
 };
 
 export const publishedConfig = {
   pageId: "published",
-  columns: ["status", "created", "title", "author", "identifier"],
+  columns: ["title", "author", "status", "created", "identifier"],
 
   defaultColumnVisibility: {
     title: true,
@@ -165,17 +172,17 @@ export const publishedConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: "published-column-visibility",
+    columnVisibilityStorageKey: "published-column-visibility-v2",
   },
 };
 
 export const submissionsConfig = {
   pageId: "submissions",
   columns: [
+    "title",
     "status",
     "progress",
     "created",
-    "title",
     "author",
     "identifier",
     "doiStatus",
@@ -209,13 +216,13 @@ export const submissionsConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: "submissions-column-visibility",
+    columnVisibilityStorageKey: "submissions-column-visibility-v2",
   },
 };
 
 export const sharedConfig = {
   pageId: "shared",
-  columns: ["created", "title", "author"],
+  columns: ["title", "author", "created"],
 
   defaultColumnVisibility: {
     title: true,
@@ -241,7 +248,7 @@ export const sharedConfig = {
   table: {
     pageSize: 20,
     rowsPerPageOptions: [10, 20, 50, 100],
-    columnVisibilityStorageKey: "shared-column-visibility",
+    columnVisibilityStorageKey: "shared-column-visibility-v2",
   },
 };
 
@@ -249,28 +256,8 @@ export const sharedConfig = {
 // Column Helpers
 // ============================================================================
 
-// Always a concrete colour: the chip sits on an arbitrary region colour for
-// published records, so the label colour has to be derived from it rather than
-// assumed. Semantic + neutral values are scheme-independent by design.
-export const getStatusColor = (status, region) => {
-  switch (status) {
-    case "published":
-      return regions[region]?.colors?.primary || FALLBACK_PRIMARY;
-    case "submitted":
-      return semantic.warning.main;
-    default:
-      return neutrals[500];
-  }
-};
-
-export const getStatusLabel = (status, language) => {
-  const labels = {
-    published: { en: "Published", fr: "Publié" },
-    submitted: { en: "Submitted", fr: "Soumis" },
-    "": { en: "Draft", fr: "Brouillon" },
-  };
-  return labels[status]?.[language] || labels[""][language];
-};
+export const getStatusLabel = (status, language) =>
+  statusLabel(status, language);
 
 export const formatDate = (dateStr, language) => {
   if (!dateStr) return "";
@@ -316,52 +303,29 @@ export const createColumns = (language, region, callbacks = {}) => ({
   status: {
     field: "status",
     headerName: language === "en" ? "Status" : "Statut",
-    flex: 1,
-    maxWidth: 130,
-    headerAlign: "center",
-    align: "center",
+    width: 120,
     type: "singleSelect",
     valueOptions: [
       { value: "", label: language === "en" ? "Draft" : "Brouillon" },
       { value: "submitted", label: language === "en" ? "Submitted" : "Soumis" },
       { value: "published", label: language === "en" ? "Published" : "Publié" },
     ],
-    renderCell: (params) => {
-      const bgColor = getStatusColor(params.value, params.row.region || region);
-      const label = getStatusLabel(params.value, language);
-      return (
-        <Chip
-          label={label}
-          size="small"
-          sx={{
-            bgcolor: bgColor,
-            color: pickContrastText(bgColor),
-            fontWeight: 500,
-          }}
-        />
-      );
-    },
+    renderCell: (params) => <StatusChip status={params.value} />,
     filterOperators: getStatusFilterOperators(language),
   },
 
   progress: {
     field: "progress",
-    headerName: language === "en" ? "Progress" : "Progrès",
-    flex: 0.8,
-    maxWidth: 90,
+    headerName: language === "en" ? "Complete" : "Complété",
+    width: 100,
     type: "number",
-    headerAlign: "center",
-    align: "center",
     renderCell: (params) => `${params.value}%`,
   },
 
   created: {
     field: "created",
-    headerName: language === "en" ? "Last Edited" : "Dernière modification",
-    flex: 1.2,
-    maxWidth: 130,
-    headerAlign: "center",
-    align: "center",
+    headerName: language === "en" ? "Last edited" : "Modifié",
+    width: 140,
     renderCell: (params) => {
       if (!params.value) return null;
       const display = formatDate(params.value, language);
@@ -385,15 +349,25 @@ export const createColumns = (language, region, callbacks = {}) => ({
   title: {
     field: "title",
     headerName: language === "en" ? "Title" : "Titre",
-    flex: 2,
-    renderCell: (params) => (
-      <CopyableCell
-        text={params.value}
-        onCopy={callbacks.onCopy}
-        language={language}
-        truncate
-      />
-    ),
+    flex: 3,
+    minWidth: 220,
+    renderCell: (params) =>
+      params.value ? (
+        <CopyableCell
+          text={params.value}
+          onCopy={callbacks.onCopy}
+          language={language}
+          truncate
+        >
+          <Box component="span" sx={{ fontWeight: 500 }}>
+            {params.value}
+          </Box>
+        </CopyableCell>
+      ) : (
+        <Box component="span" sx={{ color: "text.secondary" }}>
+          {language === "fr" ? "Sans titre" : "Untitled"}
+        </Box>
+      ),
     getApplyQuickFilterFn: bilingualQuickFilter("title"),
   },
 
@@ -413,9 +387,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
 
   author: {
     field: "author",
-    maxWidth: 200,
     headerName: language === "en" ? "Author" : "Auteur",
-    flex: 1.5,
+    flex: 1.2,
+    minWidth: 140,
     renderCell: (params) => (
       <CopyableCell
         text={params.value}
@@ -525,11 +499,8 @@ export const createColumns = (language, region, callbacks = {}) => ({
 
   doiStatus: {
     field: "doiStatus",
-    headerName: language === "en" ? "DOI Status" : "Statut DOI",
-    flex: 1,
-    maxWidth: 130,
-    headerAlign: "center",
-    align: "center",
+    headerName: language === "en" ? "DOI status" : "Statut DOI",
+    width: 130,
     type: "singleSelect",
     valueOptions: [
       { value: "", label: "—" },
@@ -559,10 +530,8 @@ export const createColumns = (language, region, callbacks = {}) => ({
   // Automated review: open (not rejected) findings, coloured by the worst severity
   qa: {
     field: "qa",
-    headerName: language === "en" ? "Review" : "Révision",
-    maxWidth: 100,
-    headerAlign: "center",
-    align: "center",
+    headerName: language === "en" ? "Findings" : "Constats",
+    width: 100,
     type: "number",
     valueGetter: (value) => value?.count ?? null,
     renderCell: (params) => {
@@ -581,7 +550,11 @@ export const createColumns = (language, region, callbacks = {}) => ({
           title={`${breakdown || (language === "en" ? "No open issues" : "Aucun problème ouvert")} · ${
             language === "en" ? "reviewed" : "révisée le"
           } ${new Date(qa.generated).toLocaleString()}${
-            qa.outdated ? (language === "en" ? " (outdated)" : " (périmée)") : ""
+            qa.outdated
+              ? language === "en"
+                ? " (outdated)"
+                : " (périmée)"
+              : ""
           }`}
         >
           <Chip
@@ -589,7 +562,9 @@ export const createColumns = (language, region, callbacks = {}) => ({
             size="small"
             icon={qa.outdated ? <Update /> : undefined}
             variant={qa.outdated ? "outlined" : "filled"}
-            color={qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"}
+            color={
+              qa.count ? QA_SEVERITY_COLOR[qa.worst] || "default" : "success"
+            }
             clickable
             component={RouterLink}
             to={`/${language}/${params.row.region || region}/${params.row.userID}/${params.row.recordID}?review=1`}

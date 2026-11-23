@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LogoPlate from "../Layout/LogoPlate";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import {
@@ -86,25 +87,21 @@ const Login = () => {
           maxWidth: 460,
           width: "100%",
           boxShadow: theme.shadows[2],
-          borderRadius: 3,
         })}
       >
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
           <Stack spacing={1} sx={{ mb: 3, textAlign: "center" }}>
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-              <I18n>
-                <En>Welcome back</En>
-                <Fr>Bienvenue</Fr>
-              </I18n>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+              <I18n en="Sign in" fr="Connexion" />
             </Typography>
-            <Typography variant="body1" sx={{ color: "text.secondary" }}>
-              <I18n>
-                <En>Sign in to manage your metadata records.</En>
-                <Fr>
-                  Connectez-vous pour accéder à vos enregistrements de
-                  métadonnées.
-                </Fr>
-              </I18n>
+            <Typography
+              variant="body1"
+              sx={{ color: "text.secondary", textWrap: "pretty" }}
+            >
+              <I18n
+                en="Use the same account each time: your records and saved contacts belong to it."
+                fr="Utilisez toujours le même compte : vos enregistrements et contacts y sont rattachés."
+              />
             </Typography>
           </Stack>
 
@@ -156,7 +153,7 @@ const Login = () => {
                 component="a"
                 href={`mailto:${regionEmail}`}
                 sx={{
-                  color: "primary.main",
+                  color: "primaryText",
                   fontWeight: 500,
                   textDecoration: "none",
                   "&:hover": { textDecoration: "underline" },
@@ -193,17 +190,19 @@ const Login = () => {
               justifyContent: "center",
             }}
           >
-            <Box
-              component="img"
-              src={
-                new URL(
-                  "../../static/cioos-national_EN_FR_min.svg",
-                  import.meta.url,
-                ).href
-              }
-              alt="CIOOS"
-              sx={{ maxHeight: 40, width: "auto", opacity: 0.7 }}
-            />
+            <LogoPlate>
+              <Box
+                component="img"
+                src={
+                  new URL(
+                    "../../static/cioos-national_EN_FR_min.svg",
+                    import.meta.url,
+                  ).href
+                }
+                alt="CIOOS / SIOOC"
+                sx={{ height: 40, width: "auto", maxWidth: "100%" }}
+              />
+            </LogoPlate>
           </Box>
         </CardContent>
       </Card>

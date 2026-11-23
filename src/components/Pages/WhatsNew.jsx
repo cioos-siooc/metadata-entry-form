@@ -21,15 +21,16 @@ import releasesData from "../../data/githubReleases.json";
 // Styles for the GitHub-rendered release markdown.
 const markdownSx = {
   "& img": { maxWidth: "100%" },
-  "& a": { color: "primary.main" },
+  "& a": { color: "primaryText" },
   "& pre": {
-    backgroundColor: "grey.100",
+    // grey.100 is the same in both schemes: light text on it in dark mode.
+    backgroundColor: "background.subtle",
     p: 2,
     borderRadius: 1,
     overflow: "auto",
   },
   "& code": {
-    backgroundColor: "grey.100",
+    backgroundColor: "background.subtle",
     padding: "2px 6px",
     borderRadius: 1,
     fontSize: "0.875em",
@@ -74,36 +75,32 @@ const WhatsNewDialog = ({ open, onClose }) => {
       maxWidth="md"
       fullWidth
       scroll="paper"
+      aria-describedby="whats-new-description"
     >
-      <DialogTitle
-        scroll="paper"
-        aria-label="What's New"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div>
-          <Typography variant="h5" component="span">
-            <I18n>
-              <En>What's New</En>
-              <Fr>Quoi de neuf</Fr>
-            </I18n>
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            <I18n>
-              <En>Recent updates and releases for the Metadata Entry Tool.</En>
-              <Fr>
-                Mises à jour récentes de l'outil de saisie de métadonnées.
-              </Fr>
-            </I18n>
-          </Typography>
-        </div>
-        <IconButton onClick={onClose} aria-label="close">
-          <Close />
-        </IconButton>
+      <DialogTitle variant="h5" sx={{ pr: 7, pb: 0.5 }}>
+        <I18n>
+          <En>What's new</En>
+          <Fr>Quoi de neuf</Fr>
+        </I18n>
       </DialogTitle>
+      <Typography
+        id="whats-new-description"
+        variant="body2"
+        color="text.secondary"
+        sx={{ px: 3, pb: 2 }}
+      >
+        <I18n>
+          <En>Recent updates and releases for the Metadata Entry Tool.</En>
+          <Fr>Mises à jour récentes de l'outil de saisie de métadonnées.</Fr>
+        </I18n>
+      </Typography>
+      <IconButton
+        onClick={onClose}
+        aria-label={language === "fr" ? "Fermer" : "Close"}
+        sx={{ position: "absolute", right: 8, top: 8 }}
+      >
+        <Close />
+      </IconButton>
       <DialogContent dividers>
         {releases.length === 0 && (
           <Typography color="textSecondary">
@@ -125,7 +122,7 @@ const WhatsNewDialog = ({ open, onClose }) => {
                 flexWrap: "wrap",
               }}
             >
-              <Typography variant="h6">
+              <Typography variant="h6" component="h3">
                 {release.name || release.tag_name}
               </Typography>
               <Chip

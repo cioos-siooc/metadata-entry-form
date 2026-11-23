@@ -4,7 +4,7 @@ import { vi, describe, it, expect } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 
-import Submissions from "../Pages/Submissions";
+import Records from "../Pages/Records";
 import { getAppTheme } from "../../theme/createAppTheme";
 
 vi.mock("react-router-dom", async () => {
@@ -24,14 +24,12 @@ vi.mock("../../providers/UserProvider", () => ({
 // does not define.
 const theme = getAppTheme("pacific");
 
-describe("<Submissions />", () => {
+describe("<Records />", () => {
   it("Renders the dashboard entry point", () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
-          <Submissions
-            match={{ params: { region: "pacific", language: "en" } }}
-          />
+          <Records match={{ params: { region: "pacific", language: "en" } }} />
         </MemoryRouter>
       </ThemeProvider>,
     );

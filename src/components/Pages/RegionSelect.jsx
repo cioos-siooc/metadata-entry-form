@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import RegionCard from "../FormComponents/RegionCard";
 import regions from "../../regions";
+import visuallyHidden from "../../theme/visuallyHidden";
 
 const RA_CODES = ["pacific", "stlaurent", "atlantic"];
 
@@ -47,21 +48,17 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
 
+      {/* The section headings carry the visible hierarchy; the page still
+          needs one h1 for screen-reader navigation. */}
+      <Typography component="h1" sx={visuallyHidden}>
+        {t("Choose a region", "Choisissez une région")}
+      </Typography>
+
       <Stack spacing={6}>
         {raRegions.length > 0 && (
           <Box>
             <Stack spacing={1} sx={{ mb: 3 }}>
-              <Typography
-                variant="overline"
-                sx={{
-                  color: "primary.main",
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                }}
-              >
-                {t("Regional Associations", "Associations régionales")}
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
                 {t(
                   "CIOOS Regional Associations",
                   "Associations régionales du SIOOC",
@@ -86,17 +83,7 @@ export default function RegionSelect() {
           <Box>
             <Divider sx={{ mb: 4 }} />
             <Stack spacing={1} sx={{ mb: 3 }}>
-              <Typography
-                variant="overline"
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                }}
-              >
-                {t("Affiliated Organizations", "Organisations affiliées")}
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
                 {t(
                   "Collaborating organizations",
                   "Organisations collaboratrices",

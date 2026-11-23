@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useId } from "react";
 import {
   IconButton,
   Tooltip,
@@ -60,10 +60,11 @@ const RecordActions = ({
   // Main menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+  // One menu per row, so the id must be unique on the page.
+  const menuId = useId();
 
   // Submenu states
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
-  const [publishAnchorEl, setPublishAnchorEl] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   // DataCite status dialog state
@@ -73,7 +74,6 @@ const RecordActions = ({
   const [pendingRecordAction, setPendingRecordAction] = useState(null);
 
   const downloadMenuOpen = Boolean(downloadAnchorEl);
-  const publishMenuOpen = Boolean(publishAnchorEl);
 
   // Status helpers
   const isPublished = status === "published";
@@ -94,21 +94,13 @@ const RecordActions = ({
   const handleMenuClose = () => {
     setAnchorEl(null);
     setDownloadAnchorEl(null);
-    setPublishAnchorEl(null);
   };
 
   // Submenu handlers
   const handleDownloadMenuOpen = (event) => {
     setDownloadAnchorEl(event.currentTarget);
-    setPublishAnchorEl(null);
   };
   const handleDownloadMenuClose = () => setDownloadAnchorEl(null);
-
-  const handlePublishMenuOpen = (event) => {
-    setPublishAnchorEl(event.currentTarget);
-    setDownloadAnchorEl(null);
-  };
-  const handlePublishMenuClose = () => setPublishAnchorEl(null);
 
   // Download handler
   const handleDownloadRecord = async (fileType) => {
@@ -294,189 +286,8 @@ const RecordActions = ({
 
   const menuItemIconStyle = { minWidth: 36 };
 
-  // Build menu items as an array to avoid Fragment issues
-  const menuItems = [];
-
-  // View/Edit
-  if (actions.showViewAction || actions.showEditAction) {
-    menuItems.push(
-      <MenuItem
-        key="edit"
-        onClick={() => {
-          handlers.edit?.(recordID, userID);
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          {isPublished || actions.showViewAction ? (
-            <Visibility fontSize="small" />
-          ) : (
-            <Edit fontSize="small" />
-          )}
-        </ListItemIcon>
-        <ListItemText>
-          {isPublished || actions.showViewAction ? (
-            <I18n en="View" fr="Voir" />
-          ) : (
-            <I18n en="Edit" fr="Modifier" />
-          )}
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  // Clone
-  if (actions.showCloneAction) {
-    menuItems.push(
-      <MenuItem
-        key="clone"
-        onClick={() => {
-          handlers.clone?.(recordID, userID);
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <FileCopy fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Duplicate" fr="Dupliquer" />
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  // Transfer
-  if (actions.showTransferButton) {
-    menuItems.push(
-      <MenuItem
-        key="transfer"
-        onClick={() => {
-          handlers.transfer?.(recordID, userID);
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <TransferWithinAStation fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Transfer" fr="Transférer" />
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  // Divider before publishing actions
-  if (hasBasicActions && hasPublishActions) {
-    menuItems.push(<Divider key="divider-publish" />);
-  }
-
-  // Publishing submenu
-  if (hasPublishActions) {
-    menuItems.push(
-      <MenuItem
-        key="publishing"
-        onClick={handlePublishMenuOpen}
-        sx={{ display: "flex", justifyContent: "space-between" }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <Publish fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Publishing" fr="Publication" />
-        </ListItemText>
-        <ChevronRight fontSize="small" sx={{ ml: 1 }} />
-      </MenuItem>,
-    );
-  }
-
-  // Download submenu
-  if (actions.showDownloadButton) {
-    menuItems.push(
-      <MenuItem
-        key="download"
-        onClick={handleDownloadMenuOpen}
-        disabled={!isValidRecord}
-        sx={{ display: "flex", justifyContent: "space-between" }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <CloudDownload fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Download" fr="Télécharger" />
-        </ListItemText>
-        <ChevronRight fontSize="small" sx={{ ml: 1 }} />
-      </MenuItem>,
-    );
-  }
-
-  // Catalogue Link
-  if (actions.showReviewAction) {
-    menuItems.push(
-      <MenuItem
-        key="review"
-        onClick={() => {
-          handlers.review?.(recordID, userID);
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <FactCheck fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Run automated review" fr="Lancer la révision automatisée" />
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  if (showCatalogueDivider) {
-    menuItems.push(<Divider key="divider-catalogue" />);
-    menuItems.push(
-      <MenuItem
-        key="catalogue"
-        onClick={() => {
-          const win = window.open(catalogueURL, "_blank");
-          win?.focus();
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <OpenInNew fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Open in catalogue" fr="Ouvrir dans le catalogue" />
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  // Divider before delete
-  if (showDeleteDivider) {
-    menuItems.push(<Divider key="divider-delete" />);
-  }
-
-  // Delete
-  if (actions.showDeleteAction) {
-    menuItems.push(
-      <MenuItem
-        key="delete"
-        onClick={() => {
-          handlers.delete?.(recordID, userID);
-          handleMenuClose();
-        }}
-        sx={{ color: "error.main" }}
-      >
-        <ListItemIcon sx={{ ...menuItemIconStyle, color: "error.main" }}>
-          <Delete fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Delete" fr="Supprimer" />
-        </ListItemText>
-      </MenuItem>,
-    );
-  }
-
-  // Build publish submenu items
+  // Workflow actions (submit, publish, return to draft) sit at the top level
+  // of the menu: they are the step a record is waiting on.
   const publishMenuItems = [];
 
   // Submit (Draft -> Submitted)
@@ -493,8 +304,17 @@ const RecordActions = ({
         <ListItemIcon sx={menuItemIconStyle}>
           <Publish fontSize="small" />
         </ListItemIcon>
-        <ListItemText>
-          <I18n en="Submit for review" fr="Soumettre pour examen" />
+        <ListItemText
+          secondary={
+            isValidRecord ? undefined : (
+              <I18n
+                en="Complete the required fields first"
+                fr="Remplissez d'abord les champs obligatoires"
+              />
+            )
+          }
+        >
+          <I18n en="Submit for review" fr="Soumettre pour révision" />
         </ListItemText>
       </MenuItem>,
     );
@@ -548,7 +368,7 @@ const RecordActions = ({
           <Eject fontSize="small" />
         </ListItemIcon>
         <ListItemText>
-          <I18n en="Un-publish" fr="Dépublier" />
+          <I18n en="Unpublish" fr="Dépublier" />
         </ListItemText>
       </MenuItem>,
     );
@@ -608,6 +428,171 @@ const RecordActions = ({
     );
   }
 
+  // Build menu items as an array to avoid Fragment issues
+  const menuItems = [];
+
+  // View/Edit
+  if (actions.showViewAction || actions.showEditAction) {
+    menuItems.push(
+      <MenuItem
+        key="edit"
+        onClick={() => {
+          handlers.edit?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          {isPublished || actions.showViewAction ? (
+            <Visibility fontSize="small" />
+          ) : (
+            <Edit fontSize="small" />
+          )}
+        </ListItemIcon>
+        <ListItemText>
+          {isPublished || actions.showViewAction ? (
+            <I18n en="View" fr="Voir" />
+          ) : (
+            <I18n en="Edit" fr="Modifier" />
+          )}
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
+  // Workflow
+  menuItems.push(...publishMenuItems);
+
+  if (publishMenuItems.length && hasBasicActions) {
+    menuItems.push(<Divider key="divider-workflow" />);
+  }
+
+  // Clone
+  if (actions.showCloneAction) {
+    menuItems.push(
+      <MenuItem
+        key="clone"
+        onClick={() => {
+          handlers.clone?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <FileCopy fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Duplicate" fr="Dupliquer" />
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
+  // Transfer
+  if (actions.showTransferButton) {
+    menuItems.push(
+      <MenuItem
+        key="transfer"
+        onClick={() => {
+          handlers.transfer?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <TransferWithinAStation fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Transfer" fr="Transférer" />
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
+  // Automated review
+  if (actions.showReviewAction) {
+    menuItems.push(
+      <MenuItem
+        key="review"
+        onClick={() => {
+          handlers.review?.(recordID, userID);
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <FactCheck fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Run automated review" fr="Lancer la révision automatisée" />
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
+  // Download submenu
+  if (actions.showDownloadButton) {
+    menuItems.push(
+      <MenuItem
+        key="download"
+        onClick={handleDownloadMenuOpen}
+        disabled={!isValidRecord}
+        sx={{ display: "flex", justifyContent: "space-between" }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <CloudDownload fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Download" fr="Télécharger" />
+        </ListItemText>
+        <ChevronRight fontSize="small" sx={{ ml: 1 }} />
+      </MenuItem>,
+    );
+  }
+
+  if (showCatalogueDivider) {
+    menuItems.push(<Divider key="divider-catalogue" />);
+    menuItems.push(
+      <MenuItem
+        key="catalogue"
+        onClick={() => {
+          const win = window.open(catalogueURL, "_blank");
+          win?.focus();
+          handleMenuClose();
+        }}
+      >
+        <ListItemIcon sx={menuItemIconStyle}>
+          <OpenInNew fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Open in catalogue" fr="Ouvrir dans le catalogue" />
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
+  // Divider before delete
+  if (showDeleteDivider) {
+    menuItems.push(<Divider key="divider-delete" />);
+  }
+
+  // Delete
+  if (actions.showDeleteAction) {
+    menuItems.push(
+      <MenuItem
+        key="delete"
+        onClick={() => {
+          handlers.delete?.(recordID, userID);
+          handleMenuClose();
+        }}
+        sx={{ color: "error.main" }}
+      >
+        <ListItemIcon sx={{ ...menuItemIconStyle, color: "error.main" }}>
+          <Delete fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <I18n en="Delete" fr="Supprimer" />
+        </ListItemText>
+      </MenuItem>,
+    );
+  }
+
   return (
     <div>
       <DataciteStatusDialog
@@ -628,7 +613,7 @@ const RecordActions = ({
             {...buttonProps}
             onClick={handleMenuOpen}
             aria-label="Actions"
-            aria-controls={menuOpen ? "actions-menu" : undefined}
+            aria-controls={menuOpen ? menuId : undefined}
             aria-haspopup="true"
             aria-expanded={menuOpen ? "true" : undefined}
           >
@@ -642,7 +627,7 @@ const RecordActions = ({
       </Tooltip>
 
       <Menu
-        id="actions-menu"
+        id={menuId}
         anchorEl={anchorEl}
         open={menuOpen}
         onClose={handleMenuClose}
@@ -654,23 +639,6 @@ const RecordActions = ({
         }}
       >
         {menuItems}
-      </Menu>
-
-      {/* Publishing Submenu */}
-      <Menu
-        anchorEl={publishAnchorEl}
-        open={publishMenuOpen}
-        onClose={handlePublishMenuClose}
-        disableScrollLock
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
-        slotProps={{
-          paper: {
-            sx: { zIndex: 1501, minWidth: 180 },
-          },
-        }}
-      >
-        {publishMenuItems}
       </Menu>
 
       {/* Download Submenu */}

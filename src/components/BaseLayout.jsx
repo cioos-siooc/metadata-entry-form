@@ -1,30 +1,26 @@
 import React, { useContext } from "react";
-import { Route, Routes, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CircularProgress, CssBaseline } from "@mui/material";
+import { Box, CircularProgress, CssBaseline } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import { getAppTheme } from "../theme/createAppTheme";
-import Submissions from "./Pages/Submissions";
-import Published from "./Pages/Published";
-import Contacts from "./Pages/ContactsSaved";
-import Instruments from "./Pages/InstrumentsSaved";
-import Shared from "./Pages/Shared";
+import LibraryPage from "./Pages/LibraryPage";
+import Records from "./Pages/Records";
 import Login from "./Pages/Login";
 import NavDrawer from "./NavDrawer";
 import MetadataForm from "./Pages/MetadataForm";
 import ErrorBoundary from "./Pages/ErrorBoundary";
 import EditContact from "./FormComponents/EditSavedContact";
 import EditInstrument from "./FormComponents/EditSavedInstrument";
-import Reviewer from "./Pages/Reviewer";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import SentryTest from "./Pages/SentryTest";
 import UserProvider, { UserContext } from "../providers/UserProvider";
 import regions from "../regions";
-import Platforms from "./Pages/PlatformsSaved";
 import EditPlatform from "./FormComponents/EditSavedPlatform";
 
 const Pages = () => {
+  const { language } = useParams();
   const {
     loggedIn,
     authIsLoading,
@@ -34,35 +30,65 @@ const Pages = () => {
   return (
     <>
       {authIsLoading ? (
-        <CircularProgress />
+        <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+          <CircularProgress
+            aria-label={language === "fr" ? "Chargement" : "Loading"}
+          />
+        </Box>
       ) : (
         <>
           {loggedIn ? (
             <ErrorBoundary>
               <Routes>
-                <Route index element={<Submissions />} />
+                <Route index element={<Records />} />
                 <Route path="new" element={<MetadataForm />} />
                 <Route path="contacts/:contactID" element={<EditContact />} />
                 <Route path="contacts/new" element={<EditContact />} />
-                <Route path="contacts" element={<Contacts />} />
+                <Route
+                  path="contacts"
+                  element={<LibraryPage key="contacts" kind="contacts" />}
+                />
                 <Route
                   path="instruments/:instrumentID"
                   element={<EditInstrument />}
                 />
-                <Route path="instruments" element={<Instruments />} />
+                <Route
+                  path="instruments"
+                  element={<LibraryPage key="instruments" kind="instruments" />}
+                />
                 <Route
                   path="platforms/:platformID"
                   element={<EditPlatform />}
                 />
-                <Route path="platforms" element={<Platforms />} />
-                <Route path="shared" element={<Shared />} />
+                <Route
+                  path="platforms"
+                  element={<LibraryPage key="platforms" kind="platforms" />}
+                />
+                {/* The old record pages are scopes of Records now; keep their links. */}
+                <Route
+                  path="shared"
+                  element={
+                    <Navigate to="../submissions?scope=shared" replace />
+                  }
+                />
                 <Route path=":userID/:recordID" element={<MetadataForm />} />
-                <Route path="submissions" element={<Submissions />} />
-                <Route path="published" element={<Published />} />
+                <Route path="submissions" element={<Records />} />
+                <Route
+                  path="published"
+                  element={
+                    <Navigate
+                      to="../submissions?scope=region&status=published"
+                      replace
+                    />
+                  }
+                />
                 <Route
                   path="reviewer"
                   element={
-                    userIsAdmin || userIsReviewer ? <Reviewer /> : <NotFound />
+                    <Navigate
+                      to="../submissions?scope=region&status=submitted"
+                      replace
+                    />
                   }
                 />
                 <Route
@@ -86,6 +112,17 @@ const Pages = () => {
 
 const BaseLayout = () => {
   const { region, language } = useParams();
+
+  // An old or mistyped region in the URL goes back to the region picker
+  // instead of crashing on a missing region definition.
+  if (!regions[region] || !["en", "fr"].includes(language)) {
+    return (
+      <Navigate
+        to={`/${language === "fr" ? "fr" : "en"}/region-select`}
+        replace
+      />
+    );
+  }
 
   const theme = getAppTheme(region);
   const title = {

@@ -196,10 +196,11 @@ describe("<WhatsNewDialog />", () => {
     render(<WhatsNewDialog open={true} onClose={mockOnClose} />);
 
     const closeButton = screen.getByRole("button", { name: /close/i });
-    expect(closeButton).toHaveAttribute("aria-label", "close");
+    expect(closeButton).toHaveAttribute("aria-label", "Close");
 
+    // Named by its title alone, not by the description or close button.
     const dialog = screen.getByRole("dialog", { hidden: true });
-    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAccessibleName("What's new");
   });
 
   it("renders markdown with allowed elements only", () => {

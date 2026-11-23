@@ -1,4 +1,8 @@
-export const drawerWidth = 260;
+// Fixed app header height. The record form's sticky header, rail and aside
+// sit directly under it, so they read this rather than a magic number.
+export const HEADER_HEIGHT = 56;
+
+export const drawerWidth = 240;
 // Collapsed rail: wide enough for the nav icons, which keep their tooltips.
 // Matches SectionRail's collapsed width so the two rails agree.
 export const collapsedDrawerWidth = 72;
@@ -11,79 +15,9 @@ const styles = {
     flexGrow: 1,
   },
 
-  appBar: (theme) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    [theme.breakpoints.down("lg")]: {
-      zIndex: theme.zIndex.appBar,
-    },
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  }),
-
-  appBarToolbar: {
-    minHeight: { xs: 64, sm: 68 },
-  },
-
-  languageSelector: {
-    color: "primary.contrastText",
-    "& .MuiSelect-icon": {
-      color: "primary.contrastText",
-    },
-  },
-
-  headerControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: 1.5,
-    marginLeft: "auto",
-  },
-
-  // The AppBar is primary.main and varies per region; the region logos are dark
-  // artwork containing that same colour, so they need a literal white plate in
-  // both colour schemes -- #fff, not background.paper, so it holds in dark mode.
-  // Fixed box because the logos run from 1.9:1 (SLGO) to 5.2:1 (Atlantic FR):
-  // capping height alone gives each region a different header footprint.
-  // ponytail: one box for every logo, so the near-square ones sit in some
-  // whitespace. Per-region sizing only if a logo actually looks lost.
-  logoPlate: {
-    display: { xs: "none", md: "flex" },
-    alignItems: "center",
-    justifyContent: "center",
-    width: 160,
-    height: 44,
-    px: 1,
-    backgroundColor: "#fff",
-    borderRadius: 1,
-  },
-
-  logoImage: {
-    maxWidth: "100%",
-    maxHeight: 32,
-    objectFit: "contain",
-  },
-
-  // The national banner is white artwork, so it sits on the bar with no plate.
-  nationalLogo: {
-    display: { xs: "none", md: "block" },
-    height: 32,
-    width: "auto",
-  },
-
-  hide: {
-    display: "none",
-  },
-
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    whiteSpace: "nowrap",
-    "& .MuiTypography-root": {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
     "& .MuiListItemIcon-root": {
       display: "flex",
       alignItems: "center",
@@ -94,39 +28,35 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     width: drawerWidth,
-    // Labels are still in the DOM when collapsed (only the subheaders unmount),
-    // so the narrow paper has to clip them rather than scroll.
+    bgcolor: "background.default",
+    // Labels stay in the DOM when collapsed, so the narrow paper clips them.
     overflowX: "hidden",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    "& .MuiListItemText-primary": {
+      whiteSpace: "nowrap",
+    },
   }),
 
   // Applied on top of `drawer` / `drawerPaper` (both set width) to collapse the
-  // permanent drawer to an icon rail. Desktop only — the mobile drawer is
-  // `temporary` and goes full width.
+  // permanent drawer to an icon rail. Desktop only.
   drawerCollapsed: {
     width: collapsedDrawerWidth,
-  },
-
-  toolbar: (theme) => ({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-  }),
-
-  toolbarCollapsed: {
-    justifyContent: "center",
-    padding: 0,
+    // Icons only: labels would otherwise show clipped beside them.
+    "& .MuiListItemText-root": { opacity: 0 },
   },
 
   content: (theme) => ({
     flexGrow: 1,
+    // Without this the flex item can't shrink below its content's intrinsic
+    // width, and a row of tabs pushed the whole page wider than a phone.
+    minWidth: 0,
     padding: 1,
     paddingTop: 3,
+    // Focus target for the skip link, not a control: no ring.
+    "&:focus, &:focus-visible": { outline: "none" },
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -134,59 +64,69 @@ const styles = {
   }),
 
   sidebarList: {
-    paddingTop: 1,
-    paddingLeft: 1,
-    paddingRight: 1,
+    pt: 1.5,
+    px: 1.5,
   },
 
   sectionLabel: {
     fontSize: "0.75rem",
-    fontWeight: 700,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
+    fontWeight: 600,
     color: "text.secondary",
     backgroundColor: "transparent",
     lineHeight: 1.4,
-    paddingLeft: 1.5,
-    paddingTop: 1.5,
-    paddingBottom: 0.5,
+    px: 1.5,
+    pt: 2,
+    pb: 0.75,
+    whiteSpace: "nowrap",
   },
 
-  navItem: (theme) => ({
+  // Stands in for a group label on the collapsed rail.
+  groupRule: (theme) => ({
+    height: "1px",
+    bgcolor: theme.vars.palette.divider,
+    mx: 1.5,
+    my: 1.5,
+  }),
+
+  // Off-screen until focused, then it sits over the header's left edge.
+  skipLink: (theme) => ({
+    position: "absolute",
+    left: 8,
+    top: 8,
+    // Above the app bar, which itself sits above the drawer.
+    zIndex: theme.zIndex.tooltip,
+    px: 2,
+    py: 1,
     borderRadius: `${theme.shape.borderRadius}px`,
-    marginBottom: "2px",
-    paddingLeft: 1.5,
-    paddingRight: 1.5,
+    bgcolor: theme.vars.palette.background.paper,
+    color: theme.vars.palette.primaryText,
+    fontWeight: 600,
+    boxShadow: theme.shadows[3],
+    transform: "translateY(-200%)",
+    "&:focus-visible, &:focus": { transform: "none" },
+  }),
+
+  navItem: (theme) => ({
+    // Rendered as router links; keep them reading as nav items, not text links.
+    color: theme.vars.palette.text.primary,
+    textDecoration: "none",
+    borderRadius: `${theme.shape.borderRadius}px`,
+    mb: "2px",
+    px: 1.5,
     minHeight: 40,
-    position: "relative",
-    // Selection marker on the leading edge; transparent until selected.
-    "&::before": {
-      content: '""',
-      position: "absolute",
-      left: -2,
-      top: "22%",
-      bottom: "22%",
-      width: 3,
-      borderRadius: 2,
-      backgroundColor: "transparent",
-      transition: theme.transitions.create("background-color", {
-        duration: theme.transitions.duration.shortest,
-      }),
-    },
     "&.Mui-selected": {
-      backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
-      "&::before": {
-        backgroundColor: theme.vars.palette.primary.main,
-      },
+      backgroundColor: theme.vars.palette.background.paper,
+      boxShadow: `0 0 0 1px ${theme.vars.palette.divider}`,
+      // primaryText: the raw region colour fails as text for light regions.
       "& .MuiListItemText-primary": {
-        color: theme.vars.palette.primary.main,
+        color: theme.vars.palette.text.primary,
         fontWeight: 600,
       },
       "& .MuiListItemIcon-root": {
-        color: theme.vars.palette.primary.main,
+        color: theme.vars.palette.primaryText,
       },
       "&:hover": {
-        backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.14)`,
+        backgroundColor: theme.vars.palette.background.paper,
       },
     },
     "& .MuiListItemIcon-root": {
@@ -200,10 +140,9 @@ const styles = {
   }),
 
   bottomList: {
-    marginTop: "auto",
-    borderTop: 1,
-    borderColor: "divider",
-    paddingTop: 0.5,
+    mt: "auto",
+    px: 1.5,
+    py: 1,
   },
 };
 

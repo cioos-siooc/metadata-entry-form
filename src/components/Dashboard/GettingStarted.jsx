@@ -1,133 +1,132 @@
 import React from "react";
-import { Box, Card, Stack, Typography, Button } from "@mui/material";
-import {
-  ArrowForward,
-  AssignmentOutlined,
-  PeopleAltOutlined,
-  RocketLaunchOutlined,
-} from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import regions from "../../regions";
 import { I18n } from "../I18n";
 
-function Step({ Icon, title, description, cta, onClick }) {
+// First-run state of "My records": what happens to a record, in order, and the
+// one button that starts it. The numbers carry the sequence, so they stay.
+const STEPS = [
+  {
+    en: "Describe your dataset",
+    fr: "Décrivez votre jeu de données",
+    bodyEn:
+      "The form walks you through each section and explains every field. Your draft saves as you go, so you can stop and come back.",
+    bodyFr:
+      "Le formulaire vous guide section par section et explique chaque champ. Votre brouillon est enregistré au fur et à mesure : vous pouvez revenir plus tard.",
+  },
+  {
+    en: "Submit it for review",
+    fr: "Soumettez-le pour révision",
+    bodyEn:
+      "Once every required field is filled in, submit the record. Your regional data team checks it and may ask for changes.",
+    bodyFr:
+      "Une fois tous les champs obligatoires remplis, soumettez l'enregistrement. L'équipe de données régionale le vérifie et peut demander des modifications.",
+  },
+  {
+    en: "It gets published",
+    fr: "Il est publié",
+    bodyEn:
+      "The reviewed record is published to the CIOOS catalogue, where others can find and cite your data.",
+    bodyFr:
+      "L'enregistrement révisé est publié dans le catalogue du SIOOC, où d'autres peuvent trouver et citer vos données.",
+  },
+];
+
+export default function GettingStarted({ action }) {
+  const { language, region } = useParams();
+  const fr = language === "fr";
+  const regionTitle = regions[region]?.title?.[language];
+
   return (
-    <Card
-      variant="outlined"
+    <Box
+      component="section"
+      aria-labelledby="getting-started-title"
       sx={(theme) => ({
-        flex: 1,
-        p: 2.5,
-        borderRadius: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 1.5,
-        transition: theme.transitions.create(["transform", "box-shadow"], {
-          duration: theme.transitions.duration.short,
-        }),
-        "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: theme.shadows[2],
-        },
+        border: `1px solid ${theme.vars.palette.divider}`,
+        borderRadius: 1.5,
+        bgcolor: "background.paper",
+        p: { xs: 2.5, md: 4 },
       })}
     >
-      <Box
-        sx={(theme) => ({
-          width: 44,
-          height: 44,
-          borderRadius: 2,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: theme.vars.palette.primarySurface,
-          color: "primary.main",
-        })}
-      >
-        <Icon />
-      </Box>
-      <Box>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-          {title}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "text.secondary", lineHeight: 1.55 }}
-        >
-          {description}
-        </Typography>
-      </Box>
-      <Button
-        size="small"
-        variant="text"
-        endIcon={<ArrowForward />}
-        onClick={onClick}
-        sx={{ alignSelf: "flex-start", mt: "auto", pl: 0 }}
-      >
-        {cta}
-      </Button>
-    </Card>
-  );
-}
-
-export default function GettingStarted() {
-  const { language, region } = useParams();
-  const navigate = useNavigate();
-
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
-        <I18n en="Getting started" fr="Commencer" />
-      </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+      <Typography id="getting-started-title" variant="h5" component="h2">
         <I18n
-          en="Three quick steps to publish your first metadata record."
-          fr="Trois étapes rapides pour publier votre premier enregistrement."
+          en="Start your first metadata record"
+          fr="Créez votre premier enregistrement de métadonnées"
         />
       </Typography>
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={2}
-        alignItems="stretch"
+      <Typography
+        variant="body1"
+        sx={{ color: "text.secondary", mt: 1, maxWidth: "62ch" }}
       >
-        <Step
-          Icon={PeopleAltOutlined}
-          title={
-            <I18n
-              en="Add your first contact"
-              fr="Ajouter votre premier contact"
-            />
-          }
-          description={
-            <I18n
-              en="Save researchers and data stewards once — then reuse them across records."
-              fr="Enregistrez des chercheurs et gestionnaires une fois, puis réutilisez-les."
-            />
-          }
-          cta={<I18n en="Add contact" fr="Ajouter un contact" />}
-          onClick={() => navigate(`/${language}/${region}/contacts/new`)}
-        />
-        <Step
-          Icon={AssignmentOutlined}
-          title={<I18n en="Create a record" fr="Créer un enregistrement" />}
-          description={
-            <I18n
-              en="Describe your dataset's identity, spatial extent, and provenance."
-              fr="Décrivez l'identité, l'étendue spatiale et la provenance de votre jeu de données."
-            />
-          }
-          cta={<I18n en="Start a record" fr="Commencer un enregistrement" />}
-          onClick={() => navigate(`/${language}/${region}/new`)}
-        />
-        <Step
-          Icon={RocketLaunchOutlined}
-          title={<I18n en="Submit for review" fr="Soumettre pour révision" />}
-          description={
-            <I18n
-              en="Our data team reviews your record before it's published to the catalogue."
-              fr="Notre équipe révise votre enregistrement avant publication au catalogue."
-            />
-          }
-          cta={<I18n en="See submission help" fr="Aide à la soumission" />}
-          onClick={() => navigate(`/${language}/${region}`)}
-        />
+        {fr
+          ? `Un enregistrement décrit un jeu de données pour qu'il puisse être trouvé dans le catalogue${regionTitle ? ` de ${regionTitle}` : ""}.`
+          : `A record describes one dataset so it can be found in the${regionTitle ? ` ${regionTitle}` : ""} catalogue.`}
+      </Typography>
+
+      <Box
+        component="ol"
+        sx={{
+          listStyle: "none",
+          p: 0,
+          m: 0,
+          mt: { xs: 3, md: 4 },
+          display: "grid",
+          gap: { xs: 2.5, md: 4 },
+          gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
+        }}
+      >
+        {STEPS.map((step, i) => (
+          <Box component="li" key={step.en} sx={{ display: "flex", gap: 1.5 }}>
+            <Box
+              aria-hidden
+              sx={(theme) => ({
+                flexShrink: 0,
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                display: "grid",
+                placeItems: "center",
+                fontSize: "0.8125rem",
+                fontWeight: 700,
+                bgcolor: theme.vars.palette.primarySurface,
+                color: theme.vars.palette.primaryText,
+              })}
+            >
+              {i + 1}
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle1" component="h3">
+                <I18n en={step.en} fr={step.fr} />
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "text.secondary", mt: 0.5 }}
+              >
+                <I18n en={step.bodyEn} fr={step.bodyFr} />
+              </Typography>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={1.5}
+        alignItems={{ xs: "stretch", sm: "center" }}
+        sx={{ mt: { xs: 3, md: 4 } }}
+      >
+        <Box>{action}</Box>
+        <Button
+          variant="text"
+          component={RouterLink}
+          to={`/${language}/${region}/contacts`}
+        >
+          <I18n
+            en="Save the people you cite often as contacts"
+            fr="Enregistrer les personnes que vous citez souvent"
+          />
+        </Button>
       </Stack>
     </Box>
   );
