@@ -92,7 +92,15 @@ const FIELD_TAB = {
   platforms: "platform",
   instruments: "platform",
 };
-const TAB_ORDER = ["start", "identification", "taxa", "spatial", "contact", "distribution", "platform"];
+const TAB_ORDER = [
+  "start",
+  "identification",
+  "taxa",
+  "spatial",
+  "contact",
+  "distribution",
+  "platform",
+];
 const TAB_LABEL = {
   start: tabs.start,
   identification: tabs.dataID,
@@ -108,7 +116,6 @@ export const findingTab = (f) => FIELD_TAB[fieldKey(f)] || "other";
 
 // Fields that share a section with another field's anchor (id="field-<key>" in the tabs)
 const FIELD_ANCHOR = {
-  dateEnd: "dateStart",
   verticalExtentMax: "verticalExtentMin",
   verticalExtentDirection: "verticalExtentMin",
   instruments: "platforms",
@@ -119,8 +126,11 @@ export const scrollToField = (key) => {
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
   el.animate?.(
-    [{ boxShadow: "0 0 0 3px var(--mui-palette-warning-main)" }, { boxShadow: "0 0 0 3px transparent" }],
-    { duration: 2000 }
+    [
+      { boxShadow: "0 0 0 3px var(--mui-palette-warning-main)" },
+      { boxShadow: "0 0 0 3px transparent" },
+    ],
+    { duration: 2000 },
   );
 };
 
@@ -141,22 +151,38 @@ export const mergeSuggested = (target, patch) => {
 // The leaves a suggested patch would change: [[["distribution", "1", "url"], "https://…"], …]
 export const flattenPatch = (patch, path = []) =>
   patch && typeof patch === "object"
-    ? Object.entries(patch).flatMap(([k, v]) => (v == null ? [] : flattenPatch(v, [...path, k])))
+    ? Object.entries(patch).flatMap(([k, v]) =>
+        v == null ? [] : flattenPatch(v, [...path, k]),
+      )
     : [[path, patch]];
 
-const getPath = (obj, path) => path.reduce((o, k) => (o == null ? o : o[k]), obj);
+const getPath = (obj, path) =>
+  path.reduce((o, k) => (o == null ? o : o[k]), obj);
 const show = (v) =>
-  v == null || v === "" ? "—" : typeof v === "object" ? JSON.stringify(v) : String(v);
+  v == null || v === ""
+    ? "—"
+    : typeof v === "object"
+      ? JSON.stringify(v)
+      : String(v);
 
 // A reviewer's decision on a finding ({status, note?}); null clears it (Restore)
 export const setFindingStatus = (region, userID, recordID, id, status) =>
   set(
-    ref(getDatabase(firebase), `${region}/users/${userID}/records/${recordID}/qa/statuses/${id}`),
-    status
+    ref(
+      getDatabase(firebase),
+      `${region}/users/${userID}/records/${recordID}/qa/statuses/${id}`,
+    ),
+    status,
   );
 
 const statusChip = {
-  applied: <Chip size="small" color="success" label={<I18n en="Applied" fr="Appliqué" />} />,
+  applied: (
+    <Chip
+      size="small"
+      color="success"
+      label={<I18n en="Applied" fr="Appliqué" />}
+    />
+  ),
   deferred: <Chip size="small" label={<I18n en="Ignored" fr="Ignoré" />} />,
   rejected: <Chip size="small" label={<I18n en="Rejected" fr="Rejeté" />} />,
 };
@@ -188,11 +214,17 @@ const PreviewFix = ({ finding, record, onClose, onApply }) => (
           {finding &&
             flattenPatch(finding.suggested).map(([path, value]) => (
               <TableRow key={path.join(".")}>
-                <TableCell sx={{ wordBreak: "break-all" }}>{path.join(" › ")}</TableCell>
-                <TableCell sx={{ wordBreak: "break-word", color: "text.secondary" }}>
+                <TableCell sx={{ wordBreak: "break-all" }}>
+                  {path.join(" › ")}
+                </TableCell>
+                <TableCell
+                  sx={{ wordBreak: "break-word", color: "text.secondary" }}
+                >
                   {show(getPath(record, path))}
                 </TableCell>
-                <TableCell sx={{ wordBreak: "break-word" }}>{show(value)}</TableCell>
+                <TableCell sx={{ wordBreak: "break-word" }}>
+                  {show(value)}
+                </TableCell>
               </TableRow>
             ))}
         </TableBody>
@@ -215,15 +247,31 @@ const PreviewFix = ({ finding, record, onClose, onApply }) => (
   </Dialog>
 );
 
-const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) => {
+const FindingCard = ({
+  f,
+  status,
+  pending,
+  onGoToTab,
+  onPreview,
+  onSetStatus,
+}) => {
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState("");
   const [showEvidence, setShowEvidence] = useState(false);
   const tab = findingTab(f);
 
   return (
-    <Box component="li" sx={{ py: 1, listStyle: "none", opacity: status ? 0.7 : 1 }}>
-      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+    <Box
+      component="li"
+      sx={{ py: 1, listStyle: "none", opacity: status ? 0.7 : 1 }}
+    >
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        flexWrap="wrap"
+        useFlexGap
+      >
         <SeverityChip severity={f.severity} />
         {pending ? (
           <Chip
@@ -235,7 +283,11 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
         ) : (
           statusChip[status]
         )}
-        <Typography variant="caption" color="text.secondary" sx={{ wordBreak: "break-all" }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ wordBreak: "break-all" }}
+        >
           {f.field}
         </Typography>
       </Stack>
@@ -252,7 +304,11 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
       )}
       {f.evidence && (
         <>
-          <Link component="button" variant="caption" onClick={() => setShowEvidence(!showEvidence)}>
+          <Link
+            component="button"
+            variant="caption"
+            onClick={() => setShowEvidence(!showEvidence)}
+          >
             {showEvidence ? (
               <I18n en="Hide evidence" fr="Masquer les preuves" />
             ) : (
@@ -260,7 +316,10 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
             )}
           </Link>
           <Collapse in={showEvidence}>
-            <Typography variant="body2" sx={{ fontStyle: "italic", wordBreak: "break-word" }}>
+            <Typography
+              variant="body2"
+              sx={{ fontStyle: "italic", wordBreak: "break-word" }}
+            >
               {f.evidence}
             </Typography>
           </Collapse>
@@ -270,13 +329,17 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
         <Typography variant="caption" color="text.secondary" component="div">
           {f.confidence > 0 && (
             <>
-              <I18n en="Confidence" fr="Confiance" /> {Math.round(f.confidence * 100)}%
+              <I18n en="Confidence" fr="Confiance" />{" "}
+              {Math.round(f.confidence * 100)}%
             </>
           )}
           {f.source === "ckan" && (
             <>
               {f.confidence > 0 && " · "}
-              <I18n en="Found in the catalogue (CKAN)" fr="Trouvé dans le catalogue (CKAN)" />
+              <I18n
+                en="Found in the catalogue (CKAN)"
+                fr="Trouvé dans le catalogue (CKAN)"
+              />
             </>
           )}
         </Typography>
@@ -304,7 +367,13 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
           </Button>
         </Stack>
       ) : (
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mt: 1 }}
+        >
           {tab !== "other" && (
             <Button size="small" onClick={() => onGoToTab?.(tab, fieldKey(f))}>
               <I18n en="Go to field" fr="Aller au champ" />
@@ -323,10 +392,17 @@ const FindingCard = ({ f, status, pending, onGoToTab, onPreview, onSetStatus }) 
                   <I18n en="Preview fix" fr="Voir la correction" />
                 </Button>
               )}
-              <Button size="small" onClick={() => onSetStatus({ status: "deferred" })}>
+              <Button
+                size="small"
+                onClick={() => onSetStatus({ status: "deferred" })}
+              >
                 <I18n en="Ignore" fr="Ignorer" />
               </Button>
-              <Button size="small" color="error" onClick={() => setRejecting(true)}>
+              <Button
+                size="small"
+                color="error"
+                onClick={() => setRejecting(true)}
+              >
                 <I18n en="Reject" fr="Rejeter" />
               </Button>
             </>
@@ -367,7 +443,10 @@ export const ReviewButton = ({ record, open, onToggle, loading }) => {
     ? Object.entries(summary.bySeverity).map(([sev, n]) => (
         <div key={sev}>
           {n}{" "}
-          <I18n en={severityLabel[sev]?.en || sev} fr={severityLabel[sev]?.fr || sev} />
+          <I18n
+            en={severityLabel[sev]?.en || sev}
+            fr={severityLabel[sev]?.fr || sev}
+          />
         </div>
       ))
     : null;
@@ -378,10 +457,17 @@ export const ReviewButton = ({ record, open, onToggle, loading }) => {
           <I18n en="Not reviewed yet" fr="Pas encore révisée" />
         ) : (
           <>
-            {breakdown.length ? breakdown : <I18n en="No open issues" fr="Aucun problème ouvert" />}
+            {breakdown.length ? (
+              breakdown
+            ) : (
+              <I18n en="No open issues" fr="Aucun problème ouvert" />
+            )}
             {summary.outdated && (
               <div>
-                <I18n en="Outdated: saved since the review" fr="Périmée : enregistrée depuis la révision" />
+                <I18n
+                  en="Outdated: saved since the review"
+                  fr="Périmée : enregistrée depuis la révision"
+                />
               </div>
             )}
           </>
@@ -402,7 +488,11 @@ export const ReviewButton = ({ record, open, onToggle, loading }) => {
           <Chip
             size="small"
             label={summary.count}
-            color={summary.count ? severityColor[summary.worst] || "default" : "success"}
+            color={
+              summary.count
+                ? severityColor[summary.worst] || "default"
+                : "success"
+            }
             sx={{ ml: 1, height: 20 }}
           />
         )}
@@ -423,7 +513,7 @@ export const ReviewPanel = ({
   onGoToTab,
   onClose,
 }) => {
-  const { region, userID, recordID } = useParams();
+  const { region, userID, recordID, language } = useParams();
   const [preview, setPreview] = useState(null); // finding
   const [showResolved, setShowResolved] = useState(false);
 
@@ -431,7 +521,8 @@ export const ReviewPanel = ({
   const statuses = qa.statuses || {};
   const summary = qaSummary(qa, record.created);
   const all = Object.values(qa.findings || {}).sort(
-    (a, b) => (severityOrder[a.severity] ?? 9) - (severityOrder[b.severity] ?? 9)
+    (a, b) =>
+      (severityOrder[a.severity] ?? 9) - (severityOrder[b.severity] ?? 9),
   );
   const isOpen = (f) => !statuses[f.id]?.status;
   const active = all.filter(isOpen);
@@ -455,16 +546,31 @@ export const ReviewPanel = ({
   return (
     <Box>
       <Stack direction="row" alignItems="center" sx={{ px: 2, pt: 1.5 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1, fontSize: "1.0625rem", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{ flexGrow: 1, fontSize: "1.0625rem", fontWeight: 600 }}
+        >
           <I18n en="Automated review" fr="Révision automatisée" />
         </Typography>
-        <IconButton aria-label="close" size="small" onClick={onClose}>
+        <IconButton
+          aria-label={language === "fr" ? "Fermer" : "Close"}
+          size="small"
+          onClick={onClose}
+        >
           <Close />
         </IconButton>
       </Stack>
       {loading && <LinearProgress />}
       <Box sx={{ px: 2, pb: 2 }}>
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mt: 1 }}
+        >
           {summary &&
             Object.entries(summary.bySeverity).map(([sev, n]) => (
               <SeverityChip key={sev} severity={sev} count={n} />
@@ -515,7 +621,12 @@ export const ReviewPanel = ({
           </span>
         </Tooltip>
         {loading && (
-          <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            component="div"
+            sx={{ mt: 0.5 }}
+          >
             <I18n
               en="This can take a few minutes. You can keep working; results appear when it's done."
               fr="Cela peut prendre quelques minutes. Vous pouvez continuer; les résultats s'afficheront à la fin."
@@ -551,7 +662,8 @@ export const ReviewPanel = ({
         {groups.map(([tab, list]) => (
           <Box key={tab} sx={{ mt: 1 }}>
             <Typography variant="overline" color="text.secondary">
-              <I18n en={TAB_LABEL[tab].en} fr={TAB_LABEL[tab].fr} /> ({list.length})
+              <I18n en={TAB_LABEL[tab].en} fr={TAB_LABEL[tab].fr} /> (
+              {list.length})
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0 }}>
               {list.map(card)}
@@ -621,18 +733,28 @@ export const ReviewRegion = ({ onError }) => {
           onRun(null, null);
           return;
         }
-        unsubscribeRun = onValue(ref(db, `${region}/qaRuns/${id}`), (s) => onRun(id, s.val() || {}));
+        unsubscribeRun = onValue(ref(db, `${region}/qaRuns/${id}`), (s) =>
+          onRun(id, s.val() || {}),
+        );
       });
       return () => {
         unsubscribe();
         unsubscribeRun?.();
       };
     };
-    const offActive = follow(`${region}/qaRuns/active`, (v) => v?.runId, (id, r) => {
-      setRunId(id);
-      setRun(r);
-    });
-    const offLast = follow(`${region}/qaRuns/last`, (v) => v, (id, r) => setLast(r));
+    const offActive = follow(
+      `${region}/qaRuns/active`,
+      (v) => v?.runId,
+      (id, r) => {
+        setRunId(id);
+        setRun(r);
+      },
+    );
+    const offLast = follow(
+      `${region}/qaRuns/last`,
+      (v) => v,
+      (id, r) => setLast(r),
+    );
     return () => {
       offActive();
       offLast();
@@ -642,7 +764,11 @@ export const ReviewRegion = ({ onError }) => {
   const askToStart = async (withForce = force) => {
     setCounting(true);
     try {
-      const { data } = await reviewRegion({ region, dryRun: true, force: withForce });
+      const { data } = await reviewRegion({
+        region,
+        dryRun: true,
+        force: withForce,
+      });
       setConfirm(data);
     } catch (e) {
       onError?.(e.message);
@@ -659,7 +785,8 @@ export const ReviewRegion = ({ onError }) => {
     });
   };
 
-  const stop = () => set(ref(getDatabase(firebase), `${region}/qaRuns/${runId}/cancel`), true);
+  const stop = () =>
+    set(ref(getDatabase(firebase), `${region}/qaRuns/${runId}/cancel`), true);
 
   const percent = run?.total ? (100 * (run.done || 0)) / run.total : 0;
   const failed = Object.values(last?.failedRecords || {});
@@ -671,14 +798,23 @@ export const ReviewRegion = ({ onError }) => {
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
+      <Stack
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        flexWrap="wrap"
+        useFlexGap
+      >
         <Button
           variant="outlined"
           startIcon={counting ? <CircularProgress size={16} /> : <FactCheck />}
           onClick={() => askToStart()}
           disabled={Boolean(run) || counting}
         >
-          <I18n en="Review all" fr="Tout réviser" />
+          <I18n
+            en="Run automated review on all records"
+            fr="Lancer la révision automatisée sur tous"
+          />
         </Button>
         {run && (
           <>
@@ -692,7 +828,8 @@ export const ReviewRegion = ({ onError }) => {
               {run.current && (
                 <>
                   {" · "}
-                  <I18n en="reviewing" fr="révision de" /> « {localTitle(run.current.title, language)} »
+                  <I18n en="reviewing" fr="révision de" /> «{" "}
+                  {localTitle(run.current.title, language)} »
                 </>
               )}
             </Typography>
@@ -708,8 +845,17 @@ export const ReviewRegion = ({ onError }) => {
               />
             )}
             {runId && (
-              <Button size="small" color="error" onClick={stop} disabled={Boolean(run.cancel)}>
-                {run.cancel ? <I18n en="Stopping…" fr="Arrêt…" /> : <I18n en="Stop" fr="Arrêter" />}
+              <Button
+                size="small"
+                color="error"
+                onClick={stop}
+                disabled={Boolean(run.cancel)}
+              >
+                {run.cancel ? (
+                  <I18n en="Stopping…" fr="Arrêt…" />
+                ) : (
+                  <I18n en="Stop" fr="Arrêter" />
+                )}
               </Button>
             )}
           </>
@@ -718,7 +864,8 @@ export const ReviewRegion = ({ onError }) => {
 
       {!run && last?.started && (
         <Typography variant="body2" color="text.secondary" component="div">
-          <I18n en="Last run" fr="Dernière révision" /> {new Date(last.started).toLocaleString()}
+          <I18n en="Last run" fr="Dernière révision" />{" "}
+          {new Date(last.started).toLocaleString()}
           {last.startedBy && ` · ${last.startedBy}`}
           {lastStatus && (
             <>
@@ -736,7 +883,12 @@ export const ReviewRegion = ({ onError }) => {
           {failed.length > 0 && (
             <>
               ,{" "}
-              <Link component="button" variant="body2" color="error" onClick={() => setShowFailed(!showFailed)}>
+              <Link
+                component="button"
+                variant="body2"
+                color="error"
+                onClick={() => setShowFailed(!showFailed)}
+              >
                 {failed.length} <I18n en="failed" fr="échouées" />
               </Link>
             </>
@@ -745,7 +897,10 @@ export const ReviewRegion = ({ onError }) => {
             <Box component="ul" sx={{ my: 0.5 }}>
               {failed.map((r) => (
                 <li key={`${r.uid}_${r.rid}`}>
-                  <Link component={RouterLink} to={`/${language}/${region}/${r.uid}/${r.rid}`}>
+                  <Link
+                    component={RouterLink}
+                    to={`/${language}/${region}/${r.uid}/${r.rid}`}
+                  >
                     {localTitle(r.title, language)}
                   </Link>{" "}
                   <Typography component="span" variant="caption">
@@ -760,7 +915,10 @@ export const ReviewRegion = ({ onError }) => {
 
       <Dialog open={Boolean(confirm)} onClose={() => setConfirm(null)}>
         <DialogTitle>
-          <I18n en="Review all records" fr="Réviser toutes les fiches" />
+          <I18n
+            en="Run automated review on all records?"
+            fr="Lancer la révision automatisée sur toutes les fiches ?"
+          />
         </DialogTitle>
         <DialogContent>
           {confirm && (
@@ -802,12 +960,15 @@ export const ReviewRegion = ({ onError }) => {
           <Button onClick={() => setConfirm(null)}>
             <I18n en="Cancel" fr="Annuler" />
           </Button>
-          <Button variant="contained" onClick={start} disabled={!confirm?.toReview}>
-            <I18n en="Start" fr="Lancer" />
+          <Button
+            variant="contained"
+            onClick={start}
+            disabled={!confirm?.toReview}
+          >
+            <I18n en="Start review" fr="Lancer la révision" />
           </Button>
         </DialogActions>
       </Dialog>
     </Stack>
   );
 };
-

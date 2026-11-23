@@ -1,16 +1,18 @@
 import React, { useRef, useEffect, useState } from "react";
 import FormSection from "../FormShell/FormSection";
 
-import { Save, ExpandMore } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, LockOutlined } from "@mui/icons-material";
 import {
+  Alert,
+  Box,
+  Button,
+  Collapse,
+  Grid,
   Typography,
-  FormControl,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Tooltip,
   Stack,
 } from "@mui/material";
+import FormField from "../FormShell/FormField";
+import { useGuidance } from "../FormShell/GuidanceContext";
 import { useParams } from "react-router-dom";
 
 import BilingualTextInput from "../FormComponents/BilingualTextInput";
@@ -20,11 +22,6 @@ import regions from "../../regions";
 import DOIInput from "../FormComponents/DOIInput";
 
 import { En, Fr, I18n } from "../I18n";
-import RequiredMark from "../FormComponents/RequiredMark";
-import {
-  QuestionText,
-  SupplementalText,
-} from "../FormComponents/QuestionStyles";
 import { validateField } from "../../utils/validate";
 import { metadataScopeCodes } from "../../isoCodeLists";
 import CheckBoxList from "../FormComponents/CheckBoxList";
@@ -52,6 +49,8 @@ const StartTab = ({
   const mounted = useRef(false);
 
   const [topicAccordionExpanded, setTopicAccordionExpanded] = useState(false);
+  const { showGuidance } = useGuidance();
+  const fr = language === "fr";
 
   const allTopics = Object.entries(topicCategories).map(([key, cat]) => ({
     key,
@@ -126,287 +125,319 @@ const StartTab = ({
     }
   }, [userID, record.userID, record.recordID]);
 
+  const moreTopicsOpen = topicAccordionExpanded || hasNonProminentSelected;
+
   return (
     <Stack spacing={2}>
-      <FormSection>
-        {disabled && (
-          <QuestionText style={{ paddingBottom: "15px" }}>
-            <I18n>
-              <En>
-                <b>
-                  This form is locked because it has already been published, or
-                  you do not have access to edit it.
-                </b>
-              </En>
-              <Fr>
-                <b>
-                  Ce formulaire est verrouillé car il a déjà été publié ou vous
-                  n'avez pas accès pour le modifier.
-                </b>
-              </Fr>
-            </I18n>
-          </QuestionText>
-        )}
-        <Typography variant="body1">
+      {disabled && (
+        <Alert severity="info" icon={<LockOutlined fontSize="inherit" />}>
           <I18n>
             <En>
-              Welcome to the {regionInfo.title.en} Metadata Entry Tool, the
-              first step in making your data discoverable and accessible. This
-              information will be used to create a metadata record for your
-              dataset that will allow it to be searchable through the{" "}
-              {regionInfo.catalogueTitle.en}. Please fill out each field with as
-              much detail as possible. The metadata record will help describe
-              this dataset for others to determine if it is relevant for their
-              work and ensure it is interoperable with other databases and
-              systems.
-              <br />
-              <br /> Questions regarding the form can be directed to{" "}
+              This form is locked because it has already been published, or you
+              do not have access to edit it.
             </En>
             <Fr>
-              Bienvenue dans le formulaire de saisie de métadonnées{" "}
-              {regionInfo.titleFrPossessive}. Cet outil constitue la première
-              étape du processus de partage de vos données. Les renseignements
-              fournis serviront à créer le profil de métadonnées de votre jeu de
-              données. Ces métadonnées facilitent l’accessibilité et la
-              découvrabilité de vos données via le{" "}
-              {regionInfo.catalogueTitle.fr}
-              . Elles rendent également vos jeux de données interopérables avec
-              d’autres systèmes de diffusion. Aussi, nous vous invitons à
-              remplir les champs requis de la façon la plus exhaustive possible.
-              <br />
-              <br /> Les questions concernant le formulaire peuvent être
-              adressées à{" "}
+              Ce formulaire est verrouillé car il a déjà été publié ou vous
+              n'avez pas accès pour le modifier.
             </Fr>
           </I18n>
-          <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
-        </Typography>
+        </Alert>
+      )}
 
-        <ul>
-          <li>
-            <I18n>
-              <En>You can save the form once you have filled out a title.</En>
-              <Fr>
-                Dès que vous avez saisi un titre, vous pouvez enregistrer le
-                formulaire.
-              </Fr>
-            </I18n>
-          </li>
-          <li>
-            <En>
-              All fields marked with a <RequiredMark /> are mandatory.
-            </En>
-            <Fr>
-              Tous les champs marqués d'une étoile <RequiredMark /> sont
-              obligatoires.
-            </Fr>
-          </li>
-          <li>
-            <I18n>
-              <En>
-                The form can be saved and completed over time by clicking the{" "}
-                <Save /> icon in the bottom right corner. This icon will be
-                greyed out until you have filled in the dataset title in the
-                "Identification" section.
-              </En>
-              <Fr>
-                Le formulaire peut être sauvegardé et complété ultérieurement en
-                cliquant sur la disquette située dans le coin inférieur droit.
-                Cette icône sera activée par l’ajout du titre du jeu de données
-                dans la section « Identification des ressources ».
-              </Fr>
-            </I18n>
-          </li>
-          <li>
-            <I18n>
-              <En>
-                Some fields can have text in both French and English, though
-                this is only required for the title and the abstract. There is a
-                'Translate' button that will automatically generate text in the
-                other language. This translation is more accurate when there is
-                more text to translate.
-              </En>
-              <Fr>
-                Certains champs peuvent contenir du texte à la fois en français
-                et en anglais. Toutefois, seules les traductions du titre et de
-                la description sont obligatoires. Le bouton « Traduire» génère
-                automatiquement une traduction dans l'autre langue. Une
-                description exhaustive améliorera la précision de la traduction.
-              </Fr>
-            </I18n>
-          </li>
-        </ul>
-      </FormSection>
-
-      <FormSection id="field-title">
-        <QuestionText>
-          <I18n>
-            <En>What is the dataset title? Required in English and French.</En>
-            <Fr>
-              Quel est le titre du jeu de données? Obligatoire dans les deux
-              langues.
-            </Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "title")} />
-          <SupplementalText>
-            <I18n>
-              <En>
-                <p>Recommended title includes: What, Where, When.</p>
-                <p>
-                  Title should be precise enough so that the user will not have
-                  to open the dataset to understand its contents. Title should
-                  not have acronyms, special characters, or use specialized
-                  nomenclature. This will appear as the title that is shown for
-                  this dataset in the {regionInfo.catalogueTitle.en}.
-                </p>
-              </En>
-              <Fr>
-                <p>Le titre recommandé comprend : Quoi, Où, Quand.</p>
-                <p>
-                  Le titre doit être suffisamment précis pour que l'utilisateur
-                  n'ait pas à ouvrir le jeu de données pour en comprendre le
-                  contenu. Le titre ne doit pas comporter d'acronymes, de
-                  caractères spéciaux ou de termes techniques spécifiques à un
-                  domaine. Ceci apparaîtra comme titre de votre jeu de données
-                  dans le {regionInfo.catalogueTitle.fr}.
-                </p>
-              </Fr>
-            </I18n>
-          </SupplementalText>
-        </QuestionText>
-        <BilingualTextInput
-          name="title"
-          value={record.title}
-          onChange={handleUpdateRecord("title")}
-          disabled={disabled}
-        />
-      </FormSection>
-
-      <FormSection id="field-metadataScope">
-        <QuestionText>
-          <I18n>
-            <En>What is the resource type?</En>
-            <Fr>Quel est le type de ressource?</Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "metadataScope")} />
-        </QuestionText>
-        <SelectInput
-          value={record.metadataScope || ""}
-          onChange={handleMetadataScopeChange()}
-          options={Object.keys(filtereMetadataScopeCodes)}
-          optionLabels={Object.values(filtereMetadataScopeCodes).map(
-            ({ title }) => title[language],
-          )}
-          optionTooltips={Object.values(filtereMetadataScopeCodes).map(
-            ({ text }) => text[language],
-          )}
-          disabled={disabled}
-          fullWidth={false}
-          style={{ width: "200px" }}
-        />
-      </FormSection>
-
-      <FormSection id="field-resourceType">
-        <FormControl>
-          <QuestionText style={{ paddingBottom: "15px" }}>
-            <I18n>
-              <En>What is the topic category of this record?</En>
-              <Fr>
-                Quelle est la catégorie thématique de cet enregistrement ?
-              </Fr>
-            </I18n>
-            <RequiredMark passes={record.resourceType?.length} />
-            <SupplementalText>
+      {/* Orientation for first-time providers. Hidden with the rest of the
+          guidance once a returning user switches it off. */}
+      {showGuidance && (
+        <FormSection
+          title={<I18n en="Before you start" fr="Avant de commencer" />}
+        >
+          <Box sx={{ maxWidth: "75ch" }}>
+            <Typography variant="body1" sx={{ mb: 1.5 }}>
               <I18n>
                 <En>
-                  Select one or more ISO topic categories that describe this
-                  dataset. Expand the list below for additional categories.
+                  Welcome to the {regionInfo.title.en} Metadata Entry Tool, the
+                  first step in making your data discoverable and accessible.
+                  This information will be used to create a metadata record for
+                  your dataset that will allow it to be searchable through the{" "}
+                  {regionInfo.catalogueTitle.en}. The metadata record will help
+                  others determine if this dataset is relevant for their work
+                  and ensure it is interoperable with other databases and
+                  systems.
                 </En>
                 <Fr>
-                  Sélectionnez une ou plusieurs catégories thématiques ISO qui
-                  décrivent ce jeu de données. Développez la liste ci-dessous
-                  pour des catégories supplémentaires.
+                  Bienvenue dans le formulaire de saisie de métadonnées
+                  {regionInfo.titleFrPossessive &&
+                    ` ${regionInfo.titleFrPossessive}`}
+                  . Cet outil constitue la première étape du processus de
+                  partage de vos données. Les renseignements fournis serviront à
+                  créer le profil de métadonnées de votre jeu de données. Ces
+                  métadonnées facilitent l’accessibilité et la découvrabilité de
+                  vos données via le {regionInfo.catalogueTitle.fr}. Elles
+                  rendent également vos jeux de données interopérables avec
+                  d’autres systèmes de diffusion.
                 </Fr>
               </I18n>
-            </SupplementalText>
-          </QuestionText>
-
-          <CheckBoxList
-            aria-labelledby="resource-type"
-            name="resource-type"
-            value={normalizedResourceType}
-            labelSize={6}
-            onChange={(v) => updateResourceType(v)}
-            options={prominentTopics.map((t) => t.key)}
-            optionLabels={prominentTopics.map((t) => t.title[language])}
-            optionTooltips={prominentTopics.map((t) => t.definition[language])}
-            disabled={disabled}
-          />
-
-          <Accordion
-            onChange={(event, isExpanded) =>
-              setTopicAccordionExpanded(isExpanded)
-            }
-            expanded={topicAccordionExpanded || hasNonProminentSelected}
-          >
-            <AccordionSummary
-              expandIcon={
-                <Tooltip
-                  title={
-                    language === "fr"
-                      ? "Afficher/masquer les catégories"
-                      : "Show/Hide more options"
-                  }
-                >
-                  <ExpandMore />
-                </Tooltip>
-              }
+            </Typography>
+            <Box
+              component="ul"
+              sx={{
+                pl: 2.5,
+                my: 0,
+                color: "text.secondary",
+                "& li + li": { mt: 0.75 },
+                "& b": { color: "text.primary", fontWeight: 600 },
+              }}
             >
-              <I18n>
-                <En>Show/Hide more topic categories</En>
-                <Fr>Afficher/masquer les catégories thématiques</Fr>
-              </I18n>
-            </AccordionSummary>
-            <AccordionDetails>
-              <CheckBoxList
-                aria-labelledby="resource-type-expanded"
-                name="resource-type"
-                value={normalizedResourceType}
-                labelSize={6}
-                onChange={(v) => updateResourceType(v)}
-                options={nonProminentTopics.map((t) => t.key)}
-                optionLabels={nonProminentTopics.map((t) => t.title[language])}
-                optionTooltips={nonProminentTopics.map(
-                  (t) => t.definition[language],
-                )}
-                disabled={disabled}
-              />
-            </AccordionDetails>
-          </Accordion>
-        </FormControl>
-      </FormSection>
+              <li>
+                <I18n>
+                  <En>
+                    Work through the sections in any order. <b>Save</b> (top
+                    right) becomes available once the dataset has a title, and
+                    you can come back to finish later.
+                  </En>
+                  <Fr>
+                    Remplissez les sections dans l'ordre de votre choix. Le
+                    bouton <b>Enregistrer</b> (en haut à droite) devient
+                    disponible dès que le jeu de données a un titre, et vous
+                    pouvez revenir terminer plus tard.
+                  </Fr>
+                </I18n>
+              </li>
+              <li>
+                <I18n>
+                  <En>
+                    Fields marked <b>Required</b> must be completed before you
+                    can submit. The number beside each section shows how many
+                    are left.
+                  </En>
+                  <Fr>
+                    Les champs marqués <b>Obligatoire</b> doivent être remplis
+                    avant la soumission. Le nombre à côté de chaque section
+                    indique combien il en reste.
+                  </Fr>
+                </I18n>
+              </li>
+              <li>
+                <I18n>
+                  <En>
+                    Only the title and abstract are required in both English and
+                    French. <b>Translate</b> fills in the other language
+                    automatically; it is more accurate with more text. Review
+                    the result before checking it as verified.
+                  </En>
+                  <Fr>
+                    Seuls le titre et le résumé sont obligatoires dans les deux
+                    langues. Le bouton <b>Traduire</b> génère automatiquement
+                    l'autre langue; une description exhaustive améliorera la
+                    précision. Relisez le résultat avant de le marquer comme
+                    vérifié.
+                  </Fr>
+                </I18n>
+              </li>
+              <li>
+                <I18n>
+                  <En>
+                    Returning? Switch off <b>Guidance</b> at the top to hide
+                    explanations. You can still open them for any field with the
+                    ? button.
+                  </En>
+                  <Fr>
+                    Vous connaissez déjà le formulaire? Désactivez <b>Aide</b>{" "}
+                    en haut pour masquer les explications. Vous pourrez toujours
+                    les afficher pour un champ avec le bouton ?.
+                  </Fr>
+                </I18n>
+              </li>
+              <li>
+                <I18n
+                  en="Questions about the form can be directed to "
+                  fr="Les questions concernant le formulaire peuvent être adressées à "
+                />
+                <a href={`mailto:${regionInfo.email}`}>{regionInfo.email}</a>.
+              </li>
+            </Box>
+          </Box>
+        </FormSection>
+      )}
 
-      <FormSection id="field-language">
-        <QuestionText>
-          <I18n>
-            <En>What is the primary language of the dataset?</En>
-            <Fr>Quelle est la langue principale du jeu de données?</Fr>
-          </I18n>
-          <RequiredMark passes={validateField(record, "language")} />
-        </QuestionText>
-        <SelectInput
-          value={record.language}
-          onChange={handleUpdateRecord("language")}
-          options={["en", "fr"]}
-          optionLabels={["English", "Français"]}
-          disabled={disabled}
-        />
+      <FormSection title={<I18n en="The basics" fr="L'essentiel" />}>
+        <Stack spacing={4}>
+          <FormField
+            id="field-title"
+            label={<I18n en="Dataset title" fr="Titre du jeu de données" />}
+            required
+            complete={validateField(record, "title")}
+            hint={
+              <I18n
+                en="What, where and when, in English and French. No acronyms."
+                fr="Quoi, où et quand, en français et en anglais. Sans acronymes."
+              />
+            }
+            guidance={
+              <I18n>
+                <En>
+                  <p>
+                    Title should be precise enough so that the user will not
+                    have to open the dataset to understand its contents. Title
+                    should not have acronyms, special characters, or use
+                    specialized nomenclature. This will appear as the title that
+                    is shown for this dataset in the{" "}
+                    {regionInfo.catalogueTitle.en}.
+                  </p>
+                </En>
+                <Fr>
+                  <p>
+                    Le titre doit être suffisamment précis pour que
+                    l'utilisateur n'ait pas à ouvrir le jeu de données pour en
+                    comprendre le contenu. Le titre ne doit pas comporter
+                    d'acronymes, de caractères spéciaux ou de termes techniques
+                    spécifiques à un domaine. Ceci apparaîtra comme titre de
+                    votre jeu de données dans le {regionInfo.catalogueTitle.fr}.
+                  </p>
+                </Fr>
+              </I18n>
+            }
+          >
+            <BilingualTextInput
+              name="title"
+              value={record.title}
+              onChange={handleUpdateRecord("title")}
+              disabled={disabled}
+            />
+          </FormField>
+
+          <Grid container columnSpacing={3} rowSpacing={4}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormField
+                id="field-metadataScope"
+                label={<I18n en="Resource type" fr="Type de ressource" />}
+                required
+                complete={validateField(record, "metadataScope")}
+                hint={
+                  <I18n
+                    en="What kind of resource this record describes."
+                    fr="Le type de ressource que décrit cet enregistrement."
+                  />
+                }
+              >
+                <SelectInput
+                  value={record.metadataScope || ""}
+                  onChange={handleMetadataScopeChange()}
+                  options={Object.keys(filtereMetadataScopeCodes)}
+                  optionLabels={Object.values(filtereMetadataScopeCodes).map(
+                    ({ title }) => title[language],
+                  )}
+                  optionTooltips={Object.values(filtereMetadataScopeCodes).map(
+                    ({ text }) => text[language],
+                  )}
+                  ariaLabel={fr ? "Type de ressource" : "Resource type"}
+                  disabled={disabled}
+                />
+              </FormField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormField
+                id="field-language"
+                label={<I18n en="Primary language" fr="Langue principale" />}
+                required
+                complete={validateField(record, "language")}
+                hint={
+                  <I18n
+                    en="The main language of the data itself."
+                    fr="La langue principale des données elles-mêmes."
+                  />
+                }
+              >
+                <SelectInput
+                  value={record.language}
+                  onChange={handleUpdateRecord("language")}
+                  options={["en", "fr"]}
+                  optionLabels={["English", "Français"]}
+                  ariaLabel={fr ? "Langue principale" : "Primary language"}
+                  disabled={disabled}
+                />
+              </FormField>
+            </Grid>
+          </Grid>
+
+          <FormField
+            id="field-resourceType"
+            label={<I18n en="Topic categories" fr="Catégories thématiques" />}
+            required
+            complete={Boolean(record.resourceType?.length)}
+            hint={
+              <I18n
+                en="Select one or more ISO topic categories."
+                fr="Sélectionnez une ou plusieurs catégories thématiques ISO."
+              />
+            }
+            guidance={
+              <I18n
+                en="Select one or more ISO topic categories that describe this dataset. Hover over or press and hold a category to see its definition. Less common categories are under “More categories”."
+                fr="Sélectionnez une ou plusieurs catégories thématiques ISO qui décrivent ce jeu de données. Survolez une catégorie pour voir sa définition. Les catégories moins courantes se trouvent sous « Plus de catégories »."
+              />
+            }
+          >
+            <CheckBoxList
+              name="resource-type"
+              value={normalizedResourceType}
+              labelSize={{ xs: 12, sm: 6, lg: 4 }}
+              onChange={(v) => updateResourceType(v)}
+              options={prominentTopics.map((t) => t.key)}
+              optionLabels={prominentTopics.map((t) => t.title[language])}
+              optionTooltips={prominentTopics.map(
+                (t) => t.definition[language],
+              )}
+              disabled={disabled}
+            />
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => setTopicAccordionExpanded((o) => !o)}
+              disabled={hasNonProminentSelected}
+              aria-expanded={moreTopicsOpen}
+              aria-controls="more-topic-categories"
+              endIcon={moreTopicsOpen ? <ExpandLess /> : <ExpandMore />}
+              sx={{ mt: 0.5, ml: -1 }}
+            >
+              {moreTopicsOpen
+                ? fr
+                  ? "Moins de catégories"
+                  : "Fewer categories"
+                : fr
+                  ? `Plus de catégories (${nonProminentTopics.length})`
+                  : `More categories (${nonProminentTopics.length})`}
+            </Button>
+            <Collapse in={moreTopicsOpen} id="more-topic-categories">
+              <Box sx={{ pt: 1 }}>
+                <CheckBoxList
+                  name="resource-type"
+                  value={normalizedResourceType}
+                  labelSize={{ xs: 12, sm: 6, lg: 4 }}
+                  onChange={(v) => updateResourceType(v)}
+                  options={nonProminentTopics.map((t) => t.key)}
+                  optionLabels={nonProminentTopics.map(
+                    (t) => t.title[language],
+                  )}
+                  optionTooltips={nonProminentTopics.map(
+                    (t) => t.definition[language],
+                  )}
+                  disabled={disabled}
+                />
+              </Box>
+            </Collapse>
+          </FormField>
+        </Stack>
       </FormSection>
 
       <div id="field-datasetIdentifier">
         <DOIInput
           record={record}
-          handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
-          handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
+          handleUpdateDatasetIdentifier={handleUpdateRecord(
+            "datasetIdentifier",
+          )}
+          handleUpdateDoiCreationStatus={handleUpdateRecord(
+            "doiCreationStatus",
+          )}
           disabled={disabled}
         />
       </div>
