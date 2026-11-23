@@ -355,7 +355,7 @@ export default function DataciteSettings({
                       }
                     >
                       <I18n
-                        en="Test Credentials"
+                        en="Test credentials"
                         fr="Tester les identifiants"
                       />
                     </Button>

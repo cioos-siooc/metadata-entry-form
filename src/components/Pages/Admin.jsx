@@ -1,14 +1,19 @@
 import React from "react";
 import {
-  Typography,
+  Alert,
+  Box,
   Button,
   CircularProgress,
   TextField,
   Grid,
   InputAdornment,
   IconButton,
+  Snackbar,
+  Stack,
+  Tab,
+  Tabs,
 } from "@mui/material";
-import { Save, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   getDatabase,
   ref,
@@ -22,7 +27,7 @@ import { Buffer } from "buffer";
 import firebase from "../../firebase";
 import { UserContext } from "../../providers/UserProvider";
 import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import { En, Fr, I18n } from "../I18n";
+import { I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 import withRouter from "../../utils/withRouter";
 
@@ -31,6 +36,15 @@ import { unique } from "../../utils/misc";
 import DataciteSettings from "../Admin/DataciteSettings";
 import AdminDialogs from "../Admin/AdminDialogs";
 import FormSection from "../FormShell/FormSection";
+import ListEditor from "../Admin/ListEditor";
+import { Page, PageHeader } from "../Layout/Page";
+
+const TABS = [
+  { value: "people", en: "People", fr: "Personnes" },
+  { value: "projects", en: "Projects", fr: "Projets" },
+  { value: "doi", en: "DOIs", fr: "DOI" },
+  { value: "publishing", en: "GitHub publishing", fr: "Publication GitHub" },
+];
 
 const cleanArr = (arr) => unique(arr.map((e) => e.trim()).filter((e) => e));
 
@@ -67,6 +81,7 @@ class Admin extends FormClassTemplate {
       githubFileTemplate: "{filename}",
       githubEnvironments: "prod",
       showGithubToken: false,
+      savedToast: "",
     };
   }
 
@@ -143,7 +158,7 @@ class Admin extends FormClassTemplate {
         });
 
         onValue(permissionsRef, (permissionsFirebase) => {
-          const permissions = permissionsFirebase.toJSON();
+          const permissions = permissionsFirebase.toJSON() || {};
 
           const admins = permissions.admins
             ? permissions.admins.split(",")
@@ -321,6 +336,10 @@ class Admin extends FormClassTemplate {
         this.setState({
           datacitePass: "",
           credentialsStored: true,
+          savedToast: this.tr(
+            "DataCite settings saved",
+            "Paramètres DataCite enregistrés",
+          ),
         });
       })
       .catch((error) => {
@@ -360,13 +379,46 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  handleSave() {
-    const { match } = this.props;
-    const { region } = match.params;
+  // Writes one slice of the region's admin node. People and projects save on
+  // every change; GitHub settings save from their own button.
+  saveAdmin(updates, message) {
+    const { region } = this.props.match.params;
+    if (!auth.currentUser) {
+      this.setState({
+        showErrorDialog: true,
+        errorMessage: "You must be logged in to save admin settings",
+      });
+      return Promise.resolve();
+    }
+    return update(ref(getDatabase(firebase), `admin/${region}`), updates)
+      .then(() => this.setState({ savedToast: message }))
+      .catch((error) => {
+        console.error("Failed to save admin settings:", error);
+        this.setState({
+          showErrorDialog: true,
+          errorMessage: `Failed to save admin settings: ${error.message}`,
+        });
+      });
+  }
+
+  setPeople(role, list) {
+    this.setState({ [role]: list });
+    this.saveAdmin(
+      { [`permissions/${role}`]: cleanArr(list).join() },
+      this.tr("Saved", "Enregistré"),
+    );
+  }
+
+  setProjects(list) {
+    this.setState({ projects: list });
+    this.saveAdmin(
+      { projects: cleanArr(list) },
+      this.tr("Saved", "Enregistré"),
+    );
+  }
+
+  handleSaveGithub() {
     const {
-      reviewers,
-      admins,
-      projects,
       githubOwner,
       githubRepo,
       githubToken,
@@ -374,42 +426,28 @@ class Admin extends FormClassTemplate {
       githubFileTemplate,
       githubEnvironments,
     } = this.state;
-    const database = getDatabase(firebase);
+    this.saveAdmin(
+      {
+        githubCredentials: {
+          owner: githubOwner,
+          repo: githubRepo,
+          token: githubToken,
+          branch: githubBranch,
+          fileTemplate: githubFileTemplate,
+          environments: cleanArr(githubEnvironments.split("\n")),
+        },
+      },
+      this.tr("GitHub settings saved", "Paramètres GitHub enregistrés"),
+    );
+  }
 
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const updates = {};
+  tr(en, fr) {
+    return this.props.match.params.language === "fr" ? fr : en;
+  }
 
-      // 1. Permissions
-      updates["permissions/admins"] = cleanArr(admins).join();
-      updates["permissions/reviewers"] = cleanArr(reviewers).join();
-      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
-
-      // 2. GitHub Credentials
-      const githubCredentials = {
-        owner: githubOwner,
-        repo: githubRepo,
-        token: githubToken,
-        branch: githubBranch,
-        fileTemplate: githubFileTemplate,
-        environments: cleanArr(githubEnvironments.split("\n")),
-      };
-      updates.githubCredentials = githubCredentials;
-
-      update(regionAdminRef, updates).catch((error) => {
-        console.error("Failed to save admin settings:", error);
-        this.setState({
-          showErrorDialog: true,
-          errorMessage: `Failed to save admin settings: ${error.message}`,
-        });
-      });
-    } else {
-      console.error("No authenticated user found");
-      this.setState({
-        showErrorDialog: true,
-        errorMessage: "You must be logged in to save admin settings",
-      });
-    }
+  currentTab() {
+    const tab = new URLSearchParams(this.props.location?.search).get("tab");
+    return TABS.some((t) => t.value === tab) ? tab : "people";
   }
 
   handleChange = (event) => {
@@ -439,253 +477,269 @@ class Admin extends FormClassTemplate {
     });
   };
 
-  render() {
-    const { loading, reviewers, admins, projects } = this.state;
+  renderPeople() {
+    const { admins, reviewers } = this.state;
+    const ownEmail = auth.currentUser?.email;
+    return (
+      <Stack spacing={3}>
+        <FormSection
+          title={<I18n en="Reviewers" fr="Réviseurs" />}
+          description={
+            <I18n
+              en="Reviewers see every record in this region, run automated reviews, and publish or return submitted records."
+              fr="Les réviseurs voient tous les enregistrements de la région, lancent les révisions automatisées, et publient ou renvoient les enregistrements soumis."
+            />
+          }
+        >
+          <ListEditor
+            email
+            items={reviewers}
+            onChange={(list) => this.setPeople("reviewers", list)}
+            label={this.tr("Reviewer email", "Courriel du réviseur")}
+            placeholder={this.tr(
+              "name@example.org — paste several to add them all",
+              "nom@exemple.org — collez-en plusieurs pour tous les ajouter",
+            )}
+            emptyText={this.tr(
+              "No reviewers yet.",
+              "Aucun réviseur pour l'instant.",
+            )}
+          />
+        </FormSection>
+        <FormSection
+          title={<I18n en="Administrators" fr="Administrateurs" />}
+          description={
+            <I18n
+              en="Administrators can do everything reviewers can, and also change the settings on this page."
+              fr="Les administrateurs peuvent faire tout ce que font les réviseurs, et aussi modifier les paramètres de cette page."
+            />
+          }
+        >
+          <ListEditor
+            email
+            items={admins}
+            onChange={(list) => this.setPeople("admins", list)}
+            label={this.tr(
+              "Administrator email",
+              "Courriel de l'administrateur",
+            )}
+            placeholder="name@example.org"
+            protectedItem={ownEmail}
+            protectedNote={this.tr(
+              "You can't remove yourself; ask another administrator.",
+              "Vous ne pouvez pas vous retirer ; demandez à un autre administrateur.",
+            )}
+            emptyText={this.tr(
+              "No administrators yet.",
+              "Aucun administrateur pour l'instant.",
+            )}
+          />
+        </FormSection>
+      </Stack>
+    );
+  }
+
+  renderProjects() {
+    return (
+      <FormSection
+        title={<I18n en="Projects" fr="Projets" />}
+        description={
+          <I18n
+            en="Data providers can tag a record with these projects in its Identification section."
+            fr="Les fournisseurs de données peuvent associer un enregistrement à ces projets dans sa section Identification."
+          />
+        }
+      >
+        <ListEditor
+          items={this.state.projects}
+          onChange={(list) => this.setProjects(list)}
+          label={this.tr("Project name", "Nom du projet")}
+          placeholder={this.tr("Project name", "Nom du projet")}
+          emptyText={this.tr(
+            "No projects yet. Without any, the project question is hidden from the form.",
+            "Aucun projet pour l'instant. Sans projet, la question est masquée dans le formulaire.",
+          )}
+        />
+      </FormSection>
+    );
+  }
+
+  renderPublishing() {
     const { language } = this.props.match.params;
+    const field = (name, en, fr, extra = {}) => (
+      <Grid size={extra.full ? 12 : { xs: 12, sm: 6 }}>
+        <TextField
+          name={name}
+          label={this.tr(en, fr)}
+          value={this.state[name]}
+          onChange={this.handleChange}
+          fullWidth
+          {...extra.props}
+        />
+      </Grid>
+    );
+    return (
+      <FormSection
+        title={<I18n en="GitHub publishing" fr="Publication GitHub" />}
+        description={
+          <I18n
+            en="Where reviewers push approved records, as XML and YAML files. Leave the token empty to turn GitHub publishing off."
+            fr="Le dépôt où les réviseurs poussent les enregistrements approuvés, en fichiers XML et YAML. Laissez le jeton vide pour désactiver la publication GitHub."
+          />
+        }
+      >
+        <Grid container spacing={2.5}>
+          {field("githubOwner", "Repository owner", "Propriétaire du dépôt")}
+          {field("githubRepo", "Repository name", "Nom du dépôt")}
+          {field("githubToken", "Access token", "Jeton d'accès", {
+            full: true,
+            props: {
+              type: this.state.showGithubToken ? "text" : "password",
+              helperText: this.tr(
+                "A personal access token with the 'repo' scope.",
+                "Un jeton d'accès personnel avec la portée « repo ».",
+              ),
+              slotProps: {
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          language === "fr"
+                            ? "Afficher ou masquer le jeton"
+                            : "Show or hide token"
+                        }
+                        onClick={this.handleClickShowGithubToken}
+                        onMouseDown={this.handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {this.state.showGithubToken ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              },
+            },
+          })}
+          {field("githubBranch", "Target branch", "Branche cible")}
+          {field(
+            "githubFileTemplate",
+            "File name template",
+            "Modèle de nom de fichier",
+            {
+              props: {
+                helperText: this.tr(
+                  "Default: {filename}",
+                  "Par défaut : {filename}",
+                ),
+              },
+            },
+          )}
+          {field("githubEnvironments", "Environments", "Environnements", {
+            full: true,
+            props: {
+              multiline: true,
+              minRows: 2,
+              helperText: this.tr(
+                "One per line, e.g. prod",
+                "Un par ligne, p. ex. prod",
+              ),
+            },
+          })}
+        </Grid>
+        <Box sx={{ mt: 3 }}>
+          <Button variant="contained" onClick={() => this.handleSaveGithub()}>
+            <I18n
+              en="Save GitHub settings"
+              fr="Enregistrer les paramètres GitHub"
+            />
+          </Button>
+        </Box>
+      </FormSection>
+    );
+  }
+
+  render() {
+    const { loading, savedToast } = this.state;
+    const { language } = this.props.match.params;
+    const tab = this.currentTab();
+
+    let panel;
+    if (tab === "people") panel = this.renderPeople();
+    else if (tab === "projects") panel = this.renderProjects();
+    else if (tab === "publishing") panel = this.renderPublishing();
+    else
+      panel = (
+        <DataciteSettings
+          values={this.state}
+          onChange={this.handleChange}
+          onToggleDoiCreation={this.handleToggleDoiCreation}
+          onToggleSuffixMode={this.handleToggleSuffixMode}
+          onTestCredentials={this.handleTestCredentials}
+          onSave={this.handleSaveDatacite}
+          onClearFields={this.handleClearDataciteFields}
+          onToggleShowPassword={this.handleClickShowPassword}
+          onMouseDownPassword={this.handleMouseDownPassword}
+          onDismissTestResult={() => this.setState({ testResult: null })}
+        />
+      );
 
     return (
-      <Grid container direction="column" spacing={3}>
-        <Grid size={12}>
-          <Typography variant="h5">
-            <I18n>
-              <En>Admin</En>
-              <Fr>Administrateurs</Fr>
-            </I18n>
-          </Typography>
-          <Typography>
-            <I18n>
-              <En>
-                Add each admin or reviewer's email address on it's own line
-              </En>
-              <Fr>
-                Ajouter l'adresse e-mail de chaque administrateur ou réviseur
-                sur sa propre ligne
-              </Fr>
-            </I18n>
-          </Typography>
-        </Grid>
+      <Page maxWidth={960}>
+        <PageHeader
+          title={<I18n en="Region settings" fr="Paramètres de la région" />}
+          description={
+            <I18n
+              en="Who can review in this region, and how records get DOIs and are published."
+              fr="Qui peut réviser dans cette région, et comment les enregistrements obtiennent un DOI et sont publiés."
+            />
+          }
+        >
+          <Tabs
+            value={tab}
+            onChange={(_e, value) =>
+              this.props.navigate(`?tab=${value}`, { replace: true })
+            }
+            variant="scrollable"
+            scrollButtons={false}
+            aria-label={language === "fr" ? "Paramètres" : "Settings"}
+            sx={(theme) => ({
+              borderBottom: `1px solid ${theme.vars.palette.divider}`,
+            })}
+          >
+            {TABS.map((t) => (
+              <Tab
+                key={t.value}
+                value={t.value}
+                label={language === "fr" ? t.fr : t.en}
+              />
+            ))}
+          </Tabs>
+        </PageHeader>
 
         {loading ? (
-          <CircularProgress />
+          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <>
-            <FormSection>
-              <Grid size={12}>
-                <Typography>
-                  <I18n>
-                    <En>Projects</En>
-                    <Fr>Projets</Fr>
-                  </I18n>
-                </Typography>
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  multiline
-                  fullWidth
-                  value={projects.join("\n")}
-                  onChange={(e) =>
-                    this.setState({ projects: e.target.value.split("\n") })
-                  }
-                />
-              </Grid>
-            </FormSection>
-            <FormSection>
-              <Grid size={12}>
-                <Typography>
-                  <I18n>
-                    <En>Admins</En>
-                    <Fr>Administrateurs</Fr>
-                  </I18n>
-                </Typography>
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  multiline
-                  fullWidth
-                  value={admins.join("\n")}
-                  onChange={(e) =>
-                    this.setState({ admins: e.target.value.split("\n") })
-                  }
-                />
-              </Grid>
-            </FormSection>
-            <FormSection>
-              <Grid size={12}>
-                <Typography>
-                  <I18n>
-                    <En>Reviewers</En>
-                    <Fr>Réviseurs</Fr>
-                  </I18n>
-                </Typography>
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  multiline
-                  fullWidth
-                  value={reviewers.join("\n")}
-                  onChange={(e) =>
-                    this.setState({
-                      reviewers: e.target.value.split("\n"),
-                    })
-                  }
-                />
-              </Grid>
-            </FormSection>
-            <DataciteSettings
-              values={this.state}
-              onChange={this.handleChange}
-              onToggleDoiCreation={this.handleToggleDoiCreation}
-              onToggleSuffixMode={this.handleToggleSuffixMode}
-              onTestCredentials={this.handleTestCredentials}
-              onSave={this.handleSaveDatacite}
-              onClearFields={this.handleClearDataciteFields}
-              onToggleShowPassword={this.handleClickShowPassword}
-              onMouseDownPassword={this.handleMouseDownPassword}
-              onDismissTestResult={() => this.setState({ testResult: null })}
-            />
-            <FormSection>
-              <Grid container spacing={2}>
-                <Grid size={12}>
-                  <Typography variant="h5">
-                    <I18n>
-                      <En>GitHub Publishing Configuration</En>
-                      <Fr>Configuration de publication GitHub</Fr>
-                    </I18n>
-                  </Typography>
-                  <Typography variant="body2" style={{ marginTop: "10px" }}>
-                    <I18n>
-                      <En>
-                        Configure the GitHub repository where metadata records
-                        will be published. This allows reviewers to push
-                        approved records directly to a GitHub repository as XML
-                        and YAML files.
-                      </En>
-                      <Fr>
-                        Configurez le référentiel GitHub où les enregistrements
-                        de métadonnées seront publiés. Cela permet aux réviseurs
-                        de pousser les enregistrements approuvés directement
-                        vers un référentiel GitHub sous forme de fichiers XML et
-                        YAML.
-                      </Fr>
-                    </I18n>
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubOwner"
-                    label={
-                      <I18n>
-                        <En>Repository Owner</En>
-                        <Fr>Propriétaire du dépôt</Fr>
-                      </I18n>
-                    }
-                    value={this.state.githubOwner}
-                    onChange={this.handleChange}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubRepo"
-                    label={
-                      <I18n>
-                        <En>Repository Name</En>
-                        <Fr>Nom du dépôt</Fr>
-                      </I18n>
-                    }
-                    value={this.state.githubRepo}
-                    onChange={this.handleChange}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubToken"
-                    label="GitHub Token"
-                    type={this.state.showGithubToken ? "text" : "password"}
-                    value={this.state.githubToken}
-                    onChange={this.handleChange}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label={
-                              language === "fr"
-                                ? "Afficher ou masquer le jeton"
-                                : "Show or hide token"
-                            }
-                            onClick={this.handleClickShowGithubToken}
-                            onMouseDown={this.handleMouseDownPassword}
-                            edge="end"
-                          >
-                            {this.state.showGithubToken ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    fullWidth
-                  />
-                  <Typography variant="caption" color="textSecondary">
-                    <I18n>
-                      <En>Personal Access Token (PAT) with 'repo' scope.</En>
-                      <Fr>
-                        Jeton d'accès personnel (PAT) avec la portée 'repo'.
-                      </Fr>
-                    </I18n>
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubBranch"
-                    label="Target Branch"
-                    value={this.state.githubBranch}
-                    onChange={this.handleChange}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubFileTemplate"
-                    label="File Naming Template"
-                    value={this.state.githubFileTemplate}
-                    onChange={this.handleChange}
-                    fullWidth
-                    helperText="Default: {filename}"
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <TextField
-                    name="githubEnvironments"
-                    label="Environments"
-                    multiline
-                    value={this.state.githubEnvironments}
-                    onChange={this.handleChange}
-                    fullWidth
-                    helperText="One environment per line (e.g. prod)"
-                  />
-                </Grid>
-              </Grid>
-            </FormSection>
-            <Grid size={12}>
-              <Button
-                startIcon={<Save />}
-                variant="contained"
-                color="primary"
-                style={{ margin: 10 }}
-                onClick={() => this.handleSave()}
-              >
-                <I18n>
-                  <En>Save Admin Settings</En>
-                  <Fr>Enregistrer les paramètres d'administration</Fr>
-                </I18n>
-              </Button>
-            </Grid>
-          </>
+          panel
         )}
+
+        <Snackbar
+          open={Boolean(savedToast)}
+          autoHideDuration={2500}
+          onClose={() => this.setState({ savedToast: "" })}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert severity="success" variant="filled">
+            {savedToast}
+          </Alert>
+        </Snackbar>
+
         <AdminDialogs
           showDeletionDialog={this.state.showDeletionDialog}
           onCloseDeletion={() => this.setState({ showDeletionDialog: false })}
@@ -698,7 +752,7 @@ class Admin extends FormClassTemplate {
           onCloseError={() => this.setState({ showErrorDialog: false })}
           errorMessage={this.state.errorMessage}
         />
-      </Grid>
+      </Page>
     );
   }
 }
