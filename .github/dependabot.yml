@@ -10,6 +10,17 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    ignore:
+      # ESLint 10 is not supported by eslint-plugin-react, -import or -jsx-a11y yet
+      # (latest peer range stops at ^9). Remove once they publish support.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
+      # firebase-functions-test@3.5.0 only accepts firebase-admin <=13, so npm ci
+      # fails in firebase-functions/functions on 14. Remove once it widens the range.
+      - dependency-name: "firebase-admin"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: uv
     directories:
