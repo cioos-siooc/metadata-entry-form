@@ -3,7 +3,7 @@
 // (and label) the same set.
 export default function recordScopes({ hasSharedRecords, canReview }) {
   return [
-    { value: "mine", en: "Mine", fr: "Mes enregistrements" },
+    { value: "mine", en: "My records", fr: "Mes enregistrements" },
     hasSharedRecords && {
       value: "shared",
       en: "Shared with me",
