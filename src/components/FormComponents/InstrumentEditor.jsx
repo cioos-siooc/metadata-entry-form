@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Grid, Paper, TextField, Typography } from "@mui/material";
+import { Box, Grid, TextField, Typography } from "@mui/material";
 import { getBlankInstrument } from "../../utils/blankRecord";
 
 import { En, Fr, I18n } from "../I18n";
@@ -9,12 +9,7 @@ import BilingualTextInput from "./BilingualTextInput";
 
 import RequiredMark from "./RequiredMark";
 
-const InstrumentEditor = ({
-  value,
-  disabled,
-  paperClass,
-  updateInstrumentEvent,
-}) => {
+const InstrumentEditor = ({ value, disabled, updateInstrumentEvent }) => {
   const manufacturerLabel = <I18n en="Manufacturer" fr="Fabricant" />;
   const versionLabel = <I18n en="Version" fr="Version" />;
   const typeLabel = <I18n en="Type" fr="Type" />;
@@ -27,7 +22,7 @@ const InstrumentEditor = ({
       <Grid>
         <Grid container direction="column">
           {instrument && (
-            <Paper style={paperClass}>
+            <Box>
               <Grid container direction="column" spacing={2}>
                 <Grid>
                   <I18n>
@@ -65,7 +60,7 @@ const InstrumentEditor = ({
                 <Grid>
                   <Typography>
                     <I18n>
-                      <En>Instrument Type</En>
+                      <En>Instrument type</En>
                       <Fr>Type d'instrument</Fr>
                     </I18n>
                   </Typography>
@@ -86,7 +81,7 @@ const InstrumentEditor = ({
                   />
                 </Grid>
               </Grid>
-            </Paper>
+            </Box>
           )}
         </Grid>
       </Grid>

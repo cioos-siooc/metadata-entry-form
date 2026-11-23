@@ -1,7 +1,5 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Grid, Button } from "@mui/material";
-import { Save } from "@mui/icons-material";
 import {
   child,
   getDatabase,
@@ -13,11 +11,9 @@ import {
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
-import { En, Fr, I18n } from "../I18n";
-
 import PlatformEditor from "./PlatformEditor";
+import { EditorPage } from "../Layout/Page";
 import FormClassTemplate from "../Pages/FormClassTemplate";
-import { paperClass } from "./QuestionStyles";
 
 class EditPlatformClass extends FormClassTemplate {
   constructor(props) {
@@ -75,44 +71,30 @@ class EditPlatformClass extends FormClassTemplate {
   }
 
   render() {
+    const lang = this.props.language;
     return (
-      <Grid container direction="column" spacing={2}>
-        <Grid>
-          <PlatformEditor
-            value={this.state}
-            handleClear={(key) => this.handleClear(key)}
-            updatePlatformEvent={(key) => this.handleChange(key)}
-            paperClass={paperClass}
-          />
-        </Grid>
-
-        <Grid>
-          <Button
-            startIcon={<Save />}
-            variant="contained"
-            color="primary"
-            onClick={() => this.handleSubmitClick()}
-            disabled={!this.state.id}
-          >
-            <I18n>
-              <En>Save</En>
-              <Fr>Enregistrer</Fr>
-            </I18n>
-          </Button>
-
-          <Button
-            style={{ marginLeft: "10px" }}
-            variant="contained"
-            color="secondary"
-            onClick={() => this.handleCancelClick()}
-          >
-            <I18n>
-              <En>Cancel</En>
-              <Fr>Annuler</Fr>
-            </I18n>
-          </Button>
-        </Grid>
-      </Grid>
+      <EditorPage
+        title={
+          this.state.id ||
+          (lang === "fr" ? "Nouvelle plateforme" : "New platform")
+        }
+        backTo={`/${lang}/${this.props.region}/platforms`}
+        backLabel={lang === "fr" ? "Plateformes" : "Platforms"}
+        onSave={() => this.handleSubmitClick()}
+        onCancel={() => this.handleCancelClick()}
+        saveDisabled={!this.state.id}
+        saveHint={
+          lang === "fr"
+            ? "Ajoutez l'identifiant de la plateforme pour enregistrer."
+            : "Add a platform ID to save."
+        }
+      >
+        <PlatformEditor
+          value={this.state}
+          handleClear={(key) => this.handleClear(key)}
+          updatePlatformEvent={(key) => this.handleChange(key)}
+        />
+      </EditorPage>
     );
   }
 }

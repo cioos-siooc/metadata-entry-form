@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Grid, Paper, TextField, Tooltip } from "@mui/material";
+import { Box, Grid, TextField, Tooltip } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { getBlankPlatform } from "../../utils/blankRecord";
@@ -14,12 +14,7 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import SelectInput from "./SelectInput";
 import platformTypes from "../../platforms.json";
 
-const PlatformEditor = ({
-  value,
-  disabled,
-  paperClass,
-  updatePlatformEvent,
-}) => {
+const PlatformEditor = ({ value, disabled, updatePlatformEvent }) => {
   const { language = "en" } = useParams();
 
   const sortedPlatformTypes = Object.values(platformTypes).sort((a, b) =>
@@ -33,7 +28,7 @@ const PlatformEditor = ({
       <Grid>
         <Grid container direction="column">
           {platform && (
-            <Paper style={paperClass}>
+            <Box>
               <Grid container direction="column" spacing={2}>
                 <Grid>
                   <QuestionText>
@@ -68,7 +63,7 @@ const PlatformEditor = ({
                             />
                           }
                         >
-                          <OpenInNew style={{ verticalAlign: "middle" }} />
+                          <OpenInNew sx={{ verticalAlign: "middle" }} />
                         </Tooltip>
                       </a>
 
@@ -154,6 +149,12 @@ const PlatformEditor = ({
                     </SupplementalText>
                   </QuestionText>
                   <BilingualTextInput
+                    label={
+                      <I18n
+                        en="Platform description"
+                        fr="Description de la plateforme"
+                      />
+                    }
                     value={platform.description}
                     onChange={updatePlatformEvent("description")}
                     multiline
@@ -161,7 +162,7 @@ const PlatformEditor = ({
                   />
                 </Grid>
               </Grid>
-            </Paper>
+            </Box>
           )}
         </Grid>
       </Grid>

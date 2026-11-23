@@ -1,7 +1,5 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Grid, Button } from "@mui/material";
-import { Save } from "@mui/icons-material";
 import {
   getDatabase,
   ref,
@@ -13,9 +11,9 @@ import {
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
-import { En, Fr, I18n } from "../I18n";
-
 import ContactEditor from "./ContactEditor";
+import ContactTitle from "./ContactTitle";
+import { EditorPage } from "../Layout/Page";
 import FormClassTemplate from "../Pages/FormClassTemplate";
 
 class EditContactClass extends FormClassTemplate {
@@ -115,49 +113,37 @@ class EditContactClass extends FormClassTemplate {
   }
 
   render() {
+    const lang = this.props.language;
     const { language } = this.props;
     const { orgName, givenNames, lastName } = this.state;
     const isFilledEnoughToSave = orgName || (givenNames && lastName);
     return (
-      <Grid container direction="column" spacing={2}>
-        <Grid>
-          <ContactEditor
-            value={this.state}
-            handleClear={(key) => this.handleClear(key)}
-            updateContactEvent={(key) => this.handleChange(key)}
-            updateContactRor={this.updateOrgFromRor(language)}
-            updateContactOrcid={this.updateIndFromOrcid()}
-            language={language}
-          />
-        </Grid>
-
-        <Grid>
-          <Button
-            startIcon={<Save />}
-            variant="contained"
-            color="primary"
-            onClick={() => this.handleSubmitClick()}
-            disabled={!isFilledEnoughToSave}
-          >
-            <I18n>
-              <En>Save</En>
-              <Fr>Enregistrer</Fr>
-            </I18n>
-          </Button>
-
-          <Button
-            style={{ marginLeft: "10px" }}
-            variant="contained"
-            color="secondary"
-            onClick={() => this.handleCancelClick()}
-          >
-            <I18n>
-              <En>Cancel</En>
-              <Fr>Annuler</Fr>
-            </I18n>
-          </Button>
-        </Grid>
-      </Grid>
+      <EditorPage
+        title={
+          ContactTitle(this.state) ||
+          (lang === "fr" ? "Nouveau contact" : "New contact")
+        }
+        backTo={`/${lang}/${this.props.region}/contacts`}
+        backLabel={lang === "fr" ? "Contacts" : "Contacts"}
+        onSave={() => this.handleSubmitClick()}
+        onCancel={() => this.handleCancelClick()}
+        saveDisabled={!isFilledEnoughToSave}
+        saveHint={
+          lang === "fr"
+            ? "Ajoutez un nom d'organisation, ou un prénom et un nom."
+            : "Add an organization name, or a given name and last name."
+        }
+      >
+        <ContactEditor
+          value={this.state}
+          handleClear={(key) => this.handleClear(key)}
+          updateContactEvent={(key) => this.handleChange(key)}
+          updateContactRor={this.updateOrgFromRor(language)}
+          updateContactOrcid={this.updateIndFromOrcid()}
+          language={language}
+          showTitle={false}
+        />
+      </EditorPage>
     );
   }
 }

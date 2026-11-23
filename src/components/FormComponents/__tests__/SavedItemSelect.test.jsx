@@ -5,7 +5,7 @@ import { vi, describe, it, expect } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-import LeftList from "../LeftList";
+import SavedItemSelect from "../SavedItemSelect";
 import ContactTitle from "../ContactTitle";
 
 // <En>/<Fr> render based on the :language route param.
@@ -17,49 +17,62 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-const theme = createTheme();
-
 // Firebase push keys are chronological, so this is the order the app receives.
 const savedContacts = {
-  key1: { lastName: "Zhang", givenNames: "Wei" },
+  key1: { lastName: "Zhang", givenNames: "Wei", role: ["owner"] },
   key2: { orgName: "Acme Oceanography" },
   key3: {},
   key4: { lastName: "Martin", givenNames: "Ana", orgName: "DFO" },
 };
 
-const renderLeftList = () =>
+const renderSelect = (onAdd = vi.fn()) =>
   render(
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={createTheme()}>
       <MemoryRouter>
-        <LeftList
-          items={[]}
-          updateItems={vi.fn()}
-          activeItem={0}
-          setActiveItem={vi.fn()}
-          savedUserItems={savedContacts}
-          getBlankItem={() => ({})}
+        <SavedItemSelect
+          savedItems={savedContacts}
           itemTitle={ContactTitle}
-          uidFields={["lastName", "orgName"]}
+          getBlankItem={() => ({ inCitation: false, role: [] })}
+          onAdd={onAdd}
+          ariaLabel="Search saved contacts"
         />
       </MemoryRouter>
     </ThemeProvider>,
   );
 
-describe("<LeftList />", () => {
+describe("<SavedItemSelect />", () => {
   it("lists saved items alphabetically, blank entries first", async () => {
     const user = userEvent.setup();
-    renderLeftList();
+    renderSelect();
 
-    await user.click(screen.getByRole("combobox"));
-
+    await user.click(
+      screen.getByRole("combobox", { name: "Search saved contacts" }),
+    );
     const options = within(screen.getByRole("listbox")).getAllByRole("option");
 
-    // First option is the "ADD SAVED ITEM" placeholder.
-    expect(options.slice(1).map((o) => o.textContent)).toEqual([
+    expect(options.map((o) => o.textContent)).toEqual([
       "New contact",
       "Acme Oceanography",
       "Martin, Ana - DFO",
       "Zhang, Wei",
     ]);
+  });
+
+  it("adds a copy over the blank item, without the saved role", async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    renderSelect(onAdd);
+
+    // Typing narrows the list.
+    await user.type(screen.getByRole("combobox"), "zha");
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    await user.click(screen.getByRole("option", { name: "Zhang, Wei" }));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      inCitation: false,
+      role: [],
+      lastName: "Zhang",
+      givenNames: "Wei",
+    });
   });
 });

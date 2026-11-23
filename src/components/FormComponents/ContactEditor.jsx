@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 
 import {
+  Box,
+  Divider,
+  Stack,
   TextField,
   Typography,
   Grid,
@@ -16,10 +19,9 @@ import { getBlankContact } from "../../utils/blankRecord";
 
 import { validateEmail, validateURL } from "../../utils/validate";
 import RolePicker from "./RolePicker";
-import { En, Fr, I18n } from "../I18n";
+import { I18n } from "../I18n";
 
 import ContactTitle from "./ContactTitle";
-import { QuestionText } from "./QuestionStyles";
 
 function givenNamesFormat(givenNames) {
   return givenNames
@@ -46,11 +48,13 @@ const ContactEditor = ({
   updateContactOrcid,
   updateContactFromAccount,
   language,
+  // The saved-contact page shows the name as its h1 instead.
+  showTitle = true,
 }) => {
   const mounted = useRef(false);
   const orgEmailValid = validateEmail(value.orgEmail);
   const indEmailValid = validateEmail(value.indEmail);
-  const orgURLValid = validateURL(value.hu);
+  const orgURLValid = validateURL(value.orgURL);
   const givenNamesValid = !value.givenNames?.includes(",");
   const lastNameValid = !value.lastName?.includes(",");
   const [rorInputValue, setRorInputValue] = useState(value.orgRor);
@@ -95,42 +99,60 @@ const ContactEditor = ({
     };
   }, [debouncedRorInputValue]);
 
+  const fr = language === "fr";
+  const half = { xs: 12, sm: 6 };
+  // One level under the editor's title: h4 under the record's h3, h2 under
+  // the saved-contact page's h1.
+  const groupHeading = (en, frText) => (
+    <Typography
+      component={showTitle ? "h4" : "h2"}
+      sx={{ fontSize: "1rem", fontWeight: 600, lineHeight: 1.4 }}
+    >
+      {fr ? frText : en}
+    </Typography>
+  );
+
   return (
-    <Grid container direction="column" spacing={2}>
-      <Grid>
-        <Typography variant="h6">{ContactTitle(value)}</Typography>
-      </Grid>
-      <Grid>
-        {showRolePicker && (
-          <RolePicker
-            value={value}
-            updateContact={updateContact}
-            disabled={disabled}
-          />
-        )}
-        <Grid
-          container
-          direction="column"
-          spacing={1}
-          style={{ marginTop: "10px" }}
+    <Stack spacing={3}>
+      {showTitle && (
+        <Typography
+          component="h3"
+          sx={{
+            fontSize: "1.0625rem",
+            fontWeight: 600,
+            overflowWrap: "anywhere",
+          }}
         >
-          {/* Organization */}
-          <Grid>
-            <QuestionText>
-              <I18n>
-                <En>Provide any information about the organization</En>
-                <Fr>Identification de l'organisation</Fr>
-              </I18n>
-            </QuestionText>
-          </Grid>
-          <Grid style={{ marginLeft: "10px", height: "33px" }}>
-            {rorSearchActive ? (
-              <CircularProgress size={20} />
-            ) : (
-              <div style={{ height: "33px" }} />
-            )}
-          </Grid>
-          <Grid style={{ marginleft: "10px" }}>
+          {ContactTitle(value) || (
+            <I18n en="New contact" fr="Nouveau contact" />
+          )}
+        </Typography>
+      )}
+
+      {showRolePicker && (
+        <RolePicker
+          value={value}
+          updateContact={updateContact}
+          disabled={disabled}
+        />
+      )}
+
+      <Divider />
+
+      {/* Organization */}
+      <Box component="section">
+        {groupHeading("Organization", "Organisation")}
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", mt: 0.25, mb: 1.5 }}
+        >
+          <I18n
+            en="Search the Research Organization Registry (ROR) to fill this in, or type the details."
+            fr="Recherchez dans le registre des organismes de recherche (ROR) pour remplir ces champs, ou saisissez les informations."
+          />
+        </Typography>
+        <Grid container columnSpacing={2} rowSpacing={2}>
+          <Grid size={12}>
             <Autocomplete
               inputValue={rorInputValue}
               onInputChange={(e, newInputValue) => {
@@ -166,42 +188,29 @@ const ContactEditor = ({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label={
-                    <I18n
-                      en="Type to search Research Organization Registry (ROR)"
-                      fr="Tapez pour rechercher le registre des organismes de recherche (ROR)
-"
-                    />
+                  label={<I18n en="Search ROR" fr="Rechercher dans ROR" />}
+                  placeholder={
+                    fr ? "Nom de l'organisation" : "Organization name"
                   }
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {rorSearchActive && (
+                          <CircularProgress
+                            size={18}
+                            aria-label={fr ? "Recherche…" : "Searching…"}
+                          />
+                        )}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
                 />
               )}
             />
           </Grid>
-          <Grid style={{ marginleft: "10px" }}>
-            <TextField
-              label={<I18n active en="ROR URL" fr="URL ROR" />}
-              InputLabelProps={{ shrink: value.orgRor !== "" }}
-              value={value.orgRor}
-              disabled
-              fullWidth
-              InputProps={{
-                endAdornment: value.orgRor && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={language === "fr" ? "Effacer" : "Clear"}
-                      onClick={() => {
-                        handleClear("orgRor");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
-            />
-          </Grid>
-          <Grid style={{ marginleft: "10px" }}>
+          <Grid size={half}>
             <TextField
               label={<I18n en="Organization name" fr="Nom de l'organisation" />}
               value={value.orgName}
@@ -210,51 +219,46 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid>
+          <Grid size={half}>
+            <TextField
+              label={<I18n en="ROR URL" fr="URL ROR" />}
+              value={value.orgRor}
+              disabled
+              fullWidth
+              InputProps={{
+                endAdornment: value.orgRor && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={fr ? "Effacer le ROR" : "Clear ROR"}
+                      onClick={() => {
+                        handleClear("orgRor");
+                      }}
+                    >
+                      <Clear fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid size={half}>
             <TextField
               helperText={
                 !orgURLValid && <I18n en="Invalid URL" fr="URL non valide" />
               }
               error={!orgURLValid}
-              label={<I18n en="URL" fr="URL" />}
+              label={<I18n en="Website" fr="Site Web" />}
               value={value.orgURL}
               onChange={updateContactEvent("orgURL")}
               disabled={value.orgRor !== "" || disabled}
               fullWidth
             />
           </Grid>
-          <Grid>
-            <TextField
-              label={<I18n en="Address" fr="Adresse" />}
-              value={value.orgAdress}
-              onChange={updateContactEvent("orgAdress")}
-              disabled={disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid>
-            <TextField
-              label={<I18n en="City" fr="Ville" />}
-              value={value.orgCity}
-              onChange={updateContactEvent("orgCity")}
-              disabled={value.orgRor !== "" || disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid>
-            <TextField
-              label={<I18n en="Country" fr="Pays" />}
-              value={value.orgCountry}
-              onChange={updateContactEvent("orgCountry")}
-              disabled={value.orgRor !== "" || disabled}
-              fullWidth
-            />
-          </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
               helperText={
                 !orgEmailValid && (
-                  <I18n en="Invalid email" fr="E-mail non valide" />
+                  <I18n en="Invalid email" fr="Courriel non valide" />
                 )
               }
               error={!orgEmailValid}
@@ -263,95 +267,124 @@ const ContactEditor = ({
               onChange={updateContactEvent("orgEmail")}
               fullWidth
               disabled={disabled}
-            />{" "}
+            />
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              label={<I18n en="Address" fr="Adresse" />}
+              value={value.orgAdress}
+              onChange={updateContactEvent("orgAdress")}
+              disabled={disabled}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={half}>
+            <TextField
+              label={<I18n en="City" fr="Ville" />}
+              value={value.orgCity}
+              onChange={updateContactEvent("orgCity")}
+              disabled={value.orgRor !== "" || disabled}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={half}>
+            <TextField
+              label={<I18n en="Country" fr="Pays" />}
+              value={value.orgCountry}
+              onChange={updateContactEvent("orgCountry")}
+              disabled={value.orgRor !== "" || disabled}
+              fullWidth
+            />
           </Grid>
         </Grid>
-      </Grid>
-      <Grid>
-        {/* Individual */}
-        <Typography>
-          <I18n>
-            <En>Provide any information about the individual</En>
-            <Fr>Identification de l'individu</Fr>
-          </I18n>
-        </Typography>
-        <Typography>
-          <Button
-            href="https://orcid.org/orcid-search/search"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ marginTop: "10px", marginBottom: "10px" }}
-          >
-            <I18n>
-              <En>ORCID search </En>
-              <Fr>Rechercher ORCID </Fr>
-            </I18n>
-            <OpenInNew style={{ verticalAlign: "middle" }} />
-          </Button>
+      </Box>
+
+      <Divider />
+
+      {/* Individual */}
+      <Box component="section">
+        <Stack
+          direction="row"
+          alignItems="center"
+          flexWrap="wrap"
+          columnGap={1}
+          rowGap={1}
+        >
+          {groupHeading("Individual", "Personne")}
+          <Box sx={{ flexGrow: 1 }} />
           {updateContactFromAccount && (
             <Button
+              variant="outlined"
+              size="small"
               onClick={updateContactFromAccount}
               disabled={disabled}
-              style={{ margin: "10px" }}
             >
               <I18n en="Use my details" fr="Utiliser mes informations" />
             </Button>
           )}
-        </Typography>
-        <Grid style={{ marginleft: "10px" }}>
-          <TextField
-            label={
-              <I18n
-                en="Paste ORCID identifier here to populate personal data"
-                fr="Collez l'identifiant ORCID ici pour remplir les données personnelles"
-              />
-            }
-            value={orcidInputValue}
-            onChange={(e) => {
-              setOrcidInputValue(e.target.value);
-              const regex = /\w{4}-\w{4}-\w{4}-\w{4}/g;
-              const orcid = e.target.value.match(regex);
-              if (orcid) {
-                fetch(`https://pub.orcid.org/v3.0/${orcid}/record`, {
-                  headers: {
-                    accept: "application/json",
-                  },
-                })
-                  .then((response) => response.json())
-                  .then((response) => updateContactOrcid(response))
-                  .then(() => {
-                    setTimeout(() => setOrcidInputValue(""), 100);
-                  });
-              }
-            }}
-            disabled={disabled}
-            fullWidth
+          <Button
+            variant="text"
+            size="small"
+            href="https://orcid.org/orcid-search/search"
+            target="_blank"
+            rel="noopener noreferrer"
+            endIcon={<OpenInNew sx={{ fontSize: 16 }} />}
+          >
+            <I18n en="Find an ORCID iD" fr="Trouver un identifiant ORCID" />
+          </Button>
+        </Stack>
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", mt: 0.25, mb: 1.5 }}
+        >
+          <I18n
+            en="Paste an ORCID iD to fill in the person's details, or type them."
+            fr="Collez un identifiant ORCID pour remplir les informations de la personne, ou saisissez-les."
           />
-        </Grid>
-        <Grid container direction="column" spacing={1}>
-          <Grid>
-            {value.givenNames && value.lastName && value.inCitation && (
-              <div style={{ marginBottom: "10px" }}>
-                This name will appear in the citation as:{" "}
-                <b>{namesToCitation(value.givenNames, value.lastName)}</b>
-              </div>
-            )}
+        </Typography>
+        <Grid container columnSpacing={2} rowSpacing={2}>
+          <Grid size={half}>
+            <TextField
+              label={
+                <I18n en="Paste ORCID iD" fr="Coller l'identifiant ORCID" />
+              }
+              placeholder="0000-0000-0000-0000"
+              value={orcidInputValue}
+              onChange={(e) => {
+                setOrcidInputValue(e.target.value);
+                const regex = /\w{4}-\w{4}-\w{4}-\w{4}/g;
+                const orcid = e.target.value.match(regex);
+                if (orcid) {
+                  fetch(`https://pub.orcid.org/v3.0/${orcid}/record`, {
+                    headers: {
+                      accept: "application/json",
+                    },
+                  })
+                    .then((response) => response.json())
+                    .then((response) => updateContactOrcid(response))
+                    .then(() => {
+                      setTimeout(() => setOrcidInputValue(""), 100);
+                    });
+                }
+              }}
+              disabled={disabled}
+              fullWidth
+            />
           </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
               label={<I18n en="ORCID URL" fr="URL ORCID" />}
-              InputLabelProps={{ shrink: value.indOrcid !== "" }}
               value={value.indOrcid}
               InputProps={{
                 endAdornment: value.indOrcid && (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label={language === "fr" ? "Effacer" : "Clear"}
+                      aria-label={fr ? "Effacer l'ORCID" : "Clear ORCID"}
                       onClick={() => {
                         handleClear("indOrcid");
                       }}
                     >
-                      <Clear />
+                      <Clear fontSize="small" />
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -360,7 +393,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
               label={<I18n en="Given name(s)" fr="Prénom" />}
               value={value.givenNames}
@@ -378,9 +411,8 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
-              // style={{ margin: "25px" }}
               label={<I18n en="Last name" fr="Nom de famille" />}
               value={value.lastName}
               helperText={
@@ -397,7 +429,7 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
               label={<I18n en="Position" fr="Poste occupé" />}
               value={value.indPosition}
@@ -406,11 +438,11 @@ const ContactEditor = ({
               fullWidth
             />
           </Grid>
-          <Grid>
+          <Grid size={half}>
             <TextField
               helperText={
                 !indEmailValid && (
-                  <I18n en="Invalid email" fr="E-mail non valide" />
+                  <I18n en="Invalid email" fr="Courriel non valide" />
                 )
               }
               error={!indEmailValid}
@@ -422,8 +454,19 @@ const ContactEditor = ({
             />
           </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+        {value.givenNames && value.lastName && value.inCitation && (
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 1.5 }}>
+            <I18n
+              en="This name will appear in the citation as: "
+              fr="Ce nom apparaîtra dans la citation sous la forme : "
+            />
+            <Box component="b" sx={{ color: "text.primary" }}>
+              {namesToCitation(value.givenNames, value.lastName)}
+            </Box>
+          </Typography>
+        )}
+      </Box>
+    </Stack>
   );
 };
 

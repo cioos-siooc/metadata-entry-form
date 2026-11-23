@@ -117,46 +117,84 @@ const contactIsFilled = (contact) =>
     (contact.orgName || contact.givenNames || contact.lastName),
   );
 
+// Per-item rules. The record validators below apply these to every item; the
+// list editors use them to mark each item complete or not.
+const contactLinksValid = (contact) =>
+  validateEmail(contact.indEmail) &&
+  validateEmail(contact.orgEmail) &&
+  validateURL(contact.orgURL);
+
+export const contactIsComplete = (contact) =>
+  contactIsFilled(contact) && contactLinksValid(contact);
+
+export const resourceIsComplete = (dist) =>
+  Boolean(dist.name && dist.url && validator.isURL(dist.url));
+
+export const relatedWorkIsComplete = (work) =>
+  Boolean(
+    work.title?.en &&
+    work.title?.fr &&
+    work.authority &&
+    work.code &&
+    work.association_type,
+  );
+
+// Lineage sources and processing steps.
+export const lineagePartIsComplete = (part) =>
+  Boolean(part.title && part.description);
+
+export const lineageIsComplete = (lineageStep) =>
+  (lineageStep.processingStep || []).every(lineagePartIsComplete) &&
+  (lineageStep.source || []).every(lineagePartIsComplete) &&
+  (lineageStep.scope !== "collectionSession" ||
+    Boolean(lineageStep.statement?.en && lineageStep.statement?.fr));
+
+export const platformIsComplete = (platform) =>
+  Boolean(platform.type && platform.id);
+
+export const instrumentIsComplete = (instrument, platforms = []) =>
+  Boolean(instrument.id && (platforms.length < 2 || instrument.platform));
+
 // required fields and  a function to validate each
 const validators = {
   title: {
     validation: (val) => val && val.en && val.fr,
     tab: "start",
     error: {
-      en: "Missing title in French or English",
-      fr: "Titre manquant en français ou en anglais",
+      en: "Dataset title: enter it in both English and French",
+      fr: "Titre du jeu de données : saisissez-le en français et en anglais",
     },
   },
   resourceType: {
     validation: (val) => hasResourceType(val),
     tab: "start",
     error: {
-      en: "Please select a theme for this record",
-      fr: "Veuillez sélectionner une discipline scientifique pour cet enregistrement",
+      en: "Topic categories: select at least one",
+      fr: "Catégories thématiques : sélectionnez-en au moins une",
     },
   },
   abstract: {
     validation: (val) => val && val.en && val.fr,
     tab: "dataID",
     error: {
-      en: "Missing abstract in French or English",
-      fr: "Résumé manquant en français ou en anglais",
+      en: "Abstract: enter it in both English and French",
+      fr: "Résumé : saisissez-le en français et en anglais",
     },
   },
   keywords: {
     validation: (val) => val && (val.en.length || val.fr.length),
     tab: "dataID",
     error: {
-      en: "At least one keyword is required",
-      fr: "Au moins un mot clé est requis",
+      en: "Keywords: add at least one",
+      fr: "Mots-clés : ajoutez-en au moins un",
     },
   },
   eov: {
     validation: (val) => val && val.length,
     tab: "dataID",
     error: {
-      en: "At least one EOV is required",
-      fr: "Au moins une variable océanique essentielle est requise",
+      en: "Essential ocean variables: select at least one",
+      fr: "Variables océaniques essentielles : sélectionnez-en au moins une",
     },
   },
   eovDeprecated: {
@@ -186,32 +224,32 @@ const validators = {
     tab: "start",
     validation: (val) => val,
     error: {
-      en: "Please select a resource type",
-      fr: "Veuillez sélectionner un type de ressources",
+      en: "Resource type: select one",
+      fr: "Type de ressource : sélectionnez-en un",
     },
   },
   progress: {
     tab: "dataID",
     validation: (val) => val,
     error: {
-      en: "Please select a dataset status",
-      fr: "Veuillez définir le statut du jeu de données",
+      en: "Status: select one",
+      fr: "État : sélectionnez-en un",
     },
   },
   language: {
     tab: "dataID",
     validation: (val) => val,
     error: {
-      en: "Language field is missing",
-      fr: "Le champ de langue est vide",
+      en: "Primary language: select one",
+      fr: "Langue principale : sélectionnez-en une",
     },
   },
   license: {
     tab: "dataID",
     validation: (val) => val,
     error: {
-      en: "Please select a license for the dataset",
-      fr: "Veuillez sélectionner une licence pour le jeu de données",
+      en: "Licence: select one",
+      fr: "Licence : sélectionnez-en une",
     },
   },
   // if biological data then geographic description is required
@@ -265,24 +303,24 @@ const validators = {
 
     validation: (val, record) => val || record.noVerticalExtent,
     error: {
-      en: "Missing Vertical Extent Min",
-      fr: "Étendue verticale manquante Min",
+      en: "Vertical extent: enter the minimum",
+      fr: "Étendue verticale : saisissez le minimum",
     },
   },
   verticalExtentMax: {
     tab: "spatial",
     validation: (val, record) => val || record.noVerticalExtent,
     error: {
-      en: "Missing Vertical Extent Max",
-      fr: "Étendue verticale manquante Max",
+      en: "Vertical extent: enter the maximum",
+      fr: "Étendue verticale : saisissez le maximum",
     },
   },
   verticalExtentDirection: {
     tab: "spatial",
     validation: (val, record) => val || record.noVerticalExtent,
     error: {
-      en: "Missing Vertical Extent Direction",
-      fr: "Direction de l'étendue verticale manquante",
+      en: "Vertical extent: choose depth or height (the reference)",
+      fr: "Étendue verticale : choisissez profondeur ou hauteur (la référence)",
     },
   },
   // at least one contact has to have a role and a org or individual name
@@ -292,13 +330,7 @@ const validators = {
     validation: (val) =>
       val &&
       // every contact must have a role and name
-      val.every(contactIsFilled) &&
-      val.every(
-        (contact) =>
-          validateEmail(contact.indEmail) &&
-          validateEmail(contact.orgEmail) &&
-          validateURL(contact.orgURL),
-      ) &&
+      val.every(contactIsComplete) &&
       val
         .filter(contactIsFilled)
         .find((contact) => contact.role.includes("custodian")) &&
@@ -306,37 +338,57 @@ const validators = {
         .filter(contactIsFilled)
         .find((contact) => contact.role.includes("owner")) &&
       val.filter(contactIsFilled).find((contact) => contact.inCitation),
-    error: {
-      en: "Every contact must have at least one role checked, and 'Data Owner' or 'Metadata Custodian' must be added to at least one contact. One contact can occupy multiple roles. Email addresses must be in the form of user@example.com and URLs must be valid.  At least one contact must be selected to appear in the citation.",
-      fr: "Chaque contact doit avoir au moins un rôle coché, et « Propriétaire des données » ou « Dépositaire des métadonnées » doit être ajouté à au moins un contact. Un contact peut occuper plusieurs rôles. Les adresses e-mail doivent être au format user@example.com et les URL doivent être valides. Au moins un contact doit être sélectionné pour apparaître dans la citation.",
+    // Only the rules that actually fail, so the Submit list says what to fix.
+    error: (val) => {
+      const list = Array.isArray(val) ? val : [];
+      const filled = list.filter(contactIsFilled);
+      const problems = [
+        [
+          !list.length || !list.every(contactIsFilled),
+          "every contact needs a name and at least one role",
+          "chaque contact doit avoir un nom et au moins un rôle",
+        ],
+        [
+          !filled.some((c) => c.role.includes("custodian")),
+          "add a Metadata custodian",
+          "ajoutez un dépositaire des métadonnées",
+        ],
+        [
+          !filled.some((c) => c.role.includes("owner")),
+          "add a Data owner",
+          "ajoutez un propriétaire des données",
+        ],
+        [
+          !filled.some((c) => c.inCitation),
+          "select at least one contact to appear in the citation",
+          "sélectionnez au moins un contact pour la citation",
+        ],
+        [
+          !list.every(contactLinksValid),
+          "fix invalid email addresses or URLs",
+          "corrigez les adresses courriel ou URL non valides",
+        ],
+      ].filter(([failing]) => failing);
+      return {
+        en: `Contacts: ${problems.map((p) => p[1]).join("; ")}`,
+        fr: `Contacts : ${problems.map((p) => p[2]).join(" ; ")}`,
+      };
     },
   },
   distribution: {
     tab: "resources",
     validation: (val) =>
-      Array.isArray(val) &&
-      val.filter((dist) => dist.name && dist.url && validator.isURL(dist.url))
-        .length,
+      Array.isArray(val) && val.filter(resourceIsComplete).length,
 
     error: {
-      en: "Must have at least one resource. If a URL is included it must be valid.",
-      fr: "Doit avoir au moins une ressource. Vérifiez si votre URL est valide.",
+      en: "Resources: add at least one, with a name and a valid URL",
+      fr: "Ressources : ajoutez-en au moins une, avec un nom et une URL valide",
     },
   },
   associated_resources: {
     tab: "relatedworks",
     validation: (val) =>
-      !val ||
-      (val &&
-        val.every(
-          (work) =>
-            work.title &&
-            work.title.en &&
-            work.title.fr &&
-            work.authority &&
-            work.code &&
-            work.association_type,
-        )),
+      !val || val.every(relatedWorkIsComplete),
     error: {
       en: "Related works must contain a Title, Identifier, Identifier Type, and a Relation Type to be valid.",
       fr: "Les ressources connexes doivent contenir un titre, un identifiant, un type d'identifiant et un type de relation pour être valides.",
@@ -348,31 +400,7 @@ const validators = {
   history: {
     tab: "lineage",
     validation: (val) =>
-      !val ||
-      (Array.isArray(val) &&
-        val.every(
-          (lineageStep) =>
-            !lineageStep.processingStep ||
-            (lineageStep.processingStep &&
-              lineageStep.processingStep.every(
-                (pStep) => pStep.title && pStep.description,
-              )),
-        ) &&
-        val.every(
-          (lineageStep) =>
-            !lineageStep.source ||
-            (lineageStep.source &&
-              lineageStep.source.every(
-                (pStep) => pStep.title && pStep.description,
-              )),
-        ) &&
-        val.every(
-          (lineageStep) =>
-            lineageStep.scope !== "collectionSession" ||
-            (lineageStep.scope === "collectionSession" &&
-              lineageStep.statement.en &&
-              lineageStep.statement.fr),
-        )),
+      !val || (Array.isArray(val) && val.every(lineageIsComplete)),
     error: {
       en: "Lineage must contain a title and description for each processing step and source. If lineage scope is set to 'data collection' then lineage statement is required",
       fr: "La généalogie des données doit contenir un titre et une description pour chaque étape de traitement. Si le cadre est défini sur « collecte de données », alors une déclaration de généalogie des données est requise",
@@ -382,7 +410,7 @@ const validators = {
     tab: "platform",
     validation: (val, record) =>
       record.noPlatform ||
-      val.every((platform) => platform.type && platform.id) ||
+      val.every(platformIsComplete) ||
       !record.metadataScope ||
       record.metadataScopeIso === "model",
     error: {
@@ -394,9 +422,8 @@ const validators = {
     tab: "platformInstruments",
     validation: (val, record) => {
       const platforms = record.platforms || [];
-      return val.every(
-        (instrument) =>
-          instrument.id && (platforms.length < 2 || instrument.platform),
+      return val.every((instrument) =>
+        instrumentIsComplete(instrument, platforms),
       );
     },
     error: {
@@ -408,8 +435,8 @@ const validators = {
     tab: "taxa",
     validation: (val, record) => record.noTaxa || val,
     error: {
-      en: "Missing Taxonomic Coverage",
-      fr: "Couverture taxonomique manquante.",
+      en: "Taxa: add at least one, or confirm the dataset has none",
+      fr: "Taxons : ajoutez-en au moins un, ou confirmez qu'il n'y en a aucun",
     },
   },
 };
@@ -431,12 +458,14 @@ export const getErrorsByTab = (record) => {
     return {
       error: typeof error === "function" ? error(record[field], record) : error,
       tab,
+      field,
     };
   });
 
-  return fieldErrorInfo.reduce((acc, { error, tab }) => {
+  // Each error keeps its field key so the UI can link straight to the field.
+  return fieldErrorInfo.reduce((acc, { error, tab, field }) => {
     if (!acc[tab]) acc[tab] = [];
-    acc[tab].push(error);
+    acc[tab].push({ ...error, field });
     return acc;
   }, {});
 };
