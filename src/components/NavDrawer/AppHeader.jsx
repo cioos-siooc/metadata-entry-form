@@ -110,8 +110,8 @@ export default function AppHeader({
         zIndex: theme.zIndex.drawer + 1,
         bgcolor: "background.paper",
         borderBottom: `1px solid ${theme.vars.palette.divider}`,
-        // The region's colour, as a 3px line across the top of the app.
-        boxShadow: `inset 0 3px 0 ${theme.vars.palette.primary.main}`,
+        // The region's colour, as a 4px line across the top of the app.
+        boxShadow: `inset 0 4px 0 ${theme.vars.palette.primary.main}`,
       })}
     >
       <Toolbar
@@ -119,7 +119,7 @@ export default function AppHeader({
         sx={{
           height: HEADER_HEIGHT,
           minHeight: `${HEADER_HEIGHT}px !important`,
-          pt: "3px",
+          pt: "4px",
           px: { xs: 1, sm: 1.5 },
           gap: { xs: 0.5, sm: 1 },
         }}
@@ -138,18 +138,35 @@ export default function AppHeader({
           </IconButton>
         )}
 
-        {/* The logo zone always spans the sidebar's width, so the divider and
-            title start where the sidebar ends and the chevron sits in the
-            same place whatever the region's logo proportions. On phones it
-            shrinks to fit beside the menu button. */}
+        {/* The logo zone always spans the sidebar's width, so the title
+            starts where the sidebar ends and the chevron sits in the same
+            place whatever the region's logo proportions. With the sidebar
+            open, the zone is the top of its column: same tint, same right
+            border, running edge to edge and over the header's bottom border
+            so the two read as one. On phones it shrinks beside the menu
+            button. */}
         <Box
           sx={(theme) => ({
             display: "flex",
             alignItems: "center",
             minWidth: 0,
             flex: { xs: "0 1 auto", sm: "0 0 auto" },
-            // Toolbar left padding and flex gap sit outside this box.
-            width: `calc(${sidebarWidth || drawerWidth}px - ${theme.spacing(1.5)} - ${theme.spacing(1)})`,
+            ...(sidebarWidth
+              ? {
+                  alignSelf: "stretch",
+                  width: sidebarWidth,
+                  ml: -1.5,
+                  mb: "-1px",
+                  pl: 1.5,
+                  pr: 1,
+                  bgcolor: "background.default",
+                  backgroundImage: `linear-gradient(${theme.vars.palette.primarySurface}, ${theme.vars.palette.primarySurface})`,
+                  borderRight: `1px solid ${theme.vars.palette.primaryBorder}`,
+                }
+              : {
+                  // Toolbar left padding and flex gap sit outside this box.
+                  width: `calc(${drawerWidth}px - ${theme.spacing(1.5)} - ${theme.spacing(1)})`,
+                }),
           })}
         >
           {/* Region: the logo is the switcher, as a workspace switcher would be. */}
@@ -164,14 +181,17 @@ export default function AppHeader({
                 `Région : ${regionTitle}. Changer de région`,
               )}
               endIcon={<ExpandMore sx={{ color: "text.secondary" }} />}
-              sx={{
+              sx={(theme) => ({
                 width: "100%",
                 minWidth: 0,
                 px: 0.5,
                 py: 0.25,
                 color: "text.primary",
+                "&:hover": {
+                  bgcolor: theme.vars.palette.primarySurface,
+                },
                 "& .MuiButton-endIcon": { ml: 0.5, mr: 0, flexShrink: 0 },
-              }}
+              })}
             >
               <LogoPlate sx={logoPlateSx}>
                 <Box
@@ -197,7 +217,11 @@ export default function AppHeader({
         <Divider
           orientation="vertical"
           flexItem
-          sx={{ my: 1.75, display: { xs: "none", sm: "block" } }}
+          sx={{
+            my: 1.75,
+            // With the sidebar open, the logo zone's own border divides.
+            display: { xs: "none", sm: sidebarWidth ? "none" : "block" },
+          }}
         />
         <Typography
           component="div"
