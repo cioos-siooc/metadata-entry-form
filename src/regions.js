@@ -50,7 +50,7 @@ const regions = {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
     titleFrPossessive: "du SIOOC Atlantique",
     catalogueTitle: {
-      fr: "Catalogue de données du SIOOC du Atlantic",
+      fr: "Catalogue de données du SIOOC Atlantique",
       en: "CIOOS Atlantic Data Catalogue",
     },
     colors: { primary: "#19222b", secondary: "#e55162" },
@@ -69,9 +69,9 @@ const regions = {
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
-    titleFrPossessive: "de Amundsen Science",
+    titleFrPossessive: "d'Amundsen Science",
     catalogueTitle: {
-      fr: "Catalogue de données de Amundsen Science",
+      fr: "Catalogue de données d'Amundsen Science",
       en: "Amundsen Science Data Catalogue",
     },
     colors: { primary: "#E31837", secondary: "#77777A" },
