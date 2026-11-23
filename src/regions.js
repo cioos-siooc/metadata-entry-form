@@ -19,7 +19,7 @@ const regions = {
       fr: "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
+    logo: { en: "cioos-pacific-en.svg", fr: "cioos-pacific-fr.svg" },
   },
 
   stlaurent: {
@@ -65,7 +65,7 @@ const regions = {
       fr: "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
+    logo: { en: "cioos-atlantic-en.svg", fr: "cioos-atlantic-fr.svg" },
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },

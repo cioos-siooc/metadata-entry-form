@@ -36,10 +36,10 @@ import { useNavigate } from "react-router-dom";
 import regions, { getRegionLogo } from "../../regions";
 import { HEADER_HEIGHT } from "./styles";
 
-const nationalLogo = new URL(
-  "../../static/cioos-national_EN_FR_min.svg",
-  import.meta.url,
-).href;
+const nationalLogos = {
+  en: new URL("../../static/cioos-national-en.png", import.meta.url).href,
+  fr: new URL("../../static/cioos-national-fr.png", import.meta.url).href,
+};
 
 const iconButtonSx = { color: "text.secondary" };
 
@@ -75,6 +75,7 @@ export default function AppHeader({
   const regionInfo = regions[region];
   const regionTitle = regionInfo?.title?.[language];
   const logo = getRegionLogo(region, language);
+  const nationalLogo = nationalLogos[language] || nationalLogos.en;
   const switchableRegions = Object.entries(regions)
     .filter(([, info]) => info.showInRegionSelector)
     .sort(([, a], [, b]) =>
