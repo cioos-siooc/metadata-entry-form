@@ -65,8 +65,8 @@ const logoImgSx = {
   objectFit: "contain",
 };
 
-// The app's one header: a quiet paper bar under a thin line of the region's
-// colour. Left: the region you are working in (and the switch to another),
+// The app's one header: a paper bar under a thin line of the region's colour,
+// washed with that colour from the left. Left: the region you are working in (and the switch to another),
 // then the product. Right: the other official language, help and you.
 export default function AppHeader({
   language,
@@ -114,7 +114,13 @@ export default function AppHeader({
       sx={(theme) => ({
         zIndex: theme.zIndex.drawer + 1,
         bgcolor: "background.paper",
-        borderBottom: `1px solid ${theme.vars.palette.divider}`,
+        // A flat wash of the region's colour over paper (layered as an image,
+        // as the sidebar does, since the token is translucent). It is the
+        // strongest brand tint on which secondary text still clears 4.5:1
+        // for every region in both schemes.
+        backgroundImage: `linear-gradient(${theme.vars.palette.primarySurfaceHover}, ${theme.vars.palette.primarySurfaceHover})`,
+        // The same region-tinted edge as the sidebar's right border.
+        borderBottom: `1px solid ${theme.vars.palette.primaryBorder}`,
         // The region's colour, as a 4px line across the top of the app.
         boxShadow: `inset 0 4px 0 ${theme.vars.palette.primary.main}`,
       })}
@@ -187,8 +193,9 @@ export default function AppHeader({
                 color: "text.primary",
                 // Below lg (sidebar is a drawer) the chevron leads, by the menu button.
                 flexDirection: { xs: "row-reverse", lg: "row" },
+                // A paper lift, so hover shows on the header's strongest wash.
                 "&:hover": {
-                  bgcolor: theme.vars.palette.primarySurface,
+                  bgcolor: `rgba(${theme.vars.palette.background.paperChannel} / 0.5)`,
                 },
                 "& .MuiButton-endIcon": {
                   ml: { xs: 0, lg: 0.5 },
@@ -356,8 +363,9 @@ export default function AppHeader({
                   height: 32,
                   fontSize: "0.875rem",
                   fontWeight: 600,
-                  bgcolor: theme.vars.palette.primarySurface,
-                  color: theme.vars.palette.primaryText,
+                  // Solid region colour: a tint would vanish on the wash.
+                  bgcolor: theme.vars.palette.primary.main,
+                  color: theme.vars.palette.primary.contrastText,
                 })}
               >
                 {(user.displayName || user.email || "?")
