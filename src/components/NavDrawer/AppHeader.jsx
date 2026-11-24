@@ -319,7 +319,12 @@ export default function AppHeader({
                 ? t("Switch to light mode", "Passer au mode clair")
                 : t("Switch to dark mode", "Passer au mode sombre")
             }
-            sx={[iconButtonSx, { display: { xs: "none", sm: "inline-flex" } }]}
+            // On phones a signed-in user finds it in the account menu;
+            // without one (region picker, sign-in) it stays in the bar.
+            sx={[
+              iconButtonSx,
+              user && { display: { xs: "none", sm: "inline-flex" } },
+            ]}
           >
             {resolvedMode === "dark" ? (
               <LightModeOutlined fontSize="small" />
