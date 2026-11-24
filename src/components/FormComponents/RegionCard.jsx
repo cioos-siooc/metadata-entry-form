@@ -12,6 +12,15 @@ import { FALLBACK_PRIMARY } from "../../theme/tokens";
 import { forDarkSurface } from "../../theme/createAppTheme";
 import LogoPlate from "../Layout/LogoPlate";
 
+// Where each map's region sits in the image (vertical background-position).
+// The maps are near-square but the band is wide, so cover-cropping keeps only
+// a horizontal slice; this keeps that slice on the region's own water.
+const MAP_FOCUS_Y = {
+  atlantic: "45%",
+  pacific: "65%",
+  stlaurent: "75%",
+};
+
 // One region on the picker. The whole card is a single link into the
 // region. Each card carries its region's colour (a top band, a tinted body
 // and border) so regions read apart at a glance; the colour is identity only,
@@ -36,7 +45,8 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
         // Fill the grid row so cards line up; the content sets the height,
         // so a longer French summary grows the card instead of being cut.
         height: "100%",
-        minHeight: showMap ? 470 : 280,
+        // Phones get a compact card so more than one fits on screen.
+        minHeight: showMap ? { xs: 0, sm: 470 } : { xs: 0, sm: 280 },
         position: "relative",
         overflow: "hidden",
         borderColor: alpha(primaryColor, 0.35),
@@ -106,9 +116,11 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
             image={`${import.meta.env.BASE_URL}map-${region}.jpg`}
             aria-hidden
             sx={(theme) => ({
+              // Phones skip the map: the logo and summary carry the card.
+              display: { xs: "none", sm: "block" },
               height: 240,
               flexShrink: 0,
-              backgroundPosition: "center",
+              backgroundPosition: `center ${MAP_FOCUS_Y[region] ?? "50%"}`,
               position: "relative",
               // Every map shares one teal sea. A colour-blend wash recolours
               // only that sea in the region's hue; grey land and white stay.
@@ -134,9 +146,9 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 1.5,
-            px: 3,
-            py: 2.5,
+            gap: { xs: 1, sm: 1.5 },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 2.5 },
             // A faint wash of the region colour; summary text stays
             // text.secondary, which clears 4.5:1 on these tints.
             bgcolor: alpha(primaryColor, 0.05),
@@ -157,7 +169,7 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
                 // card the same footprint.
                 sx={{
                   width: "100%",
-                  height: 72,
+                  height: { xs: 52, sm: 72 },
                   objectFit: "contain",
                 }}
                 onError={(e) => {

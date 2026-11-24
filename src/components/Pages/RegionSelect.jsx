@@ -72,7 +72,7 @@ export default function RegionSelect() {
                 )}
               </Typography>
             </Stack>
-            <Grid container spacing={3} alignItems="stretch">
+            <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="stretch">
               {raRegions.map(({ code, info }) => (
                 <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard
@@ -97,7 +97,7 @@ export default function RegionSelect() {
                 )}
               </Typography>
             </Stack>
-            <Grid container spacing={3} alignItems="stretch">
+            <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="stretch">
               {otherOrganizations.map(({ code, info }) => (
                 <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard
