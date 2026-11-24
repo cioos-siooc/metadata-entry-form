@@ -11,9 +11,11 @@ import {
   FormGroup,
   CircularProgress,
   Typography,
+  Box,
 } from "@mui/material";
 import { getDatabase, ref, onValue } from "firebase/database";
 import firebase from "../../firebase";
+import { useParams } from "react-router-dom";
 import { I18n, En, Fr } from "../I18n";
 
 export default function GitHubPublishDialog({
@@ -25,6 +27,7 @@ export default function GitHubPublishDialog({
   loading,
   progressLogs = [],
 }) {
+  const { language } = useParams();
   const [environments, setEnvironments] = useState([]);
   const [selectedEnvironments, setSelectedEnvironments] = useState([]);
   const [commitMessage, setCommitMessage] = useState("");
@@ -85,21 +88,27 @@ export default function GitHubPublishDialog({
       </DialogTitle>
       <DialogContent>
         {loading ? (
-          <div
-            style={{
+          <Box
+            sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              padding: 20,
+              p: 2.5,
             }}
           >
-            <CircularProgress />
-            <div style={{ width: "100%", marginTop: 16 }}>
+            <CircularProgress
+              aria-label={
+                language === "fr" ? "Publication en cours" : "Publishing"
+              }
+            />
+            <Box sx={{ width: "100%", mt: 2 }}>
               <Typography variant="subtitle2">
                 <I18n en="Progress" fr="Progression" />
               </Typography>
-              <div
-                style={{ maxHeight: 200, overflowY: "auto", paddingRight: 4 }}
+              <Box
+                role="log"
+                aria-live="polite"
+                sx={{ maxHeight: 200, overflowY: "auto", pr: 0.5 }}
               >
                 {progressLogs.length === 0 ? (
                   <Typography variant="body2" color="textSecondary">
@@ -115,14 +124,14 @@ export default function GitHubPublishDialog({
                     </Typography>
                   ))
                 )}
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
         ) : (
           <>
             <Typography variant="subtitle1">
               <I18n>
-                <En>Select Environments:</En>
+                <En>Select environments:</En>
                 <Fr>Sélectionnez les environnements :</Fr>
               </I18n>
             </Typography>
@@ -142,7 +151,7 @@ export default function GitHubPublishDialog({
             </FormGroup>
             <TextField
               margin="dense"
-              label={<I18n en="Commit Message" fr="Message de commit" />}
+              label={<I18n en="Commit message" fr="Message de commit" />}
               fullWidth
               multiline
               minRows={2}

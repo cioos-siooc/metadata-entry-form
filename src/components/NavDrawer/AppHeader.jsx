@@ -1,0 +1,549 @@
+import React, { useState } from "react";
+import LogoPlate from "../Layout/LogoPlate";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import {
+  Check,
+  DarkModeOutlined,
+  ExpandMore,
+  FeedbackOutlined,
+  HelpOutlineOutlined,
+  LightModeOutlined,
+  LinkOutlined,
+  LogoutOutlined,
+  MailOutlined,
+  Menu as MenuIcon,
+  NewReleasesOutlined,
+  PublicOutlined,
+  WarningAmberOutlined,
+} from "@mui/icons-material";
+import { useColorScheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import regions, { getNationalLogo, getRegionLogo } from "../../regions";
+import { HEADER_HEIGHT, drawerWidth } from "./styles";
+import { semantic, semanticDark } from "../../theme/tokens";
+
+const iconButtonSx = { color: "text.secondary" };
+
+// The white plate hugs the logo: as wide as the artwork, never wider. From lg
+// up it sits centred in the fixed-width logo zone; below lg, where the
+// sidebar is a drawer, the zone itself hugs the plate. The logo shrinks, keeping its proportions, if space runs out.
+const logoPlateSx = {
+  flex: "0 1 auto",
+  minWidth: 0,
+  height: { xs: 40, sm: 44 },
+  // Auto margins centre the plate in the space beside the chevron, which
+  // stays pinned to the zone's edge.
+  mx: "auto",
+  px: 0.5,
+  py: 0,
+};
+const logoImgSx = {
+  display: "block",
+  width: "auto",
+  maxWidth: "100%",
+  height: { xs: 32, sm: 36 },
+  objectFit: "contain",
+};
+
+// The app's one header: a paper bar under a thin line of the region's colour,
+// washed with that colour from the left. Left: the region you are working in (and the switch to another),
+// then the product. Right: the other official language, help and you.
+export default function AppHeader({
+  language,
+  region,
+  user,
+  showMenuButton,
+  menuOpen,
+  onToggleMenu,
+  onSwitchLanguage,
+  onSignOut,
+  onOpenConnectedAccounts,
+  onOpenWhatsNew,
+  feedbackButtonRef,
+  regionEmail,
+  devDatabaseUrl,
+}) {
+  const fr = language === "fr";
+  const t = (en, frText) => (fr ? frText : en);
+  const navigate = useNavigate();
+  const { mode, systemMode, setMode } = useColorScheme();
+  const resolvedMode = (mode === "system" ? systemMode : mode) || "light";
+
+  const [regionAnchor, setRegionAnchor] = useState(null);
+  const [helpAnchor, setHelpAnchor] = useState(null);
+  const [accountAnchor, setAccountAnchor] = useState(null);
+
+  const regionInfo = regions[region];
+  const regionTitle = regionInfo?.title?.[language];
+  const logo = getRegionLogo(region, language);
+  const nationalLogo = getNationalLogo(language);
+  const switchableRegions = Object.entries(regions)
+    .filter(([, info]) => info.showInRegionSelector)
+    .sort(([, a], [, b]) =>
+      a.title[language].localeCompare(b.title[language], language),
+    );
+
+  const toggleScheme = () =>
+    setMode(resolvedMode === "dark" ? "light" : "dark");
+
+  return (
+    <AppBar
+      position="fixed"
+      color="inherit"
+      elevation={0}
+      sx={(theme) => ({
+        zIndex: theme.zIndex.drawer + 1,
+        bgcolor: "background.paper",
+        // A flat wash of the region's colour over paper (layered as an image,
+        // as the sidebar does, since the token is translucent). It is the
+        // strongest brand tint on which secondary text still clears 4.5:1
+        // for every region in both schemes.
+        backgroundImage: `linear-gradient(${theme.vars.palette.primarySurfaceHover}, ${theme.vars.palette.primarySurfaceHover})`,
+        // The same region-tinted edge as the sidebar's right border.
+        borderBottom: `1px solid ${theme.vars.palette.primaryBorder}`,
+        // The region's colour, as a 4px line across the top of the app.
+        boxShadow: `inset 0 4px 0 ${theme.vars.palette.primary.main}`,
+      })}
+    >
+      <Toolbar
+        disableGutters
+        sx={{
+          height: HEADER_HEIGHT,
+          minHeight: `${HEADER_HEIGHT}px !important`,
+          pt: "4px",
+          px: { xs: 1, sm: 1.5 },
+          gap: { xs: 0.5, sm: 1 },
+        }}
+      >
+        {showMenuButton && (
+          <IconButton
+            onClick={onToggleMenu}
+            aria-label={
+              menuOpen
+                ? t("Collapse menu", "Réduire le menu")
+                : t("Open menu", "Ouvrir le menu")
+            }
+            sx={iconButtonSx}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+
+        {/* From lg up the logo zone always spans the sidebar's width, so the
+            title starts where the sidebar ends and the chevron sits in the
+            same place whatever the region's logo proportions. Below lg
+            (sidebar is a drawer) it is only as wide as the logo and shrinks
+            beside the menu button. */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            minWidth: 0,
+            flex: { xs: "0 1 auto", lg: "0 0 auto" },
+            // It runs from the bar's left edge (over the toolbar padding) so
+            // that, after the toolbar gap, the 1px divider lands exactly on
+            // the sidebar's right border, open or collapsed.
+            alignSelf: { lg: "stretch" },
+            width: (theme) => ({
+              xs: "auto",
+              lg: `calc(${drawerWidth}px - ${theme.spacing(1)} - 1px)`,
+            }),
+            ml: { lg: -1.5 },
+            pl: { lg: 1.5 },
+            pr: { lg: 1 },
+          }}
+        >
+          {/* Region: the logo is the switcher, as a workspace switcher would be. */}
+          {region ? (
+            <Button
+              variant="text"
+              onClick={(e) => setRegionAnchor(e.currentTarget)}
+              aria-haspopup="menu"
+              aria-expanded={Boolean(regionAnchor)}
+              aria-label={t(
+                `Region: ${regionTitle}. Change region`,
+                `Région : ${regionTitle}. Changer de région`,
+              )}
+              endIcon={<ExpandMore sx={{ color: "text.secondary" }} />}
+              sx={(theme) => ({
+                width: "100%",
+                minWidth: 0,
+                px: 0.5,
+                py: 0.25,
+                color: "text.primary",
+                // Below lg (sidebar is a drawer) the chevron leads, by the menu button.
+                flexDirection: { xs: "row-reverse", lg: "row" },
+                // A paper lift, so hover shows on the header's strongest wash.
+                "&:hover": {
+                  bgcolor: `rgba(${theme.vars.palette.background.paperChannel} / 0.5)`,
+                },
+                "& .MuiButton-endIcon": {
+                  ml: { xs: 0, lg: 0.5 },
+                  mr: { xs: 0.5, lg: 0 },
+                  flexShrink: 0,
+                },
+              })}
+            >
+              <LogoPlate sx={logoPlateSx}>
+                <Box
+                  component="img"
+                  src={logo || nationalLogo}
+                  alt={regionTitle || "CIOOS"}
+                  sx={logoImgSx}
+                />
+              </LogoPlate>
+            </Button>
+          ) : (
+            <LogoPlate sx={logoPlateSx}>
+              <Box
+                component="img"
+                src={nationalLogo}
+                alt="CIOOS / SIOOC"
+                sx={logoImgSx}
+              />
+            </LogoPlate>
+          )}
+        </Box>
+
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{
+            my: 1.75,
+            display: { xs: "none", md: "block" },
+          }}
+        />
+        <Typography
+          component="div"
+          sx={{
+            display: { xs: "none", md: "block" },
+            fontWeight: 600,
+            fontSize: "1rem",
+            letterSpacing: "-0.01em",
+            whiteSpace: "nowrap",
+            ml: 0.5,
+          }}
+        >
+          {t("Metadata Entry Tool", "Outil de saisie de métadonnées")}
+        </Typography>
+
+        <Box sx={{ flex: 1 }} />
+
+        {devDatabaseUrl && (
+          <Tooltip title={devDatabaseUrl}>
+            <Chip
+              component="a"
+              href={devDatabaseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              clickable
+              size="small"
+              icon={<WarningAmberOutlined />}
+              label={t("Dev database", "BD de dév.")}
+              // A soft amber pill: light amber fill with dark amber ink
+              // (>4.5:1) in light mode, an amber tint with light amber ink in
+              // dark mode. Insets are balanced optically: 8px before the icon,
+              // 6px to the text, 10px after it.
+              sx={(theme) => ({
+                display: { xs: "none", md: "inline-flex" },
+                mr: 0.5,
+                height: 28,
+                border: 0,
+                bgcolor: semantic.warning.border,
+                color: semantic.warning.dark,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                // One amber step deeper on hover (amber-300).
+                "&:hover": { bgcolor: semanticDark.warning.light },
+                "& .MuiChip-icon": {
+                  color: "inherit",
+                  fontSize: 16,
+                  ml: 1,
+                  mr: 0,
+                },
+                "& .MuiChip-label": { pl: 0.75, pr: 1.25 },
+                ...theme.applyStyles("dark", {
+                  bgcolor: `rgba(${theme.vars.palette.warning.mainChannel} / 0.16)`,
+                  color: theme.vars.palette.warning.main,
+                  "&:hover": {
+                    bgcolor: `rgba(${theme.vars.palette.warning.mainChannel} / 0.24)`,
+                  },
+                }),
+              })}
+            />
+          </Tooltip>
+        )}
+
+        {/* Canada.ca convention: offer the other language, by its own name. */}
+        <Button
+          variant="text"
+          onClick={onSwitchLanguage}
+          lang={fr ? "en" : "fr"}
+          sx={{ color: "text.secondary", minWidth: 0, px: 1 }}
+        >
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+            {fr ? "English" : "Français"}
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+            {fr ? "EN" : "FR"}
+          </Box>
+        </Button>
+
+        <Tooltip
+          title={
+            resolvedMode === "dark"
+              ? t("Light mode", "Mode clair")
+              : t("Dark mode", "Mode sombre")
+          }
+        >
+          <IconButton
+            onClick={toggleScheme}
+            aria-label={
+              resolvedMode === "dark"
+                ? t("Switch to light mode", "Passer au mode clair")
+                : t("Switch to dark mode", "Passer au mode sombre")
+            }
+            // On phones a signed-in user finds it in the account menu;
+            // without one (region picker, sign-in) it stays in the bar.
+            sx={[
+              iconButtonSx,
+              user && { display: { xs: "none", sm: "inline-flex" } },
+            ]}
+          >
+            {resolvedMode === "dark" ? (
+              <LightModeOutlined fontSize="small" />
+            ) : (
+              <DarkModeOutlined fontSize="small" />
+            )}
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title={t("Help", "Aide")}>
+          <IconButton
+            onClick={(e) => setHelpAnchor(e.currentTarget)}
+            aria-haspopup="menu"
+            aria-expanded={Boolean(helpAnchor)}
+            aria-label={t("Help", "Aide")}
+            sx={iconButtonSx}
+          >
+            <HelpOutlineOutlined fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+        {user && (
+          <Tooltip title={t("Account", "Compte")}>
+            <IconButton
+              onClick={(e) => setAccountAnchor(e.currentTarget)}
+              aria-haspopup="menu"
+              aria-expanded={Boolean(accountAnchor)}
+              aria-label={t("Account", "Compte")}
+              sx={{ p: 0.5, ml: 0.5 }}
+            >
+              <Avatar
+                src={user.photoURL || undefined}
+                alt=""
+                sx={(theme) => ({
+                  width: 32,
+                  height: 32,
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  // Solid region colour: a tint would vanish on the wash.
+                  bgcolor: theme.vars.palette.primary.main,
+                  color: theme.vars.palette.primary.contrastText,
+                })}
+              >
+                {(user.displayName || user.email || "?")
+                  .trim()
+                  .charAt(0)
+                  .toUpperCase()}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        )}
+      </Toolbar>
+
+      {/* Region switcher */}
+      <Menu
+        anchorEl={regionAnchor}
+        open={Boolean(regionAnchor)}
+        onClose={() => setRegionAnchor(null)}
+        slotProps={{ paper: { sx: { minWidth: 260, mt: 0.5 } } }}
+      >
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{ px: 2, pt: 1, pb: 0.5, color: "text.secondary" }}
+        >
+          {t("Working in", "Région de travail")}
+        </Typography>
+        {switchableRegions.map(([code, info]) => (
+          <MenuItem
+            key={code}
+            selected={code === region}
+            onClick={() => {
+              setRegionAnchor(null);
+              if (code !== region) navigate(`/${language}/${code}`);
+            }}
+          >
+            <ListItemText>{info.title[language]}</ListItemText>
+            {code === region && (
+              <Check fontSize="small" sx={{ color: "primaryText", ml: 2 }} />
+            )}
+          </MenuItem>
+        ))}
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            setRegionAnchor(null);
+            navigate(`/${language}/region-select`);
+          }}
+        >
+          <ListItemIcon>
+            <PublicOutlined fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t("All regions", "Toutes les régions")}</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Help. Kept mounted: Sentry binds its feedback form to the item. */}
+      <Menu
+        anchorEl={helpAnchor}
+        open={Boolean(helpAnchor)}
+        onClose={() => setHelpAnchor(null)}
+        keepMounted
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        slotProps={{ paper: { sx: { minWidth: 240, mt: 0.5 } } }}
+      >
+        {regionEmail && (
+          <MenuItem
+            component="a"
+            href={`mailto:${regionEmail}?subject=${encodeURIComponent(
+              t(
+                `${regionTitle} metadata form – question`,
+                `Formulaire de métadonnées ${regionTitle} – question`,
+              ),
+            )}`}
+            onClick={() => setHelpAnchor(null)}
+          >
+            <ListItemIcon>
+              <MailOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText
+              primary={t("Email the data team", "Écrire à l'équipe")}
+              secondary={regionEmail}
+            />
+          </MenuItem>
+        )}
+        <MenuItem
+          id="sentry-feedback-button"
+          ref={feedbackButtonRef}
+          onClick={() => setHelpAnchor(null)}
+        >
+          <ListItemIcon>
+            <FeedbackOutlined fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>
+            {t("Report a problem or idea", "Signaler un problème ou une idée")}
+          </ListItemText>
+        </MenuItem>
+        {user && (
+          <MenuItem
+            onClick={() => {
+              setHelpAnchor(null);
+              onOpenWhatsNew();
+            }}
+          >
+            <ListItemIcon>
+              <NewReleasesOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{t("What's new", "Quoi de neuf")}</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+
+      {/* Account */}
+      {user && (
+        <Menu
+          anchorEl={accountAnchor}
+          open={Boolean(accountAnchor)}
+          onClose={() => setAccountAnchor(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          slotProps={{ paper: { sx: { minWidth: 260, mt: 0.5 } } }}
+        >
+          <Box sx={{ px: 2, pt: 1, pb: 1.25 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.875rem" }}>
+              {user.displayName}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", wordBreak: "break-all" }}
+            >
+              {user.email}
+            </Typography>
+          </Box>
+          <Divider />
+          {/* On phones the theme switch lives here, not in the bar. */}
+          <MenuItem
+            onClick={toggleScheme}
+            sx={{ display: { xs: "flex", sm: "none" } }}
+          >
+            <ListItemIcon>
+              {resolvedMode === "dark" ? (
+                <LightModeOutlined fontSize="small" />
+              ) : (
+                <DarkModeOutlined fontSize="small" />
+              )}
+            </ListItemIcon>
+            <ListItemText>
+              {resolvedMode === "dark"
+                ? t("Light mode", "Mode clair")
+                : t("Dark mode", "Mode sombre")}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setAccountAnchor(null);
+              onOpenConnectedAccounts();
+            }}
+          >
+            <ListItemIcon>
+              <LinkOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>
+              {t("Connected sign-in accounts", "Comptes de connexion liés")}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setAccountAnchor(null);
+              onSignOut();
+            }}
+          >
+            <ListItemIcon>
+              <LogoutOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{t("Sign out", "Se déconnecter")}</ListItemText>
+          </MenuItem>
+        </Menu>
+      )}
+    </AppBar>
+  );
+}

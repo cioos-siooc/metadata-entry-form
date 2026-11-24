@@ -119,7 +119,7 @@ function withoutSelectedLocation(data) {
 // would misattribute it to the first box alone.
 const GroupHeading = ({ children, action, sx }) => (
   <Stack direction="row" alignItems="baseline" sx={{ mt: 2.5, ...sx }}>
-    <HeadingText sx={{ fontSize: "0.9375rem", mb: 0 }}>{children}</HeadingText>
+    <HeadingText sx={{ fontSize: "0.875rem", mb: 0 }}>{children}</HeadingText>
     {action}
   </Stack>
 );
@@ -140,7 +140,7 @@ const SidebarSection = ({ title, children }) => (
     })}
   >
     {title && (
-      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+      <Typography variant="subtitle2" component="h4" sx={{ fontWeight: 600 }}>
         {title}
       </Typography>
     )}
@@ -487,7 +487,8 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
                 type="number"
                 size="small"
                 fullWidth
-                inputProps={{ inputMode: "numeric" }}
+                // "decimal" keeps the minus sign on mobile keypads (western longitudes).
+                inputProps={{ inputMode: "decimal" }}
                 disabled={disabled || Boolean(mapData.polygon)}
               />
             ))}
@@ -495,9 +496,14 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
           {bboxProblems(mapData).map((problem) => (
             <Typography
               key={problem.en}
-              color="error"
               variant="body2"
-              sx={{ mt: 1 }}
+              sx={(theme) => ({
+                mt: 1,
+                color: theme.vars.palette.error.dark,
+                ...theme.applyStyles("dark", {
+                  color: theme.vars.palette.error.border,
+                }),
+              })}
             >
               <I18n en={problem.en} fr={problem.fr} />
             </Typography>
@@ -527,6 +533,9 @@ const MapSelect = ({ updateMap, mapData = {}, disabled, record }) => {
             maxRows={4}
             fullWidth
             sx={{ mt: 1 }}
+            inputProps={{
+              "aria-label": "Polygon coordinates / Coordonnées du polygone",
+            }}
             disabled={disabled || (bboxIsDrawn && !polyIsDrawn)}
           />
         </SidebarSection>

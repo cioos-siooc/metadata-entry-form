@@ -52,20 +52,25 @@ export default function AdminDialogs({
         aria-describedby="delete-credentials-description"
       >
         <DialogTitle id="delete-credentials-title">
-          Delete Datacite Credentials?
+          <I18n
+            en="Turn off DOI creation?"
+            fr="Désactiver la création de DOI ?"
+          />
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-credentials-description">
-            Disabling DOI creation will delete the stored credentials. Are you
-            sure you want to proceed?
+            <I18n
+              en="This deletes the stored DataCite credentials for this region. DOIs already minted are not affected."
+              fr="Cela supprime les identifiants DataCite enregistrés pour cette région. Les DOI déjà créés ne sont pas touchés."
+            />
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onCloseDeletion} color="primary">
-            Cancel
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={onCloseDeletion}>
+            <I18n en="Cancel" fr="Annuler" />
           </Button>
-          <Button onClick={onConfirmDeletion} color="error" autoFocus>
-            Delete Credentials
+          <Button onClick={onConfirmDeletion} color="error" variant="contained">
+            <I18n en="Delete credentials" fr="Supprimer les identifiants" />
           </Button>
         </DialogActions>
       </Dialog>
@@ -91,7 +96,7 @@ export default function AdminDialogs({
         id="error-dialog"
         open={showErrorDialog}
         onClose={onCloseError}
-        title="Error"
+        title={<I18n en="Something went wrong" fr="Une erreur est survenue" />}
       >
         {errorMessage}
       </AcknowledgeDialog>

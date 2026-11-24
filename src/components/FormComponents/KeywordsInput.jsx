@@ -2,14 +2,15 @@ import React, { useCallback, useState } from "react";
 
 import {
   TextField,
+  Box,
   Button,
-  Grid,
   Chip,
   InputAdornment,
   Autocomplete,
+  Stack,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { ArrowDownward } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import keywordList from "../../utils/keywords";
 import { En, Fr, I18n } from "../I18n";
 
@@ -88,9 +89,16 @@ const KeywordsInput = ({
     setInputValue("");
   }, [selectedKeyword, inputValue, selectedKeywordAltLang, language]);
 
+  const canAdd =
+    !disabled && (selectedKeyword || selectedKeywordAltLang || inputValue);
+
   return (
-    <Grid container spacing={3} direction="column">
-      <Grid>
+    <Stack spacing={2}>
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1.5}
+        alignItems={{ xs: "stretch", md: "center" }}
+      >
         <Autocomplete
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
@@ -105,17 +113,44 @@ const KeywordsInput = ({
           options={keywordList
             .sort((a, b) => a[language].localeCompare(b[language]))
             .map((e) => e[language])}
-          fullWidth
+          sx={{ flex: 1 }}
           renderInput={(params) => (
-            <TextField {...params} label={language.toUpperCase()} />
+            <TextField
+              {...params}
+              placeholder={
+                language === "fr"
+                  ? "Choisir ou saisir un mot-clé"
+                  : "Choose or type a keyword"
+              }
+              inputProps={{
+                ...params.inputProps,
+                "aria-label":
+                  language === "fr"
+                    ? `Mot-clé (${language.toUpperCase()})`
+                    : `Keyword (${language.toUpperCase()})`,
+              }}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {language.toUpperCase()}
+                  </InputAdornment>
+                ),
+              }}
+            />
           )}
         />
-      </Grid>
-      <Grid>
         <TextField
           value={selectedKeywordAltLang || ""}
           onChange={(e) => setSelectedKeywordAltLang(e.target.value)}
-          fullWidth
+          disabled={disabled}
+          sx={{ flex: 1 }}
+          inputProps={{
+            "aria-label":
+              language === "fr"
+                ? `Mot-clé (${altLanguage.toUpperCase()})`
+                : `Keyword (${altLanguage.toUpperCase()})`,
+          }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -124,50 +159,57 @@ const KeywordsInput = ({
             ),
           }}
         />
-      </Grid>
-
-      <Grid size={3}>
         <Button
-          disabled={
-            disabled ||
-            (!selectedKeyword && !selectedKeywordAltLang && !inputValue)
-          }
-          startIcon={<ArrowDownward />}
+          variant="outlined"
+          disabled={!canAdd}
+          startIcon={<Add />}
           onClick={handleHelperChange}
+          sx={{ flexShrink: 0, minHeight: 41 }}
         >
           <I18n>
             <En>Add</En>
             <Fr>Ajouter</Fr>
           </I18n>
         </Button>
-      </Grid>
+      </Stack>
 
-      <Grid>
-        {languages
-          .filter((lang) => value[lang]?.length)
-          .map((lang) => (
-            <div style={{ margin: "15px" }} key={lang}>
-              <InputAdornment position="start" style={{ margin: "10px" }}>
-                {lang.toUpperCase()}
-              </InputAdornment>
-              <Grid container direction="row">
-                <Grid>
-                  {(value[lang] || []).map((keyword, i) => (
-                    <Chip
-                      key={i}
-                      disabled={disabled}
-                      label={keyword}
-                      onDelete={handleDelete(keyword, lang)}
-                      color="primary"
-                      style={{ margin: "5px" }}
-                    />
-                  ))}
-                </Grid>
-              </Grid>
-            </div>
-          ))}
-      </Grid>
-    </Grid>
+      {languages
+        .filter((lang) => value[lang]?.length)
+        .map((lang) => (
+          <Stack
+            key={lang}
+            direction="row"
+            alignItems="flex-start"
+            spacing={1.5}
+          >
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "text.secondary",
+                minWidth: 22,
+                lineHeight: "26px",
+                mt: 0.5,
+              }}
+            >
+              {lang.toUpperCase()}
+            </Box>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+              {(value[lang] || []).map((keyword, i) => (
+                <Chip
+                  key={i}
+                  disabled={disabled}
+                  label={keyword}
+                  onDelete={handleDelete(keyword, lang)}
+                  variant="outlined"
+                  sx={{ mt: 0.5 }}
+                />
+              ))}
+            </Box>
+          </Stack>
+        ))}
+    </Stack>
   );
 };
 

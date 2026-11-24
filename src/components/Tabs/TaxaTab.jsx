@@ -1,18 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import FormSection from "../FormShell/FormSection";
+import ItemCards from "../FormComponents/ItemCards";
 import {
-  SortableList,
-  SortableItem,
-  arrayMove,
-  useStableItemIds,
-} from "../FormComponents/SortableList";
-import {
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Typography,
-  Grid,
   TextField,
   Button,
   TableContainer,
@@ -21,32 +10,41 @@ import {
   TableRow,
   TableCell,
   Box,
-  ListItemSecondaryAction,
-  Tooltip,
-  IconButton,
   FormControlLabel,
   Checkbox,
   Autocomplete,
   Stack,
 } from "@mui/material";
-import { ArrowDownward, Delete } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { capitalize } from "@mui/material/utils";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
-import { deepEquals } from "../../utils/misc";
 import { En, Fr, I18n } from "../I18n";
-import {
-  QuestionText,
-  SupplementalText,
-} from "../FormComponents/QuestionStyles";
-import RequiredMark from "../FormComponents/RequiredMark";
+import FormField from "../FormShell/FormField";
 import { validateField } from "../../utils/validate";
 
+// GBIF field names, as shown in the details table.
+const taxonFieldLabels = {
+  rank: { en: "Rank", fr: "Rang" },
+  kingdom: { en: "Kingdom", fr: "Règne" },
+  phylum: { en: "Phylum", fr: "Embranchement" },
+  Class: { en: "Class", fr: "Classe" },
+  order: { en: "Order", fr: "Ordre" },
+  family: { en: "Family", fr: "Famille" },
+  genus: { en: "Genus", fr: "Genre" },
+  species: { en: "Species", fr: "Espèce" },
+  scientificName: { en: "Scientific name", fr: "Nom scientifique" },
+  canonicalName: { en: "Canonical name", fr: "Nom canonique" },
+  parent: { en: "Parent", fr: "Parent" },
+};
+
 const TaxaTab = ({ record, updateRecord, disabled }) => {
-  const getItemId = useStableItemIds("taxa");
+  const { language } = useParams();
   const { taxa = [] } = record;
   const updateTaxa = updateRecord("taxa");
-  const [activeTaxa, setActiveTaxa] = useState(0);
+  // The open taxon, or null when every row is folded.
+  const [activeTaxa, setActiveTaxa] = useState(null);
 
   const [inputValue, setInputValue] = useState("");
   const [SearchValue, setSearchValue] = useState("");
@@ -54,37 +52,14 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
   const [data, setData] = useState([]);
   const mounted = useRef(false);
   const requestInProgress = useRef(false);
-
-  const [currentTaxa, setTaxaItems] = useState(taxa);
-
-  if (!deepEquals(currentTaxa, taxa)) {
-    setTaxaItems(taxa);
-  }
+  const [searching, setSearching] = useState(false);
 
   function handleAdd() {
     if (SearchValue) {
       updateTaxa(taxa.concat(SearchValue));
-      setActiveTaxa(taxa.length);
       setSearchValue("");
       setInputValue("");
     }
-  }
-
-  function removeItem(itemIndex) {
-    updateTaxa(taxa.filter((e, index) => index !== itemIndex));
-    if (taxa.length) setActiveTaxa(taxa.length - 2);
-  }
-
-  //  removedIndex is dragStart
-  //  addedIndex is dragEnd
-  function onDrop({ removedIndex, addedIndex }) {
-    if (removedIndex === activeTaxa) setActiveTaxa(addedIndex);
-    else if (addedIndex <= activeTaxa && removedIndex > activeTaxa)
-      setActiveTaxa(activeTaxa + 1);
-
-    const reorderedContacts = arrayMove(currentTaxa, removedIndex, addedIndex);
-
-    updateTaxa(reorderedContacts);
   }
 
   function getActiveTaxaDetails() {
@@ -129,16 +104,19 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
       },
     };
     requestInProgress.current = true;
+    setSearching(true);
     axios(config)
       .then((response) => {
         if (mounted.current) {
           setData([...response.data]);
         }
-        requestInProgress.current = false;
       })
       .catch((error) => {
         console.error(error);
+      })
+      .finally(() => {
         requestInProgress.current = false;
+        if (mounted.current) setSearching(false);
       });
   }, 500);
 
@@ -158,223 +136,202 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
 
   return (
     <Stack spacing={2}>
-      <FormSection id="field-taxa">
-        <QuestionText>
-          <En>Taxonomic Coverage</En>
-          <Fr>Couverture taxonomique</Fr>
-          <RequiredMark passes={validateField(record, "taxa")} />
-          <SupplementalText>
-            <I18n>
-              <En>
-                Please enter the metadata about the taxonomic areas covered by
-                the resource.
-              </En>
-              <Fr>
-                Veuillez saisir les métadonnées sur les domaines taxonomiques
-                couverts par la ressource.
-              </Fr>
-            </I18n>
-          </SupplementalText>
-        </QuestionText>
-
-        <FormControlLabel
-          disabled={disabled}
-          control={
-            <Checkbox
-              name="noTaxa"
-              checked={record.noTaxa}
-              onChange={(e) => {
-                const { checked } = e.target;
-
-                updateRecord("noTaxa")(checked);
-              }}
+      <FormSection
+        title={<I18n en="Taxonomic coverage" fr="Couverture taxonomique" />}
+      >
+        <FormField
+          id="field-taxa"
+          label={<I18n en="Taxa" fr="Taxons" />}
+          required
+          complete={validateField(record, "taxa")}
+          hint={
+            <I18n
+              en="Search GBIF and add each taxon, or confirm the dataset has none."
+              fr="Recherchez dans GBIF et ajoutez chaque taxon, ou confirmez que le jeu de données n'en contient pas."
             />
           }
-          label={
-            <I18n>
-              <En>
-                This dataset does not contain any taxonomic classification
-              </En>
-              <Fr>
-                Ce jeu de données ne contient aucune classification taxonomique
-              </Fr>
-            </I18n>
-          }
-        />
-      </FormSection>
-      {!noTaxa ? (
-        <FormSection>
-          <Grid container direction="column" spacing={0}>
-            <Autocomplete
-              inputValue={inputValue}
-              onInputChange={(event, newInputValue) => {
-                setInputValue(newInputValue);
-              }}
-              getOptionLabel={(option) =>
-                (option.scientificName &&
-                  `${option.scientificName} (${option.canonicalName})`) ??
-                option
-              }
-              disabled={disabled}
-              // onChange={(e, keyword) =>
-              //     setSelectedKeywordAltLang(translate(keyword, altLanguage))
-              // }
-              loading={!requestInProgress.current}
-              onChange={(event, newValue) => {
-                if (typeof newValue === "object") {
-                  setSearchValue(newValue);
-                }
-              }}
-              value={SearchValue}
-              freeSolo
-              options={data}
-              fullWidth
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={
-                    <I18n>
-                      <En>GBIF taxa Search</En>
-                      <Fr>Recherche de taxons dans GBIF</Fr>
-                    </I18n>
-                  }
-                />
-              )}
+          guidance={
+            <I18n
+              en="Please enter the metadata about the taxonomic areas covered by the resource."
+              fr="Veuillez saisir les métadonnées sur les domaines taxonomiques couverts par la ressource."
             />
-          </Grid>
-          <Grid size={3}>
-            <Button
-              disabled={disabled || (!SearchValue && !inputValue)}
-              startIcon={<ArrowDownward />}
-              onClick={() => handleAdd()}
-            >
+          }
+        >
+          <FormControlLabel
+            disabled={disabled}
+            control={
+              <Checkbox
+                name="noTaxa"
+                checked={Boolean(noTaxa)}
+                onChange={(e) => {
+                  const { checked } = e.target;
+
+                  updateRecord("noTaxa")(checked);
+                }}
+              />
+            }
+            label={
               <I18n>
-                <En>Add</En>
-                <Fr>Ajouter</Fr>
+                <En>
+                  This dataset does not contain any taxonomic classification
+                </En>
+                <Fr>
+                  Ce jeu de données ne contient aucune classification
+                  taxonomique
+                </Fr>
               </I18n>
-            </Button>
-          </Grid>
+            }
+          />
 
-          <Grid container direction="row">
-            <Grid size={5}>
-              <Grid style={{ margin: "10px" }}>
-                <Typography variant="h6">Taxa</Typography>
-              </Grid>
-
-              <Box
-                border={1}
-                borderRadius="4px"
-                borderColor="divider"
-                margin="10px"
+          {!noTaxa && (
+            <Stack spacing={2} sx={{ mt: 1.5 }}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1.5}
+                alignItems={{ xs: "stretch", sm: "flex-end" }}
+                sx={{ maxWidth: 720 }}
               >
-                <List>
-                  <SortableList
-                    items={taxa}
-                    onDrop={onDrop}
-                    getItemId={getItemId}
-                  >
-                    {taxa.map((taxaItem, i) => {
-                      const taxaId = getItemId(taxaItem, i);
-                      return (
-                        <SortableItem key={taxaId} id={taxaId}>
-                          <ListItem
-                            onClick={() => setActiveTaxa(i)}
-                            sx={{ cursor: "pointer" }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Typography
-                                  style={{
-                                    fontWeight: activeTaxa === i ? "bold" : "",
-                                    width: "80%",
-                                  }}
-                                >
-                                  {taxaItem &&
-                                    `${taxaItem.scientificName} (${taxaItem.canonicalName})`}
-                                </Typography>
-                              }
-                            />
-                            <ListItemSecondaryAction>
-                              <Tooltip
-                                title={
-                                  <I18n
-                                    en="Remove from this record"
-                                    fr="Supprimer de cet enregistrement"
-                                  />
-                                }
-                              >
-                                <span>
-                                  <IconButton
-                                    onClick={() => removeItem(i)}
-                                    edge="end"
-                                    aria-label="clone"
-                                    disabled={disabled}
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </span>
-                              </Tooltip>
-                            </ListItemSecondaryAction>
-                          </ListItem>
-                        </SortableItem>
-                      );
+                <Box sx={{ flexGrow: 1 }}>
+                  <Autocomplete
+                    inputValue={inputValue}
+                    onInputChange={(event, newInputValue) => {
+                      setInputValue(newInputValue);
+                    }}
+                    getOptionLabel={(option) =>
+                      (option.scientificName &&
+                        `${option.scientificName} (${option.canonicalName})`) ??
+                      option
+                    }
+                    disabled={disabled}
+                    // onChange={(e, keyword) =>
+                    //     setSelectedKeywordAltLang(translate(keyword, altLanguage))
+                    // }
+                    loading={searching}
+                    loadingText={
+                      language === "fr" ? "Recherche…" : "Searching…"
+                    }
+                    noOptionsText={
+                      language === "fr"
+                        ? "Aucun taxon trouvé"
+                        : "No matching taxa"
+                    }
+                    onChange={(event, newValue) => {
+                      if (typeof newValue === "object") {
+                        setSearchValue(newValue);
+                      }
+                    }}
+                    value={SearchValue}
+                    freeSolo
+                    options={data}
+                    fullWidth
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          <I18n>
+                            <En>GBIF taxa Search</En>
+                            <Fr>Recherche de taxons dans GBIF</Fr>
+                          </I18n>
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+                <Button
+                  variant="outlined"
+                  disabled={disabled || (!SearchValue && !inputValue)}
+                  startIcon={<Add />}
+                  onClick={() => handleAdd()}
+                  sx={{ flexShrink: 0, minHeight: 41 }}
+                >
+                  <I18n>
+                    <En>Add</En>
+                    <Fr>Ajouter</Fr>
+                  </I18n>
+                </Button>
+              </Stack>
+
+              <ItemCards
+                items={taxa}
+                updateItems={updateTaxa}
+                openIndex={activeTaxa}
+                setOpenIndex={setActiveTaxa}
+                disabled={disabled}
+                idPrefix="taxa"
+                allowDuplicate={false}
+                itemNoun={{ en: "taxon", fr: "taxon" }}
+                ariaLabel={
+                  language === "fr"
+                    ? "Taxons dans cet enregistrement"
+                    : "Taxa in this record"
+                }
+                itemTitle={(taxon) => taxon?.scientificName}
+                itemMeta={(taxon) =>
+                  [
+                    taxon?.rank && capitalize(String(taxon.rank).toLowerCase()),
+                    taxon?.kingdom,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                }
+                emptyText={
+                  <I18n
+                    en="No taxa yet. Search above and select Add."
+                    fr="Aucun taxon pour l'instant. Recherchez ci-dessus puis sélectionnez Ajouter."
+                  />
+                }
+                renderEditor={() => (
+                  <Box
+                    sx={(theme) => ({
+                      border: `1px solid ${theme.vars.palette.divider}`,
+                      borderRadius: 1,
+                      overflow: "hidden",
                     })}
-                  </SortableList>
-                </List>
-              </Box>
-            </Grid>
-
-            <Grid size={7}>
-              <Grid style={{ margin: "10px" }}>
-                <Typography variant="h6">Details</Typography>
-              </Grid>
-              <Box
-                border={1}
-                borderRadius="4px"
-                borderColor="divider"
-                margin="10px"
-                minHeight="48px"
-              >
-                {taxa[activeTaxa] ? (
-                  <TableContainer component={Paper}>
-                    <Table size="small" aria-label="simple table">
-                      <TableBody>
-                        {Object.entries(getActiveTaxaDetails()).map(
-                          ([key, value]) => (
-                            <TableRow
-                              key={key}
-                              sx={{
-                                "&:last-child td, &:last-child th": {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell
-                                component="th"
-                                scope="row"
-                                variant="head"
-                                align="left"
-                                style={{ width: "146px" }}
+                  >
+                    <TableContainer>
+                      <Table
+                        size="small"
+                        aria-label={
+                          language === "fr"
+                            ? "Détails du taxon"
+                            : "Taxon details"
+                        }
+                      >
+                        <TableBody>
+                          {Object.entries(getActiveTaxaDetails()).map(
+                            ([key, value]) => (
+                              <TableRow
+                                key={key}
+                                sx={{
+                                  "&:last-child td, &:last-child th": {
+                                    border: 0,
+                                  },
+                                }}
                               >
-                                {capitalize(key)}:
-                              </TableCell>
-                              <TableCell align="left">{value}</TableCell>
-                            </TableRow>
-                          ),
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  ""
+                                <TableCell
+                                  component="th"
+                                  scope="row"
+                                  variant="head"
+                                  align="left"
+                                  sx={{ width: 146 }}
+                                >
+                                  {taxonFieldLabels[key]?.[language] ??
+                                    capitalize(key)}
+                                </TableCell>
+                                <TableCell align="left">{value}</TableCell>
+                              </TableRow>
+                            ),
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Box>
                 )}
-              </Box>
-            </Grid>
-          </Grid>
-        </FormSection>
-      ) : (
-        ""
-      )}
+              />
+            </Stack>
+          )}
+        </FormField>
+      </FormSection>
     </Stack>
   );
 };

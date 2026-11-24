@@ -593,13 +593,15 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
                   sx={{ color: "text.secondary", flexShrink: 0 }}
                 />
               )}
-              <span style={{ flexGrow: 1 }}>{option.label}</span>
+              <Box component="span" sx={{ flexGrow: 1 }}>
+                {option.label}
+              </Box>
               {meta && (
                 <Chip
                   label={meta[language] || meta.en}
                   size="small"
                   variant="outlined"
-                  sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
+                  sx={{ fontSize: "0.75rem", height: 20, flexShrink: 0 }}
                 />
               )}
             </Box>

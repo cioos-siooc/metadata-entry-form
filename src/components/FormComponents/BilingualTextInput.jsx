@@ -1,11 +1,13 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useId, useState, useEffect } from "react";
 import {
   Button,
   IconButton,
   InputAdornment,
+  Stack,
   TextField,
   CircularProgress,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
@@ -16,6 +18,7 @@ import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
 import TranslationInfoDialog from "./TranslationInfoDialog";
+import { useFieldContext } from "../FormShell/FormField";
 
 // Cohere translate size limit is 5KB
 const MAX_TRANSLATE_SIZE = 5000;
@@ -28,10 +31,15 @@ const BilingualTextInput = ({
   disabled,
   error,
   translationButonDisabled = false,
+  // Accessible name outside a FormField (which supplies its own): the
+  // inputs are read as "<label> EN" / "<label> FR" instead of a bare "EN".
+  label,
 }) => {
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const field = useFieldContext();
+  const baseId = useId();
 
   const { language } = useParams();
   let languages;
@@ -104,7 +112,14 @@ const BilingualTextInput = ({
   }, [name, onChange, value, alternateLanguage]);
 
   return (
-    <div>
+    <Stack spacing={1}>
+      {!field && label && (
+        // aria-labelledby can point at hidden text; the visible question
+        // above the inputs already says the same thing.
+        <span id={`${baseId}-label`} hidden>
+          {label}
+        </span>
+      )}
       <TranslationInfoDialog
         open={infoDialogOpen}
         onClose={() => setInfoDialogOpen(false)}
@@ -116,10 +131,22 @@ const BilingualTextInput = ({
             fullWidth
             value={value?.[lang] || ""}
             onChange={(e) => handleEvent(e)}
+            // Named by the field label plus the language tag, e.g.
+            // "Abstract EN", and described by the field hint.
+            inputProps={
+              field
+                ? {
+                    "aria-labelledby": `${field.labelId} ${baseId}-${lang}`,
+                    "aria-describedby": field.hintId,
+                  }
+                : label
+                  ? { "aria-labelledby": `${baseId}-label ${baseId}-${lang}` }
+                  : { "aria-label": lang.toUpperCase() }
+            }
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  {lang.toUpperCase()}
+                  <span id={`${baseId}-${lang}`}>{lang.toUpperCase()}</span>
                 </InputAdornment>
               ),
             }}
@@ -128,7 +155,14 @@ const BilingualTextInput = ({
             error={Boolean(error)}
           />
           {i === 0 && !translationButonDisabled && (
-            <span>
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              columnGap={1}
+              rowGap={0.5}
+              sx={{ mt: 1 }}
+            >
               <Tooltip
                 title={
                   <I18n
@@ -139,7 +173,8 @@ const BilingualTextInput = ({
               >
                 <span>
                   <Button
-                    style={{ margin: "10px" }}
+                    variant="outlined"
+                    size="small"
                     startIcon={
                       awaitingTranslation ? (
                         <CircularProgress size={20} />
@@ -199,7 +234,7 @@ const BilingualTextInput = ({
               </Tooltip>
               {value?.[alternateLanguage] && (
                 <FormControlLabel
-                  style={{ margin: "10px" }}
+                  sx={{ m: 0 }}
                   control={
                     <Checkbox
                       checked={translateChecked}
@@ -225,30 +260,39 @@ const BilingualTextInput = ({
               >
                 <IconButton
                   onClick={() => setInfoDialogOpen(true)}
-                  aria-label="about the translation service"
-                  style={{ margin: "10px" }}
+                  aria-label={
+                    language === "fr"
+                      ? "À propos du service de traduction"
+                      : "About the translation service"
+                  }
+                  sx={{ color: "text.secondary" }}
                 >
-                  <HelpOutlineIcon />
+                  <HelpOutlineIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
 
               {textTooBig && (
-                <I18n>
-                  <En>
-                    Translation is disabled because text is larger than{" "}
-                    {MAX_TRANSLATE_SIZE} characters.
-                  </En>
-                  <Fr>
-                    La traduction est désactivée car le texte est plus grand que{" "}
-                    {MAX_TRANSLATE_SIZE} caractères.
-                  </Fr>
-                </I18n>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", flexBasis: "100%" }}
+                >
+                  <I18n>
+                    <En>
+                      Translation is disabled because text is larger than{" "}
+                      {MAX_TRANSLATE_SIZE} characters.
+                    </En>
+                    <Fr>
+                      La traduction est désactivée car le texte est plus grand
+                      que {MAX_TRANSLATE_SIZE} caractères.
+                    </Fr>
+                  </I18n>
+                </Typography>
               )}
-            </span>
+            </Stack>
           )}
         </div>
       ))}
-    </div>
+    </Stack>
   );
 };
 

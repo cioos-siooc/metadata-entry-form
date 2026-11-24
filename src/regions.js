@@ -19,7 +19,7 @@ const regions = {
       fr: "Le CIOOS Pacifique intègre les données de la côte ouest du Canada, de l'entrée Dixon au détroit de Juan de Fuca.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-pacific-en.png", fr: "cioos-pacific-fr.png" },
+    logo: { en: "cioos-pacific-en.svg", fr: "cioos-pacific-fr.svg" },
   },
 
   stlaurent: {
@@ -50,7 +50,7 @@ const regions = {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
     titleFrPossessive: "du SIOOC Atlantique",
     catalogueTitle: {
-      fr: "Catalogue de données du SIOOC du Atlantic",
+      fr: "Catalogue de données du SIOOC Atlantique",
       en: "CIOOS Atlantic Data Catalogue",
     },
     colors: { primary: "#19222b", secondary: "#e55162" },
@@ -65,13 +65,13 @@ const regions = {
       fr: "Le CIOOS Atlantique intègre les données de la côte est du Canada, du Labrador à la baie de Fundy.",
     },
     showInRegionSelector: true,
-    logo: { en: "cioos-atlantic-en.png", fr: "cioos-atlantic-fr.png" },
+    logo: { en: "cioos-atlantic-en.svg", fr: "cioos-atlantic-fr.svg" },
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
-    titleFrPossessive: "de Amundsen Science",
+    titleFrPossessive: "d'Amundsen Science",
     catalogueTitle: {
-      fr: "Catalogue de données de Amundsen Science",
+      fr: "Catalogue de données d'Amundsen Science",
       en: "Amundsen Science Data Catalogue",
     },
     colors: { primary: "#E31837", secondary: "#77777A" },
@@ -141,6 +141,15 @@ export function getRegionLogo(regionId, language = "en") {
   const file = logoObj[language] || logoObj.en || logoObj.fr;
   if (!file) return null;
   return `${import.meta.env.BASE_URL}${file}`;
+}
+
+// The national CIOOS logo in the page's language.
+const nationalLogos = {
+  en: new URL("./static/cioos-national-en.png", import.meta.url).href,
+  fr: new URL("./static/cioos-national-fr.png", import.meta.url).href,
+};
+export function getNationalLogo(language = "en") {
+  return nationalLogos[language] || nationalLogos.en;
 }
 
 export default regions;

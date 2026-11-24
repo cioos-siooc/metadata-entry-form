@@ -18,6 +18,7 @@ import {
 import { Close, CheckCircle, LinkOff } from "@mui/icons-material";
 import { auth, linkProvider, unlinkProvider, providerLabels } from "../auth";
 import { GoogleIcon, MicrosoftIcon, OrcidIcon } from "./Icons";
+import { useParams } from "react-router-dom";
 import { En, Fr, I18n } from "./I18n";
 
 const PROVIDER_IDS = ["google.com", "microsoft.com", "oidc.orcid"];
@@ -30,6 +31,7 @@ const iconFor = (id) => {
 };
 
 const ConnectedAccountsDialog = ({ open, onClose }) => {
+  const { language } = useParams();
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [, setTick] = useState(0);
@@ -83,40 +85,42 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      PaperProps={{ sx: { borderRadius: 3 } }}
+      aria-describedby="connected-accounts-description"
     >
-      <DialogTitle sx={{ pr: 6, pb: 1 }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
-          <I18n>
-            <En>Connected accounts</En>
-            <Fr>Comptes connectés</Fr>
-          </I18n>
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          <I18n>
-            <En>
-              Link providers so you can sign in to this account with any of
-              them.
-            </En>
-            <Fr>
-              Liez des fournisseurs pour pouvoir vous connecter à ce compte avec
-              l&apos;un d&apos;entre eux.
-            </Fr>
-          </I18n>
-        </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.vars.palette.grey[500],
-          }}
-        >
-          <Close />
-        </IconButton>
+      <DialogTitle sx={{ pr: 6, pb: 0.5, fontWeight: 700 }}>
+        <I18n>
+          <En>Connected accounts</En>
+          <Fr>Comptes connectés</Fr>
+        </I18n>
       </DialogTitle>
+      <Typography
+        id="connected-accounts-description"
+        variant="body2"
+        color="text.secondary"
+        sx={{ px: 3, pb: 2 }}
+      >
+        <I18n>
+          <En>
+            Link providers so you can sign in to this account with any of them.
+          </En>
+          <Fr>
+            Liez des fournisseurs pour pouvoir vous connecter à ce compte avec
+            l&apos;un d&apos;entre eux.
+          </Fr>
+        </I18n>
+      </Typography>
+      <IconButton
+        aria-label={language === "fr" ? "Fermer" : "Close"}
+        onClick={onClose}
+        sx={{
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: "text.secondary",
+        }}
+      >
+        <Close />
+      </IconButton>
 
       <Divider />
 
@@ -142,11 +146,15 @@ const ConnectedAccountsDialog = ({ open, onClose }) => {
                   alignItems: "center",
                   gap: 2,
                   p: 1.5,
-                  borderRadius: 2,
+                  borderRadius: 1,
                   border: (theme) => `1px solid ${theme.vars.palette.divider}`,
                   backgroundColor: (theme) =>
                     linked ? theme.vars.palette.action.hover : "transparent",
-                  transition: "all 0.2s ease",
+                  transition: (theme) =>
+                    theme.transitions.create(
+                      ["border-color", "background-color"],
+                      { duration: theme.transitions.duration.shortest },
+                    ),
                   "&:hover": {
                     borderColor: (theme) => theme.vars.palette.primary.main,
                   },

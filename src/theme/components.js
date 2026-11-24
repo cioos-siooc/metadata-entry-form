@@ -1,11 +1,23 @@
-import { radii, motion } from "./tokens";
+import { radii, motion, semantic } from "./tokens";
 
 // Build MUI component overrides that reference the already-constructed theme.
 // Colours go through theme.vars (CSS variables) so every override follows the
 // active colour scheme instead of baking in light-mode values.
 export default function buildComponents(theme) {
-  const focusRing = `0 0 0 3px rgba(${theme.vars.palette.primary.mainChannel} / 0.18)`;
-  const focusRingError = `0 0 0 3px rgba(${theme.vars.palette.error.mainChannel} / 0.18)`;
+  // A solid 2px ring in the contrast-checked brand colour, set off by a 2px
+  // gap in the surface colour so it also reads against a filled button. A
+  // tint of `primary.main` stayed under the 3:1 a focus indicator needs
+  // (about 1.4:1 for the national teal, less for the yellow region).
+  const ring = (color) =>
+    `0 0 0 2px ${theme.vars.palette.background.paper}, 0 0 0 4px ${color}`;
+  const focusRing = ring(theme.vars.palette.primaryText);
+  const focusRingError = ring(theme.vars.palette.error.main);
+  // For ButtonBase controls whose own focus cue is only a faint background
+  // (tabs, chips, menu items, accordion headers).
+  const focusOutline = {
+    outline: `2px solid ${theme.vars.palette.primaryText}`,
+    outlineOffset: -2,
+  };
   // MuiPaper defaults to elevation 0 app-wide (see below), which also flattens
   // every floating surface — dropdowns then have no edge separating them from
   // the inputs they overlap. Menus, Selects and Autocompletes get one back.
@@ -29,8 +41,25 @@ export default function buildComponents(theme) {
         "::selection": {
           backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.18)`,
         },
-        "*:focus-visible": {
-          outline: "none",
+        // Anything without a ring of its own (native buttons, focusable
+        // containers) still shows where focus is. MUI controls that draw a
+        // box-shadow ring set `outline: 0` with a class, which beats this
+        // zero-specificity selector regardless of stylesheet order.
+        ":where(*:focus-visible)": {
+          outline: `2px solid ${theme.vars.palette.primaryText}`,
+          outlineOffset: 2,
+        },
+        // Plain <a> (help text, guidance) gets the contrast-safe brand
+        // colour rather than the browser's default blue.
+        a: {
+          color: theme.vars.palette.primaryText,
+          textUnderlineOffset: "0.15em",
+        },
+        // Links get no MUI ring of their own, so restore a visible one.
+        "a:focus-visible": {
+          outline: `2px solid ${theme.vars.palette.primaryText}`,
+          outlineOffset: 2,
+          borderRadius: 2,
         },
       },
     },
@@ -63,17 +92,20 @@ export default function buildComponents(theme) {
         sizeLarge: {
           minHeight: 48,
           padding: "10px 20px",
-          fontSize: "0.95rem",
+          fontSize: "1rem",
         },
         contained: {
           boxShadow: "none",
           "&:hover": {
             boxShadow: theme.shadows[2],
-            transform: "translateY(-1px)",
           },
           "&:active": {
-            transform: "translateY(0)",
             boxShadow: theme.shadows[1],
+          },
+          // The lift is extra; the shadow change alone carries the state.
+          "@media (prefers-reduced-motion: no-preference)": {
+            "&:hover": { transform: "translateY(-1px)" },
+            "&:active": { transform: "translateY(0)" },
           },
         },
         outlined: {
@@ -87,6 +119,33 @@ export default function buildComponents(theme) {
           "&:hover": {
             backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
           },
+        },
+        // Region colour as label text: use the contrast-checked variant.
+        textPrimary: { color: theme.vars.palette.primaryText },
+        outlinedPrimary: { color: theme.vars.palette.primaryText },
+      },
+    },
+
+    MuiLink: {
+      styleOverrides: {
+        root: { color: theme.vars.palette.primaryText },
+      },
+    },
+
+    MuiCheckbox: {
+      styleOverrides: {
+        colorPrimary: {
+          "&.Mui-checked, &.MuiCheckbox-indeterminate": {
+            color: theme.vars.palette.primaryText,
+          },
+        },
+      },
+    },
+
+    MuiRadio: {
+      styleOverrides: {
+        colorPrimary: {
+          "&.Mui-checked": { color: theme.vars.palette.primaryText },
         },
       },
     },
@@ -113,7 +172,7 @@ export default function buildComponents(theme) {
           backgroundColor: theme.vars.palette.background.paper,
           transition: `box-shadow ${motion.duration.fast}ms ${motion.easing.standard}, border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.vars.palette.divider,
+            borderColor: theme.vars.palette.inputBorder,
             transition: `border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
             // Labels sit above the field (see MuiInputLabel), so the outline is
             // a plain rounded rect — no legend gap, and no -5px offset to make
@@ -122,12 +181,12 @@ export default function buildComponents(theme) {
             "& legend": { display: "none" },
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.vars.palette.text.disabled,
+            borderColor: theme.vars.palette.text.secondary,
           },
           "&.Mui-focused": {
             boxShadow: focusRing,
             "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: theme.vars.palette.primary.main,
+              borderColor: theme.vars.palette.primaryText,
               borderWidth: 1,
             },
           },
@@ -207,6 +266,14 @@ export default function buildComponents(theme) {
     MuiAutocomplete: {
       styleOverrides: {
         paper: floatingSurface,
+        // MUI pads the autocomplete root 9px on top of the input's own
+        // padding, which made it 56px beside 43px text fields.
+        inputRoot: {
+          "&.MuiOutlinedInput-root:not(.MuiInputBase-sizeSmall)": {
+            paddingTop: 2,
+            paddingBottom: 2,
+          },
+        },
       },
     },
 
@@ -264,6 +331,7 @@ export default function buildComponents(theme) {
         },
         indicator: {
           height: 3,
+          backgroundColor: theme.vars.palette.primaryText,
           borderRadius: `${radii.sm}px ${radii.sm}px 0 0`,
         },
       },
@@ -276,12 +344,15 @@ export default function buildComponents(theme) {
           fontWeight: 500,
           minHeight: 44,
           color: theme.vars.palette.text.secondary,
+          // primaryText, not primary.main: the yellow region's main is
+          // ~1.7:1 against paper as text.
           "&.Mui-selected": {
             fontWeight: 600,
-            color: theme.vars.palette.primary.main,
+            color: theme.vars.palette.primaryText,
           },
-          "&:focus-visible": {
+          "&.Mui-focusVisible": {
             backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
+            ...focusOutline,
           },
         },
       },
@@ -331,10 +402,17 @@ export default function buildComponents(theme) {
           borderRadius: radii.pill,
           fontWeight: 500,
           height: 26,
+          "&.Mui-focusVisible": { ...focusOutline, outlineOffset: 1 },
         },
-        filled: {
+        // Only primary chips take the soft brand tint. This used to target
+        // every filled chip, which repainted error/success chips brand-coloured.
+        outlinedPrimary: {
+          color: theme.vars.palette.primaryText,
+          borderColor: theme.vars.palette.primaryBorder,
+        },
+        filledPrimary: {
           backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
-          color: theme.vars.palette.primary.dark,
+          color: theme.vars.palette.primaryText,
           "&:hover": {
             backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.16)`,
           },
@@ -353,31 +431,55 @@ export default function buildComponents(theme) {
           padding: "10px 14px",
           alignItems: "center",
         },
-        standardSuccess: {
-          backgroundColor: "#f0fdf4",
-          color: "#15803d",
-          border: "1px solid #bbf7d0",
+        // Light: the semantic pastel set. Dark: a tint of the semantic hue on
+        // the dark paper, with light text, so alerts don't glare.
+        ...Object.fromEntries(
+          ["success", "error", "warning", "info"].map((key) => [
+            `standard${key[0].toUpperCase()}${key.slice(1)}`,
+            {
+              backgroundColor: semantic[key].surface,
+              color: semantic[key].dark,
+              border: `1px solid ${semantic[key].border}`,
+              ...theme.applyStyles("dark", {
+                backgroundColor: `rgba(${theme.vars.palette[key].mainChannel} / 0.12)`,
+                color: semantic[key].border,
+                borderColor: `rgba(${theme.vars.palette[key].mainChannel} / 0.4)`,
+              }),
+            },
+          ]),
+        ),
+      },
+    },
+
+    // Region colour as a mark on paper: the contrast-checked variant.
+    MuiCircularProgress: {
+      styleOverrides: {
+        colorPrimary: { color: theme.vars.palette.primaryText },
+      },
+    },
+
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          "&.Mui-focusVisible .MuiSwitch-thumb": {
+            outline: `2px solid ${theme.vars.palette.primaryText}`,
+            outlineOffset: 2,
+          },
         },
-        standardError: {
-          backgroundColor: "#fef2f2",
-          color: "#b91c1c",
-          border: "1px solid #fecaca",
-        },
-        standardWarning: {
-          backgroundColor: "#fffbeb",
-          color: "#b45309",
-          border: "1px solid #fde68a",
-        },
-        standardInfo: {
-          backgroundColor: "#eff6ff",
-          color: "#1d4ed8",
-          border: "1px solid #bfdbfe",
+        colorPrimary: {
+          "&.Mui-checked": { color: theme.vars.palette.primaryText },
+          "&.Mui-checked + .MuiSwitch-track": {
+            backgroundColor: theme.vars.palette.primaryText,
+          },
         },
       },
     },
 
     MuiLinearProgress: {
       styleOverrides: {
+        barColorPrimary: {
+          backgroundColor: theme.vars.palette.primaryText,
+        },
         root: {
           height: 8,
           borderRadius: radii.pill,
@@ -435,6 +537,13 @@ export default function buildComponents(theme) {
     MuiInputBase: {
       styleOverrides: {
         input: {
+          // MUI dims placeholders to ~0.4 opacity, well under 4.5:1. Some
+          // fields (saved-item search) use the placeholder as their only
+          // visible label.
+          "&::placeholder": {
+            color: theme.vars.palette.text.secondary,
+            opacity: 1,
+          },
           "&.Mui-disabled": {
             color: theme.vars.palette.text.disabled,
             WebkitTextFillColor: theme.vars.palette.text.disabled,
@@ -466,6 +575,7 @@ export default function buildComponents(theme) {
           "&.Mui-expanded": {
             minHeight: 52,
           },
+          "&.Mui-focusVisible": focusOutline,
         },
       },
     },
@@ -495,6 +605,10 @@ export default function buildComponents(theme) {
           "&:hover": {
             backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.06)`,
           },
+          "&.Mui-focusVisible": {
+            outline: `2px solid ${theme.vars.palette.primaryText}`,
+            outlineOffset: -2,
+          },
           "&.Mui-selected": {
             backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.1)`,
             "&:hover": {
@@ -505,10 +619,67 @@ export default function buildComponents(theme) {
       },
     },
 
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focusVisible": focusOutline,
+        },
+      },
+    },
+
     MuiDivider: {
       styleOverrides: {
         root: {
           borderColor: theme.vars.palette.divider,
+        },
+      },
+    },
+
+    // Record tables (My records, review queue, published, shared). Sits in a
+    // bordered paper container, so the grid itself draws no outer border.
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          border: "none",
+          backgroundColor: theme.vars.palette.background.paper,
+          "--DataGrid-containerBackground": theme.vars.palette.background.paper,
+          "--DataGrid-rowBorderColor": theme.vars.palette.divider,
+          fontVariantNumeric: "tabular-nums",
+        },
+        columnHeader: {
+          color: theme.vars.palette.text.secondary,
+          fontSize: "0.8125rem",
+          "&:focus, &:focus-within": { outline: "none" },
+          "&.Mui-focusVisible, &:focus-visible": {
+            outline: `2px solid ${theme.vars.palette.primaryText}`,
+            outlineOffset: -2,
+          },
+        },
+        columnHeaderTitle: {
+          fontWeight: 600,
+        },
+        row: {
+          cursor: "pointer",
+          "&:hover": {
+            backgroundColor: `rgba(${theme.vars.palette.primary.mainChannel} / 0.05)`,
+          },
+        },
+        cell: {
+          display: "flex",
+          alignItems: "center",
+          "&:focus, &:focus-within": { outline: "none" },
+          "&.Mui-focusVisible, &:focus-visible": {
+            outline: `2px solid ${theme.vars.palette.primaryText}`,
+            outlineOffset: -2,
+          },
+        },
+        toolbar: {
+          gap: 8,
+          padding: "8px 12px",
+          borderBottom: `1px solid ${theme.vars.palette.divider}`,
+        },
+        footerContainer: {
+          borderTop: `1px solid ${theme.vars.palette.divider}`,
         },
       },
     },

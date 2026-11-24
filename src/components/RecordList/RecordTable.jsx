@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useContext } from "react";
+import { useMemo, useCallback, useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -9,6 +9,7 @@ import {
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from "@mui/x-data-grid";
+import { frFR } from "@mui/x-data-grid/locales";
 
 import {
   useColumnVisibility,
@@ -33,6 +34,7 @@ const RecordTable = ({
   onGithubPublishClick,
   onReviewRecord,
   githubPublishEnabled,
+  emptyMessage,
 }) => {
   const { language, region } = useParams();
   const { doiStatusManagement } = useContext(UserContext);
@@ -93,11 +95,22 @@ const RecordTable = ({
     setSortModel([]);
   }, [setFilterModel, setSortModel]);
 
-  const handleStateChange = useCallback(() => {
-    if (apiRef.current) {
+  // Counted after filtering settles rather than from onStateChange, which
+  // fires while the grid renders and made React warn about a cross-component
+  // update.
+  useEffect(() => {
+    const api = apiRef.current;
+    if (loading || !api?.subscribeEvent) return undefined;
+    const count = () =>
       setVisibleRowCount(gridFilteredSortedRowIdsSelector(apiRef).length);
-    }
-  }, [apiRef]);
+    count();
+    const offFiltered = api.subscribeEvent("filteredRowsSet", count);
+    const offSorted = api.subscribeEvent("sortedRowsSet", count);
+    return () => {
+      offFiltered();
+      offSorted();
+    };
+  }, [apiRef, loading]);
 
   // Toast state for copy-to-clipboard feedback
   const [toastOpen, setToastOpen] = useState(false);
@@ -143,11 +156,6 @@ const RecordTable = ({
     },
     [handleNavigateToRecord],
   );
-
-  const rowTooltipTitle =
-    language === "fr"
-      ? "Cliquer pour ouvrir la fiche"
-      : "Click to open the record";
 
   const handleCopyCell = useCallback(
     (text) => {
@@ -250,12 +258,19 @@ const RecordTable = ({
 
   return (
     <Box
-      sx={{
+      sx={(t) => ({
         width: "100%",
         minWidth: 0,
         boxSizing: "border-box",
+        // Desktop: one bordered surface for toolbar, rows and pager. Mobile
+        // rows are cards of their own, so the frame would double up.
+        ...(!isMobile && {
+          border: `1px solid ${t.vars.palette.divider}`,
+          borderRadius: 1.5,
+          overflow: "hidden",
+          bgcolor: "background.paper",
+        }),
         ...(isMobile && {
-          height: "calc(100vh - 200px)",
           "& .MuiDataGrid-columnHeaders": {
             display: "none",
           },
@@ -274,52 +289,45 @@ const RecordTable = ({
             maxWidth: "100% !important",
           },
         }),
-      }}
+      })}
     >
       {filtersActive && (
-        <Alert
-          severity="info"
-          variant="outlined"
-          icon={<FilterAltOffIcon fontSize="inherit" />}
-          action={
-            <Button
-              color="inherit"
-              size="small"
-              variant="outlined"
-              onClick={handleClearFilters}
-              startIcon={<FilterAltOffIcon />}
-            >
-              {language === "en" ? "Clear filters" : "Effacer les filtres"}
-            </Button>
-          }
-          sx={{
-            mb: 1,
+        <Box
+          role="status"
+          sx={(t) => ({
+            display: "flex",
             alignItems: "center",
-            "& .MuiAlert-action": { alignItems: "center", pt: 0 },
-          }}
+            gap: 1.5,
+            flexWrap: "wrap",
+            px: 1.5,
+            py: 1,
+            bgcolor: "background.brandSubtle",
+            borderBottom: `1px solid ${t.vars.palette.divider}`,
+            fontSize: "0.875rem",
+          })}
         >
-          {language === "en"
-            ? `Filter active — showing ${visibleRowCount} of ${rows.length} records`
-            : `Filtre actif — affichage de ${visibleRowCount} sur ${rows.length} enregistrements`}
-        </Alert>
+          <FilterAltOffIcon fontSize="small" sx={{ color: "text.secondary" }} />
+          <Box component="span" sx={{ flex: 1, minWidth: 0 }}>
+            {language === "en"
+              ? `Showing ${visibleRowCount} of ${rows.length} records`
+              : `${visibleRowCount} enregistrements sur ${rows.length}`}
+          </Box>
+          <Button size="small" onClick={handleClearFilters}>
+            {language === "en"
+              ? "Clear filters and sorting"
+              : "Effacer filtres et tri"}
+          </Button>
+        </Box>
       )}
       <DataGrid
         apiRef={apiRef}
-        onStateChange={handleStateChange}
-        autoHeight={!isMobile}
-        sx={{
-          width: "100%",
-          minWidth: 0,
-          border: "none",
-          "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
-          "& .MuiDataGrid-row": {
-            cursor: "pointer",
-          },
-        }}
+        autoHeight
+        sx={{ width: "100%", minWidth: 0 }}
         rows={rows}
         columns={columns}
         onRowClick={handleRowClick}
-        getRowHeight={() => (isMobile ? "auto" : 52)}
+        getRowHeight={() => (isMobile ? "auto" : 56)}
+        disableRowSelectionOnClick
         initialState={{
           pagination: {
             paginationModel: {
@@ -337,11 +345,22 @@ const RecordTable = ({
         slots={{
           ...(isMobile && { row: MobileRecordRow }),
           noRowsOverlay: () => (
-            <div style={{ padding: "20px", textAlign: "center" }}>
-              {language === "en"
-                ? "No records found."
-                : "Aucun enregistrement trouvé."}
-            </div>
+            <Box
+              sx={{
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 3,
+                color: "text.secondary",
+                textAlign: "center",
+              }}
+            >
+              {emptyMessage ||
+                (language === "en"
+                  ? "No records match."
+                  : "Aucun enregistrement ne correspond.")}
+            </Box>
           ),
         }}
         slotProps={{
@@ -354,9 +373,8 @@ const RecordTable = ({
                 githubPublishEnabled,
                 onCopy: handleCopyCell,
                 onNavigate: handleNavigateToRecord,
-                tooltipTitle: rowTooltipTitle,
               }
-            : { title: rowTooltipTitle },
+            : {},
           filterPanel: {
             sx: {
               [theme.breakpoints.down("sm")]: {
@@ -378,6 +396,10 @@ const RecordTable = ({
           },
         }}
         localeText={{
+          // The full French pack (pager, menus, operators), then our wording.
+          ...(language === "fr"
+            ? frFR.components.MuiDataGrid.defaultProps.localeText
+            : {}),
           toolbarColumns: language === "en" ? "Columns" : "Colonnes",
           toolbarColumnsLabel:
             language === "en" ? "Select columns" : "Sélectionner les colonnes",
@@ -390,7 +412,7 @@ const RecordTable = ({
           columnsPanelHideAllButton:
             language === "en" ? "Hide all" : "Masquer tout",
           toolbarQuickFilterPlaceholder:
-            language === "en" ? "Search..." : "Rechercher...",
+            language === "en" ? "Search…" : "Rechercher…",
           toolbarFilters: language === "en" ? "Filters" : "Filtres",
           toolbarFiltersLabel:
             language === "en" ? "Show filters" : "Afficher les filtres",

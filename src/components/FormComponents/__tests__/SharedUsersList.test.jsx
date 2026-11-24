@@ -54,7 +54,7 @@ describe("<SharedUsersList />", () => {
     expect(
       screen.getByText("Please enter a valid email address."),
     ).toBeVisible();
-    expect(screen.getByRole("button", { name: /Share Record/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Share record/ })).toBeDisabled();
     expect(shareRecord).not.toHaveBeenCalled();
   });
 
@@ -63,7 +63,7 @@ describe("<SharedUsersList />", () => {
     renderList();
 
     await user.type(screen.getByRole("textbox"), " Editor@cioos.ca ");
-    await user.click(screen.getByRole("button", { name: /Share Record/ }));
+    await user.click(screen.getByRole("button", { name: /Share record/ }));
 
     expect(shareRecord).toHaveBeenCalledWith({
       region: "pacific",
@@ -80,7 +80,7 @@ describe("<SharedUsersList />", () => {
 
     await user.type(screen.getByRole("textbox"), "editor@cioos.ca");
 
-    expect(screen.getByRole("button", { name: /Share Record/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Share record/ })).toBeDisabled();
   });
 
   it("lists current editors, pending invitations, and legacy shares", () => {
@@ -102,8 +102,9 @@ describe("<SharedUsersList />", () => {
       pendingShares: { "newcomer@example,org": "newcomer@example.org" },
     });
 
-    const [removeEditor, removeInvite] = screen.getAllByRole("button", {
-      name: "delete",
+    const removeEditor = screen.getByRole("button", { name: "Remove access" });
+    const removeInvite = screen.getByRole("button", {
+      name: "Cancel invitation",
     });
 
     await user.click(removeEditor);

@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import { Add, Delete } from "@mui/icons-material";
-import {
-  TextField,
-  Grid,
-  Typography,
-  Button,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  // Box,
-} from "@mui/material";
+import { TextField, Grid, Typography, Box } from "@mui/material";
 import validator from "validator";
 import SelectInput from "./SelectInput";
 import { En, Fr, I18n } from "../I18n";
@@ -19,6 +8,8 @@ import RequiredMark from "./RequiredMark";
 import BilingualTextInput from "./BilingualTextInput";
 import { QuestionText, SupplementalText } from "./QuestionStyles";
 import { identifierType } from "../../isoCodeLists";
+import { lineagePartIsComplete } from "../../utils/validate";
+import ItemCards from "./ItemCards";
 
 const validateURL = (url) => !url || validator.isURL(url);
 
@@ -33,25 +24,16 @@ const ProcessingStep = ({
   updateSources,
   sources = [],
   disabled,
-  paperClass,
   language,
 }) => {
-  const [activeSource, setActiveSource] = useState(0);
+  const [activeSource, setActiveSource] = useState(null);
 
-  function addSource() {
-    updateSources(sources.concat(deepCopy(emptySource)));
-    setActiveSource(sources.length);
-  }
   function updateSourceField(key) {
     return (e) => {
       const sourcesCopy = [...sources];
       sourcesCopy[activeSource][key] = e.target.value;
       updateSources(sourcesCopy);
     };
-  }
-  function removeSource() {
-    updateSources(sources.filter((e, index) => index !== activeSource));
-    if (sources.length) setActiveSource(sources.length - 2);
   }
 
   function urlIsValid(url) {
@@ -87,7 +69,7 @@ const ProcessingStep = ({
       <Grid>
         <QuestionText>
           <I18n>
-            <En>Processing or Method Step:</En>
+            <En>Processing or method step:</En>
             <Fr>Méthodologie détaillée :</Fr>
           </I18n>
 
@@ -109,159 +91,116 @@ const ProcessingStep = ({
           </SupplementalText>
         </QuestionText>
       </Grid>
-      <Grid container item direction="row" spacing={1}>
-        <Grid size={4}>
-          <Grid container direction="column" spacing={1}>
-            <Grid>
-              <List spacing={1}>
-                {sources.map((sourceItem, i) => {
-                  return (
-                    <ListItem key={i} button onClick={() => setActiveSource(i)}>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            style={{
-                              fontWeight: activeSource === i ? "bold" : "",
-                            }}
-                          >
-                            {i + 1}.{" "}
-                            {(
-                              (sourceItem.title[language] ||
-                                sourceItem.description[language]) ??
-                              ""
-                            ).length <= 50
-                              ? ((sourceItem.title[language] ||
-                                  sourceItem.description[language]) ??
-                                "")
-                              : `${(sourceItem.title[language] || sourceItem.description[language]).substring(0, 50)}...`}
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </Grid>
-
-            <Grid>
-              <Button
-                disabled={disabled}
-                startIcon={<Add />}
-                onClick={() => addSource()}
-                style={{ height: "56px", marginLeft: "10px" }}
-              >
+      <ItemCards
+        items={sources}
+        updateItems={updateSources}
+        openIndex={activeSource}
+        setOpenIndex={setActiveSource}
+        disabled={disabled}
+        idPrefix="lineage-step"
+        numbered
+        itemNoun={{ en: "processing step", fr: "étape de traitement" }}
+        ariaLabel={
+          language === "fr" ? "Étapes de traitement" : "Processing steps"
+        }
+        itemTitle={(item) =>
+          item.title?.[language] || item.description?.[language]
+        }
+        itemMeta={(item) => item.code}
+        isComplete={lineagePartIsComplete}
+        getBlankItem={() => deepCopy(emptySource)}
+        duplicateItem={(copy) => {
+          if (copy.title?.en) copy.title.en += " (copy)";
+          if (copy.title?.fr) copy.title.fr += " (copie)";
+          return copy;
+        }}
+        addLabel=<I18n en="Add step" fr="Ajouter une étape" />
+        emptyText=<I18n
+          en="No processing steps yet."
+          fr="Aucune étape de traitement pour l'instant."
+        />
+        renderEditor={() => (
+          <Box>
+            <Grid container direction="column" spacing={2}>
+              <Grid>
                 <I18n>
-                  <En>Add Step</En>
-                  <Fr>Ajouter une étape</Fr>
+                  <En>Description</En>
+                  <Fr>Description</Fr>
                 </I18n>
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid size="grow">
-          <Grid container direction="column">
-            {source && (
-              <Paper style={paperClass}>
-                <Grid container direction="column" spacing={2}>
-                  <Grid>
+                <RequiredMark
+                  passes={source.description?.en || source.description?.fr}
+                />
+                <BilingualTextInput
+                  label={
+                    <I18n en="Step description" fr="Description de l'étape" />
+                  }
+                  value={source.description}
+                  onChange={updateSourceField("description")}
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid>
+                <Typography variant="body1" component="div" sx={{ mt: 1 }}>
+                  <I18n>
+                    <En>Or link to reference documentation</En>
+                    <Fr>Ou lien vers la documentation de référence</Fr>
+                  </I18n>
+                </Typography>
+              </Grid>
+              <Grid>
+                <I18n>
+                  <En>Title</En>
+                  <Fr>Titre</Fr>
+                </I18n>
+                {source?.code && (
+                  <RequiredMark passes={source.title?.en || source.title?.fr} />
+                )}
+                <BilingualTextInput
+                  label={<I18n en="Step title" fr="Titre de l'étape" />}
+                  value={source.title}
+                  onChange={updateSourceField("title")}
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid>
+                <TextField
+                  label={
                     <I18n>
-                      <En>Description</En>
-                      <Fr>Description</Fr>
+                      <En>Identifier or URL</En>
+                      <Fr>Identifiant ou URL</Fr>
                     </I18n>
-                    <RequiredMark
-                      passes={source.description?.en || source.description?.fr}
-                    />
-                    <BilingualTextInput
-                      value={source.description}
-                      onChange={updateSourceField("description")}
-                      fullWidth
-                      disabled={disabled}
-                    />
-                  </Grid>
-                  <Grid>
-                    <Typography
-                      variant="body1"
-                      component="div"
-                      style={{ marginTop: "10px" }}
-                    >
-                      <I18n>
-                        <En>Or link to reference documentation</En>
-                        <Fr>Ou lien vers la documentation de référence</Fr>
-                      </I18n>
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <I18n>
-                      <En>Title</En>
-                      <Fr>Titre</Fr>
-                    </I18n>
-                    {source?.code && (
-                      <RequiredMark
-                        passes={source.title?.en || source.title?.fr}
-                      />
-                    )}
-                    <BilingualTextInput
-                      value={source.title}
-                      onChange={updateSourceField("title")}
-                      fullWidth
-                      disabled={disabled}
-                    />
-                  </Grid>
-                  <Grid>
-                    <TextField
-                      label={
-                        <I18n>
-                          <En>Identifier or URL</En>
-                          <Fr>Identifiant ou URL</Fr>
-                        </I18n>
-                      }
-                      value={source.code}
-                      onChange={handleIdentifierChange("code")}
-                      fullWidth
-                      disabled={disabled}
-                    />
-                  </Grid>
-                  <Grid>
-                    <QuestionText>
-                      <I18n>
-                        <En>Enter the identifier type</En>
-                        <Fr>Entrez le type d'identifiant</Fr>
-                      </I18n>
-                      {source?.code && (
-                        <RequiredMark passes={source.authority} />
-                      )}
-                    </QuestionText>
+                  }
+                  value={source.code}
+                  onChange={handleIdentifierChange("code")}
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid>
+                <QuestionText>
+                  <I18n>
+                    <En>Enter the identifier type</En>
+                    <Fr>Entrez le type d'identifiant</Fr>
+                  </I18n>
+                  {source?.code && <RequiredMark passes={source.authority} />}
+                </QuestionText>
 
-                    <SelectInput
-                      value={source.authority}
-                      onChange={updateSourceField("authority")}
-                      options={identifierType}
-                      optionLabels={identifierType}
-                      disabled={disabled}
-                      label={
-                        <I18n en="Identifier Type" fr="Type d'identifiant" />
-                      }
-                      fullWidth={false}
-                    />
-                  </Grid>
-                  <Grid>
-                    <Button
-                      startIcon={<Delete />}
-                      disabled={disabled}
-                      onClick={() => removeSource()}
-                    >
-                      <I18n>
-                        <En>Remove step</En>
-                        <Fr>Supprimer l'étape</Fr>
-                      </I18n>
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Paper>
-            )}
-          </Grid>
-        </Grid>
-      </Grid>
+                <SelectInput
+                  value={source.authority}
+                  onChange={updateSourceField("authority")}
+                  options={identifierType}
+                  optionLabels={identifierType}
+                  disabled={disabled}
+                  label={<I18n en="Identifier type" fr="Type d'identifiant" />}
+                  fullWidth={false}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      />
     </Grid>
   );
 };

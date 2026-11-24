@@ -16,12 +16,15 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { Box } from "@mui/material";
 
 /**
- * SortableItem wraps each draggable item
- * Provides drag handle via the handleSelector class
+ * SortableItem wraps each draggable item. It renders an <li> so it can sit
+ * directly in a <List>. The dnd-kit attributes (role="button", tabIndex) go on
+ * the DragHandle, not here: on the wrapper they made every row one extra tab
+ * stop that wrapped its own buttons.
  */
-export const SortableItem = ({ id, children }) => {
+export const SortableItem = ({ id, children, sx }) => {
   const {
     attributes,
     listeners,
@@ -31,18 +34,26 @@ export const SortableItem = ({ id, children }) => {
     isDragging,
   } = useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <Box
+      component="li"
+      ref={setNodeRef}
+      sx={[
+        {
+          listStyle: "none",
+          position: "relative",
+          zIndex: isDragging ? 1 : "auto",
+          opacity: isDragging ? 0.5 : 1,
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      // dnd-kit updates these every pointer move; they stay inline.
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+    >
       <DragHandleContext.Provider value={{ listeners, attributes }}>
         {children}
       </DragHandleContext.Provider>
-    </div>
+    </Box>
   );
 };
 
@@ -73,8 +84,9 @@ export const DragHandleContext = React.createContext({
 });
 
 /**
- * DragHandle component - use this instead of className="drag-handle"
- * Wrap your drag handle icon/button with this component
+ * DragHandle passes the drag listeners and attributes straight onto its one
+ * child (an IconButton), so the handle is a single focusable control that
+ * also works with the keyboard sensor (Space to lift, arrows, Space to drop).
  */
 export const DragHandle = ({ children, disabled }) => {
   const { listeners, attributes } = React.useContext(DragHandleContext);
@@ -83,15 +95,15 @@ export const DragHandle = ({ children, disabled }) => {
     return children;
   }
 
-  return (
-    <span
-      {...listeners}
-      {...attributes}
-      style={{ cursor: "grab", touchAction: "none" }}
-    >
-      {children}
-    </span>
-  );
+  const child = React.Children.only(children);
+  return React.cloneElement(child, {
+    ...attributes,
+    ...listeners,
+    sx: [
+      { cursor: "grab", touchAction: "none" },
+      ...(Array.isArray(child.props.sx) ? child.props.sx : [child.props.sx]),
+    ],
+  });
 };
 
 /**

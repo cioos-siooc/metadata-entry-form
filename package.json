@@ -89,7 +89,9 @@
   },
   "scripts": {
     "postinstall": "node scripts/ensure-data-file.mjs",
+    "predev": "node scripts/fetch-github-releases.mjs && node scripts/ensure-data-file.mjs",
     "dev": "vite",
+    "prestart": "npm run predev",
     "start": "vite",
     "prebuild": "node scripts/fetch-github-releases.mjs",
     "build": "vite build",

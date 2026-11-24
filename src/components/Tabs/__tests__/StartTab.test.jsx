@@ -2,7 +2,8 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
+import { getAppTheme } from "../../../theme/createAppTheme";
 
 import StartTab from "../StartTab";
 
@@ -20,7 +21,8 @@ vi.mock("../../FormComponents/SharedUsersList", () => ({
   default: () => null,
 }));
 
-const theme = createTheme();
+// The app theme: components read colours from theme.vars (CSS variables).
+const theme = getAppTheme("pacific");
 
 const renderStartTab = (record) => {
   const handleUpdateRecord = vi.fn(() => vi.fn());

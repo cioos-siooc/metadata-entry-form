@@ -75,7 +75,7 @@ const TranslationInfoDialog = ({ open, onClose }) => {
           </I18n>
         </Typography>
 
-        <Typography variant="subtitle1" gutterBottom style={{ marginTop: 16 }}>
+        <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
           <I18n>
             <En>Glossary translation corrections</En>
             <Fr>Corrections de traduction du glossaire</Fr>
@@ -104,7 +104,7 @@ const TranslationInfoDialog = ({ open, onClose }) => {
           </Table>
         </Paper>
 
-        <Typography variant="body2" paragraph style={{ marginTop: 16 }}>
+        <Typography variant="body2" paragraph sx={{ mt: 2 }}>
           <I18n>
             <En>
               Notice a recurring translation error? You can help improve the

@@ -1,7 +1,5 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Grid, Button } from "@mui/material";
-import { Save } from "@mui/icons-material";
 import {
   child,
   getDatabase,
@@ -13,11 +11,9 @@ import {
 import firebase from "../../firebase";
 import { auth } from "../../auth";
 
-import { En, Fr, I18n } from "../I18n";
-
 import InstrumentEditor from "./InstrumentEditor";
+import { EditorPage } from "../Layout/Page";
 import FormClassTemplate from "../Pages/FormClassTemplate";
-import { paperClass } from "./QuestionStyles";
 
 class EditInstrumentClass extends FormClassTemplate {
   constructor(props) {
@@ -80,44 +76,30 @@ class EditInstrumentClass extends FormClassTemplate {
   }
 
   render() {
+    const lang = this.props.language;
     return (
-      <Grid container direction="column" spacing={2}>
-        <Grid>
-          <InstrumentEditor
-            value={this.state}
-            handleClear={(key) => this.handleClear(key)}
-            updateInstrumentEvent={(key) => this.handleChange(key)}
-            paperClass={paperClass}
-          />
-        </Grid>
-
-        <Grid>
-          <Button
-            startIcon={<Save />}
-            variant="contained"
-            color="primary"
-            onClick={() => this.handleSubmitClick()}
-            disabled={!this.state.id}
-          >
-            <I18n>
-              <En>Save</En>
-              <Fr>Enregistrer</Fr>
-            </I18n>
-          </Button>
-
-          <Button
-            style={{ marginLeft: "10px" }}
-            variant="contained"
-            color="secondary"
-            onClick={() => this.handleCancelClick()}
-          >
-            <I18n>
-              <En>Cancel</En>
-              <Fr>Annuler</Fr>
-            </I18n>
-          </Button>
-        </Grid>
-      </Grid>
+      <EditorPage
+        title={
+          this.state.id ||
+          (lang === "fr" ? "Nouvel instrument" : "New instrument")
+        }
+        backTo={`/${lang}/${this.props.region}/instruments`}
+        backLabel={lang === "fr" ? "Instruments" : "Instruments"}
+        onSave={() => this.handleSubmitClick()}
+        onCancel={() => this.handleCancelClick()}
+        saveDisabled={!this.state.id}
+        saveHint={
+          lang === "fr"
+            ? "Ajoutez l'identifiant de l'instrument pour enregistrer."
+            : "Add an instrument ID to save."
+        }
+      >
+        <InstrumentEditor
+          value={this.state}
+          handleClear={(key) => this.handleClear(key)}
+          updateInstrumentEvent={(key) => this.handleChange(key)}
+        />
+      </EditorPage>
     );
   }
 }

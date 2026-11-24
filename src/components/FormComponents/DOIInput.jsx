@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef, useMemo } from "react";
 import {
-  Paper,
   TextField,
   Button,
   Tooltip,
@@ -18,6 +17,7 @@ import {
   MenuItem,
   InputLabel,
   Link,
+  Box,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -31,7 +31,8 @@ import { En, Fr, I18n } from "../I18n";
 import firebase from "../../firebase";
 import { validateDOI } from "../../utils/validate";
 
-import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
+import { SupplementalText } from "./QuestionStyles";
+import FormSection from "../FormShell/FormSection";
 
 import { UserContext } from "../../providers/UserProvider";
 import { DOI_STATE_LABELS } from "../Dialogs/DataciteStatusDialog";
@@ -544,25 +545,29 @@ const DOIInput = ({
 
   const renderButtonLabel = (loading, label) =>
     loading ? (
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <CircularProgress size={20} style={{ marginRight: "8px" }} />
-        <I18n en="Loading..." fr="Chargement..." />
-      </div>
+      <Box component="span" sx={{ display: "flex", alignItems: "center" }}>
+        <CircularProgress size={20} sx={{ mr: 1 }} aria-hidden />
+        <I18n en="Loading…" fr="Chargement…" />
+      </Box>
     ) : (
       label
     );
 
   return (
-    <Paper style={paperClass}>
-      <QuestionText>
-        <I18n>
-          <En>What is the DOI for this dataset? Eg,</En>
-          <Fr>Quel est le DOI de ce jeu de données ? Par exemple,</Fr>
-        </I18n>{" "}
-        https://doi.org/10.0000/0000
-      </QuestionText>
+    <FormSection
+      title={<I18n en="DOI" fr="DOI" />}
+      description={
+        <>
+          <I18n>
+            <En>The DOI for this dataset, if it has one. For example,</En>
+            <Fr>Le DOI de ce jeu de données, s'il en a un. Par exemple,</Fr>
+          </I18n>{" "}
+          https://doi.org/10.0000/0000
+        </>
+      }
+    >
       {showGenerateDoi && (
-        <SupplementalText>
+        <SupplementalText sx={{ mt: 0, mb: 1.5 }}>
           <I18n
             en="DOI generation and DOI status management are restricted to reviewers and admins."
             fr="La génération des DOI et la gestion du statut des DOI sont réservées aux réviseurs et aux administrateurs."
@@ -571,9 +576,16 @@ const DOIInput = ({
       )}
 
       {/* The DOI value comes first, with its status dropdown inline beside it. */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 1.5,
+          flexWrap: "wrap",
+        }}
+      >
         <TextField
-          style={{ flexGrow: 1 }}
+          sx={{ flex: "1 1 280px" }}
           name={name || "datasetIdentifier"}
           label={<I18n en="DOI" fr="DOI" />}
           helperText={
@@ -587,7 +599,6 @@ const DOIInput = ({
           value={record.datasetIdentifier}
           onChange={(e) => handleUpdateDatasetIdentifier(e)}
           disabled={disabled}
-          fullWidth
         />
         {showStatusSelect && (
           <Tooltip
@@ -612,7 +623,7 @@ const DOIInput = ({
             placement="top"
           >
             <FormControl
-              sx={{ minWidth: 200, flexShrink: 0 }}
+              sx={{ minWidth: 200, flex: { xs: "1 1 100%", sm: "0 0 auto" } }}
               disabled={!statusEditable || doiStateLoading}
             >
               <InputLabel id="doi-status-label">
@@ -652,11 +663,11 @@ const DOIInput = ({
             </FormControl>
           </Tooltip>
         )}
-      </div>
+      </Box>
 
       {/* Stage 1 — no DOI yet: reserve a draft DOI with DataCite. */}
       {inGenerateStage && (
-        <div style={{ marginTop: "16px" }}>
+        <Box sx={{ mt: 2 }}>
           <SupplementalText>
             <I18n>
               <En>
@@ -761,18 +772,18 @@ const DOIInput = ({
               </Button>
             </span>
           </Tooltip>
-        </div>
+        </Box>
       )}
 
       {/* Stage 2 — a DOI exists: manage its metadata. (Status lives inline above.) */}
       {inManageStage && (
-        <div style={{ marginTop: "16px" }}>
-          <div
-            style={{
+        <Box sx={{ mt: 2 }}>
+          <Box
+            sx={{
               display: "flex",
               alignItems: "center",
               flexWrap: "wrap",
-              gap: "12px",
+              gap: 1.5,
             }}
           >
             {showUpdateDoi && (
@@ -856,23 +867,24 @@ const DOIInput = ({
                 </span>
               </Tooltip>
             )}
-          </div>
+          </Box>
 
           {doiStateError && (
             <Alert severity="error" sx={{ mt: 1 }}>
               {doiStateError}
             </Alert>
           )}
-        </div>
+        </Box>
       )}
 
       {showDoiInfo && (
-        <ul
-          style={{
-            margin: "8px 0 0",
-            paddingLeft: "1.4em",
-            fontSize: "0.8rem",
-            color: "rgba(0,0,0,0.6)",
+        <Box
+          component="ul"
+          sx={{
+            m: "8px 0 0",
+            pl: "1.4em",
+            typography: "caption",
+            color: "text.secondary",
           }}
         >
           {showPublisherInfo && (
@@ -884,7 +896,7 @@ const DOIInput = ({
             </li>
           )}
           {showLandingInfo && (
-            <li style={{ wordBreak: "break-all" }}>
+            <Box component="li" sx={{ wordBreak: "break-all" }}>
               <I18n
                 en={
                   <>
@@ -911,9 +923,9 @@ const DOIInput = ({
                   </>
                 }
               />
-            </li>
+            </Box>
           )}
-        </ul>
+        </Box>
       )}
 
       {doiErrorFlag && (
@@ -968,7 +980,7 @@ const DOIInput = ({
           </>
         )}
       </Dialog>
-    </Paper>
+    </FormSection>
   );
 };
 

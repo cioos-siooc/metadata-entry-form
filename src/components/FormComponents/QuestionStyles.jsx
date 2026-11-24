@@ -30,13 +30,3 @@ export const HeadingText = ({ children, sx }) => (
     {children}
   </Typography>
 );
-
-// Compat shim. Preserved for consumers that prop-thread `paperClass`
-// (Lineage, EditSavedInstrument, EditSavedPlatform, etc.). New code should
-// use <FormSection> from components/FormShell/ instead.
-export const paperClass = {
-  padding: "20px 24px",
-  margin: "16px 0",
-  width: "100%",
-  borderRadius: 8,
-};

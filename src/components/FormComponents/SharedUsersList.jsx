@@ -2,22 +2,21 @@ import React, { useContext, useState } from "react";
 import { Add, Delete } from "@mui/icons-material";
 import {
   Typography,
-  Paper,
-  Grid,
   TextField,
   Button,
   List,
   ListItem,
   ListItemText,
   IconButton,
-  ListItemSecondaryAction,
   Box,
   Chip,
   Snackbar,
+  Stack,
   Alert,
 } from "@mui/material";
+import { useParams } from "react-router-dom";
 
-import { paperClass, SupplementalText } from "./QuestionStyles";
+import FormSection from "../FormShell/FormSection";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
 import { validateEmail } from "../../utils/validate";
@@ -61,6 +60,7 @@ const emailFailed = (
 );
 
 const SharedUsersList = ({ record, region }) => {
+  const { language } = useParams();
   const { shareRecord, unshareRecord } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -101,168 +101,158 @@ const SharedUsersList = ({ record, region }) => {
     if (sent) setEmail("");
   };
 
+  const hasShares =
+    Object.keys(sharedWith).length > 0 || Object.keys(pendingShares).length > 0;
+
   return (
-    <Grid>
-      <Paper style={paperClass}>
-        <Grid style={{ margin: "10px" }}>
-          <Typography>
+    <>
+      <FormSection
+        title={<I18n en="Sharing" fr="Partage" />}
+        description={
+          <I18n>
+            <En>
+              Give someone else editing access. If they don't have an account
+              yet, they will be invited to create one. Save the record before
+              sharing.
+            </En>
+            <Fr>
+              Donnez accès en modification à une autre personne. Si elle n'a pas
+              encore de compte, elle sera invitée à en créer un. Veuillez
+              enregistrer le formulaire avant de partager l'accès.
+            </Fr>
+          </I18n>
+        }
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.5}
+          alignItems={{ xs: "stretch", sm: "flex-end" }}
+          sx={{ maxWidth: 640 }}
+        >
+          <TextField
+            id="share-with-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && recordID && emailIsValid && !busy)
+                share();
+            }}
+            fullWidth
+            label={<I18n en="Email address" fr="Adresse courriel" />}
+            placeholder="name@example.org"
+            error={Boolean(email) && !emailIsValid}
+            helperText={
+              Boolean(email) &&
+              !emailIsValid && (
+                <I18n
+                  en="Please enter a valid email address."
+                  fr="Veuillez saisir une adresse courriel valide."
+                />
+              )
+            }
+          />
+          <Button
+            variant="outlined"
+            disabled={!recordID || !emailIsValid || busy}
+            startIcon={<Add />}
+            onClick={share}
+            sx={{ flexShrink: 0, minHeight: 41, whiteSpace: "nowrap" }}
+          >
             <I18n>
-              <En>
-                To share editing access, enter the email address of the person
-                you want to share this record with. If they don't have an
-                account yet, they will be invited to create one.
-              </En>
-              <Fr>
-                Pour partager l'accès en modification, saisissez l'adresse
-                courriel de la personne avec qui vous souhaitez partager cet
-                enregistrement. Si elle n'a pas encore de compte, elle sera
-                invitée à en créer un.
-              </Fr>
+              <En>Share record</En>
+              <Fr>Partager l'enregistrement</Fr>
             </I18n>
-          </Typography>
-          <SupplementalText>
-            <I18n>
-              <En>
-                <p>Please save the form before sharing access.</p>
-              </En>
-              <Fr>
-                <p>
-                  Veuillez enregistrer le formulaire avant de partager l'accès.
-                </p>
-              </Fr>
-            </I18n>
-          </SupplementalText>
-        </Grid>
-        <Grid style={{ margin: "10px" }}>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                id="share-with-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && recordID && emailIsValid && !busy)
-                    share();
-                }}
-                fullWidth
-                label={<I18n en="Share with..." fr="Partager avec..." />}
-                placeholder="name@example.org"
-                variant="outlined"
-                style={{ marginTop: "16px" }}
-                error={Boolean(email) && !emailIsValid}
-                helperText={
-                  Boolean(email) &&
-                  !emailIsValid && (
-                    <I18n
-                      en="Please enter a valid email address."
-                      fr="Veuillez saisir une adresse courriel valide."
-                    />
-                  )
-                }
-              />
-              <Button
-                disabled={!recordID || !emailIsValid || busy}
-                startIcon={<Add />}
-                onClick={share}
-                style={{
-                  height: "46px",
-                  justifyContent: "center",
-                  marginTop: "15px",
-                }}
-              >
-                <Typography>
-                  <I18n>
-                    <En>Share Record</En>
-                    <Fr>Partager l'enregistrement</Fr>
-                  </I18n>
-                </Typography>
-              </Button>
-            </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
-              <Box style={{ margin: "10px" }}>
-                <Typography style={{ fontWeight: "bold" }}>
-                  {(Object.keys(sharedWith).length > 0 ||
-                    Object.keys(pendingShares).length > 0) && (
-                    <I18n>
-                      <En>Users this record is shared with:</En>
-                      <Fr>
-                        Utilisateurs avec lesquels cet enregistrement est
-                        partagé :
-                      </Fr>
-                    </I18n>
-                  )}
-                </Typography>
-                <List>
-                  {Object.entries(sharedWith).map(([userID, value]) => (
-                    <ListItem key={userID}>
-                      <ListItemText
-                        primary={
-                          <Typography>{shareLabel(userID, value)}</Typography>
+          </Button>
+        </Stack>
+        {hasShares && (
+          <Box sx={{ mt: 2.5 }}>
+            <Typography
+              component="h3"
+              sx={{ fontWeight: 600, fontSize: "0.875rem", mb: 0.5 }}
+            >
+              <I18n>
+                <En>Shared with</En>
+                <Fr>Partagé avec</Fr>
+              </I18n>
+            </Typography>
+            <List dense disablePadding sx={{ maxWidth: 640 }}>
+              {Object.entries(sharedWith).map(([userID, value]) => (
+                <ListItem
+                  key={userID}
+                  disableGutters
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label={
+                        language === "fr" ? "Retirer l'accès" : "Remove access"
+                      }
+                      disabled={busy}
+                      onClick={() =>
+                        run(unshareRecord, {
+                          region,
+                          recordID,
+                          uid: userID,
+                        })
+                      }
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText primary={shareLabel(userID, value)} />
+                </ListItem>
+              ))}
+              {Object.entries(pendingShares).map(
+                ([inviteKey, pendingEmail]) => (
+                  <ListItem
+                    key={inviteKey}
+                    disableGutters
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label={
+                          language === "fr"
+                            ? "Annuler l'invitation"
+                            : "Cancel invitation"
                         }
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          aria-label="delete"
-                          disabled={busy}
-                          style={{ marginRight: "60px" }}
-                          onClick={() =>
-                            run(unshareRecord, {
-                              region,
-                              recordID,
-                              uid: userID,
-                            })
-                          }
-                        >
-                          <Delete />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
-                  {Object.entries(pendingShares).map(
-                    ([inviteKey, pendingEmail]) => (
-                      <ListItem key={inviteKey}>
-                        <ListItemText
-                          primary={<Typography>{pendingEmail}</Typography>}
-                          secondary={
-                            <Chip
-                              size="small"
-                              label={
-                                <I18n
-                                  en="Invitation sent"
-                                  fr="Invitation envoyée"
-                                />
-                              }
+                        disabled={busy}
+                        onClick={() =>
+                          run(unshareRecord, {
+                            region,
+                            recordID,
+                            inviteKey,
+                          })
+                        }
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      primary={pendingEmail}
+                      secondary={
+                        <Chip
+                          size="small"
+                          label={
+                            <I18n
+                              en="Invitation sent"
+                              fr="Invitation envoyée"
                             />
                           }
-                          // a Chip is a div, which can't live inside <p>
-                          slotProps={{ secondary: { component: "div" } }}
+                          sx={{ mt: 0.5 }}
                         />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            aria-label="delete"
-                            disabled={busy}
-                            style={{ marginRight: "60px" }}
-                            onClick={() =>
-                              run(unshareRecord, {
-                                region,
-                                recordID,
-                                inviteKey,
-                              })
-                            }
-                          >
-                            <Delete />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ),
-                  )}
-                </List>
-              </Box>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
+                      }
+                      // a Chip is a div, which can't live inside <p>
+                      slotProps={{ secondary: { component: "div" } }}
+                    />
+                  </ListItem>
+                ),
+              )}
+            </List>
+          </Box>
+        )}
+      </FormSection>
       <Snackbar
         open={Boolean(feedback)}
         autoHideDuration={6000}
@@ -275,7 +265,7 @@ const SharedUsersList = ({ record, region }) => {
           {feedback?.message}
         </Alert>
       </Snackbar>
-    </Grid>
+    </>
   );
 };
 

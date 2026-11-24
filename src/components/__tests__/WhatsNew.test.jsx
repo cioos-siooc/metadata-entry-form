@@ -51,7 +51,7 @@ vi.mock("../../data/githubReleases.json", () => ({
 }));
 
 // Import component after mocking
-import WhatsNewDialog from "../Pages/WhatsNew";
+import WhatsNewDialog, { tidyReleaseNotes } from "../Pages/WhatsNew";
 
 describe("<WhatsNewDialog />", () => {
   const mockOnClose = vi.fn();
@@ -196,10 +196,11 @@ describe("<WhatsNewDialog />", () => {
     render(<WhatsNewDialog open={true} onClose={mockOnClose} />);
 
     const closeButton = screen.getByRole("button", { name: /close/i });
-    expect(closeButton).toHaveAttribute("aria-label", "close");
+    expect(closeButton).toHaveAttribute("aria-label", "Close");
 
+    // Named by its title alone, not by the description or close button.
     const dialog = screen.getByRole("dialog", { hidden: true });
-    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAccessibleName("What's new");
   });
 
   it("renders markdown with allowed elements only", () => {
@@ -212,5 +213,29 @@ describe("<WhatsNewDialog />", () => {
     // Markdown is rendered as real elements, not raw text
     expect(screen.getByText(/Feature 1/).closest("li")).toBeInTheDocument();
     expect(document.querySelectorAll("ul li").length).toBeGreaterThan(0);
+  });
+
+  it("marks the newest stable release as latest", () => {
+    render(<WhatsNewDialog open={true} onClose={mockOnClose} />);
+
+    expect(screen.getAllByText("Latest")).toHaveLength(1);
+  });
+});
+
+describe("tidyReleaseNotes", () => {
+  it("strips GitHub boilerplate, comments and author credits", () => {
+    const body = [
+      "<!-- Release notes generated using configuration in .github/release.yml at main -->",
+      "",
+      "## What's Changed",
+      "### Bug Fixes",
+      "* Fix a thing by @some-dev in https://github.com/cioos-siooc/metadata-entry-form/pull/566",
+      "",
+      "**Full Changelog**: https://github.com/cioos-siooc/metadata-entry-form/compare/v1.6.1...v1.6.2",
+    ].join("\n");
+
+    expect(tidyReleaseNotes(body)).toBe(
+      "### Bug Fixes\n* Fix a thing ([#566](https://github.com/cioos-siooc/metadata-entry-form/pull/566))",
+    );
   });
 });

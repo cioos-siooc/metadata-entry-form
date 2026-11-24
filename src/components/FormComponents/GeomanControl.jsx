@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
+import { useParams } from "react-router-dom";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 
 const GeomanControl = ({ onCreated, onRemove }) => {
   const map = useMap();
+  const { language } = useParams();
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -29,6 +31,19 @@ const GeomanControl = ({ onCreated, onRemove }) => {
       cutPolygon: false,
       removalMode: true,
     });
+    map.pm.setLang(language === "fr" ? "fr" : "en");
+
+    // Geoman's tool buttons are <a href="#"> with the name only in the
+    // wrapper's title, so screen readers hear "link". Name them as buttons.
+    map
+      .getContainer()
+      .querySelectorAll(".leaflet-pm-toolbar .button-container")
+      .forEach((container) => {
+        const link = container.querySelector(".leaflet-buttons-control-button");
+        if (!link) return;
+        link.setAttribute("role", "button");
+        link.setAttribute("aria-label", container.getAttribute("title") || "");
+      });
 
     map.on("pm:create", onCreated);
     map.on("pm:remove", onRemove);
@@ -41,7 +56,7 @@ const GeomanControl = ({ onCreated, onRemove }) => {
       map.pm.removeControls();
       initialized.current = false;
     };
-  }, [map, onCreated, onRemove]);
+  }, [map, onCreated, onRemove, language]);
 
   return null;
 };

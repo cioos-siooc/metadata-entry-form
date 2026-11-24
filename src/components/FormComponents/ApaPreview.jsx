@@ -1,4 +1,5 @@
 import React from "react";
+import { Box } from "@mui/material";
 
 import Cite from "citation-js";
 
@@ -82,12 +83,5 @@ export function generateCitation(record, language, format) {
 export function ApaPreview({ record, language }) {
   const citation = generateCitation(record, language, "html");
 
-  return (
-    <div>
-      <div
-        dangerouslySetInnerHTML={{ __html: citation }}
-        style={{ padding: "5px" }}
-      />
-    </div>
-  );
+  return <Box dangerouslySetInnerHTML={{ __html: citation }} sx={{ p: 0.5 }} />;
 }

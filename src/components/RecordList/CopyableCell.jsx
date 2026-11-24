@@ -47,7 +47,10 @@ const CopyableCell = ({
         minWidth: 0,
         "& .copy-icon-button": {
           opacity: 0,
-          transition: "opacity 0.15s",
+          transition: (theme) =>
+            theme.transitions.create("opacity", {
+              duration: theme.transitions.duration.shortest,
+            }),
         },
         "&:hover .copy-icon-button, &:focus-within .copy-icon-button": {
           opacity: 1,
@@ -68,7 +71,7 @@ const CopyableCell = ({
             whiteSpace: "nowrap",
           }),
         }}
-        title={truncate && typeof content === "string" ? content : undefined}
+        title={truncate ? String(text) : undefined}
       >
         {content}
       </Box>
@@ -77,10 +80,11 @@ const CopyableCell = ({
           className="copy-icon-button"
           size="small"
           onClick={handleCopy}
-          aria-label={tooltipTitle}
-          sx={{ padding: "2px", flexShrink: 0 }}
+          aria-label={`${tooltipTitle} ${String(text)}`}
+          // 16px icon + 4px padding: the 24px WCAG 2.5.8 minimum target.
+          sx={{ padding: "4px", flexShrink: 0 }}
         >
-          <ContentCopyIcon sx={{ fontSize: "0.95rem" }} />
+          <ContentCopyIcon sx={{ fontSize: "1rem" }} />
         </IconButton>
       </Tooltip>
     </Box>

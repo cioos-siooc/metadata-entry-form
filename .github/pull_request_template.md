@@ -32,3 +32,9 @@
 ## How to Test
 
 <!-- Steps to verify this change works correctly -->
+
+## UI Checklist
+
+<!-- Skip if this PR doesn't touch the UI. -->
+
+- [ ] Ran `/impeccable audit` against `DESIGN.md` (light + dark, extreme region colours, mobile width)
