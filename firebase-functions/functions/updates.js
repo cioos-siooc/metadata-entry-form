@@ -2,7 +2,6 @@ const admin = require("firebase-admin");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onValueCreated, onValueUpdated, onValueDeleted } = require("firebase-functions/v2/database");
 const { logger } = require("firebase-functions/v2");
-const https = require("https");
 const axios = require("axios");
 
 const urlBaseDefault = "https://pac-dev1.cioos.org/cioos-xml/" // overwritten by setting in the firebase database
@@ -73,19 +72,36 @@ exports.downloadRecord = onCall(
   }
 );
 
-async function updateXML(path, region, status = "", filename = "") {
+// https.get() hands back a ClientRequest, not a promise, so the old callers returned
+// before the generator had even been contacted and every failure it reported was
+// discarded. Use axios so the response - including a 4xx/5xx - is actually observed.
+async function callRecordGenerator(endpoint, region, params) {
   const urlBase = await getRecordGeneratorURL(region);
 
-  const url = `${urlBase}record`;
+  const url = `${urlBase}${endpoint}`;
   const urlParams = new URLSearchParams({
-    path,
-    status,
-    filename,
+    ...params,
     token: process.env.RECORD_API_TOKEN,
   }).toString();
   const urlFull = `${url}?${urlParams}`;
 
-  return https.get(urlFull);
+  try {
+    const response = await axios.get(urlFull);
+    return response.data;
+  } catch (error) {
+    // Log the generator's own error rather than the bare axios message, which only
+    // says "Request failed with status code 500".
+    logger.error(
+      `${endpoint} failed for region ${region}:`,
+      error.response?.status,
+      error.response?.data ?? error.message
+    );
+    throw error;
+  }
+}
+
+async function updateXML(path, region, status = "", filename = "") {
+  return callRecordGenerator("record", region, { path, status, filename });
 }
 
 // The reviewer/admin lists are stored as one comma-joined string. Match whole entries
@@ -139,7 +155,14 @@ exports.regenerateXMLforRecord = onCall(
     await assertCanRegenerate(request.auth, path);
 
     if (["submitted", "published"].includes(status)) {
-      updateXML(path, region);
+      try {
+        await updateXML(path, region);
+      } catch {
+        // The call used to be fired and forgotten, so a generator that was failing on
+        // every record still looked like a successful save to the user.
+        // callRecordGenerator has already logged the generator's own error.
+        throw new HttpsError("internal", "Could not regenerate the record files.");
+      }
     }
     // No need to create new XML if the record is a draft.
     // If the record is complete, the user can still generate XML for a draft record
@@ -193,17 +216,7 @@ exports.updatesRecordUpdate = onValueUpdated(
 
 
 async function deleteXML(filename, region) {
-  const urlBase = await getRecordGeneratorURL(region);
-
-  const url = `${urlBase}recordDelete`;
-  const urlParams = new URLSearchParams({
-    filename,
-    region,
-    token: process.env.RECORD_API_TOKEN,
-  }).toString();
-  const urlFull = `${url}?${urlParams}`;
-
-  return https.get(urlFull);
+  return callRecordGenerator("recordDelete", region, { filename, region });
 }
 
 // also trigger update when record is deleted

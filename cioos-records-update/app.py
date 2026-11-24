@@ -48,10 +48,18 @@ def git_pull():
     _run_with_lock_retry(lambda: _repo.remote(name='origin').pull(), "git pull")
 
 
+def to_repo_relative(path):
+    # The paths built here and returned by glob.glob() are relative to the app's
+    # working directory, but the git repo's root is xml_folder, and GitPython runs
+    # the git binary from there. Passing "xml/hakai/rec.xml" through unchanged makes
+    # git look for "xml/xml/hakai/rec.xml" and fail the pathspec.
+    return str(Path(path).relative_to(xml_folder))
+
+
 def git_push(files=None):
     if files:
         _run_with_lock_retry(
-            lambda: _repo.git.add([str(Path(f).relative_to(xml_folder)) for f in files]),
+            lambda: _repo.git.add([to_repo_relative(f) for f in files]),
             "git add",
         )
     _run_with_lock_retry(lambda: _repo.index.commit(COMMIT_MESSAGE), "git commit")
@@ -102,14 +110,19 @@ def delete_record(basename, region=None):
 
     for ext in types:
         if region:
+            # recursive ** also matches zero directories, so this covers both
+            # xml/<region>/ and xml/unpublished/<region>/
             existing_record_path.extend(glob.glob(f"{xml_folder}/**/{region}/{basename}{ext}", recursive=True))
-            existing_record_path.extend(glob.glob(f"{xml_folder}/{region}/{basename}{ext}"))
         else:
             existing_record_path.extend(glob.glob(f"{xml_folder}/**/{basename}{ext}", recursive=True))
 
     if existing_record_path:
-        _repo.index.remove(existing_record_path, working_tree=True)
+        _repo.index.remove(
+            [to_repo_relative(p) for p in existing_record_path], working_tree=True
+        )
         print("Deleted", existing_record_path)
+
+    return existing_record_path
 
 def get_complete_path(status, region, basename, file_suffix):
     parts = [xml_folder, region, basename + file_suffix]
@@ -166,10 +179,15 @@ def recordUpdate():
 
     # delete file if exists already
     print(basename)
-    delete_record(basename, region)
+    deleted = delete_record(basename, region)
 
     # ah just let it run, if its a complete file it should work
     if status not in ["submitted", "published"]:
+        # the record went back to draft, so its files stay deleted - but the removal is
+        # only staged at this point, and leaving it staged would get swept into whatever
+        # the next request happens to commit
+        if deleted:
+            git_push()
         return jsonify(message="")
 
     # this might fail for incomplete files. It should only be used if record is complete

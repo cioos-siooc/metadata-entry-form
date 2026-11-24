@@ -431,7 +431,11 @@ class MetadataForm extends FormClassTemplate {
       const path = `${region}/${userID}/${recordID}`;
       const { status, filename } = record;
 
-      regenerateXMLforRecord({ path, status, filename, region });
+      // the record itself is already saved, so a generator failure shouldn't fail the
+      // save - but it does need to be logged rather than becoming an unhandled rejection
+      regenerateXMLforRecord({ path, status, filename, region }).catch((err) => {
+        console.error('Error regenerating XML for record: ', err);
+      });
     }
 
     this.setState({ saveDisabled: true });

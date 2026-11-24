@@ -33,7 +33,7 @@ sys.modules['hakai_metadata_conversion.erddap'] = _hakai
 os.environ.setdefault('FIREBASE_SERVICE_ACCOUNT_KEY', '{}')
 os.environ['RECORD_API_TOKEN'] = 'test-token'
 
-from app import app, get_complete_path, _run_with_lock_retry  # noqa: E402
+from app import app, delete_record, get_complete_path, git_push, _run_with_lock_retry  # noqa: E402
 
 
 SAMPLE_RECORD = {
@@ -72,6 +72,52 @@ class TestGetCompletePath:
 
     def test_draft_has_no_unpublished(self):
         assert get_complete_path('draft', 'hakai', 'rec', '.yaml') == 'xml/hakai/rec.yaml'
+
+
+# ---------------------------------------------------------------------------
+# Helper: delete_record
+# ---------------------------------------------------------------------------
+
+class TestDeleteRecord:
+    # git runs from the repo root (xml_folder), so anything handed to it has to be
+    # relative to that root. Passing glob's "xml/..." paths straight through made
+    # git rm fail the pathspec and 500 the whole request.
+    def test_paths_are_relative_to_the_repo_root(self):
+        found = {'xml/**/hakai/rec.xml': ['xml/hakai/rec.xml', 'xml/unpublished/hakai/rec.xml']}
+        with patch('app.glob.glob', side_effect=lambda pattern, **k: found.get(pattern, [])):
+            delete_record('rec', 'hakai')
+        paths, kwargs = _mock_repo.index.remove.call_args
+        assert paths[0] == ['hakai/rec.xml', 'unpublished/hakai/rec.xml']
+        assert kwargs == {'working_tree': True}
+
+    def test_no_matches_skips_git(self):
+        with patch('app.glob.glob', return_value=[]):
+            delete_record('rec', 'hakai')
+        _mock_repo.index.remove.assert_not_called()
+
+    def test_one_glob_per_extension(self):
+        # recursive ** already matches zero directories, so a second non-recursive
+        # glob would only duplicate every path it found
+        with patch('app.glob.glob', return_value=[]) as mock_glob:
+            delete_record('rec', 'hakai')
+        assert [c.args[0] for c in mock_glob.call_args_list] == [
+            'xml/**/hakai/rec.xml',
+            'xml/**/hakai/rec.yaml',
+            'xml/**/hakai/rec.cff',
+            'xml/**/hakai/rec.erddap',
+        ]
+
+
+# ---------------------------------------------------------------------------
+# Helper: git_push
+# ---------------------------------------------------------------------------
+
+class TestGitPush:
+    def test_added_paths_are_relative_to_the_repo_root(self):
+        git_push(['xml/hakai/rec.xml', 'xml/unpublished/hakai/rec.yaml'])
+        _mock_repo.git.add.assert_called_once_with(
+            ['hakai/rec.xml', 'unpublished/hakai/rec.yaml']
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -210,6 +256,25 @@ class TestRecordUpdate:
             resp = client.get('/record?path=hakai/user1/rec1&token=test-token')
             assert resp.status_code == 200
             assert resp.json['message'] == ''
+
+    def test_draft_commits_the_deletion_of_its_old_files(self, client):
+        # otherwise the removal sits staged until some unrelated request commits it
+        record = {**SAMPLE_RECORD, 'status': 'draft'}
+        with patch('app.get_records_from_firebase', return_value=[record]), \
+             patch('app.git_pull'), \
+             patch('app.delete_record', return_value=['xml/hakai/test_record.xml']), \
+             patch('app.git_push') as mock_push:
+            client.get('/record?path=hakai/user1/rec1&token=test-token')
+            mock_push.assert_called_once_with()
+
+    def test_draft_with_nothing_to_delete_does_not_commit(self, client):
+        record = {**SAMPLE_RECORD, 'status': 'draft'}
+        with patch('app.get_records_from_firebase', return_value=[record]), \
+             patch('app.git_pull'), \
+             patch('app.delete_record', return_value=[]), \
+             patch('app.git_push') as mock_push:
+            client.get('/record?path=hakai/user1/rec1&token=test-token')
+            mock_push.assert_not_called()
 
     def test_published_record_returns_url(self, client):
         with patch('app.get_records_from_firebase', return_value=[SAMPLE_RECORD]), \
