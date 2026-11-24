@@ -1,5 +1,12 @@
 import React from "react";
-import { Paper, TextField, Grid, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Paper,
+  TextField,
+  Grid,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 import { OpenInNew, Update, Warning } from "@mui/icons-material";
 import { En, Fr, I18n } from "../I18n";
@@ -232,91 +239,114 @@ const IdentificationTab = ({
                   labelSize={6}
                   onChange={updateRecord("eov")}
                   options={eovsFiltered.map((e) => e.value)}
-                  optionLabels={eovsFiltered.map((e) => (
-                    <>
-                      <Tooltip title={e[`definition ${languageUpperCase}`]}>
-                        <span
-                          style={
-                            e.deprecated
-                              ? {
-                                  textDecoration: "line-through",
-                                  color: "rgba(0,0,0,0.4)",
-                                }
-                              : undefined
-                          }
-                        >
-                          {e[`label ${languageUpperCase}`]}
-                        </span>
-                      </Tooltip>
-                      {e.url && (
-                        <IconButton
-                          onClick={() => {
-                            const win = window.open(e.url, "_blank");
-                            win.focus();
-                          }}
-                        >
-                          <Tooltip
-                            title={
-                              <I18n
-                                en="Open GOOS definition in new window"
-                                fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
-                              />
-                            }
-                          >
-                            <OpenInNew />
+                  optionLabels={eovsFiltered.map((e) => {
+                    const definition = e[`definition ${languageUpperCase}`];
+                    const label = e[`label ${languageUpperCase}`];
+                    const labelStyle = e.deprecated
+                      ? {
+                          textDecoration: "line-through",
+                          color: "rgba(0,0,0,0.4)",
+                        }
+                      : undefined;
+                    // Keep the last word glued to the icons so the label can
+                    // wrap without leaving the icons alone on their own line.
+                    const splitAt = label.lastIndexOf(" ") + 1;
+                    return (
+                      <span key={e.value}>
+                        {splitAt > 0 && (
+                          <Tooltip title={definition}>
+                            <span style={labelStyle}>
+                              {label.slice(0, splitAt)}
+                            </span>
                           </Tooltip>
-                        </IconButton>
-                      )}
-                      {e.emerging && (
-                        <IconButton onClick={() => {}}>
-                          <Tooltip
-                            title={
-                              <I18n
-                                en="GOOS emerging EOV"
-                                fr="EOV émergent GOOS"
-                              />
-                            }
-                          >
-                            <Update />
+                        )}
+                        <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                          <Tooltip title={definition}>
+                            <span style={labelStyle}>
+                              {label.slice(splitAt)}
+                            </span>
                           </Tooltip>
-                        </IconButton>
-                      )}
-                      {e.deprecated &&
-                        (() => {
-                          const replacements = (e.replacedBy || [])
-                            .map((v) => eovs.find((x) => x.value === v))
-                            .filter(Boolean);
-                          const replacementLabelsEn = replacements
-                            .map((r) => r["label EN"])
-                            .join(", ");
-                          const replacementLabelsFr = replacements
-                            .map((r) => r["label FR"])
-                            .join(", ");
-                          return (
-                            <IconButton onClick={() => {}}>
+                          {e.url && (
+                            <IconButton
+                              size="small"
+                              sx={{ verticalAlign: "middle" }}
+                              onClick={() => {
+                                const win = window.open(e.url, "_blank");
+                                win.focus();
+                              }}
+                            >
                               <Tooltip
                                 title={
                                   <I18n
-                                    en={`This EOV is deprecated and cannot be submitted. Please unselect it${
-                                      replacementLabelsEn
-                                        ? ` and use ${replacementLabelsEn} instead`
-                                        : ""
-                                    }.`}
-                                    fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
-                                      replacementLabelsFr
-                                        ? ` et utiliser ${replacementLabelsFr} à la place`
-                                        : ""
-                                    }.`}
+                                    en="Open GOOS definition in new window"
+                                    fr="Ouvrir la définition GOOS dans une nouvelle fenêtre"
                                   />
                                 }
                               >
-                                <Warning color="warning" />
+                                <OpenInNew />
                               </Tooltip>
                             </IconButton>
-                          );
-                        })()}
-                    </>
-                  ))}
+                          )}
+                          {e.emerging && (
+                            <IconButton
+                              size="small"
+                              sx={{ verticalAlign: "middle" }}
+                              onClick={() => {}}
+                            >
+                              <Tooltip
+                                title={
+                                  <I18n
+                                    en="GOOS emerging EOV"
+                                    fr="EOV émergent GOOS"
+                                  />
+                                }
+                              >
+                                <Update />
+                              </Tooltip>
+                            </IconButton>
+                          )}
+                          {e.deprecated &&
+                            (() => {
+                              const replacements = (e.replacedBy || [])
+                                .map((v) => eovs.find((x) => x.value === v))
+                                .filter(Boolean);
+                              const replacementLabelsEn = replacements
+                                .map((r) => r["label EN"])
+                                .join(", ");
+                              const replacementLabelsFr = replacements
+                                .map((r) => r["label FR"])
+                                .join(", ");
+                              return (
+                                <IconButton
+                                  size="small"
+                                  sx={{ verticalAlign: "middle" }}
+                                  onClick={() => {}}
+                                >
+                                  <Tooltip
+                                    title={
+                                      <I18n
+                                        en={`This EOV is deprecated and cannot be submitted. Please unselect it${
+                                          replacementLabelsEn
+                                            ? ` and use ${replacementLabelsEn} instead`
+                                            : ""
+                                        }.`}
+                                        fr={`Cet EOV est déprécié et ne peut pas être soumis. Veuillez le désélectionner${
+                                          replacementLabelsFr
+                                            ? ` et utiliser ${replacementLabelsFr} à la place`
+                                            : ""
+                                        }.`}
+                                      />
+                                    }
+                                  >
+                                    <Warning color="warning" />
+                                  </Tooltip>
+                                </IconButton>
+                              );
+                            })()}
+                        </Box>
+                      </span>
+                    );
+                  })}
                   disabled={disabled}
                 />
               </div>
