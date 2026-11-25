@@ -20,6 +20,9 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-pacific-en.svg", fr: "cioos-pacific-fr.svg" },
+    // Show the logo flat white on the header block instead of on a white
+    // plate. Needs artwork on a transparent background.
+    monochromeLogo: true,
   },
 
   stlaurent: {
@@ -45,6 +48,12 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-stlaurent-en.png", fr: "cioos-stlaurent-fr.png" },
+    // Light artwork for the coloured header block (see monochromeLogo).
+    logoOnColor: {
+      en: "cioos-stlaurent-white-en.svg",
+      fr: "cioos-stlaurent-white-fr.svg",
+    },
+    monochromeLogo: true,
   },
   atlantic: {
     title: { en: "CIOOS Atlantic", fr: "SIOOC Atlantique" },
@@ -66,6 +75,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-atlantic-en.svg", fr: "cioos-atlantic-fr.svg" },
+    monochromeLogo: true,
   },
   amundsen: {
     title: { en: "Amundsen Science", fr: "Amundsen Science" },
@@ -87,6 +97,7 @@ const regions = {
     },
     showInRegionSelector: true,
     logo: { en: "cioos-amundsen-en.png", fr: "cioos-amundsen-fr.png" },
+    monochromeLogo: true,
   },
   canwin: {
     title: {
@@ -112,6 +123,7 @@ const regions = {
     },
     showInRegionSelector: false,
     logo: { en: "cioos-canwin-en.png", fr: "cioos-canwin-fr.png" },
+    monochromeLogo: true,
   },
   test: {
     title: { en: "Test", fr: "Test" },
@@ -129,15 +141,21 @@ const regions = {
     introPageText: { en: "This is a test region", fr: "" },
     showInRegionSelector: false,
     logo: { en: "cioos-en.png", fr: "cioos-fr.png" },
+    monochromeLogo: true,
   },
 };
 
-// Helper to get logo path by language with graceful fallbacks
-// getRegionLogo resolves the bilingual logo file path. Regions may omit one language; it will fall back to the other.
-export function getRegionLogo(regionId, language = "en") {
+// The region's logo file path in the page's language. Regions may omit one
+// language; it falls back to the other. `onColor` asks for the light artwork
+// drawn for a coloured background (`logoOnColor`), when the region has one.
+export function getRegionLogo(
+  regionId,
+  language = "en",
+  { onColor = false } = {},
+) {
   const r = regions[regionId];
   if (!r) return null;
-  const logoObj = r.logo || {};
+  const logoObj = (onColor && r.logoOnColor) || r.logo || {};
   const file = logoObj[language] || logoObj.en || logoObj.fr;
   if (!file) return null;
   return `${import.meta.env.BASE_URL}${file}`;

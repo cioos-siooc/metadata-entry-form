@@ -28,12 +28,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     width: drawerWidth,
-    // The region's column: a faint wash of its colour over the page
-    // background, so which region you are in shows beside every page. Nav
-    // text keeps its neutral colours, which clear 4.5:1 on the wash.
+    // Neutral: the region shows once, as the header's block above it.
     bgcolor: "background.default",
-    backgroundImage: `linear-gradient(${theme.vars.palette.primarySurface}, ${theme.vars.palette.primarySurface})`,
-    borderRightColor: theme.vars.palette.primaryBorder,
     // Labels stay in the DOM when collapsed, so the narrow paper clips them.
     overflowX: "hidden",
     transition: theme.transitions.create("width", {

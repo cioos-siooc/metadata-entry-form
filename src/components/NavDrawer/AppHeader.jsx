@@ -60,9 +60,9 @@ const logoImgSx = {
   objectFit: "contain",
 };
 
-// The app's one header: a paper bar under a thin line of the region's colour,
-// washed with that colour from the left. Left: the region you are working in (and the switch to another),
-// then the product. Right: the other official language, help and you.
+// The app's one header: a plain paper bar whose left end is the region's
+// block, a solid fill of its colour holding its logo (and the switch to
+// another region). The rest of the bar stays neutral. Then the product. Right: the other official language, help and you.
 export default function AppHeader({
   language,
   region,
@@ -90,7 +90,9 @@ export default function AppHeader({
 
   const regionInfo = regions[region];
   const regionTitle = regionInfo?.title?.[language];
-  const logo = getRegionLogo(region, language);
+  const logo = getRegionLogo(region, language, {
+    onColor: regionInfo?.monochromeLogo,
+  });
   const nationalLogo = getNationalLogo(language);
   const switchableRegions = Object.entries(regions)
     .filter(([, info]) => info.showInRegionSelector)
@@ -109,15 +111,7 @@ export default function AppHeader({
       sx={(theme) => ({
         zIndex: theme.zIndex.drawer + 1,
         bgcolor: "background.paper",
-        // A flat wash of the region's colour over paper (layered as an image,
-        // as the sidebar does, since the token is translucent). It is the
-        // strongest brand tint on which secondary text still clears 4.5:1
-        // for every region in both schemes.
-        backgroundImage: `linear-gradient(${theme.vars.palette.primarySurfaceHover}, ${theme.vars.palette.primarySurfaceHover})`,
-        // The same region-tinted edge as the sidebar's right border.
-        borderBottom: `1px solid ${theme.vars.palette.primaryBorder}`,
-        // The region's colour, as a 4px line across the top of the app.
-        boxShadow: `inset 0 4px 0 ${theme.vars.palette.primary.main}`,
+        borderBottom: `1px solid ${theme.vars.palette.divider}`,
       })}
     >
       <Toolbar
@@ -125,7 +119,6 @@ export default function AppHeader({
         sx={{
           height: HEADER_HEIGHT,
           minHeight: `${HEADER_HEIGHT}px !important`,
-          pt: "4px",
           px: { xs: 1, sm: 1.5 },
           gap: { xs: 0.5, sm: 1 },
         }}
@@ -144,31 +137,30 @@ export default function AppHeader({
           </IconButton>
         )}
 
-        {/* From lg up the logo zone always spans the sidebar's width, so the
-            title starts where the sidebar ends and the chevron sits in the
-            same place whatever the region's logo proportions. Below lg
-            (sidebar is a drawer) it is only as wide as the logo and shrinks
-            beside the menu button. */}
+        {/* The region block: the region's colour as one solid fill, full
+            bar height, with its logo on the white plate. Nothing but the plate
+            and the chevron sit on it, so contrast holds for every region.
+            From lg up it spans the sidebar's width from the bar's left edge,
+            so it caps the sidebar and the chevron sits in the same place
+            whatever the logo's proportions. Below lg (sidebar is a drawer) it
+            hugs the logo and shrinks beside the menu button. */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             minWidth: 0,
             flex: { xs: "0 1 auto", lg: "0 0 auto" },
-            // It runs from the bar's left edge (over the toolbar padding) so
-            // that, after the toolbar gap, the 1px divider lands exactly on
-            // the sidebar's right border, open or collapsed.
-            alignSelf: { lg: "stretch" },
-            width: (theme) => ({
-              xs: "auto",
-              lg: `calc(${drawerWidth}px - ${theme.spacing(1)} - 1px)`,
-            }),
+            alignSelf: "stretch",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            width: { xs: "auto", lg: drawerWidth },
             ml: { lg: -1.5 },
-            pl: { lg: 1.5 },
-            pr: { lg: 1 },
+            // The switcher fills the block edge to edge; only the plain
+            // national logo (no region yet) needs the block's own padding.
+            px: region ? 0 : 1,
           }}
         >
-          {/* Region: the logo is the switcher, as a workspace switcher would be. */}
+          {/* Region: the whole block is the switcher, as a workspace switcher would be. */}
           {region ? (
             <Button
               variant="text"
@@ -179,18 +171,26 @@ export default function AppHeader({
                 `Region: ${regionTitle}. Change region`,
                 `Région : ${regionTitle}. Changer de région`,
               )}
-              endIcon={<ExpandMore sx={{ color: "text.secondary" }} />}
+              endIcon={<ExpandMore />}
               sx={(theme) => ({
                 width: "100%",
+                height: "100%",
                 minWidth: 0,
-                px: 0.5,
-                py: 0.25,
-                color: "text.primary",
+                px: 1,
+                py: 0,
+                borderRadius: 0,
+                color: "inherit",
                 // Below lg (sidebar is a drawer) the chevron leads, by the menu button.
                 flexDirection: { xs: "row-reverse", lg: "row" },
-                // A paper lift, so hover shows on the header's strongest wash.
+                // A lift in the block's own ink: lighter on dark fills,
+                // darker on light ones.
                 "&:hover": {
-                  bgcolor: `rgba(${theme.vars.palette.background.paperChannel} / 0.5)`,
+                  bgcolor: `rgba(${theme.vars.palette.primary.contrastTextChannel} / 0.12)`,
+                },
+                // The theme's ring is drawn in the region colour, which would
+                // vanish on the block, so focus is an inset ring in its ink.
+                "&:focus-visible": {
+                  boxShadow: `inset 0 0 0 2px ${theme.vars.palette.primary.contrastText}`,
                 },
                 "& .MuiButton-endIcon": {
                   ml: { xs: 0, lg: 0.5 },
@@ -199,14 +199,36 @@ export default function AppHeader({
                 },
               })}
             >
-              <LogoPlate sx={logoPlateSx}>
+              {regionInfo?.monochromeLogo ? (
+                // Straight on the block, flattened to white. Always white, in
+                // both schemes, so the region's mark never changes.
                 <Box
-                  component="img"
-                  src={logo || nationalLogo}
-                  alt={regionTitle || "CIOOS"}
-                  sx={logoImgSx}
-                />
-              </LogoPlate>
+                  sx={{
+                    ...logoPlateSx,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={logo || nationalLogo}
+                    alt={regionTitle || "CIOOS"}
+                    sx={{
+                      ...logoImgSx,
+                      filter: "brightness(0) invert(1)",
+                    }}
+                  />
+                </Box>
+              ) : (
+                <LogoPlate sx={logoPlateSx}>
+                  <Box
+                    component="img"
+                    src={logo || nationalLogo}
+                    alt={regionTitle || "CIOOS"}
+                    sx={logoImgSx}
+                  />
+                </LogoPlate>
+              )}
             </Button>
           ) : (
             <LogoPlate sx={logoPlateSx}>
@@ -225,7 +247,8 @@ export default function AppHeader({
           flexItem
           sx={{
             my: 1.75,
-            display: { xs: "none", md: "block" },
+            // From lg up the block's edge already ends the zone.
+            display: { xs: "none", md: "block", lg: "none" },
           }}
         />
         <Typography
@@ -363,7 +386,7 @@ export default function AppHeader({
                   height: 32,
                   fontSize: "0.875rem",
                   fontWeight: 600,
-                  // Solid region colour: a tint would vanish on the wash.
+                  // Solid region colour, with its computed ink.
                   bgcolor: theme.vars.palette.primary.main,
                   color: theme.vars.palette.primary.contrastText,
                 })}
