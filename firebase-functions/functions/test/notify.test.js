@@ -35,6 +35,7 @@ jest.mock("nodemailer", () => ({
 
 jest.mock("../issue", () => jest.fn());
 jest.mock("../mailoutText", () => ({
+  FORM_URL: "https://form.cioos.ca",
   mailOptionsReviewer: jest.fn(),
   mailOptionsAuthor: jest.fn(),
   mailOptionsAuthorSubmissionConfirmation: jest.fn(),

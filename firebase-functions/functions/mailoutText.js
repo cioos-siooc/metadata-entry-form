@@ -1,6 +1,13 @@
 // send emails to reviewers when a metadata form record is submitted for review
 // this is the text that is sent in the emails
 
+// Base URL of the form site emails link to. VITE_DEV_DEPLOYMENT is written to
+// the functions' .env at deploy time (see firebase-deploy.yaml).
+const FORM_URL =
+  process.env.VITE_DEV_DEPLOYMENT === "true"
+    ? "https://form.dev.cioos.ca"
+    : "https://form.cioos.ca";
+
 const regionNames = {
   pacific: { en: "CIOOS Pacific", fr: "SIOOC Pacifique" },
   stlaurent: {
@@ -37,9 +44,9 @@ function mailOptionsReviewer(
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;
   const lang = language || "en";
-  const recordUrl = `https://forms.cioos.ca/#/${lang}/${region}/${userID}/${recordID}`;
-  const reviewerUrlEn = `https://forms.cioos.ca/#/en/${region}/reviewer`;
-  const reviewerUrlFr = `https://forms.cioos.ca/#/fr/${region}/reviewer`;
+  const recordUrl = `${FORM_URL}/#/${lang}/${region}/${userID}/${recordID}`;
+  const reviewerUrlEn = `${FORM_URL}/#/en/${region}/reviewer`;
+  const reviewerUrlFr = `${FORM_URL}/#/fr/${region}/reviewer`;
 
   const submittedBy = authorName
     ? `${authorName} &lt;${authorEmail}&gt;`
@@ -98,7 +105,7 @@ function mailOptionsAuthorSubmissionConfirmation(
 <p>Thank you for submitting your metadata record. ${regionEn} has been notified and will contact you if additional information is needed before your record is published.</p>
 ${titleEn ? `<p>Title (EN): ${titleEn}</p>` : ""}
 ${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
-<p><a href="https://forms.cioos.ca/#/en/${region}">Go to form</a></p>
+<p><a href="${FORM_URL}/#/en/${region}">Go to form</a></p>
 
 <hr>
 
@@ -106,7 +113,7 @@ ${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
 <p>Merci d'avoir soumis votre enregistrement de métadonnées. ${regionFr} a été avisé et vous contactera si des informations supplémentaires sont nécessaires avant la publication de votre enregistrement.</p>
 ${titleEn ? `<p>Titre (EN) : ${titleEn}</p>` : ""}
 ${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
-<p><a href="https://forms.cioos.ca/#/fr/${region}">Accéder au formulaire</a></p>`,
+<p><a href="${FORM_URL}/#/fr/${region}">Accéder au formulaire</a></p>`,
   };
 }
 
@@ -120,7 +127,7 @@ function mailOptionsAuthor(authorEmail, titleEn, titleFr, region) {
 <p>Your metadata record has been approved by a reviewer.</p>
 ${titleEn ? `<p>Title (EN): ${titleEn}</p>` : ""}
 ${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
-<p><a href="https://forms.cioos.ca/#/en/${region}">Go to form</a></p>
+<p><a href="${FORM_URL}/#/en/${region}">Go to form</a></p>
 
 <hr>
 
@@ -128,7 +135,7 @@ ${titleFr ? `<p>Title (FR): ${titleFr}</p>` : ""}
 <p>Votre enregistrement de métadonnées a été approuvé par un réviseur.</p>
 ${titleEn ? `<p>Titre (EN) : ${titleEn}</p>` : ""}
 ${titleFr ? `<p>Titre (FR) : ${titleFr}</p>` : ""}
-<p><a href="https://forms.cioos.ca/#/fr/${region}">Accéder au formulaire</a></p>`,
+<p><a href="${FORM_URL}/#/fr/${region}">Accéder au formulaire</a></p>`,
   };
 }
 
@@ -146,7 +153,7 @@ function shareBody(
   const regionEn = (regionNames[region] || {}).en || region;
   const regionFr = (regionNames[region] || {}).fr || region;
   const lang = language || "en";
-  const recordUrl = `https://forms.cioos.ca/#/${lang}/${region}/${userID}/${recordID}`;
+  const recordUrl = `${FORM_URL}/#/${lang}/${region}/${userID}/${recordID}`;
   const sharedBy = ownerName
     ? `${ownerName} &lt;${ownerEmail}&gt;`
     : ownerEmail;
@@ -234,7 +241,7 @@ function mailOptionsShareInvitation(
     language,
   );
   const lang = language || "en";
-  const signUpUrl = `https://forms.cioos.ca/#/${lang}/${region}`;
+  const signUpUrl = `${FORM_URL}/#/${lang}/${region}`;
 
   return {
     from: "CIOOS Metadata Notifications <cioos.metadata.notifications@gmail.com>",
@@ -262,6 +269,7 @@ attendra sous « Partagé avec moi ».</p>
 }
 
 module.exports = {
+  FORM_URL,
   regionNames,
   mailOptionsReviewer,
   mailOptionsAuthor,

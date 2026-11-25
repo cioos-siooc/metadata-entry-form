@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const {
+  FORM_URL,
   mailOptionsReviewer,
   mailOptionsAuthor,
   mailOptionsAuthorSubmissionConfirmation,
@@ -76,7 +77,7 @@ exports.notifyReviewer = functions.database
         console.log("Creating github issue");
         await createIssue(
           title,
-          `https://forms.cioos.ca/#/${language}/${region}/${userID}/${recordID}`,
+          `${FORM_URL}/#/${language}/${region}/${userID}/${recordID}`,
         );
       }
 
