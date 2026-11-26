@@ -152,7 +152,12 @@ export default function AppHeader({
             flex: { xs: "0 1 auto", lg: "0 0 auto" },
             alignSelf: "stretch",
             bgcolor: "primary.main",
-            color: "primary.contrastText",
+            // The block's ink (chevron, hover, focus ring) matches the logo:
+            // white when the logo is flattened to white, else the fill's
+            // computed contrast colour.
+            color: regionInfo?.monochromeLogo
+              ? "common.white"
+              : "primary.contrastText",
             width: { xs: "auto", lg: drawerWidth },
             ml: { lg: -1.5 },
             // The switcher fills the block edge to edge; only the plain
@@ -172,7 +177,11 @@ export default function AppHeader({
                 `Région : ${regionTitle}. Changer de région`,
               )}
               endIcon={<ExpandMore />}
-              sx={(theme) => ({
+              // No ripple: on the block it lingers as a stuck circle once the
+              // region menu hands focus back. Hover and the inset focus ring
+              // below are the feedback.
+              disableRipple
+              sx={{
                 width: "100%",
                 height: "100%",
                 minWidth: 0,
@@ -182,22 +191,26 @@ export default function AppHeader({
                 color: "inherit",
                 // Below lg (sidebar is a drawer) the chevron leads, by the menu button.
                 flexDirection: { xs: "row-reverse", lg: "row" },
-                // A lift in the block's own ink: lighter on dark fills,
-                // darker on light ones.
+                // A lift in the block's own ink.
                 "&:hover": {
-                  bgcolor: `rgba(${theme.vars.palette.primary.contrastTextChannel} / 0.12)`,
+                  bgcolor: "color-mix(in srgb, currentColor 12%, transparent)",
                 },
                 // The theme's ring is drawn in the region colour, which would
                 // vanish on the block, so focus is an inset ring in its ink.
-                "&:focus-visible": {
-                  boxShadow: `inset 0 0 0 2px ${theme.vars.palette.primary.contrastText}`,
+                // It follows MUI's keyboard tracking (Mui-focusVisible), not
+                // :focus-visible: when the region menu closes it hands focus
+                // back, and the browser counts that as visible focus even
+                // after a mouse pick, leaving the ring stuck on.
+                "&:focus-visible": { boxShadow: "none" },
+                "&.Mui-focusVisible": {
+                  boxShadow: "inset 0 0 0 2px currentColor",
                 },
                 "& .MuiButton-endIcon": {
                   ml: { xs: 0, lg: 0.5 },
                   mr: { xs: 0.5, lg: 0 },
                   flexShrink: 0,
                 },
-              })}
+              }}
             >
               {regionInfo?.monochromeLogo ? (
                 // Straight on the block, flattened to white. Always white, in
