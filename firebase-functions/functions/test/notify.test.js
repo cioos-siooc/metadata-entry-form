@@ -11,7 +11,7 @@ jest.mock("firebase-admin", () => ({
   }),
 }));
 
-jest.mock("firebase-functions", () => ({
+jest.mock("firebase-functions/v1", () => ({
   database: { ref: () => ({ onUpdate: (fn) => fn }) },
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
   https: {

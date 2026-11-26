@@ -624,14 +624,17 @@ const GeographicLocationSearch = ({ updateMap, mapData, disabled }) => {
                 <Fr>Ajouter un lieu par nom</Fr>
               </I18n>
             }
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {geonameLoading && <CircularProgress size={20} />}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {geonameLoading && <CircularProgress size={20} />}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
             }}
           />
         )}

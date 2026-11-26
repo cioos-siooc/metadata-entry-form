@@ -35,7 +35,7 @@ import { alpha } from "@mui/material/styles";
 import {
   ChevronRight,
   Close,
-  ErrorOutline,
+  ErrorOutlineOutlined,
   ExpandMore,
   FactCheck,
   InfoOutlined,
@@ -72,7 +72,7 @@ const severityLabel = {
 // Critical and high share a colour; the icon tells them apart (and doesn't rely on colour)
 const severityIcon = {
   critical: <Report />,
-  high: <ErrorOutline />,
+  high: <ErrorOutlineOutlined />,
   medium: <WarningAmber />,
   low: <InfoOutlined />,
 };

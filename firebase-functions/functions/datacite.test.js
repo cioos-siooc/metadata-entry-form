@@ -17,7 +17,7 @@ jest.mock("firebase-admin", () => {
 });
 
 // Mock firebase-functions
-jest.mock("firebase-functions", () => ({
+jest.mock("firebase-functions/v1", () => ({
   https: {
     onCall: (fn) => fn,
     HttpsError: class HttpsError extends Error {

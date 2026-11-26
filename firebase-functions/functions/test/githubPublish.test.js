@@ -19,7 +19,7 @@ jest.mock("octokit", () => ({
   Octokit: jest.fn(),
 }));
 
-jest.mock("firebase-functions", () => ({
+jest.mock("firebase-functions/v1", () => ({
   https: {
     onCall: (handler) => handler,
     HttpsError: class extends Error {
