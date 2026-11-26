@@ -41,11 +41,13 @@ const iconButtonSx = { color: "text.secondary" };
 
 // The white plate hugs the logo: as wide as the artwork, never wider. From lg
 // up it sits centred in the fixed-width logo zone; below lg, where the
-// sidebar is a drawer, the zone itself hugs the plate. The logo shrinks, keeping its proportions, if space runs out.
+// sidebar is a drawer, the zone itself hugs the plate. The logo fills as
+// much of the bar's height as it can, and shrinks, keeping its proportions,
+// if width runs out.
 const logoPlateSx = {
   flex: "0 1 auto",
   minWidth: 0,
-  height: { xs: 40, sm: 44 },
+  height: { xs: 44, sm: 52 },
   // Auto margins centre the plate in the space beside the chevron, which
   // stays pinned to the zone's edge.
   mx: "auto",
@@ -56,7 +58,7 @@ const logoImgSx = {
   display: "block",
   width: "auto",
   maxWidth: "100%",
-  height: { xs: 32, sm: 36 },
+  height: { xs: 36, sm: 46 },
   objectFit: "contain",
 };
 
