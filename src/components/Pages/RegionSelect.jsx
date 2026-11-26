@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import RegionCard from "../FormComponents/RegionCard";
 import regions from "../../regions";
-import visuallyHidden from "../../theme/visuallyHidden";
 
 const RA_CODES = ["pacific", "stlaurent", "atlantic"];
 
@@ -55,11 +54,19 @@ export default function RegionSelect() {
         <title>{title[language]}</title>
       </Helmet>
 
-      {/* The section headings carry the visible hierarchy; the page still
-          needs one h1 for screen-reader navigation. */}
-      <Typography component="h1" sx={visuallyHidden}>
-        {t("Choose a region", "Choisissez une région")}
-      </Typography>
+      {/* What this page is for: first-time visitors land here with no
+          context, so say what to pick and why before the cards. */}
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+        <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
+          {t("Choose a region", "Choisissez une région")}
+        </Typography>
+        <Typography color="text.secondary">
+          {t(
+            "Select the regional association or organization you are working with to describe and submit your dataset.",
+            "Sélectionnez l'association régionale ou l'organisation avec laquelle vous travaillez pour décrire et soumettre votre jeu de données.",
+          )}
+        </Typography>
+      </Box>
 
       <Stack spacing={6}>
         {raRegions.length > 0 && (
