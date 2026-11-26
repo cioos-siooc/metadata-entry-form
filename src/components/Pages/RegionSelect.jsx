@@ -46,7 +46,7 @@ export default function RegionSelect() {
         maxWidth: 1200,
         mx: "auto",
         px: { xs: 0, md: 2 },
-        pt: { xs: 3, md: 4 },
+        py: { xs: 3, md: 4 },
       }}
     >
       <Helmet>
@@ -56,7 +56,7 @@ export default function RegionSelect() {
 
       {/* What this page is for: first-time visitors land here with no
           context, so say what to pick and why before the cards. */}
-      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+      <Box sx={{ mb: { xs: 3, md: 4 }, textAlign: "center" }}>
         <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
           {t("Choose a region", "Choisissez une région")}
         </Typography>
@@ -71,7 +71,7 @@ export default function RegionSelect() {
       <Stack spacing={6}>
         {raRegions.length > 0 && (
           <Box>
-            <Stack spacing={1} sx={{ mb: 3 }}>
+            <Stack spacing={1} sx={{ mb: 3, textAlign: "center" }}>
               <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
                 {t(
                   "CIOOS Regional Associations",
@@ -79,7 +79,12 @@ export default function RegionSelect() {
                 )}
               </Typography>
             </Stack>
-            <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="stretch">
+            <Grid
+              container
+              spacing={{ xs: 2, sm: 3 }}
+              alignItems="stretch"
+              justifyContent="center"
+            >
               {raRegions.map(({ code, info }) => (
                 <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard
@@ -96,7 +101,7 @@ export default function RegionSelect() {
         {otherOrganizations.length > 0 && (
           <Box>
             <Divider sx={{ mb: 4 }} />
-            <Stack spacing={1} sx={{ mb: 3 }}>
+            <Stack spacing={1} sx={{ mb: 3, textAlign: "center" }}>
               <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
                 {t(
                   "Collaborating organizations",
@@ -104,7 +109,12 @@ export default function RegionSelect() {
                 )}
               </Typography>
             </Stack>
-            <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="stretch">
+            <Grid
+              container
+              spacing={{ xs: 2, sm: 3 }}
+              alignItems="stretch"
+              justifyContent="center"
+            >
               {otherOrganizations.map(({ code, info }) => (
                 <Grid key={code} size={{ xs: 12, sm: 6, md: 4 }}>
                   <RegionCard

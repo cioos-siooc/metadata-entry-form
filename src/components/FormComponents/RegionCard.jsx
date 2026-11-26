@@ -45,8 +45,6 @@ export default function RegionCard({ region, regionSummary, showMap = true }) {
         // Fill the grid row so cards line up; the content sets the height,
         // so a longer French summary grows the card instead of being cut.
         height: "100%",
-        // Phones get a compact card so more than one fits on screen.
-        minHeight: showMap ? { xs: 0, sm: 470 } : { xs: 0, sm: 280 },
         position: "relative",
         overflow: "hidden",
         borderColor: alpha(primaryColor, 0.35),
