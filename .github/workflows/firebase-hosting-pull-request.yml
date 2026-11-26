@@ -62,7 +62,9 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
-            const environment = `preview-pr-${context.payload.pull_request.number}`;
+            // One shared "preview" environment for all PRs. Each PR's deployment
+            // is still linked from its own PR through the head commit.
+            const environment = "preview";
             const deployment = await github.rest.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -79,6 +81,8 @@ jobs:
               repo: context.repo.repo,
               deployment_id: deployment.data.id,
               state: 'success',
+              // Don't mark other open PRs' previews inactive when this one deploys.
+              auto_inactive: false,
               environment_url: '${{ steps.deploy.outputs.details_url }}',
               log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               description: 'Firebase preview deployment is live',

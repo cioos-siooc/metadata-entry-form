@@ -29,6 +29,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDatabase, ref, child, update } from "firebase/database";
 import firebase from "../../firebase";
 import recordToEML from "../../utils/recordToEML";
+import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
@@ -147,6 +148,18 @@ const RecordActions = ({
         });
       } else if (fileType === "json") {
         blob = new Blob([JSON.stringify(record, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
+      } else if (fileType === "datacite_json") {
+        // Same attributes the DOI API path sends (real catalogue URL + publisher fallback)
+        const { data } = await recordToDataCiteFromPython(
+          record,
+          language,
+          region,
+          null,
+          { forUpdate: true, forUpload: true },
+        );
+        blob = new Blob([JSON.stringify(data.attributes, null, 2)], {
           type: `${mimeTypes[fileType]};charset=utf-8`,
         });
       } else {
@@ -269,6 +282,7 @@ const RecordActions = ({
     (isSubmitted && actions.showUnSubmitAction) ||
     ((isSubmitted || isPublished) && actions.showGithubPublishAction) ||
     (isDraft && actions.showSubmitAction) ||
+    (isDraft && actions.showReviewerSubmitAction) ||
     (!isDraft && actions.showSubmitAction);
 
   // Check if we need dividers
@@ -481,7 +495,10 @@ const RecordActions = ({
   const publishMenuItems = [];
 
   // Submit (Draft -> Submitted)
-  if (isDraft && actions.showSubmitAction) {
+  if (
+    isDraft &&
+    (actions.showSubmitAction || actions.showReviewerSubmitAction)
+  ) {
     publishMenuItems.push(
       <MenuItem
         key="submit"

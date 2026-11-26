@@ -412,7 +412,7 @@ wheels = [
 [[package]]
 name = "cioos-metadata-conversion"
 version = "0.1.0"
-source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=main#b16d8c93fb0ab0398aa95393632d512130e3083d" }
+source = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git?branch=main#ec20293bb75ce85ad4a34694ff70f25ea7a7f9ea" }
 dependencies = [
     { name = "click" },
     { name = "datacite" },

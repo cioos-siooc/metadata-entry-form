@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Tooltip,
 } from "@mui/material";
+import * as Sentry from "@sentry/react";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import TranslateIcon from "@mui/icons-material/Translate";
@@ -32,6 +33,7 @@ const BilingualTextInput = ({
   const { translate } = useContext(UserContext);
   const [awaitingTranslation, setAwaitingTranslation] = useState(false);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [translationFailed, setTranslationFailed] = useState(false);
 
   const { language } = useParams();
   let languages;
@@ -156,9 +158,10 @@ const BilingualTextInput = ({
                     }
                     onClick={() => {
                       setAwaitingTranslation(true);
+                      setTranslationFailed(false);
 
-                      translate({ text: value[lang], fromLang: lang }).then(
-                        (result) => {
+                      translate({ text: value[lang], fromLang: lang })
+                        .then((result) => {
                           setAwaitingTranslation(false);
                           const data = result.data;
                           const translation =
@@ -186,8 +189,20 @@ const BilingualTextInput = ({
                             ),
                           };
                           onChange({ target: { name, value: newData } });
-                        },
-                      );
+                        })
+                        .catch((err) => {
+                          setAwaitingTranslation(false);
+                          setTranslationFailed(true);
+                          Sentry.captureException(err, {
+                            tags: { feature: "translation", code: err.code },
+                            extra: {
+                              field: name,
+                              fromLang: lang,
+                              textLength: value[lang]?.length,
+                              details: err.details,
+                            },
+                          });
+                        });
                     }}
                   >
                     <I18n>
@@ -231,6 +246,21 @@ const BilingualTextInput = ({
                   <HelpOutlineIcon />
                 </IconButton>
               </Tooltip>
+
+              {translationFailed && (
+                <span style={{ color: "red" }}>
+                  <I18n>
+                    <En>
+                      Translation failed. The error has been reported, please
+                      try again later.
+                    </En>
+                    <Fr>
+                      La traduction a échoué. L'erreur a été signalée, veuillez
+                      réessayer plus tard.
+                    </Fr>
+                  </I18n>
+                </span>
+              )}
 
               {textTooBig && (
                 <I18n>

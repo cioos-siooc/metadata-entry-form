@@ -5,9 +5,9 @@
 
 CIOOS Metadata entry form
 
-Production: <https://forms.cioos.ca>
+Production: <https://form.cioos.ca>
 
-Development: <https://dev.forms.cioos.ca>
+Development: <https://form.dev.cioos.ca>
 
 ## Project Goal
 
@@ -73,7 +73,7 @@ node generate-translation-config.js v1.2.0   # pin a specific tag
 
 This fetches `glossary.json` and `prompt-template.txt` from the GitHub repo and writes them locally along with a `translation-meta.json` containing the resolved commit hash. The updated files should be committed to this repo so that deployed functions always have the correct versions.
 
-Each translation stores a provenance string (e.g. `Cohere command-a-translate-08-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
+Each translation stores a provenance string (e.g. `Cohere command-a-03-2025, cioos-commons@4c76a84`) so translations can be traced back to the exact model, prompt, and glossary version used.
 
 ### Data Model & Validation
 
@@ -158,8 +158,8 @@ Monitoring of production site availability is done via the [cioos-upptime](https
 
 ### Frontend Deployment
 
-- **Development**: Commits to the `development` branch deploy to the live channel of the dev Firebase project, served at <https://dev.forms.cioos.ca> (also <https://cioos-metadata-form-dev-258dc.web.app>). Pull requests get Firebase Hosting preview sites; check the pull request comments on GitHub for preview links. Preview sites are deleted after 30 days of inactivity. Both are handled by the `firebase-hosting-pull-request.yml` GitHub action.
-- **Production**: Deploys to GitHub Pages at the custom domain <https://forms.cioos.ca/> only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
+- **Development**: Commits to the `development` branch deploy to the live channel of the dev Firebase project, served at <https://form.dev.cioos.ca> (also <https://cioos-metadata-form-dev-258dc.web.app>). Pull requests get Firebase Hosting preview sites; check the pull request comments on GitHub for preview links. Preview sites are deleted after 30 days of inactivity. Both are handled by the `firebase-hosting-pull-request.yml` GitHub action.
+- **Production**: Deploys to GitHub Pages at the custom domain <https://form.cioos.ca/> only on version tags (e.g., `v1.0.0`). Handled by the `github-pages-deploy.yaml` GitHub action.
 
 ### Firebase Functions Deployment
 
@@ -231,6 +231,8 @@ GMAIL_PASS=
 
 # Cohere API key for translations
 COHERE_API_KEY=
+# Optional Cohere model override (default: command-a-03-2025)
+COHERE_TRANSLATE_MODEL=
 
 # GitHub token (repo + pages scopes) for issue generation
 GITHUB_AUTH=
@@ -334,14 +336,39 @@ Reviewers and Admins can publish metadata records directly to a GitHub repositor
 
 The system will generate XML and YAML files and commit them to the configured GitHub repository under `forms/{region}/{environment}/{filename}.{xml|yaml}`.
 
-## Hosting on github and Authentication
+## Domains and Hosting
 
-When hosting the application in a new place there are a couple of things to update.
+DNS for `cioos.ca` is managed in Cloudflare.
 
-- You must add your new domain to the allowed list for authenication in firebase.
-  https://console.firebase.google.com/u/0/project/cioos-metadata-form/authentication/settings
-  https://console.firebase.google.com/u/0/project/cioos-metadata-form-dev-258dc/authentication/settings
+| Domain                                       | Serves                                                   | Hosting                                                          | DNS                                                        |
+| -------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------- |
+| `form.cioos.ca`                              | Production                                               | GitHub Pages (`public/CNAME`)                                    | CNAME to `cioos-siooc.github.io`                           |
+| `form.dev.cioos.ca`                          | Development                                              | Firebase Hosting live channel of `cioos-metadata-form-dev-258dc` | CNAME to `cioos-metadata-form-dev-258dc.web.app`, DNS only |
+| `forms.cioos.ca`, `dev.forms.cioos.ca`       | 301 redirects to `form.cioos.ca` and `form.dev.cioos.ca` | Cloudflare Redirect Rules (proxied records)                      | —                                                          |
+| `cioos-siooc.github.io/metadata-entry-form/` | Old production URL                                       | GitHub Pages redirects it to `form.cioos.ca`                     | —                                                          |
 
-- You have to allow your domain under Website restrictions for the firebase browser key
-  https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form
-  https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev-258dc
+Browsers keep the `#/...` part of a URL across redirects, so links to specific records on the old domains still open the right record.
+
+### Changing a domain
+
+A domain appears in these places. Update all of them when you add or move one:
+
+- **Code**
+  - `public/CNAME` (production only)
+  - The Python functions' CORS allowlist (`STATIC_ALLOWED_ORIGINS` in `firebase-functions/python-functions/main.py`)
+  - The email link base URL (`FORM_URL` in `firebase-functions/functions/mailoutText.js`), which picks the dev or production site from `VITE_DEV_DEPLOYMENT`
+  - The record URL in `firebase_to_xml/firebase_to_xml/record_json_to_yaml.py`
+  - The Plausible `data-domain` in `index.html` and `public/index.html`
+  - The `homepage` in `package.json`, this README, and `cioos-records-update/waf/header.html`
+- **Firebase Auth authorized domains**, or sign-in fails with `auth/unauthorized-domain`:
+  - [Production](https://console.firebase.google.com/project/cioos-metadata-form-8d942/authentication/settings)
+  - [Development](https://console.firebase.google.com/project/cioos-metadata-form-dev-258dc/authentication/settings)
+- **Website restrictions on the Firebase browser keys**:
+  - [Production](https://console.cloud.google.com/apis/credentials/key/405d637a-efd4-48f5-95c6-f0af1d7f4889?project=cioos-metadata-form-8d942)
+  - [Development](https://console.cloud.google.com/apis/credentials/key/23d360a3-4b55-43f2-bc1c-b485371c0e07?project=cioos-metadata-form-dev-258dc)
+- **Hosting**
+  - Production: the GitHub repository's **Settings → Pages** (custom domain set, certificate issued, **Enforce HTTPS** on)
+  - Development: custom domains in Firebase Hosting for the dev project
+- **External services**: Plausible site, Sentry allowed domains, the [cwatch-upptime](https://github.com/cioos-siooc/cwatch-upptime) monitor, and links on the CIOOS websites
+
+Sign-in uses Firebase's auth handler on `*.web.app` / `*.firebaseapp.com`, so the Microsoft and ORCID redirect URIs do not depend on the site's domain. Firebase keeps sign-in sessions per domain, so users have to sign in again after a domain change.
