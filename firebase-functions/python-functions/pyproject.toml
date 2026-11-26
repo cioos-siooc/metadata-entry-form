@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "cioos-metadata-conversion",
     "firebase-functions>=0.4.3",
-    "setuptools<81",
+    "setuptools<85",
 ]
 
 [tool.uv]
