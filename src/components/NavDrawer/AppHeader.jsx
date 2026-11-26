@@ -151,7 +151,9 @@ export default function AppHeader({
             minWidth: 0,
             flex: { xs: "0 1 auto", lg: "0 0 auto" },
             alignSelf: "stretch",
-            bgcolor: "primary.main",
+            // Only a region gets the solid block. With no region yet (the
+            // region picker) the national logo sits on the plain bar.
+            bgcolor: region ? "primary.main" : "transparent",
             // The block's ink (chevron, hover, focus ring) matches the logo:
             // white when the logo is flattened to white, else the fill's
             // computed contrast colour.
@@ -161,8 +163,9 @@ export default function AppHeader({
             width: { xs: "auto", lg: drawerWidth },
             ml: { lg: -1.5 },
             // The switcher fills the block edge to edge; only the plain
-            // national logo (no region yet) needs the block's own padding.
-            px: region ? 0 : 1,
+            // national logo (no region yet) needs its own padding.
+            pl: region ? 0 : { lg: 1.5 },
+            pr: region ? 0 : { lg: 1 },
           }}
         >
           {/* Region: the whole block is the switcher, as a workspace switcher would be. */}
