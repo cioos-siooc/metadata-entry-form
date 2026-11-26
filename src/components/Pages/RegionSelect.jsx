@@ -62,8 +62,8 @@ export default function RegionSelect() {
         </Typography>
         <Typography color="text.secondary">
           {t(
-            "Select the regional association or organization you are working with to describe and submit your dataset.",
-            "Sélectionnez l'association régionale ou l'organisation avec laquelle vous travaillez pour décrire et soumettre votre jeu de données.",
+            "Select the regional association or organization you are working with to submit your datasets.",
+            "Sélectionnez l'association régionale ou l'organisation avec laquelle vous travaillez pour soumettre vos jeux de données.",
           )}
         </Typography>
       </Box>
