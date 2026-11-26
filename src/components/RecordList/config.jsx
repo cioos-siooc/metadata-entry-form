@@ -129,6 +129,7 @@ export const reviewerConfig = {
     showDeleteAction: true,
     showCloneAction: true,
     showSubmitAction: false,
+    showReviewerSubmitAction: true, // Draft -> Submitted only; showSubmitAction also adds the owner's "Return to draft"
     showPublishAction: true,
     showUnPublishAction: true,
     showUnSubmitAction: true,

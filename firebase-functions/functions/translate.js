@@ -7,7 +7,9 @@ const path = require("path");
 const cohereApiKey = defineString("COHERE_API_KEY");
 const cohereApiKeyCred = process.env.COHERE_API_KEY || cohereApiKey.value();
 
-const MODEL = "command-a-translate-08-2025";
+// Override with COHERE_TRANSLATE_MODEL (e.g. "command-a-translate-08-2025").
+const DEFAULT_MODEL = "command-a-03-2025";
+const getModel = () => process.env.COHERE_TRANSLATE_MODEL || DEFAULT_MODEL;
 
 const client = new CohereClientV2({
   token: cohereApiKeyCred,
@@ -41,8 +43,18 @@ function buildPrompt(originalText, sourceLanguageCode, targetLanguageCode) {
     .replace("{{originalText}}", originalText);
 }
 
-function buildTranslationMessage() {
-  return `Cohere ${MODEL}, cioos-commons@${translationMeta.commonsVersion}`;
+function buildTranslationMessage(model) {
+  return `Cohere ${model}, cioos-commons@${translationMeta.commonsVersion}`;
+}
+
+// Map Cohere HTTP status codes to callable error codes so the client gets a
+// meaningful error (a raw throw is reported to the client as "internal").
+function cohereErrorCode(statusCode) {
+  if (statusCode === 429) return "resource-exhausted";
+  if (statusCode === 401 || statusCode === 403) return "permission-denied";
+  if (statusCode === 400 || statusCode === 422) return "invalid-argument";
+  if (statusCode === 404) return "not-found";
+  return "unavailable";
 }
 
 // Translate up to 5000 characters at a time using Cohere
@@ -50,6 +62,7 @@ const translateText = async (
   originalText,
   sourceLanguageCode,
   targetLanguageCode,
+  model,
 ) => {
   const prompt = buildPrompt(
     originalText,
@@ -59,7 +72,7 @@ const translateText = async (
 
   try {
     const response = await client.chat({
-      model: MODEL,
+      model,
       messages: [
         {
           role: "user",
@@ -85,8 +98,15 @@ const translateText = async (
       throw new Error("No translation received from Cohere API");
     }
   } catch (err) {
-    console.error("translateText error: ", err);
-    throw err;
+    console.error(`translateText error (model ${model}): `, err);
+    const { statusCode } = err;
+    throw new functions.https.HttpsError(
+      statusCode ? cohereErrorCode(statusCode) : "internal",
+      `Cohere translation failed (model ${model}${
+        statusCode ? `, HTTP ${statusCode}` : ""
+      }): ${err.message}`,
+      { model, statusCode: statusCode ?? null },
+    );
   }
 };
 
@@ -98,9 +118,10 @@ exports.translate = functions.https.onCall(async (data, context) => {
 
   const toLang = fromLang === "en" ? "fr" : "en";
 
-  const res = await translateText(text, fromLang, toLang);
+  const model = getModel();
+  const res = await translateText(text, fromLang, toLang, model);
   return {
     translatedText: res.TranslatedText,
-    translationMessage: buildTranslationMessage(),
+    translationMessage: buildTranslationMessage(model),
   };
 });
