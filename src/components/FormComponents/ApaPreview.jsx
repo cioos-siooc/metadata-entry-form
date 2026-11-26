@@ -56,11 +56,11 @@ export function generateCitation(record, language, format) {
       DOI: datasetIdentifier.replace(/https?:\/\/doi\.org\//, ""),
       version: record.edition ? `v${record.edition}` : undefined,
       type: metadataScopeIso,
-      // APA already renders "[Data set]" for the dataset type; genre supplies
-      // the bracketed descriptor for every other resource type.
+      // citation-js >=0.9 renders "[Dataset]" for the dataset type; genre pins
+      // the established APA "[Data set]" and supplies the descriptor otherwise.
       genre:
         metadataScope === "Dataset"
-          ? undefined
+          ? "Data set"
           : metadataScopeCodes[metadataScope]?.title[language],
     },
   ];

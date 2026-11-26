@@ -18,7 +18,7 @@ jobs:
           id=$(echo ${{github.event.pull_request.head.ref}} | cut -c 1-20)
           echo "id=$id" >> $GITHUB_OUTPUT
       - name: Delete Preview Channel on Firebase
-        uses: w9jds/firebase-action@v15.31.0
+        uses: w9jds/firebase-action@v15.35.0
         with:
           args: hosting:channel:delete pr${{github.event.number}}-${{steps.get-short-name.outputs.id}} --force
         env:
@@ -29,13 +29,27 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
-            const environment = `preview-pr-${context.payload.pull_request.number}`;
-            const deployments = await github.rest.repos.listDeployments({
+            const number = context.payload.pull_request.number;
+            // All PRs share the "preview" environment; pick this PR's deployments
+            // by the description set in firebase-hosting-pull-request.yml.
+            const shared = await github.paginate(github.rest.repos.listDeployments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              environment,
+              environment: 'preview',
+              per_page: 100,
             });
-            for (const deployment of deployments.data) {
+            // PRs deployed before the shared environment used preview-pr-<number>.
+            const legacy = await github.paginate(github.rest.repos.listDeployments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment: `preview-pr-${number}`,
+              per_page: 100,
+            });
+            const deployments = [
+              ...shared.filter((d) => d.description === `Preview deployment for PR #${number}`),
+              ...legacy,
+            ];
+            for (const deployment of deployments) {
               await github.rest.repos.createDeploymentStatus({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

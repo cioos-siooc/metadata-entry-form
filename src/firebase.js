@@ -44,7 +44,9 @@ if (
   window.location.hostname === "localhost" &&
   localFirebaseDatabase === "true"
 ) {
-  config.databaseURL = "http://localhost:9001?ns=cioos-metadata-form";
+  // Same namespace as the project's database, which the functions emulator's admin SDK uses.
+  const namespace = new URL(config.databaseURL).hostname.split(".")[0];
+  config.databaseURL = `http://localhost:9001?ns=${namespace}`;
 }
 
 const App = initializeApp(config);

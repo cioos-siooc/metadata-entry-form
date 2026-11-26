@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "cioos-metadata-conversion",
     "firebase-functions>=0.4.3",
-    "setuptools<81",
+    "setuptools<85",
 ]
 
 [tool.uv]
@@ -23,6 +23,4 @@ line-length = 88
 select = ["E", "F", "W", "I", "UP", "B"]
 
 [tool.uv.sources]
-# TODO: re-pin to main once feat/load-from-obis is merged. That branch carries the
-# load_from/ loaders (datacite, obis, pdc) used by create_record_from_source.
 cioos-metadata-conversion = { git = "https://github.com/cioos-siooc/cioos-metadata-conversion.git", branch = "main" }

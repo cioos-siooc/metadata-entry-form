@@ -58,6 +58,40 @@ jobs:
             }
             core.warning(`No matching prefix found for branch "${branch}". Label manually.`);
 
+      # After the branch label, which is skipped once a PR has any label.
+      - name: Label PRs that change the database rules
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const label = 'database-rules';
+            const pr = context.payload.pull_request;
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+            const changesRules = files.some(
+              (f) => f.filename === 'firebase-functions/database.rules.json',
+            );
+            const hasLabel = pr.labels.some((l) => l.name === label);
+            if (changesRules && !hasLabel) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: [label],
+              });
+              core.info(`Applied label "${label}": the PR changes the database rules`);
+            } else if (!changesRules && hasLabel) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                name: label,
+              });
+              core.info(`Removed label "${label}": the PR no longer changes the database rules`);
+            }
+
       - name: Check for at least one label
         uses: actions/github-script@v9
         with:

@@ -46,7 +46,10 @@ export default [
     rules: {
       // React rules
       ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
+      // v7's recommended set adds React Compiler rules that flag existing code;
+      // keep only the classic two until those are refactored.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "react/react-in-jsx-scope": "off", // Not needed with React 17+
       "react/prop-types": "off",
       "react/no-array-index-key": "off",
