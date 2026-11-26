@@ -12,7 +12,7 @@ jest.mock("firebase-admin", () => ({
   }),
 }));
 
-jest.mock("firebase-functions", () => ({
+jest.mock("firebase-functions/v1", () => ({
   database: {
     ref: () => ({
       onCreate: (fn) => fn,
