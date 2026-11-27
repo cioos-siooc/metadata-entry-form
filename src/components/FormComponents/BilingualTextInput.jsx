@@ -118,12 +118,14 @@ const BilingualTextInput = ({
             fullWidth
             value={value?.[lang] || ""}
             onChange={(e) => handleEvent(e)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {lang.toUpperCase()}
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {lang.toUpperCase()}
+                  </InputAdornment>
+                ),
+              },
             }}
             multiline={multiline}
             disabled={disabled}

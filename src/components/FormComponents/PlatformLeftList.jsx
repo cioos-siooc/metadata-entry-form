@@ -79,7 +79,7 @@ const PlatformLeftList = ({
 
   function handleAddFromSavedPlatforms(e) {
     const index = e.target.value;
-    const { role, ...platform } = platformList[index];
+    const { ...platform } = platformList[index];
 
     updatePlatforms(
       platforms.concat(deepCopy({ ...getBlankPlatform(), ...platform })),

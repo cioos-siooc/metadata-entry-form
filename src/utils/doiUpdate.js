@@ -1,10 +1,7 @@
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { updateDraftDoi } from "../api/actions";
 import { recordToDataCiteFromPython } from "./recordToDataCiteFromPython";
 
 async function performUpdateDraftDoi(record, region, language, datacitePrefix) {
-  const functions = getFunctions();
-  const updateDraftDoi = httpsCallable(functions, "updateDraftDoi");
-
   // Use Python-based conversion with forUpdate flag to automatically omit type and prefix
   const mappedDataCiteObject = await recordToDataCiteFromPython(
     record,

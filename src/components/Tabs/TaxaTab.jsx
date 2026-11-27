@@ -241,7 +241,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               )}
             />
           </Grid>
-          <Grid size={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Button
               disabled={disabled || (!SearchValue && !inputValue)}
               startIcon={<ArrowDownward />}
@@ -255,7 +255,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
           </Grid>
 
           <Grid container direction="row">
-            <Grid size={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Grid style={{ margin: "10px" }}>
                 <Typography variant="h6">Taxa</Typography>
               </Grid>
@@ -323,7 +323,7 @@ const TaxaTab = ({ record, updateRecord, disabled }) => {
               </Box>
             </Grid>
 
-            <Grid size={7}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Grid style={{ margin: "10px" }}>
                 <Typography variant="h6">Details</Typography>
               </Grid>

@@ -185,18 +185,20 @@ const ContactEditor = ({
               value={value.orgRor}
               disabled
               fullWidth
-              InputProps={{
-                endAdornment: value.orgRor && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        handleClear("orgRor");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: value.orgRor && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          handleClear("orgRor");
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
               // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
             />
@@ -333,18 +335,20 @@ const ContactEditor = ({
               label={<I18n en="ORCID URL" fr="URL ORCID" />}
               InputLabelProps={{ shrink: value.indOrcid !== "" }}
               value={value.indOrcid}
-              InputProps={{
-                endAdornment: value.indOrcid && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        handleClear("indOrcid");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: value.indOrcid && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          handleClear("indOrcid");
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
               disabled
               fullWidth

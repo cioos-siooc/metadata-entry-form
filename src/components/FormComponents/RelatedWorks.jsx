@@ -140,7 +140,7 @@ const RelatedWorks = ({ updateResources, resources, disabled }) => {
   return (
     <Paper variant="outlined" style={{ padding: 10 }}>
       <Grid container direction="row" spacing={1}>
-        <Grid size={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Grid container direction="column" spacing={2}>
             {resources && resources.length > 0 && (
               <Grid>

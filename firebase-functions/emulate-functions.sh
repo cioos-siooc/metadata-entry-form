@@ -8,7 +8,7 @@ echo "📦 Installing dependencies for JavaScript functions..."
 cd functions
 npm install
 cd ..
-# Install dependencies for Python functions 
+# Install dependencies for Python functions
 echo "🐍 Installing dependencies for Python functions..."
 cd python-functions
 uv venv venv --clear

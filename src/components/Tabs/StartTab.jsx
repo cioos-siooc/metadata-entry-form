@@ -38,8 +38,11 @@ import {
 
 import SelectInput from "../FormComponents/SelectInput";
 
-const { DataCollectionSampling, ...filtereMetadataScopeCodes } =
-  metadataScopeCodes;
+const filtereMetadataScopeCodes = Object.fromEntries(
+  Object.entries(metadataScopeCodes).filter(
+    ([key]) => key !== "DataCollectionSampling",
+  ),
+);
 const StartTab = ({
   disabled,
   record,
@@ -416,7 +419,13 @@ const StartTab = ({
         />
       </div>
 
-      {showShareRecord && <SharedUsersList region={region} record={record} />}
+      {showShareRecord && (
+        <SharedUsersList
+          region={region}
+          updateRecord={updateRecord}
+          record={record}
+        />
+      )}
     </Grid>
   );
 };

@@ -22,12 +22,10 @@ import {
   CloudDownload,
   OpenInNew,
   ChevronRight,
-  FactCheck,
 } from "@mui/icons-material";
 import FileSaver from "file-saver";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { getDatabase, ref, child, update } from "firebase/database";
-import firebase from "../../firebase";
+import { convertMetadata } from "../../api/actions";
+import { saveRecord } from "../../api/records";
 import recordToEML from "../../utils/recordToEML";
 import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { getRecordFilename } from "../../utils/misc";
@@ -51,6 +49,7 @@ const RecordActions = ({
   handlers = {},
   language,
   region,
+  _datacitePrefix = "",
   githubPublishEnabled = false,
   size,
   iconButtonClassName,
@@ -164,11 +163,10 @@ const RecordActions = ({
         });
       } else {
         // Server-side conversion
-        const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, "convert_metadata");
         const resp = await convertMetadata({
-          record_data: record,
-          output_format: fileType,
+          region,
+          record,
+          outputFormat: fileType,
         });
         const resultText = resp?.data ?? "";
         blob = new Blob([resultText], {
@@ -247,11 +245,10 @@ const RecordActions = ({
         // Persist the new DOI status back to the record so the stored value
         // stays in sync with DataCite (mirrors the in-form status dropdown).
         const newState = result?.data?.state || choice;
-        const recordsRef = ref(
-          getDatabase(firebase),
-          `${region}/users/${uID}/records`,
-        );
-        await update(child(recordsRef, rID), { doiCreationStatus: newState });
+        await saveRecord(region, rID, {
+          ...record,
+          doiCreationStatus: newState,
+        });
       } catch (err) {
         console.error("DataCite state transition failed:", err);
       } finally {
@@ -419,26 +416,6 @@ const RecordActions = ({
           <I18n en="Download" fr="Télécharger" />
         </ListItemText>
         <ChevronRight fontSize="small" sx={{ ml: 1 }} />
-      </MenuItem>,
-    );
-  }
-
-  // Automated review
-  if (actions.showReviewAction) {
-    menuItems.push(
-      <MenuItem
-        key="review"
-        onClick={() => {
-          handlers.review?.(recordID, userID);
-          handleMenuClose();
-        }}
-      >
-        <ListItemIcon sx={menuItemIconStyle}>
-          <FactCheck fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>
-          <I18n en="Run automated review" fr="Lancer la révision automatisée" />
-        </ListItemText>
       </MenuItem>,
     );
   }

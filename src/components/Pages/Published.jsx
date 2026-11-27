@@ -1,13 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDatabase, ref, onValue, off } from "firebase/database";
-import firebase from "../../firebase";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import {
-  cloneRecord,
-  loadRegionRecords,
-} from "../../utils/firebaseRecordFunctions";
+import { cloneRecord, loadRegionRecords } from "../../api/records";
 import { Fr, En, I18n } from "../I18n";
 import RecordList, { publishedConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
@@ -17,40 +11,24 @@ const Published = () => {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const listenerRefs = useRef([]);
-  const unsubscribeRef = useRef(null);
 
-  // Load records on mount
-  useEffect(() => {
+  const loadRecords = useCallback(async () => {
     setLoading(true);
-
-    unsubscribeRef.current = onAuthStateChanged(
-      getAuth(firebase),
-      async (user) => {
-        if (user) {
-          const database = getDatabase(firebase);
-          const usersRef = ref(database, `${region}/users`);
-
-          onValue(usersRef, (regionRecordsFB) => {
-            const loadedRecords = loadRegionRecords(regionRecordsFB, [
-              "published",
-            ]);
-            setRecords(loadedRecords);
-            setLoading(false);
-          });
-
-          listenerRefs.current.push(usersRef);
-        }
-      },
-    );
-
-    // Cleanup
-    return () => {
-      if (unsubscribeRef.current) unsubscribeRef.current();
-      listenerRefs.current.forEach((refListener) => off(refListener));
-      listenerRefs.current = [];
-    };
+    try {
+      const loadedRecords = await loadRegionRecords(region, ["published"]);
+      setRecords(loadedRecords || []);
+    } catch (error) {
+      console.error("Error loading published records:", error);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   }, [region]);
+
+  // Load records on mount and when the region changes
+  useEffect(() => {
+    loadRecords();
+  }, [loadRecords]);
 
   // Action handlers
   const handleEditRecord = useCallback(
@@ -62,12 +40,11 @@ const Published = () => {
   );
 
   const handleCloneRecord = useCallback(
-    (recordID, sourceUserID) => {
-      if (auth.currentUser) {
-        cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
-      }
+    async (recordID) => {
+      await cloneRecord(region, recordID);
+      loadRecords();
     },
-    [region],
+    [region, loadRecords],
   );
 
   // Filter to only show published records

@@ -26,7 +26,7 @@ import {
   Edit,
 } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { convertMetadata } from "../../api/actions";
 import { getRecordFilename } from "../../utils/misc";
 import recordToEML from "../../utils/recordToEML";
 import { recordIsValid, percentValid } from "../../utils/validate";
@@ -126,11 +126,11 @@ const MetadataRecordListItem = ({
           type: `${mimeTypes[fileType]};charset=utf-8`,
         });
       } else {
-        const functions = getFunctions();
-        const convertMetadata = httpsCallable(functions, "convert_metadata");
+        // Server-side conversion
         const resp = await convertMetadata({
-          record_data: record,
-          output_format: fileType,
+          region,
+          record,
+          outputFormat: fileType,
         });
         const resultText = resp?.data ?? "";
         blob = new Blob([resultText], {

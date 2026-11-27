@@ -623,8 +623,8 @@ const IdentificationTab = ({
         <SelectInput
           value={record.license}
           onChange={handleUpdateRecord("license")}
-          optionLabels={licensesSorted.map((l, i) => (
-            <span key={i}>
+          optionLabels={licensesSorted.map((l) => (
+            <span key={l.code}>
               {l.title[language] || l.title.en}
 
               <Tooltip

@@ -1,0 +1,22 @@
+[project]
+name = "cioos-metadata-converter"
+version = "0.1.0"
+description = "Metadata conversion service: record JSON -> XML/YAML/JSON/ERDDAP, plus WAF file management"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    # Installed from a GitHub tarball rather than git+https. metadata-xml is NOT
+    # declared here: on main, cioos-metadata-conversion pins it itself as
+    # `metadata-xml @ git+https://...`, and a second, differently-spelled direct
+    # URL for the same package is what pip reports as ResolutionImpossible.
+    # main is required for the load_from/ loaders behind /record-from-source.
+    "cioos-metadata-conversion @ https://github.com/cioos-siooc/cioos-metadata-conversion/archive/refs/heads/main.tar.gz",
+]
+
+[build-system]
+requires = ["setuptools<81"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["converter"]

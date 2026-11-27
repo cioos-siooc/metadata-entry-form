@@ -74,7 +74,7 @@ export function generateCitation(record, language, format) {
       lang: "en-US",
     });
     return res;
-  } catch (e) {
+  } catch {
     // This is needed because sometimes partly filled names, eg "Ma" cause it to crash
     return "";
   }

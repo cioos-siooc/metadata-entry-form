@@ -1,28 +1,19 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { Typography, Grid, Snackbar, Alert } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDatabase, ref, onValue, get, off } from "firebase/database";
 
-import firebase from "../../firebase";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { Fr, En, I18n } from "../I18n";
 import SimpleModal from "../FormComponents/SimpleModal";
 import TransferModal from "../FormComponents/TransferModal";
 import { UserContext } from "../../providers/UserProvider";
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
-import { ReviewRegion } from "../FormComponents/ReviewFindings";
 import {
   loadRegionRecords,
   deleteRecord,
   submitRecord,
   cloneRecord,
-} from "../../utils/firebaseRecordFunctions";
+} from "../../api/records";
+import { getGithubCredentials } from "../../api/admin";
 import { preparePublishPayload } from "../../utils/publishUtils";
 import performUpdateDraftDoi, { isManagedDoi } from "../../utils/doiUpdate";
 import RecordList, { reviewerConfig } from "../RecordList";
@@ -31,18 +22,12 @@ import { markFormNavigation } from "../RecordList/hooks";
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const {
-    publishRecordToGitHub,
-    transferRecord,
-    datacitePrefix,
-    reviewRecord,
-  } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord, datacitePrefix } =
+    useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const listenerRefs = useRef([]);
-  const unsubscribeRef = useRef(null);
 
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -67,47 +52,40 @@ const Reviewer = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState("info");
 
-  // Load records on mount
-  useEffect(() => {
+  const loadRecords = useCallback(async () => {
     setLoading(true);
-
-    unsubscribeRef.current = onAuthStateChanged(
-      getAuth(firebase),
-      (authUser) => {
-        if (authUser) {
-          const database = getDatabase(firebase);
-          const usersRef = ref(database, `${region}/users`);
-          const githubRef = ref(database, `admin/${region}/githubCredentials`);
-
-          onValue(usersRef, (regionUsersRaw) => {
-            const loadedRecords = loadRegionRecords(regionUsersRaw, [
-              "",
-              "submitted",
-              "published",
-            ]);
-            setRecords(loadedRecords);
-            setLoading(false);
-          });
-
-          onValue(githubRef, (snapshot) => {
-            const creds = snapshot.val() || {};
-            const token = creds.token || "";
-            setGithubPublishEnabled(!!token && token.trim().length > 0);
-          });
-
-          listenerRefs.current.push(usersRef);
-          listenerRefs.current.push(githubRef);
-        }
-      },
-    );
-
-    // Cleanup
-    return () => {
-      if (unsubscribeRef.current) unsubscribeRef.current();
-      listenerRefs.current.forEach((refListener) => off(refListener));
-      listenerRefs.current = [];
-    };
+    try {
+      const loadedRecords = await loadRegionRecords(region, [
+        "",
+        "submitted",
+        "published",
+      ]);
+      setRecords(loadedRecords || []);
+    } catch (error) {
+      console.error("Error loading region records:", error);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   }, [region]);
+
+  // Load records and GitHub configuration on mount and region change
+  useEffect(() => {
+    loadRecords();
+
+    let cancelled = false;
+    getGithubCredentials(region)
+      .then((config) => {
+        if (!cancelled) setGithubPublishEnabled(Boolean(config?.hasToken));
+      })
+      .catch(() => {
+        if (!cancelled) setGithubPublishEnabled(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [region, loadRecords]);
 
   // Helper functions
   const showToast = useCallback((message, severity = "info") => {
@@ -189,12 +167,11 @@ const Reviewer = () => {
   );
 
   const handleCloneRecord = useCallback(
-    (recordID, sourceUserID) => {
-      if (auth.currentUser) {
-        cloneRecord(recordID, sourceUserID, auth.currentUser.uid, region);
-      }
+    async (recordID) => {
+      await cloneRecord(region, recordID);
+      loadRecords();
     },
-    [region],
+    [region, loadRecords],
   );
 
   const handleDeleteRecord = useCallback(
@@ -205,12 +182,12 @@ const Reviewer = () => {
   );
 
   const confirmDelete = useCallback(async () => {
-    if (modalKey && modalUserID) {
+    if (modalKey) {
       setLoading(true);
-      await deleteRecord(region, modalUserID, modalKey);
-      setLoading(false);
+      await deleteRecord(region, modalKey);
+      loadRecords();
     }
-  }, [region, modalKey, modalUserID]);
+  }, [region, modalKey, loadRecords]);
 
   const handleTransferRecord = useCallback(
     (recordID, userID) => {
@@ -220,17 +197,22 @@ const Reviewer = () => {
   );
 
   const confirmTransfer = useCallback(async () => {
-    if (modalKey && modalUserID) {
-      const { data } = await transferRecord({
-        region,
-        recordID: modalKey,
-        sourceUserID: modalUserID,
-        email: transferEmail,
-      });
-      return data.success;
+    if (modalKey) {
+      try {
+        const { data } = await transferRecord({
+          region,
+          recordID: modalKey,
+          email: transferEmail,
+        });
+        if (data.success) loadRecords();
+        return data.success;
+      } catch (error) {
+        console.error("Transfer error:", error);
+        return false;
+      }
     }
     return false;
-  }, [transferRecord, transferEmail, modalKey, modalUserID, region]);
+  }, [transferRecord, transferEmail, modalKey, region, loadRecords]);
 
   const handleSubmitRecord = useCallback(
     (recordID, userID, newStatus) => {
@@ -274,39 +256,17 @@ const Reviewer = () => {
 
   const confirmSubmitRecord = useCallback(
     async (status) => {
-      if (modalKey && modalUserID) {
+      if (modalKey) {
         setLoading(true);
         if (status === "published")
           await updateDoiOnPublish(
             records.find((r) => r.recordID === modalKey),
           );
-        await submitRecord(region, modalUserID, modalKey, status);
-        setLoading(false);
+        await submitRecord(region, modalKey, status);
+        loadRecords();
       }
     },
-    [region, modalKey, modalUserID, records, updateDoiOnPublish],
-  );
-
-  // Results land in the record's qa node; the region listener refreshes the Review column.
-  const handleReviewRecord = useCallback(
-    (recordID, userID) => {
-      const r = records.find((rec) => rec.recordID === recordID);
-      const title = `« ${r?.title?.[language] || r?.title?.en || r?.title?.fr || recordID} »`;
-      showToast(
-        language === "fr" ? `Révision de ${title}…` : `Reviewing ${title}…`,
-      );
-      reviewRecord({ region, userID, recordID })
-        .then(() =>
-          showToast(
-            language === "fr"
-              ? `Révision de ${title} terminée`
-              : `Finished reviewing ${title}`,
-            "success",
-          ),
-        )
-        .catch((e) => showToast(e.message, "error"));
-    },
-    [region, language, records, reviewRecord, showToast],
+    [region, modalKey, loadRecords, records, updateDoiOnPublish],
   );
 
   // GitHub publish handler
@@ -335,11 +295,7 @@ const Reviewer = () => {
 
         // Fetch GitHub config for file naming template
         addPublishLog(getLogMessage("fetchConfig"));
-        const db = getDatabase(firebase);
-        const configSnapshot = await get(
-          ref(db, `admin/${region}/githubCredentials`),
-        );
-        const config = configSnapshot.val() || {};
+        const config = (await getGithubCredentials(region)) || {};
 
         addPublishLog(getLogMessage("preparingPayload"));
         const payload = await preparePublishPayload(
@@ -361,7 +317,8 @@ const Reviewer = () => {
         await updateDoiOnPublish(record);
 
         addPublishLog(getLogMessage("markingPublished"));
-        await submitRecord(region, modalUserID, modalKey, "published");
+        await submitRecord(region, modalKey, "published");
+        loadRecords();
 
         showToast("Published to GitHub successfully!", "success");
         addPublishLog(getLogMessage("complete"));
@@ -385,6 +342,7 @@ const Reviewer = () => {
       showToast,
       getLogMessage,
       addPublishLog,
+      loadRecords,
     ],
   );
 
@@ -500,9 +458,6 @@ const Reviewer = () => {
               </Fr>
             </I18n>
           </Typography>
-          <div style={{ marginTop: "12px" }}>
-            <ReviewRegion onError={(message) => showToast(message, "error")} />
-          </div>
         </Grid>
 
         {/* Record List */}
@@ -517,7 +472,6 @@ const Reviewer = () => {
             onSubmitRecord={handleSubmitRecord}
             onTransferRecord={handleTransferRecord}
             onGithubPublishClick={handleGithubPublishClick}
-            onReviewRecord={handleReviewRecord}
             githubPublishEnabled={githubPublishEnabled}
           />
         </Grid>

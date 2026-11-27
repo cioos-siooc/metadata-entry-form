@@ -85,7 +85,7 @@ const ContactLeftList = ({
   const handleAddFromSavedContacts = useCallback(
     (e) => {
       const index = e.target.value;
-      const { role, ...contact } = contactList[index];
+      const { ...contact } = contactList[index];
 
       updateContacts(
         contacts.concat(deepCopy({ ...getBlankContact(), ...contact })),

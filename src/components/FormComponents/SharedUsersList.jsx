@@ -20,6 +20,7 @@ import {
 import { paperClass, SupplementalText } from "./QuestionStyles";
 import { En, Fr, I18n } from "../I18n";
 import { UserContext } from "../../providers/UserProvider";
+import { getRecord } from "../../api/records";
 import { validateEmail } from "../../utils/validate";
 
 // Legacy shares were stored as { userID: true }, with the email only available by
@@ -60,7 +61,7 @@ const emailFailed = (
   />
 );
 
-const SharedUsersList = ({ record, region }) => {
+const SharedUsersList = ({ record, updateRecord, region }) => {
   const { shareRecord, unshareRecord } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -71,12 +72,15 @@ const SharedUsersList = ({ record, region }) => {
   const pendingShares = record.pendingShares || {};
   const emailIsValid = Boolean(email.trim()) && validateEmail(email.trim());
 
-  // The record is kept in sync by MetadataForm's onValue listener, so there is
-  // nothing to update locally once the server has written the change.
+  // Shares live server-side, outside the record document, so pull the fresh
+  // lists back into form state once the server has written the change.
   const run = async (call, args) => {
     setBusy(true);
     try {
       const { data } = await call(args);
+      const fresh = await getRecord(region, recordID);
+      updateRecord("sharedWith")(fresh.sharedWith || {});
+      updateRecord("pendingShares")(fresh.pendingShares || {});
       const failed = data.emailSent === false;
       setFeedback({
         severity: failed ? "warning" : "success",
@@ -179,7 +183,7 @@ const SharedUsersList = ({ record, region }) => {
                 </Typography>
               </Button>
             </Grid>
-            <Grid size={6} style={{ paddingLeft: "35px" }}>
+            <Grid size={{ xs: 12, md: 6 }} style={{ paddingLeft: "35px" }}>
               <Box style={{ margin: "10px" }}>
                 <Typography style={{ fontWeight: "bold" }}>
                   {(Object.keys(sharedWith).length > 0 ||

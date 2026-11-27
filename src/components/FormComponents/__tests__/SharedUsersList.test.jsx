@@ -17,6 +17,10 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+vi.mock("../../../api/records", () => ({
+  getRecord: vi.fn().mockResolvedValue({ sharedWith: {}, pendingShares: {} }),
+}));
+
 const theme = createTheme();
 
 const shareRecord = vi.fn();
@@ -29,6 +33,7 @@ const renderList = (record) =>
         <UserContext.Provider value={{ shareRecord, unshareRecord }}>
           <SharedUsersList
             region="pacific"
+            updateRecord={() => () => {}}
             record={{ recordID: "rec1", language: "en", ...record }}
           />
         </UserContext.Provider>

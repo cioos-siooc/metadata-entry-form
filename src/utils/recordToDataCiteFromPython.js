@@ -1,12 +1,9 @@
-import axios from "axios";
+import { convertMetadata } from "../api/actions";
 import regions from "../regions";
-import { getPythonFunctionUrl } from "./pythonFunctionUrl";
-
-const getConvertMetadataUrl = () => getPythonFunctionUrl("convert_metadata");
 
 /**
- * Converts a metadata record to DataCite JSON format using the Python conversion function,
- * then formats it for the DataCite API.
+ * Converts a metadata record to DataCite JSON format using the metadata
+ * conversion API, then formats it for the DataCite API.
  *
  * @param {Object} record - The metadata record (Firebase schema)
  * @param {string} language - Language code ('en' or 'fr')
@@ -28,36 +25,28 @@ export async function recordToDataCiteFromPython(
   const { forUpdate = false, forUpload = false } = options;
 
   try {
-    // Step 1: Call Python convert_metadata to get DataCite JSON
-    const url = getConvertMetadataUrl();
-    console.log("[recordToDataCite] Calling convert_metadata", {
-      url,
+    // Step 1: Call the metadata conversion API to get DataCite JSON
+    console.log("[recordToDataCite] Calling convertMetadata", {
       forUpdate,
       language,
       region,
       datacitePrefix,
     });
-    const response = await axios.post(url, {
-      data: {
-        record_data: record,
-        output_format: forUpload ? "datacite_json_upload" : "datacite_json",
-      },
+    const response = await convertMetadata({
+      region,
+      record,
+      outputFormat: forUpload ? "datacite_json_upload" : "datacite_json",
     });
-
-    console.log(
-      "[recordToDataCite] convert_metadata response status:",
-      response.status,
-    );
 
     // Extract the DataCite object from the response
     // Response structure: { data: <converted_datacite_object> }
-    if (!response.data || !response.data.data) {
+    if (!response || !response.data) {
       throw new Error(
         "Invalid response structure from convert_metadata function",
       );
     }
 
-    let dataciteObject = response.data.data;
+    let dataciteObject = response.data;
     console.log(
       "[recordToDataCite] Raw dataciteObject type:",
       typeof dataciteObject,
@@ -134,11 +123,11 @@ export async function recordToDataCiteFromPython(
   } catch (error) {
     console.error("[recordToDataCite] Error:", error);
     // Re-throw with context about what went wrong
-    if (error.response) {
-      // HTTP error from the convert_metadata function
+    if (error.name === "ApiError" || error.status) {
+      // HTTP error from the conversion API
       throw new Error(
-        `DataCite conversion failed (${error.response.status}): ${
-          error.response.data?.error || error.message
+        `DataCite conversion failed (${error.status}): ${
+          error.body?.error || error.message
         }`,
       );
     }

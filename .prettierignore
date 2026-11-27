@@ -17,6 +17,7 @@ src/data/githubReleases.json
 
 # WAF HTML template fragments (partials, not valid standalone HTML)
 cioos-records-update/waf/*.html
+deploy/waf/*.html
 
 # Bundled data resources & test fixtures (data, not source)
 firebase_to_xml/firebase_to_xml/resources/*.json

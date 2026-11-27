@@ -51,7 +51,7 @@ const Instruments = ({
 
   return (
     <Grid container direction="row" style={{ marginLeft: "5px" }}>
-      <Grid size={5}>
+      <Grid size={{ xs: 12, md: 5 }}>
         <LeftList
           itemType="instrument"
           items={instruments}

@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { onValue } from "firebase/database";
+import { getGithubCredentials } from "../../api/admin";
 
 import GitHubPublishDialog from "../Dialogs/GitHubPublishDialog";
 
@@ -14,18 +14,10 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-// Mock Firebase onValue to return environments
-vi.mock("firebase/database", async () => {
-  const actual = await vi.importActual("firebase/database");
-  return {
-    ...actual,
-    getDatabase: vi.fn(),
-    ref: vi.fn(),
-    onValue: vi.fn(),
-  };
-});
-
-vi.mock("../../firebase", () => ({ default: {} }));
+// Mock the admin API used to fetch the GitHub publishing config
+vi.mock("../../api/admin", () => ({
+  getGithubCredentials: vi.fn(),
+}));
 
 describe("<GitHubPublishDialog />", () => {
   const mockOnClose = vi.fn();
@@ -35,14 +27,8 @@ describe("<GitHubPublishDialog />", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Setup onValue mock to return our environments immediately
-    onValue.mockImplementation((ref, callback) => {
-      callback({
-        val: () => ({ environments }),
-        exists: () => true,
-      });
-      return vi.fn(); // unsubscribe function
-    });
+    // Setup the admin API mock to return our environments
+    getGithubCredentials.mockResolvedValue({ environments });
   });
 
   it("renders correctly when open", () => {
@@ -58,7 +44,7 @@ describe("<GitHubPublishDialog />", () => {
     expect(screen.getByText("Publish to GitHub")).toBeInTheDocument();
   });
 
-  it("displays checkboxes for each environment fetched from firebase", async () => {
+  it("displays checkboxes for each environment fetched from the API", async () => {
     render(
       <GitHubPublishDialog
         open={true}

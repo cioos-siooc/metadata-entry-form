@@ -9,18 +9,11 @@ import {
   Tooltip,
   Typography,
   LinearProgress,
+  useMediaQuery,
 } from "@mui/material";
 import { withStyles } from "../../tss-cache";
 import { Save } from "@mui/icons-material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import {
-  getDatabase,
-  ref,
-  child,
-  onValue,
-  update,
-  push,
-} from "firebase/database";
 
 import FormClassTemplate from "./FormClassTemplate";
 import { I18n, En, Fr } from "../I18n";
@@ -36,22 +29,18 @@ import IdentificationTab from "../Tabs/IdentificationTab";
 import PlatformTab from "../Tabs/PlatformTab";
 import SpatialTab from "../Tabs/SpatialTab";
 import SubmitTab from "../Tabs/SubmitTab";
-import ReviewFindings, {
-  DRAWER_WIDTH,
-  mergeSuggested,
-  scrollToField,
-  setFindingStatus,
-} from "../FormComponents/ReviewFindings";
 import TaxaTab from "../Tabs/TaxaTab";
 
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
-import firebase from "../../firebase";
-import { firebaseToJSObject, trimStringsInObject } from "../../utils/misc";
+import { trimStringsInObject } from "../../utils/misc";
 import {
+  getRecord,
+  createRecord,
+  saveRecord,
   submitRecord,
   getRegionProjects,
-  standardizeRecord,
-} from "../../utils/firebaseRecordFunctions";
+} from "../../api/records";
+import { contacts, platforms, instruments } from "../../api/entities";
+import { ApiError } from "../../api/client";
 import { UserContext } from "../../providers/UserProvider";
 import { percentValid } from "../../utils/validate";
 import tabs from "../../utils/tabs";
@@ -103,18 +92,15 @@ function TabPanel({ children, value, index, ...other }) {
 const useStyles = (theme) => ({
   tabRoot: {
     minWidth: "115px",
+    [theme.breakpoints.down("md")]: {
+      minWidth: "72px",
+    },
   },
   fab: {
     position: "fixed",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
     zIndex: 5,
-  },
-  // keep Save clear of the open review drawer (it's full-width, temporary, below md)
-  fabBesideDrawer: {
-    [theme.breakpoints.up("md")]: {
-      right: `calc(${DRAWER_WIDTH}px + ${theme.spacing(2)})`,
-    },
   },
 });
 
@@ -144,148 +130,100 @@ export class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen: false,
       doiUpdated: false,
       doiError: false,
-
-      // automated review: drawer open (?review=1 deep-links it), and findings whose fix was
-      // applied in the form but not saved yet (their status is written on save)
-      reviewOpen: new URLSearchParams(props.search).get("review") === "1",
-      pendingApplied: [],
     };
   }
 
   componentDidMount() {
-    const { match, locationState } = this.props;
-    this.setState({ loading: true });
-    const database = getDatabase(firebase);
+    super.componentDidMount?.();
+    this.loadData();
+  }
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
-      if (user) {
-        const { region, recordID } = match.params;
-        const isNewRecord = match.url.endsWith("new");
-        // could be viewer or reviewer
-        const loggedInUserID = user.uid;
-        const recordUserID = isNewRecord ? loggedInUserID : match.params.userID;
-        const loggedInUserOwnsRecord = loggedInUserID === recordUserID;
-        const { isReviewer } = this.context;
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate(prevProps);
+    // auth resolves asynchronously in UserProvider; load once the user appears
+    const userID = this.context.user?.uid;
+    if (userID && userID !== this.loadedForUserID) this.loadData();
+  }
 
-        this.setState({
-          projects: await getRegionProjects(region),
-          loggedInUserID: user.uid,
-        });
-        let editorInfo;
-        // get info of the person openeing the record
-        const editorDataRef = child(
-          ref(database, `${region}/users`),
-          loggedInUserID,
-        );
-        const userinfoRef = child(editorDataRef, "userinfo");
-        onValue(userinfoRef, (userinfo) => {
-          editorInfo = userinfo.toJSON();
+  async loadData() {
+    const { match } = this.props;
+    const user = this.context.user;
+    if (!user) return;
+    this.loadedForUserID = user.uid;
 
-          this.setState({ editorInfo });
-        });
-        this.listenerRefs.push(userinfoRef);
+    const { region, recordID } = match.params;
+    const isNewRecord = match.url.endsWith("new");
+    const loggedInUserID = user.uid;
+    const { isReviewer } = this.context;
 
-        // get info of the original author of record
-        const userDataRef = ref(database, `${region}/users/${recordUserID}`);
-
-        // get contacts
-        const editorContactsRef = child(editorDataRef, "contacts");
-
-        onValue(editorContactsRef, (contactsFB) => {
-          const userContacts = contactsFB.toJSON();
-          Object.entries(userContacts || {}).forEach(([k, v]) => {
-            v.contactID = k;
-          });
-          this.setState({ userContacts });
-        });
-        this.listenerRefs.push(editorContactsRef);
-
-        // get instruments
-        const editorInstrumentsRef = child(editorDataRef, "instruments");
-
-        onValue(editorInstrumentsRef, (instrumentsFB) => {
-          const userInstruments = instrumentsFB.toJSON();
-          Object.entries(userInstruments || {}).forEach(([k, v]) => {
-            v.instrumentID = k;
-          });
-          this.setState({ userInstruments });
-        });
-        this.listenerRefs.push(editorInstrumentsRef);
-
-        // get platforms
-        const editorPlatformsRef = child(editorDataRef, "platforms");
-
-        onValue(editorPlatformsRef, (platformsFB) => {
-          const userPlatforms = platformsFB.toJSON();
-          Object.entries(userPlatforms || {}).forEach(([k, v]) => {
-            v.instrumentID = k;
-          });
-          this.setState({ userPlatforms });
-        });
-        this.listenerRefs.push(editorPlatformsRef);
-
-        // if recordID is set then the user is editing an existing record
-        if (isNewRecord) {
-          // Started from an existing DOI/OBIS/PDC record. It stays in memory
-          // like any other new record, so the user reviews it before saving.
-          const prefill = locationState?.prefillRecord;
-
-          this.setState({
-            loading: false,
-            loggedInUserCanEditRecord: true,
-            ...(prefill && {
-              record: standardizeRecord(
-                normalizePrefilledRecord(prefill),
-                null,
-                null,
-                "",
-              ),
-            }),
-          });
-        } else {
-          const recRef = child(userDataRef, `records/${recordID}`);
-          onValue(recRef, (recordFireBase) => {
-            // Record not found, eg a bad link
-            const recordFireBaseObj = recordFireBase.toJSON();
-            if (!recordFireBaseObj) {
-              this.setState({ loading: false, record: null });
-
-              return;
-            }
-            const record = firebaseToJSObject(recordFireBaseObj);
-
-            // Older records store `true`, newer ones store the recipient's email.
-            const loggedInUserIsSharedWith = Boolean(
-              record.sharedWith && record.sharedWith[loggedInUserID],
-            );
-
-            const loggedInUserCanEditRecord =
-              isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
-
-            // When only qa changed (review results, or an Apply/Ignore/Reject status), keep
-            // unsaved edits and take just qa; otherwise Apply's edit is wiped by its own write.
-            const { qa, ...withoutQa } = record;
-            const onlyQaChanged =
-              this.lastLoadedRecord === JSON.stringify(withoutQa);
-            this.lastLoadedRecord = JSON.stringify(withoutQa);
-            this.setState(({ record: current, pendingApplied }) => {
-              const keepEdits = onlyQaChanged && current?.recordID === recordID;
-              return {
-                record: keepEdits
-                  ? { ...current, qa }
-                  : standardizeRecord(record, null, null, recordID),
-                // a reset discards unsaved Applies, so they mustn't be marked applied on save
-                pendingApplied: keepEdits ? pendingApplied : [],
-                loggedInUserCanEditRecord,
-              };
-            });
-
-            this.setState({ loading: false });
-          });
-          this.listenerRefs.push(recRef);
-        }
-      }
+    this.safeSetState({
+      loading: true,
+      loggedInUserID,
+      editorInfo: { email: user.email, displayName: user.displayName },
     });
+
+    const [projects] = await Promise.all([
+      getRegionProjects(region),
+      this.loadUserEntities(),
+    ]);
+    this.safeSetState({ projects });
+
+    if (isNewRecord) {
+      // Started from an existing DOI/OBIS/PDC record. It stays in memory
+      // like any other new record, so the user reviews it before saving.
+      const prefill = this.props.locationState?.prefillRecord;
+      this.safeSetState({
+        loading: false,
+        loggedInUserCanEditRecord: true,
+        ...(prefill && { record: normalizePrefilledRecord(prefill) }),
+      });
+      return;
+    }
+
+    try {
+      const record = await getRecord(region, recordID);
+      const loggedInUserOwnsRecord = record.userID === loggedInUserID;
+      // Older records store `true`, newer ones store the recipient's email.
+      const loggedInUserIsSharedWith = Boolean(
+        record.sharedWith?.[loggedInUserID],
+      );
+      const loggedInUserCanEditRecord =
+        isReviewer || loggedInUserOwnsRecord || loggedInUserIsSharedWith;
+
+      this.safeSetState({
+        record,
+        loggedInUserCanEditRecord,
+        loading: false,
+      });
+    } catch {
+      // Record not found, eg a bad link
+      this.safeSetState({ loading: false, record: null });
+    }
+  }
+
+  // saved contacts/instruments/platforms of the logged-in editor, keyed
+  // objects with ids injected — the shape the tab components expect
+  async loadUserEntities() {
+    const { match } = this.props;
+    const { region } = match.params;
+    const loggedInUserID = this.context.user?.uid;
+    if (!loggedInUserID) return;
+
+    const [userContacts, userInstruments, userPlatforms] = await Promise.all([
+      contacts.list(region, loggedInUserID),
+      instruments.list(region, loggedInUserID),
+      platforms.list(region, loggedInUserID),
+    ]);
+    Object.entries(userContacts || {}).forEach(([k, v]) => {
+      v.contactID = k;
+    });
+    Object.entries(userInstruments || {}).forEach(([k, v]) => {
+      v.instrumentID = k;
+    });
+    Object.entries(userPlatforms || {}).forEach(([k, v]) => {
+      v.instrumentID = k;
+    });
+    this.safeSetState({ userContacts, userInstruments, userPlatforms });
   }
 
   toggleModal = (modalName, state, key = "", userID) => {
@@ -310,25 +248,20 @@ export class MetadataForm extends FormClassTemplate {
     );
   };
 
-  saveUpdateContact(contact) {
+  async saveUpdateContact(contact) {
     const { contactID } = contact;
     const { match } = this.props;
     const { region } = match.params;
-    const database = getDatabase(firebase);
+    const loggedInUserID = this.context.user.uid;
 
-    const contactsRef = ref(
-      database,
-      `${region}/users/${auth.currentUser.uid}/contacts`,
-    );
-
-    // existing contact
+    let id = contactID;
     if (contactID) {
-      update(child(contactsRef, contactID), contact);
-      return contactID;
+      await contacts.update(region, loggedInUserID, contactID, contact);
+    } else {
+      id = await contacts.create(region, loggedInUserID, contact);
     }
-    // new contact
-
-    return push(contactsRef, contact).key;
+    this.loadUserEntities();
+    return id;
   }
 
   async handleUpdateDraftDOI() {
@@ -361,67 +294,54 @@ export class MetadataForm extends FormClassTemplate {
     }
   }
 
-  handleSaveUpdateInstrument(instrument) {
+  async handleSaveUpdateInstrument(instrument) {
     const { id } = instrument;
     const { match } = this.props;
-
     const { region } = match.params;
+    const loggedInUserID = this.context.user.uid;
 
-    const database = getDatabase(firebase);
-    const instrumentsRef = ref(
-      database,
-      `${region}/users/${auth.currentUser.uid}/instruments`,
-    );
-
-    // existing instrument
+    let instrumentID = id;
     if (id) {
-      update(child(instrumentsRef, id), instrument);
-      return id;
+      await instruments.update(region, loggedInUserID, id, instrument);
+    } else {
+      instrumentID = await instruments.create(
+        region,
+        loggedInUserID,
+        instrument,
+      );
     }
-    // new instrument
-    // eslint-disable-next-line no-debugger
-    debugger;
-
-    return push(instrumentsRef, instrument).key;
+    this.loadUserEntities();
+    return instrumentID;
   }
 
-  handleSaveUpdatePlatform(platform) {
+  async handleSaveUpdatePlatform(platform) {
     const { id } = platform;
     const { match } = this.props;
-
     const { region } = match.params;
+    const loggedInUserID = this.context.user.uid;
 
-    const database = getDatabase(firebase);
-    const platformRef = ref(
-      database,
-      `${region}/users/${auth.currentUser.uid}/platforms`,
-    );
-
-    // existing instrument
+    let platformID = id;
     if (id) {
-      update(child(platformRef, id), platform);
-      return id;
+      await platforms.update(region, loggedInUserID, id, platform);
+    } else {
+      platformID = await platforms.create(region, loggedInUserID, platform);
     }
-    // new instrument
-
-    return push(platformRef, platform).key;
+    this.loadUserEntities();
+    return platformID;
   }
 
   async handleSubmitRecord() {
     const { match } = this.props;
-    const { region, userID } = match.params;
-    const isNewRecord = match.url.endsWith("new");
-    const { record } = this.state;
-
-    // Bit of logic here to decide if this is a user submitting their own form
-    // or a reviewer submitting it
-    const loggedInUserID = auth.currentUser.uid;
-    const recordUserID = isNewRecord ? loggedInUserID : userID;
+    const { region } = match.params;
 
     const recordID = await this.handleSaveClick();
     await this.handleUpdateDraftDOI();
 
-    return submitRecord(region, recordUserID, recordID, "submitted", record);
+    const updated = await submitRecord(region, recordID, "submitted");
+    this.safeSetState(({ record }) => ({
+      record: { ...record, status: updated.status, filename: updated.filename },
+    }));
+    return updated;
   }
 
   // userOKedRecordDemotion - user has clicked that they understand that their record will be
@@ -429,18 +349,14 @@ export class MetadataForm extends FormClassTemplate {
   async handleSaveClick(userOKedRecordDemotion = false) {
     const { match, history } = this.props;
     const { language, region } = match.params;
-    const userID = match.params.userID || auth.currentUser.uid;
-    const database = getDatabase(firebase);
+    const userID = match.params.userID || this.context.user.uid;
 
-    const recordsRef = ref(database, `${region}/users/${userID}/records`);
-
-    // remove userContacts since they get saved elsewhere
     const { editorInfo } = this.state;
 
-    // trim whitespace from all srtings in record
+    // trim whitespace from all strings in record
     const record = trimStringsInObject(this.state.record);
 
-    // record doesn't have required fieds filled
+    // record doesn't have required fields filled
     const recordIsComplete = percentValid(record) === 1;
 
     if (record.status === "published" && !recordIsComplete) {
@@ -457,62 +373,52 @@ export class MetadataForm extends FormClassTemplate {
     // created is really "last updated"
     record.created = new Date().toISOString();
 
-    // having userID down here makes it easier to transfer records
-    record.userID = userID;
-
     record.region = region;
-
     record.lastEditedBy = editorInfo;
-    // Taken before writing: the record listener drops pendingApplied when the save echoes back.
-    const { pendingApplied } = this.state;
+
     let recordID;
-    if (record.recordID) {
-      recordID = record.recordID;
-      // qa is written by the review functions only; the rules reject it from clients.
-      const { qa, ...recordWithoutQa } = record;
-      await update(
-        child(recordsRef, record.recordID),
-        // using blankRecord here in case there are new fields that the old record didn't have
-        { ...getBlankRecord(), ...recordWithoutQa },
-      );
-    } else {
-      // new record
-      const newNode = await push(recordsRef, record);
-
-      // cheesy workaround to the issue of push() not saving dates
-      await update(newNode, record);
-      recordID = newNode.key;
-      this.setState({
-        record: { ...record, recordID },
-      });
-      history.push(`/${language}/${region}/${userID}/${recordID}`);
+    try {
+      if (record.recordID) {
+        recordID = record.recordID;
+        const saved = await saveRecord(
+          region,
+          recordID,
+          // using blankRecord here in case there are new fields that the old record didn't have
+          { ...getBlankRecord(), ...record },
+          { ifUnmodifiedSince: record.updatedAt },
+        );
+        this.safeSetState({
+          record: { ...record, updatedAt: saved.updatedAt },
+        });
+      } else {
+        // new record
+        const created = await createRecord(region, record);
+        recordID = created.recordID;
+        this.safeSetState({
+          record: { ...record, recordID, updatedAt: created.updatedAt },
+        });
+        history.push(`/${language}/${region}/${userID}/${recordID}`);
+      }
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        // eslint-disable-next-line no-alert
+        alert(
+          language === "fr"
+            ? "Cet enregistrement a été modifié par quelqu'un d'autre. Rechargez la page pour voir la dernière version."
+            : "This record was changed by someone else. Reload the page to see the latest version.",
+        );
+        return;
+      }
+      throw err;
     }
 
-    if (pendingApplied.length) {
-      await Promise.all(
-        pendingApplied.map((id) =>
-          setFindingStatus(region, userID, recordID, id, { status: "applied" }),
-        ),
-      );
-      this.setState(({ pendingApplied: current }) => ({
-        pendingApplied: current.filter((id) => !pendingApplied.includes(id)),
-      }));
-    }
-
-    // regnerate XML on save
+    // regenerate XML on save
     if (["submitted", "published"].includes(record.status)) {
       const { regenerateXMLforRecord } = this.context;
-
-      const path = `${region}/${userID}/${recordID}`;
-      const { status, filename } = record;
-
-      regenerateXMLforRecord({ path, status, filename, region });
+      regenerateXMLforRecord({ region, recordID });
     }
 
-    this.setState({ saveDisabled: true });
-    // if (match.url.endsWith("new")) {
-    // set the URL so its shareable
-    // }
+    this.safeSetState({ saveDisabled: true });
 
     return recordID;
   }
@@ -520,7 +426,7 @@ export class MetadataForm extends FormClassTemplate {
   render() {
     const { match } = this.props;
     const { language } = match.params;
-    const { isReviewer, isAdmin } = this.context;
+    const { isReviewer } = this.context;
 
     const {
       userContacts,
@@ -535,8 +441,6 @@ export class MetadataForm extends FormClassTemplate {
       saveIncompleteRecordModalOpen,
       projects,
       loggedInUserID,
-      reviewOpen,
-      pendingApplied,
     } = this.state;
 
     if (!record) {
@@ -565,7 +469,6 @@ export class MetadataForm extends FormClassTemplate {
         justifyContent="space-between"
         alignItems="stretch"
         spacing={3}
-        sx={{ pr: { md: reviewOpen ? `${DRAWER_WIDTH}px` : 0 } }}
       >
         <SimpleModal
           open={saveIncompleteRecordModalOpen}
@@ -587,7 +490,7 @@ export class MetadataForm extends FormClassTemplate {
         <Fab
           color="primary"
           aria-label="add"
-          className={`${classes.fab} ${reviewOpen ? classes.fabBesideDrawer : ""}`}
+          className={classes.fab}
           disabled={
             saveDisabled || !(record.title.en || record.title.fr) || disabled
           }
@@ -609,8 +512,9 @@ export class MetadataForm extends FormClassTemplate {
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid size="grow">
             <Tabs
-              scrollButtons="auto"
-              variant="fullWidth"
+              scrollButtons={this.props.isSmallScreen ? true : "auto"}
+              allowScrollButtonsMobile
+              variant={this.props.isSmallScreen ? "scrollable" : "fullWidth"}
               value={tabIndex}
               onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
               aria-label="simple tabs example"
@@ -697,29 +601,6 @@ export class MetadataForm extends FormClassTemplate {
               </Typography>
             </div>
           </Grid>
-          {(isReviewer || isAdmin) && (
-            <Grid size={12}>
-              <ReviewFindings
-                record={record}
-                unsaved={!saveDisabled}
-                onApplySuggested={(finding) =>
-                  this.setState(
-                    ({ record: current, pendingApplied: pending }) => ({
-                      record: mergeSuggested(current, finding.suggested),
-                      pendingApplied: [...pending, finding.id],
-                      saveDisabled: false,
-                    }),
-                  )
-                }
-                pendingApplied={pendingApplied}
-                onGoToTab={(tab, key) =>
-                  this.setState({ tabIndex: tab }, () => scrollToField(key))
-                }
-                open={reviewOpen}
-                onOpenChange={(open) => this.setState({ reviewOpen: open })}
-              />
-            </Grid>
-          )}
         </Grid>
         <TabPanel value={tabIndex} index="start">
           <StartTab {...tabProps} />
@@ -775,6 +656,8 @@ const MetadataFormWrapper = (props) => {
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  // 8-9 tabs at 115px don't fit below ~1000px; switch to scrollable tabs
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   // Create a match-like object for compatibility
   const match = {
@@ -787,6 +670,7 @@ const MetadataFormWrapper = (props) => {
       {...props}
       match={match}
       history={{ push: navigate }}
+      isSmallScreen={isSmallScreen}
       locationState={location.state}
       search={location.search}
     />

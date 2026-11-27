@@ -9,7 +9,7 @@ import { QuestionText, SupplementalText } from "./QuestionStyles";
 import RequiredMark from "./RequiredMark";
 import { En, Fr, I18n } from "../I18n";
 import SelectInput from "./SelectInput";
-import platformTypes from "../../platforms.json";
+import platformTypes from "@cioos/shared/platforms.json";
 import LeftList from "./LeftList";
 import PlatformTitle from "./PlatformTitle";
 import { getBlankPlatform } from "../../utils/blankRecord";
@@ -42,7 +42,7 @@ const Platform = ({
   return (
     <div>
       <Grid container direction="row" style={{ marginLeft: "5px" }}>
-        <Grid size={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <LeftList
             itemType="platform"
             items={platforms}

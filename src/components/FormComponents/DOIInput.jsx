@@ -24,11 +24,10 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { useDebounce } from "use-debounce";
 import { useParams } from "react-router-dom";
-import { getDatabase, ref, child, update } from "firebase/database";
+import { saveRecord } from "../../api/records";
 
 import { En, Fr, I18n } from "../I18n";
 
-import firebase from "../../firebase";
 import { validateDOI } from "../../utils/validate";
 
 import { QuestionText, SupplementalText, paperClass } from "./QuestionStyles";
@@ -59,7 +58,7 @@ const DOIInput = ({
     isReviewer,
     isAdmin,
   } = useContext(UserContext);
-  const { language, region, userID } = useParams();
+  const { language, region } = useParams();
   const availableSuffixModes = useMemo(
     () =>
       Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0
@@ -197,7 +196,6 @@ const DOIInput = ({
     setLoadingDoi(true);
     setDoiErrorFlag(false);
     setDoiErrorMessage("");
-    const database = getDatabase(firebase);
 
     console.log("[DOIInput] handleGenerateDOI", {
       region,
@@ -263,14 +261,8 @@ const DOIInput = ({
             doiCreationStatus: "draft",
           };
 
-          // Save the updated record to the Firebase database
-          const recordsRef = ref(database, `${region}/users/${userID}/records`);
-
           if (record.recordID) {
-            await update(child(recordsRef, record.recordID), {
-              datasetIdentifier: updatedRecord.datasetIdentifier,
-              doiCreationStatus: updatedRecord.doiCreationStatus,
-            });
+            await saveRecord(region, record.recordID, updatedRecord);
           }
 
           setDoiGenerated(true);
@@ -352,7 +344,6 @@ const DOIInput = ({
     setLoadingDoiDelete(true);
     setDoiErrorFlag(false);
     setDoiErrorMessage("");
-    const database = getDatabase(firebase);
 
     try {
       // Extract DOI from the full URL (supports http/https and dx.doi.org)
@@ -376,17 +367,8 @@ const DOIInput = ({
               doiCreationStatus: "",
             };
 
-            // Save the updated record to the Firebase database
-            const recordsRef = ref(
-              database,
-              `${region}/users/${userID}/records`,
-            );
-
             if (record.recordID) {
-              await update(child(recordsRef, record.recordID), {
-                datasetIdentifier: updatedRecord.datasetIdentifier,
-                doiCreationStatus: updatedRecord.doiCreationStatus,
-              });
+              await saveRecord(region, record.recordID, updatedRecord);
             }
 
             setDoiGenerated(false);
@@ -418,7 +400,6 @@ const DOIInput = ({
       /^https?:\/\/(?:dx\.)?doi\.org\//,
       "",
     );
-    const database = getDatabase(firebase);
     try {
       let result;
       if (targetState === "findable") {
@@ -437,8 +418,8 @@ const DOIInput = ({
       const newState = result?.data?.state || targetState;
       handleUpdateDoiCreationStatus({ target: { name, value: newState } });
       if (record.recordID) {
-        const recordsRef = ref(database, `${region}/users/${userID}/records`);
-        await update(child(recordsRef, record.recordID), {
+        await saveRecord(region, record.recordID, {
+          ...record,
           doiCreationStatus: newState,
         });
       }
@@ -476,12 +457,15 @@ const DOIInput = ({
     return () => {
       mounted.current = false;
     };
+    // handleUpdateDoiCreationStatus is deliberately left out: MetadataForm
+    // creates it on every render, so depending on it re-runs this effect, which
+    // sets state in the parent, which re-renders — an infinite loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     debouncedDoiIdValue,
     getDoiStatus,
     doiIsValid,
     datacitePrefix,
-    handleUpdateDoiCreationStatus,
     name,
     region,
   ]);

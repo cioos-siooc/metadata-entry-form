@@ -12,7 +12,7 @@ function formatDate(date) {
     const y = date.getFullYear();
     // This is to get around the issue of timezones and dates
     return new Date(y, m, d, 12, 0, 0, 0).toISOString();
-  } catch (e) {
+  } catch {
     return null;
   }
 }

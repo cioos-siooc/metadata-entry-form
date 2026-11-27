@@ -1,5 +1,3 @@
-// Synced from cioos-siooc/cioos-commons via .github/sync.yml — do not hand-edit.
-import eovs from "./data/eovs.json";
-import eovCategories from "./data/eovCategories.json";
-
-export { eovs, eovCategories };
+// Moved to the @cioos/shared workspace so the web SPA and the Expo app share
+// one source of truth. Re-exported here so existing imports keep working.
+export { eovs, eovCategories } from "@cioos/shared/eovs.js";

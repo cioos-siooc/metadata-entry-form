@@ -1,23 +1,15 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-// Mock firebase/functions
+// Mock the API actions module
 const mockUpdateDraftDoi = vi.fn();
-vi.mock("firebase/functions", () => ({
-  getFunctions: vi.fn(() => ({})),
-  httpsCallable: vi.fn(() => mockUpdateDraftDoi),
+vi.mock("../../api/actions", () => ({
+  updateDraftDoi: (...args) => mockUpdateDraftDoi(...args),
 }));
 
 // Mock recordToDataCiteFromPython
 const mockRecordToDataCite = vi.fn();
 vi.mock("../recordToDataCiteFromPython", () => ({
   recordToDataCiteFromPython: (...args) => mockRecordToDataCite(...args),
-}));
-
-// Mock firebase
-vi.mock("../../firebase", () => ({
-  default: {
-    options: { projectId: "test-project" },
-  },
 }));
 
 // Import after mocks

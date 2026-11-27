@@ -1,0 +1,533 @@
+{
+  "tabs": {
+    "records": "Fiches",
+    "library": "Bibliothèque",
+    "review": "Révision",
+    "more": "Plus"
+  },
+  "records": {
+    "title": "Mes fiches",
+    "mine": "Les miennes",
+    "shared": "Partagées",
+    "published": "Publiées",
+    "empty": {
+      "title": "Aucune fiche",
+      "body": "Les fiches que vous créez apparaîtront ici et resteront accessibles hors ligne.",
+      "action": "Nouvelle fiche"
+    },
+    "emptyShared": "Rien n'a été partagé avec vous dans cette région.",
+    "emptyPublished": "Aucune fiche publiée dans cette région pour le moment.",
+    "loadFailedOffline": "Affichage des données enregistrées sur cet appareil. Reconnectez-vous pour voir les plus récentes.",
+    "loadFailed": "Impossible de charger les fiches.",
+    "untitled": "Fiche sans titre",
+    "status": {
+      "draft": "Brouillon",
+      "submitted": "Soumise",
+      "published": "Publiée"
+    },
+    "editedBy": "par {{name}}",
+    "newRecord": "Nouvelle fiche",
+    "createFailed": "Impossible de créer une fiche.",
+    "staleList": "Affichage des données de cet appareil. Tirez pour rafraîchir une fois reconnecté."
+  },
+  "library": {
+    "contacts": "Contacts",
+    "platforms": "Plateformes",
+    "instruments": "Instruments",
+    "contactsHelp": "Personnes et organisations réutilisées d'une fiche à l'autre.",
+    "platformsHelp": "Navires, mouillages et autres plateformes réutilisables.",
+    "instrumentsHelp": "Instruments réutilisés d'une fiche à l'autre.",
+    "empty": "Rien d'enregistré pour le moment.",
+    "add": "Ajouter",
+    "save": "Enregistrer",
+    "deleted": "Supprimé",
+    "loadFailed": "Impossible de charger votre bibliothèque.",
+    "addFrom": {
+      "contacts": "Depuis les contacts enregistrés",
+      "platforms": "Depuis les plateformes enregistrées",
+      "instruments": "Depuis les instruments enregistrés"
+    },
+    "search": "Rechercher dans les entrées enregistrées",
+    "cached": "Copie enregistrée — peut être périmée",
+    "emptyForRecord": "Rien d'enregistré. Enregistrez une entrée depuis une fiche pour la réutiliser.",
+    "noMatches": "Aucun résultat",
+    "unavailable": "La bibliothèque nécessite une connexion.",
+    "saveTo": "Enregistrer dans la bibliothèque",
+    "saved": "Enregistré dans la bibliothèque",
+    "saveOffline": "L'enregistrement nécessite une connexion",
+    "title": "Votre bibliothèque",
+    "addOne": {
+      "contacts": "Ajouter un contact",
+      "platforms": "Ajouter une plateforme",
+      "instruments": "Ajouter un instrument"
+    }
+  },
+  "review": {
+    "title": "Réviser et soumettre",
+    "ready": "Tous les champs requis sont remplis.",
+    "notReady": "Complétez les éléments manquants avant de soumettre.",
+    "submit": "Soumettre pour révision",
+    "submitted": "Soumis pour révision",
+    "ownerOnly": "Seul le propriétaire de la fiche peut la soumettre.",
+    "mustSaveFirst": "Enregistrez la fiche avant de la soumettre."
+  },
+  "more": {
+    "title": "Plus",
+    "region": "Région",
+    "language": "Langue",
+    "appearance": "Apparence",
+    "signOut": "Se déconnecter",
+    "designPreview": "Aperçu du design",
+    "account": "Compte et données",
+    "development": "Développement",
+    "devTools": "Serveurs et régions",
+    "rotation": "Rotation"
+  },
+  "appearance": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "night": "Nuit",
+    "nightHint": "Teinté rouge, pour préserver la vision nocturne à la passerelle."
+  },
+  "sync": {
+    "offline": "Hors ligne — les modifications sont enregistrées sur cet appareil",
+    "savedLocally": "Enregistré sur cet appareil",
+    "savedToServer": "Enregistré dans le SIOOC",
+    "pending_one": "{{count}} modification en attente",
+    "pending_other": "{{count}} modifications en attente",
+    "syncing": "Synchronisation…",
+    "failed": "Certaines modifications nécessitent votre attention"
+  },
+  "completeness": {
+    "label": "Complété",
+    "remaining_one": "{{count}} restant",
+    "remaining_other": "{{count}} restants",
+    "done": "Terminé",
+    "notStarted": "Non commencé"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signInTo": "Se connecter à {{region}}",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "continueWith": "Ou continuer avec",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "orcid": "ORCID",
+    "signingIn": "Connexion…",
+    "cancelled": "La connexion a été annulée.",
+    "offlineCannotSignIn": "Une connexion Internet est requise pour la première connexion.",
+    "invalidCredentials": "Ce courriel et ce mot de passe ne correspondent pas.",
+    "unverified": "Vérifiez votre courriel et confirmez votre adresse avant de vous connecter.",
+    "noPassword": "Ce compte se connecte avec Google, Microsoft ou ORCID. Utilisez l'un de ces services ou définissez un mot de passe depuis l'application Web."
+  },
+  "regionSelect": {
+    "title": "Choisissez votre région",
+    "subtitle": "Vous pourrez changer ce choix plus tard sous Plus.",
+    "loadFailed": "Affichage des régions incluses dans l'application — la liste en ligne est inaccessible et peut être obsolète.",
+    "retry": "Réessayer"
+  },
+  "common": {
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "loading": "Chargement…",
+    "back": "Retour"
+  },
+  "designPreview": {
+    "title": "Aperçu du design",
+    "subtitle": "L'accent de chaque région, ajusté et vérifié pour le contraste dans chaque thème.",
+    "typeScale": "Échelle typographique",
+    "semantic": "Couleurs sémantiques",
+    "accents": "Accents régionaux",
+    "contrast": "{{ratio}}:1"
+  },
+  "sections": {
+    "identification": "Identification",
+    "about": "À propos des données",
+    "when": "Quand",
+    "where": "Où",
+    "who": "Qui",
+    "platform": "Plateforme et instruments",
+    "species": "Espèces",
+    "resources": "Ressources et provenance"
+  },
+  "ledger": {
+    "state": {
+      "empty": "Non commencé",
+      "attention": "À compléter",
+      "complete": "Complété",
+      "filled": "Ajouté"
+    },
+    "required": "{{satisfied}} sur {{required}} requis",
+    "fields": "{{filled}} sur {{total}} champs",
+    "noneRequired": "Rien n'est requis ici",
+    "readyToSubmit": "Prêt à soumettre",
+    "notReady": "{{count}} encore requis",
+    "openSection": "Ouvrir {{section}}"
+  },
+  "identification": {
+    "titleHelp": "Un nom court et descriptif pour le jeu de données. Les deux langues sont requises.",
+    "themeHelp": "Le type de données. Choisir une discipline rend la section « Où » obligatoire.",
+    "scopeHelp": "Ce que décrit la fiche.",
+    "titleLabel": "Titre du jeu de données",
+    "themeLabel": "Thème",
+    "scopeLabel": "Ce que décrit cette fiche"
+  },
+  "when": {
+    "collectionHelp": "Quand les données ont été recueillies.",
+    "start": "Début de la collecte",
+    "end": "Fin de la collecte",
+    "published": "Publication",
+    "revised": "Révision",
+    "edition": "Édition",
+    "editionHelp": "Une version pour ce jeu de données, par exemple 1.1."
+  },
+  "editor": {
+    "save": "Enregistrer",
+    "saved": "Enregistré sur cet appareil",
+    "queued": "En attente de synchronisation",
+    "saving": "Enregistrement…",
+    "back": "Terminé"
+  },
+  "repeater": {
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "remove": "Supprimer",
+    "addContact": "Ajouter un contact",
+    "addPlatform": "Ajouter une plateforme",
+    "addInstrument": "Ajouter un instrument",
+    "addResource": "Ajouter une ressource"
+  },
+  "about": {
+    "abstract": "Résumé",
+    "abstractHelp": "Ce que contient le jeu de données. Les deux langues sont requises.",
+    "keywords": "Mots-clés",
+    "keywordsHelp": "Incluez la communauté ou le lieu géographique le plus proche.",
+    "eov": "Variables océaniques essentielles",
+    "eovHelp": "Ce qui a été mesuré. Au moins une est requise.",
+    "eovDeprecated": "Cette variable est obsolète et empêchera la soumission.",
+    "progress": "État",
+    "license": "Licence",
+    "licenseHelp": "Comment les autres peuvent utiliser les données.",
+    "limitations": "Limites",
+    "addKeyword": "Ajouter",
+    "datasetLanguage": "Langue principale du jeu de données",
+    "datasetLanguageHelp": "La langue des données elles-mêmes, et non celle de l'application.",
+    "projects": "Projets",
+    "projectsHelp": "Projets auxquels cette fiche appartient."
+  },
+  "where": {
+    "bbox": "Cadre englobant",
+    "bboxHelp": "Limites nord, sud, est et ouest en degrés décimaux.",
+    "north": "Nord",
+    "south": "Sud",
+    "east": "Est",
+    "west": "Ouest",
+    "polygon": "Polygone",
+    "polygonHelp": "Paires lat,lon séparées par des espaces. La première et la dernière doivent correspondre.",
+    "vertical": "Étendue verticale",
+    "verticalHelp": "Plage de profondeur ou de hauteur couverte.",
+    "min": "Minimum",
+    "max": "Maximum",
+    "direction": "Direction",
+    "epsg": "Code EPSG",
+    "noVertical": "Aucune étendue verticale",
+    "useMyLocation": "Utiliser ma position",
+    "locationFailed": "Impossible d'obtenir votre position."
+  },
+  "who": {
+    "help": "Qui contacter au sujet de ce jeu de données. Un dépositaire et un propriétaire sont requis.",
+    "orgName": "Organisation",
+    "orgEmail": "Courriel de l'organisation",
+    "orgUrl": "Site Web de l'organisation",
+    "givenNames": "Prénoms",
+    "lastName": "Nom",
+    "position": "Poste",
+    "indEmail": "Courriel personnel",
+    "orcid": "ORCID",
+    "roles": "Rôles",
+    "inCitation": "Inclure dans la citation",
+    "rorSearch": "Trouver un organisme (ROR)",
+    "rorPlaceholder": "Pêches et Océans Canada",
+    "searching": "Recherche en cours…",
+    "orcidLookup": "Remplir à partir d'un ORCID",
+    "orcidPrivate": "Ce profil ORCID garde son nom privé. Saisissez-le à la main.",
+    "lookupOffline": "Les recherches nécessitent une connexion. Saisissez les détails à la main.",
+    "lookupFailed": "La recherche a échoué. Saisissez les détails à la main.",
+    "orgCity": "Ville",
+    "orgCountry": "Pays",
+    "orgRor": "URL ROR"
+  },
+  "platformSection": {
+    "help": "La plateforme depuis laquelle les instruments ont été déployés.",
+    "noPlatform": "Aucune plateforme",
+    "type": "Type",
+    "id": "Identifiant",
+    "description": "Description",
+    "instruments": "Instruments",
+    "manufacturer": "Fabricant",
+    "version": "Version",
+    "platforms": "Plateformes"
+  },
+  "species": {
+    "help": "Espèces observées dans ce jeu de données.",
+    "noTaxa": "Aucune couverture taxonomique",
+    "scientificName": "Nom scientifique",
+    "search": "Rechercher dans GBIF",
+    "searchHelp": "Trouvez un taxon par son nom. Les entrées saisies à la main sont tout aussi valides.",
+    "searching": "Recherche en cours…",
+    "offlineResults": "Affichage des taxons déjà vus sur cet appareil.",
+    "offlineNone": "GBIF est injoignable et aucun taxon correspondant n'est enregistré sur cet appareil. Saisissez le nom à la main.",
+    "addTaxon": "Ajouter {{name}}",
+    "addByHand": "Ajouter un taxon à la main",
+    "taxaList": "Taxons de cette fiche"
+  },
+  "resourcesSection": {
+    "help": "Où les données peuvent être téléchargées.",
+    "url": "URL",
+    "name": "Nom",
+    "description": "Description",
+    "distribution": "Ressources"
+  },
+  "conflict": {
+    "title": "Conflit de modifications",
+    "banner": "Quelqu'un d'autre a modifié cette fiche",
+    "explain": "Vous avez modifié cette fiche pendant qu'elle changeait aussi dans le SIOOC. Rien n'est perdu — choisissez ce qu'il faut conserver.",
+    "autoMergeable": "Les modifications ne se chevauchent pas : les deux peuvent être conservées.",
+    "contested": "{{count}} champ modifié des deux côtés",
+    "contested_one": "{{count}} champ modifié des deux côtés",
+    "contested_other": "{{count}} champs modifiés des deux côtés",
+    "yours": "Les vôtres",
+    "theirs": "Dans le SIOOC",
+    "base": "Avant",
+    "keepMine": "Conserver les miennes",
+    "keepTheirs": "Conserver les leurs",
+    "merge": "Conserver les deux",
+    "resolved": "Résolu",
+    "empty": "(vide)",
+    "localOnly": "Modifié par vous seulement",
+    "remoteOnly": "Modifié dans le SIOOC seulement",
+    "other": "Autres champs"
+  },
+  "reviewQueue": {
+    "title": "Révision",
+    "subtitle": "Fiches soumises dans cette région.",
+    "empty": "Aucune fiche en attente de révision.",
+    "all": "Toutes",
+    "submitted": "Soumises",
+    "published": "Publiées",
+    "drafts": "Brouillons",
+    "publish": "Publier",
+    "unpublish": "Remettre en soumission",
+    "returnToDraft": "Remettre en brouillon",
+    "actionFailed": "L'opération a échoué. Réessayez.",
+    "confirm": "Confirmer ?"
+  },
+  "map": {
+    "title": "Sur une carte",
+    "boxMode": "Dessiner un cadre",
+    "polygonMode": "Dessiner une forme",
+    "done": "Terminé",
+    "clear": "Effacer",
+    "recentre": "Recentrer",
+    "boxHint": "Touchez deux coins opposés.",
+    "polygonHint": "Touchez pour ajouter des points, puis Terminé.",
+    "points": "{{count}} point",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "needsThree": "Une forme nécessite au moins trois points.",
+    "undo": "Annuler le dernier point",
+    "noShape": "Aucune zone définie."
+  },
+  "register": {
+    "title": "Créer un compte",
+    "name": "Votre nom",
+    "submit": "Créer le compte",
+    "haveAccount": "J'ai déjà un compte",
+    "check": "Vérifiez vos courriels",
+    "sent": "Si cette adresse peut être utilisée, nous avons envoyé un lien de confirmation.",
+    "passwordRule": "Au moins 8 caractères.",
+    "weak": "Ce mot de passe est trop court."
+  },
+  "forgot": {
+    "title": "Aide pour le mot de passe",
+    "explain": "Nous vous enverrons un lien pour définir un nouveau mot de passe.",
+    "submit": "Envoyer le lien",
+    "sent": "Si cette adresse est enregistrée, le lien est en route.",
+    "back": "Retour à la connexion",
+    "link": "Mot de passe oublié ?",
+    "oauthNote": "Cela fonctionne aussi si vous vous connectez habituellement avec Google, Microsoft ou ORCID et souhaitez ajouter un mot de passe."
+  },
+  "reset": {
+    "title": "Définir un mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "submit": "Enregistrer",
+    "done": "Mot de passe enregistré. Vous pouvez vous connecter.",
+    "invalid": "Ce lien a expiré. Demandez-en un nouveau."
+  },
+  "verify": {
+    "title": "Confirmation de votre courriel",
+    "working": "Un instant…",
+    "done": "Votre courriel est confirmé. Vous pouvez vous connecter.",
+    "invalid": "Ce lien a expiré. Essayez de vous connecter pour en obtenir un nouveau."
+  },
+  "setPassword": {
+    "title": "Mot de passe",
+    "addHelp": "Ajoutez un mot de passe pour vous connecter sans fournisseur.",
+    "changeHelp": "Modifier votre mot de passe.",
+    "current": "Mot de passe actuel",
+    "new": "Nouveau mot de passe",
+    "submit": "Enregistrer",
+    "saved": "Mot de passe enregistré.",
+    "wrongCurrent": "Ce mot de passe actuel est incorrect.",
+    "link": "Définir ou modifier votre mot de passe"
+  },
+  "actions": {
+    "title": "Actions",
+    "delete": "Supprimer la fiche",
+    "deleteConfirm": "Supprimer cette fiche ? Cette action est irréversible.",
+    "clone": "Dupliquer la fiche",
+    "cloned": "Dupliquée",
+    "share": "Partager pour modification",
+    "shareHelp": "Les personnes choisies peuvent modifier cette fiche, mais pas la soumettre.",
+    "transfer": "Transférer la propriété",
+    "transferHelp": "Entrez le courriel du nouveau propriétaire.",
+    "transferred": "Propriété transférée",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "failed": "L'opération a échoué.",
+    "offlineOnly": "Enregistrez la fiche avant de faire cela.",
+    "searchPeople": "Rechercher par nom ou courriel"
+  },
+  "queue": {
+    "title": "En attente de synchronisation",
+    "empty": "Tout est synchronisé.",
+    "retry": "Réessayer",
+    "discard": "Abandonner la modification",
+    "discardConfirm": "Abandonner cette modification ? Elle sera perdue.",
+    "attempts": "{{count}} tentative",
+    "attempts_one": "{{count}} tentative",
+    "attempts_other": "{{count}} tentatives",
+    "kindCreate": "Nouvelle fiche",
+    "kindUpdate": "Modification",
+    "kindStatus": "Changement d'état",
+    "kindDelete": "Suppression",
+    "syncNow": "Synchroniser maintenant",
+    "conflictOne": "Nécessite votre décision",
+    "link": "File d'attente de synchronisation"
+  },
+  "sessions": {
+    "title": "Appareils connectés",
+    "thisDevice": "Cet appareil",
+    "signOutOne": "Déconnecter",
+    "empty": "Aucun autre appareil.",
+    "lastUsed": "Dernière utilisation {{when}}",
+    "browser": "Navigateur web",
+    "unnamed": "Appareil sans nom",
+    "signOutConfirm": "Déconnecter {{device}} ? Une nouvelle connexion sera nécessaire.",
+    "signedIn": "Connecté le {{when}}"
+  },
+  "translate": {
+    "action": "Traduire en {{language}}",
+    "tooLong": "Trop long pour la traduction (5 000 octets)",
+    "offline": "La traduction nécessite une connexion",
+    "verified": "J'ai vérifié cette traduction",
+    "unverified": "Traduction automatique — non vérifiée",
+    "failed": "La traduction a échoué. Réessayez ou rédigez-la vous-même."
+  },
+  "doi": {
+    "title": "DOI",
+    "help": "Un identifiant permanent pour ce jeu de données, enregistré auprès de DataCite.",
+    "generate": "Générer un DOI provisoire",
+    "update": "Envoyer les métadonnées à DataCite",
+    "delete": "Supprimer ce DOI provisoire",
+    "deleteConfirm": "Supprimer le DOI provisoire ? L'identifiant ne sera plus résolu.",
+    "created": "DOI provisoire enregistré.",
+    "updated": "Métadonnées envoyées à DataCite.",
+    "deleted": "DOI provisoire supprimé.",
+    "failed": "DataCite a refusé l'opération. Réessayez.",
+    "offline": "Les DOI nécessitent une connexion : ils ne sont jamais mis en file d'attente, car une reprise en créerait un second.",
+    "saveFirst": "Enregistrez la fiche dans CIOOS avant d'enregistrer un DOI.",
+    "state": {
+      "draft": "Provisoire",
+      "registered": "Enregistré",
+      "findable": "Repérable"
+    }
+  },
+  "export": {
+    "title": "Télécharger",
+    "offline": "Les téléchargements nécessitent une connexion : le fichier est produit par le serveur.",
+    "format": {
+      "iso19115-3_xml": "XML ISO 19115-3",
+      "erddap": "XML ERDDAP",
+      "yaml": "YAML",
+      "json": "JSON de la fiche",
+      "datacite_json": "JSON DataCite",
+      "datacite_xml": "XML DataCite"
+    }
+  },
+  "github": {
+    "title": "Publier sur GitHub",
+    "notConfigured": "GitHub n'est pas configuré pour cette région. Un administrateur peut le configurer sur le web.",
+    "environments": "Environnements",
+    "commitMessage": "Message de commit",
+    "publish": "Publier",
+    "step": {
+      "config": "Lecture des paramètres GitHub de la région…",
+      "converting": "Conversion de la fiche…",
+      "publishing": "Écriture sur GitHub…"
+    }
+  },
+  "dev": {
+    "title": "Paramètres de développement",
+    "subtitle": "Réglages propres à l'appareil, pour le développement et l'AQ. Absents de la version publiée.",
+    "server": "Serveur API",
+    "serverDefault": "Utilise l'adresse intégrée à cette version.",
+    "serverOverridden": "Remplacé. L'adresse de cette version est {{url}}.",
+    "serverHelp": "Hôte et chemin, p. ex. 192.168.1.20:3001/api. http:// est ajouté si vous l'omettez.",
+    "serverApply": "Utiliser ce serveur",
+    "serverReset": "Revenir à l'adresse par défaut",
+    "serverSaved": "Utilise maintenant {{url}}. Reconnectez-vous.",
+    "testConnection": "Tester la connexion",
+    "reachable": "Le serveur a répondu.",
+    "unreachable": "Aucune réponse de cette adresse.",
+    "region": "Région",
+    "regionHelp": "Saisissez directement un nom de région, même s'il n'apparaît pas encore dans la liste.",
+    "regionApply": "Changer de région",
+    "regionSaved": "Région définie sur {{region}}."
+  },
+  "related": {
+    "title": "Ressources connexes",
+    "help": "Articles, jeux de données ou versions liés à cette fiche. Chacun exige un titre dans les deux langues, un identifiant et un type de relation.",
+    "add": "Ajouter une ressource connexe",
+    "workTitle": "Titre",
+    "code": "Identifiant ou URL",
+    "authority": "Type d'identifiant",
+    "relation": "Type de relation"
+  },
+  "lineage": {
+    "title": "Provenance",
+    "help": "Comment les données ont été produites. Chaque étape peut lister ses sources, les traitements appliqués et les documents à l'appui.",
+    "add": "Ajouter une étape",
+    "untitledStep": "Étape sans titre",
+    "statement": "Ce qui s'est passé",
+    "scope": "Portée de cette étape",
+    "sources": "Sources",
+    "sourcesHelp": "Les données d'entrée de cette étape.",
+    "addSource": "Ajouter une source",
+    "steps": "Étapes de traitement",
+    "stepsHelp": "Ce qui a été fait aux données. Un titre et une description sont exigés dès qu'une étape existe.",
+    "addStep": "Ajouter une étape de traitement",
+    "documents": "Documents à l'appui",
+    "documentsHelp": "Rapports ou protocoles décrivant cette étape.",
+    "addDocument": "Ajouter un document",
+    "entryTitle": "Titre",
+    "entryDescription": "Description"
+  },
+  "rotation": {
+    "auto": "Suivre l'appareil",
+    "portrait": "Portrait seulement",
+    "hint": "Le mode paysage est utile sur tablette. Verrouillez-le si le roulis fait pivoter l'écran."
+  }
+}

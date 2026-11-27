@@ -103,7 +103,7 @@ const LeftList = ({
 
   const handleAddFromSavedUserItem = (e) => {
     const index = e.target.value;
-    const { role, ...contact } = savedUserItemList[index];
+    const { ...contact } = savedUserItemList[index];
 
     updateItems(items.concat(deepCopy({ ...getBlankItem(), ...contact })));
     // TODO: Apply UID check for duplicates before adding to list

@@ -22,7 +22,7 @@ import {
   Help,
   Warning,
   Settings,
-  Link as LinkIcon,
+  DynamicForm,
   NewReleases,
   ExpandLess,
   ExpandMore,
@@ -49,12 +49,10 @@ import {
 } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import regions from "../regions";
-import { firebaseConfig } from "../firebase";
-import { auth } from "../auth";
+import { signOut } from "../auth/session";
 
 import { En, Fr, I18n } from "./I18n";
 import WhatsNewDialog from "./Pages/WhatsNew";
-import ConnectedAccountsDialog from "./ConnectedAccountsDialog";
 
 import { UserContext } from "../providers/UserProvider";
 
@@ -208,6 +206,7 @@ export default function MiniDrawer({ children }) {
     loggedIn,
     isReviewer: userIsReviewer,
     isAdmin: userIsAdmin,
+    isSuperadmin: userIsSuperadmin,
     hasSharedRecords,
   } = useContext(UserContext);
 
@@ -239,8 +238,6 @@ export default function MiniDrawer({ children }) {
     language === "fr" ? "Contacter la région" : "Contact Region";
   const [emailCopied, setEmailCopied] = React.useState(false);
   const [whatsNewOpen, setWhatsNewOpen] = React.useState(false);
-  const [connectedAccountsOpen, setConnectedAccountsOpen] =
-    React.useState(false);
 
   const copyTooltipText = React.useMemo(() => {
     if (emailCopied) {
@@ -274,7 +271,7 @@ export default function MiniDrawer({ children }) {
         document.execCommand("copy");
         document.body.removeChild(ta);
         done();
-      } catch (err) {
+      } catch {
         // no-op: copying failed
       }
     };
@@ -318,8 +315,11 @@ export default function MiniDrawer({ children }) {
     if (isMobile) setOpen(false);
   };
 
-  const handleLogout = () => {
-    auth.signOut().then(() => navigate(baseURL));
+  const handleLogout = async () => {
+    // Clears the in-memory access token + revokes the refresh session, then
+    // sends the user back to the region login page.
+    await signOut();
+    navigate(baseURL);
   };
 
   const translations = {
@@ -329,9 +329,11 @@ export default function MiniDrawer({ children }) {
     instruments: <I18n en="Instruments" fr="Instruments" />,
     platforms: <I18n en="Platforms" fr="Plateformes" />,
     saved: <I18n en="My Records" fr="Enregistrements" />,
+    forms: <I18n en="Forms" fr="Formulaires" />,
     published: <I18n en="Published Records" fr="Dossiers publiés" />,
     review: <I18n en="Review submissions" fr="Examen des soumissions" />,
     admin: <I18n en="Admin" fr="Admin" />,
+    regionAdmin: <I18n en="Manage regions" fr="Gérer les régions" />,
     signInGoogle: (
       <I18n en="Sign in with Google" fr="Se connecter avec Google" />
     ),
@@ -339,7 +341,6 @@ export default function MiniDrawer({ children }) {
       <I18n en="Sign in with Microsoft" fr="Se connecter avec Microsoft" />
     ),
     signInOrcid: <I18n en="Sign in with ORCID" fr="Se connecter avec ORCID" />,
-    connectedAccounts: <I18n en="Connected accounts" fr="Comptes connectés" />,
     logout: <I18n en="Logout" fr="Déconnexion" />,
     sharedWithMe: <I18n en="Shared with me" fr="Partagé avec moi" />,
     envConnection: (
@@ -348,16 +349,17 @@ export default function MiniDrawer({ children }) {
     whatsNew: <I18n en="What's New" fr="Quoi de neuf" />,
     helpSupport: <I18n en="Help & Support" fr="Aide et soutien" />,
   };
-  const topBarBackgroundColor = region
-    ? regions[region].colors.primary
-    : // CIOOS national "dominant colour" from branding doc
-      "#52a79b";
+  const topBarBackgroundColor =
+    (region && regions[region].colors?.primary) ||
+    // CIOOS national "dominant colour" from branding doc
+    "#52a79b";
 
-  // add some text to indicate connected to dev d
+  // add some text to indicate connected to dev deployment
   const usingDevDatabase =
     import.meta.env.VITE_DEV_DEPLOYMENT || import.meta.env.DEV;
-  // Derive database URL from firebase config (injected at build) if not production
-  const databaseUrl = usingDevDatabase ? firebaseConfig?.databaseURL || "" : "";
+  const databaseUrl = usingDevDatabase
+    ? import.meta.env.VITE_API_BASE_URL || "/api"
+    : "";
   const feedbackButtonRef = useRef(null);
   const feedbackWidgetRef = useRef(null);
 
@@ -547,6 +549,21 @@ export default function MiniDrawer({ children }) {
                       <AssignmentTurnedIn />
                     </ListItemIcon>
                     <ListItemText primary={translations.published} />
+                  </ListItemButton>
+                </Tooltip>
+
+                <Tooltip
+                  placement="right-start"
+                  title={open ? "" : translations.forms}
+                >
+                  <ListItemButton
+                    key="Forms"
+                    onClick={() => navigateAndClose(`${baseURL}/forms`)}
+                  >
+                    <ListItemIcon>
+                      <DynamicForm />
+                    </ListItemIcon>
+                    <ListItemText primary={translations.forms} />
                   </ListItemButton>
                 </Tooltip>
 
@@ -800,6 +817,24 @@ export default function MiniDrawer({ children }) {
                       </ListItemButton>
                     </Tooltip>
                   )}
+                  {userIsSuperadmin && (
+                    <Tooltip
+                      placement="right-start"
+                      title={open ? "" : translations.regionAdmin}
+                    >
+                      <ListItemButton
+                        key="RegionAdmin"
+                        onClick={() =>
+                          navigateAndClose(`/${language}/region-admin`)
+                        }
+                      >
+                        <ListItemIcon>
+                          <Settings />
+                        </ListItemIcon>
+                        <ListItemText primary={translations.regionAdmin} />
+                      </ListItemButton>
+                    </Tooltip>
+                  )}
                   <Tooltip
                     placement="right-start"
                     title={open ? "" : user.displayName}
@@ -847,18 +882,6 @@ export default function MiniDrawer({ children }) {
                       }}
                     >
                       <ListItemButton
-                        key="ConnectedAccounts"
-                        onClick={() => setConnectedAccountsOpen(true)}
-                        sx={{ pl: 4 }}
-                      >
-                        <ListItemIcon>
-                          <LinkIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={translations.connectedAccounts}
-                        />
-                      </ListItemButton>
-                      <ListItemButton
                         key="Logout"
                         onClick={handleLogout}
                         sx={{ pl: 4, color: "error.main" }}
@@ -883,10 +906,6 @@ export default function MiniDrawer({ children }) {
       <WhatsNewDialog
         open={whatsNewOpen}
         onClose={() => setWhatsNewOpen(false)}
-      />
-      <ConnectedAccountsDialog
-        open={connectedAccountsOpen}
-        onClose={() => setConnectedAccountsOpen(false)}
       />
     </div>
   );

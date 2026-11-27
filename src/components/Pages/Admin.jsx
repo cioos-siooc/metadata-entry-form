@@ -29,19 +29,20 @@ import {
   Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
-import {
-  getDatabase,
-  ref,
-  child,
-  onValue,
-  update,
-  remove,
-} from "firebase/database";
 import { Buffer } from "buffer";
 
-import firebase from "../../firebase";
+import {
+  getPermissions,
+  savePermissions,
+  saveProjects,
+  getDataciteCredentials,
+  saveDataciteCredentials,
+  deleteDataciteCredentials,
+  getGithubCredentials,
+  saveGithubCredentials,
+} from "../../api/admin";
+import { getRegionProjects } from "../../api/records";
 import { UserContext } from "../../providers/UserProvider";
-import { auth, getAuth, onAuthStateChanged } from "../../auth";
 import { En, Fr, I18n } from "../I18n";
 import FormClassTemplate from "./FormClassTemplate";
 import withRouter from "../../utils/withRouter";
@@ -84,109 +85,87 @@ class Admin extends FormClassTemplate {
       githubBranch: "main",
       githubFileTemplate: "{filename}",
       githubEnvironments: "prod",
+      hasGithubToken: false,
       showGithubToken: false,
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.loadData();
+  }
+
+  async loadData() {
     const { match } = this.props;
     const { region } = match.params;
-    const database = getDatabase(firebase);
 
-    this.setState({ loading: true });
+    this.safeSetState({ loading: true });
 
-    this.unsubscribe = onAuthStateChanged(getAuth(firebase), async (user) => {
-      if (user) {
-        // Reference to the regionAdmin in the database
-        const adminRef = ref(database, "admin");
-        const regionAdminRef = child(adminRef, region);
-        const permissionsRef = child(regionAdminRef, "permissions");
+    // Permissions come back from the API as arrays of emails; tolerate the
+    // legacy CSV-string shape just in case.
+    const toArray = (value) => {
+      if (Array.isArray(value)) return value;
+      if (typeof value === "string" && value) return value.split(",");
+      return [];
+    };
 
-        // Load datacite credentials directly from the realtime database (same DB the client writes to).
-        // This avoids the Firebase Functions emulator potentially reading from a different project's DB.
-        const dataciteRef = child(regionAdminRef, "dataciteCredentials");
-        onValue(dataciteRef, (snapshot) => {
-          const data = snapshot.val();
-          const credentialsStored = !!(data?.dataciteHash && data?.prefix);
-          const updates = {
-            credentialsStored,
-            isDoiCreationEnabled:
-              credentialsStored || this.state.isDoiCreationEnabled,
-            datacitePrefix: data?.prefix || this.state.datacitePrefix || "",
-          };
-          if (data?.apiDomain) {
-            updates.dataciteApiDomain = data.apiDomain;
-          }
-          if (
-            Array.isArray(data?.doiSuffixModes) &&
-            data.doiSuffixModes.length > 0
-          ) {
-            updates.doiSuffixModes = data.doiSuffixModes;
-          }
-          if (data?.doiStatusManagement) {
-            updates.doiStatusManagement = data.doiStatusManagement;
-          }
-          if (data?.accountId) {
-            updates.dataciteAccountId = data.accountId;
-          }
-          if (data?.dataciteHash) {
-            updates.dataciteHash = data.dataciteHash;
-          }
-          this.setState(updates);
-        });
-        this.listenerRefs.push(dataciteRef);
+    try {
+      const [permissions, projectsResponse, dataciteConfig, githubConfig] =
+        await Promise.all([
+          getPermissions(region),
+          getRegionProjects(region),
+          getDataciteCredentials(region),
+          getGithubCredentials(region),
+        ]);
 
-        const githubRef = child(regionAdminRef, "githubCredentials");
-        onValue(githubRef, (snapshot) => {
-          const data = snapshot.val();
-          // Always update state, even if data is null (first time setup)
-          this.setState({
-            githubOwner: data?.owner || "cioos-siooc",
-            githubRepo: data?.repo || "cioos-siooc-forms",
-            githubBranch: data?.branch || "main",
-            githubFileTemplate: data?.fileTemplate || "{filename}",
-            githubEnvironments: (data?.environments || ["prod"]).join("\n"),
-            githubToken: data?.token || "",
-          });
-        });
+      const credentialsStored = Boolean(dataciteConfig?.hasCredentials);
+      // The API may expose the environment list under `environments` or
+      // `environment`; normalize to an array.
+      const githubEnvs =
+        githubConfig?.environments ?? githubConfig?.environment;
+      const githubEnvList = Array.isArray(githubEnvs)
+        ? githubEnvs
+        : githubEnvs
+          ? [githubEnvs]
+          : ["prod"];
 
-        const projectsRef = child(regionAdminRef, "projects");
-        onValue(projectsRef, (snapshot) => {
-          const projectsData = snapshot.val();
-          if (projectsData) {
-            this.setState({
-              projects: Object.values(projectsData),
-            });
-          }
-        });
-
-        onValue(permissionsRef, (permissionsFirebase) => {
-          const permissions = permissionsFirebase.toJSON();
-
-          const admins = permissions.admins
-            ? permissions.admins.split(",")
-            : [];
-          const reviewers = permissions.reviewers
-            ? permissions.reviewers.split(",")
-            : [];
-
-          // Do not set `projects` here to avoid overwriting the more recent
-          // value from the `projectsRef` listener above.
-          // credentialsStored / datacitePrefix are set by the dataciteRef listener.
-          this.setState({
-            admins,
-            reviewers,
-            loading: false,
-          });
-        });
-        this.listenerRefs.push(permissionsRef);
-        this.listenerRefs.push(projectsRef);
-        this.listenerRefs.push(githubRef);
-      }
-    });
+      this.safeSetState({
+        admins: toArray(permissions?.admins),
+        reviewers: toArray(permissions?.reviewers),
+        projects: Array.isArray(projectsResponse)
+          ? projectsResponse
+          : projectsResponse?.projects || [],
+        datacitePrefix: dataciteConfig?.prefix || "",
+        dataciteApiDomain: dataciteConfig?.apiDomain || "production",
+        doiSuffixModes: dataciteConfig?.doiSuffixModes || ["default"],
+        doiStatusManagement: dataciteConfig?.doiStatusManagement || "datacite",
+        credentialsStored,
+        isDoiCreationEnabled: credentialsStored,
+        githubOwner: githubConfig?.owner || "cioos-siooc",
+        githubRepo: githubConfig?.repo || "cioos-siooc-forms",
+        githubBranch: githubConfig?.branch || "main",
+        githubFileTemplate: githubConfig?.fileTemplate || "{filename}",
+        githubEnvironments: githubEnvList.join("\n"),
+        // Tokens are write-only; the API only reports whether one is stored
+        hasGithubToken: Boolean(githubConfig?.hasToken),
+        githubToken: "",
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Failed to load admin settings:", error);
+      this.safeSetState({
+        loading: false,
+        showErrorDialog: true,
+        errorMessage: `Failed to load admin settings: ${error.message}`,
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { match } = this.props;
+    // Refresh data when region changes via the URL
+    if (match.params.region !== prevProps.match.params.region) {
+      this.loadData();
+    }
     // Check if credentialsStored state has changed
     if (prevState.credentialsStored !== this.state.credentialsStored) {
       if (this.state.credentialsStored) {
@@ -226,8 +205,7 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      const database = getDatabase(firebase);
-      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      await deleteDataciteCredentials(region);
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",
@@ -249,8 +227,7 @@ class Admin extends FormClassTemplate {
     const { region } = this.props.match.params;
 
     try {
-      const database = getDatabase(firebase);
-      await remove(ref(database, `admin/${region}/dataciteCredentials`));
+      await deleteDataciteCredentials(region);
       this.setState({
         datacitePrefix: "",
         dataciteAccountId: "",
@@ -282,14 +259,6 @@ class Admin extends FormClassTemplate {
       credentialsStored,
     } = this.state;
 
-    if (!auth.currentUser) {
-      this.setState({
-        showErrorDialog: true,
-        errorMessage: "You must be logged in to save DataCite settings",
-      });
-      return;
-    }
-
     // For new credentials, all fields are required
     if (
       !credentialsStored &&
@@ -302,11 +271,10 @@ class Admin extends FormClassTemplate {
     // Note: for updates, apiDomain / doiSuffixModes / doiStatusManagement always carry values so
     // there is always something to save. No blocking validation needed here.
 
-    const database = getDatabase(firebase);
-    const updates = {};
+    const credentials = {};
 
     if (datacitePrefix) {
-      updates["dataciteCredentials/prefix"] = datacitePrefix;
+      credentials.prefix = datacitePrefix;
     }
 
     if (dataciteAccountId && datacitePass) {
@@ -314,26 +282,19 @@ class Admin extends FormClassTemplate {
         `${dataciteAccountId}:${datacitePass}`,
         "utf8",
       );
-      updates["dataciteCredentials/dataciteHash"] =
-        bufferObj.toString("base64");
-      updates["dataciteCredentials/accountId"] = dataciteAccountId;
-    } else if (dataciteAccountId && !datacitePass) {
-      updates["dataciteCredentials/accountId"] = dataciteAccountId;
+      credentials.dataciteHash = bufferObj.toString("base64");
     }
 
     if (dataciteApiDomain) {
-      updates["dataciteCredentials/apiDomain"] = dataciteApiDomain;
+      credentials.apiDomain = dataciteApiDomain;
     }
 
     if (Array.isArray(doiSuffixModes) && doiSuffixModes.length > 0) {
-      updates["dataciteCredentials/doiSuffixModes"] = doiSuffixModes;
+      credentials.doiSuffixModes = doiSuffixModes;
     }
+    credentials.doiStatusManagement = doiStatusManagement || "datacite";
 
-    updates["dataciteCredentials/doiStatusManagement"] =
-      doiStatusManagement || "datacite";
-
-    const regionAdminRef = ref(database, `admin/${region}`);
-    update(regionAdminRef, updates)
+    saveDataciteCredentials(region, credentials)
       .then(() => {
         this.setState({
           datacitePass: "",
@@ -351,16 +312,26 @@ class Admin extends FormClassTemplate {
   handleTestCredentials = async () => {
     const { region } = this.props.match.params;
     const { testDataciteCredentials } = this.context;
-    const { dataciteHash, datacitePrefix, dataciteApiDomain } = this.state;
+    const { datacitePrefix, dataciteAccountId, datacitePass } = this.state;
 
     this.setState({ testingCredentials: true, testResult: null });
 
     try {
+      // If new credentials have been typed in, test those; otherwise the
+      // server tests the stored (write-only) credentials.
+      const authHash =
+        dataciteAccountId && datacitePass
+          ? Buffer.from(
+              `${dataciteAccountId}:${datacitePass}`,
+              "utf8",
+            ).toString("base64")
+          : undefined;
+
       const result = await testDataciteCredentials({
         region,
-        dataciteHash: dataciteHash || undefined,
         prefix: datacitePrefix || undefined,
-        apiDomain: dataciteApiDomain || undefined,
+        authHash,
+        apiDomain: this.state.dataciteApiDomain || undefined,
       });
       this.setState({
         testingCredentials: false,
@@ -377,7 +348,7 @@ class Admin extends FormClassTemplate {
     }
   };
 
-  handleSave() {
+  async handleSave() {
     const { match } = this.props;
     const { region } = match.params;
     const {
@@ -391,40 +362,34 @@ class Admin extends FormClassTemplate {
       githubFileTemplate,
       githubEnvironments,
     } = this.state;
-    const database = getDatabase(firebase);
 
-    if (auth.currentUser) {
-      const regionAdminRef = ref(database, `admin/${region}`);
-      const updates = {};
+    try {
+      // 1. Permissions (arrays of email addresses)
+      await savePermissions(region, {
+        admins: cleanArr(admins),
+        reviewers: cleanArr(reviewers),
+      });
 
-      // 1. Permissions
-      updates["permissions/admins"] = cleanArr(admins).join();
-      updates["permissions/reviewers"] = cleanArr(reviewers).join();
-      updates.projects = cleanArr(projects); // Save projects at the top level, not under permissions
+      // 2. Projects
+      await saveProjects(region, cleanArr(projects));
 
-      // 2. GitHub Credentials
-      const githubCredentials = {
+      // 3. GitHub credentials. The token is write-only: only send it when the
+      // admin typed a new one, otherwise the stored token is left untouched.
+      await saveGithubCredentials(region, {
         owner: githubOwner,
         repo: githubRepo,
-        token: githubToken,
         branch: githubBranch,
         fileTemplate: githubFileTemplate,
-        environments: cleanArr(githubEnvironments.split("\n")),
-      };
-      updates.githubCredentials = githubCredentials;
-
-      update(regionAdminRef, updates).catch((error) => {
-        console.error("Failed to save admin settings:", error);
-        this.setState({
-          showErrorDialog: true,
-          errorMessage: `Failed to save admin settings: ${error.message}`,
-        });
+        environment: cleanArr(githubEnvironments.split("\n")),
+        token: githubToken || undefined,
       });
-    } else {
-      console.error("No authenticated user found");
+
+      await this.loadData();
+    } catch (error) {
+      console.error("Failed to save admin settings:", error);
       this.setState({
         showErrorDialog: true,
-        errorMessage: "You must be logged in to save admin settings",
+        errorMessage: `Failed to save admin settings: ${error.message}`,
       });
     }
   }
@@ -483,13 +448,13 @@ class Admin extends FormClassTemplate {
           <DialogContentText id="credentials-missing-dialog-description">
             <I18n>
               <En>
-                Nothing was saved. To enable DOI creation, please fill in the
-                DataCite Prefix, Account ID, and Password.
+                Other settings were saved; DataCite credentials were not. Please
+                add credentials to enable DOI creation.
               </En>
               <Fr>
-                Rien n'a été enregistré. Pour activer la création de DOI,
-                veuillez renseigner le préfixe DataCite, l'identifiant de compte
-                et le mot de passe.
+                Les autres paramètres ont été enregistrés; les informations
+                DataCite ne l'ont pas été. Ajoutez les informations pour activer
+                la création de DOI.
               </Fr>
             </I18n>
           </DialogContentText>
@@ -930,7 +895,21 @@ class Admin extends FormClassTemplate {
                             <Fr>Identifiant du compte</Fr>
                           </I18n>
                         }
-                        value={this.state.dataciteAccountId || ""}
+                        placeholder={credentialsStored ? "••••••••" : ""}
+                        helperText={
+                          credentialsStored && !this.state.dataciteAccountId ? (
+                            <I18n>
+                              <En>
+                                Account ID is saved. Enter a new value to update
+                                it.
+                              </En>
+                              <Fr>
+                                L'identifiant est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
+                              </Fr>
+                            </I18n>
+                          ) : undefined
+                        }
                         onChange={this.handleChange}
                         fullWidth
                       />
@@ -953,35 +932,36 @@ class Admin extends FormClassTemplate {
                           credentialsStored && !this.state.datacitePass ? (
                             <I18n>
                               <En>
-                                A password is saved. Enter Account ID + Password
-                                to replace it.
+                                Password is saved. Enter a new value to update
+                                it.
                               </En>
                               <Fr>
-                                Un mot de passe est enregistré. Entrez
-                                l'identifiant et le mot de passe pour le
-                                remplacer.
+                                Le mot de passe est enregistré. Entrez une
+                                nouvelle valeur pour le mettre à jour.
                               </Fr>
                             </I18n>
                           ) : undefined
                         }
                         type={showPassword ? "text" : "password"}
                         onChange={this.handleChange}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={this.handleClickShowPassword}
-                                onMouseDown={this.handleMouseDownPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={this.handleClickShowPassword}
+                                  onMouseDown={this.handleMouseDownPassword}
+                                  edge="end"
+                                >
+                                  {showPassword ? (
+                                    <VisibilityOff />
+                                  ) : (
+                                    <Visibility />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                         fullWidth
                       />
@@ -1165,23 +1145,39 @@ class Admin extends FormClassTemplate {
                     label="GitHub Token"
                     type={this.state.showGithubToken ? "text" : "password"}
                     value={this.state.githubToken}
+                    placeholder={this.state.hasGithubToken ? "••••••••" : ""}
+                    helperText={
+                      this.state.hasGithubToken && !this.state.githubToken ? (
+                        <I18n>
+                          <En>
+                            A token is saved. Enter a new value to replace it.
+                          </En>
+                          <Fr>
+                            Un jeton est enregistré. Entrez une nouvelle valeur
+                            pour le remplacer.
+                          </Fr>
+                        </I18n>
+                      ) : undefined
+                    }
                     onChange={this.handleChange}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={this.handleClickShowGithubToken}
-                            onMouseDown={this.handleMouseDownPassword}
-                            edge="end"
-                          >
-                            {this.state.showGithubToken ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={this.handleClickShowGithubToken}
+                              onMouseDown={this.handleMouseDownPassword}
+                              edge="end"
+                            >
+                              {this.state.showGithubToken ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     fullWidth
                   />

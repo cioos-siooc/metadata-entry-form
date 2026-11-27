@@ -40,31 +40,32 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-// Global Mock for Firebase to prevent errors in component tests
-vi.mock("firebase/functions", () => ({
-  getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => vi.fn()),
+// Global mocks so component tests never touch the auth API or the network
+vi.mock("./auth/session", () => ({
+  initAuth: vi.fn().mockResolvedValue(true),
+  getAccessToken: vi.fn().mockResolvedValue("test-token"),
+  refreshAccessToken: vi.fn().mockResolvedValue("test-token"),
+  currentUser: vi.fn(() => ({
+    uid: "test-user",
+    email: "test@example.org",
+    displayName: "Test User",
+  })),
+  signInWithGoogle: vi.fn(),
+  signInWithMicrosoft: vi.fn(),
+  signInWithOrcid: vi.fn(),
+  signInWithPassword: vi.fn().mockResolvedValue({}),
+  register: vi.fn().mockResolvedValue({ ok: true }),
+  signOut: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("firebase/database", () => ({
-  getDatabase: vi.fn(),
-  ref: vi.fn(),
-  set: vi.fn(),
-  get: vi.fn(),
-  child: vi.fn(),
-  remove: vi.fn(),
-  onValue: vi.fn(),
-  update: vi.fn(),
-  push: vi.fn(),
-}));
-
-vi.mock("firebase/app", () => ({
-  initializeApp: vi.fn(),
-}));
-
-vi.mock("./firebase", () => ({ default: {} }));
-vi.mock("./auth", () => ({
-  getAuth: vi.fn(),
-  onAuthStateChanged: vi.fn(),
-  auth: { currentUser: { uid: "test-user" } },
-}));
+vi.mock("./api/client", async () => {
+  const actual = await vi.importActual("./api/client");
+  return {
+    ...actual,
+    apiFetch: vi.fn().mockResolvedValue(null),
+    get: vi.fn().mockResolvedValue(null),
+    post: vi.fn().mockResolvedValue(null),
+    put: vi.fn().mockResolvedValue(null),
+    del: vi.fn().mockResolvedValue(null),
+  };
+});

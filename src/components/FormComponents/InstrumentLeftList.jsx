@@ -79,7 +79,7 @@ const InstrumentLeftList = ({
 
   function handleAddFromSavedInstruments(e) {
     const index = e.target.value;
-    const { role, ...instrument } = instrumentList[index];
+    const { ...instrument } = instrumentList[index];
 
     updateInstruments(
       instruments.concat(deepCopy({ ...getBlankInstrument(), ...instrument })),

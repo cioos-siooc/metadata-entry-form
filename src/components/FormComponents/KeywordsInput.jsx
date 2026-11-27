@@ -116,17 +116,19 @@ const KeywordsInput = ({
           value={selectedKeywordAltLang || ""}
           onChange={(e) => setSelectedKeywordAltLang(e.target.value)}
           fullWidth
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                {altLanguage.toUpperCase()}
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  {altLanguage.toUpperCase()}
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Grid>
 
-      <Grid size={3}>
+      <Grid size={{ xs: 12, md: 3 }}>
         <Button
           disabled={
             disabled ||

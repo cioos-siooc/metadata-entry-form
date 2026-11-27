@@ -12,7 +12,7 @@ const spanInLanguage = (lang) => {
 export const En = spanInLanguage("en");
 export const Fr = spanInLanguage("fr");
 
-/* 
+/*
   This component can be used with attributes only, eg
   <I18n en="boat" fr="bateau"/>
 
