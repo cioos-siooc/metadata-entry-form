@@ -11,6 +11,7 @@ import regions from "../regions";
  * @param {string} datacitePrefix - DataCite prefix for DOI creation (e.g., '10.0000')
  * @param {Object} options - Additional options
  * @param {boolean} options.forUpdate - If true, omits 'type' and 'prefix' fields (for DOI updates)
+ * @param {boolean} options.forUpload - If true, asks for the Fabrica file-upload variant (adds "schema-version")
  * @returns {Promise<Object>} DataCite API-formatted object ready for DataCite API calls
  * @throws {Error} If conversion fails or response is invalid
  */
@@ -21,7 +22,7 @@ export async function recordToDataCiteFromPython(
   datacitePrefix,
   options = {},
 ) {
-  const { forUpdate = false } = options;
+  const { forUpdate = false, forUpload = false } = options;
 
   try {
     // Step 1: Call the metadata conversion API to get DataCite JSON
@@ -34,7 +35,7 @@ export async function recordToDataCiteFromPython(
     const response = await convertMetadata({
       region,
       record,
-      outputFormat: "datacite_json",
+      outputFormat: forUpload ? "datacite_json_upload" : "datacite_json",
     });
 
     // Extract the DataCite object from the response

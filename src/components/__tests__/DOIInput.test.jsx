@@ -18,7 +18,8 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("../../utils/doiUpdate", () => ({
+vi.mock("../../utils/doiUpdate", async (importOriginal) => ({
+  ...(await importOriginal()),
   default: (...args) => mockPerformUpdateDraftDoi(...args),
 }));
 
@@ -413,6 +414,35 @@ describe("DOIInput", () => {
       // Resolve the update to clean up
       resolveUpdate(200);
     });
+  });
+
+  describe("Update DOI button availability by DOI state", () => {
+    const doi = "https://doi.org/10.5678/abc-123";
+
+    it("should be enabled for a draft DOI on an unsubmitted record", () => {
+      renderDOIInput({
+        datasetIdentifier: doi,
+        doiCreationStatus: "draft",
+        status: "",
+      });
+      expect(
+        screen.getByRole("button", { name: /update doi/i }),
+      ).not.toBeDisabled();
+    });
+
+    it.each(["registered", "findable"])(
+      "should be disabled for a %s DOI (updated only on publish)",
+      (doiCreationStatus) => {
+        renderDOIInput({
+          datasetIdentifier: doi,
+          doiCreationStatus,
+          status: "submitted",
+        });
+        expect(
+          screen.getByRole("button", { name: /update doi/i }),
+        ).toBeDisabled();
+      },
+    );
   });
 
   describe("Delete DOI button disabled during concurrent operations", () => {

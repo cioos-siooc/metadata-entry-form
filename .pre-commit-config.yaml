@@ -10,7 +10,7 @@ default_install_hook_types: [pre-commit]
 repos:
   # --- Python: ruff lint + format ---
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+    rev: v0.15.4
     hooks:
       - id: ruff
         args: [--fix]
@@ -28,7 +28,7 @@ repos:
 
   # --- General hygiene ---
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         # Generated at build time; leave it alone.

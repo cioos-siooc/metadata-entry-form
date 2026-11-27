@@ -26,6 +26,8 @@ is_dev_project = BoolParam("VITE_DEV_DEPLOYMENT", default=True)
 
 # Origins we allow explicitly (strings)
 STATIC_ALLOWED_ORIGINS = {
+    "https://form.cioos.ca",
+    # Old production URL; GitHub Pages redirects it to form.cioos.ca
     "https://cioos-siooc.github.io",
 }
 ALLOWED_ORIGIN_PATTERNS = []
@@ -40,6 +42,10 @@ if is_dev_project:
         {
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            # Stable development site (live channel of the dev project)
+            "https://form.dev.cioos.ca",
+            "https://cioos-metadata-form-dev-258dc.web.app",
+            "https://cioos-metadata-form-dev-258dc.firebaseapp.com",
         }
     )
 
@@ -245,9 +251,14 @@ def create_record_from_source(req: https_fn.Request):  # type: ignore
         record = SOURCE_LOADERS[source_type](identifier)
     except NOT_FOUND_ERRORS as e:
         logging.warning("No %s record for '%s': %s", source_type, identifier, e)
-        message = f"Could not retrieve {source_type} record '{identifier}': {e}"
         return https_fn.Response(
-            json.dumps({"error": message}),
+            json.dumps(
+                {
+                    "error": (
+                        f"Could not retrieve {source_type} record '{identifier}': {e}"
+                    )
+                }
+            ),
             status=404,
             headers=headers,
             content_type="application/json",

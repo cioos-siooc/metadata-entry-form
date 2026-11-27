@@ -1,5 +1,5 @@
 import React from "react";
-import { HelpOutline } from "@mui/icons-material";
+import { HelpOutlineOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 
 const HelpMouseover = ({ children }) => (
@@ -11,7 +11,7 @@ const HelpMouseover = ({ children }) => (
     }}
   >
     <Tooltip title={children}>
-      <HelpOutline />
+      <HelpOutlineOutlined />
     </Tooltip>
   </div>
 );

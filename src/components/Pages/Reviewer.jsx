@@ -15,13 +15,15 @@ import {
 } from "../../api/records";
 import { getGithubCredentials } from "../../api/admin";
 import { preparePublishPayload } from "../../utils/publishUtils";
+import performUpdateDraftDoi, { isManagedDoi } from "../../utils/doiUpdate";
 import RecordList, { reviewerConfig } from "../RecordList";
 import { markFormNavigation } from "../RecordList/hooks";
 
 const Reviewer = () => {
   const { language, region } = useParams();
   const navigate = useNavigate();
-  const { publishRecordToGitHub, transferRecord } = useContext(UserContext);
+  const { publishRecordToGitHub, transferRecord, datacitePrefix } =
+    useContext(UserContext);
 
   // Records state
   const [records, setRecords] = useState([]);
@@ -233,18 +235,42 @@ const Reviewer = () => {
     [records, toggleModal],
   );
 
+  // Publishing is when reviewed metadata reaches DataCite: the form cannot
+  // push to a findable DOI, so this keeps the DOI in sync with what is
+  // published. A DataCite failure is reported but does not block publishing.
+  const updateDoiOnPublish = useCallback(
+    async (record) => {
+      if (!record || !isManagedDoi(record, datacitePrefix)) return;
+      try {
+        await performUpdateDraftDoi(record, region, language, datacitePrefix);
+      } catch (err) {
+        console.error("Error updating DOI on publish: ", err);
+        showToast(
+          `Record published, but updating the DOI on DataCite failed: ${err.message}`,
+          "warning",
+        );
+      }
+    },
+    [datacitePrefix, region, language, showToast],
+  );
+
   const confirmSubmitRecord = useCallback(
     async (status) => {
       if (modalKey) {
         setLoading(true);
+        if (status === "published")
+          await updateDoiOnPublish(
+            records.find((r) => r.recordID === modalKey),
+          );
         await submitRecord(region, modalKey, status);
         loadRecords();
       }
     },
-    [region, modalKey, loadRecords],
+    [region, modalKey, loadRecords, records, updateDoiOnPublish],
   );
 
   // GitHub publish handler
+
   const handleGithubPublishClick = useCallback((recordID, userID) => {
     setModalKey(recordID);
     setModalUserID(userID);
@@ -288,6 +314,8 @@ const Reviewer = () => {
           region,
         });
 
+        await updateDoiOnPublish(record);
+
         addPublishLog(getLogMessage("markingPublished"));
         await submitRecord(region, modalKey, "published");
         loadRecords();
@@ -310,6 +338,7 @@ const Reviewer = () => {
       modalUserID,
       region,
       publishRecordToGitHub,
+      updateDoiOnPublish,
       showToast,
       getLogMessage,
       addPublishLog,

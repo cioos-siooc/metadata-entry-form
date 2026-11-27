@@ -944,22 +944,24 @@ class Admin extends FormClassTemplate {
                         }
                         type={showPassword ? "text" : "password"}
                         onChange={this.handleChange}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={this.handleClickShowPassword}
-                                onMouseDown={this.handleMouseDownPassword}
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={this.handleClickShowPassword}
+                                  onMouseDown={this.handleMouseDownPassword}
+                                  edge="end"
+                                >
+                                  {showPassword ? (
+                                    <VisibilityOff />
+                                  ) : (
+                                    <Visibility />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                         fullWidth
                       />
@@ -1158,22 +1160,24 @@ class Admin extends FormClassTemplate {
                       ) : undefined
                     }
                     onChange={this.handleChange}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={this.handleClickShowGithubToken}
-                            onMouseDown={this.handleMouseDownPassword}
-                            edge="end"
-                          >
-                            {this.state.showGithubToken ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={this.handleClickShowGithubToken}
+                              onMouseDown={this.handleMouseDownPassword}
+                              edge="end"
+                            >
+                              {this.state.showGithubToken ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     fullWidth
                   />

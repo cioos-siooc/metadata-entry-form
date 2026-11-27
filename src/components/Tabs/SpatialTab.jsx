@@ -54,7 +54,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
 
   return (
     <Grid>
-      <Paper style={paperClass}>
+      <Paper id="field-map" style={paperClass}>
         <QuestionText style={{ paddingBottom: "15px" }}>
           <I18n>
             <En>What is the spatial extent of the dataset?</En>
@@ -167,7 +167,7 @@ const SpatialTab = ({ disabled, record, handleUpdateRecord, updateRecord }) => {
           record={record}
         />
       </Paper>
-      <Paper style={paperClass}>
+      <Paper id="field-verticalExtentMin" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the vertical extent of the dataset in meters?</En>

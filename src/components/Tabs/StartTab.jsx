@@ -241,7 +241,7 @@ const StartTab = ({
         </ul>
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-title" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the dataset title? Required in English and French.</En>
@@ -285,7 +285,7 @@ const StartTab = ({
         />
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-metadataScope" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the resource type?</En>
@@ -309,7 +309,7 @@ const StartTab = ({
         />
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-resourceType" style={paperClass}>
         <FormControl>
           <QuestionText style={{ paddingBottom: "15px" }}>
             <I18n>
@@ -389,7 +389,7 @@ const StartTab = ({
         </FormControl>
       </Paper>
 
-      <Paper style={paperClass}>
+      <Paper id="field-language" style={paperClass}>
         <QuestionText>
           <I18n>
             <En>What is the primary language of the dataset?</En>
@@ -406,12 +406,18 @@ const StartTab = ({
         />
       </Paper>
 
-      <DOIInput
-        record={record}
-        handleUpdateDatasetIdentifier={handleUpdateRecord("datasetIdentifier")}
-        handleUpdateDoiCreationStatus={handleUpdateRecord("doiCreationStatus")}
-        disabled={disabled}
-      />
+      <div id="field-datasetIdentifier">
+        <DOIInput
+          record={record}
+          handleUpdateDatasetIdentifier={handleUpdateRecord(
+            "datasetIdentifier",
+          )}
+          handleUpdateDoiCreationStatus={handleUpdateRecord(
+            "doiCreationStatus",
+          )}
+          disabled={disabled}
+        />
+      </div>
 
       {showShareRecord && (
         <SharedUsersList

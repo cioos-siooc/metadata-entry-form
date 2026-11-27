@@ -27,6 +27,7 @@ import FileSaver from "file-saver";
 import { convertMetadata } from "../../api/actions";
 import { saveRecord } from "../../api/records";
 import recordToEML from "../../utils/recordToEML";
+import { recordToDataCiteFromPython } from "../../utils/recordToDataCiteFromPython";
 import { getRecordFilename } from "../../utils/misc";
 import { recordIsValid } from "../../utils/validate";
 import regions from "../../regions";
@@ -148,6 +149,18 @@ const RecordActions = ({
         blob = new Blob([JSON.stringify(record, null, 2)], {
           type: `${mimeTypes[fileType]};charset=utf-8`,
         });
+      } else if (fileType === "datacite_json") {
+        // Same attributes the DOI API path sends (real catalogue URL + publisher fallback)
+        const { data } = await recordToDataCiteFromPython(
+          record,
+          language,
+          region,
+          null,
+          { forUpdate: true, forUpload: true },
+        );
+        blob = new Blob([JSON.stringify(data.attributes, null, 2)], {
+          type: `${mimeTypes[fileType]};charset=utf-8`,
+        });
       } else {
         // Server-side conversion
         const resp = await convertMetadata({
@@ -237,7 +250,6 @@ const RecordActions = ({
           doiCreationStatus: newState,
         });
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error("DataCite state transition failed:", err);
       } finally {
         setDataciteDialogLoading(false);
@@ -267,6 +279,7 @@ const RecordActions = ({
     (isSubmitted && actions.showUnSubmitAction) ||
     ((isSubmitted || isPublished) && actions.showGithubPublishAction) ||
     (isDraft && actions.showSubmitAction) ||
+    (isDraft && actions.showReviewerSubmitAction) ||
     (!isDraft && actions.showSubmitAction);
 
   // Check if we need dividers
@@ -459,7 +472,10 @@ const RecordActions = ({
   const publishMenuItems = [];
 
   // Submit (Draft -> Submitted)
-  if (isDraft && actions.showSubmitAction) {
+  if (
+    isDraft &&
+    (actions.showSubmitAction || actions.showReviewerSubmitAction)
+  ) {
     publishMenuItems.push(
       <MenuItem
         key="submit"

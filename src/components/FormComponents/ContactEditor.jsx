@@ -142,7 +142,8 @@ const ContactEditor = ({
               }}
               disabled={disabled}
               onChange={(e, organization) => {
-                if (organization !== null) {
+                // freeSolo: Enter on free text passes a string, not an organization
+                if (organization?.id) {
                   fetch(`https://api.ror.org/organizations/${organization.id}`)
                     .then((response) => response.json())
                     .then((response) => {
@@ -157,6 +158,7 @@ const ContactEditor = ({
               freeSolo
               filterOptions={(x) => x}
               getOptionLabel={(e) => {
+                if (typeof e === "string") return e;
                 const match = e.names.find((n) => n.lang === language);
                 return match ? match.value : e.names[0]?.value || "";
               }}
@@ -183,18 +185,20 @@ const ContactEditor = ({
               value={value.orgRor}
               disabled
               fullWidth
-              InputProps={{
-                endAdornment: value.orgRor && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        handleClear("orgRor");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: value.orgRor && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          handleClear("orgRor");
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
               // sx={{m: 2, "&.Mui-focused .MuiIconButton-root": {color: 'primary.main'}}}
             />
@@ -331,18 +335,20 @@ const ContactEditor = ({
               label={<I18n en="ORCID URL" fr="URL ORCID" />}
               InputLabelProps={{ shrink: value.indOrcid !== "" }}
               value={value.indOrcid}
-              InputProps={{
-                endAdornment: value.indOrcid && (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        handleClear("indOrcid");
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: value.indOrcid && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          handleClear("indOrcid");
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
               disabled
               fullWidth

@@ -26,7 +26,7 @@ import {
   NewReleases,
   ExpandLess,
   ExpandMore,
-  HelpOutline,
+  HelpOutlineOutlined,
 } from "@mui/icons-material";
 
 import {
@@ -683,7 +683,7 @@ export default function MiniDrawer({ children }) {
                   onClick={() => setHelpSubmenuOpen(!helpSubmenuOpen)}
                 >
                   <ListItemIcon>
-                    <HelpOutline />
+                    <HelpOutlineOutlined />
                   </ListItemIcon>
                   <ListItemText primary={translations.helpSupport} />
                   {open && (helpSubmenuOpen ? <ExpandLess /> : <ExpandMore />)}

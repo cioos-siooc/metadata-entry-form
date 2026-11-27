@@ -47,7 +47,7 @@ import tabs from "../../utils/tabs";
 
 import { getBlankRecord } from "../../utils/blankRecord";
 import { normalizePrefilledRecord } from "../../utils/createRecordFromSource";
-import performUpdateDraftDoi from "../../utils/doiUpdate";
+import performUpdateDraftDoi, { canPushFormToDoi } from "../../utils/doiUpdate";
 
 const LinearProgressWithLabel = ({ value }) => (
   <Tooltip
@@ -104,7 +104,7 @@ const useStyles = (theme) => ({
   },
 });
 
-class MetadataForm extends FormClassTemplate {
+export class MetadataForm extends FormClassTemplate {
   constructor(props) {
     super(props);
 
@@ -232,24 +232,20 @@ class MetadataForm extends FormClassTemplate {
 
   // genereric handler for updating state, used by most form components
   // generic event handler
-  handleUpdateRecord = (key) => (event) => {
-    const { value } = event.target;
-    const changes = { [key]: value };
-
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
-  };
+  handleUpdateRecord = (key) => (event) =>
+    this.updateRecord(key)(event.target.value);
 
   // a second genereric handler components that dont use onChange
   // generic state updater creator
+  // Setting a field to its current value is a no-op: some tabs re-sync fields from effects on
+  // every render (e.g. DOIInput's status check), which would otherwise mark a just-saved
+  // record unsaved again (and re-render in a loop).
   updateRecord = (key) => (value) => {
-    const changes = { [key]: value };
-    this.setState(({ record }) => ({
-      record: { ...record, ...changes },
-      saveDisabled: false,
-    }));
+    this.setState(({ record }) =>
+      record[key] === value
+        ? null
+        : { record: { ...record, [key]: value }, saveDisabled: false },
+    );
   };
 
   async saveUpdateContact(contact) {
@@ -272,10 +268,13 @@ class MetadataForm extends FormClassTemplate {
     const { match } = this.props;
     const { region, language } = match.params;
     const { record } = this.state;
-    const { datacitePrefix } = this.context;
+    const { datacitePrefix, isReviewer, isAdmin } = this.context;
 
+    // Keep a reviewer's draft DOI in sync on submit. updateDraftDoi is
+    // reviewer/admin-only server-side, registered/findable DOIs are only
+    // updated on publish, and a DataCite failure must not block the submit.
     try {
-      if (datacitePrefix && record.datasetIdentifier) {
+      if ((isReviewer || isAdmin) && canPushFormToDoi(record, datacitePrefix)) {
         const statusCode = await performUpdateDraftDoi(
           record,
           region,
@@ -292,7 +291,6 @@ class MetadataForm extends FormClassTemplate {
     } catch (err) {
       console.error("Error updating draft DOI: ", err);
       this.state.doiError = true;
-      throw err;
     }
   }
 
@@ -674,6 +672,7 @@ const MetadataFormWrapper = (props) => {
       history={{ push: navigate }}
       isSmallScreen={isSmallScreen}
       locationState={location.state}
+      search={location.search}
     />
   );
 };
